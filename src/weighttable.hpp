@@ -49,7 +49,7 @@ public:
     void PushBack(UnitWeight& object);
     void Clear();
 
-    int32_t GetCount() const;
+    uint32_t GetCount() const;
     ResourceID RollUnitType() const;
     int32_t GetWeight(ResourceID unit_type) const;
 };

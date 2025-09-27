@@ -53,7 +53,7 @@ public:
     }
 
     NetNode* Find(uint16_t entity_id) const {
-        for (int32_t i = 0; i < nodes.GetCount(); ++i) {
+        for (uint32_t i = 0; i < nodes.GetCount(); ++i) {
             if (nodes[i]->entity_id == entity_id) {
                 return nodes[i];
             }
@@ -63,7 +63,7 @@ public:
     }
 
     NetNode* Find(NetAddress& address) const {
-        for (int32_t i = 0; i < nodes.GetCount(); ++i) {
+        for (uint32_t i = 0; i < nodes.GetCount(); ++i) {
             if (nodes[i]->address == address) {
                 return nodes[i];
             }
@@ -72,14 +72,12 @@ public:
         return nullptr;
     }
 
-    NetNode* operator[](uint16_t position) const {
-        return nodes.GetCount() > position ? nodes[position] : nullptr;
-    }
+    NetNode* operator[](uint16_t position) const { return nodes.GetCount() > position ? nodes[position] : nullptr; }
 
     void Clear() { nodes.Clear(); }
 
     void Remove(uint16_t entity_id) {
-        for (int32_t i = 0; i < nodes.GetCount(); ++i) {
+        for (uint32_t i = 0; i < nodes.GetCount(); ++i) {
             if (nodes[i]->entity_id == entity_id) {
                 nodes.Remove(i);
                 break;
@@ -87,7 +85,7 @@ public:
         }
     }
 
-    uint16_t GetCount() const { return nodes.GetCount(); }
+    uint32_t GetCount() const { return nodes.GetCount(); }
 };
 
 #endif /* NET_NODE_HPP */

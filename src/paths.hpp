@@ -68,7 +68,7 @@ public:
 };
 
 class GroundPath : public UnitPath {
-    uint16_t index;
+    uint32_t index;
     SmartObjectArray<PathStep> steps;
 
 public:

@@ -26,7 +26,7 @@
 
 enum ResourceType : uint8_t { ResourceType_GameBase, ResourceType_GamePref, ResourceType_GameData };
 
-enum {
+enum : uint32_t {
     GROUND_COVER = 0x1,
     EXPLODING = 0x2,
     ANIMATED = 0x4,

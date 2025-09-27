@@ -649,7 +649,7 @@ bool TaskAttack::EvaluateLandAttack() {
 
         weight_table = AiPlayer_Teams[team].GetExtendedWeightTable(unit, 0x03);
 
-        for (int32_t i = 0; !unit && i < weight_table.GetCount(); ++i) {
+        for (uint32_t i = 0; !unit && i < weight_table.GetCount(); ++i) {
             if (weight_table[i].weight > 0 &&
                 !(UnitsManager_BaseUnits[weight_table[i].unit_type].flags & MOBILE_LAND_UNIT) &&
                 (UnitsManager_BaseUnits[weight_table[i].unit_type].flags & MOBILE_SEA_UNIT)) {

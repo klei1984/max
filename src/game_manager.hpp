@@ -64,7 +64,7 @@ void GameManager_MenuDeinitButtons();
 void GameManager_InitLandingSequenceMenu(bool enable_controls);
 void GameManager_DeinitPopupButtons(bool clear_mouse_events);
 SmartString GameManager_GetUnitStatusMessage(UnitInfo* unit);
-int32_t GameManager_GetDialogWindowCenterMode();
+uint8_t GameManager_GetDialogWindowCenterMode();
 
 extern uint32_t GameManager_LastZoomLevel;
 extern uint16_t GameManager_MultiChatTargets[PLAYER_TEAM_MAX - 1];

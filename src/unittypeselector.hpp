@@ -49,9 +49,9 @@ protected:
     WindowInfo window_info;
     SmartObjectArray<ResourceID> unit_types;
     uint16_t team;
-    int16_t page_min_index;
-    int16_t page_max_index;
-    int16_t max_item_count;
+    int64_t page_min_index;
+    int64_t page_max_index;
+    int64_t max_item_count;
     struct ImageSimpleHeader *image;
     int32_t key_code;
     ButtonManager button_group;
@@ -59,18 +59,18 @@ protected:
     Button *button_scroll_down;
 
 public:
-    UnitTypeSelector(Window *window, WindowInfo *window_info, SmartObjectArray<ResourceID> unit_types,
-                     uint16_t team, int32_t key_code, Button *button_scroll_up, Button *button_scroll_down);
+    UnitTypeSelector(Window *window, WindowInfo *window_info, SmartObjectArray<ResourceID> unit_types, uint16_t team,
+                     int32_t key_code, Button *button_scroll_up, Button *button_scroll_down);
     virtual ~UnitTypeSelector();
 
     ResourceID GetLast();
-    void ScrollTo(int32_t index);
+    void ScrollTo(int64_t index);
     void AddItems(SmartObjectArray<ResourceID> unit_types);
     void Select(uint8_t value);
     void PushBack(ResourceID unit_type);
-    int32_t GetPageMaxIndex() const;
+    int64_t GetPageMaxIndex() const;
 
-    virtual void Add(ResourceID unit_type, int32_t position);
+    virtual void Add(ResourceID unit_type, int64_t position);
     virtual void RemoveLast();
     virtual bool ProcessKeys(int32_t key_press);
     virtual void Draw();

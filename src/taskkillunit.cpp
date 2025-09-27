@@ -87,7 +87,7 @@ void TaskKillUnit::FindVaildTypes() {
 
         weight_table = AiPlayer_Teams[team].GetExtendedWeightTable(spotted_unit->GetUnit(), 0x01);
 
-        for (int32_t i = 0; i < weight_table.GetCount(); ++i) {
+        for (uint32_t i = 0; i < weight_table.GetCount(); ++i) {
             if (weight_table[i].weight > 0) {
                 if (weight_table[i].unit_type == SCOUT &&
                     AiPlayer_Teams[team].GetStrategy() != AI_STRATEGY_SCOUT_HORDE) {
@@ -130,7 +130,7 @@ void TaskKillUnit::FindVaildTypes() {
             log.Log("No valid types available");
         }
 
-        for (int32_t i = 0; i < weight_table.GetCount(); ++i) {
+        for (uint32_t i = 0; i < weight_table.GetCount(); ++i) {
             if (weight_table[i].weight > 0) {
                 if (weight_table[i].unit_type != COMMANDO) {
                     if (unit_flags & UnitsManager_BaseUnits[weight_table[i].unit_type].flags) {
@@ -253,7 +253,7 @@ bool TaskKillUnit::GetNewUnits() {
                     int32_t remaining_hits;
                     ResourceID unit_type;
 
-                    for (int32_t i = 0; i < table.GetCount(); ++i) {
+                    for (uint32_t i = 0; i < table.GetCount(); ++i) {
                         if (table[i].unit_type != INVALID_ID) {
                             if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], table[i].unit_type)
                                         ->GetAttribute(ATTRIB_TURNS) > turns_till_mission_end ||

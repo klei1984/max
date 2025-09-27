@@ -117,8 +117,8 @@ public:
     void WriteComplexPacket(uint16_t complex_id, NetPacket& packet);
     void ReadComplexPacket(NetPacket& packet);
 
-    uint16_t GetGold();
-    void SetGold(uint16_t value);
+    int32_t GetGold();
+    void SetGold(int32_t value);
 
     Complex* CreateComplex();
     SmartList<Complex>& GetComplexes();

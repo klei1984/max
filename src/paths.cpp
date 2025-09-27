@@ -501,7 +501,7 @@ Point GroundPath::GetPosition(UnitInfo* unit) const {
 
         move_fraction = unit->move_fraction;
 
-        for (int32_t i = index; i < steps->GetCount(); ++i) {
+        for (uint32_t i = index; i < steps->GetCount(); ++i) {
             step = steps[i];
 
             point.x = position.x + step->x;
@@ -540,7 +540,7 @@ Point GroundPath::GetPosition(UnitInfo* unit) const {
 bool GroundPath::IsInPath(int32_t grid_x, int32_t grid_y) const {
     Point point(0, 0);
 
-    for (int32_t i = index; i < steps.GetCount(); ++i) {
+    for (uint32_t i = index; i < steps.GetCount(); ++i) {
         if (point.x == grid_x && point.y == grid_y) {
             return true;
         }
@@ -580,7 +580,7 @@ int32_t GroundPath::GetMovementCost(UnitInfo* unit) {
 
     result = 0;
 
-    for (int32_t i = index; i < steps.GetCount(); ++i) {
+    for (uint32_t i = index; i < steps.GetCount(); ++i) {
         PathStep* step = steps[i];
 
         if (step->x || step->y) {
@@ -828,7 +828,7 @@ void GroundPath::Draw(UnitInfo* unit, WindowInfo* window) {
     int32_t scaled_grid_y;
     int32_t pixel_grid_x;
     int32_t pixel_grid_y;
-    int32_t steps_count;
+    uint32_t steps_count;
     int32_t path_x = 0;
     int32_t path_y = 0;
     int32_t cost = 0;
@@ -856,7 +856,7 @@ void GroundPath::Draw(UnitInfo* unit, WindowInfo* window) {
 
     steps_count = steps->GetCount();
 
-    for (int32_t i = index; i <= steps_count; ++i) {
+    for (uint32_t i = index; i <= steps_count; ++i) {
         if (i != steps_count) {
             path_x = steps[i]->x;
             path_y = steps[i]->y;
@@ -1632,7 +1632,7 @@ bool Paths_IsOccupied(int32_t grid_x, int32_t grid_y, int32_t angle, int32_t tea
 void Paths_ReserveSite(const Point site) noexcept { Paths_SiteReservations.PushBack(&site); }
 
 void Paths_RemoveSiteReservation(const Point site) noexcept {
-    const int32_t position{Paths_SiteReservations->Find(&site)};
+    const int64_t position{Paths_SiteReservations->Find(&site)};
 
     SDL_assert(position != -1);
 

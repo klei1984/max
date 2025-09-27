@@ -3203,13 +3203,13 @@ void UnitInfo::WritePacket(NetPacket& packet) {
 
     packet << build_list.GetCount();
 
-    for (int32_t i = 0; i < build_list.GetCount(); ++i) {
+    for (uint32_t i = 0; i < build_list.GetCount(); ++i) {
         packet << *build_list[i];
     }
 }
 
 void UnitInfo::ReadPacket(NetPacket& packet) {
-    uint16_t unit_count;
+    uint32_t unit_count;
     ResourceID list_item;
 
     packet >> team;
@@ -3224,7 +3224,7 @@ void UnitInfo::ReadPacket(NetPacket& packet) {
 
     packet >> unit_count;
 
-    for (int32_t i = 0; i < unit_count; ++i) {
+    for (uint32_t i = 0; i < unit_count; ++i) {
         packet >> list_item;
 
         build_list.PushBack(&list_item);

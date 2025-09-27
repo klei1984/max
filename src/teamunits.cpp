@@ -186,9 +186,9 @@ void TeamUnits::ReadComplexPacket(NetPacket& packet) {
     GetComplex(complex_id)->ReadPacket(packet);
 }
 
-uint16_t TeamUnits::GetGold() { return gold; }
+int32_t TeamUnits::GetGold() { return gold; }
 
-void TeamUnits::SetGold(uint16_t value) { gold = value; }
+void TeamUnits::SetGold(int32_t value) { gold = value; }
 
 Complex* TeamUnits::CreateComplex() {
     uint16_t complex_id;

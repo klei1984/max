@@ -137,7 +137,7 @@ inline bool SmartFileReader::Read(std::string& text) noexcept {
 }
 
 inline bool SmartFileWriter::Write(const std::string& text) noexcept {
-    uint32_t length = text.length();
+    uint32_t length = static_cast<uint32_t>(text.length());
     bool result{false};
 
     if (Write(length)) {
@@ -180,7 +180,7 @@ inline bool SmartFileReader::Read(std::vector<uint8_t>& buffer) noexcept {
 }
 
 inline bool SmartFileWriter::Write(const std::vector<uint8_t>& buffer) noexcept {
-    uint32_t length = buffer.size();
+    uint32_t length = static_cast<uint32_t>(buffer.size());
     bool result{false};
 
     if (Write(length)) {

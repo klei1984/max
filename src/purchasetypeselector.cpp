@@ -27,7 +27,8 @@
 
 PurchaseTypeSelector::PurchaseTypeSelector(Window *window, WindowInfo *window_info,
                                            SmartObjectArray<ResourceID> unit_types, uint16_t team, int32_t key_code,
-                                           Button *button_scroll_up, Button *button_scroll_down, int32_t ulx, int32_t width)
+                                           Button *button_scroll_up, Button *button_scroll_down, int32_t ulx,
+                                           int32_t width)
     : UnitTypeSelector(window, window_info, unit_types, team, key_code, button_scroll_up, button_scroll_down) {
     image = new (std::nothrow) Image(ulx, 0, width, max_item_count * 32);
     image->Copy(window_info);
@@ -46,7 +47,7 @@ void PurchaseTypeSelector::Draw() {
 
     Text_SetFont(GNW_TEXT_FONT_5);
 
-    for (int32_t i = 0; i < max_item_count && i < unit_types->GetCount(); ++i) {
+    for (uint32_t i = 0; i < max_item_count && i < unit_types->GetCount(); ++i) {
         turns = UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], *unit_types[page_min_index + i])
                     ->GetAttribute(ATTRIB_TURNS);
 
@@ -56,10 +57,9 @@ void PurchaseTypeSelector::Draw() {
             cost = Cargo_GetRawConsumptionRate(LANDPLT, 1) * turns;
         }
 
-        ReportStats_DrawNumber(
-            &window_info
-                 .buffer[(i * 32 + 16 - Text_GetHeight() / 2) * window_info.width + image->GetULX() + image->GetWidth()],
-            cost, image->GetWidth(), window_info.width, COLOR_YELLOW);
+        ReportStats_DrawNumber(&window_info.buffer[(i * 32 + 16 - Text_GetHeight() / 2) * window_info.width +
+                                                   image->GetULX() + image->GetWidth()],
+                               cost, image->GetWidth(), window_info.width, COLOR_YELLOW);
     }
 
     bounds.ulx = window_info.window.ulx + image->GetULX();

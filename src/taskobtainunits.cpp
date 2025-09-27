@@ -30,10 +30,10 @@ TaskObtainUnits::TaskObtainUnits(Task* task, Point point)
 
 TaskObtainUnits::~TaskObtainUnits() {}
 
-uint16_t TaskObtainUnits::CountInstancesOfUnitType(ResourceID unit_type) {
-    uint16_t count = 0;
+uint32_t TaskObtainUnits::CountInstancesOfUnitType(ResourceID unit_type) {
+    uint32_t count = 0;
 
-    for (int32_t i = 0; i < units->GetCount(); ++i) {
+    for (uint32_t i = 0; i < units->GetCount(); ++i) {
         if (*units[i] == unit_type) {
             ++count;
         }
@@ -160,7 +160,7 @@ char* TaskObtainUnits::WriteStatusLog(char* buffer) const {
         strcat(buffer, "(finished)");
     }
 
-    for (int32_t i = 0; i < units->GetCount() && i < 3; ++i) {
+    for (uint32_t i = 0; i < units->GetCount() && i < 3; ++i) {
         strcat(buffer, UnitsManager_BaseUnits[*units[i]].singular_name);
         if ((i + 1) < units->GetCount() && i < 2) {
             strcat(buffer, ", ");
@@ -257,7 +257,7 @@ void TaskObtainUnits::EndTurn() {
 
         memset(IsUnitTypeRequested, false, sizeof(IsUnitTypeRequested));
 
-        for (int32_t i = 0; i < units.GetCount(); ++i) {
+        for (uint32_t i = 0; i < units.GetCount(); ++i) {
             if (UnitsManager_BaseUnits[*units[i]].flags & STATIONARY) {
                 TaskManager.CreateBuilding(*units[i], team, point, this);
             } else if (*units[i] == CONSTRCT || *units[i] == ENGINEER) {

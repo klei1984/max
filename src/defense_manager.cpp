@@ -138,7 +138,7 @@ void DefenseManager::MaintainDefences(Task* task) {
 }
 
 void DefenseManager::EvaluateNeeds(int32_t* unit_counts) {
-    for (int32_t i = 0; i < unit_types.GetCount(); ++i) {
+    for (uint32_t i = 0; i < unit_types.GetCount(); ++i) {
         auto unit_type = Builder_GetBuilderType(*unit_types[i]);
 
         if (unit_type != INVALID_ID) {
@@ -158,11 +158,11 @@ void DefenseManager::PlanDefenses(int32_t asset_value_goal_, TaskObtainUnits* ta
     if (table.GetCount()) {
         asset_value_goal = asset_value_goal_;
 
-        for (int32_t i = 0; i < unit_types.GetCount(); ++i) {
+        for (uint32_t i = 0; i < unit_types.GetCount(); ++i) {
             build_costs += Ai_GetNormalRateBuildCost(*unit_types[i], task->GetTeam());
         }
 
-        for (int32_t i = 0; i < weight_table.GetCount(); ++i) {
+        for (uint32_t i = 0; i < weight_table.GetCount(); ++i) {
             SDL_assert(weight_table[i].unit_type != INVALID_ID);
 
             UnitValues* unit_values = team_units->GetCurrentUnitValues(weight_table[i].unit_type);
@@ -186,7 +186,7 @@ void DefenseManager::PlanDefenses(int32_t asset_value_goal_, TaskObtainUnits* ta
                     --unit_counts[builder_type];
 
                     if (unit_counts[builder_type] == 0) {
-                        for (int32_t i = 0; i < table.GetCount(); ++i) {
+                        for (uint32_t i = 0; i < table.GetCount(); ++i) {
                             if (table[i].weight && Builder_GetBuilderType(table[i].unit_type) == builder_type) {
                                 table[i].weight = 0;
                             }

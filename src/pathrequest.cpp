@@ -118,7 +118,7 @@ void PathRequest::AssignGroundPath(UnitInfo* unit, GroundPath* path) {
     SmartPointer<GroundPath> ground_path(new (std::nothrow) GroundPath(destination.x, destination.y));
     int32_t range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
     Point position(unit->grid_x, unit->grid_y);
-    int32_t index;
+    uint32_t index;
 
     range = range * range;
 

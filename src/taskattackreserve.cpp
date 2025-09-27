@@ -141,7 +141,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
                 int32_t turns_till_mission_end = Task_EstimateTurnsTillMissionEnd();
                 WeightTable table = AiPlayer_Teams[team].GetFilteredWeightTable(INVALID_ID, 3);
 
-                for (int32_t i = 0; i < table.GetCount(); ++i) {
+                for (uint32_t i = 0; i < table.GetCount(); ++i) {
                     const auto builder_type = Builder_GetBuilderType(table[i].unit_type);
                     if (builder_type == INVALID_ID || builder_type != unit.GetUnitType() ||
                         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], table[i].unit_type)
@@ -186,7 +186,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
 
                 table += AiPlayer_Teams[team].GetFilteredWeightTable(INVALID_ID, 2);
 
-                for (int32_t i = 0; i < table.GetCount(); ++i) {
+                for (uint32_t i = 0; i < table.GetCount(); ++i) {
                     if (table[i].unit_type == INVALID_ID) {
                         table[i].weight = 0;
 

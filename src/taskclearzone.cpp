@@ -333,13 +333,13 @@ bool TaskClearZone::ExamineZones() {
 }
 
 bool TaskClearZone::IsNewSite(Point site) {
-    for (int32_t i = 0; i < points2.GetCount(); ++i) {
+    for (uint32_t i = 0; i < points2.GetCount(); ++i) {
         if (*points2[i] == site) {
             return false;
         }
     }
 
-    for (int32_t i = 0; i < zone_squares.GetCount(); ++i) {
+    for (uint32_t i = 0; i < zone_squares.GetCount(); ++i) {
         if (zone_squares[i]->point == site) {
             return false;
         }
@@ -369,7 +369,7 @@ void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
                                        AccessModifier_SameClassBlocks)) {
             bool is_found = false;
 
-            for (int32_t i = 0; i < points1.GetCount(); ++i) {
+            for (uint32_t i = 0; i < points1.GetCount(); ++i) {
                 if (*points1[i] == site) {
                     is_found = true;
                     points1.Remove(i);
@@ -493,7 +493,7 @@ void TaskClearZone::AddZone(Zone* zone) {
     zones.Insert(zone);
 
     if (info_map) {
-        for (int32_t i = 0; i < zone->points.GetCount(); ++i) {
+        for (uint32_t i = 0; i < zone->points.GetCount(); ++i) {
             info_map[zone->points[i]->x][zone->points[i]->y] |= INFO_MAP_CLEAR_OUT_ZONE;
         }
     }

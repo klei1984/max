@@ -95,7 +95,7 @@ ResourceID UnitTypeSelector::GetLast() {
     return unit_type;
 }
 
-void UnitTypeSelector::ScrollTo(int32_t index) {
+void UnitTypeSelector::ScrollTo(int64_t index) {
     if (index < page_min_index) {
         page_min_index = index;
     }
@@ -132,7 +132,7 @@ void UnitTypeSelector::AddItems(SmartObjectArray<ResourceID> array) {
     }
 }
 
-void UnitTypeSelector::Add(ResourceID unit_type, int32_t position) {
+void UnitTypeSelector::Add(ResourceID unit_type, int64_t position) {
     if (unit_types.GetCount() < position) {
         position = unit_types.GetCount();
     }
@@ -149,7 +149,7 @@ void UnitTypeSelector::RemoveLast() {
         unit_types.Remove(page_max_index);
 
         if (unit_types.GetCount() <= page_max_index) {
-            page_max_index = unit_types.GetCount() - 1;
+            page_max_index = static_cast<int64_t>(unit_types.GetCount()) - 1;
         }
 
         if (page_max_index < 0) {
@@ -166,7 +166,7 @@ bool UnitTypeSelector::ProcessKeys(int32_t key_press) {
     bool result;
 
     if ((key_code + 2) <= key_press && (key_code + 2 + max_item_count) > key_press) {
-        int32_t position;
+        int64_t position;
 
         position = key_press + page_min_index - 2 - key_code;
 
@@ -195,7 +195,7 @@ bool UnitTypeSelector::ProcessKeys(int32_t key_press) {
 
         result = true;
     } else if (key_press == GNW_KB_KEY_DOWN) {
-        if (page_max_index < unit_types.GetCount() - 1) {
+        if (page_max_index < static_cast<int64_t>(unit_types.GetCount()) - 1) {
             ++page_max_index;
 
             if (page_max_index > (page_min_index + max_item_count - 1)) {
@@ -300,4 +300,4 @@ void UnitTypeSelector::Draw() {
     win_draw_rect(window_info.id, &window_info.window);
 }
 
-int32_t UnitTypeSelector::GetPageMaxIndex() const { return page_max_index; }
+int64_t UnitTypeSelector::GetPageMaxIndex() const { return page_max_index; }

@@ -36,7 +36,7 @@ public:
     TaskObtainUnits(Task* task, Point point);
     ~TaskObtainUnits();
 
-    uint16_t CountInstancesOfUnitType(ResourceID unit_type);
+    uint32_t CountInstancesOfUnitType(ResourceID unit_type);
     UnitInfo* FindUnit(ResourceID unit_type, bool mode);
 
     uint16_t GetFlags() const;

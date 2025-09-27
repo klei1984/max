@@ -34,7 +34,7 @@ public:
                   Button* button_scroll_down);
     ~CargoSelector();
 
-    void Add(ResourceID unit_type, int32_t position);
+    void Add(ResourceID unit_type, int64_t position);
     void RemoveLast();
     void Draw();
 };

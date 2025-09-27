@@ -255,8 +255,8 @@ bool TaskMove::Execute(UnitInfo& unit) {
                                 } else if (!zone) {
                                     log.Log("Find Direct path.");
 
-                                    PathRequest* request = new (std::nothrow)
-                                        TaskPathRequest(&*passenger, AccessModifier_SameClassBlocks, passenger_waypoint);
+                                    PathRequest* request = new (std::nothrow) TaskPathRequest(
+                                        &*passenger, AccessModifier_SameClassBlocks, passenger_waypoint);
 
                                     request->SetMaxCost(passenger->GetBaseValues()->GetAttribute(ATTRIB_SPEED) * 4);
                                     request->SetCautionLevel(caution_level);
@@ -660,7 +660,7 @@ void TaskMove::BlockedPathResultCallback(Task* task, PathRequest* path_request, 
 
             local_zone->Add(&site);
 
-            for (int32_t i = 0; i < steps.GetCount(); ++i) {
+            for (uint32_t i = 0; i < steps.GetCount(); ++i) {
                 site.x += steps[i]->x;
                 site.y += steps[i]->y;
 
@@ -716,8 +716,8 @@ void TaskMove::ActualPathResultCallback(Task* task, PathRequest* path_request, P
             SmartObjectArray<PathStep> adjusted_steps = request->GetPath()->GetSteps();
             SmartObjectArray<PathStep> steps = path->GetSteps();
             Point position(move->passenger->grid_x, move->passenger->grid_y);
-            int32_t count = adjusted_steps->GetCount();
-            int32_t step_index;
+            uint32_t count = adjusted_steps->GetCount();
+            uint32_t step_index;
 
             SDL_assert(count > 0);
 
@@ -742,7 +742,7 @@ void TaskMove::ActualPathResultCallback(Task* task, PathRequest* path_request, P
             if (step_index != count) {
                 SmartPointer<GroundPath> ground_path = new (std::nothrow) GroundPath(position.x, position.y);
 
-                for (int32_t i = 0; i <= step_index; ++i) {
+                for (uint32_t i = 0; i <= step_index; ++i) {
                     ground_path->AddStep(adjusted_steps[i]->x, adjusted_steps[i]->y);
                 }
 
@@ -778,7 +778,7 @@ void TaskMove::ProcessPath(Point site, GroundPath* path) {
 
     field_70 = false;
 
-    for (int32_t i = 0; i < steps.GetCount(); ++i) {
+    for (uint32_t i = 0; i < steps.GetCount(); ++i) {
         site.x += steps[i]->x;
         site.y += steps[i]->y;
 
@@ -832,7 +832,7 @@ void TaskMove::TranscribeTransportPath(Point site, GroundPath* path) {
 
     AiLog log("Transcribe transport path.");
 
-    for (int32_t i = 0; i < steps.GetCount(); ++i) {
+    for (uint32_t i = 0; i < steps.GetCount(); ++i) {
         position.x += steps[i]->x;
         position.y += steps[i]->y;
 
@@ -885,7 +885,7 @@ void TaskMove::TranscribeTransportPath(Point site, GroundPath* path) {
 
                     position = site;
 
-                    for (int32_t i = 0; i < steps.GetCount(); ++i) {
+                    for (uint32_t i = 0; i < steps.GetCount(); ++i) {
                         position.x += steps[i]->x;
                         position.y += steps[i]->y;
 
@@ -1089,7 +1089,7 @@ bool TaskMove::IsPathClear() {
         result = false;
 
     } else {
-        int32_t step_index;
+        uint32_t step_index;
 
         for (step_index = 0; step_index < planned_path.GetCount(); ++step_index) {
             if (Access_IsAccessible(passenger->GetUnitType(), team, planned_path[step_index]->x,
@@ -1114,7 +1114,7 @@ bool TaskMove::IsPathClear() {
                 path->AddStep(planned_path[0]->x - passenger->grid_x, planned_path[0]->y - passenger->grid_y);
             }
 
-            for (int32_t i = 1; i <= step_index; ++i) {
+            for (uint32_t i = 1; i <= step_index; ++i) {
                 path->AddStep(planned_path[i]->x - planned_path[i - 1]->x, planned_path[i]->y - planned_path[i - 1]->y);
             }
 
@@ -1145,8 +1145,8 @@ void TaskMove::FindCurrentLocation() {
         int16_t** damage_potential_map = nullptr;
         int32_t distance;
         int32_t minimum_distance;
-        int32_t step_index;
-        int32_t minimum_distance_step_index = 0;
+        uint32_t step_index;
+        uint32_t minimum_distance_step_index = 0;
         int32_t unit_hits;
 
         minimum_distance = TaskManager_GetDistance(position, *planned_path[0]) / 2;
@@ -1186,7 +1186,7 @@ void TaskMove::FindCurrentLocation() {
             planned_path.Remove(minimum_distance_step_index);
         }
 
-        for (int32_t i = 0; i < minimum_distance_step_index; ++i) {
+        for (uint32_t i = 0; i < minimum_distance_step_index; ++i) {
             log.Log("Removing [%i,%i]", planned_path[0]->x + 1, planned_path[0]->y + 1);
 
             planned_path.Remove(0);
@@ -1213,7 +1213,7 @@ bool TaskMove::FindWaypoint() {
     passenger_waypoint.x = passenger->grid_x;
     passenger_waypoint.y = passenger->grid_y;
 
-    for (int32_t i = 0; i < planned_path.GetCount() && unit_speed > 0; ++i) {
+    for (uint32_t i = 0; i < planned_path.GetCount() && unit_speed > 0; ++i) {
         step_cost = Access_IsAccessible(passenger->GetUnitType(), team, planned_path[i]->x, planned_path[i]->y,
                                         AccessModifier_EnemySameClassBlocks);
 
@@ -1269,7 +1269,7 @@ void TaskMove::MoveUnit(GroundPath* path) {
             Point site;
             int32_t step_cost = 0;
             SmartObjectArray<PathStep> steps = path->GetSteps();
-            int32_t step_index;
+            uint32_t step_index;
 
             for (step_index = 0; step_index < steps.GetCount(); ++step_index) {
                 site.x = position.x + steps[step_index]->x;
@@ -1296,7 +1296,7 @@ void TaskMove::MoveUnit(GroundPath* path) {
                     !(passenger->flags & MOBILE_AIR_UNIT) && steps.GetCount() > step_index) {
                     path = new (std::nothrow) GroundPath(position.x, position.y);
 
-                    for (int32_t i = 0; i <= step_index; ++i) {
+                    for (uint32_t i = 0; i <= step_index; ++i) {
                         path->AddStep(steps[i]->x, steps[i]->y);
                     }
                 }

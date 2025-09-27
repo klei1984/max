@@ -106,7 +106,7 @@ void WindowManager_FadeIn(int32_t time_limit);
 void WindowManager_LoadPalette(ResourceID id);
 void WindowManager_DecodeBigImage(struct ImageBigHeader *image, uint8_t *buffer, int32_t ulx, int32_t uly,
                                   int32_t pitch);
-int32_t WindowManager_LoadBigImage(ResourceID id, WindowInfo *window, int16_t pitch, bool palette_from_image,
+int32_t WindowManager_LoadBigImage(ResourceID id, WindowInfo *window, int32_t pitch, bool palette_from_image,
                                    bool draw_to_screen = true, int32_t ulx = -1, int32_t uly = -1,
                                    bool center_align = false, bool rescale = false);
 void WindowManager_DecodeSimpleImage(struct ImageSimpleHeader *image, int32_t ulx, int32_t uly, bool has_transparency,

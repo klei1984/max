@@ -463,7 +463,7 @@ void ReportMenu::Run() {
                 if (radio_button_index == REPORT_TYPE_UNITS) {
                     index = GetSelectedUnitIndex();
 
-                    if (index >= 0 && index < units.GetCount() - 1) {
+                    if (index >= 0 && index < static_cast<int64_t>(units.GetCount()) - 1) {
                         SelectUnit(index + 1);
                     }
 
@@ -1207,7 +1207,7 @@ void ReportMenu::AddUnits(SmartList<UnitInfo> *unit_list) {
 }
 
 int64_t ReportMenu::GetSelectedUnitIndex() {
-    for (int64_t i = units.GetCount() - 1; i >= 0; --i) {
+    for (int64_t i = static_cast<int64_t>(units.GetCount()) - 1; i >= 0; --i) {
         if (GameManager_SelectedUnit == units[i]) {
             return i;
         }
@@ -1314,7 +1314,7 @@ void ReportMenu::MessageDown() {
             index = GetNextMessageIndex(&*selected_message);
 
         } else {
-            index = message_lines.GetCount() - 2;
+            index = static_cast<int64_t>(message_lines.GetCount()) - 2;
         }
 
         if (message_lines.GetCount() > index) {

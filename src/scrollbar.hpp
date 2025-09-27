@@ -42,9 +42,9 @@ public:
 
 EVENTS_DECLARE_EVENT_ID(ScrollbarEvent);
 
-void LoadHorizontalBar(uint8_t *buffer, int16_t width, int16_t capacity, int16_t height, ResourceID id);
-void LoadHorizontalTape(uint8_t *buffer, int16_t full2, int16_t length, int16_t width, ResourceID id);
-void LoadVerticalBar(uint8_t *buffer, int16_t width, int16_t capacity, int16_t height, ResourceID id);
+void LoadHorizontalBar(uint8_t *buffer, int32_t width, int32_t capacity, int32_t height, ResourceID id);
+void LoadHorizontalTape(uint8_t *buffer, int32_t full2, int32_t length, int32_t width, ResourceID id);
+void LoadVerticalBar(uint8_t *buffer, int32_t width, int32_t capacity, int32_t height, ResourceID id);
 
 class Scrollbar {
 protected:
@@ -62,8 +62,8 @@ protected:
     uint16_t scaling_factor;
     bool scrollbar_type;
 
-    friend void LoadHorizontalBar(uint8_t *buffer, int16_t width, int16_t capacity, int16_t height, ResourceID id);
-    friend void LoadVerticalBar(uint8_t *buffer, int16_t width, int16_t capacity, int16_t height, ResourceID id);
+    friend void LoadHorizontalBar(uint8_t *buffer, int32_t width, int32_t capacity, int32_t height, ResourceID id);
+    friend void LoadVerticalBar(uint8_t *buffer, int32_t width, int32_t capacity, int32_t height, ResourceID id);
     void ProcessValueChange(int16_t value);
 
 public:

@@ -22,6 +22,8 @@
 #ifndef SORTEDARRAY_HPP
 #define SORTEDARRAY_HPP
 
+#include <SDL.h>
+
 #include "smartarray.hpp"
 
 class SortKey {
@@ -67,7 +69,9 @@ public:
     LongSortKey(const LongSortKey& other) noexcept : key(other.key) {}
 
     [[nodiscard]] inline int32_t Compare(const SortKey& other) const noexcept override {
-        return (key - dynamic_cast<const LongSortKey&>(other).key) % INT32_MAX;
+        return static_cast<int32_t>(
+            (static_cast<int64_t>(key) - static_cast<int64_t>(dynamic_cast<const LongSortKey&>(other).key)) %
+            static_cast<int32_t>(INT32_MAX));
     }
     [[nodiscard]] inline uint32_t GetKey() const noexcept { return key; }
 };
@@ -77,10 +81,10 @@ class SortedArray : public SmartArray<T> {
     [[nodiscard]] inline int64_t Find(SortKey& sort_key, bool mode) const noexcept {
         int64_t last{static_cast<int64_t>(this->GetCount()) - 1};
         int64_t first{0};
-        int64_t position{-1};
+        int64_t result;
 
         while (first <= last) {
-            position = (first + last) / 2;
+            int64_t position = (first + last) / 2;
 
             const auto comparison_result = sort_key.Compare(GetSortKey(operator[](position)));
 
@@ -97,13 +101,13 @@ class SortedArray : public SmartArray<T> {
         }
 
         if (mode) {
-            position = -1;
+            result = -1;
 
         } else {
-            position = first;
+            result = first;
         }
 
-        return position;
+        return result;
     }
 
 public:
@@ -112,11 +116,9 @@ public:
     ~SortedArray() noexcept override = default;
 
     inline uint32_t Insert(T& object) noexcept {
-        const auto position = Find(GetSortKey(object), false);
+        const uint32_t position = static_cast<uint32_t>(Find(GetSortKey(object), false));
 
         SmartArray<T>::Insert(&object, position);
-
-        SDL_assert(position >= 0uL && position <= UINT32_MAX);
 
         return position;
     }
@@ -125,10 +127,10 @@ public:
 
     [[nodiscard]] inline T* operator[](SortKey& sort_key) const noexcept {
         T* object{nullptr};
-        auto position = Find(sort_key, true);
+        const auto position = Find(sort_key, true);
 
         if (position >= 0L) {
-            object = &(SmartArray<T>::operator[](position));
+            object = &(SmartArray<T>::operator[](static_cast<uint32_t>(position)));
         }
 
         return object;

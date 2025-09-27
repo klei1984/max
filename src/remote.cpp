@@ -214,7 +214,7 @@ uint16_t Remote_GenerateEntityId() {
 }
 
 void Remote_UpdateEntityId(NetAddress& address, uint16_t entity_id) {
-    for (int32_t i = 0; i < Remote_Nodes.GetCount(); ++i) {
+    for (uint32_t i = 0; i < Remote_Nodes.GetCount(); ++i) {
         if (Remote_Nodes[i]->address == address) {
             Remote_Nodes[i]->entity_id = entity_id;
         }
@@ -652,7 +652,7 @@ static void Remote_TransmitPacket(NetPacket& packet, int32_t transmit_mode) {
         } break;
 
         case REMOTE_MULTICAST: {
-            for (int32_t i = 0; i < Remote_Nodes.GetCount(); ++i) {
+            for (uint32_t i = 0; i < Remote_Nodes.GetCount(); ++i) {
                 if (Remote_NetworkMenu->player_node != Remote_Nodes[i]->entity_id) {
                     packet.AddAddress(Remote_Nodes[i]->address);
                 }
@@ -2608,7 +2608,7 @@ void Remote_SendNetPacket_30(NetAddress& address) {
 
         packet << Remote_Nodes.GetCount();
 
-        for (int32_t i = 0; i < Remote_Nodes.GetCount(); ++i) {
+        for (uint32_t i = 0; i < Remote_Nodes.GetCount(); ++i) {
             packet << *Remote_Nodes[i];
         }
 
@@ -2662,7 +2662,7 @@ void Remote_SendNetPacket_31(int32_t node) {
     packet << static_cast<uint16_t>(node);
 
     if (Remote_NetworkMenu->is_host_mode) {
-        for (int32_t i = 0; i < Remote_Clients.GetCount(); ++i) {
+        for (uint32_t i = 0; i < Remote_Clients.GetCount(); ++i) {
             packet.AddAddress(Remote_Clients[i]->address);
         }
 

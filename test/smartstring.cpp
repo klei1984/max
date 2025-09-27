@@ -217,7 +217,7 @@ TEST(SmartStringTest, Sprintf) {
 }
 
 TEST(SmartStringTest, Resize) {
-    SmartString string1(static_cast<uint16_t>(0));
+    SmartString string1(static_cast<size_t>(0));
     SmartString string2(5);
 
     string1 += 'A';

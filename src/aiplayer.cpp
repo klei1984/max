@@ -59,7 +59,7 @@ ThreatMap AiPlayer_ThreatMaps[AIPLAYER_THREAT_MAP_CACHE_ENTRIES];
 void AiPlayer::AddBuilding(UnitInfo* unit) { FindManager(Point(unit->grid_x, unit->grid_y))->AddUnit(*unit); }
 
 void AiPlayer::RebuildWeightTable(WeightTable table, ResourceID unit_type, int32_t factor) {
-    for (int32_t i = 0; i < table.GetCount(); ++i) {
+    for (uint32_t i = 0; i < table.GetCount(); ++i) {
         if (table[i].unit_type == unit_type) {
             table[i].weight *= factor;
         }
@@ -1366,7 +1366,7 @@ void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
     cargo = 20;
     mission_supplies->cargos.PushBack(&cargo);
 
-    for (int32_t i = 2; i < mission_supplies->units.GetCount(); ++i) {
+    for (uint32_t i = 2; i < mission_supplies->units.GetCount(); ++i) {
         cargo = 0;
         mission_supplies->cargos.PushBack(&cargo);
     }
@@ -3832,7 +3832,7 @@ WeightTable AiPlayer::GetFilteredWeightTable(ResourceID unit_type, uint16_t flag
     WeightTable table(GetWeightTable(unit_type), true);
 
     if (flags & 0x01) {
-        for (int32_t i = 0; i < table.GetCount(); ++i) {
+        for (uint32_t i = 0; i < table.GetCount(); ++i) {
             if (table[i].unit_type != INVALID_ID && (UnitsManager_BaseUnits[table[i].unit_type].flags & STATIONARY)) {
                 table[i].weight = 0;
             }
@@ -3840,7 +3840,7 @@ WeightTable AiPlayer::GetFilteredWeightTable(ResourceID unit_type, uint16_t flag
     }
 
     if (flags & 0x02) {
-        for (int32_t i = 0; i < table.GetCount(); ++i) {
+        for (uint32_t i = 0; i < table.GetCount(); ++i) {
             if (table[i].unit_type != INVALID_ID &&
                 (UnitsManager_BaseUnits[table[i].unit_type].flags & REGENERATING_UNIT)) {
                 table[i].weight = 0;
@@ -3943,7 +3943,7 @@ WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, uint8_t flags) {
             }
         }
 
-        for (int32_t i = 0; i < table.GetCount(); ++i) {
+        for (uint32_t i = 0; i < table.GetCount(); ++i) {
             if (table[i].unit_type != INVALID_ID) {
                 int32_t surface_type = UnitsManager_BaseUnits[table[i].unit_type].land_type;
                 int32_t unit_range = team_units->GetCurrentUnitValues(table[i].unit_type)->GetAttribute(ATTRIB_RANGE);
@@ -4286,7 +4286,7 @@ bool AiPlayer::SelectStrategy() {
         continents[i].TestIsolated();
     }
 
-    for (int64_t i = continents.GetCount() - 1; i >= 0; --i) {
+    for (int64_t i = static_cast<int64_t>(continents.GetCount()) - 1; i >= 0; --i) {
         if (continents[i].IsViableContinent(true, player_team)) {
             if (continents[i].GetContinentSize() > continent_size) {
                 continent_size = continents[i].GetContinentSize();
@@ -4298,7 +4298,7 @@ bool AiPlayer::SelectStrategy() {
     }
 
     if (continent_size > 80) {
-        for (int64_t i = continents.GetCount() - 1; i >= 0; --i) {
+        for (int64_t i = static_cast<int64_t>(continents.GetCount()) - 1; i >= 0; --i) {
             if (continents[i].GetContinentSize() < 80) {
                 continents.Erase(i);
             }
@@ -4428,7 +4428,7 @@ bool AiPlayer::SelectStrategy() {
 
     switch (strategy) {
         case AI_STRATEGY_SEA: {
-            for (int64_t i = continents.GetCount() - 1; i >= 0; --i) {
+            for (int64_t i = static_cast<int64_t>(continents.GetCount()) - 1; i >= 0; --i) {
                 if (!continents[i].IsIsolated()) {
                     continents.Erase(i);
                 }
@@ -4437,7 +4437,7 @@ bool AiPlayer::SelectStrategy() {
 
         case AI_STRATEGY_FAST_ATTACK:
         case AI_STRATEGY_COMBINED_ARMS: {
-            for (int64_t i = continents.GetCount() - 1; i >= 0; --i) {
+            for (int64_t i = static_cast<int64_t>(continents.GetCount()) - 1; i >= 0; --i) {
                 if (continents[i].IsCloseProximity()) {
                     continents.Erase(i);
                 }
@@ -4445,7 +4445,7 @@ bool AiPlayer::SelectStrategy() {
         } break;
 
         case AI_STRATEGY_AIR: {
-            for (int64_t i = continents.GetCount() - 1; i >= 0; --i) {
+            for (int64_t i = static_cast<int64_t>(continents.GetCount()) - 1; i >= 0; --i) {
                 if (!continents[i].IsCloseProximity()) {
                     continents.Erase(i);
                 }
@@ -4461,7 +4461,7 @@ bool AiPlayer::SelectStrategy() {
                 UnitsManager_TeamMissionSupplies[team]
                     .starting_position.x)[UnitsManager_TeamMissionSupplies[team].starting_position.y];
 
-            for (int64_t i = continents.GetCount() - 1; i >= 0 && continents.GetCount() > 1; --i) {
+            for (int64_t i = static_cast<int64_t>(continents.GetCount()) - 1; i >= 0 && continents.GetCount() > 1; --i) {
                 if (continents[i].GetFiller() == filler) {
                     continents.Erase(i);
                 }
@@ -4486,7 +4486,7 @@ bool AiPlayer::SelectStrategy() {
             }
         }
 
-        for (int64_t i = continents.GetCount() - 1; i >= 0; --i) {
+        for (int64_t i = static_cast<int64_t>(continents.GetCount()) - 1; i >= 0; --i) {
             Point continent_center = continents[i].GetCenter();
 
             distance = TaskManager_GetDistance(map_center, continent_center);
@@ -4511,7 +4511,7 @@ bool AiPlayer::SelectStrategy() {
             }
         }
 
-        for (int64_t i = continents.GetCount() - 1; i >= 0; --i) {
+        for (int64_t i = static_cast<int64_t>(continents.GetCount()) - 1; i >= 0; --i) {
             Point continent_center = continents[i].GetCenter();
 
             distance = TaskManager_GetDistance(map_center, continent_center);
@@ -4660,7 +4660,7 @@ void AiPlayer::ChooseUpgrade(SmartObjectArray<BuildOrder> build_orders1, SmartOb
     upgrade_cost = INT16_MAX;
     build_order.unit_type = INVALID_ID;
 
-    for (int32_t i = 0; i < build_orders1.GetCount(); ++i) {
+    for (uint32_t i = 0; i < build_orders1.GetCount(); ++i) {
         if (build_orders1[i]->primary_attribute == RESEARCH_TOPIC_HITS ||
             build_orders1[i]->primary_attribute == RESEARCH_TOPIC_SPEED) {
             SmartPointer<UnitValues> unit_values =
@@ -4684,7 +4684,7 @@ void AiPlayer::ChooseUpgrade(SmartObjectArray<BuildOrder> build_orders1, SmartOb
 
     int32_t factor = 2;
 
-    for (int32_t i = 0; i < build_orders2.GetCount(); ++i) {
+    for (uint32_t i = 0; i < build_orders2.GetCount(); ++i) {
         if (build_orders2[i]->primary_attribute == RESEARCH_TOPIC_HITS ||
             build_orders2[i]->primary_attribute == RESEARCH_TOPIC_SPEED) {
             SmartPointer<UnitValues> unit_values =

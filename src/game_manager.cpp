@@ -5017,7 +5017,7 @@ void GameManager_SpawnAlienDerelicts(Point point, int32_t alien_unit_value) {
         ObjectArray<Point> water_tiles;
         int32_t cost;
         int32_t value;
-        int32_t index;
+        uint32_t index;
 
         cost = UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[PLAYER_TEAM_ALIEN], ALNTANK)
                    ->GetAttribute(ATTRIB_TURNS);
@@ -5065,7 +5065,7 @@ void GameManager_SpawnAlienDerelicts(Point point, int32_t alien_unit_value) {
 
                     index = (dos_rand() * water_tiles.GetCount()) >> 15;
 
-                    SDL_assert(index >= 0 && index < water_tiles.GetCount());
+                    SDL_assert(index < water_tiles.GetCount());
 
                     position = *water_tiles[index];
 
@@ -5081,7 +5081,7 @@ void GameManager_SpawnAlienDerelicts(Point point, int32_t alien_unit_value) {
 
                     index = (dos_rand() * land_tiles.GetCount()) >> 15;
 
-                    SDL_assert(index >= 0 && index < land_tiles.GetCount());
+                    SDL_assert(index < land_tiles.GetCount());
 
                     position = *land_tiles[index];
 
@@ -5194,7 +5194,7 @@ void GameManager_ProcessTeamMissionSupplyUnits(uint16_t team) {
 
     UnitsManager_UpdateConnectors(&*power_generator);
 
-    for (int32_t i = 0; i < units->GetCount(); ++i) {
+    for (uint32_t i = 0; i < units->GetCount(); ++i) {
         unit_type = *units[i];
 
         unit.team = team;
@@ -7719,8 +7719,8 @@ SmartString GameManager_GetUnitStatusMessage(UnitInfo* unit) {
     return message;
 }
 
-int32_t GameManager_GetDialogWindowCenterMode() {
-    int32_t result;
+uint8_t GameManager_GetDialogWindowCenterMode() {
+    uint8_t result;
 
     if (GameManager_GameState <= GAME_STATE_3_MAIN_MENU) {
         result = WINDOW_MAIN_WINDOW;

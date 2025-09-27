@@ -32,8 +32,8 @@
 
 static void WindowManager_SwapSystemPalette(ImageBigHeader *image);
 static void WindowManager_ScaleWindows();
-static bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, int16_t pitch,
-                                             int32_t ulx, int32_t uly);
+static bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, int32_t ulx,
+                                             int32_t uly);
 static void WindowManager_ResizeSimpleImage(ResourceID id, double scale);
 static void WindowManager_ScaleWindow(int32_t wid, double scale);
 static void WindowManager_ScaleButtonResource(ResourceID id, double scale);
@@ -451,8 +451,8 @@ void WindowManager_ScaleWindows() {
     }
 }
 
-bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, int16_t pitch,
-                                      int32_t ulx, int32_t uly) {
+bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, int32_t ulx,
+                                      int32_t uly) {
     bool result = false;
 
     /// \todo Support ULX, ULY offsets
@@ -653,7 +653,7 @@ void WindowManager_DecodeBigImage(struct ImageBigHeader *image, uint8_t *buffer,
     }
 }
 
-int32_t WindowManager_LoadBigImage(ResourceID id, WindowInfo *window, int16_t pitch, bool palette_from_image,
+int32_t WindowManager_LoadBigImage(ResourceID id, WindowInfo *window, int32_t pitch, bool palette_from_image,
                                    bool draw_to_screen, int32_t ulx, int32_t uly, bool center_align, bool rescale) {
     uint8_t *resource;
     ImageBigHeader *image;
@@ -682,7 +682,7 @@ int32_t WindowManager_LoadBigImage(ResourceID id, WindowInfo *window, int16_t pi
     }
 
     if (rescale && (width != image->width || height != image->height)) {
-        if (!WindowManager_CustomSpriteScaler(id, image, window, pitch, ulx, uly)) {
+        if (!WindowManager_CustomSpriteScaler(id, image, window, ulx, uly)) {
             WindowInfo w = *window;
             double scale;
 

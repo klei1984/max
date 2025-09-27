@@ -375,7 +375,7 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
     }
 
     upgrade_control_count = 0;
-    upgrade_control_next_uly = cost_background->GetULY();
+    upgrade_control_next_uly = static_cast<uint16_t>(cost_background->GetULY());
     button_background->Write(&window1);
 
     if (unit_type != INVALID_ID && Builder_IsBuildable(unit_type)) {
@@ -423,10 +423,12 @@ void AbstractUpgradeMenu::PopulateTeamUnitsList() {
         }
     }
 
-    for (int32_t i = 0; i < unit_types.GetCount() - 1; ++i) {
-        for (int32_t j = i + 1; unit_types.GetCount() > j; ++j) {
-            if (IsBetterUnit(*unit_types[i], *unit_types[j])) {
-                std::swap(*unit_types[i], *unit_types[j]);
+    if (unit_types.GetCount() > 1) {
+        for (uint32_t i = 0; i < static_cast<uint32_t>(static_cast<int64_t>(unit_types.GetCount()) - 1); ++i) {
+            for (uint32_t j = i + 1; unit_types.GetCount() > j; ++j) {
+                if (IsBetterUnit(*unit_types[i], *unit_types[j])) {
+                    std::swap(*unit_types[i], *unit_types[j]);
+                }
             }
         }
     }
@@ -508,7 +510,7 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
 }
 
 void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc7() {
-    for (int32_t i = 0; i < UNIT_END; ++i) {
+    for (uint16_t i = 0; i < UNIT_END; ++i) {
         if (*unitvalues_actual[i] != *unitvalues_base[i]) {
             unitvalues_actual[i]->UpdateVersion();
             unitvalues_actual[i]->SetUnitsBuilt(0);

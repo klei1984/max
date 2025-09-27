@@ -213,7 +213,7 @@ void Drawmap_UpdateDirtyZones(Rect* bounds) {
         }
 
         if (local.lrx > local.ulx && local.lry > local.uly) {
-            for (int32_t i = DrawMap_DirtyRectangles.GetCount() - 1; i >= 0; --i) {
+            for (int64_t i = static_cast<int64_t>(DrawMap_DirtyRectangles.GetCount()) - 1; i >= 0; --i) {
                 Rect dirty;
                 int32_t overlap_x;
                 int32_t overlap_y;

@@ -26,14 +26,14 @@
 
 class AccessMap {
     uint8_t **map;
-    int16_t size;
+    uint32_t size_x;
 
 public:
     AccessMap();
     ~AccessMap();
 
     uint8_t **GetMap() const;
-    uint8_t *GetMapColumn(int32_t index) const;
+    uint8_t *GetMapColumn(const uint32_t index) const;
 };
 
 #endif /* ACCESSMAP_HPP */

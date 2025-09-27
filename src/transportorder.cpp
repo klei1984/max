@@ -71,7 +71,7 @@ Point TransportOrder::MatchClosestPosition(Point end_position, Point start_posit
     SmartObjectArray<PathStep> steps = path->GetSteps();
     Point path_position = position;
     Point closest_position;
-    int32_t index;
+    uint32_t index;
     int32_t distance;
     int32_t minimum_distance;
 

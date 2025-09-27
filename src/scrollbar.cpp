@@ -33,7 +33,7 @@ EVENTS_REGISTER_EVENT(ScrollbarEvent);
 EventScrollbarChange::EventScrollbarChange(Scrollbar* scrollbar, int16_t value) : scrollbar(scrollbar), value(value) {}
 uint16_t EventScrollbarChange::GetEventId() const { return EVENTS_GET_EVENT_ID(ScrollbarEvent); }
 
-void LoadHorizontalBar(uint8_t* buffer, int16_t width, int16_t capacity, int16_t height, ResourceID id) {
+void LoadHorizontalBar(uint8_t* buffer, int32_t width, int32_t capacity, int32_t height, ResourceID id) {
     struct ImageSimpleHeader* sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
     uint8_t* sprite_data = &sprite->transparent_color;
     uint8_t* data = &sprite_data[sprite->width - height];
@@ -51,7 +51,7 @@ void LoadHorizontalBar(uint8_t* buffer, int16_t width, int16_t capacity, int16_t
     }
 }
 
-void LoadHorizontalTape(uint8_t* buffer, int16_t full2, int16_t length, int16_t width, ResourceID id) {
+void LoadHorizontalTape(uint8_t* buffer, int32_t full2, int32_t length, int32_t width, ResourceID id) {
     if (width > 0) {
         struct ImageSimpleHeader* sprite =
             reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
@@ -61,7 +61,7 @@ void LoadHorizontalTape(uint8_t* buffer, int16_t full2, int16_t length, int16_t 
     }
 }
 
-void LoadVerticalBar(uint8_t* buffer, int16_t width, int16_t capacity, int16_t height, ResourceID id) {
+void LoadVerticalBar(uint8_t* buffer, int32_t width, int32_t capacity, int32_t height, ResourceID id) {
     if (capacity > 0) {
         struct ImageSimpleHeader* sprite =
             reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));

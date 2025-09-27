@@ -180,11 +180,11 @@ void TaskDebugger::SetLimits(int32_t limit) {
     }
 
     if (index + row_count <= limit) {
-        index = limit - row_count + 1;
+        index = limit - static_cast<int64_t>(row_count) + 1;
     }
 
     if (index + row_count > tasks.GetCount()) {
-        index = tasks.GetCount() - row_count;
+        index = static_cast<int64_t>(tasks.GetCount()) - row_count;
     }
 
     if (index < 0) {
@@ -227,7 +227,7 @@ bool TaskDebugger::ProcessKeyPress(uint32_t key) {
     bool result;
 
     if (first_row_r_value <= key && first_row_r_value + row_count > key) {
-        int64_t index = key + row_index - first_row_r_value;
+        int64_t index = key + static_cast<int64_t>(row_index) - first_row_r_value;
 
         if (tasks.GetCount() > index) {
             if (index == task_count) {
@@ -247,10 +247,10 @@ bool TaskDebugger::ProcessKeyPress(uint32_t key) {
     } else if (button_down_r_value == key) {
         int64_t index = row_index;
 
-        index += row_count - 1;
+        index += static_cast<int64_t>(row_count) - 1;
 
         if (index + row_count > tasks.GetCount()) {
-            index = tasks.GetCount() - row_count;
+            index = static_cast<int64_t>(tasks.GetCount()) - row_count;
 
             if (index < 0) {
                 index = 0;
@@ -266,7 +266,7 @@ bool TaskDebugger::ProcessKeyPress(uint32_t key) {
     } else if (key == button_up_r_value) {
         int64_t index = row_index;
 
-        index -= row_count - 1;
+        index -= static_cast<int64_t>(row_count) - 1;
 
         if (index < 0) {
             index = 0;

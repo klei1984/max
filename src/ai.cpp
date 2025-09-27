@@ -144,7 +144,7 @@ void Ai_Init() {
     TaskManager.Clear();
     AiPlayer_TerrainMap.Deinit();
 
-    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (uint16_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         AiPlayer_Teams[team].Init(team);
     }
 }
@@ -152,7 +152,7 @@ void Ai_Init() {
 void Ai_FileLoad(SmartFileReader& file) {
     Ai_Init();
 
-    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (uint16_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
             AiPlayer_Teams[team].FileLoad(file);
         }
@@ -160,7 +160,7 @@ void Ai_FileLoad(SmartFileReader& file) {
 }
 
 void Ai_FileSave(SmartFileWriter& file) {
-    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (uint16_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
             AiPlayer_Teams[team].FileSave(file);
         }
@@ -348,7 +348,7 @@ void Ai_EvaluateAttackTargets(UnitInfo* unit) { TaskManager.EnumeratePotentialAt
 void Ai_CheckComputerReactions() { TaskManager.CheckComputerReactions(); }
 
 void Ai_CheckMines(UnitInfo* unit) {
-    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (uint16_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (unit->team != team && UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER &&
             unit->IsVisibleToTeam(team)) {
             AiPlayer_Teams[team].FindMines(unit);

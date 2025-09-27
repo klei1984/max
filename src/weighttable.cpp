@@ -50,9 +50,9 @@ WeightTable& WeightTable::operator=(WeightTable const& other) {
 
 WeightTable& WeightTable::operator+=(WeightTable const& other) {
     ResourceID unit_type;
-    int32_t index;
+    uint32_t index;
 
-    for (int32_t i = 0; i < other.weight_table.GetCount(); ++i) {
+    for (uint32_t i = 0; i < other.weight_table.GetCount(); ++i) {
         unit_type = other.weight_table[i]->unit_type;
 
         for (index = 0; index < weight_table.GetCount() && unit_type != weight_table[index]->unit_type; ++index) {
@@ -73,20 +73,20 @@ WeightTable& WeightTable::operator+=(WeightTable const& other) {
 
 UnitWeight& WeightTable::operator[](uint16_t position) { return *weight_table[position]; }
 
-int32_t WeightTable::GetCount() const { return weight_table.GetCount(); }
+uint32_t WeightTable::GetCount() const { return weight_table.GetCount(); }
 
 ResourceID WeightTable::RollUnitType() const {
     int32_t weight = 0;
     ResourceID unit_type = INVALID_ID;
 
-    for (int32_t i = 0; i < weight_table.GetCount(); ++i) {
+    for (uint32_t i = 0; i < weight_table.GetCount(); ++i) {
         weight += weight_table[i]->weight;
     }
 
     if (weight > 0) {
         weight = ((dos_rand() * weight) >> 15) + 1;
 
-        for (int32_t i = 0; i < weight_table.GetCount(); ++i) {
+        for (uint32_t i = 0; i < weight_table.GetCount(); ++i) {
             weight -= weight_table[i]->weight;
 
             if (weight <= 0) {
@@ -106,7 +106,7 @@ void WeightTable::Clear() { weight_table.Clear(); }
 int32_t WeightTable::GetWeight(ResourceID unit_type) const {
     int32_t weight = 0;
 
-    for (int32_t i = 0; i < weight_table.GetCount(); ++i) {
+    for (uint32_t i = 0; i < weight_table.GetCount(); ++i) {
         if (unit_type == weight_table[i]->unit_type) {
             weight = weight_table[i]->weight;
             break;

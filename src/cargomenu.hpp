@@ -41,9 +41,9 @@ class CargoMenu : public AbstractUpgradeMenu {
     Button *button_delete;
     Button *button_buy;
     LimitedScrollbar *scrollbar;
-    uint16_t unit_count;
+    uint32_t unit_count;
 
-    void Select(int32_t index);
+    void Select(uint32_t index);
     void BuyUnit();
     void DeleteUnit();
     void UpdateScrollbar();

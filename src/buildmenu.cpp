@@ -182,7 +182,7 @@ void BuildUnitTypeSelector::Draw() {
 
     consumption_rate = Cargo_GetRawConsumptionRate(unit->GetUnitType(), 1);
 
-    for (int32_t i = 0; i < max_item_count && i < unit_types.GetCount(); ++i) {
+    for (uint32_t i = 0; i < max_item_count && i < unit_types.GetCount(); ++i) {
         turns = UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[unit->team], *unit_types[i + page_min_index])
                     ->GetAttribute(ATTRIB_TURNS);
 
@@ -1173,7 +1173,7 @@ void FactoryBuildMenu::Build() {
 
     build_list->Clear();
 
-    for (int32_t i = 0; i < build_queue->GetCount(); ++i) {
+    for (uint32_t i = 0; i < build_queue->GetCount(); ++i) {
         build_list.PushBack(build_queue[i]);
     }
 

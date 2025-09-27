@@ -135,7 +135,7 @@ struct CTInfo {
     int16_t stats_mines_built;
     int16_t stats_buildings_built;
     int16_t stats_units_built;
-    int16_t stats_gold_spent_on_upgrades;
+    int32_t stats_gold_spent_on_upgrades;
     int16_t score_graph[50];
     uint16_t casualties[UNIT_END];
     int8_t* heat_map_complete;

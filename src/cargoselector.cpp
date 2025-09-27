@@ -37,7 +37,7 @@ CargoSelector::CargoSelector(Window* window, WindowInfo* window_info, SmartObjec
 
 CargoSelector::~CargoSelector() {}
 
-void CargoSelector::Add(ResourceID unit_type, int32_t position) {
+void CargoSelector::Add(ResourceID unit_type, int64_t position) {
     uint16_t value;
 
     if (unit_types.GetCount() < position) {

@@ -412,7 +412,7 @@ void TransportUdpDefault_RemoveClients(struct TransportUdpDefault_Context* const
 
     enet_host_flush(context->Host);
 
-    for (auto i = 0; i < peers.GetCount(); ++i) {
+    for (uint32_t i = 0; i < peers.GetCount(); ++i) {
         enet_peer_disconnect(*peers[i], 0);
     }
 
@@ -433,7 +433,7 @@ void TransportUdpDefault_RemoveClients(struct TransportUdpDefault_Context* const
         }
 
         if (time_stamp < SDL_GetTicks()) {
-            for (auto i = 0; i < peers.GetCount(); ++i) {
+            for (uint32_t i = 0; i < peers.GetCount(); ++i) {
                 enet_peer_disconnect_now(*peers[i], 0);
                 if (context->NetRole == TRANSPORT_SERVER) {
                     TransportUdpDefault_RemovePeer(context, *peers[i]);

@@ -251,8 +251,8 @@ uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x
 bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo* unit, int16_t* grid_x, int16_t* grid_y,
                                  int32_t range_limit, int32_t mode, int32_t direction) {
     UnitValues* unit_values;
-    int32_t offset_x{0};
-    int32_t offset_y{0};
+    int16_t offset_x{0};
+    int16_t offset_y{0};
 
     unit_values = unit->GetBaseValues();
 
@@ -323,7 +323,7 @@ void Access_InitStealthMaps() {
     Access_InitUnitStealthStatus(UnitsManager_ParticleUnits);
     Access_InitUnitStealthStatus(UnitsManager_StationaryUnits);
 
-    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (uint16_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             memset(UnitsManager_TeamInfo[team].heat_map_complete, 0, map_cell_count);
             memset(UnitsManager_TeamInfo[team].heat_map_stealth_sea, 0, map_cell_count);
@@ -639,14 +639,14 @@ void Access_DrawUnit(UnitInfo* unit) {
     const int32_t map_offset{ResourceManager_MapSize.x * unit->grid_y + unit->grid_x};
 
     if (GameManager_AllVisible) {
-        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (uint16_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                 unit->SpotByTeam(team);
             }
         }
     }
 
-    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+    for (uint16_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             if (UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset] && UnitsManager_IsUnitUnderWater(unit)) {
                 unit->SpotByTeam(team);
@@ -671,7 +671,7 @@ uint32_t Access_GetTargetClass(UnitInfo* unit) {
     uint32_t result;
 
     if (unit->GetUnitType() == COMMANDO || UnitsManager_IsUnitUnderWater(unit)) {
-        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (uint16_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (unit->team != team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
                 unit->IsVisibleToTeam(team)) {
                 if (unit->GetUnitType() == COMMANDO) {
@@ -714,7 +714,7 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
         }
 
         if (GameManager_AllVisible) {
-            for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+            for (uint16_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                     unit->SpotByTeam(team);
                 }
@@ -731,7 +731,7 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
             }
 
             if ((unit->flags & SELECTABLE) && UnitsManager_TeamInfo[unit->team].team_type != TEAM_TYPE_NONE) {
-                uint8_t enemy_target_class = TARGET_CLASS_NONE;
+                uint32_t enemy_target_class = TARGET_CLASS_NONE;
                 int32_t scan = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
                 Rect zone;
 
@@ -983,7 +983,7 @@ int32_t Access_FindUnitInUnitList(UnitInfo* unit) {
 
     for (uint32_t i = 0; i < std::size(Access_UnitsLists); ++i) {
         if (Access_UnitsLists[i]->Find(*unit) != Access_UnitsLists[i]->End()) {
-            result = i;
+            result = static_cast<int32_t>(i);
             break;
         }
     }
@@ -1074,12 +1074,10 @@ void Access_RenewAttackOrders(SmartList<UnitInfo>& units, uint16_t team) {
 }
 
 bool Access_UpdateGroupSpeed(UnitInfo* unit) {
-    int32_t max_speed = INT32_MAX;
-    SmartList<UnitInfo>* units;
+    int32_t max_speed = static_cast<int32_t>(INT32_MAX) - 1L;
+    auto units = unit->GetUnitList();
 
-    units = unit->GetUnitList();
-
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(); it != units->End(); ++it) {
         if (((*it).GetOrder() == ORDER_MOVE || (*it).GetOrder() == ORDER_MOVE_TO_ATTACK) &&
             ((*it).GetOrderState() == ORDER_STATE_IN_PROGRESS || (*it).GetOrderState() == ORDER_STATE_IN_TRANSITION ||
              (*it).GetOrderState() == ORDER_STATE_NEW_ORDER)) {
@@ -1091,7 +1089,7 @@ bool Access_UpdateGroupSpeed(UnitInfo* unit) {
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(); it != units->End(); ++it) {
         (*it).group_speed = max_speed + 1;
     }
 

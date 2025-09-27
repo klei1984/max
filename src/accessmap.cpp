@@ -24,19 +24,20 @@
 #include "resource_manager.hpp"
 
 AccessMap::AccessMap() {
-    size = ResourceManager_MapSize.x;
+    size_x = static_cast<uint32_t>(ResourceManager_MapSize.x);
+    uint32_t size_y = static_cast<uint32_t>(ResourceManager_MapSize.y);
 
-    map = new (std::nothrow) uint8_t*[ResourceManager_MapSize.x];
+    map = new (std::nothrow) uint8_t*[size_x];
 
-    for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
-        map[i] = new (std::nothrow) uint8_t[ResourceManager_MapSize.y];
+    for (uint32_t i = 0; i < size_x; ++i) {
+        map[i] = new (std::nothrow) uint8_t[size_y];
 
-        memset(map[i], 0, ResourceManager_MapSize.y);
+        SDL_memset(map[i], 0, size_y);
     }
 }
 
 AccessMap::~AccessMap() {
-    for (int32_t i = 0; i < size; ++i) {
+    for (uint32_t i = 0; i < size_x; ++i) {
         delete[] map[i];
     }
 
@@ -45,4 +46,8 @@ AccessMap::~AccessMap() {
 
 uint8_t** AccessMap::GetMap() const { return map; }
 
-uint8_t* AccessMap::GetMapColumn(int32_t index) const { return map[index]; }
+uint8_t* AccessMap::GetMapColumn(const uint32_t index) const {
+    SDL_assert(index < size_x);
+
+    return (index < size_x) ? map[index] : nullptr;
+}

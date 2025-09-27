@@ -31,16 +31,16 @@
 template <class T>
 class ObjectArray {
     static_assert(std::is_trivially_copyable<T>::value, "T required to be a trivially copyable type.");
-    static constexpr uint16_t MINIMUM_GROWTH_FACTOR = UINT16_C(5);
-    static constexpr uint16_t DEFAULT_GROWTH_FACTOR = UINT16_C(20);
+    static constexpr uint32_t MINIMUM_GROWTH_FACTOR = 5uL;
+    static constexpr uint32_t DEFAULT_GROWTH_FACTOR = 20uL;
 
-    uint16_t growth_factor;
-    uint16_t count{0};
-    uint16_t capacity{0};
+    uint32_t growth_factor;
+    uint32_t count{0};
+    uint32_t capacity{0};
     T* object_array{nullptr};
 
 public:
-    explicit ObjectArray(const uint16_t growth_factor = DEFAULT_GROWTH_FACTOR) noexcept
+    explicit ObjectArray(const uint32_t growth_factor = DEFAULT_GROWTH_FACTOR) noexcept
         : growth_factor(growth_factor < MINIMUM_GROWTH_FACTOR ? MINIMUM_GROWTH_FACTOR : growth_factor) {}
     ObjectArray(const ObjectArray<T>& other) noexcept
         : growth_factor(other.growth_factor), count(other.count), capacity(other.count) {
@@ -54,13 +54,13 @@ public:
     }
     virtual ~ObjectArray() noexcept { delete[] object_array; }
 
-    inline uint16_t Insert(const T* const object, uint16_t position) noexcept {
+    inline uint32_t Insert(const T* const object, uint32_t position) noexcept {
         if (position > count) {
             position = count;
         }
 
         if (count >= capacity) {
-            SDL_assert(capacity + growth_factor <= UINT16_MAX);
+            SDL_assert(capacity + growth_factor <= UINT32_MAX);
 
             capacity += growth_factor;
             T* new_object_array = new (std::nothrow) T[capacity];
@@ -87,7 +87,7 @@ public:
         return position;
     }
     inline void Append(const T* const object) noexcept { Insert(object, count); }
-    inline bool Remove(const uint16_t position) noexcept {
+    inline bool Remove(const uint32_t position) noexcept {
         bool result{false};
 
         if (position < count) {
@@ -101,8 +101,8 @@ public:
 
         return result;
     }
-    [[nodiscard]] inline int32_t Find(const T* const object) const noexcept {
-        for (uint16_t index = 0; index < count; ++index) {
+    [[nodiscard]] inline int64_t Find(const T* const object) const noexcept {
+        for (uint32_t index = 0; index < count; ++index) {
             if (!memcmp(&object_array[index], object, sizeof(T))) {
                 return index;
             }
@@ -111,8 +111,8 @@ public:
         return -1;
     }
     inline void Clear() noexcept { count = 0; }
-    [[nodiscard]] inline uint16_t GetCount() const noexcept { return count; }
-    [[nodiscard]] inline T* operator[](uint16_t position) const noexcept {
+    [[nodiscard]] inline uint32_t GetCount() const noexcept { return count; }
+    [[nodiscard]] inline T* operator[](uint32_t position) const noexcept {
         return (position < count) ? &object_array[position] : nullptr;
     }
 };
@@ -120,19 +120,19 @@ public:
 template <class T>
 class ObjectSmartArrayData : public SmartObject, public ObjectArray<T> {
 public:
-    explicit ObjectSmartArrayData(const uint16_t growth_factor) noexcept : ObjectArray<T>(growth_factor) {}
+    explicit ObjectSmartArrayData(const uint32_t growth_factor) noexcept : ObjectArray<T>(growth_factor) {}
     ObjectSmartArrayData(const ObjectSmartArrayData<T>& other) noexcept : ObjectArray<T>(other) {}
     ~ObjectSmartArrayData() noexcept override = default;
 };
 
 template <class T>
 class SmartObjectArray : public SmartPointer<ObjectSmartArrayData<T>> {
-    static constexpr uint16_t DEFAULT_GROWTH_FACTOR = UINT16_C(20);
+    static constexpr uint32_t DEFAULT_GROWTH_FACTOR = 20uL;
 
     [[nodiscard]] ObjectArray<T>* GetArray() const noexcept { return this->Get(); }
 
 public:
-    explicit SmartObjectArray(const uint16_t growth_factor = DEFAULT_GROWTH_FACTOR) noexcept
+    explicit SmartObjectArray(const uint32_t growth_factor = DEFAULT_GROWTH_FACTOR) noexcept
         : SmartPointer<ObjectSmartArrayData<T>>(*new(std::nothrow) ObjectSmartArrayData<T>(growth_factor)) {}
 
     SmartObjectArray(const SmartObjectArray& other, const bool deep_copy = false) noexcept
@@ -140,12 +140,12 @@ public:
                                                           : (*other.Get())) {}
 
     inline void Clear() noexcept { GetArray()->Clear(); }
-    [[nodiscard]] inline T* operator[](uint16_t position) const noexcept { return (*GetArray())[position]; }
-    [[nodiscard]] inline uint16_t GetCount() const noexcept { return GetArray()->GetCount(); }
-    inline uint16_t Insert(const T* const object, const uint16_t position) noexcept {
+    [[nodiscard]] inline T* operator[](uint32_t position) const noexcept { return (*GetArray())[position]; }
+    [[nodiscard]] inline uint32_t GetCount() const noexcept { return GetArray()->GetCount(); }
+    inline uint32_t Insert(const T* const object, const uint32_t position) noexcept {
         return GetArray()->Insert(object, position);
     }
-    inline bool Remove(const uint16_t position) noexcept { return GetArray()->Remove(position); }
+    inline bool Remove(const uint32_t position) noexcept { return GetArray()->Remove(position); }
     inline void PushBack(const T* const object) noexcept { (void)Insert(object, GetCount()); }
 };
 
