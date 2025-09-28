@@ -1330,52 +1330,52 @@
 			"ru-RU": "Будет починен за %i ходов."
 		},
 		"e3ee": {
-			"en-US": "and",
-			"fr-FR": "et",
-			"de-DE": "und",
-			"it-IT": "e",
-			"es-ES": "y",
-			"ru-RU": "and"
+			"en-US": " and ",
+			"fr-FR": " et ",
+			"de-DE": " und ",
+			"it-IT": " e ",
+			"es-ES": " y ",
+			"ru-RU": " and "
 		},
 		"0a07": {
-			"en-US": ",",
-			"fr-FR": ",",
-			"de-DE": ",",
-			"it-IT": ",",
-			"es-ES": ",",
-			"ru-RU": ","
+			"en-US": ", ",
+			"fr-FR": ", ",
+			"de-DE": ", ",
+			"it-IT": ", ",
+			"es-ES": ", ",
+			"ru-RU": ", "
 		},
 		"a8bd": {
-			"en-US": "is",
-			"fr-FR": "est",
-			"de-DE": "ist",
-			"it-IT": "è",
-			"es-ES": "está",
-			"ru-RU": "is"
+			"en-US": " is",
+			"fr-FR": " est",
+			"de-DE": " ist",
+			"it-IT": " è",
+			"es-ES": " está",
+			"ru-RU": " is"
 		},
 		"e3cd": {
-			"en-US": "available this turn.",
-			"fr-FR": "disponible dans ce tour.",
-			"de-DE": "in dieser Runde verfügbar",
-			"it-IT": "disponibile in questo turno",
-			"es-ES": "disponible en este turno.",
-			"ru-RU": "доступен сейчас."
+			"en-US": " available this turn.",
+			"fr-FR": " disponible dans ce tour.",
+			"de-DE": " in dieser Runde verfügbar",
+			"it-IT": " disponibile in questo turno",
+			"es-ES": " disponible en este turno.",
+			"ru-RU": " доступен сейчас."
 		},
 		"2cd0": {
-			"en-US": "are",
-			"fr-FR": "sont",
-			"de-DE": "sind",
-			"it-IT": "sono",
-			"es-ES": "están",
-			"ru-RU": "are"
+			"en-US": " are",
+			"fr-FR": " sont",
+			"de-DE": " sind",
+			"it-IT": " sono",
+			"es-ES": " están",
+			"ru-RU": " are"
 		},
 		"9753": {
-			"en-US": "available this turn.",
-			"fr-FR": "disponibles dans ce tour.",
-			"de-DE": "in dieser Runde verfügbar",
-			"it-IT": "disponibili in questo turno",
-			"es-ES": "disponibles en este turno.",
-			"ru-RU": "доступен сейчас."
+			"en-US": " available this turn.",
+			"fr-FR": " disponibles dans ce tour.",
+			"de-DE": " in dieser Runde verfügbar",
+			"it-IT": " disponibili in questo turno",
+			"es-ES": " disponibles en este turno.",
+			"ru-RU": " доступен сейчас."
 		},
 		"9733": {
 			"en-US": "Begin turn %i.\n",
@@ -1434,12 +1434,12 @@
 			"ru-RU": "Попытка сломать %s!"
 		},
 		"c719": {
-			"en-US": "Press F1.",
-			"fr-FR": "Appuyer sur F1.",
-			"de-DE": "Drücken Sie F1.",
-			"it-IT": "Premi F1.",
-			"es-ES": "Pulsa F1.",
-			"ru-RU": "Нажми F1."
+			"en-US": " Press F1.",
+			"fr-FR": " Appuyer sur F1.",
+			"de-DE": " Drücken Sie F1.",
+			"it-IT": " Premi F1.",
+			"es-ES": " Pulsa F1.",
+			"ru-RU": " Нажми F1."
 		},
 		"dcc6": {
 			"en-US": "End turn delayed because %s at [%i,%i] is %s",
