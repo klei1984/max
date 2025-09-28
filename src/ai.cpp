@@ -29,6 +29,7 @@
 #include "hash.hpp"
 #include "inifile.hpp"
 #include "production_manager.hpp"
+#include "randomizer.hpp"
 #include "task_manager.hpp"
 #include "taskautosurvey.hpp"
 #include "units_manager.hpp"
@@ -95,8 +96,8 @@ void Ai_SelectStartingPosition(uint16_t team) {
     Point position;
 
     do {
-        position.x = (((ResourceManager_MapSize.x - 6) * dos_rand()) >> 15) + 3;
-        position.y = (((ResourceManager_MapSize.y - 6) * dos_rand()) >> 15) + 3;
+        position.x = Randomizer_Generate(ResourceManager_MapSize.x - 6) + 3;
+        position.y = Randomizer_Generate(ResourceManager_MapSize.y - 6) + 3;
     } while (!Ai_IsSafeStartingPosition(position.x, position.y, team));
 
     UnitsManager_TeamMissionSupplies[team].starting_position = position;

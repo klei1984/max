@@ -167,7 +167,7 @@ void ClanSelectMenu::SelectMenuItems() {
 
         strcpy(buffer, buffer2);
 
-        if (stricmp(buffer, "Name") && stricmp(buffer, "Text")) {
+        if (SDL_strcasecmp(buffer, "Name") && SDL_strcasecmp(buffer, "Text")) {
             strcat(buffer, ": ");
             strcat(buffer, &pointer[1]);
 

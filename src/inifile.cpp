@@ -451,59 +451,59 @@ int32_t IniClans::GetNextUnitUpgrade(int16_t *attrib_id, int16_t *value) {
 
         switch (*attrib_id) {
             case ATTRIB_ATTACK: {
-                result = stricmp(_(fca3), cstr);
+                result = SDL_strcasecmp(_(fca3), cstr);
             } break;
 
             case ATTRIB_ROUNDS: {
-                result = stricmp(_(206c), cstr);
+                result = SDL_strcasecmp(_(206c), cstr);
             } break;
 
             case ATTRIB_RANGE: {
-                result = stricmp(_(2269), cstr);
+                result = SDL_strcasecmp(_(2269), cstr);
             } break;
 
             case ATTRIB_ARMOR: {
-                result = stricmp(_(d81e), cstr);
+                result = SDL_strcasecmp(_(d81e), cstr);
             } break;
 
             case ATTRIB_HITS: {
-                result = stricmp(_(62f5), cstr);
+                result = SDL_strcasecmp(_(62f5), cstr);
             } break;
 
             case ATTRIB_SPEED: {
-                result = stricmp(_(bbcc), cstr);
+                result = SDL_strcasecmp(_(bbcc), cstr);
             } break;
 
             case ATTRIB_SCAN: {
-                result = stricmp(_(59ad), cstr);
+                result = SDL_strcasecmp(_(59ad), cstr);
             } break;
 
             case ATTRIB_TURNS: {
-                result = stricmp(_(6976), cstr);
+                result = SDL_strcasecmp(_(6976), cstr);
             } break;
 
             case ATTRIB_AMMO: {
-                result = stricmp(_(24d8), cstr);
+                result = SDL_strcasecmp(_(24d8), cstr);
             } break;
 
             case ATTRIB_MOVE_AND_FIRE: {
-                result = stricmp(_(4027), cstr);
+                result = SDL_strcasecmp(_(4027), cstr);
             } break;
 
             case ATTRIB_FUEL: {
-                result = stricmp("fuel", cstr);
+                result = SDL_strcasecmp("fuel", cstr);
             } break;
 
             case ATTRIB_STORAGE: {
-                result = stricmp(_(49a2), cstr);
+                result = SDL_strcasecmp(_(49a2), cstr);
             } break;
 
             case ATTRIB_ATTACK_RADIUS: {
-                result = stricmp(_(4a91), cstr);
+                result = SDL_strcasecmp(_(4a91), cstr);
             } break;
 
             case ATTRIB_AGENT_ADJUST: {
-                result = stricmp(_(e9d8), cstr);
+                result = SDL_strcasecmp(_(e9d8), cstr);
             } break;
         }
 

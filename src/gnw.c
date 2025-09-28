@@ -283,8 +283,8 @@ WinID win_add(int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t c
                 w->flags = flags;
                 w->width = width;
                 w->length = length;
-                w->tx = dos_rand() & 0xFFFE;
-                w->ty = dos_rand() & 0xFFFE;
+                w->tx = 0;
+                w->ty = 0;
 
                 if (color == 0x100) {
                     if (!GNW_texture) {

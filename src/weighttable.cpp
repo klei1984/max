@@ -23,6 +23,7 @@
 
 #include "builder.hpp"
 #include "gnw.h"
+#include "randomizer.hpp"
 
 UnitWeight::UnitWeight() : unit_type(INVALID_ID), weight(0) {}
 
@@ -84,7 +85,7 @@ ResourceID WeightTable::RollUnitType() const {
     }
 
     if (weight > 0) {
-        weight = ((dos_rand() * weight) >> 15) + 1;
+        weight = Randomizer_Generate(weight) + 1;
 
         for (uint32_t i = 0; i < weight_table.GetCount(); ++i) {
             weight -= weight_table[i]->weight;

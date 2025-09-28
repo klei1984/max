@@ -32,6 +32,7 @@
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
 #include "networkmenu.hpp"
+#include "randomizer.hpp"
 #include "sound_manager.hpp"
 #include "ticktimer.hpp"
 #include "transport.hpp"
@@ -203,7 +204,7 @@ uint16_t Remote_GenerateEntityId() {
     uint16_t new_entity_id;
 
     for (;;) {
-        new_entity_id = ((dos_rand() * 31991) >> 15) + 10;
+        new_entity_id = Randomizer_Generate(31991) + 10;
 
         if (!Remote_Nodes.Find(new_entity_id)) {
             break;
@@ -1451,7 +1452,7 @@ int32_t Remote_SiteSelectMenu() {
         }
     }
 
-    dos_srand(Remote_RngSeed);
+    Randomizer_SetSeed(Remote_RngSeed);
 
     return 0;
 }

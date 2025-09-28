@@ -24,6 +24,7 @@
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
+#include "randomizer.hpp"
 #include "resource_manager.hpp"
 #include "window_manager.hpp"
 
@@ -328,7 +329,7 @@ void PlanetSelectMenu::EventWorld() {
 }
 
 void PlanetSelectMenu::EventRandom() {
-    world = (dos_rand() * 24) >> 15;
+    world = Randomizer_Generate(24);
     event_click_done = true;
 }
 

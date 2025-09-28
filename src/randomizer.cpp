@@ -1,4 +1,4 @@
-/* Copyright (c) 2020 M.A.X. Port Team
+/* Copyright (c) 2025 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,19 +19,20 @@
  * SOFTWARE.
  */
 
-#ifndef DOS_H
-#define DOS_H
+#include "randomizer.hpp"
 
-#include <stdint.h>
-#include <stdio.h>
+#include <XoshiroCpp.hpp>
+#include <ctime>
+#include <memory>
 
-#if defined(__unix__)
-int stricmp(const char *s1, const char *s2);
-int strnicmp(const char *s1, const char *s2, size_t len);
-#endif
+static std::unique_ptr<XoshiroCpp::Xoshiro128StarStar> Randomizer_Object;
 
-int32_t dos_rand(void);
+void Randomizer_Init() {
+    Randomizer_Object = std::make_unique<XoshiroCpp::Xoshiro128StarStar>(XoshiroCpp::SplitMix64(std::time(nullptr))());
+}
 
-void dos_srand(uint32_t seed);
+uint32_t Randomizer_GetNext() { return (*Randomizer_Object)(); }
 
-#endif /* DOS_H */
+void Randomizer_SetSeed(const uint32_t seed) {
+    Randomizer_Object = std::make_unique<XoshiroCpp::Xoshiro128StarStar>(XoshiroCpp::SplitMix64(seed)());
+}

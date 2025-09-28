@@ -28,6 +28,7 @@
 #include "continent.hpp"
 #include "inifile.hpp"
 #include "paths_manager.hpp"
+#include "randomizer.hpp"
 #include "task_manager.hpp"
 #include "taskrepair.hpp"
 #include "tasktransport.hpp"
@@ -220,7 +221,7 @@ void TaskAttack::Begin() {
 }
 
 void TaskAttack::BeginTurn() {
-    if (op_state == ATTACK_STATE_INIT || !((dos_rand() * 21) >> 15)) {
+    if (op_state == ATTACK_STATE_INIT || !Randomizer_Generate(21)) {
         if (EvaluateLandAttack()) {
             access_flags = MOBILE_AIR_UNIT | MOBILE_LAND_UNIT;
 

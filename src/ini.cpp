@@ -542,7 +542,7 @@ int32_t inifile_get_boolean_value(Ini_descriptor *const pini, const char *const 
     }
 
     if (inifile_ini_process_string_value(pini, buffer, sizeof(buffer))) {
-        return stricmp(buffer, "Yes") == 0;
+        return SDL_strcasecmp(buffer, "Yes") == 0;
     }
 
     return 0;

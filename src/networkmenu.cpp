@@ -30,6 +30,7 @@
 #include "inifile.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
+#include "randomizer.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
 #include "text.hpp"
@@ -259,7 +260,7 @@ void NetworkMenu::ButtonInit(int32_t index) {
 }
 
 void NetworkMenu::Init() {
-    dos_srand(time(nullptr));
+    Randomizer_SetSeed(time(nullptr));
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
     connection_state = false;
@@ -325,7 +326,7 @@ void NetworkMenu::Init() {
             default_team_names[i][0] = '\0';
         }
 
-        player_node = ((dos_rand() * 31991) >> 15) + 10;
+        player_node = Randomizer_Generate(31991) + 10;
         host_node = player_node;
 
     } else {
@@ -924,7 +925,7 @@ void NetworkMenu::NetSync(int32_t team) {
 
         if (is_multi_scenario) {
             for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
-                if (!stricmp(player_name.c_str(), default_team_names[i]) && !team_nodes[i]) {
+                if (!SDL_strcasecmp(player_name.c_str(), default_team_names[i]) && !team_nodes[i]) {
                     index = i;
                     break;
                 }

@@ -34,6 +34,7 @@
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
 #include "paths_manager.hpp"
+#include "randomizer.hpp"
 #include "registerarray.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
@@ -2132,7 +2133,7 @@ void UnitInfo::GainExperience(int32_t experience) {
 
             UnitsManager_TeamInfo[team].team_units->SetCurrentUnitValues(unit_type, *base_values);
 
-            upgrade_topic = ExpResearchTopics[(dos_rand() * sizeof(ExpResearchTopics)) >> 15];
+            upgrade_topic = ExpResearchTopics[Randomizer_Generate(sizeof(ExpResearchTopics))];
             upgrade_cost = TeamUnits_GetUpgradeCost(team, unit_type, upgrade_topic);
 
             while (upgrade_cost <= storage) {
@@ -2142,7 +2143,7 @@ void UnitInfo::GainExperience(int32_t experience) {
                     auto current_level = base_values->GetAttribute(upgrade_topic);
 
                     if (current_level == UINT8_MAX) {
-                        upgrade_topic = ExpResearchTopics[(dos_rand() * sizeof(ExpResearchTopics)) >> 15];
+                        upgrade_topic = ExpResearchTopics[Randomizer_Generate(sizeof(ExpResearchTopics))];
                         upgrade_cost = TeamUnits_GetUpgradeCost(team, unit_type, upgrade_topic);
 
                         continue;
@@ -2165,7 +2166,7 @@ void UnitInfo::GainExperience(int32_t experience) {
 
                 base_values->AddAttribute(upgrade_topic, upgrade_level);
 
-                upgrade_topic = ExpResearchTopics[(dos_rand() * sizeof(ExpResearchTopics)) >> 15];
+                upgrade_topic = ExpResearchTopics[Randomizer_Generate(sizeof(ExpResearchTopics))];
                 upgrade_cost = TeamUnits_GetUpgradeCost(team, unit_type, upgrade_topic);
             }
 
@@ -4518,9 +4519,9 @@ void UnitInfo::PrepareConstructionSite(ResourceID unit_type) {
 
         SmartPointer<UnitInfo> unit = UnitsManager_DeployUnit(
             slab_type, team, nullptr, position.x, position.y,
-            (dos_rand() *
-             reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[slab_type].data_buffer)->image_count) >>
-                15);
+            Randomizer_Generate(
+                reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[slab_type].data_buffer)
+                    ->image_count));
 
         unit->scaler_adjust = 4;
 

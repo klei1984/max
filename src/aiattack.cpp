@@ -25,6 +25,7 @@
 #include "ai.hpp"
 #include "aiplayer.hpp"
 #include "inifile.hpp"
+#include "randomizer.hpp"
 #include "task_manager.hpp"
 #include "taskattack.hpp"
 #include "taskfrontalattack.hpp"
@@ -385,7 +386,7 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
                     TaskManager_word_1731C0 = 2;
                     attacker->SetParent(target);
 
-                    attacker->target_grid_x = (dos_rand() * 101) >> 15;
+                    attacker->target_grid_x = Randomizer_Generate(101);
 
                     if (target->GetOrder() == ORDER_DISABLE ||
                         (!(target->flags & STATIONARY) &&
@@ -723,7 +724,7 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
                             attack_radius = 0;
                         }
 
-                        if ((dos_rand() * 2) >> 15) {
+                        if (Randomizer_Generate(2)) {
                             mode = true;
 
                         } else {

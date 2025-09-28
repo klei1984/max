@@ -29,12 +29,6 @@
 #include <cstring>
 #include <new>
 
-#ifdef __unix__
-#define stricmp strcasecmp
-#endif
-
-#include "SDL_assert.h"
-
 class SmartString {
     class StringObject {
         friend class SmartString;

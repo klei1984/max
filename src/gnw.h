@@ -35,7 +35,6 @@ extern "C" {
 
 #include "button.h"
 #include "color.h"
-#include "dos.h"
 #include "grbuf.h"
 #include "input.h"
 #include "interface.h"

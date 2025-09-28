@@ -46,6 +46,7 @@
 #include "paths.hpp"
 #include "paths_manager.hpp"
 #include "production_manager.hpp"
+#include "randomizer.hpp"
 #include "remote.hpp"
 #include "reportmenu.hpp"
 #include "reportstats.hpp"
@@ -147,8 +148,7 @@ struct ResourceRange {
     ResourceRange(int32_t min, int32_t max) : min(min), max(max) {}
 
     int32_t GetValue() const {
-        return (((((max - min + 1) * dos_rand()) >> 15) + min) + ((((max - min + 1) * dos_rand()) >> 15) + min) + 1) /
-               2;
+        return ((Randomizer_Generate(max - min + 1) + min) + (Randomizer_Generate(max - min + 1) + min) + 1) / 2;
     }
 };
 
@@ -350,14 +350,14 @@ struct ResourceAllocator {
 
         flag = false;
 
-        point1.x = (((concentrate_seperation * 4) / 5 + 1) * dos_rand()) >> 15;
-        point1.y = ((concentrate_seperation / 2 + 1) * dos_rand()) >> 15;
+        point1.x = Randomizer_Generate((concentrate_seperation * 4) / 5 + 1);
+        point1.y = Randomizer_Generate(concentrate_seperation / 2 + 1);
 
         for (int32_t i = point1.x; i < ResourceManager_MapSize.x; i += (concentrate_seperation * 4) / 5) {
             for (int32_t j = flag ? (concentrate_seperation / 2 + point1.y) : point1.y; j < ResourceManager_MapSize.y;
                  j += concentrate_seperation) {
-                point2.x = (((field_16 * 2 + 1) * dos_rand()) >> 15) - field_16 + i;
-                point2.y = (((field_16 * 2 + 1) * dos_rand()) >> 15) - field_16 + j;
+                point2.x = Randomizer_Generate(field_16 * 2 + 1) - field_16 + i;
+                point2.y = Randomizer_Generate(field_16 * 2 + 1) - field_16 + j;
 
                 Optimize(point2, concentrate.GetValue(), max_resources);
             }
@@ -390,19 +390,19 @@ struct ResourceAllocator {
         mixed_resource_seperation_min = mixed_resource_seperation / 5;
         flag = false;
 
-        point1.x = ((((mixed_resource_seperation * 4) / 5) + 1) * dos_rand()) >> 15;
-        point1.y = ((mixed_resource_seperation / 2 + 1) * dos_rand()) >> 15;
+        point1.x = Randomizer_Generate(((mixed_resource_seperation * 4) / 5) + 1);
+        point1.y = Randomizer_Generate(mixed_resource_seperation / 2 + 1);
 
         for (int32_t i = point1.x; i < ResourceManager_MapSize.x; i += (mixed_resource_seperation * 4) / 5) {
             for (int32_t j = flag ? (mixed_resource_seperation / 2 + point1.y) : point1.y;
                  j < ResourceManager_MapSize.y; j += mixed_resource_seperation) {
                 point2.x =
-                    (((mixed_resource_seperation_min * 2 + 1) * dos_rand()) >> 15) - mixed_resource_seperation_min + i;
+                    Randomizer_Generate(mixed_resource_seperation_min * 2 + 1) - mixed_resource_seperation_min + i;
                 point2.y =
-                    (((mixed_resource_seperation_min * 2 + 1) * dos_rand()) >> 15) - mixed_resource_seperation_min + j;
+                    Randomizer_Generate(mixed_resource_seperation_min * 2 + 1) - mixed_resource_seperation_min + j;
 
-                this->Optimize(point2, ((5 * dos_rand()) >> 15) + 8, max_resources);
-                allocator->Optimize(point2, ((5 * dos_rand()) >> 15) + 8, max_resources);
+                this->Optimize(point2, Randomizer_Generate(5) + 8, max_resources);
+                allocator->Optimize(point2, Randomizer_Generate(5) + 8, max_resources);
             }
 
             flag = !flag;
@@ -1021,11 +1021,10 @@ void GameManager_DeployUnit(uint16_t team, ResourceID unit_type, int32_t grid_x,
             slab_type = SMLSLAB;
         }
 
-        UnitsManager_DeployUnit(
-            slab_type, team, nullptr, grid_x, grid_y,
-            (dos_rand() *
-             reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[slab_type].data_buffer)->image_count) >>
-                15);
+        UnitsManager_DeployUnit(slab_type, team, nullptr, grid_x, grid_y,
+                                Randomizer_Generate(reinterpret_cast<struct BaseUnitDataFile*>(
+                                                        UnitsManager_BaseUnits[slab_type].data_buffer)
+                                                        ->image_count));
     }
 
     if (unit_type == MININGST) {
@@ -2127,7 +2126,7 @@ void GameManager_GameSetup(int32_t game_state) {
             ResourceManager_InitClanUnitValues(GameManager_PlayerTeam);
         }
 
-        dos_srand(Remote_RngSeed);
+        Randomizer_SetSeed(Remote_RngSeed);
     }
 
     Ai_Init();
@@ -3221,10 +3220,10 @@ void GameManager_InitUnitsAndGameState() {
     }
 
     if (Remote_IsNetworkGame) {
-        dos_srand(time(nullptr));
+        Randomizer_SetSeed(time(nullptr));
     } else {
         Remote_RngSeed = time(nullptr);
-        dos_srand(Remote_RngSeed);
+        Randomizer_SetSeed(Remote_RngSeed);
     }
 
     Gfx_MapBrightness = 0xFF;
@@ -3291,7 +3290,7 @@ bool GameManager_InitGame() {
     GameManager_IsMapInitialized = false;
 
     if (Remote_IsNetworkGame) {
-        dos_srand(time(nullptr));
+        Randomizer_SetSeed(time(nullptr));
     } else {
         ResourceManager_InitTeamInfo();
     }
@@ -4858,7 +4857,7 @@ void GameManager_StealUnit(UnitInfo* unit1, UnitInfo* unit2) {
     if (unit2) {
         if (unit1->shots > 0) {
             unit1->SetParent(unit2);
-            unit1->target_grid_x = (dos_rand() * 101) >> 15;
+            unit1->target_grid_x = Randomizer_Generate(101);
 
             UnitsManager_SetNewOrder(unit1, ORDER_AWAIT_STEAL_UNIT, ORDER_STATE_INIT);
 
@@ -4874,7 +4873,7 @@ void GameManager_DisableUnit(UnitInfo* unit1, UnitInfo* unit2) {
     if (unit2) {
         if (unit1->shots > 0) {
             unit1->SetParent(unit2);
-            unit1->target_grid_x = (dos_rand() * 101) >> 15;
+            unit1->target_grid_x = Randomizer_Generate(101);
 
             UnitsManager_SetNewOrder(unit1, ORDER_AWAIT_DISABLE_UNIT, ORDER_STATE_INIT);
 
@@ -4912,7 +4911,7 @@ void GameManager_PopulateMapWithResources() {
     const int32_t minimum_fuel{(max_resources * 8 + 10) / 20};
     const int32_t minimum_materials{(max_resources * 12 + 10) / 20};
 
-    dos_srand(Remote_RngSeed);
+    Randomizer_SetSeed(Remote_RngSeed);
 
     allocator_materials.PopulateCargoMap();
     allocator_fuel.PopulateCargoMap();
@@ -4991,7 +4990,7 @@ void GameManager_SpawnAlienDerelicts(Point point, int32_t alien_unit_value) {
     unit = UnitsManager_DeployUnit(LRGSLAB, PLAYER_TEAM_ALIEN, nullptr, point.x, point.y, 0, false, true);
 
     unit =
-        UnitsManager_DeployUnit(GameManager_AlienBuildings[(dos_rand() * std::size(GameManager_AlienBuildings)) >> 15],
+        UnitsManager_DeployUnit(GameManager_AlienBuildings[Randomizer_Generate(std::size(GameManager_AlienBuildings))],
                                 PLAYER_TEAM_ALIEN, nullptr, point.x, point.y, 0, false, true);
 
     position.x = point.x - 1;
@@ -5059,11 +5058,11 @@ void GameManager_SpawnAlienDerelicts(Point point, int32_t alien_unit_value) {
             }
 
             while (alien_unit_value >= cost && (land_tiles.GetCount() + water_tiles.GetCount()) > 0) {
-                if (((dos_rand() * (land_tiles.GetCount() + water_tiles.GetCount())) >> 15) + 1 <=
+                if ((Randomizer_Generate(land_tiles.GetCount() + water_tiles.GetCount())) + 1 <=
                     water_tiles.GetCount()) {
                     SDL_assert(water_tiles.GetCount() > 0);
 
-                    index = (dos_rand() * water_tiles.GetCount()) >> 15;
+                    index = Randomizer_Generate(water_tiles.GetCount());
 
                     SDL_assert(index < water_tiles.GetCount());
 
@@ -5079,7 +5078,7 @@ void GameManager_SpawnAlienDerelicts(Point point, int32_t alien_unit_value) {
 
                     SDL_assert(land_tiles.GetCount() > 0);
 
-                    index = (dos_rand() * land_tiles.GetCount()) >> 15;
+                    index = Randomizer_Generate(land_tiles.GetCount());
 
                     SDL_assert(index < land_tiles.GetCount());
 
@@ -5088,7 +5087,7 @@ void GameManager_SpawnAlienDerelicts(Point point, int32_t alien_unit_value) {
                     land_tiles.Remove(index);
 
                     do {
-                        alien_unit_index = (dos_rand() * std::size(GameManager_AlienUnits)) >> 15;
+                        alien_unit_index = Randomizer_Generate(std::size(GameManager_AlienUnits));
                     } while (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[PLAYER_TEAM_ALIEN],
                                                                GameManager_AlienUnits[alien_unit_index])
                                  ->GetAttribute(ATTRIB_TURNS) > alien_unit_value);
@@ -5122,15 +5121,15 @@ void GameManager_PopulateMapWithAlienUnits(int32_t alien_seperation, int32_t ali
         Point point2;
         bool flag = false;
 
-        point1.x = (((alien_seperation * 4) / 5 + 1) * dos_rand()) >> 15;
-        point1.y = ((alien_seperation / 2 + 1) * dos_rand()) >> 15;
+        point1.x = Randomizer_Generate((alien_seperation * 4) / 5 + 1);
+        point1.y = Randomizer_Generate(alien_seperation / 2 + 1);
 
         for (int32_t i = point1.x; i < ResourceManager_MapSize.x; i += (alien_seperation * 4) / 5) {
             for (int32_t j = flag ? (alien_seperation / 2 + point1.y) : point1.y; j < ResourceManager_MapSize.y;
                  j += alien_seperation) {
-                point2.x = (((((alien_seperation / 5) - ((-alien_seperation) / 5)) + 1) * dos_rand()) >> 15) +
+                point2.x = Randomizer_Generate(((alien_seperation / 5) - ((-alien_seperation) / 5)) + 1) +
                            ((-alien_seperation) / 5) + i;
-                point2.y = (((((alien_seperation / 5) - ((-alien_seperation) / 5)) + 1) * dos_rand()) >> 15) +
+                point2.y = Randomizer_Generate(((alien_seperation / 5) - ((-alien_seperation) / 5)) + 1) +
                            ((-alien_seperation) / 5) + j;
 
                 GameManager_SpawnAlienDerelicts(point2, alien_unit_value);
@@ -5172,9 +5171,8 @@ void GameManager_ProcessTeamMissionSupplyUnits(uint16_t team) {
 
     UnitsManager_DeployUnit(
         LRGSLAB, team, nullptr, mining_station_location.x, mining_station_location.y,
-        (dos_rand() *
-         reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[LRGSLAB].data_buffer)->image_count) >>
-            15);
+        Randomizer_Generate(
+            reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[LRGSLAB].data_buffer)->image_count));
 
     UnitsManager_SetInitialMining(&*mining_station, mining_station_location.x, mining_station_location.y);
 
@@ -5188,9 +5186,8 @@ void GameManager_ProcessTeamMissionSupplyUnits(uint16_t team) {
 
     UnitsManager_DeployUnit(
         SMLSLAB, team, nullptr, power_generator_location.x, power_generator_location.y,
-        (dos_rand() *
-         reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[SMLSLAB].data_buffer)->image_count) >>
-            15);
+        Randomizer_Generate(
+            reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[SMLSLAB].data_buffer)->image_count));
 
     UnitsManager_UpdateConnectors(&*power_generator);
 

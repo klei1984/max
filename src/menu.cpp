@@ -39,6 +39,7 @@
 #include "okcancelmenu.hpp"
 #include "optionsmenu.hpp"
 #include "planetselectmenu.hpp"
+#include "randomizer.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
 #include "saveloadmenu.hpp"
@@ -119,7 +120,7 @@ void menu_draw_menu_portrait(WindowInfo* window, ResourceID portrait, bool draw_
         while (portrait == INVALID_ID || portrait == menu_portrait_id || portrait == P_SHIELD || portrait == P_LIFESP ||
                portrait == P_RECCTR || portrait == P_MASTER || portrait == P_JUGGER || portrait == P_ALNTAN ||
                portrait == P_ALNASG || portrait == P_ALNPLA) {
-            portrait = static_cast<ResourceID>(P_TRANSP + ((67 * dos_rand()) >> 15));
+            portrait = static_cast<ResourceID>(P_TRANSP + Randomizer_Generate(67));
         }
 
         menu_portrait_id = portrait;
@@ -425,7 +426,7 @@ void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter,
 
     palette = GameManager_MenuFadeOut();
 
-    int32_t image_index = (dos_rand() * 9) >> 15;
+    int32_t image_index = Randomizer_Generate(9);
 
     bg_image_id = menu_briefing_backgrounds[image_index];
 
@@ -751,14 +752,14 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
 void menu_draw_mission_story_screen(const Mission::Story& story) {
     ResourceID bg_image_id;
     ResourceID bg_music_id = INVALID_ID;
-    int32_t image_index = (dos_rand() * 9) >> 15;
+    int32_t image_index = Randomizer_Generate(9);
 
     bg_image_id = menu_briefing_backgrounds[image_index];
 
     if (std::holds_alternative<std::vector<ResourceID>>(story.background)) {
         const auto bg_images = std::get<std::vector<ResourceID>>(story.background);
 
-        image_index = (dos_rand() * bg_images.size()) >> 15;
+        image_index = Randomizer_Generate(bg_images.size());
 
         bg_image_id = bg_images[image_index];
 
@@ -769,7 +770,7 @@ void menu_draw_mission_story_screen(const Mission::Story& story) {
     if (std::holds_alternative<std::vector<ResourceID>>(story.music)) {
         const auto bg_music = std::get<std::vector<ResourceID>>(story.music);
 
-        int32_t music_index = (dos_rand() * bg_music.size()) >> 15;
+        int32_t music_index = Randomizer_Generate(bg_music.size());
 
         bg_music_id = bg_music[music_index];
 
@@ -2498,7 +2499,7 @@ void main_menu() {
     palette_from_image = 1;
     mouse_set_position(WindowManager_GetWidth(window) / 2, WindowManager_GetHeight(window) / 2);
     menu_portrait_id = INVALID_ID;
-    dos_srand(time(nullptr));
+    Randomizer_SetSeed(time(nullptr));
     ini_setting_victory_type = ini_get_setting(INI_VICTORY_TYPE);
     ini_setting_victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
 

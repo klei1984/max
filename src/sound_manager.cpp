@@ -31,6 +31,7 @@
 #include "inifile.hpp"
 #include "miniaudio.h"
 #include "mvelib32.h"
+#include "randomizer.hpp"
 #include "resource_manager.hpp"
 
 #define SOUND_MANAGER_SAMPLE_RATE (48000)
@@ -364,7 +365,7 @@ void SoundManager::UpdateMusic() noexcept {
 
             for (;;) {
                 do {
-                    index = ((std::size(music_playlist) * dos_rand()) >> 15);
+                    index = Randomizer_Generate(std::size(music_playlist));
                     resource_id = (ResourceID)(index + MAIN_MSC);
                 } while (!music_playlist[index]);
 
@@ -713,7 +714,7 @@ void SoundManager::PlayVoice(const ResourceID id1, const ResourceID id2, const i
                 priority_value = SoundManager_VoicePriorities[id1 - V_START];
             }
 
-            randomized_voice_id = 2 * ((((id2 - id1) / 2 + 1) * dos_rand()) >> 15) + 1 + id1;
+            randomized_voice_id = 2 * Randomizer_Generate((id2 - id1) / 2 + 1) + 1 + id1;
             SDL_assert(randomized_voice_id != id1 && randomized_voice_id <= id2);
 
             for (auto it = jobs.Begin(), it_end = jobs.End(); it != it_end; ++it) {

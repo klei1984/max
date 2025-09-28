@@ -34,6 +34,7 @@
 #include "message_manager.hpp"
 #include "paths_manager.hpp"
 #include "production_manager.hpp"
+#include "randomizer.hpp"
 #include "remote.hpp"
 #include "repairshopmenu.hpp"
 #include "researchmenu.hpp"
@@ -5434,9 +5435,8 @@ void UnitsManager_DeployMasterBuilder(UnitInfo* unit) {
 
     small_slab = UnitsManager_DeployUnit(
         SMLSLAB, unit_team, nullptr, power_generator_grid_x, power_generator_grid_y,
-        (dos_rand() *
-         reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[SMLSLAB].data_buffer)->image_count) >>
-            15);
+        Randomizer_Generate(
+            reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[SMLSLAB].data_buffer)->image_count));
 
     UnitsManager_SetInitialMining(&*mining_station, mining_station_grid_x, mining_station_grid_y);
 
@@ -5758,7 +5758,7 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
             reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[rubble_type].data_buffer)->image_count -
             1;
 
-        image_index = ((dos_rand() * (image_index + 1)) >> 15);
+        image_index = Randomizer_Generate(image_index + 1);
 
         UnitInfo* rubble_unit =
             &*UnitsManager_DeployUnit(rubble_type, unit_team, nullptr, unit_grid_x, unit_grid_y, image_index);

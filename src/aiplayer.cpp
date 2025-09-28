@@ -29,6 +29,7 @@
 #include "continent.hpp"
 #include "inifile.hpp"
 #include "message_manager.hpp"
+#include "randomizer.hpp"
 #include "remote.hpp"
 #include "researchmenu.hpp"
 #include "resource_manager.hpp"
@@ -1143,7 +1144,7 @@ int32_t AiPlayer::SelectTeamClan() {
 
     switch (strategy) {
         case AI_STRATEGY_DEFENSIVE: {
-            if ((dos_rand() * 7) >> 15) {
+            if (Randomizer_Generate(7)) {
                 team_clan = TEAM_CLAN_7_KNIGHTS;
 
             } else {
@@ -1152,7 +1153,7 @@ int32_t AiPlayer::SelectTeamClan() {
         } break;
 
         case AI_STRATEGY_MISSILES: {
-            if ((dos_rand() * 7) >> 15) {
+            if (Randomizer_Generate(7)) {
                 team_clan = TEAM_CLAN_AYERS_HAND;
 
             } else {
@@ -1161,7 +1162,7 @@ int32_t AiPlayer::SelectTeamClan() {
         } break;
 
         case AI_STRATEGY_AIR: {
-            if ((dos_rand() * 7) >> 15) {
+            if (Randomizer_Generate(7)) {
                 team_clan = TEAM_CLAN_THE_CHOSEN;
 
             } else {
@@ -1170,7 +1171,7 @@ int32_t AiPlayer::SelectTeamClan() {
         } break;
 
         case AI_STRATEGY_SEA: {
-            if ((dos_rand() * 7) >> 15) {
+            if (Randomizer_Generate(7)) {
                 team_clan = TEAM_CLAN_CRIMSON_PATH;
 
             } else {
@@ -1191,8 +1192,8 @@ int32_t AiPlayer::SelectTeamClan() {
         } break;
 
         case AI_STRATEGY_COMBINED_ARMS: {
-            if ((dos_rand() * 7) >> 15) {
-                team_clan = TEAM_CLAN_VON_GRIFFIN + ((dos_rand() * 3) >> 15);
+            if (Randomizer_Generate(7)) {
+                team_clan = TEAM_CLAN_VON_GRIFFIN + Randomizer_Generate(3);
 
             } else {
                 team_clan = TEAM_CLAN_AXIS_INC;
@@ -1200,7 +1201,7 @@ int32_t AiPlayer::SelectTeamClan() {
         } break;
 
         case AI_STRATEGY_ESPIONAGE: {
-            if ((dos_rand() * 7) >> 15) {
+            if (Randomizer_Generate(7)) {
                 team_clan = TEAM_CLAN_CRIMSON_PATH;
 
             } else {
@@ -1220,19 +1221,19 @@ int32_t AiPlayer::SelectTeamClan() {
     return team_clan;
 }
 
-void AiPlayer::RollField3() { field_3 = ((dos_rand() * 4) >> 15) + 2 + ((dos_rand() * 4) >> 15) + 2; }
+void AiPlayer::RollField3() { field_3 = Randomizer_Generate(4) + 2 + Randomizer_Generate(4) + 2; }
 
 void AiPlayer::RollField5() {
     switch (strategy) {
         case AI_STRATEGY_DEFENSIVE:
         case AI_STRATEGY_AIR:
         case AI_STRATEGY_SEA: {
-            field_5 = ((dos_rand() * 6) >> 15) + 7;
+            field_5 = Randomizer_Generate(6) + 7;
         } break;
 
         case AI_STRATEGY_SCOUT_HORDE:
         case AI_STRATEGY_TANK_HORDE: {
-            field_5 = ((dos_rand() * 3) >> 15) + 1;
+            field_5 = Randomizer_Generate(3) + 1;
             field_5 = 5;
         } break;
 
@@ -1240,7 +1241,7 @@ void AiPlayer::RollField5() {
         case AI_STRATEGY_FAST_ATTACK:
         case AI_STRATEGY_COMBINED_ARMS:
         case AI_STRATEGY_ESPIONAGE: {
-            field_5 = ((dos_rand() * 2) >> 15) + 4;
+            field_5 = Randomizer_Generate(2) + 4;
         } break;
 
         default: {
@@ -1254,8 +1255,8 @@ void AiPlayer::RollField7() {
         switch (strategy) {
             case AI_STRATEGY_AIR:
             case AI_STRATEGY_SEA: {
-                if (((dos_rand() * 100) >> 15) + 1 < 50) {
-                    field_7 = (((dos_rand() * 5) >> 15) + ((dos_rand() * 5) >> 15)) * 6;
+                if (Randomizer_Generate(100) + 1 < 50) {
+                    field_7 = (Randomizer_Generate(5) + Randomizer_Generate(5)) * 6;
 
                 } else {
                     field_7 = 0;
@@ -1263,7 +1264,7 @@ void AiPlayer::RollField7() {
             } break;
 
             case AI_STRATEGY_DEFENSIVE: {
-                field_7 = (((dos_rand() * 7) >> 15) + ((dos_rand() * 7) >> 15)) * 12;
+                field_7 = (Randomizer_Generate(7) + Randomizer_Generate(7)) * 12;
             } break;
 
             case AI_STRATEGY_SCOUT_HORDE:
@@ -1275,8 +1276,8 @@ void AiPlayer::RollField7() {
             case AI_STRATEGY_FAST_ATTACK:
             case AI_STRATEGY_COMBINED_ARMS:
             case AI_STRATEGY_ESPIONAGE: {
-                if (((dos_rand() * 100) >> 15) + 1 < 25) {
-                    field_7 = (((dos_rand() * 5) >> 15) + ((dos_rand() * 5) >> 15)) * 6;
+                if (Randomizer_Generate(100) + 1 < 25) {
+                    field_7 = (Randomizer_Generate(5) + Randomizer_Generate(5)) * 6;
 
                 } else {
                     field_7 = 0;
@@ -1390,7 +1391,7 @@ void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
                 AddUnitToTeamMissionSupplies(CONSTRCT, 8);
             }
 
-            ChooseInitialUpgrades(((((dos_rand() * 5) >> 15) + 4) * mission_supplies->team_gold) / 16);
+            ChooseInitialUpgrades(((Randomizer_Generate(5) + 4) * mission_supplies->team_gold) / 16);
 
             if (GetVictoryConditionsFactor() > 1) {
                 AddUnitToTeamMissionSupplies(SURVEYOR, 0);
@@ -1435,7 +1436,7 @@ void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
                 AddUnitToTeamMissionSupplies(CONSTRCT, 0);
             }
 
-            ChooseInitialUpgrades(((((dos_rand() * 5) >> 15) + 4) * mission_supplies->team_gold) / 16);
+            ChooseInitialUpgrades(((Randomizer_Generate(5) + 4) * mission_supplies->team_gold) / 16);
 
             if (GetVictoryConditionsFactor() > 0 && clan != TEAM_CLAN_AXIS_INC) {
                 AddUnitToTeamMissionSupplies(ENGINEER, 0);
@@ -1470,7 +1471,7 @@ void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
                 AddUnitToTeamMissionSupplies(ENGINEER, 8);
             }
 
-            ChooseInitialUpgrades(((((dos_rand() * 4) >> 15) + 1) * mission_supplies->team_gold) / 16);
+            ChooseInitialUpgrades(((Randomizer_Generate(4) + 1) * mission_supplies->team_gold) / 16);
 
             AddUnitToTeamMissionSupplies(SCOUT, 0);
 
@@ -1509,7 +1510,7 @@ void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
                 AddUnitToTeamMissionSupplies(CONSTRCT, 0);
             }
 
-            ChooseInitialUpgrades(((((dos_rand() * 4) >> 15) + 1) * mission_supplies->team_gold) / 16);
+            ChooseInitialUpgrades(((Randomizer_Generate(4) + 1) * mission_supplies->team_gold) / 16);
 
             AddUnitToTeamMissionSupplies(SP_FLAK, 0);
             AddUnitToTeamMissionSupplies(SCOUT, 0);
@@ -1548,7 +1549,7 @@ void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
                 AddUnitToTeamMissionSupplies(ENGINEER, 0);
             }
 
-            ChooseInitialUpgrades(((((dos_rand() * 4) >> 15) + 2) * mission_supplies->team_gold) / 8);
+            ChooseInitialUpgrades(((Randomizer_Generate(4) + 2) * mission_supplies->team_gold) / 8);
 
             while (AddUnitToTeamMissionSupplies(SCOUT, 0)) {
             }
@@ -1564,7 +1565,7 @@ void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
             AddUnitToTeamMissionSupplies(TANK, 0);
             AddUnitToTeamMissionSupplies(REPAIR, 0);
 
-            ChooseInitialUpgrades(((((dos_rand() * 6) >> 15) + 1) * mission_supplies->team_gold) / 8);
+            ChooseInitialUpgrades(((Randomizer_Generate(6) + 1) * mission_supplies->team_gold) / 8);
 
             AddUnitToTeamMissionSupplies(TANK, 0);
             AddUnitToTeamMissionSupplies(TANK, 0);
@@ -1591,7 +1592,7 @@ void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
                 AddUnitToTeamMissionSupplies(CONSTRCT, 0);
             }
 
-            ChooseInitialUpgrades(((((dos_rand() * 5) >> 15) + 3) * mission_supplies->team_gold) / 12);
+            ChooseInitialUpgrades(((Randomizer_Generate(5) + 3) * mission_supplies->team_gold) / 12);
 
             if (GetVictoryConditionsFactor() > 0 && clan != TEAM_CLAN_AXIS_INC) {
                 AddUnitToTeamMissionSupplies(ENGINEER, 0);
@@ -1635,7 +1636,7 @@ void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
             AddUnitToTeamMissionSupplies(MISSLLCH, 0);
             AddUnitToTeamMissionSupplies(TANK, 0);
 
-            ChooseInitialUpgrades(((((dos_rand() * 10) >> 15) + 3) * mission_supplies->team_gold) / 16);
+            ChooseInitialUpgrades(((Randomizer_Generate(10) + 3) * mission_supplies->team_gold) / 16);
 
             while (AddUnitToTeamMissionSupplies(SCOUT, 0)) {
                 if (GetVictoryConditionsFactor() > 1) {
@@ -1661,7 +1662,7 @@ void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
                 AddUnitToTeamMissionSupplies(CONSTRCT, 0);
             }
 
-            ChooseInitialUpgrades(((((dos_rand() * 10) >> 11) + 2) * mission_supplies->team_gold) / 16);
+            ChooseInitialUpgrades(((Randomizer_Generate(11) + 2) * mission_supplies->team_gold) / 16);
 
             if (GetVictoryConditionsFactor() > 0 && clan != TEAM_CLAN_AXIS_INC) {
                 AddUnitToTeamMissionSupplies(ENGINEER, 0);
@@ -2929,7 +2930,7 @@ void AiPlayer::PlanMinefields() {
             for (int32_t x = 0; x < ResourceManager_MapSize.x && probability; ++x) {
                 for (int32_t y = 0; y < ResourceManager_MapSize.y && probability; ++y) {
                     if (access_map.GetMapColumn(x)[y]) {
-                        if (((dos_rand() * counter1) >> 15) + 1 <= probability) {
+                        if (Randomizer_Generate(counter1) + 1 <= probability) {
                             info_map[x][y] |= INFO_MAP_MINE_FIELD;
                             --probability;
                         }
@@ -4366,7 +4367,7 @@ bool AiPlayer::SelectStrategy() {
         if (ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_STRATEGY + player_team), strategy_string,
                                       sizeof(strategy_string))) {
             for (int32_t i = 0; i < AI_STRATEGY_MAX; ++i) {
-                if (!stricmp(strategy_string, strategy_strings[i])) {
+                if (!SDL_strcasecmp(strategy_string, strategy_strings[i])) {
                     if (strategy_scores[i] == 0) {
                         strategy = AI_STRATEGY_RANDOM;
 
@@ -4414,7 +4415,7 @@ bool AiPlayer::SelectStrategy() {
             }
         }
 
-        total_score = ((dos_rand() * total_score) >> 15) + 1;
+        total_score = Randomizer_Generate(total_score) + 1;
 
         int32_t index = -1;
 
@@ -4461,7 +4462,8 @@ bool AiPlayer::SelectStrategy() {
                 UnitsManager_TeamMissionSupplies[team]
                     .starting_position.x)[UnitsManager_TeamMissionSupplies[team].starting_position.y];
 
-            for (int64_t i = static_cast<int64_t>(continents.GetCount()) - 1; i >= 0 && continents.GetCount() > 1; --i) {
+            for (int64_t i = static_cast<int64_t>(continents.GetCount()) - 1; i >= 0 && continents.GetCount() > 1;
+                 --i) {
                 if (continents[i].GetFiller() == filler) {
                     continents.Erase(i);
                 }
@@ -4530,7 +4532,7 @@ bool AiPlayer::SelectStrategy() {
     }
 
     if (total_continent_size) {
-        total_continent_size = ((dos_rand() * total_continent_size) >> 15) + 1;
+        total_continent_size = Randomizer_Generate(total_continent_size) + 1;
 
         int32_t index = -1;
 

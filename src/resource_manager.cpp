@@ -41,6 +41,7 @@
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
+#include "randomizer.hpp"
 #include "screendump.h"
 #include "scripter.hpp"
 #include "sha2.h"
@@ -419,6 +420,7 @@ void ResourceManager_InitResources() {
     // MAX unit attribute definitions are available
     ResourceManager_InitClans();
     // MAX clan definitions are available
+    Randomizer_Init();
     Scripter::Init();
     ResourceManager_InitInternals();
     ResourceManager_InitHelpManager();
@@ -1496,7 +1498,7 @@ void ResourceManager_InitClanUnitValues(uint16_t team) {
     }
 
     if (team_clan == TEAM_CLAN_RANDOM) {
-        team_clan = ((dos_rand() << 3) >> 15) + 1;
+        team_clan = Randomizer_Generate(8) + 1;
         ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + team), team_clan);
     }
 

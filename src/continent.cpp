@@ -25,6 +25,7 @@
 #include "accessmap.hpp"
 #include "continentfiller.hpp"
 #include "inifile.hpp"
+#include "randomizer.hpp"
 #include "units_manager.hpp"
 
 bool Continent::IsDangerousProximity(int32_t grid_x, int32_t grid_y, uint16_t team, int32_t proximity_range) {
@@ -134,8 +135,8 @@ void Continent::SelectLandingSite(uint16_t team, int32_t strategy) {
     Point site;
 
     do {
-        site.x = bounds.ulx + (((bounds.lrx - bounds.ulx - 4 + 1) * dos_rand()) >> 15);
-        site.y = bounds.uly + (((bounds.lry - bounds.uly - 4 + 1) * dos_rand()) >> 15);
+        site.x = bounds.ulx + Randomizer_Generate(bounds.lrx - bounds.ulx - 4 + 1);
+        site.y = bounds.uly + Randomizer_Generate(bounds.lry - bounds.uly - 4 + 1);
     } while (!IsViableSite(true, team, site));
 
     UnitsManager_TeamMissionSupplies[team].starting_position = site;
