@@ -9,6 +9,8 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${XOSHIRO_FILE})
 	endif()
 endif()
 
+set(XOSHIRO_PATCH ${Patch_EXECUTABLE} -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/patches/xoshiro.patch)
+
 FetchContent_Declare(
 	XOSHIRO
 	TIMEOUT 60
@@ -16,6 +18,8 @@ FetchContent_Declare(
 	URL_HASH ${XOSHIRO_HASH_TYPE}=${XOSHIRO_HASH}
 	DOWNLOAD_EXTRACT_TIMESTAMP FALSE
 	OVERRIDE_FIND_PACKAGE
+	PATCH_COMMAND ${XOSHIRO_PATCH}
+	UPDATE_DISCONNECTED TRUE
 )
 
 FetchContent_MakeAvailable(XOSHIRO)
