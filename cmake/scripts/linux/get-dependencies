@@ -51,6 +51,10 @@ LUA_VERSION=$(sed -nr 's/set\(LUA_VERSION ([0-9]+\.[0-9]+\.[0-9]+)\)/\1/p' $maxp
 LUA_FILE=$(eval echo $(sed -nr 's/set\(LUA_FILE (.*)\)/\1/p' $maxport_configfile))
 LUA_URI=$(eval echo $(sed -nr 's/set\(LUA_URI (.*)\)/\1/p' $maxport_configfile))
 
+XOSHIRO_VERSION=$(sed -nr 's/set\(XOSHIRO_VERSION ([0-9]+\.[0-9]+)\)/\1/p' $maxport_configfile)
+XOSHIRO_FILE=$(eval echo $(sed -nr 's/set\(XOSHIRO_FILE (.*)\)/\1/p' $maxport_configfile))
+XOSHIRO_URI=$(eval echo $(sed -nr 's/set\(XOSHIRO_URI (.*)\)/\1/p' $maxport_configfile))
+
 wget --no-clobber --quiet --output-document="dependencies/$FREETYPE_FILE" "$FREETYPE_URI" | true
 wget --no-clobber --quiet --output-document="dependencies/$MINIAUDIO_FILE" "$MINIAUDIO_URI" | true
 wget --no-clobber --quiet --output-document="dependencies/$SDL2_FILE" "$SDL2_URI" | true
@@ -62,6 +66,7 @@ wget --no-clobber --quiet --output-document="dependencies/$JSON_FILE" "$JSON_URI
 wget --no-clobber --quiet --output-document="dependencies/$JSONSCHEMA_FILE" "$JSONSCHEMA_URI" | true
 wget --no-clobber --quiet --output-document="dependencies/$UTF8PROC_FILE" "$UTF8PROC_URI" | true
 wget --no-clobber --quiet --output-document="dependencies/$LUA_FILE" "$LUA_URI" | true
+wget --no-clobber --quiet --output-document="dependencies/$XOSHIRO_FILE" "$XOSHIRO_URI" | true
 
 if [ -x dos2unix ] && [ -x md5sum ]; then
   dos2unix --quiet "dependencies/dependencies.md5"
