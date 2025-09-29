@@ -4,5 +4,5 @@ Type=Application
 Name=M.A.X. Port
 Categories=Game;StrategyGame;
 Terminal=false
-Exec=gnome-terminal -x /usr/games/max-port
+Exec=/usr/games/max-port
 Icon=@CMAKE_INSTALL_PREFIX@/@GAME_INSTALL_PATH@/max.png

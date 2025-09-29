@@ -173,8 +173,9 @@ if(UNIX)
 
 	configure_file("${CMAKE_SOURCE_DIR}/assets/max-port.in" "${CMAKE_BINARY_DIR}/max-port" @ONLY)
 	configure_file("${CMAKE_SOURCE_DIR}/assets/max-port.desktop.in" "${CMAKE_BINARY_DIR}/max-port.desktop" @ONLY)
-
-	if(MAXPORT_FLATPAK_BUILD)
+	configure_file("${CMAKE_SOURCE_DIR}/assets/max-port-installer.in" "${CMAKE_BINARY_DIR}/max-port-installer" @ONLY)
+	
+  if(MAXPORT_FLATPAK_BUILD)
 		configure_file("${CMAKE_SOURCE_DIR}/flatpak/metainfo.xml.in" "${CMAKE_BINARY_DIR}/metainfo.xml" @ONLY)
 	else()
 		if(MAXPORT_PKGMAKE_BUILD)
@@ -195,6 +196,11 @@ if(UNIX)
 
 		install(FILES "${CMAKE_SOURCE_DIR}/assets/max.png"
 			DESTINATION "${GAME_INSTALL_PATH}"
+		)
+		# FIXME: Why do I need to add this while it's already done above??
+		install(FILES "${CMAKE_BINARY_DIR}/max-port-installer"
+		DESTINATION "${GAME_INSTALL_PATH}"
+		PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 		)
 	endif()
 endif()
