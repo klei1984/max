@@ -6083,8 +6083,10 @@ UnitInfo* GameManager_GetUnitWithCargoType(Complex* complex, int32_t cargo_type)
 int32_t GameManager_GetUnitActionCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2) {
     int32_t result;
 
+    uint32_t flags = GameManager_MaxSpy ? AccessModifier_IgnoreVisibility : AccessModifier_NoModifiers;
+
     if (Access_IsAccessible(unit1->GetUnitType(), GameManager_PlayerTeam, grid_x, grid_y,
-                            AccessModifier_SameClassBlocks)) {
+                            AccessModifier_SameClassBlocks | flags)) {
         if (unit2 && (unit2->flags & MOBILE_AIR_UNIT)) {
             result = CURSOR_FRIEND;
 
