@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 164 / 244 (67.2%) original M.A.X. defects in M.A.X. Port.
+Fixed 166 / 246 (67.4%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -629,7 +629,7 @@ This is a good example for a complex soft lock situation.
 
 182. **[Fixed]** Fixing defect 155 revealed other latent conceptual issues with the way damage potential and shots maps are managed by computer players. The below image depicts the access map of a computer player. The green zones are not accessible due to terrain objects or too high damage potential of defending enemy units. The red zones indicate how M.A.X. v1.04 blocked additional areas due to defect 155. The white glow in the red line found in the first map row indicates the aggregated armor rating compensation that should have been applied to the entire map, not only to the first row of it. The only problem is that now that armor is correctly compensated, the rest of the threat map algorithm is not behaving as expected anymore. Now if weak friendly units gather around and then enter into the red zone around the green no-go zone of the enemy defenses, they are immediately destroyed. It seems that the original authors, not knowing about defect 155, designed the rest of the relevant algorithms in a way that the resulting behavior would feel convincing for the human players even if the thought process behind it is somewhat flawed.
 <br>
-	<img src="{{ site.baseurl }}/assets/images/defect_182.png" alt="defect 182" width="480">
+    <img src="{{ site.baseurl }}/assets/images/defect_182.png" alt="defect 182" width="480">
 <br>
 <br>
 A simplified example: There is an enemy gun turret with attack rating of 16 and 2 shots. There is an enemy scout that could move in range which has an attack rating of 12 and 1 shot. The minefield map has no information available which means 1 shot with 0 attack rating. The enemy damage potential in this case is 44 damage and 4 shots at friendly armor rating of 0. A friendly scout stands at the beginning of the turn at the edge of the gun turrent’s attack range. The scout considers a non aggressive move at caution level 3 (no damage allowed in the current turn). The scout’s attack rating is 12, has 1 shot, an attack range of 3 and its armor rating is 4. The scout’s defense potential is subtracted from the enemies’ damage potential within the scout’s limited range : 44 - 1 * 12 = 32. In addition the damage potential map is updated from armor rating 0 to 4 at which time the 4 enemy shots are compensated by 4 * 4 = 16 armor and the result is subtracted from the remaining damage potential of the enemy so 32 - 16 = 16. A single scout reduced the enemy’s attack potential by 28 damage in the most paranoid scenario with caution level of 3. The scout will not attack as remaining damage potential is still > 0. But what if a second friendly scout would stand near the other in the beginning of the same turn? That would be sufficient now to convince one or both of the friendly scouts to move within range of the gun turret which will immediately destroy one of them.
@@ -655,7 +655,7 @@ Proposed defect fix:
 
 187. **[Fixed]** The TaskManageBuildings manager task is responsible to request connectors that connect up buildings and complexes. At the beginning of the process the task searches for a friendly building, preferably a mining station, that could be used as the destination point for other buildings to connect to. Other buildings of the given team then look for access to the destination point. The search algorithm tests connectability to the north, east, south and west directions from each evaluated building.
 <br>
-	<img src="{{ site.baseurl }}/assets/images/defect_187.png" alt="defect 187" width="740">
+    <img src="{{ site.baseurl }}/assets/images/defect_187.png" alt="defect 187" width="740">
 <br>
 <br>
 The above screenshot depicts a corner case where the first mining station found in the manager's buildings list is inside an isolated area. The mining station is marked with a red circle. The mountains around the mining station block off the line of sight, which is indicated for the power station with green rectangles in the direction of the destination point, of other buildings that seek connection indicated by the red demarcation lines. Due to this none of the complexes could be connected up to the chosen destination point and as new buildings in the list are pushed to the back of the list the given computer player is basically broken in the given game until the isolated mining station gets destroyed.
@@ -689,9 +689,9 @@ In the demonstrated scenario a hidden enemy submarine with available speed or mo
 
 194. **[Fixed]** There is a function (cseg01:0009D045) to populate maps with batches of concentrated resources. The function validates the team specific landing spots and could determine that the spots are not ideal and could move them around in a short radius within the scope of the given function. After the ideal landing spot is determined locally, without updating the team's actual landing spot itself, the function makes it sure that the minimum acceptable levels for fuel and raw materials are present at the locally determined landing spot based on the `INI_MAX_RESOURCES` ini configuration setting. There is a function (cseg01:000A1A26) to determine where to place the initial mining station of a team. The function takes a predetermined landing spot that is assumed to be on a viable continent outside enemy proximity zones and then checks whether the location is truly valid and could support the initial mining station with sufficient fuel and raw materials. The minimum acceptable levels for fuel and raw materials are determined for the initial location based on the `INI_MAX_RESOURCES` ini configuration setting. If any of the requirements are not met then the function seeks for a viable new location within a hard coded radius of 10 grid cells, presumed to be still outside of enemy danger zones, and the function assumes that a location is guaranteed to be found. One identified issue is that while the initial location is tested against minimum fuel and raw materials limits that are determined based on `INI_MAX_RESOURCES`, the other locations within the 10 grid cells radius are tested against hard coded limits of 8 fuel and 12 raw materials. In case the first referred function moves the ideal landing spot around locally and sets up minimum resource levels there, and the second referred function tests against not the granted minimum resource levels starting from the second iteration loop, but the hard coded ones, there is a high chance that no viable spot will be found. As the video clip demonstrates, if no viable landing spot is found it becomes possible to deploy teams to any location including the edge of the map or directly onto the sea or where there are no resources under the initial mining station whatsoever. A further disadvantage for teams that are deployed onto the sea is that their land units could be deployed far away onto actual land even right next to an enemy team. Finally the test radius is hard coded to 10 grid cells while `INI_EXCLUDE_RANGE` and `INI_PROXIMITY_RANGE` are configurable.
 <br>
-	<video class="embed-video" preload="metadata" controls loop muted playsinline>
-	<source src="{{ site.baseurl }}/assets/clips/defect_194.mp4" type="video/mp4">
-	</video>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_194.mp4" type="video/mp4">
+    </video>
 <br>
 <br>
 The proposed defect fix is to use `INI_MAX_RESOURCES (20)` consistently throughout relevant functions and to move the predetermined landing spot to where the expected minimum resource levels are granted by the algorithm that populates resources onto the map.
@@ -708,7 +708,7 @@ The proposed defect fix is to use `INI_MAX_RESOURCES (20)` consistently througho
 
 200. **[Fixed]** In the corner case depicted by the below screenshot a computer player was hit by a devastating enemy attack streak. The computer player's main complex is cut in half and there is a lot of rubble between the two segments of the old main complex. The buildings manager task issued more than six connectors to be built and assigned all four available engineers to these important tasks. The TaskCreateBuilding tasks assigned to build the connectors realized that there were rubbles at the build sites and each of these tasks created child tasks requesting the removal of the rubble by a bulldozer. As there is no bulldozer available, one is requested to be built as a child task. But the light vehicle plants are unable to operate as one of them does not have access to fuel, while the other does not have access to a power source. The connectors would be required. Fortunately, connectors can be built above rubble so the engineers just need to issue a move order to reach the targeted build sites. But the TaskCreateBuilding task has a member function (cseg01:0002FCC6) that handles the operating states of build operations and if the build task has at least one child task assigned, then builders are not allowed to issue move orders if they are in the close vicinity of the build site already. Summary: connectors cannot be built as builders cannot enter the build sites as bulldozing is requested. Bulldozers cannot be built as all engineers are waiting to be allowed to build connectors.
 <br>
-	<img src="{{ site.baseurl }}/assets/images/defect_200.png" alt="defect 200" width="740">
+    <img src="{{ site.baseurl }}/assets/images/defect_200.png" alt="defect 200" width="740">
 <br>
 This is a good example for a complex soft lock situation. The proposed defect fix is to allow entry to the build site if the first child task is rubble removal and the unit to be built is a connector.
 
@@ -771,9 +771,9 @@ There are many cases where blocked paths are not reported to remote hosts, proba
 
 220. **[Fixed]** The TaskAssistMove task does not verify whether an already determined destination of a transporter unit's client is still valid at the time an unload order is issued for the transporter (cseg01:0005670A). The TaskAssistMove task is a manager task which means that each computer player has only one such task instance and it manages all transporters and all of their clients. There is a member function (cseg01:0005650E) which iterates through all managed transporters and if any of them are at a client's destination, and the target grid cell is not blocked by other units, the task assigns the unload order to the applicable transporters. This could lead to situations where multiple air transporters consider a recently blown up occupied bridge as a valid non blocked destination cell and all affected transporters unload their client units on top of each other into the sea.
 <br>
-	<video class="embed-video" preload="metadata" controls loop muted playsinline>
-	<source src="{{ site.baseurl }}/assets/clips/defect_220.mp4" type="video/mp4">
-	</video>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_220.mp4" type="video/mp4">
+    </video>
 <br>
 As the video clip demonstrates there are at least four more odd behaviors:
 - Many air transporters are queuing to unload their client units to the very same single grid cell even though the manager task should know very well that all of the clients cannot be efficiently unloaded to the very same spot.
@@ -796,9 +796,9 @@ For example the computer player requests all currently powered off research cent
 
 225. **[Fixed]** There is a function (cseg01:001007BF) to remove a destroyed (exploding) unit. When a research center is destroyed the function does not check whether it was powered on, it just unconditionally calls the topic allocation manager function (cseg01:000D322D) to decrement the allocation counter even if the research center was powered off already. In corner cases when allocation becomes negative this means that the turns to complete value actually increases due to subtraction of a negative value from it. This issue affects both human and computer players. The proposed defect fix is to only call the allocation manager function if the destroyed research center is powered on.
 <br>
-	<video class="embed-video" preload="metadata" controls loop muted playsinline>
-	<source src="{{ site.baseurl }}/assets/clips/defect_225.mp4" type="video/mp4">
-	</video>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_225.mp4" type="video/mp4">
+    </video>
 <br>
 <br>
 
@@ -808,9 +808,9 @@ For example the computer player requests all currently powered off research cent
 
 228. Players are allowed to save games at any time without restrictions. When a previously saved game is loaded, certain unit movement related unit order states are reset back to a well defined semi-initial state (cseg01:000EC3E1). This is necessary as not every transient state of all state machines are saved into saved game files. Most unit movements are allowed to be performed parallel. Rockets, torpedos, alien missiles, alien plasma balls are actual units that get move unit orders. When such projectiles are flying around and the game is saved during this time frame various issues could occur on load.
 <br>
-	<video class="embed-video" preload="metadata" controls loop muted playsinline>
-	<source src="{{ site.baseurl }}/assets/clips/defect_228.mp4" type="video/mp4">
-	</video>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_228.mp4" type="video/mp4">
+    </video>
 <br>
 As the video clip demonstrates there are several odd behaviors when the game is saved while a projectile was moving towards its destination:
 - on load the projectile will stand still in air
@@ -822,27 +822,27 @@ Depending on the projectiles' unit order states a saved game might allow units t
 
 229. **[Fixed]** When a factory finishes building a unit it attempts to activate it. When all grid cell positions around the factory is blocked the factory gets blocked too. The factory is owned by a TaskCreateUnit task that requested the production of the newly built unit. The factory has order ORDER_BUILD and order state ORDER_STATE_BUILDING_READY. The task has CREATE_UNIT_STATE_ACTIVATING state. The manufactured unit is already spawned at the grid cell what is the top left position of the factory, but it is not visible, and it is owned by a TaskActivate task. When the infiltrator disables the factory (cseg01:000FCE8F) it updates both the previous order and the current order of it. The previous or old order becomes ORDER_HALT_BUILDING_2 and the new order becomes ORDER_DISABLE. The order states are updated as well and at the same time the factory gets stripped of all tasks it had. When the disabled state elapses the factory removes the ORDER_DISABLE order and restores ORDER_HALT_BUILDING_2. The task manager (cseg01:00045466) checks every turn whether there are idling units having no tasks and finds that now the factory has no tasks assigned. Typically the factory will be assigned a new TaskCreateUnit task to build something new even though in this case the previously produced unit is still waiting to be activated from the factory. It is clear that in normal circumstances the factory does not start to build something new while the previous is still waiting to be activated so this should not be allowed after a factory recovers from being disabled either.
 <br>
-	<video class="embed-video" preload="metadata" controls loop muted playsinline>
-	<source src="{{ site.baseurl }}/assets/clips/defect_229.mp4" type="video/mp4">
-	</video>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_229.mp4" type="video/mp4">
+    </video>
 <br>
 The proposed defect fix is to check whether the factory has a parent unit, the last built unit waiting to be activated, which is assigned a TaskActivateTask which has a builder unit associated with it that is the factory in question and in such a case do not assign the factory a new task, instead restore its orders that factories would normally have in these circumstances.
 
 230. **[Fixed]** The tileset of Ultima Thule (MD5 hash 39fb184442e026d919a6ba89cd7e1612 \*SNOW_5.WRL) misses a tile art at grid cell position \[055,066\]. When the tile is added back to the set the pass table of the planet should be updated too.
 <br>
-	<img src="{{ site.baseurl }}/assets/images/defect_230.png" alt="defect 230" width="480">
+    <img src="{{ site.baseurl }}/assets/images/defect_230.png" alt="defect 230" width="480">
 <br>
 
 231. **[Fixed]** The tilemap of Ice Berg (MD5 hash bddc3f12fc856009ba539b82303ae46a \*SNOW_3.WRL) places a wrong tile art at cell position \[057,057\]. Tile 55 needs to be set for the tilemap position.
 <br>
-	<img src="{{ site.baseurl }}/assets/images/defect_231.png" alt="defect 231" width="480">
+    <img src="{{ site.baseurl }}/assets/images/defect_231.png" alt="defect 231" width="480">
 <br>
 
 232. **[Fixed]** When a factory finishes building a unit a TaskActivate task is created that tries to find a free grid cell position around the factory where the unit can be activated. In case there are no free locations the task searches for friendly units that obstruct the way and tells the first one found to clear out (cseg01:00053ED0). Until the unit in the way moves the same function is not searching for free locations anymore. There are corner cases where this behavior creates soft lock situations.
 <br>
-	<video class="embed-video" preload="metadata" controls loop muted playsinline>
-	<source src="{{ site.baseurl }}/assets/clips/defect_232.mp4" type="video/mp4">
-	</video>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_232.mp4" type="video/mp4">
+    </video>
 <br>
 The video clip demonstrates that the repair unit of the green computer cannot move as it is a land unit while infiltrators can move around using shore tiles. When the light vehicle plant finishes manufacturing an engineer there are no free grid cell locations, but the friendly repair unit is obstructing so it is commanded to clear out from the zone that the unit cannot execute as there are no free land grid cells around it. Moving out of the way with the infiltrators after this event does not help as the TaskActivate task does not check free grid cell locations anymore. As soon as the friendly unit is lost and the clear zone command becomes obsolete the TaskActivate task searches for free locations again and immediately finds that there is a way. There is another related issue that the TaskActivate task is only issuing a clear out zone command for the first friendly unit found and in cases where there would be more friendlies and only the first one is unable to move the algorithm would soft lock again. 
 <br>
@@ -867,9 +867,9 @@ Proposed defect fix:
 
 237. **[Fixed]** The message manager has an operation mode where a modal dialog window is opened while the game continues to run in the background. The menu constructor (cseg01:000B61A2) sets the active font to FONT5. In the background the actively selected unit's marker blinks every second and this creates dirty zones that need to be rendered again. As the Names overlay is enabled, a function is called (cseg01:00087004) to render a unit's name which calls the map renderer's text box rendering function (cseg01:00086E2E) that changes the active font dynamically based on tactical map zoom level. Zooming completely in selects FONT1 in certain cases which is much bigger and the dialog window's draw boundaries are not adhered to as all text shaping algorithms take predetermined text lines that were cut into shape based on initial font size FONT5. The game needs to render the dialog window again when we click the scroll buttons that writes out of bounds corrupting the game state and smacking the stack so even under MS-DOS the game could crash. On modern operating systems such out of bounds accesses cause segmentation faults and the game always crashes. The proposed defect fix is to restore the font that was in use after rendering the unit names by the tactical map renderer.
 <br>
-	<video class="embed-video" preload="metadata" controls loop muted playsinline>
-	<source src="{{ site.baseurl }}/assets/clips/defect_237.mp4" type="video/mp4">
-	</video>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_237.mp4" type="video/mp4">
+    </video>
 <br>
 
 238. **[Fixed]** There is a function (cseg01:000B417F) to verify whether a multiplayer scenario is the same on both peers computers. The function first checks whether the scenario is an ongoing scenario mission's save file, then goes on to check the scenario mission file itself for compatibility. In case the save file is not found an uninitialized structure field is read and compared by the function abainst the host's comparable field value. The field holds a 32 bit pseudo random number while the uninitialized structure allocated on the stack is basically a random number. In very rare corner cases the two values could match.
@@ -885,3 +885,17 @@ Proposed defect fix:
 243. **[Fixed]** The French in-game help menu string table has several defects. The `UNIT_DESCRIPTION` field in the `GAME_SCREEN_SETUP` group misses the closing bracket from the screen coordinates section. The `CANCEL_BUTTON` field is missing from the `ALLOCATE_SETUP` group. The `ENEMY_SPOTTED` and `QUICK_SCROLL` fields are translated in the `PREFS_MENU_SETUP` group even though that was forbidden. The `BRIEFING_WINDOW` field is missing from the `TRAINING_MENU_SETUP` group. The `ALLOCATE_LABEL` in the `ALLOCATE_SETUP` group misses the comma after the uy coordinate from the screen coordinates section. The `TRANSPORT_SETUP` group defines three fields that are not supposed to called `RAW_LABEL`, `RAW_TUBE` and `UPGRADE_ALL`. The Italian in-game help menu string table has several defects. The `UP_DOWN_SAVELOAD` field is missing from the `SAVELOAD_SETUP` group. The `ENEMY_SPOTTED` and `QUICK_SCROLL` fields are translated in the `PREFS_MENU_SETUP` group even though that was forbidden. The `BARRACKS_SETUP` group is missing with all of its 46 fields. The Spanish in-game help menu string table has several defects. The `UNIT_DESCRIPTION` field in the `GAME_SCREEN_SETUP` group misses the closing bracket from the screen coordinates section. The `DEC_FUEL_BUTTON` field in the `ALLOCATE_SETUP` group misses the closing bracket from the screen coordinates section.
 
 244. **[Fixed]** The English in-game help menu string table has several typos. `recieved` -> `received`. `Proceding the vehicle's name is it's version number.` -> `Preceding the vehicle's name is its version number.`. `To selected an enemy unit simply click on it when this button is depressed. Clicking on an enemy unit already selected will deselected that unit.` -> `To select an enemy unit simply click on it when this button is depressed. Clicking on an enemy unit already selected will deselect that unit.`. `The first number show the amount of ` -> `The first number shows the amount of `. `transfered` -> `transferred`. `This the Modem Setup Menu` -> `This is the Modem Setup Menu`. `This the Serial` -> `This is the`. `The "Auto-Save" feature automatically saves your game at the begining of every turn.` -> `beginning`. `This the Training Menu` -> `This is the`. `This the Mission Window` -> `This is the` multiple cases. `Each level, when clicked, will display information about that opponents abilities.` -> `opponent's`. `Upgrades, which effect one type of unit at a time, technology gained by research can effect the attributes of many or all your units at the same time.` -> `affect`. `'Armor' relates to the strength and quality of the units armor plating.` -> `unit's` multiple cases. `This window displays the plane that is currently occuping this hangar bay.` -> `occupying`. `Click the UPGRADE button to upgrade a unit to current technology levels a unit.` -> `Click the UPGRADE button to upgrade a unit to current technology levels.`. `Each unit loaded into the Dock occupys one bay.` -> `occupies` 6 cases. `Click on the "Repair" button and the unit with be repaired.` -> `will be repaired`. `The SCORE Report displays a graph of each teams present score` -> `The SCORE Report displays a graph of each team's present score`. `Clicking the Score button presents a graph dipicting each teams score.` -> `depicting each team's`. `The INCLUDE buttons are filters effecting which types of units are included` -> `affecting`.
+
+245. **[Fixed]** There is a function (cseg01:00011436) that updates heat maps, mini maps and similar when a unit moves from one grid cell to another and doing so a grid cell is not covered anymore by the unit's scan radius. The function tests whether the map hash table tracks other team's units in the affected grid cells and updates the affected units' team visibility information. In other words when a friendly unit moves, an enemy team unit may leave the friendly unit's scan radius and if the friendly team has no scan coverage anymore the enemy unit will disappear from the tactical map. The problem is that the algorithm does not consider that buildings occupy four grid cells, not just one. The algorithm is not supposed to make an enemy unit disappear from the tactical map as long as any of its four grid cells that the unit occupies is visible to the friendly team. The proposed defect fix is to test all four grid cells of the building.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_245.mp4" type="video/mp4">
+    </video>
+<br>
+The video clip demonstrates that the enemy mining station disappears when the friendly unit cannot see at least one of the grid cells that the building occupies.
+
+246. **[Fixed]** There is a function (cseg01:000115DF) that is executed mainly when a game is started or loaded and performs a similar functionality to the one in defect 245. If an enemy building is only partly covered by the scan radius of the friendly team, the building becomes hidden. This functionality is skipped for utility units like slabs, cones and tapes so on load a previously seen building may disappear leaving an empty slab or similar visible still. The proposed defect fix is to test all four grid cells of the building.
+<br>
+    <img src="{{ site.baseurl }}/assets/images/defect_246.png" alt="defect 246" width="480">
+<br>
+<br>
