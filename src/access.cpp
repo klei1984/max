@@ -506,6 +506,26 @@ uint32_t Access_GetAttackTargetGroup(UnitInfo* unit) {
     return result;
 }
 
+bool Access_IsVisibleOnHeatMap(UnitInfo* const unit, const uint16_t team) {
+    bool result = false;
+
+    if (unit && UnitsManager_TeamInfo[team].heat_map_complete) {
+        const int32_t map_offset = ResourceManager_MapSize.x * unit->grid_y + unit->grid_x;
+
+        if (unit->flags & BUILDING) {
+            result = UnitsManager_TeamInfo[team].heat_map_complete[map_offset] ||
+                     UnitsManager_TeamInfo[team].heat_map_complete[map_offset + 1] ||
+                     UnitsManager_TeamInfo[team].heat_map_complete[map_offset + ResourceManager_MapSize.x] ||
+                     UnitsManager_TeamInfo[team].heat_map_complete[map_offset + ResourceManager_MapSize.x + 1];
+
+        } else {
+            result = UnitsManager_TeamInfo[team].heat_map_complete[map_offset];
+        }
+    }
+
+    return result;
+}
+
 uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
     uint32_t result;
     uint16_t team;
@@ -586,11 +606,8 @@ uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t g
 }
 
 void Access_UpdateMapStatusRemoveUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
-    uint16_t team;
-    int32_t map_offset;
-
-    team = unit->team;
-    map_offset = ResourceManager_MapSize.x * grid_y + grid_x;
+    const auto team = unit->team;
+    const int32_t map_offset = ResourceManager_MapSize.x * grid_y + grid_x;
 
     if (unit->GetUnitType() == CORVETTE) {
         --UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset];
@@ -628,7 +645,9 @@ void Access_UpdateMapStatusRemoveUnit(UnitInfo* unit, int32_t grid_x, int32_t gr
                 }
 
                 for (; it != end; ++it) {
-                    (*it).Draw(team);
+                    if (!Access_IsVisibleOnHeatMap(it->Get(), team)) {
+                        (*it).Draw(team);
+                    }
                 }
             }
         }
@@ -658,8 +677,9 @@ void Access_DrawUnit(UnitInfo* unit) {
                 }
             }
 
-            if (UnitsManager_TeamInfo[team].heat_map_complete[map_offset]) {
+            if (Access_IsVisibleOnHeatMap(unit, team)) {
                 unit->DrawStealth(team);
+
             } else {
                 unit->Draw(team);
             }
