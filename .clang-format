@@ -4,5 +4,6 @@ AccessModifierOffset: '-4'
 ColumnLimit: '120'
 IndentWidth: '4'
 TabWidth: '4'
-
+ReferenceAlignment: Right
+PointerAlignment: Right
 ...
