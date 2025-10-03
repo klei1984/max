@@ -41,8 +41,6 @@ extern uint16_t SaveLoadMenu_TurnTimer;
 extern uint8_t SaveLoadMenu_GameState;
 
 static void SaveLoad_TeamClearUnitList(SmartList<UnitInfo> &units, uint16_t team);
-static std::filesystem::path SaveLoad_GetFilePath(const MissionCategory mission_category, const int32_t save_slot,
-                                                  std::string *file_name = nullptr);
 static bool SaveLoad_GetSaveFileInfoV70(SmartFileReader &file, struct SaveFileInfo &save_file_info,
                                         const bool load_options);
 static bool SaveLoad_GetSaveFileInfoV71(SmartFileReader &file, struct SaveFileInfo &save_file_info,

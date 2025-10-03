@@ -43,6 +43,8 @@ struct SaveFileInfo {
     uint32_t random_seed;
 };
 
+std::filesystem::path SaveLoad_GetFilePath(const MissionCategory mission_category, const int32_t save_slot,
+                                           std::string *file_name = nullptr);
 bool SaveLoad_GetSaveFileInfo(const MissionCategory mission_category, const int32_t save_slot,
                               struct SaveFileInfo &save_file_info, const bool load_options = false);
 bool SaveLoad_GetSaveFileInfo(const std::filesystem::path &filepath, struct SaveFileInfo &save_file_info,

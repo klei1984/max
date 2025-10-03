@@ -191,8 +191,12 @@ void SaveLoadMenu_Init(const MissionCategory mission_category, SaveSlot *slots, 
             slots[i].save_file_type = save_file_info.save_file_category;
 
         } else {
+            std::string file_name;
+
+            (void)SaveLoad_GetFilePath(save_file_category, first_slot_on_page + i, &file_name);
+
             slots[i].in_use = false;
-            slots[i].file_name[0] = '\0';
+            SDL_utf8strlcpy(slots[i].file_name, file_name.c_str(), sizeof(slots[i].file_name));
             slots[i].save_name[0] = '\0';
             slots[i].save_file_type = mission_category;
         }
