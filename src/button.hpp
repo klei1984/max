@@ -31,10 +31,10 @@ class Button {
     int32_t uly;
     int32_t width;
     int32_t height;
-    Image *up;
-    Image *down;
-    Image *up_disabled;
-    Image *down_disabled;
+    Image* up;
+    Image* down;
+    Image* up_disabled;
+    Image* down_disabled;
     intptr_t p_value;
     intptr_t r_value;
     uint32_t flags;
@@ -45,8 +45,8 @@ class Button {
     bool enable;
     bool rest_state;
 
-    friend void Button_PFunc(ButtonID bid, Button *b);
-    friend void Button_RFunc(ButtonID bid, Button *b);
+    friend void Button_PFunc(ButtonID bid, Button* b);
+    friend void Button_RFunc(ButtonID bid, Button* b);
 
 public:
     Button(int32_t ulx, int32_t uly, int32_t width, int32_t height);
@@ -56,22 +56,22 @@ public:
     void Allocate();
     Rect GetBounds() const;
 
-    uint8_t *GetUpData() const;
-    uint8_t *GetDownData() const;
-    uint8_t *GetUpDisabledData() const;
-    uint8_t *GetDownDisabledData() const;
+    uint8_t* GetUpData() const;
+    uint8_t* GetDownData() const;
+    uint8_t* GetUpDisabledData() const;
+    uint8_t* GetDownDisabledData() const;
 
     void Copy(WinID wid);
     void Copy(ResourceID id, int32_t ulx, int32_t uly);
-    void CopyDisabled(WindowInfo *w);
+    void CopyDisabled(WindowInfo* w);
     void CopyUp(ResourceID id);
     void CopyDown(ResourceID id);
     void CopyUpDisabled(ResourceID id);
     void CopyDownDisabled(ResourceID id);
-    void CopyUp(uint8_t *data);
-    void CopyDown(uint8_t *data);
-    void CopyUpDisabled(uint8_t *data);
-    void CopyDownDisabled(uint8_t *data);
+    void CopyUp(uint8_t* data);
+    void CopyDown(uint8_t* data);
+    void CopyUpDisabled(uint8_t* data);
+    void CopyDownDisabled(uint8_t* data);
 
     void SetPFunc(ButtonFunc p_func, intptr_t p_value);
     void SetRFunc(ButtonFunc r_func, intptr_t r_value);
@@ -88,10 +88,10 @@ public:
     void SetPValue(intptr_t p_value);
     void SetRValue(intptr_t r_value);
     void SetFlags(uint32_t flags);
-    void SetCaption(const char *caption, int16_t x = 0, int16_t y = 0, FontColor color_up = Fonts_GoldColor,
+    void SetCaption(const char* caption, int16_t x = 0, int16_t y = 0, FontColor color_up = Fonts_GoldColor,
                     FontColor color_down = Fonts_DarkOrageColor, FontColor color_up_disabled = Fonts_DarkGrayColor,
                     FontColor color_down_disabled = Fonts_DarkGrayColor);
-    void SetCaption(const char *caption, Rect *r, FontColor color_up = Fonts_GoldColor,
+    void SetCaption(const char* caption, Rect* r, FontColor color_up = Fonts_GoldColor,
                     FontColor color_down = Fonts_DarkOrageColor, FontColor color_up_disabled = Fonts_DarkGrayColor,
                     FontColor color_down_disabled = Fonts_DarkGrayColor);
 };

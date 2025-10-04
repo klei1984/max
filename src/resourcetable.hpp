@@ -2040,6 +2040,6 @@ enum ResourceID : uint16_t {
     INVALID_ID = 0xFFFF
 };
 
-extern const char *const ResourceManager_ResourceIdList[RESOURCE_E];
+extern const char* const ResourceManager_ResourceIdList[RESOURCE_E];
 
 #endif /* RESOURCETABLE_HPP */

@@ -211,7 +211,7 @@ AbstractUpgradeMenu::~AbstractUpgradeMenu() {
     delete button_description;
 }
 
-void AbstractUpgradeMenu::AddUpgrade(int32_t id, int32_t value1, int32_t value2, uint16_t *attribute, int32_t value) {
+void AbstractUpgradeMenu::AddUpgrade(int32_t id, int32_t value1, int32_t value2, uint16_t* attribute, int32_t value) {
     upgrade_controls[upgrade_control_count] =
         new (std::nothrow) UpgradeControl(window1.id, cost_background->GetULX() - 38, upgrade_control_next_uly,
                                           upgrade_control_count + 1015, upgrade_control_count + 1025, &team_gold);
@@ -330,11 +330,11 @@ void AbstractUpgradeMenu::AddUpgradeMobile(ResourceID unit_type) {
     }
 }
 
-bool AbstractUpgradeMenu::EventHandler(Event *event) {
+bool AbstractUpgradeMenu::EventHandler(Event* event) {
     bool result;
 
     if (event->GetEventId() == EVENTS_GET_EVENT_ID(UnitSelectEvent)) {
-        EventUnitSelect *select = dynamic_cast<EventUnitSelect *>(event);
+        EventUnitSelect* select = dynamic_cast<EventUnitSelect*>(event);
 
         result = AbstractUpgradeMenu_vfunc4(select->GetSelector(), select->GetValue());
     } else {
@@ -345,7 +345,7 @@ bool AbstractUpgradeMenu::EventHandler(Event *event) {
 }
 
 void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
-    BaseUnit *base_unit;
+    BaseUnit* base_unit;
 
     this->unit_type = unit_type;
 
@@ -391,7 +391,7 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
 
 void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc3(ResourceID unit_type) {}
 
-bool AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc4(UnitTypeSelector *selector, bool mode) {
+bool AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc4(UnitTypeSelector* selector, bool mode) {
     bool result;
 
     if (type_selector == selector) {
@@ -437,9 +437,9 @@ void AbstractUpgradeMenu::PopulateTeamUnitsList() {
 }
 
 void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
-    struct ImageSimpleHeader *image;
-    uint8_t *buffer_text;
-    uint8_t *buffer_icon;
+    struct ImageSimpleHeader* image;
+    uint8_t* buffer_text;
+    uint8_t* buffer_icon;
 
     stats_background->Write(&window1);
 
@@ -453,7 +453,7 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
 
     cost_background->Write(&window1);
 
-    image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(I_GOLD));
+    image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(I_GOLD));
 
     buffer_text = &window1.buffer[cost_background->GetULX() + window1.width * 5 + 24];
     buffer_icon = &window1.buffer[cost_background->GetULX() + window1.width * 3 + 25];
@@ -476,7 +476,7 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
 
     {
         int32_t height;
-        uint8_t *buffer;
+        uint8_t* buffer;
 
         gold_background->Write(&window1);
 
@@ -494,7 +494,7 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
 
     {
         char text[20];
-        uint8_t *buffer;
+        uint8_t* buffer;
         int32_t length;
 
         snprintf(text, sizeof(text), "%i", team_gold);

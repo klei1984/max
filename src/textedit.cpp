@@ -38,7 +38,7 @@ static const int16_t TextEdit_KeyToAsciiMap[] = {
 
 static_assert(sizeof(TextEdit_KeyToAsciiMap) == 128 * sizeof(const int16_t));
 
-TextEdit::TextEdit(WindowInfo *window, char *text, int32_t buffer_size, int32_t ulx, int32_t uly, int32_t width,
+TextEdit::TextEdit(WindowInfo* window, char* text, int32_t buffer_size, int32_t ulx, int32_t uly, int32_t width,
                    int32_t height, uint16_t color, int32_t font_num)
     : font_num(font_num),
       window(*window),
@@ -77,7 +77,7 @@ TextEdit::~TextEdit() {
     delete[] text_before_cursor;
 }
 
-void TextEdit::SetEditedText(const char *text) { strcpy(edited_text, text); }
+void TextEdit::SetEditedText(const char* text) { strcpy(edited_text, text); }
 
 void TextEdit::LoadBgImage() { bg_image->Copy(&window); }
 
@@ -110,7 +110,7 @@ void TextEdit::LeaveTextEditField() {
     }
 }
 
-void TextEdit::UpdateWindow(WindowInfo *window) {
+void TextEdit::UpdateWindow(WindowInfo* window) {
     this->window.buffer = &window->buffer[this->window.window.ulx - window->window.ulx +
                                           (this->window.window.uly - window->window.uly) * window->width];
     this->window.width = window->width;

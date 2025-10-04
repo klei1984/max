@@ -29,8 +29,8 @@
 
 class TransferMenu : public Window {
     int16_t total_materials_transferred;
-    UnitInfo *source_unit;
-    UnitInfo *target_unit;
+    UnitInfo* source_unit;
+    UnitInfo* target_unit;
     ResourceID material_id;
     WindowInfo window;
     int16_t source_unit_free_capacity;
@@ -39,23 +39,23 @@ class TransferMenu : public Window {
     int16_t source_unit_materials;
     int16_t target_unit_materials;
     bool event_click_done;
-    Button *button_cancel;
-    Button *button_done;
-    Button *button_help;
-    Button *button_right;
-    Button *button_left;
-    Button *button_arrow;
-    LimitedScrollbar *scrollbar;
-    Image *xfer_amount;
-    Image *source_cargo;
-    Image *target_cargo;
+    Button* button_cancel;
+    Button* button_done;
+    Button* button_help;
+    Button* button_right;
+    Button* button_left;
+    Button* button_arrow;
+    LimitedScrollbar* scrollbar;
+    Image* xfer_amount;
+    Image* source_cargo;
+    Image* target_cargo;
     bool event_release;
 
     void UpdateIndicators();
     bool ProcessKey(int32_t key);
 
 public:
-    TransferMenu(UnitInfo *unit);
+    TransferMenu(UnitInfo* unit);
     ~TransferMenu();
 
     void Run();
@@ -63,6 +63,6 @@ public:
     int16_t GetCargoTransferred() const;
 };
 
-int32_t TransferMenu_Menu(UnitInfo *unit);
+int32_t TransferMenu_Menu(UnitInfo* unit);
 
 #endif /* TRANSFERMENU_HPP */

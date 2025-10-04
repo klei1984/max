@@ -39,21 +39,21 @@
 extern uint16_t SaveLoadMenu_TurnTimer;
 extern uint8_t SaveLoadMenu_GameState;
 
-static void SaveLoad_TeamClearUnitList(SmartList<UnitInfo> &units, uint16_t team);
-static bool SaveLoad_GetSaveFileInfoV70(SmartFileReader &file, struct SaveFileInfo &save_file_info,
+static void SaveLoad_TeamClearUnitList(SmartList<UnitInfo>& units, uint16_t team);
+static bool SaveLoad_GetSaveFileInfoV70(SmartFileReader& file, struct SaveFileInfo& save_file_info,
                                         const bool load_options);
-static bool SaveLoad_GetSaveFileInfoV71(SmartFileReader &file, struct SaveFileInfo &save_file_info,
+static bool SaveLoad_GetSaveFileInfoV71(SmartFileReader& file, struct SaveFileInfo& save_file_info,
                                         const bool load_options);
-static bool SaveLoad_LoadFormatV70(SmartFileReader &file, const MissionCategory mission_category, bool is_remote_game,
+static bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission_category, bool is_remote_game,
                                    bool ini_load_mode);
-static bool SaveLoad_LoadFormatV71(SmartFileReader &file, const MissionCategory mission_category, bool is_remote_game,
+static bool SaveLoad_LoadFormatV71(SmartFileReader& file, const MissionCategory mission_category, bool is_remote_game,
                                    bool ini_load_mode);
 static std::string SaveLoad_TranslateMissionIndexToHashKey(const uint32_t save_file_type, const uint32_t index);
 static uint32_t SaveLoad_TranslateHashKeyToWorldIndex(const std::string hash);
 static std::string SaveLoad_TranslateWorldIndexToHashKey(const uint32_t index);
 MissionCategory SaveLoad_TranslateSaveFileCategory(const uint32_t save_file_type);
 
-void SaveLoad_TeamClearUnitList(SmartList<UnitInfo> &units, uint16_t team) {
+void SaveLoad_TeamClearUnitList(SmartList<UnitInfo>& units, uint16_t team) {
     for (auto it = units.Begin(); it != units.End(); ++it) {
         if ((*it).team == team) {
             UnitsManager_DestroyUnit(&*it);
@@ -62,7 +62,7 @@ void SaveLoad_TeamClearUnitList(SmartList<UnitInfo> &units, uint16_t team) {
 }
 
 std::filesystem::path SaveLoad_GetFilePath(const MissionCategory mission_category, const int32_t save_slot,
-                                           std::string *file_name) {
+                                           std::string* file_name) {
     std::filesystem::path filepath;
     const auto filename = SaveLoad_GetSaveFileName(mission_category, save_slot);
 
@@ -81,7 +81,7 @@ std::filesystem::path SaveLoad_GetFilePath(const MissionCategory mission_categor
     return filepath;
 }
 
-bool SaveLoad_GetSaveFileInfoV70(SmartFileReader &file, struct SaveFileInfo &save_file_info, const bool load_options) {
+bool SaveLoad_GetSaveFileInfoV70(SmartFileReader& file, struct SaveFileInfo& save_file_info, const bool load_options) {
     std::string mission_hash;
     uint32_t save_file_category;
     uint32_t rng_seed;
@@ -152,7 +152,7 @@ bool SaveLoad_GetSaveFileInfoV70(SmartFileReader &file, struct SaveFileInfo &sav
 
         result = true;
 
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         result = false;
 
         SDL_Log("\n%s\n", (std::format("Save Format V71 error: {}.", e.what()).c_str()));
@@ -161,7 +161,7 @@ bool SaveLoad_GetSaveFileInfoV70(SmartFileReader &file, struct SaveFileInfo &sav
     return result;
 }
 
-bool SaveLoad_GetSaveFileInfoV71(SmartFileReader &file, struct SaveFileInfo &save_file_info, const bool load_options) {
+bool SaveLoad_GetSaveFileInfoV71(SmartFileReader& file, struct SaveFileInfo& save_file_info, const bool load_options) {
     bool result;
 
     uint32_t version;
@@ -239,7 +239,7 @@ bool SaveLoad_GetSaveFileInfoV71(SmartFileReader &file, struct SaveFileInfo &sav
 
         result = true;
 
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         result = false;
 
         SDL_Log("\n%s\n", (std::format("Save Format V71 error: {}.", e.what()).c_str()));
@@ -249,13 +249,13 @@ bool SaveLoad_GetSaveFileInfoV71(SmartFileReader &file, struct SaveFileInfo &sav
 }
 
 bool SaveLoad_GetSaveFileInfo(const MissionCategory mission_category, const int32_t save_slot,
-                              struct SaveFileInfo &save_file_info, const bool load_options) {
+                              struct SaveFileInfo& save_file_info, const bool load_options) {
     auto filepath = SaveLoad_GetFilePath(mission_category, save_slot);
 
     return SaveLoad_GetSaveFileInfo(filepath, save_file_info, load_options);
 }
 
-bool SaveLoad_GetSaveFileInfo(const std::filesystem::path &filepath, struct SaveFileInfo &save_file_info,
+bool SaveLoad_GetSaveFileInfo(const std::filesystem::path& filepath, struct SaveFileInfo& save_file_info,
                               const bool load_options) {
     SmartFileReader file;
     bool result;
@@ -307,8 +307,8 @@ bool SaveLoad_GetSaveFileInfo(const std::filesystem::path &filepath, struct Save
     return result;
 }
 
-bool SaveLoad_Save(const std::filesystem::path &filepath, const char *const save_name, const uint32_t rng_seed) {
-    const char *menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
+bool SaveLoad_Save(const std::filesystem::path& filepath, const char* const save_name, const uint32_t rng_seed) {
+    const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
     bool result{false};
     const auto mission = ResourceManager_GetMissionManager().get()->GetMission();
     const auto mission_category = mission->GetCategory();
@@ -497,7 +497,7 @@ bool SaveLoad_Save(const std::filesystem::path &filepath, const char *const save
         // team info
         {
             for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
-                const CTInfo *const team_info = &UnitsManager_TeamInfo[team];
+                const CTInfo* const team_info = &UnitsManager_TeamInfo[team];
                 uint16_t unit_id;
 
                 file.Write(team_info->markers);
@@ -640,9 +640,9 @@ bool SaveLoad_Save(const std::filesystem::path &filepath, const char *const save
     return result;
 }
 
-bool SaveLoad_LoadFormatV70(SmartFileReader &file, const MissionCategory mission_category, bool is_remote_game,
+bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission_category, bool is_remote_game,
                             bool ini_load_mode) {
-    const char *menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
+    const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
     bool result;
     bool save_load_flag;
     uint16_t version;
@@ -724,7 +724,7 @@ bool SaveLoad_LoadFormatV70(SmartFileReader &file, const MissionCategory mission
     ResourceManager_InitTeamInfo();
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        CTInfo *team_info;
+        CTInfo* team_info;
 
         team_info = &UnitsManager_TeamInfo[team];
 
@@ -801,7 +801,7 @@ bool SaveLoad_LoadFormatV70(SmartFileReader &file, const MissionCategory mission
     save_load_flag = true;
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        CTInfo *team_info;
+        CTInfo* team_info;
         char team_name[30];
 
         team_info = &UnitsManager_TeamInfo[team];
@@ -853,7 +853,7 @@ bool SaveLoad_LoadFormatV70(SmartFileReader &file, const MissionCategory mission
                 file.Read(team_info->heat_map_stealth_land, map_cell_count);
 
             } else {
-                char *temp_buffer;
+                char* temp_buffer;
 
                 temp_buffer = new (std::nothrow) char[map_cell_count];
 
@@ -910,9 +910,9 @@ bool SaveLoad_LoadFormatV70(SmartFileReader &file, const MissionCategory mission
     return result;
 }
 
-bool SaveLoad_LoadFormatV71(SmartFileReader &file, const MissionCategory mission_category, bool is_remote_game,
+bool SaveLoad_LoadFormatV71(SmartFileReader& file, const MissionCategory mission_category, bool is_remote_game,
                             bool ini_load_mode) {
-    const char *menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
+    const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
     bool result;
     bool save_load_flag;
     uint32_t version;
@@ -1012,7 +1012,7 @@ bool SaveLoad_LoadFormatV71(SmartFileReader &file, const MissionCategory mission
     ResourceManager_InitTeamInfo();
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
-        CTInfo *team_info;
+        CTInfo* team_info;
 
         team_info = &UnitsManager_TeamInfo[team];
 
@@ -1113,7 +1113,7 @@ bool SaveLoad_LoadFormatV71(SmartFileReader &file, const MissionCategory mission
     save_load_flag = true;
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        CTInfo *team_info;
+        CTInfo* team_info;
         char team_name[30];
 
         team_info = &UnitsManager_TeamInfo[team];
@@ -1165,7 +1165,7 @@ bool SaveLoad_LoadFormatV71(SmartFileReader &file, const MissionCategory mission
                 file.Read(team_info->heat_map_stealth_land, map_cell_count);
 
             } else {
-                char *temp_buffer;
+                char* temp_buffer;
 
                 temp_buffer = new (std::nothrow) char[map_cell_count];
 
@@ -1479,7 +1479,7 @@ MissionCategory SaveLoad_TranslateSaveFileCategory(const uint32_t save_file_type
     return mission_category;
 }
 
-bool SaveLoad_Load(const std::filesystem::path &filepath, const MissionCategory mission_category, bool ini_load_mode,
+bool SaveLoad_Load(const std::filesystem::path& filepath, const MissionCategory mission_category, bool ini_load_mode,
                    bool is_remote_game) {
     bool result;
     SmartFileReader file;
@@ -1509,7 +1509,7 @@ bool SaveLoad_Load(const std::filesystem::path &filepath, const MissionCategory 
 }
 
 std::string SaveLoad_GetSaveFileName(const MissionCategory mission_category, const uint32_t save_slot) {
-    const char *extension;
+    const char* extension;
 
     switch (mission_category) {
         case MISSION_CATEGORY_CUSTOM: {

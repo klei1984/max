@@ -31,13 +31,13 @@
 class UnitTypeSelector;
 
 class EventUnitSelect : public Event {
-    UnitTypeSelector *selector;
+    UnitTypeSelector* selector;
     uint8_t value;
 
 public:
-    EventUnitSelect(UnitTypeSelector *selector, int16_t value);
+    EventUnitSelect(UnitTypeSelector* selector, int16_t value);
     uint16_t GetEventId() const;
-    UnitTypeSelector *GetSelector() const;
+    UnitTypeSelector* GetSelector() const;
     bool GetValue() const;
 };
 
@@ -45,22 +45,22 @@ EVENTS_DECLARE_EVENT_ID(UnitSelectEvent);
 
 class UnitTypeSelector {
 protected:
-    Window *window;
+    Window* window;
     WindowInfo window_info;
     SmartObjectArray<ResourceID> unit_types;
     uint16_t team;
     int64_t page_min_index;
     int64_t page_max_index;
     int64_t max_item_count;
-    struct ImageSimpleHeader *image;
+    struct ImageSimpleHeader* image;
     int32_t key_code;
     ButtonManager button_group;
-    Button *button_scroll_up;
-    Button *button_scroll_down;
+    Button* button_scroll_up;
+    Button* button_scroll_down;
 
 public:
-    UnitTypeSelector(Window *window, WindowInfo *window_info, SmartObjectArray<ResourceID> unit_types, uint16_t team,
-                     int32_t key_code, Button *button_scroll_up, Button *button_scroll_down);
+    UnitTypeSelector(Window* window, WindowInfo* window_info, SmartObjectArray<ResourceID> unit_types, uint16_t team,
+                     int32_t key_code, Button* button_scroll_up, Button* button_scroll_down);
     virtual ~UnitTypeSelector();
 
     ResourceID GetLast();

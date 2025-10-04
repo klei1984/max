@@ -26,12 +26,12 @@
 
 class TerrainMap {
     int16_t dimension_x;
-    uint16_t **land_map;
-    uint16_t **water_map;
+    uint16_t** land_map;
+    uint16_t** water_map;
 
-    int32_t TerrainMap_sub_68EEF(uint16_t **map, Point location);
-    void SetTerrain(uint16_t **map, Point location);
-    void ClearTerrain(uint16_t **map, Point location);
+    int32_t TerrainMap_sub_68EEF(uint16_t** map, Point location);
+    void SetTerrain(uint16_t** map, Point location);
+    void ClearTerrain(uint16_t** map, Point location);
 
 public:
     TerrainMap();

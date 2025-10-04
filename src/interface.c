@@ -128,8 +128,7 @@ int32_t win_get_str(char* str, int32_t limit, char* title, int32_t x, int32_t y)
             Text_Blit(&buf[8 * width + 8], title, width, width, Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_4]));
 
             draw_shaded_box(buf, width, 14, Text_GetHeight() + 14, width - 14, 2 * Text_GetHeight() + 16,
-                            Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_2]),
-                            Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_1]));
+                            Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_2]), Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_1]));
 
             win_register_text_button(id, width / 2 - 72, length - 8 - Text_GetHeight() - 6, -1, -1, -1, 13, "Done", 0);
 
@@ -137,8 +136,7 @@ int32_t win_get_str(char* str, int32_t limit, char* title, int32_t x, int32_t y)
 
             win_draw(id);
 
-            retval = win_input_str(id, str, limit, 16, Text_GetHeight() + 16,
-                                   Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_3]),
+            retval = win_input_str(id, str, limit, 16, Text_GetHeight() + 16, Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_3]),
                                    Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_0]));
 
             win_delete(id);
@@ -430,14 +428,12 @@ int32_t win_debug(const char* str) {
 
                 win_print(wd, "Debug", 0, (300 - text_width) / 2, 8, GNW_TEXT_FILL_WINDOW | GNW_WCOLOR_4);
 
-                draw_shaded_box(buffer, 300, 8, 8, 282 + 9, text_height + 8,
-                                Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_2]),
+                draw_shaded_box(buffer, 300, 8, 8, 282 + 9, text_height + 8, Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_2]),
                                 Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_1]));
 
                 win_fill(wd, 9, 26, 282, 135, GNW_WCOLOR_1);
 
-                draw_shaded_box(buffer, 300, 8, 25, 291, text_height + 145,
-                                Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_2]),
+                draw_shaded_box(buffer, 300, 8, 25, 291, text_height + 145, Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_2]),
                                 Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_1]));
 
                 currx = 9;

@@ -125,12 +125,12 @@ public:
     using Iterator = SmartList<T>::ListIterator;
     using Compare = bool (*)(const Iterator& lhs, const Iterator& rhs);
 
-    SmartList() noexcept : list_node(new(std::nothrow) ListNode<T>()) {
+    SmartList() noexcept : list_node(new (std::nothrow) ListNode<T>()) {
         list_node->next = list_node;
         list_node->prev = list_node;
     }
 
-    SmartList(const SmartList<T>& other) noexcept : list_node(new(std::nothrow) ListNode<T>()) {
+    SmartList(const SmartList<T>& other) noexcept : list_node(new (std::nothrow) ListNode<T>()) {
         list_node->next = list_node;
         list_node->prev = list_node;
 

@@ -44,14 +44,14 @@ struct SaveFileInfo {
 };
 
 std::filesystem::path SaveLoad_GetFilePath(const MissionCategory mission_category, const int32_t save_slot,
-                                           std::string *file_name = nullptr);
+                                           std::string* file_name = nullptr);
 bool SaveLoad_GetSaveFileInfo(const MissionCategory mission_category, const int32_t save_slot,
-                              struct SaveFileInfo &save_file_info, const bool load_options = false);
-bool SaveLoad_GetSaveFileInfo(const std::filesystem::path &filepath, struct SaveFileInfo &save_file_info,
+                              struct SaveFileInfo& save_file_info, const bool load_options = false);
+bool SaveLoad_GetSaveFileInfo(const std::filesystem::path& filepath, struct SaveFileInfo& save_file_info,
                               const bool load_options = false);
 [[nodiscard]] bool SaveLoad_IsSaveFileFormatSupported(const uint32_t format_version);
-bool SaveLoad_Save(const std::filesystem::path &filepath, const char *const save_name, const uint32_t rng_seed);
-bool SaveLoad_Load(const std::filesystem::path &filepath, const MissionCategory mission_category, bool ini_load_mode,
+bool SaveLoad_Save(const std::filesystem::path& filepath, const char* const save_name, const uint32_t rng_seed);
+bool SaveLoad_Load(const std::filesystem::path& filepath, const MissionCategory mission_category, bool ini_load_mode,
                    bool is_remote_game);
 std::string SaveLoad_GetSaveFileName(const MissionCategory mission_category, const uint32_t save_slot);
 [[nodiscard]] MissionCategory SaveLoad_GetSaveFileCategory(const MissionCategory mission_category);

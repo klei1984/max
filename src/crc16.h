@@ -24,6 +24,6 @@
 
 #include <stdint.h>
 
-void crc16(uint16_t *crc, uint8_t c);
+void crc16(uint16_t* crc, uint8_t c);
 
 #endif /* CRC16_H */

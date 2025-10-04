@@ -37,8 +37,8 @@ enum IniKeyValueType_e {
 };
 
 struct IniKey {
-    const char *const name;
-    const char *const value;
+    const char* const name;
+    const char* const value;
     const IniKeyValueType_e type;
 };
 
@@ -180,10 +180,10 @@ static const IniKey ini_keys_table[] = {
 
 static const int32_t ini_keys_table_size = sizeof(ini_keys_table) / sizeof(struct IniKey);
 
-static const char *const clan_ini_section_name_lut[] = {"Clan ?", "Clan A", "Clan B", "Clan C", "Clan D",
+static const char* const clan_ini_section_name_lut[] = {"Clan ?", "Clan A", "Clan B", "Clan C", "Clan D",
                                                         "Clan E", "Clan F", "Clan G", "Clan H"};
 
-static const int32_t ini_clans_table_size = sizeof(clan_ini_section_name_lut) / sizeof(char *);
+static const int32_t ini_clans_table_size = sizeof(clan_ini_section_name_lut) / sizeof(char*);
 
 static_assert(ini_keys_table_size == INI_END_DELIMITER,
               "INI enumerator list and configuration ini parameters table size do not match");
@@ -213,7 +213,7 @@ void IniSettings::Init() {
     int32_t v1;
     int32_t value;
     char format_string[50];
-    FILE *fp;
+    FILE* fp;
     int32_t index;
 
     auto filepath{ResourceManager_FilePathGamePref / "settings.ini"};
@@ -277,7 +277,7 @@ void IniSettings::Init() {
 
 void IniSettings::Save() { inifile_save_to_file(&ini); }
 
-const char *IniSettings::SeekToSection(IniParameter param) {
+const char* IniSettings::SeekToSection(IniParameter param) {
     int32_t index = param;
 
     do {
@@ -321,7 +321,7 @@ int32_t IniSettings::GetNumericValue(IniParameter param) {
     return value;
 }
 
-int32_t IniSettings::SetStringValue(IniParameter param, const char *value) {
+int32_t IniSettings::SetStringValue(IniParameter param, const char* value) {
     int32_t result;
 
     if (inifile_ini_seek_section(&ini, IniSettings::SeekToSection(param)) &&
@@ -333,7 +333,7 @@ int32_t IniSettings::SetStringValue(IniParameter param, const char *value) {
     return result;
 }
 
-int32_t IniSettings::GetStringValue(IniParameter param, char *buffer, int32_t buffer_size) {
+int32_t IniSettings::GetStringValue(IniParameter param, char* buffer, int32_t buffer_size) {
     int32_t result;
 
     if (inifile_ini_seek_section(&ini, IniSettings::SeekToSection(param)) &&
@@ -346,7 +346,7 @@ int32_t IniSettings::GetStringValue(IniParameter param, char *buffer, int32_t bu
     return result;
 }
 
-void IniSettings::SaveSection(SmartFileWriter &file, IniParameter section) {
+void IniSettings::SaveSection(SmartFileWriter& file, IniParameter section) {
     char buffer[30];
     int32_t victory_type;
     int32_t backup_victory_limit;
@@ -375,7 +375,7 @@ void IniSettings::SaveSection(SmartFileWriter &file, IniParameter section) {
     ini_set_setting(INI_VICTORY_TYPE, victory_type);
 }
 
-void IniSettings::LoadSection(SmartFileReader &file, IniParameter section, char mode) {
+void IniSettings::LoadSection(SmartFileReader& file, IniParameter section, char mode) {
     char buffer[30];
     int32_t value;
     int32_t victory_type;
@@ -425,8 +425,8 @@ int32_t IniClans::SeekUnit(int32_t clan, int32_t unit) {
            inifile_ini_seek_param(&ini, UnitsManager_BaseUnits[unit].singular_name);
 }
 
-int32_t IniClans::GetNextUnitUpgrade(int16_t *attrib_id, int16_t *value) {
-    const char *cstr;
+int32_t IniClans::GetNextUnitUpgrade(int16_t* attrib_id, int16_t* value) {
+    const char* cstr;
 
     if (!inifile_ini_process_string_value(&ini, buffer, sizeof(buffer))) {
         return 0;
@@ -517,7 +517,7 @@ int32_t IniClans::GetNextUnitUpgrade(int16_t *attrib_id, int16_t *value) {
     return 1;
 }
 
-void IniClans::GetStringValue(char *buffer, int32_t buffer_size) {
+void IniClans::GetStringValue(char* buffer, int32_t buffer_size) {
     inifile_ini_get_string(&ini, buffer, buffer_size, 0);
 }
 
@@ -534,14 +534,14 @@ int32_t IniClans::GetClanGold(int32_t clan) {
     return result;
 }
 
-void IniClans::GetClanText(int32_t clan, char *buffer, int32_t buffer_size) {
+void IniClans::GetClanText(int32_t clan, char* buffer, int32_t buffer_size) {
     if (!inifile_ini_seek_section(&ini, clan_ini_section_name_lut[clan]) || !inifile_ini_seek_param(&ini, "Text") ||
         !inifile_ini_process_string_value(&ini, buffer, buffer_size)) {
         strcpy(buffer, _(7f53));
     }
 }
 
-void IniClans::GetClanName(int32_t clan, char *buffer, int32_t buffer_size) {
+void IniClans::GetClanName(int32_t clan, char* buffer, int32_t buffer_size) {
     if (inifile_ini_seek_section(&ini, clan_ini_section_name_lut[clan])) {
         if (inifile_ini_seek_param(&ini, "Name")) {
             inifile_ini_process_string_value(&ini, buffer, buffer_size);

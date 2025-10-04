@@ -29,12 +29,12 @@ class OKCancelMenu : public Window {
     WindowInfo window;
     bool event_click_ok;
     bool event_click_cancel;
-    Button *button_ok;
-    Button *button_cancel;
+    Button* button_ok;
+    Button* button_cancel;
     bool event_release;
 
 public:
-    OKCancelMenu(const char *caption);
+    OKCancelMenu(const char* caption);
     ~OKCancelMenu();
 
     bool Run();

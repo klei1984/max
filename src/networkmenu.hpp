@@ -49,14 +49,14 @@ struct NetworkMenuItem {
 struct NetworkMenuControlItem {
     Rect bounds;
     ResourceID image_id;
-    const char *label;
+    const char* label;
     int32_t event_code;
     void (NetworkMenu::*event_handler)();
     ResourceID sfx;
 };
 
 class NetworkMenu {
-    const char *menu_planet_names[NETWORK_MENU_PLANET_ITEM_COUNT] = {
+    const char* menu_planet_names[NETWORK_MENU_PLANET_ITEM_COUNT] = {
         _(e43b), _(f588), _(c78b), _(895d), _(5f5f), _(e7b2), _(f3fe), _(8524), _(4bb8), _(f408), _(0935), _(7303),
         _(94ef), _(c46c), _(48ac), _(275a), _(ea47), _(fcf0), _(6426), _(7ea8), _(386d), _(41e5), _(bbcb), _(ba99)};
 
@@ -110,21 +110,21 @@ class NetworkMenu {
     void InitPlayerPanel();
     void SetButtonState(int32_t button_index, bool state);
     void ReadIniSettings(int32_t game_state);
-    void DrawTextLine(int32_t line_index, char *text, int32_t height, bool horizontal_align);
-    void UpdateSaveSettings(struct SaveFileInfo *save_file_info);
+    void DrawTextLine(int32_t line_index, char* text, int32_t height, bool horizontal_align);
+    void UpdateSaveSettings(struct SaveFileInfo* save_file_info);
     void SetClans(int32_t team_clan);
     void UpdateMenuButtonStates();
     int32_t IsAllowedToStartGame();
     void NetSync(int32_t player_team);
-    void NetSync(struct SaveFileInfo &save_file_info);
-    TextEdit *CreateTextEdit(int32_t index);
+    void NetSync(struct SaveFileInfo& save_file_info);
+    TextEdit* CreateTextEdit(int32_t index);
     void DrawTextWindow();
     void DrawJars();
     void DrawJoinScreen();
     void InitJoinScreen();
 
 public:
-    WindowInfo *window;
+    WindowInfo* window;
     int32_t key;
     char is_host_mode;
     char connection_state;
@@ -136,19 +136,19 @@ public:
     char player_clan;
     char is_incompatible_save_file;
     uint16_t player_node;
-    Button *buttons[NETWORK_MENU_ITEM_COUNT];
+    Button* buttons[NETWORK_MENU_ITEM_COUNT];
     NetworkMenuItem menu_items[NETWORK_MENU_ITEM_COUNT];
-    Image *images[NETWORK_MENU_IMAGE_COUNT];
-    TextEdit *text_edit1;
-    TextEdit *text_edit2;
-    TextEdit *text_edit3;
+    Image* images[NETWORK_MENU_IMAGE_COUNT];
+    TextEdit* text_edit1;
+    TextEdit* text_edit2;
+    TextEdit* text_edit3;
     uint16_t team_nodes[TRANSPORT_MAX_TEAM_COUNT];
     int16_t team_clans[TRANSPORT_MAX_TEAM_COUNT];
     char team_jar_in_use[TRANSPORT_MAX_TEAM_COUNT];
     int32_t multi_scenario_id;
     uint32_t rng_seed;
     int16_t minimap_world_index;
-    Image *minimap_bg_image;
+    Image* minimap_bg_image;
     int32_t ini_world_index;
     int32_t ini_play_mode;
     int32_t ini_timer;

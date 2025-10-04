@@ -35,16 +35,16 @@ struct PathSquare {
 class Searcher {
     static int32_t Searcher_MarkerColor;
 
-    uint16_t **costs_map;
-    uint8_t **directions_map;
-    uint16_t *distance_vector;
+    uint16_t** costs_map;
+    uint8_t** directions_map;
+    uint16_t* distance_vector;
     int16_t line_distance_max;
     int32_t line_distance_limit;
     ObjectArray<PathSquare> squares;
     Point destination;
     bool use_air_support;
 
-    void EvaluateSquare(const Point position, const int32_t cost, const int32_t direction, Searcher *const searcher);
+    void EvaluateSquare(const Point position, const int32_t cost, const int32_t direction, Searcher* const searcher);
     void UpdateCost(const Point start_point, const Point end_point, const int32_t cost);
 
 public:
@@ -52,8 +52,8 @@ public:
     ~Searcher();
 
     void Process(Point position, const bool mode_flag);
-    bool ForwardSearch(Searcher *const backward_searcher);
-    bool BackwardSearch(Searcher *const forward_searcher);
+    bool ForwardSearch(Searcher* const backward_searcher);
+    bool BackwardSearch(Searcher* const forward_searcher);
     SmartPointer<GroundPath> DeterminePath(const Point position, const int32_t max_cost);
 };
 

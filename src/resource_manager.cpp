@@ -70,7 +70,7 @@ static_assert(sizeof(struct res_header) == 12, "The structure needs to be packed
 
 struct GameResourceMeta {
     ResourceID res_file_item_index;
-    uint8_t *resource_buffer;
+    uint8_t* resource_buffer;
     uint8_t res_file_id;
 };
 
@@ -95,16 +95,16 @@ static std::shared_ptr<Clans> ResourceManager_Clans;
 static std::shared_ptr<Language> ResourceManager_LanguageManager;
 static std::shared_ptr<Help> ResourceManager_HelpManager;
 static std::unique_ptr<std::unordered_map<std::string, ResourceID>> ResourceManager_ResourceIDLUT;
-static std::unique_ptr<std::vector<SDL_mutex *>> ResourceManager_SDLMutexes;
+static std::unique_ptr<std::vector<SDL_mutex*>> ResourceManager_SDLMutexes;
 static std::string ResourceManager_SystemLocale{"en-US"};
 
-FILE *res_file_handle_array[2];
-struct res_index *ResourceManager_ResItemTable;
-struct GameResourceMeta *ResourceManager_ResMetaTable;
+FILE* res_file_handle_array[2];
+struct res_index* ResourceManager_ResItemTable;
+struct GameResourceMeta* ResourceManager_ResMetaTable;
 uint8_t ResourceManager_ResFileCount;
 int32_t ResourceManager_ResItemCount;
 int32_t resource_buffer_size;
-ColorIndex *color_animation_buffer;
+ColorIndex* color_animation_buffer;
 
 const uint8_t ResourceManager_TeamRedColorIndices[8] = {56, 57, 58, 59, 60, 61, 62, 63};
 const uint8_t ResourceManager_TeamGreenColorIndices[8] = {32, 33, 34, 35, 36, 37, 38, 39};
@@ -112,36 +112,36 @@ const uint8_t ResourceManager_TeamBlueColorIndices[8] = {48, 49, 50, 51, 52, 53,
 const uint8_t ResourceManager_TeamGrayColorIndices[8] = {255, 161, 172, 169, 216, 213, 212, 207};
 const uint8_t ResourceManager_TeamDerelictColorIndices[8] = {216, 215, 214, 213, 212, 211, 210, 209};
 
-ColorIndex *ResourceManager_TeamRedColorIndexTable;
-ColorIndex *ResourceManager_TeamGreenColorIndexTable;
-ColorIndex *ResourceManager_TeamBlueColorIndexTable;
-ColorIndex *ResourceManager_TeamGrayColorIndexTable;
-ColorIndex *ResourceManager_TeamDerelictColorIndexTable;
-ColorIndex *ResourceManager_ColorIndexTable06;
-ColorIndex *ResourceManager_ColorIndexTable07;
-ColorIndex *ResourceManager_ColorIndexTable08;
-ColorIndex *ResourceManager_ColorIndexTable09;
-ColorIndex *ResourceManager_ColorIndexTable10;
-ColorIndex *ResourceManager_ColorIndexTable11;
-ColorIndex *ResourceManager_ColorIndexTable12;
-ColorIndex *ResourceManager_ColorIndexTable13x8;
+ColorIndex* ResourceManager_TeamRedColorIndexTable;
+ColorIndex* ResourceManager_TeamGreenColorIndexTable;
+ColorIndex* ResourceManager_TeamBlueColorIndexTable;
+ColorIndex* ResourceManager_TeamGrayColorIndexTable;
+ColorIndex* ResourceManager_TeamDerelictColorIndexTable;
+ColorIndex* ResourceManager_ColorIndexTable06;
+ColorIndex* ResourceManager_ColorIndexTable07;
+ColorIndex* ResourceManager_ColorIndexTable08;
+ColorIndex* ResourceManager_ColorIndexTable09;
+ColorIndex* ResourceManager_ColorIndexTable10;
+ColorIndex* ResourceManager_ColorIndexTable11;
+ColorIndex* ResourceManager_ColorIndexTable12;
+ColorIndex* ResourceManager_ColorIndexTable13x8;
 
-uint8_t *ResourceManager_Minimap;
-uint8_t *ResourceManager_MinimapUnits;
-uint8_t *ResourceManager_MinimapFov;
-uint8_t *ResourceManager_MinimapBgImage;
+uint8_t* ResourceManager_Minimap;
+uint8_t* ResourceManager_MinimapUnits;
+uint8_t* ResourceManager_MinimapFov;
+uint8_t* ResourceManager_MinimapBgImage;
 
-uint16_t *ResourceManager_MapTileIds;
-uint8_t *ResourceManager_MapTileBuffer;
-uint8_t *ResourceManager_MapSurfaceMap;
-uint16_t *ResourceManager_CargoMap;
+uint16_t* ResourceManager_MapTileIds;
+uint8_t* ResourceManager_MapTileBuffer;
+uint8_t* ResourceManager_MapSurfaceMap;
+uint16_t* ResourceManager_CargoMap;
 uint16_t ResourceManager_MapTileCount;
 
 Point ResourceManager_MapSize;
 Point ResourceManager_MinimapWindowSize;
 Point ResourceManager_MinimapWindowOffset;
 double ResourceManager_MinimapWindowScale;
-uint8_t *ResourceManager_MainmapBgImage;
+uint8_t* ResourceManager_MainmapBgImage;
 int32_t ResourceManager_MainmapZoomLimit;
 
 const uint8_t ResourceManager_GenericTable[32] = {0x6c, 0x57, 0x36, 0xe6, 0x81, 0xe0, 0x72, 0x8a, 0xd3, 0xd9, 0xff,
@@ -169,16 +169,16 @@ static void ResourceManager_PreloadPatches();
 static void ResourceManager_LoadMaxResources();
 static int32_t ResourceManager_InitResManager();
 static void ResourceManager_TestMouse();
-static bool ResourceManager_GetGameDataPath(std::filesystem::path &path);
+static bool ResourceManager_GetGameDataPath(std::filesystem::path& path);
 static int32_t ResourceManager_BuildResourceTable(const std::filesystem::path filepath);
 static int32_t ResourceManager_BuildColorTables();
 static void ResourceManager_InitMinimapResources();
 static void ResourceManager_InitMainmapResources();
-static bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar);
-static void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitValues *unit_values);
-static SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData *data, void *userdata);
-static void ResourceManager_LogOutputHandler(void *userdata, int category, SDL_LogPriority priority,
-                                             const char *message);
+static bool ResourceManager_LoadMapTiles(FILE* fp, DrawLoadBar* loadbar);
+static void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitValues* unit_values);
+static SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData* data, void* userdata);
+static void ResourceManager_LogOutputHandler(void* userdata, int category, SDL_LogPriority priority,
+                                             const char* message);
 static void ResourceManager_LogOutputFlush();
 static inline void ResourceManager_FixWorldFiles(const ResourceID world);
 static void Resourcemanager_InitLocale();
@@ -208,7 +208,7 @@ static inline std::filesystem::path ResourceManager_GetFileResourcePathPrefix(Re
     return path;
 }
 
-bool ResourceManager_GetBasePath(std::filesystem::path &path) {
+bool ResourceManager_GetBasePath(std::filesystem::path& path) {
     bool result;
     std::filesystem::path local_path;
     std::error_code ec;
@@ -287,7 +287,7 @@ bool ResourceManager_GetBasePath(std::filesystem::path &path) {
     return result;
 }
 
-bool ResourceManager_GetPrefPath(std::filesystem::path &path) {
+bool ResourceManager_GetPrefPath(std::filesystem::path& path) {
     bool result;
     std::filesystem::path local_path;
     std::error_code ec;
@@ -354,7 +354,7 @@ bool ResourceManager_GetPrefPath(std::filesystem::path &path) {
     return result;
 }
 
-bool ResourceManager_GetGameDataPath(std::filesystem::path &path) {
+bool ResourceManager_GetGameDataPath(std::filesystem::path& path) {
     auto filepath{ResourceManager_FilePathGamePref / "settings.ini"};
     Ini_descriptor ini;
     bool result{false};
@@ -518,7 +518,7 @@ void ResourceManager_TestMouse() {
 }
 
 void ResourceManager_ExitGame(int32_t error_code) {
-    const char *const ResourceManager_ErrorCodes[] = {"",      _(1347), _(c164), _(c116), _(9edb), _(6bc6),
+    const char* const ResourceManager_ErrorCodes[] = {"",      _(1347), _(c164), _(c116), _(9edb), _(6bc6),
                                                       _(5ced), _(3b69), _(c499), _(4afd), _(bc1c), _(908e),
                                                       _(b2b3), _(00a7), _(eb11), _(3004), _(07f8)};
 
@@ -608,8 +608,8 @@ int32_t ResourceManager_InitResManager() {
     return result;
 }
 
-uint8_t *ResourceManager_ReadResource(ResourceID id) {
-    uint8_t *resource_buffer;
+uint8_t* ResourceManager_ReadResource(ResourceID id) {
+    uint8_t* resource_buffer;
 
     if (id < MEM_END || id >= RESOURCE_E) {
         resource_buffer = nullptr;
@@ -620,7 +620,7 @@ uint8_t *ResourceManager_ReadResource(ResourceID id) {
             resource_buffer = nullptr;
 
         } else {
-            FILE *fp = res_file_handle_array[ResourceManager_ResMetaTable[id].res_file_id];
+            FILE* fp = res_file_handle_array[ResourceManager_ResMetaTable[id].res_file_id];
             int32_t data_size =
                 ResourceManager_ResItemTable[ResourceManager_ResMetaTable[id].res_file_item_index].data_size;
             int32_t data_offset =
@@ -628,7 +628,7 @@ uint8_t *ResourceManager_ReadResource(ResourceID id) {
 
             fseek(fp, data_offset, SEEK_SET);
 
-            uint8_t *buffer = new (std::nothrow) uint8_t[data_size + sizeof('\0')];
+            uint8_t* buffer = new (std::nothrow) uint8_t[data_size + sizeof('\0')];
             if (!buffer) {
                 ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
             }
@@ -645,8 +645,8 @@ uint8_t *ResourceManager_ReadResource(ResourceID id) {
     return resource_buffer;
 }
 
-uint8_t *ResourceManager_LoadResource(ResourceID id) {
-    uint8_t *resource_buffer;
+uint8_t* ResourceManager_LoadResource(ResourceID id) {
+    uint8_t* resource_buffer;
 
     if (id == INVALID_ID) {
         resource_buffer = nullptr;
@@ -657,7 +657,7 @@ uint8_t *ResourceManager_LoadResource(ResourceID id) {
             resource_buffer = nullptr;
         } else {
             if ((resource_buffer = ResourceManager_ResMetaTable[id].resource_buffer) == nullptr) {
-                FILE *fp = res_file_handle_array[ResourceManager_ResMetaTable[id].res_file_id];
+                FILE* fp = res_file_handle_array[ResourceManager_ResMetaTable[id].res_file_id];
                 int32_t data_size =
                     ResourceManager_ResItemTable[ResourceManager_ResMetaTable[id].res_file_item_index].data_size;
                 int32_t data_offset =
@@ -696,7 +696,7 @@ uint32_t ResourceManager_GetResourceSize(ResourceID id) {
     return data_size;
 }
 
-int32_t ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *buffer) {
+int32_t ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader* buffer) {
     int32_t result;
 
     SDL_assert(ResourceManager_ResMetaTable);
@@ -704,7 +704,7 @@ int32_t ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *bu
     if (id == INVALID_ID || ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
         result = false;
     } else {
-        FILE *fp = res_file_handle_array[ResourceManager_ResMetaTable[id].res_file_id];
+        FILE* fp = res_file_handle_array[ResourceManager_ResMetaTable[id].res_file_id];
         int32_t data_offset =
             ResourceManager_ResItemTable[ResourceManager_ResMetaTable[id].res_file_item_index].data_offset;
 
@@ -724,7 +724,7 @@ int32_t ResourceManager_GetResourceFileID(ResourceID id) {
     return ResourceManager_ResMetaTable[id].res_file_item_index;
 }
 
-const char *ResourceManager_GetResourceID(ResourceID id) { return ResourceManager_ResourceIdList[id]; }
+const char* ResourceManager_GetResourceID(ResourceID id) { return ResourceManager_ResourceIdList[id]; }
 
 ResourceID ResourceManager_GetResourceID(std::string id) {
     if (!ResourceManager_ResourceIDLUT) {
@@ -743,8 +743,8 @@ ResourceID ResourceManager_GetResourceID(std::string id) {
     return (it != ResourceManager_ResourceIDLUT->end()) ? it->second : INVALID_ID;
 }
 
-FILE *ResourceManager_GetFileHandle(ResourceID id) {
-    FILE *fp;
+FILE* ResourceManager_GetFileHandle(ResourceID id) {
+    FILE* fp;
 
     if (id == INVALID_ID || ResourceManager_ResMetaTable[id].res_file_item_index == INVALID_ID) {
         fp = nullptr;
@@ -759,7 +759,7 @@ FILE *ResourceManager_GetFileHandle(ResourceID id) {
     return fp;
 }
 
-std::filesystem::path ResourceManager_GetFileResourcePath(const std::string &string, const ResourceType type) {
+std::filesystem::path ResourceManager_GetFileResourcePath(const std::string& string, const ResourceType type) {
     auto filename = ResourceManager_StringToLowerCase(string);
     auto pathprefix = ResourceManager_GetFileResourcePathPrefix(type);
     auto filepath = (pathprefix / filename).lexically_normal();
@@ -777,9 +777,9 @@ std::filesystem::path ResourceManager_GetFileResourcePath(const std::string &str
     return filepath;
 }
 
-FILE *ResourceManager_OpenFileResource(const std::string &string, const ResourceType type, const char *const mode,
-                                       std::filesystem::path *path) {
-    FILE *handle{nullptr};
+FILE* ResourceManager_OpenFileResource(const std::string& string, const ResourceType type, const char* const mode,
+                                       std::filesystem::path* path) {
+    FILE* handle{nullptr};
     auto filepath = ResourceManager_GetFileResourcePath(string, type);
 
     handle = fopen(filepath.string().c_str(), mode);
@@ -791,10 +791,10 @@ FILE *ResourceManager_OpenFileResource(const std::string &string, const Resource
     return handle;
 }
 
-FILE *ResourceManager_OpenFileResource(const ResourceID id, const ResourceType type, const char *const mode,
-                                       std::filesystem::path *path) {
-    char *resource{reinterpret_cast<char *>(ResourceManager_ReadResource(id))};
-    FILE *handle{nullptr};
+FILE* ResourceManager_OpenFileResource(const ResourceID id, const ResourceType type, const char* const mode,
+                                       std::filesystem::path* path) {
+    char* resource{reinterpret_cast<char*>(ResourceManager_ReadResource(id))};
+    FILE* handle{nullptr};
 
     if (resource) {
         handle = ResourceManager_OpenFileResource(resource, type, mode, path);
@@ -819,7 +819,7 @@ ResourceID ResourceManager_GetResourceID(int32_t index) {
     return INVALID_ID;
 }
 
-void ResourceManager_Realloc(ResourceID id, uint8_t *buffer, int32_t data_size) {
+void ResourceManager_Realloc(ResourceID id, uint8_t* buffer, int32_t data_size) {
     if (ResourceManager_ResMetaTable[id].resource_buffer) {
         delete[] ResourceManager_ResMetaTable[id].resource_buffer;
         resource_buffer_size -=
@@ -867,11 +867,11 @@ void ResourceManager_FreeResources() {
 
 int32_t ResourceManager_BuildColorTables() {
     int32_t result;
-    ColorIndex *aligned_buffer;
+    ColorIndex* aligned_buffer;
 
     color_animation_buffer = new (std::nothrow) ColorIndex[20 * PALETTE_SIZE + PALETTE_SIZE];
     aligned_buffer =
-        reinterpret_cast<ColorIndex *>(((reinterpret_cast<intptr_t>(color_animation_buffer) + PALETTE_SIZE) >> 8) << 8);
+        reinterpret_cast<ColorIndex*>(((reinterpret_cast<intptr_t>(color_animation_buffer) + PALETTE_SIZE) >> 8) << 8);
 
     if (color_animation_buffer) {
         ResourceManager_TeamRedColorIndexTable = &aligned_buffer[0 * PALETTE_SIZE];
@@ -889,7 +889,7 @@ int32_t ResourceManager_BuildColorTables() {
         ResourceManager_ColorIndexTable13x8 = &aligned_buffer[12 * PALETTE_SIZE];
 
         {
-            ColorIndex *buffer = &aligned_buffer[19 * PALETTE_SIZE];
+            ColorIndex* buffer = &aligned_buffer[19 * PALETTE_SIZE];
 
             for (int32_t i = 0; i < PALETTE_SIZE; ++i) {
                 ResourceManager_TeamDerelictColorIndexTable[i] = i;
@@ -944,7 +944,7 @@ int32_t ResourceManager_BuildColorTables() {
 
 int32_t ResourceManager_BuildResourceTable(const std::filesystem::path filepath) {
     int32_t result;
-    FILE *fp;
+    FILE* fp;
     struct res_header header;
 
     fp = fopen(filepath.string().c_str(), "rb");
@@ -955,11 +955,11 @@ int32_t ResourceManager_BuildResourceTable(const std::filesystem::path filepath)
         if (fread(&header, sizeof(header), 1, fp)) {
             if (!strncmp("RES0", header.id, sizeof(res_header::id))) {
                 if (ResourceManager_ResItemTable) {
-                    ResourceManager_ResItemTable = static_cast<struct res_index *>(
-                        realloc(static_cast<void *>(ResourceManager_ResItemTable),
+                    ResourceManager_ResItemTable = static_cast<struct res_index*>(
+                        realloc(static_cast<void*>(ResourceManager_ResItemTable),
                                 header.size + ResourceManager_ResItemCount * sizeof(struct res_index)));
                 } else {
-                    ResourceManager_ResItemTable = static_cast<struct res_index *>(malloc(header.size));
+                    ResourceManager_ResItemTable = static_cast<struct res_index*>(malloc(header.size));
                 }
 
                 if (ResourceManager_ResItemTable) {
@@ -998,12 +998,12 @@ int32_t ResourceManager_BuildResourceTable(const std::filesystem::path filepath)
     return result;
 }
 
-std::string ResourceManager_StringToUpperCase(const std::string &string) { return utf8_toupper_str(string); }
+std::string ResourceManager_StringToUpperCase(const std::string& string) { return utf8_toupper_str(string); }
 
-std::string ResourceManager_StringToLowerCase(const std::string &string) { return utf8_tolower_str(string); }
+std::string ResourceManager_StringToLowerCase(const std::string& string) { return utf8_tolower_str(string); }
 
 void ResourceManager_InitMinimapResources() {
-    const WindowInfo *mmw = WindowManager_GetWindow(WINDOW_MINIMAP);
+    const WindowInfo* mmw = WindowManager_GetWindow(WINDOW_MINIMAP);
     const int32_t mmw_width{mmw->window.lrx - mmw->window.ulx + 1};
     const int32_t mmw_height{mmw->window.lry - mmw->window.uly + 1};
 
@@ -1073,7 +1073,7 @@ void ResourceManager_InitMinimapResources() {
 }
 
 void ResourceManager_InitMainmapResources() {
-    const WindowInfo *mmw = WindowManager_GetWindow(WINDOW_MAIN_MAP);
+    const WindowInfo* mmw = WindowManager_GetWindow(WINDOW_MAIN_MAP);
     const int32_t mmw_width{mmw->window.lrx - mmw->window.ulx + 1};
     const int32_t mmw_height{mmw->window.lry - mmw->window.uly + 1};
 
@@ -1088,7 +1088,7 @@ void ResourceManager_InitMainmapResources() {
 }
 
 void ResourceManager_InitInGameAssets(int32_t world) {
-    WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
+    WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     int32_t progress_bar_value;
     uint16_t map_layer_count = 0;
     Point map_layer_dimensions[12];
@@ -1129,7 +1129,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
 
     WindowManager_LoadBigImage(FRAMEPIC, window, window->width, true, false, -1, -1, false, true);
 
-    const WindowInfo *mmw = WindowManager_GetWindow(WINDOW_MINIMAP);
+    const WindowInfo* mmw = WindowManager_GetWindow(WINDOW_MINIMAP);
     const int32_t mmw_width{mmw->window.lrx - mmw->window.ulx + 1};
     const int32_t mmw_height{mmw->window.lry - mmw->window.uly + 1};
 
@@ -1188,7 +1188,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     }
 
     {
-        uint8_t *palette;
+        uint8_t* palette;
 
         palette = new (std::nothrow) uint8_t[PALETTE_STRIDE * PALETTE_SIZE];
 
@@ -1257,7 +1257,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     }
 
     {
-        uint8_t *palette;
+        uint8_t* palette;
 
         progress_bar_value = 70;
 
@@ -1284,7 +1284,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     {
         const uint8_t ResourceManager_PassData[] = {SURFACE_TYPE_LAND, SURFACE_TYPE_WATER, SURFACE_TYPE_COAST,
                                                     SURFACE_TYPE_AIR};
-        uint8_t *pass_table{new (std::nothrow) uint8_t[ResourceManager_MapTileCount]};
+        uint8_t* pass_table{new (std::nothrow) uint8_t[ResourceManager_MapTileCount]};
 
         ResourceManager_MapSurfaceMap = new (std::nothrow) uint8_t[map_cell_count];
 
@@ -1394,10 +1394,10 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     ResourceManager_FixWorldFiles(static_cast<ResourceID>(world));
 }
 
-bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
+bool ResourceManager_LoadMapTiles(FILE* fp, DrawLoadBar* loadbar) {
     int32_t tile_size{GFX_MAP_TILE_SIZE};
     int32_t tile_count_stride{(ResourceManager_MapTileCount + 7) / 8};
-    uint8_t *tile_data_chunk{nullptr};
+    uint8_t* tile_data_chunk{nullptr};
 
     if (ResourceManager_DisableEnhancedGraphics) {
         tile_size /= 2;
@@ -1422,8 +1422,8 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
         }
 
         if (ResourceManager_DisableEnhancedGraphics) {
-            uint8_t *source_address{tile_data_chunk};
-            uint8_t *destination_address{&ResourceManager_MapTileBuffer[tile_size * tile_size * i]};
+            uint8_t* source_address{tile_data_chunk};
+            uint8_t* destination_address{&ResourceManager_MapTileBuffer[tile_size * tile_size * i]};
 
             for (int32_t j = 0; j < tile_count; ++j) {
                 for (int32_t k = 0; k < tile_size; ++k) {
@@ -1448,7 +1448,7 @@ bool ResourceManager_LoadMapTiles(FILE *fp, DrawLoadBar *loadbar) {
     return true;
 }
 
-void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitValues *unit_values) {
+void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitValues* unit_values) {
     if (ini_clans.SeekUnit(clan, unit_type)) {
         for (int16_t attribute, value; ini_clans.GetNextUnitUpgrade(&attribute, &value);) {
             if (attribute == ATTRIB_TURNS) {
@@ -1463,7 +1463,7 @@ void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitVal
 
 void ResourceManager_InitClanUnitValues(uint16_t team) {
     SmartPointer<UnitValues> unit_values;
-    TeamUnits *team_units{nullptr};
+    TeamUnits* team_units{nullptr};
     int32_t team_clan{TEAM_CLAN_RANDOM};
 
     switch (team) {
@@ -1565,11 +1565,11 @@ void ResourceManager_InitTeamInfo() {
     MessageManager_ClearMessageLogs();
 }
 
-uint8_t *ResourceManager_GetBuffer(ResourceID id) {
+uint8_t* ResourceManager_GetBuffer(ResourceID id) {
     return id == INVALID_ID ? nullptr : ResourceManager_ResMetaTable[id].resource_buffer;
 }
 
-SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData *data, void *userdata) {
+SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData* data, void* userdata) {
     SDL_AssertState result;
 
     const auto caption =
@@ -1585,7 +1585,7 @@ SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData *d
     return result;
 }
 
-void ResourceManager_LogOutputHandler(void *userdata, int category, SDL_LogPriority priority, const char *message) {
+void ResourceManager_LogOutputHandler(void* userdata, int category, SDL_LogPriority priority, const char* message) {
     if (!ResourceManager_LogFile) {
         auto filepath = (ResourceManager_FilePathGamePref / "stdout.txt").lexically_normal();
 
@@ -1958,7 +1958,7 @@ void ResourceManager_FixWorldFiles(const ResourceID world) {
                            ResourceManager_MapTileCount * tile_size * tile_size);
 
                     if (ResourceManager_DisableEnhancedGraphics) {
-                        uint8_t *destination_address{
+                        uint8_t* destination_address{
                             &map_tile_buffer[ResourceManager_MapTileCount * tile_size * tile_size]};
 
                         for (int32_t i = 0; i < tile_size; ++i) {
@@ -2024,11 +2024,11 @@ void ResourceManager_InitLanguageManager() {
     }
 }
 
-std::string &ResourceManager_GetSystemLocale() { return ResourceManager_SystemLocale; }
+std::string& ResourceManager_GetSystemLocale() { return ResourceManager_SystemLocale; }
 
 void ResourceManager_SetSystemLocale(const std::string locale) { ResourceManager_SystemLocale = locale; }
 
-const std::string &ResourceManager_GetLanguageEntry(const uint32_t key) {
+const std::string& ResourceManager_GetLanguageEntry(const uint32_t key) {
     SDL_assert(ResourceManager_LanguageManager);
 
     return ResourceManager_LanguageManager->GetEntry(key);
@@ -2042,7 +2042,7 @@ void ResourceManager_InitHelpManager() {
     ResourceManager_HelpManager->SetLanguage(ResourceManager_GetSystemLocale());
 }
 
-std::string ResourceManager_GetHelpEntry(const std::string &section, const int32_t position_x,
+std::string ResourceManager_GetHelpEntry(const std::string& section, const int32_t position_x,
                                          const int32_t position_y) {
     std::string result;
 
@@ -2087,7 +2087,7 @@ std::string ResourceManager_GetClanID(const TeamClanType clan_id) {
     return ResourceManager_ClansLutEnumKey.at(clan_id);
 }
 
-[[nodiscard]] bool ResourceManager_GetUnitAttributes(const uint32_t index, UnitAttributes *const attributes) {
+[[nodiscard]] bool ResourceManager_GetUnitAttributes(const uint32_t index, UnitAttributes* const attributes) {
     SDL_assert(ResourceManager_UnitAttributes);
     return ResourceManager_UnitAttributes->GetUnitAttributes(
         ResourceManager_GetResourceID(static_cast<ResourceID>(index)), attributes);
@@ -2095,9 +2095,9 @@ std::string ResourceManager_GetClanID(const TeamClanType clan_id) {
 
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager() { return ResourceManager_MissionManager; }
 
-[[nodiscard]] SDL_mutex *ResourceManager_CreateMutex() {
+[[nodiscard]] SDL_mutex* ResourceManager_CreateMutex() {
     if (!ResourceManager_SDLMutexes) {
-        ResourceManager_SDLMutexes = std::make_unique<std::vector<SDL_mutex *>>();
+        ResourceManager_SDLMutexes = std::make_unique<std::vector<SDL_mutex*>>();
 
         if (!ResourceManager_SDLMutexes) {
             ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
@@ -2114,7 +2114,7 @@ std::shared_ptr<MissionManager> ResourceManager_GetMissionManager() { return Res
 }
 
 void ResourceManager_DestroyMutexes() {
-    for (SDL_mutex *&mutex : *ResourceManager_SDLMutexes) {
+    for (SDL_mutex*& mutex : *ResourceManager_SDLMutexes) {
         SDL_DestroyMutex(mutex);
 
         mutex = nullptr;
@@ -2123,11 +2123,11 @@ void ResourceManager_DestroyMutexes() {
     ResourceManager_SDLMutexes->clear();
 }
 
-std::vector<std::filesystem::path> ResourceManager_GetFileList(const std::filesystem::path &folder,
-                                                               const std::string &extension) {
+std::vector<std::filesystem::path> ResourceManager_GetFileList(const std::filesystem::path& folder,
+                                                               const std::string& extension) {
     std::vector<std::filesystem::path> file_list;
 
-    for (const auto &entry : std::filesystem::directory_iterator(folder)) {
+    for (const auto& entry : std::filesystem::directory_iterator(folder)) {
         if (entry.is_regular_file()) {
             auto file_extension = entry.path().extension().string();
 

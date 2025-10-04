@@ -49,11 +49,11 @@ typedef struct {
     uint8_t Reserved2[54];
 } PcxHeader;
 
-int32_t screendump_pcx(int32_t width, int32_t length, uint8_t *buffer, uint8_t *palette) {
+int32_t screendump_pcx(int32_t width, int32_t length, uint8_t* buffer, uint8_t* palette) {
     PcxHeader pcx_header;
     int32_t file_index;
     uint8_t pcx_palette[PALETTE_STRIDE * PALETTE_SIZE];
-    FILE *fp;
+    FILE* fp;
     SmartString filename;
     std::filesystem::path filepath;
     std::error_code ec;

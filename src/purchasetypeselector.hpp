@@ -25,11 +25,11 @@
 #include "unittypeselector.hpp"
 
 class PurchaseTypeSelector : public UnitTypeSelector {
-    Image *image;
+    Image* image;
 
 public:
-    PurchaseTypeSelector(Window *window, WindowInfo *window_info, SmartObjectArray<ResourceID> unit_types,
-                         uint16_t team, int32_t key_code, Button *button_scroll_up, Button *button_scroll_down,
+    PurchaseTypeSelector(Window* window, WindowInfo* window_info, SmartObjectArray<ResourceID> unit_types,
+                         uint16_t team, int32_t key_code, Button* button_scroll_up, Button* button_scroll_down,
                          int32_t ulx, int32_t width);
     ~PurchaseTypeSelector();
 

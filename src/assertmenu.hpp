@@ -27,15 +27,15 @@
 
 class AssertMenu : Window {
     WindowInfo window;
-    Button *button_break;
-    Button *button_abort;
-    Button *button_ignore;
+    Button* button_break;
+    Button* button_abort;
+    Button* button_ignore;
     bool show_cursor_state;
     bool event_click;
     bool event_release;
 
 public:
-    AssertMenu(const char *caption);
+    AssertMenu(const char* caption);
     ~AssertMenu();
 
     int32_t Run();

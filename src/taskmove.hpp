@@ -79,8 +79,8 @@ class TaskMove : public Task {
     static void PathCancelCallback(Task* task, PathRequest* path_request);
 
 public:
-    TaskMove(UnitInfo* unit, Task* task, uint16_t minimum_distance, uint8_t caution_level,
-             Point destination, void (*result_callback)(Task* task, UnitInfo* unit, char result));
+    TaskMove(UnitInfo* unit, Task* task, uint16_t minimum_distance, uint8_t caution_level, Point destination,
+             void (*result_callback)(Task* task, UnitInfo* unit, char result));
     TaskMove(UnitInfo* unit, void (*result_callback)(Task* task, UnitInfo* unit, char result));
     ~TaskMove();
 

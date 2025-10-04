@@ -47,15 +47,15 @@ static void ResearchMenu_ApplyUpgrades(uint16_t team, uint8_t research_topic);
 class ResearchMenu;
 
 class ResearchControl {
-    ResearchMenu *research_menu;
+    ResearchMenu* research_menu;
     uint8_t topic_index;
     uint16_t topic_value;
-    Button *button_upgrade_right;
-    Button *button_upgrade_left;
-    Button *button_slider;
-    Image *image_labs_count_bg;
-    Image *image_turns_bg;
-    Image *image_labs_slider_bg;
+    Button* button_upgrade_right;
+    Button* button_upgrade_left;
+    Button* button_slider;
+    Image* image_labs_count_bg;
+    Image* image_turns_bg;
+    Image* image_labs_slider_bg;
 
     friend void ResearchMenu_OnClick_Left(ButtonID bid, intptr_t value);
     friend void ResearchMenu_OnClick_Right(ButtonID bid, intptr_t value);
@@ -65,7 +65,7 @@ public:
     ResearchControl();
     ~ResearchControl();
 
-    void Init(ResearchMenu *menu, uint8_t research_topic_index, uint16_t research_topic_value);
+    void Init(ResearchMenu* menu, uint8_t research_topic_index, uint16_t research_topic_value);
     void RefreshScreen(bool redraw);
     void Update(int32_t value);
     void UpdateButtons();
@@ -78,9 +78,9 @@ class ResearchMenu : public Window {
     uint16_t active_research_centers;
     bool exit_loop;
 
-    Button *button_cancel;
-    Button *button_done;
-    Button *button_help;
+    Button* button_cancel;
+    Button* button_done;
+    Button* button_help;
 
     ResearchControl topics[RESEARCH_TOPIC_COUNT];
 
@@ -101,10 +101,10 @@ public:
 
 const ResourceID ResearchMenu_TopicIcons[] = {I_HRDATK, I_SHOTS, I_RANGE, I_ARMOR, I_HITS, I_SPEED, I_SCAN, I_GOLD};
 
-void ResearchMenu_Menu(UnitInfo *unit) { ResearchMenu(unit->team).Run(); }
+void ResearchMenu_Menu(UnitInfo* unit) { ResearchMenu(unit->team).Run(); }
 
 void ResearchMenu_UpdateResearchProgress(uint16_t team, int32_t research_topic, int32_t allocation) {
-    ResearchTopic *topic;
+    ResearchTopic* topic;
     int32_t topic_factor;
     int32_t turns_to_complete;
     double base;
@@ -133,7 +133,7 @@ void ResearchMenu_UpdateResearchProgress(uint16_t team, int32_t research_topic, 
 
 void ResearchMenu_ApplyUpgrades(uint16_t team, uint8_t research_topic) {
     uint32_t research_level;
-    TeamUnits *team_units;
+    TeamUnits* team_units;
 
     research_level = UnitsManager_TeamInfo[team].research_topics[research_topic].research_level;
 
@@ -144,7 +144,7 @@ void ResearchMenu_ApplyUpgrades(uint16_t team, uint8_t research_topic) {
         SmartPointer<UnitValues> unit_values2 =
             new (std::nothrow) UnitValues(*team_units->GetCurrentUnitValues(static_cast<ResourceID>(unit_type)));
         uint16_t value1;
-        uint16_t *value2;
+        uint16_t* value2;
         int32_t old_value;
         int32_t new_value;
 
@@ -219,7 +219,7 @@ void ResearchMenu_ApplyUpgrades(uint16_t team, uint8_t research_topic) {
 }
 
 void ResearchMenu_NewTurn(uint16_t team) {
-    ResearchTopic *topic;
+    ResearchTopic* topic;
 
     for (int32_t i = 0; i < RESEARCH_TOPIC_COUNT; ++i) {
         topic = &UnitsManager_TeamInfo[team].research_topics[i];
@@ -243,7 +243,7 @@ void ResearchMenu_NewTurn(uint16_t team) {
 }
 
 int32_t ResearchMenu_CalculateFactor(uint16_t team, int32_t research_topic, ResourceID unit_type) {
-    ResearchTopic *topic;
+    ResearchTopic* topic;
     int32_t result;
 
     topic = &UnitsManager_TeamInfo[team].research_topics[research_topic];
@@ -344,13 +344,13 @@ void ResearchControl::UpdateButtons() {
 
 uint16_t ResearchControl::GetValue() const { return topic_value; }
 
-void ResearchControl::Init(ResearchMenu *menu, uint8_t research_topic_index, uint16_t research_topic_value) {
+void ResearchControl::Init(ResearchMenu* menu, uint8_t research_topic_index, uint16_t research_topic_value) {
     WindowInfo window;
     SmartString string;
     int32_t uly_slider;
-    uint8_t *icon;
-    struct ImageSimpleHeader *image;
-    const char *const ResearchMenu_TopicLabels[] = {_(4cd5), _(7382), _(86bc), _(a592),
+    uint8_t* icon;
+    struct ImageSimpleHeader* image;
+    const char* const ResearchMenu_TopicLabels[] = {_(4cd5), _(7382), _(86bc), _(a592),
                                                     _(07f9), _(5857), _(920c), _(dbae)};
 
     research_menu = menu;
@@ -393,7 +393,7 @@ void ResearchControl::Init(ResearchMenu *menu, uint8_t research_topic_index, uin
     Text_TextBox(&window, ResearchMenu_TopicLabels[topic_index], 185, uly_slider, 49, 15, false, true);
 
     icon = ResourceManager_LoadResource(ResearchMenu_TopicIcons[topic_index]);
-    image = reinterpret_cast<struct ImageSimpleHeader *>(icon);
+    image = reinterpret_cast<struct ImageSimpleHeader*>(icon);
 
     WindowManager_DecodeSimpleImage(image, 170 - (image->width / 2), (uly_slider + 7) - (image->height / 2), true,
                                     &window);
@@ -408,10 +408,10 @@ void ResearchControl::Init(ResearchMenu *menu, uint8_t research_topic_index, uin
 }
 
 void ResearchControl::RefreshScreen(bool redraw) {
-    ResearchTopic *topic;
+    ResearchTopic* topic;
     WindowInfo window;
     int32_t offset;
-    struct ImageSimpleHeader *sprite;
+    struct ImageSimpleHeader* sprite;
 
     topic = &UnitsManager_TeamInfo[research_menu->GetTeam()].research_topics[topic_index];
 
@@ -441,7 +441,7 @@ void ResearchControl::RefreshScreen(bool redraw) {
                                turns, image_turns_bg->GetWidth(), window.width, 0xA2);
     }
 
-    sprite = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(PRFSLIDE));
+    sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(PRFSLIDE));
 
     offset = image_labs_slider_bg->GetWidth() - sprite->width;
 
@@ -464,25 +464,25 @@ void ResearchControl::RefreshScreen(bool redraw) {
 }
 
 void ResearchMenu_OnClick_Left(ButtonID bid, intptr_t value) {
-    ResearchControl *control;
+    ResearchControl* control;
 
-    control = reinterpret_cast<ResearchControl *>(value);
+    control = reinterpret_cast<ResearchControl*>(value);
 
     control->Update(control->topic_value - 1);
 }
 
 void ResearchMenu_OnClick_Right(ButtonID bid, intptr_t value) {
-    ResearchControl *control;
+    ResearchControl* control;
 
-    control = reinterpret_cast<ResearchControl *>(value);
+    control = reinterpret_cast<ResearchControl*>(value);
 
     control->Update(control->topic_value + 1);
 }
 
 void ResearchMenu_OnClick_Slider(ButtonID bid, intptr_t value) {
-    ResearchControl *control;
+    ResearchControl* control;
 
-    control = reinterpret_cast<ResearchControl *>(value);
+    control = reinterpret_cast<ResearchControl*>(value);
 
     if (control->research_menu->GetActiveResearchersCount() > 0) {
         int32_t width;
@@ -504,9 +504,9 @@ void ResearchMenu_OnClick_Slider(ButtonID bid, intptr_t value) {
 
 void ResearchMenu_OnClick_Done(ButtonID bid, intptr_t value) {
     uint16_t research_topics[RESEARCH_TOPIC_COUNT];
-    ResearchMenu *control;
+    ResearchMenu* control;
 
-    control = reinterpret_cast<ResearchMenu *>(value);
+    control = reinterpret_cast<ResearchMenu*>(value);
 
     control->exit_loop = true;
 
@@ -550,9 +550,9 @@ void ResearchMenu_OnClick_Done(ButtonID bid, intptr_t value) {
 void ResearchMenu_OnClick_Help(ButtonID bid, intptr_t value) { HelpMenu_Menu("RESEARCH_SETUP", WINDOW_MAIN_MAP); }
 
 void ResearchMenu_OnClick_Cancel(ButtonID bid, intptr_t value) {
-    ResearchMenu *control;
+    ResearchMenu* control;
 
-    control = reinterpret_cast<ResearchMenu *>(value);
+    control = reinterpret_cast<ResearchMenu*>(value);
 
     control->exit_loop = true;
 }

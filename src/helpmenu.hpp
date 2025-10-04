@@ -29,33 +29,33 @@
 class HelpMenu : public Window {
     WindowInfo window;
     std::string text;
-    Button *button_done;
-    Button *button_keys;
-    Button *button_up;
-    Button *button_down;
+    Button* button_done;
+    Button* button_keys;
+    Button* button_up;
+    Button* button_down;
     bool event_click_cancel;
     bool event_click_help;
     bool event_click_done;
     bool keys_mode;
     uint8_t window_id;
-    Image *canvas;
+    Image* canvas;
     uint16_t rows_per_page;
     int32_t string_row_count;
     uint16_t string_row_index;
-    SmartString *strings;
+    SmartString* strings;
 
-    void ProcessText(const std::string &string);
+    void ProcessText(const std::string& string);
     bool ProcessKey(int32_t key);
     void DrawText();
 
 public:
-    HelpMenu(const std::string &section, int32_t cursor_x, int32_t cursor_y, const int32_t window_id);
+    HelpMenu(const std::string& section, int32_t cursor_x, int32_t cursor_y, const int32_t window_id);
     ~HelpMenu();
 
     bool Run(int32_t mode);
 };
 
-void HelpMenu_Menu(const std::string &section, const int32_t window_index, const bool mode = false);
+void HelpMenu_Menu(const std::string& section, const int32_t window_index, const bool mode = false);
 bool HelpMenu_UnitReport(int32_t mouse_x, int32_t mouse_y);
 
 #endif /* HELPMENU_HPP */

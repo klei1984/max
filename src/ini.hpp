@@ -172,33 +172,33 @@ enum IniParameter {
 struct Ini_descriptor {
     uint8_t flags;
     std::filesystem::path ini_file_path;
-    char *buffer;
+    char* buffer;
     uint32_t file_size;
     uint32_t buffer_size;
-    char *current_address;
-    char *section_start_address;
-    char *key_start_address;
-    char *value_start_address;
-    char *next_value_address;
-    char *param_start_address;
+    char* current_address;
+    char* section_start_address;
+    char* key_start_address;
+    char* value_start_address;
+    char* next_value_address;
+    char* param_start_address;
 
     Ini_descriptor() noexcept;
 };
 
-int32_t inifile_save_to_file_and_free_buffer(Ini_descriptor *const pini, bool free_only = false);
-int32_t inifile_init_ini_object_from_ini_file(Ini_descriptor *const pini, const char *const inifile_path);
-uint32_t inifile_hex_to_dec(const char *const hex);
-int32_t inifile_ini_seek_section(Ini_descriptor *const pini, const char *const ini_section_name);
-int32_t inifile_ini_seek_param(Ini_descriptor *const pini, const char *const ini_param_name);
-int32_t inifile_ini_get_numeric_value(Ini_descriptor *const pini, const char *const ini_param_name,
-                                      int32_t *const value);
-int32_t inifile_ini_set_numeric_value(Ini_descriptor *const pini, const int32_t value);
-int32_t inifile_ini_set_string_value(Ini_descriptor *const pini, const char *value);
-int32_t inifile_ini_get_string(Ini_descriptor *const pini, char *const buffer, const uint32_t buffer_size,
+int32_t inifile_save_to_file_and_free_buffer(Ini_descriptor* const pini, bool free_only = false);
+int32_t inifile_init_ini_object_from_ini_file(Ini_descriptor* const pini, const char* const inifile_path);
+uint32_t inifile_hex_to_dec(const char* const hex);
+int32_t inifile_ini_seek_section(Ini_descriptor* const pini, const char* const ini_section_name);
+int32_t inifile_ini_seek_param(Ini_descriptor* const pini, const char* const ini_param_name);
+int32_t inifile_ini_get_numeric_value(Ini_descriptor* const pini, const char* const ini_param_name,
+                                      int32_t* const value);
+int32_t inifile_ini_set_numeric_value(Ini_descriptor* const pini, const int32_t value);
+int32_t inifile_ini_set_string_value(Ini_descriptor* const pini, const char* value);
+int32_t inifile_ini_get_string(Ini_descriptor* const pini, char* const buffer, const uint32_t buffer_size,
                                const int32_t mode, bool skip_leading_white_space = true);
-int32_t inifile_save_to_file(Ini_descriptor *const pini);
-void inifile_load_from_resource(Ini_descriptor *const pini, ResourceID resource_id);
-int32_t inifile_ini_process_string_value(Ini_descriptor *const pini, char *const buffer, const uint32_t buffer_size);
+int32_t inifile_save_to_file(Ini_descriptor* const pini);
+void inifile_load_from_resource(Ini_descriptor* const pini, ResourceID resource_id);
+int32_t inifile_ini_process_string_value(Ini_descriptor* const pini, char* const buffer, const uint32_t buffer_size);
 
 int32_t ini_get_setting(IniParameter index);
 int32_t ini_set_setting(IniParameter index, int32_t value);

@@ -28,15 +28,16 @@
 
 #include "resource_manager.hpp"
 
-Image::Image(int16_t ulx, int16_t uly, int16_t width, int16_t height) : ulx(ulx), uly(uly), width(width), height(height) {
+Image::Image(int16_t ulx, int16_t uly, int16_t width, int16_t height)
+    : ulx(ulx), uly(uly), width(width), height(height) {
     data = new (std::nothrow) uint8_t[width * height];
     allocated = true;
 }
 
 Image::Image(ResourceID id, int16_t ulx, int16_t uly) {
-    struct ImageSimpleHeader *sprite;
+    struct ImageSimpleHeader* sprite;
 
-    sprite = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(id));
+    sprite = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id));
     SDL_assert(sprite);
 
     if (ulx < 0) {
@@ -65,7 +66,7 @@ Image::~Image() {
     }
 }
 
-uint8_t *Image::GetData() const { return data; }
+uint8_t* Image::GetData() const { return data; }
 
 int16_t Image::GetULX() const { return ulx; }
 
@@ -76,7 +77,7 @@ int16_t Image::GetWidth() const { return width; }
 int16_t Image::GetHeight() const { return height; }
 
 void Image::Allocate() {
-    uint8_t *buffer;
+    uint8_t* buffer;
 
     if (!allocated) {
         buffer = new (std::nothrow) uint8_t[width * height];
@@ -92,19 +93,19 @@ void Image::Allocate() {
 
 Rect Image::GetBounds() const { return {ulx, uly, width + ulx, height + uly}; }
 
-void Image::Copy(WindowInfo *w) {
+void Image::Copy(WindowInfo* w) {
     Allocate();
     buf_to_buf(&w->buffer[ulx + w->width * uly], width, height, w->width, data, width);
 }
 
-void Image::Copy(const Image &other) {
+void Image::Copy(const Image& other) {
     Allocate();
     buf_to_buf(other.GetData(), std::min(width, other.width), std::min(height, other.height), other.width, data, width);
 }
 
-void Image::Blend(const Image &other) {
-    uint8_t *source_buffer;
-    uint8_t *destination_buffer;
+void Image::Blend(const Image& other) {
+    uint8_t* source_buffer;
+    uint8_t* destination_buffer;
     int16_t min_width;
     int16_t width_offset;
     int16_t height_offset;
@@ -135,16 +136,16 @@ void Image::Blend(const Image &other) {
     }
 }
 
-void Image::Write(WindowInfo *w) const {
+void Image::Write(WindowInfo* w) const {
     buf_to_buf(data, width, height, width, &w->buffer[ulx + w->width * uly], w->width);
 }
 
-void Image::Write(WindowInfo *w, Rect *r) const {
+void Image::Write(WindowInfo* w, Rect* r) const {
     buf_to_buf(&data[r->ulx + r->uly * width], r->lrx - r->ulx, r->lry - r->uly, width,
                &w->buffer[ulx + r->ulx + w->width * (r->uly + uly)], w->width);
 }
 
-void Image::Write(WindowInfo *w, int32_t ulx, int32_t uly) const {
+void Image::Write(WindowInfo* w, int32_t ulx, int32_t uly) const {
     buf_to_buf(data, width, height, width, &w->buffer[ulx + w->width * uly], w->width);
 }
 

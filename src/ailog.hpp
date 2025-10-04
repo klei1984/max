@@ -29,26 +29,26 @@
 
 class AiLog {
     static std::ofstream AiLog_File;
-    static SDL_mutex *AiLog_Mutex;
+    static SDL_mutex* AiLog_Mutex;
     static int32_t AiLog_SectionCount;
     static int32_t AiLog_EntryCount;
 
     uint32_t time_stamp;
 
     static void AiLog_InitMutex();
-    void VSprintf(const char *format, va_list args);
-    void NoLockLog(const char *format, ...);
+    void VSprintf(const char* format, va_list args);
+    void NoLockLog(const char* format, ...);
 
     friend void AiLog_Open();
     friend void AiLog_Close();
     friend bool AiLog_IsEnabled() noexcept;
 
 public:
-    AiLog(const char *format, ...);
+    AiLog(const char* format, ...);
     ~AiLog();
 
-    void Log(const char *format, ...);
-    void VLog(const char *format, va_list args);
+    void Log(const char* format, ...);
+    void VLog(const char* format, va_list args);
 };
 
 void AiLog_Open();

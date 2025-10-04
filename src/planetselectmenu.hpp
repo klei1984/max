@@ -66,7 +66,7 @@ struct PlanetSelectMenuItem {
 struct PlanetSelectMenuControlItem {
     Rect bounds;
     ResourceID image_id;
-    const char *label;
+    const char* label;
     int32_t event_code;
     void (PlanetSelectMenu::*event_handler)();
     ResourceID sfx;
@@ -104,18 +104,18 @@ class PlanetSelectMenu {
     void AnimateWorldChange(int32_t world1, int32_t world2, bool direction);
 
 public:
-    WindowInfo *window;
+    WindowInfo* window;
     uint32_t event_click_done;
     uint32_t event_click_cancel;
     int16_t world;
     uint16_t menu_item_index;
     uint32_t key;
-    Image *image1;
-    Image *image2;
-    Image *image3;
-    Button *buttons[PLANET_SELECT_MENU_ITEM_COUNT];
+    Image* image1;
+    Image* image2;
+    Image* image3;
+    Button* buttons[PLANET_SELECT_MENU_ITEM_COUNT];
     PlanetSelectMenuItem menu_item[PLANET_SELECT_MENU_ITEM_COUNT];
-    Image *minimap_bg_images[PLANET_SELECT_MENU_MAP_SLOT_COUNT];
+    Image* minimap_bg_images[PLANET_SELECT_MENU_MAP_SLOT_COUNT];
 
     void Init();
     void Deinit();

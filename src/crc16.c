@@ -21,7 +21,7 @@
 
 #include "crc16.h"
 
-void crc16(uint16_t *crc, uint8_t c) {
+void crc16(uint16_t* crc, uint8_t c) {
     int32_t i;
     int32_t carry;
 

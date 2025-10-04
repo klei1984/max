@@ -32,17 +32,17 @@ class Continent : public SmartObject {
     uint16_t continent_size;
     Rect bounds;
     Point point;
-    uint8_t **map;
+    uint8_t** map;
     uint8_t field_35;
 
     bool IsDangerousProximity(int32_t grid_x, int32_t grid_y, uint16_t team, int32_t proximity_range);
     bool IsViableSite(bool test_proximity, uint16_t team, Point site);
 
 public:
-    Continent(uint8_t **map, uint16_t filler, Point point, uint8_t value = 1);
+    Continent(uint8_t** map, uint16_t filler, Point point, uint8_t value = 1);
     ~Continent();
 
-    void GetBounds(Rect &bounds) const;
+    void GetBounds(Rect& bounds) const;
     Point GetCenter() const;
     bool IsIsolated() const;
     uint16_t GetContinentSize() const;

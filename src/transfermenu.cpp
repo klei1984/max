@@ -33,9 +33,9 @@
 #include "units_manager.hpp"
 #include "window_manager.hpp"
 
-void TransferMenu_GetUnitCargoInfo(UnitInfo *source_unit, UnitInfo *destination_unit, int16_t &materials,
-                                   int16_t &capacity) {
-    Complex *complex;
+void TransferMenu_GetUnitCargoInfo(UnitInfo* source_unit, UnitInfo* destination_unit, int16_t& materials,
+                                   int16_t& capacity) {
+    Complex* complex;
 
     complex = source_unit->GetComplex();
 
@@ -144,7 +144,7 @@ bool TransferMenu::ProcessKey(int32_t key) {
     return true;
 }
 
-TransferMenu::TransferMenu(UnitInfo *unit) : Window(XFERPIC, GameManager_GetDialogWindowCenterMode()) {
+TransferMenu::TransferMenu(UnitInfo* unit) : Window(XFERPIC, GameManager_GetDialogWindowCenterMode()) {
     int16_t source_unit_capacity;
     int16_t target_unit_capacity;
 
@@ -302,7 +302,7 @@ void TransferMenu::Run() {
 
 int16_t TransferMenu::GetCargoTransferred() const { return total_materials_transferred; }
 
-int32_t TransferMenu_Menu(UnitInfo *unit) {
+int32_t TransferMenu_Menu(UnitInfo* unit) {
     TransferMenu menu(unit);
 
     menu.Run();

@@ -30,16 +30,16 @@
 
 #define WINDOW_ITEM(rect, unknown, id, buffer, name) {rect, unknown, id, buffer}
 
-static void WindowManager_SwapSystemPalette(ImageBigHeader *image);
+static void WindowManager_SwapSystemPalette(ImageBigHeader* image);
 static void WindowManager_ScaleWindows();
-static bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, int32_t ulx,
+static bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader* image, WindowInfo* window, int32_t ulx,
                                              int32_t uly);
 static void WindowManager_ResizeSimpleImage(ResourceID id, double scale);
 static void WindowManager_ScaleWindow(int32_t wid, double scale);
 static void WindowManager_ScaleButtonResource(ResourceID id, double scale);
 
-Color *WindowManager_SystemPalette;
-Color *WindowManager_ColorPalette;
+Color* WindowManager_SystemPalette;
+Color* WindowManager_ColorPalette;
 
 int32_t WindowManager_WindowWidth;
 int32_t WindowManager_WindowHeight;
@@ -108,19 +108,19 @@ static WindowInfo windows[WINDOW_COUNT] = {
     WINDOW_ITEM(WINDOW_RECT(0, 239, 178, 479), WINDOW_WIDTH, 0, nullptr, WINDOW_INTERFACE_PANEL_BOTTOM)};
 
 void WindowManager_ResizeSimpleImage(ResourceID id, double scale) {
-    uint8_t *resource = ResourceManager_LoadResource(id);
-    ImageSimpleHeader *image = reinterpret_cast<ImageSimpleHeader *>(resource);
+    uint8_t* resource = ResourceManager_LoadResource(id);
+    ImageSimpleHeader* image = reinterpret_cast<ImageSimpleHeader*>(resource);
     int32_t data_size;
     Rect map_frame;
 
     image = WindowManager_RescaleSimpleImage(image, GFX_SCALE_DENOMINATOR / scale);
     data_size = image->width * image->height + sizeof(image->width) * 4;
-    ResourceManager_Realloc(id, reinterpret_cast<uint8_t *>(image), data_size);
+    ResourceManager_Realloc(id, reinterpret_cast<uint8_t*>(image), data_size);
 }
 
 void WindowManager_ScaleWindow(int32_t wid, double scale) {
-    WindowInfo *const screen = &windows[WINDOW_MAIN_WINDOW];
-    WindowInfo *const window = &windows[wid];
+    WindowInfo* const screen = &windows[WINDOW_MAIN_WINDOW];
+    WindowInfo* const window = &windows[wid];
 
     window->window.ulx *= scale;
     window->window.uly *= scale;
@@ -197,13 +197,13 @@ void WindowManager_ScaleResources() {
 }
 
 void WindowManager_ScaleWindows() {
-    WindowInfo *const screen = &windows[WINDOW_MAIN_WINDOW];
+    WindowInfo* const screen = &windows[WINDOW_MAIN_WINDOW];
     int32_t screen_width = WindowManager_GetWidth(screen);
     int32_t screen_height = WindowManager_GetHeight(screen);
     double scale = WindowManager_GetScale();
 
     {
-        WindowInfo *const wmap = &windows[WINDOW_MAIN_MAP];
+        WindowInfo* const wmap = &windows[WINDOW_MAIN_MAP];
 
         const int32_t window_left = wmap->window.ulx;
         const int32_t window_tile_count_x = (WINDOW_WIDTH - window_left) / GFX_MAP_TILE_SIZE;
@@ -228,8 +228,8 @@ void WindowManager_ScaleWindows() {
         WindowManager_MapWidth = map_width;
         WindowManager_MapHeight = map_height;
 
-        WindowInfo *const wpt = &windows[WINDOW_INTERFACE_PANEL_TOP];
-        WindowInfo *const wpb = &windows[WINDOW_INTERFACE_PANEL_BOTTOM];
+        WindowInfo* const wpt = &windows[WINDOW_INTERFACE_PANEL_TOP];
+        WindowInfo* const wpb = &windows[WINDOW_INTERFACE_PANEL_BOTTOM];
 
         const int32_t wpt_width = (wpt->window.lrx - wpt->window.ulx) * scale;
         const int32_t wpt_height = (wpt->window.lry - wpt->window.uly) * scale;
@@ -242,18 +242,18 @@ void WindowManager_ScaleWindows() {
     }
 
     {
-        WindowInfo *const wu = &windows[WINDOW_SCROLL_UP_WINDOW];
-        WindowInfo *const wur = &windows[WINDOW_SCROLL_UP_RIGHT_WINDOW];
-        WindowInfo *const wru = &windows[WINDOW_SCROLL_RIGHT_UP_WINDOW];
-        WindowInfo *const wr = &windows[WINDOW_SCROLL_RIGHT_WINDOW];
-        WindowInfo *const wrd = &windows[WINDOW_SCROLL_RIGHT_DOWN_WINDOW];
-        WindowInfo *const wdr = &windows[WINDOW_SCROLL_DOWN_RIGHT_WINDOW];
-        WindowInfo *const wd = &windows[WINDOW_SCROLL_DOWN_WINDOW];
-        WindowInfo *const wdl = &windows[WINDOW_SCROLL_DOWN_LEFT_WINDOW];
-        WindowInfo *const wld = &windows[WINDOW_SCROLL_LEFT_DOWN_WINDOW];
-        WindowInfo *const wl = &windows[WINDOW_SCROLL_LEFT_WINDOW];
-        WindowInfo *const wlu = &windows[WINDOW_SCROLL_LEFT_UP_WINDOW];
-        WindowInfo *const wul = &windows[WINDOW_SCROLL_UP_LEFT_WINDOW];
+        WindowInfo* const wu = &windows[WINDOW_SCROLL_UP_WINDOW];
+        WindowInfo* const wur = &windows[WINDOW_SCROLL_UP_RIGHT_WINDOW];
+        WindowInfo* const wru = &windows[WINDOW_SCROLL_RIGHT_UP_WINDOW];
+        WindowInfo* const wr = &windows[WINDOW_SCROLL_RIGHT_WINDOW];
+        WindowInfo* const wrd = &windows[WINDOW_SCROLL_RIGHT_DOWN_WINDOW];
+        WindowInfo* const wdr = &windows[WINDOW_SCROLL_DOWN_RIGHT_WINDOW];
+        WindowInfo* const wd = &windows[WINDOW_SCROLL_DOWN_WINDOW];
+        WindowInfo* const wdl = &windows[WINDOW_SCROLL_DOWN_LEFT_WINDOW];
+        WindowInfo* const wld = &windows[WINDOW_SCROLL_LEFT_DOWN_WINDOW];
+        WindowInfo* const wl = &windows[WINDOW_SCROLL_LEFT_WINDOW];
+        WindowInfo* const wlu = &windows[WINDOW_SCROLL_LEFT_UP_WINDOW];
+        WindowInfo* const wul = &windows[WINDOW_SCROLL_UP_LEFT_WINDOW];
 
         const int32_t corner_size = wu->window.ulx * scale;
         const int32_t corner_width = wu->window.lry * scale;
@@ -296,14 +296,14 @@ void WindowManager_ScaleWindows() {
     }
 
     {
-        WindowInfo *const wti = &windows[WINDOW_TOP_INSTRUMENTS_WINDOW];
-        WindowInfo *const wbi = &windows[WINDOW_BOTTOM_INSTRUMENTS_WINDOW];
-        WindowInfo *const wcd = &windows[WINDOW_COORDINATES_DISPLAY];
-        WindowInfo *const wud = &windows[WINDOW_UNIT_DESCRIPTION_DISPLAY];
-        WindowInfo *const wtc = &windows[WINDOW_TURN_COUNTER_DISPLAY];
-        WindowInfo *const wtt = &windows[WINDOW_TURN_TIMER_DISPLAY];
-        WindowInfo *const wet = &windows[WINDOW_ENDTURN_BUTTON];
-        WindowInfo *const wmap = &windows[WINDOW_MAIN_MAP];
+        WindowInfo* const wti = &windows[WINDOW_TOP_INSTRUMENTS_WINDOW];
+        WindowInfo* const wbi = &windows[WINDOW_BOTTOM_INSTRUMENTS_WINDOW];
+        WindowInfo* const wcd = &windows[WINDOW_COORDINATES_DISPLAY];
+        WindowInfo* const wud = &windows[WINDOW_UNIT_DESCRIPTION_DISPLAY];
+        WindowInfo* const wtc = &windows[WINDOW_TURN_COUNTER_DISPLAY];
+        WindowInfo* const wtt = &windows[WINDOW_TURN_TIMER_DISPLAY];
+        WindowInfo* const wet = &windows[WINDOW_ENDTURN_BUTTON];
+        WindowInfo* const wmap = &windows[WINDOW_MAIN_MAP];
 
         const int32_t bottom_instrument_width = 327 * scale;
 
@@ -380,7 +380,7 @@ void WindowManager_ScaleWindows() {
     }
 
     {
-        WindowInfo *const wmm = &windows[WINDOW_MINIMAP];
+        WindowInfo* const wmm = &windows[WINDOW_MINIMAP];
 
         const int32_t wmm_width = (wmm->window.lrx - wmm->window.ulx + 1) * scale;
         const int32_t wmm_height = (wmm->window.lry - wmm->window.uly + 1) * scale;
@@ -421,7 +421,7 @@ void WindowManager_ScaleWindows() {
     }
 
     {
-        WindowInfo *const wcf = &windows[WINDOW_CORNER_FLIC];
+        WindowInfo* const wcf = &windows[WINDOW_CORNER_FLIC];
 
         const int32_t wcf_width = (wcf->window.lrx - wcf->window.ulx + 1) * scale;
         const int32_t wcf_height = (wcf->window.lry - wcf->window.uly + 1) * scale;
@@ -451,7 +451,7 @@ void WindowManager_ScaleWindows() {
     }
 }
 
-bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, WindowInfo *window, int32_t ulx,
+bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader* image, WindowInfo* window, int32_t ulx,
                                       int32_t uly) {
     bool result = false;
 
@@ -460,7 +460,7 @@ bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, Wind
     switch (id) {
         case FRAMEPIC: {
             const double scale = WindowManager_GetScale();
-            WindowInfo *const screen = &windows[WINDOW_MAIN_WINDOW];
+            WindowInfo* const screen = &windows[WINDOW_MAIN_WINDOW];
 
             const int32_t left = 180;
             const int32_t right = 18;
@@ -475,7 +475,7 @@ bool WindowManager_CustomSpriteScaler(ResourceID id, ImageBigHeader *image, Wind
             const Rect new_r = {window->window.lrx - scaled_right, new_l.uly, window->window.lrx, new_l.lry};
             const Rect new_m = {new_l.lrx + 1, new_l.uly, new_r.ulx - 1, new_l.lry};
 
-            uint8_t *buffer = new (std::nothrow) uint8_t[image->width * image->height];
+            uint8_t* buffer = new (std::nothrow) uint8_t[image->width * image->height];
 
             WindowManager_DecodeBigImage(image, buffer, 0, 0, image->width);
 
@@ -548,8 +548,8 @@ int32_t WindowManager_Init() {
     return result;
 }
 
-WindowInfo *WindowManager_GetWindow(uint8_t id) {
-    WindowInfo *window;
+WindowInfo* WindowManager_GetWindow(uint8_t id) {
+    WindowInfo* window;
 
     if (id < WINDOW_COUNT) {
         window = &windows[id];
@@ -561,7 +561,7 @@ WindowInfo *WindowManager_GetWindow(uint8_t id) {
 }
 
 void WindowManager_ClearWindow() {
-    WindowInfo *window;
+    WindowInfo* window;
 
     WindowManager_FadeOut(150);
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
@@ -578,8 +578,8 @@ void WindowManager_FadeIn(int32_t time_limit) {
     Color_FadeSystemPalette(WindowManager_SystemPalette, Color_GetColorPalette(), time_limit);
 }
 
-void WindowManager_SwapSystemPalette(ImageBigHeader *image) {
-    uint8_t *palette;
+void WindowManager_SwapSystemPalette(ImageBigHeader* image) {
+    uint8_t* palette;
 
     WindowManager_ClearWindow();
     palette = Color_GetSystemPalette();
@@ -596,11 +596,11 @@ void WindowManager_SwapSystemPalette(ImageBigHeader *image) {
 }
 
 void WindowManager_LoadPalette(ResourceID id) {
-    uint8_t *resource;
-    ImageBigHeader *image;
+    uint8_t* resource;
+    ImageBigHeader* image;
 
     resource = ResourceManager_ReadResource(id);
-    image = reinterpret_cast<ImageBigHeader *>(resource);
+    image = reinterpret_cast<ImageBigHeader*>(resource);
 
     if (image) {
         WindowManager_SwapSystemPalette(image);
@@ -609,11 +609,11 @@ void WindowManager_LoadPalette(ResourceID id) {
     delete[] resource;
 }
 
-void WindowManager_DecodeBigImage(struct ImageBigHeader *image, uint8_t *buffer, int32_t ulx, int32_t uly,
+void WindowManager_DecodeBigImage(struct ImageBigHeader* image, uint8_t* buffer, int32_t ulx, int32_t uly,
                                   int32_t pitch) {
     int32_t image_height;
     int32_t image_width;
-    uint8_t *image_data;
+    uint8_t* image_data;
     int32_t buffer_position;
 
     image_width = image->width;
@@ -628,7 +628,7 @@ void WindowManager_DecodeBigImage(struct ImageBigHeader *image, uint8_t *buffer,
         int16_t opt_word;
 
         for (int32_t line_position = 0; line_position < image_width; line_position += opt_word) {
-            opt_word = *reinterpret_cast<int16_t *>(image_data);
+            opt_word = *reinterpret_cast<int16_t*>(image_data);
             image_data += sizeof(opt_word);
 
             if (opt_word > 0) {
@@ -653,17 +653,17 @@ void WindowManager_DecodeBigImage(struct ImageBigHeader *image, uint8_t *buffer,
     }
 }
 
-int32_t WindowManager_LoadBigImage(ResourceID id, WindowInfo *window, int32_t pitch, bool palette_from_image,
+int32_t WindowManager_LoadBigImage(ResourceID id, WindowInfo* window, int32_t pitch, bool palette_from_image,
                                    bool draw_to_screen, int32_t ulx, int32_t uly, bool center_align, bool rescale) {
-    uint8_t *resource;
-    ImageBigHeader *image;
+    uint8_t* resource;
+    ImageBigHeader* image;
     int32_t width = WindowManager_GetWidth(window);
     int32_t height = WindowManager_GetHeight(window);
 
     process_bk();
 
     resource = ResourceManager_ReadResource(id);
-    image = reinterpret_cast<ImageBigHeader *>(resource);
+    image = reinterpret_cast<ImageBigHeader*>(resource);
 
     if (!image) {
         return 0;
@@ -749,12 +749,12 @@ int32_t WindowManager_LoadBigImage(ResourceID id, WindowInfo *window, int32_t pi
     return 1;
 }
 
-void WindowManager_DecodeSimpleImage(struct ImageSimpleHeader *image, int32_t ulx, int32_t uly, bool has_transparency,
-                                     WindowInfo *w) {
+void WindowManager_DecodeSimpleImage(struct ImageSimpleHeader* image, int32_t ulx, int32_t uly, bool has_transparency,
+                                     WindowInfo* w) {
     int32_t height;
     int32_t width;
-    uint8_t *buffer;
-    uint8_t *image_data;
+    uint8_t* buffer;
+    uint8_t* image_data;
     int32_t length;
 
     if (image) {
@@ -814,22 +814,22 @@ void WindowManager_DecodeSimpleImage(struct ImageSimpleHeader *image, int32_t ul
     }
 }
 
-void WindowManager_LoadSimpleImage(ResourceID id, int32_t ulx, int32_t uly, bool has_transparency, WindowInfo *w) {
-    WindowManager_DecodeSimpleImage(reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(id)), ulx,
+void WindowManager_LoadSimpleImage(ResourceID id, int32_t ulx, int32_t uly, bool has_transparency, WindowInfo* w) {
+    WindowManager_DecodeSimpleImage(reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(id)), ulx,
                                     uly, has_transparency, w);
 }
 
-struct ImageSimpleHeader *WindowManager_RescaleSimpleImage(struct ImageSimpleHeader *image, int32_t scaling_factor) {
+struct ImageSimpleHeader* WindowManager_RescaleSimpleImage(struct ImageSimpleHeader* image, int32_t scaling_factor) {
     int32_t width;
     int32_t height;
     int32_t scaled_width;
     int32_t scaled_height;
     int32_t scaling_factor_width;
     int32_t scaling_factor_height;
-    struct ImageSimpleHeader *scaled_image;
-    uint8_t *buffer;
-    uint8_t *image_data;
-    uint8_t *scaled_image_data;
+    struct ImageSimpleHeader* scaled_image;
+    uint8_t* buffer;
+    uint8_t* image_data;
+    uint8_t* scaled_image_data;
 
     width = image->width;
     height = image->height;
@@ -837,7 +837,7 @@ struct ImageSimpleHeader *WindowManager_RescaleSimpleImage(struct ImageSimpleHea
     scaled_width = (width * GFX_SCALE_DENOMINATOR) / scaling_factor;
     scaled_height = (height * GFX_SCALE_DENOMINATOR) / scaling_factor;
 
-    scaled_image = reinterpret_cast<struct ImageSimpleHeader *>(
+    scaled_image = reinterpret_cast<struct ImageSimpleHeader*>(
         new (std::nothrow) uint8_t[scaled_width * scaled_height + sizeof(image->width) * 4]);
 
     scaled_image->width = scaled_width;
@@ -862,12 +862,12 @@ struct ImageSimpleHeader *WindowManager_RescaleSimpleImage(struct ImageSimpleHea
     return scaled_image;
 }
 
-int32_t WindowManager_GetWidth(WindowInfo *w) { return win_width(w->id); }
+int32_t WindowManager_GetWidth(WindowInfo* w) { return win_width(w->id); }
 
-int32_t WindowManager_GetHeight(WindowInfo *w) { return win_height(w->id); }
+int32_t WindowManager_GetHeight(WindowInfo* w) { return win_height(w->id); }
 
 double WindowManager_GetScale() {
-    WindowInfo *const screen = &windows[WINDOW_MAIN_WINDOW];
+    WindowInfo* const screen = &windows[WINDOW_MAIN_WINDOW];
     int32_t screen_width = WindowManager_GetWidth(screen);
     int32_t screen_height = WindowManager_GetHeight(screen);
     double scale;
@@ -882,26 +882,26 @@ double WindowManager_GetScale() {
     return scale;
 }
 
-int32_t WindowManager_ScaleUlx(WindowInfo *w, int32_t ulx) {
+int32_t WindowManager_ScaleUlx(WindowInfo* w, int32_t ulx) {
     return (WindowManager_GetWidth(w) - WINDOW_WIDTH) / 2 + ulx;
 }
 
-int32_t WindowManager_ScaleUly(WindowInfo *w, int32_t uly) {
+int32_t WindowManager_ScaleUly(WindowInfo* w, int32_t uly) {
     return (WindowManager_GetHeight(w) - WINDOW_HEIGHT) / 2 + uly;
 }
 
-int32_t WindowManager_ScaleLrx(WindowInfo *w, int32_t ulx, int32_t lrx) {
+int32_t WindowManager_ScaleLrx(WindowInfo* w, int32_t ulx, int32_t lrx) {
     int32_t width = lrx - ulx;
 
     return WindowManager_ScaleUlx(w, ulx) + width;
 }
 
-int32_t WindowManager_ScaleLry(WindowInfo *w, int32_t uly, int32_t lry) {
+int32_t WindowManager_ScaleLry(WindowInfo* w, int32_t uly, int32_t lry) {
     int32_t height = lry - uly;
 
     return WindowManager_ScaleUly(w, uly) + height;
 }
 
-int32_t WindowManager_ScaleOffset(WindowInfo *w, int32_t ulx, int32_t uly) {
+int32_t WindowManager_ScaleOffset(WindowInfo* w, int32_t ulx, int32_t uly) {
     return w->width * WindowManager_ScaleUly(w, uly) + WindowManager_ScaleUlx(w, ulx);
 }

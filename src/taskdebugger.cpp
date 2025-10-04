@@ -32,7 +32,7 @@
 static int32_t TaskDebugger_DebugMode;
 static int32_t TaskDebugger_DebugTask = TASK_DEBUGGER_INVALID_ID;
 
-TaskDebugger::TaskDebugger(WindowInfo *win, Task *task, int32_t button_up_value, int32_t button_down_value,
+TaskDebugger::TaskDebugger(WindowInfo* win, Task* task, int32_t button_up_value, int32_t button_down_value,
                            int32_t first_row_value) {
     TaskDebugger_DebugTask = TASK_DEBUGGER_INVALID_ID;
 
@@ -81,7 +81,7 @@ TaskDebugger::~TaskDebugger() {
     delete button_down;
 }
 
-void TaskDebugger::InitTaskList(Task *task) {
+void TaskDebugger::InitTaskList(Task* task) {
     tasks.Release();
 
     tasks.Insert(nullptr);
@@ -112,7 +112,7 @@ void TaskDebugger::InitTaskList(Task *task) {
     SetLimits(task_count);
 }
 
-void TaskDebugger::DrawRow(int32_t uly, const char *caption, Task *task, int32_t color) {
+void TaskDebugger::DrawRow(int32_t uly, const char* caption, Task* task, int32_t color) {
     char text[100];
     int32_t full_width = Text_GetWidth(caption);
 

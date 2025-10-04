@@ -33,8 +33,8 @@ void GNW_rect_exit(void) {
     }
 }
 
-void rect_clip_list(RectPtr *pCur, Rect *bound) {
-    RectPtr *clip;
+void rect_clip_list(RectPtr* pCur, Rect* bound) {
+    RectPtr* clip;
     RectPtr cur;
     RectPtr temp;
     RectPtr temp2;
@@ -61,7 +61,7 @@ void rect_clip_list(RectPtr *pCur, Rect *bound) {
     *pCur = temp;
 }
 
-RectPtr rect_clip(Rect *b, Rect *t) {
+RectPtr rect_clip(Rect* b, Rect* t) {
     Rect rect[4];
     Rect clipped;
     RectPtr ptr;
@@ -95,7 +95,7 @@ RectPtr rect_clip(Rect *b, Rect *t) {
         rect[3].lry = b->lry;
 
         {
-            RectPtr *rect_ptr;
+            RectPtr* rect_ptr;
             rect_ptr = &ptr;
             int32_t i = 0;
 
@@ -161,7 +161,7 @@ void rect_free(RectPtr ptr) {
     ptr->next = temp;
 }
 
-void rect_min_bound(Rect *r1, Rect *r2, Rect *min_bound) {
+void rect_min_bound(Rect* r1, Rect* r2, Rect* min_bound) {
     if (r1->ulx >= r2->ulx) {
         min_bound->ulx = r2->ulx;
     } else {
@@ -187,7 +187,7 @@ void rect_min_bound(Rect *r1, Rect *r2, Rect *min_bound) {
     }
 }
 
-int32_t rect_inside_bound(Rect *r1, Rect *bound, Rect *r2) {
+int32_t rect_inside_bound(Rect* r1, Rect* bound, Rect* r2) {
     int32_t result;
 
     *r2 = *r1;
@@ -214,7 +214,7 @@ int32_t rect_inside_bound(Rect *r1, Rect *bound, Rect *r2) {
     return result;
 }
 
-Rect *rect_init(Rect *r, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry) {
+Rect* rect_init(Rect* r, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry) {
     r->ulx = ulx;
     r->uly = uly;
     r->lrx = lrx;
@@ -223,6 +223,6 @@ Rect *rect_init(Rect *r, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry) {
     return r;
 }
 
-int32_t rect_get_width(Rect *r) { return r->lrx - r->ulx; }
+int32_t rect_get_width(Rect* r) { return r->lrx - r->ulx; }
 
-int32_t rect_get_height(Rect *r) { return r->lry - r->uly; }
+int32_t rect_get_height(Rect* r) { return r->lry - r->uly; }

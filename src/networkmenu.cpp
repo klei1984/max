@@ -188,7 +188,7 @@ bool NetworkMenu_MenuLoop(bool is_host_mode) {
 }
 
 void NetworkMenu::ButtonInit(int32_t index) {
-    NetworkMenuControlItem *control;
+    NetworkMenuControlItem* control;
 
     control = &network_menu_controls[index];
 
@@ -284,7 +284,7 @@ void NetworkMenu::Init() {
     Text_SetFont(GNW_TEXT_FONT_5);
 
     for (int32_t i = 0; i < NETWORK_MENU_IMAGE_COUNT; ++i) {
-        MenuTitleItem *menu_item = &network_menu_titles[i];
+        MenuTitleItem* menu_item = &network_menu_titles[i];
 
         images[i] = new (std::nothrow)
             Image(WindowManager_ScaleUlx(window, menu_item->bounds.ulx),
@@ -385,7 +385,7 @@ void NetworkMenu::EventSelectClan() {
 
 void NetworkMenu::EventTextWindow() {
     int32_t key_press;
-    NetNode *host_node_pointer;
+    NetNode* host_node_pointer;
 
     host_node_pointer = Remote_Hosts[key - 2];
     SDL_assert(host_node_pointer);
@@ -665,8 +665,8 @@ void NetworkMenu::ReadIniSettings(int32_t game_state) {
     }
 }
 
-void NetworkMenu::DrawTextLine(int32_t line_index, char *text, int32_t height, bool horizontal_align) {
-    MenuTitleItem *menu_item = &network_menu_titles[MENU_ITEM_JOIN_TEXT_WINDOW];
+void NetworkMenu::DrawTextLine(int32_t line_index, char* text, int32_t height, bool horizontal_align) {
+    MenuTitleItem* menu_item = &network_menu_titles[MENU_ITEM_JOIN_TEXT_WINDOW];
     int32_t ulx;
     int32_t uly;
     int32_t width;
@@ -692,7 +692,7 @@ void NetworkMenu::ResetJar(int32_t team) {
     team_jar_in_use[team] = false;
 }
 
-void NetworkMenu::UpdateSaveSettings(struct SaveFileInfo *save_file_info) {
+void NetworkMenu::UpdateSaveSettings(struct SaveFileInfo* save_file_info) {
     if (save_file_info) {
         is_multi_scenario = true;
 
@@ -779,7 +779,7 @@ int32_t NetworkMenu::SetupScenario(int32_t mode) {
         if (is_incompatible_save_file) {
             const auto file_list = ResourceManager_GetFileList(ResourceManager_FilePathGameData, ".mts");
 
-            for (const auto &file_path : file_list) {
+            for (const auto& file_path : file_list) {
                 file_exists = SaveLoad_GetSaveFileInfo(file_path, save_file_info, true);
 
                 if (file_exists && rng_seed == save_file_info.random_seed) {
@@ -953,7 +953,7 @@ void NetworkMenu::NetSync(int32_t team) {
     }
 }
 
-void NetworkMenu::NetSync(struct SaveFileInfo &save_file_info) {
+void NetworkMenu::NetSync(struct SaveFileInfo& save_file_info) {
     int32_t index;
 
     for (index = 0; index < 3 && save_file_info.team_type[index] != TEAM_TYPE_PLAYER; ++index) {
@@ -986,9 +986,9 @@ void NetworkMenu::Reinit(int32_t palette_from_image) {
     mouse_show();
 }
 
-TextEdit *NetworkMenu::CreateTextEdit(int32_t index) {
-    NetworkMenuControlItem *control;
-    TextEdit *text_edit;
+TextEdit* NetworkMenu::CreateTextEdit(int32_t index) {
+    NetworkMenuControlItem* control;
+    TextEdit* text_edit;
 
     control = &network_menu_controls[index];
 
@@ -1163,7 +1163,7 @@ void NetworkMenu::DrawJoinScreen() {
     if (Remote_Hosts.GetCount()) {
         for (int32_t i = 0; i < NETWORK_MAX_HOSTS_PER_PAGE; ++i) {
             index = MENU_CONTROL_TEXT_WINDOW + i;
-            NetNode *host_node_pointer = Remote_Hosts[i];
+            NetNode* host_node_pointer = Remote_Hosts[i];
 
             if (host_node_pointer) {
                 DrawTextLine(i, host_node_pointer->name, 20, false);
@@ -1173,7 +1173,7 @@ void NetworkMenu::DrawJoinScreen() {
             }
 
             if (i < NETWORK_MAX_HOSTS_PER_PAGE - 1) {
-                struct NetworkMenuControlItem *control = &network_menu_controls[index];
+                struct NetworkMenuControlItem* control = &network_menu_controls[index];
 
                 draw_line(window->buffer, window->width, WindowManager_ScaleUlx(window, control->bounds.ulx),
                           WindowManager_ScaleUly(window, control->bounds.lry),

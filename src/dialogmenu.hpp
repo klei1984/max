@@ -28,11 +28,11 @@
 
 class DialogMenu : Window {
     WindowInfo window;
-    Button *button_ok;
-    Button *button_up;
-    Button *button_down;
-    Image *canvas;
-    SmartString *strings;
+    Button* button_ok;
+    Button* button_up;
+    Button* button_down;
+    Image* canvas;
+    SmartString* strings;
     int32_t row_count;
     int32_t max_row_count;
     int32_t row_offset;
@@ -45,7 +45,7 @@ class DialogMenu : Window {
     bool ProcessKey(int32_t key);
 
 public:
-    DialogMenu(const char *text, bool mode);
+    DialogMenu(const char* text, bool mode);
     ~DialogMenu();
 
     void Run();

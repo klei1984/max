@@ -27,9 +27,9 @@
 void Survey_RenderMarker(WindowInfo* window, int32_t grid_x, int32_t grid_y, uint16_t material_type);
 void Survey_SurveyArea(UnitInfo* unit, int32_t radius);
 void Survey_RenderMarkers(uint16_t team, int32_t grid_ulx, int32_t grid_uly, int32_t grid_lrx);
-void Survey_GetResourcesInArea(int32_t grid_x, int32_t grid_y, int32_t radius, int32_t resource_limit, int16_t* raw, int16_t* gold,
-                               int16_t* fuel, bool mode, uint16_t team);
-void Survey_GetTotalResourcesInArea(int32_t grid_x, int32_t grid_y, int32_t radius, int16_t* raw, int16_t* gold, int16_t* fuel, bool mode,
-                                    uint16_t team);
+void Survey_GetResourcesInArea(int32_t grid_x, int32_t grid_y, int32_t radius, int32_t resource_limit, int16_t* raw,
+                               int16_t* gold, int16_t* fuel, bool mode, uint16_t team);
+void Survey_GetTotalResourcesInArea(int32_t grid_x, int32_t grid_y, int32_t radius, int16_t* raw, int16_t* gold,
+                                    int16_t* fuel, bool mode, uint16_t team);
 
 #endif /* SURVEY_HPP */

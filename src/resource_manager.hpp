@@ -62,12 +62,12 @@ struct ImageMultiFrameHeader {
     int16_t height;
     int16_t hotx;
     int16_t hoty;
-    uint32_t *rows;
+    uint32_t* rows;
 };
 
 struct ImageMultiHeader {
     uint16_t image_count;
-    struct ImageMultiFrameHeader *frames[];
+    struct ImageMultiFrameHeader* frames[];
 };
 
 extern const uint8_t ResourceManager_GenericTable[32];
@@ -78,71 +78,71 @@ extern std::filesystem::path ResourceManager_FilePathGamePref;
 
 extern bool ResourceManager_DisableEnhancedGraphics;
 
-extern ColorIndex *ResourceManager_TeamRedColorIndexTable;
-extern ColorIndex *ResourceManager_TeamGreenColorIndexTable;
-extern ColorIndex *ResourceManager_TeamBlueColorIndexTable;
-extern ColorIndex *ResourceManager_TeamGrayColorIndexTable;
-extern ColorIndex *ResourceManager_TeamDerelictColorIndexTable;
-extern ColorIndex *ResourceManager_ColorIndexTable06;
-extern ColorIndex *ResourceManager_ColorIndexTable07;
-extern ColorIndex *ResourceManager_ColorIndexTable08;
-extern ColorIndex *ResourceManager_ColorIndexTable09;
-extern ColorIndex *ResourceManager_ColorIndexTable10;
-extern ColorIndex *ResourceManager_ColorIndexTable11;
-extern ColorIndex *ResourceManager_ColorIndexTable12;
-extern ColorIndex *ResourceManager_ColorIndexTable13x8;
+extern ColorIndex* ResourceManager_TeamRedColorIndexTable;
+extern ColorIndex* ResourceManager_TeamGreenColorIndexTable;
+extern ColorIndex* ResourceManager_TeamBlueColorIndexTable;
+extern ColorIndex* ResourceManager_TeamGrayColorIndexTable;
+extern ColorIndex* ResourceManager_TeamDerelictColorIndexTable;
+extern ColorIndex* ResourceManager_ColorIndexTable06;
+extern ColorIndex* ResourceManager_ColorIndexTable07;
+extern ColorIndex* ResourceManager_ColorIndexTable08;
+extern ColorIndex* ResourceManager_ColorIndexTable09;
+extern ColorIndex* ResourceManager_ColorIndexTable10;
+extern ColorIndex* ResourceManager_ColorIndexTable11;
+extern ColorIndex* ResourceManager_ColorIndexTable12;
+extern ColorIndex* ResourceManager_ColorIndexTable13x8;
 
-extern uint8_t *ResourceManager_Minimap;
-extern uint8_t *ResourceManager_MinimapUnits;
-extern uint8_t *ResourceManager_MinimapFov;
-extern uint8_t *ResourceManager_MinimapBgImage;
+extern uint8_t* ResourceManager_Minimap;
+extern uint8_t* ResourceManager_MinimapUnits;
+extern uint8_t* ResourceManager_MinimapFov;
+extern uint8_t* ResourceManager_MinimapBgImage;
 
-extern uint16_t *ResourceManager_MapTileIds;
-extern uint8_t *ResourceManager_MapTileBuffer;
-extern uint8_t *ResourceManager_MapSurfaceMap;
-extern uint16_t *ResourceManager_CargoMap;
+extern uint16_t* ResourceManager_MapTileIds;
+extern uint8_t* ResourceManager_MapTileBuffer;
+extern uint8_t* ResourceManager_MapSurfaceMap;
+extern uint16_t* ResourceManager_CargoMap;
 
 extern Point ResourceManager_MapSize;
 extern Point ResourceManager_MinimapWindowSize;
 extern Point ResourceManager_MinimapWindowOffset;
 extern double ResourceManager_MinimapWindowScale;
-extern uint8_t *ResourceManager_MainmapBgImage;
+extern uint8_t* ResourceManager_MainmapBgImage;
 extern int32_t ResourceManager_MainmapZoomLimit;
 
-bool ResourceManager_GetBasePath(std::filesystem::path &path);
-bool ResourceManager_GetPrefPath(std::filesystem::path &path);
+bool ResourceManager_GetBasePath(std::filesystem::path& path);
+bool ResourceManager_GetPrefPath(std::filesystem::path& path);
 void ResourceManager_InitPaths();
 void ResourceManager_InitResources();
 void ResourceManager_ExitGame(int32_t error_code);
 void ResourceManager_Exit();
-uint8_t *ResourceManager_ReadResource(ResourceID id);
-uint8_t *ResourceManager_LoadResource(ResourceID id);
+uint8_t* ResourceManager_ReadResource(ResourceID id);
+uint8_t* ResourceManager_LoadResource(ResourceID id);
 uint32_t ResourceManager_GetResourceSize(ResourceID id);
-int32_t ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader *buffer);
+int32_t ResourceManager_ReadImageHeader(ResourceID id, struct ImageBigHeader* buffer);
 int32_t ResourceManager_GetResourceFileID(ResourceID id);
-const char *ResourceManager_GetResourceID(ResourceID id);
+const char* ResourceManager_GetResourceID(ResourceID id);
 ResourceID ResourceManager_GetResourceID(std::string id);
-void ResourceManager_Realloc(ResourceID id, uint8_t *buffer, int32_t data_size);
-FILE *ResourceManager_GetFileHandle(ResourceID id);
-FILE *ResourceManager_OpenFileResource(const std::string &string, const ResourceType type,
-                                       const char *const mode = "rb", std::filesystem::path *path = nullptr);
-FILE *ResourceManager_OpenFileResource(const ResourceID id, const ResourceType type, const char *const mode = "rb",
-                                       std::filesystem::path *path = nullptr);
+void ResourceManager_Realloc(ResourceID id, uint8_t* buffer, int32_t data_size);
+FILE* ResourceManager_GetFileHandle(ResourceID id);
+FILE* ResourceManager_OpenFileResource(const std::string& string, const ResourceType type,
+                                       const char* const mode = "rb", std::filesystem::path* path = nullptr);
+FILE* ResourceManager_OpenFileResource(const ResourceID id, const ResourceType type, const char* const mode = "rb",
+                                       std::filesystem::path* path = nullptr);
 void ResourceManager_InitInGameAssets(int32_t world);
-std::string ResourceManager_StringToUpperCase(const std::string &string);
-std::string ResourceManager_StringToLowerCase(const std::string &string);
+std::string ResourceManager_StringToUpperCase(const std::string& string);
+std::string ResourceManager_StringToLowerCase(const std::string& string);
 void ResourceManager_FreeResources();
 void ResourceManager_InitClanUnitValues(uint16_t team);
 void ResourceManager_InitHeatMaps(uint16_t team);
 void ResourceManager_InitTeamInfo();
-uint8_t *ResourceManager_GetBuffer(ResourceID id);
+uint8_t* ResourceManager_GetBuffer(ResourceID id);
 std::string ResourceManager_Sha256(const ResourceID world);
-const std::string &ResourceManager_GetLanguageEntry(const uint32_t key);
-std::string &ResourceManager_GetSystemLocale();
+const std::string& ResourceManager_GetLanguageEntry(const uint32_t key);
+std::string& ResourceManager_GetSystemLocale();
 void ResourceManager_SetSystemLocale(const std::string locale);
-std::string ResourceManager_GetHelpEntry(const std::string &section, const int32_t position_x,
+std::string ResourceManager_GetHelpEntry(const std::string& section, const int32_t position_x,
                                          const int32_t position_y);
-[[nodiscard]] bool ResourceManager_GetUnitAttributes(const uint32_t index, UnitAttributes *const attributes);
+[[nodiscard]] bool ResourceManager_GetUnitAttributes(const uint32_t index, UnitAttributes* const attributes);
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager();
 std::shared_ptr<Clans> ResourceManager_GetClans();
 TeamClanType ResourceManager_GetClanID(const std::string clan_id);
@@ -150,17 +150,17 @@ std::string ResourceManager_GetClanID(const TeamClanType clan_id);
 
 class ResourceManager_MutexLock {
 private:
-    SDL_mutex *m_mutex;
+    SDL_mutex* m_mutex;
 
 public:
-    explicit ResourceManager_MutexLock(SDL_mutex *mutex) : m_mutex(mutex) { SDL_LockMutex(m_mutex); }
+    explicit ResourceManager_MutexLock(SDL_mutex* mutex) : m_mutex(mutex) { SDL_LockMutex(m_mutex); }
     virtual ~ResourceManager_MutexLock() { SDL_UnlockMutex(m_mutex); }
 };
 
-[[nodiscard]] SDL_mutex *ResourceManager_CreateMutex();
+[[nodiscard]] SDL_mutex* ResourceManager_CreateMutex();
 void ResourceManager_DestroyMutexes();
-std::vector<std::filesystem::path> ResourceManager_GetFileList(const std::filesystem::path &folder,
-                                                               const std::string &extension);
+std::vector<std::filesystem::path> ResourceManager_GetFileList(const std::filesystem::path& folder,
+                                                               const std::string& extension);
 
 #define _(key) ResourceManager_GetLanguageEntry(0x##key).c_str()
 

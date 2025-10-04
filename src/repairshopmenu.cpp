@@ -55,21 +55,21 @@ static void RepairShopMenu_OnClick_UpArrow(ButtonID bid, intptr_t value);
 static void RepairShopMenu_OnClick_DownArrow(ButtonID bid, intptr_t value);
 static void RepairShopMenu_OnClick_Help(ButtonID bid, intptr_t value);
 
-static void RepairShopMenu_ProcessOrders(UnitInfo *unit, uint8_t order, bool process_tick);
+static void RepairShopMenu_ProcessOrders(UnitInfo* unit, uint8_t order, bool process_tick);
 
 class RepairShopMenu;
 
 class RepairShopSlot {
-    RepairShopMenu *menu;
+    RepairShopMenu* menu;
     SmartPointer<UnitInfo> client;
 
-    Image *bg_image_area;
-    Image *bg_stats_area;
+    Image* bg_image_area;
+    Image* bg_stats_area;
 
-    Button *button_activate;
-    Button *button_reload;
-    Button *button_repair;
-    Button *button_upgrade;
+    Button* button_activate;
+    Button* button_reload;
+    Button* button_repair;
+    Button* button_upgrade;
 
     friend void RepairShopSlot_OnClick_Activate(ButtonID bid, intptr_t value);
     friend void RepairShopSlot_OnClick_Reload(ButtonID bid, intptr_t value);
@@ -77,11 +77,11 @@ class RepairShopSlot {
     friend void RepairShopSlot_OnClick_Upgrade(ButtonID bid, intptr_t value);
 
 public:
-    RepairShopSlot(RepairShopMenu *repairshop, Rect *unit_bg_image_bounds, Rect *unit_stats_bounds, bool is_shop);
+    RepairShopSlot(RepairShopMenu* repairshop, Rect* unit_bg_image_bounds, Rect* unit_stats_bounds, bool is_shop);
     ~RepairShopSlot();
 
     void Init();
-    void Draw(UnitInfo *unit, bool draw_to_screen);
+    void Draw(UnitInfo* unit, bool draw_to_screen);
     void DrawStats(bool draw_to_screen);
     void UpdateButtons();
 };
@@ -94,19 +94,19 @@ class RepairShopMenu : public Window {
     int64_t unit_slots_per_screen;
     int64_t raw_material_in_complex;
 
-    RepairShopSlot *repair_slots[REPAIRSHOP_SLOT_COUNT];
+    RepairShopSlot* repair_slots[REPAIRSHOP_SLOT_COUNT];
 
-    Image *raw_material_bar;
-    Image *raw_material_value_area;
+    Image* raw_material_bar;
+    Image* raw_material_value_area;
 
-    Button *button_activate_all;
-    Button *button_reload_all;
-    Button *button_repair_all;
-    Button *button_upgrade_all;
-    Button *button_done;
-    Button *button_up_arrow;
-    Button *button_down_arrow;
-    Button *button_help;
+    Button* button_activate_all;
+    Button* button_reload_all;
+    Button* button_repair_all;
+    Button* button_upgrade_all;
+    Button* button_done;
+    Button* button_up_arrow;
+    Button* button_down_arrow;
+    Button* button_help;
 
     bool exit_loop;
 
@@ -120,19 +120,19 @@ class RepairShopMenu : public Window {
     friend void RepairShopMenu_OnClick_Help(ButtonID bid, intptr_t value);
 
 public:
-    RepairShopMenu(UnitInfo *unit);
+    RepairShopMenu(UnitInfo* unit);
     ~RepairShopMenu();
 
     void Run();
-    bool IsReloadViable(UnitInfo *target_unit);
-    bool IsRepairViable(UnitInfo *target_unit);
-    bool IsUpgradeViable(UnitInfo *target_unit);
-    bool IsActivateViable(UnitInfo *target_unit);
+    bool IsReloadViable(UnitInfo* target_unit);
+    bool IsRepairViable(UnitInfo* target_unit);
+    bool IsUpgradeViable(UnitInfo* target_unit);
+    bool IsActivateViable(UnitInfo* target_unit);
 
-    void Activate(UnitInfo *target_unit);
-    void Reload(UnitInfo *target_unit);
-    void Repair(UnitInfo *target_unit);
-    void Upgrade(UnitInfo *target_unit);
+    void Activate(UnitInfo* target_unit);
+    void Reload(UnitInfo* target_unit);
+    void Repair(UnitInfo* target_unit);
+    void Upgrade(UnitInfo* target_unit);
 
     void Draw(bool draw_to_screen);
     void UpdateButtons();
@@ -140,7 +140,7 @@ public:
     void Deinit();
 };
 
-RepairShopSlot::RepairShopSlot(RepairShopMenu *repairshop, Rect *unit_bg_image_bounds, Rect *unit_stats_bounds,
+RepairShopSlot::RepairShopSlot(RepairShopMenu* repairshop, Rect* unit_bg_image_bounds, Rect* unit_stats_bounds,
                                bool is_shop)
     : menu(repairshop) {
     WindowInfo window;
@@ -224,7 +224,7 @@ void RepairShopSlot::Init() {
     }
 }
 
-void RepairShopSlot::Draw(UnitInfo *unit, bool draw_to_screen) {
+void RepairShopSlot::Draw(UnitInfo* unit, bool draw_to_screen) {
     WindowInfo window;
 
     this->client = unit;
@@ -233,7 +233,7 @@ void RepairShopSlot::Draw(UnitInfo *unit, bool draw_to_screen) {
 
     if (this->client != nullptr) {
         WindowInfo local_window;
-        BaseUnit *base_unit;
+        BaseUnit* base_unit;
         char text[200];
 
         local_window = window;
@@ -361,7 +361,7 @@ void RepairShopSlot::UpdateButtons() {
     }
 }
 
-RepairShopMenu::RepairShopMenu(UnitInfo *unit)
+RepairShopMenu::RepairShopMenu(UnitInfo* unit)
     : Window(unit->GetUnitType() == HANGAR ? HANGRFRM : DEPOTFRM, GameManager_GetDialogWindowCenterMode()),
       repairshop(unit) {
     WindowInfo window;
@@ -606,7 +606,7 @@ void RepairShopMenu::Run() {
     }
 }
 
-bool RepairShopMenu::IsReloadViable(UnitInfo *target_unit) {
+bool RepairShopMenu::IsReloadViable(UnitInfo* target_unit) {
     bool result;
 
     if (target_unit->ammo < target_unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO)) {
@@ -624,7 +624,7 @@ bool RepairShopMenu::IsReloadViable(UnitInfo *target_unit) {
     return result;
 }
 
-bool RepairShopMenu::IsRepairViable(UnitInfo *target_unit) {
+bool RepairShopMenu::IsRepairViable(UnitInfo* target_unit) {
     bool result;
 
     if (target_unit->hits < target_unit->GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
@@ -642,7 +642,7 @@ bool RepairShopMenu::IsRepairViable(UnitInfo *target_unit) {
     return result;
 }
 
-bool RepairShopMenu::IsUpgradeViable(UnitInfo *target_unit) {
+bool RepairShopMenu::IsUpgradeViable(UnitInfo* target_unit) {
     bool result;
 
     if (target_unit->GetBaseValues() !=
@@ -662,11 +662,11 @@ bool RepairShopMenu::IsUpgradeViable(UnitInfo *target_unit) {
     return result;
 }
 
-bool RepairShopMenu::IsActivateViable(UnitInfo *target_unit) {
+bool RepairShopMenu::IsActivateViable(UnitInfo* target_unit) {
     return (!(target_unit->flags & MOBILE_AIR_UNIT) || target_unit->speed > 0);
 }
 
-void RepairShopMenu::Activate(UnitInfo *target_unit) {
+void RepairShopMenu::Activate(UnitInfo* target_unit) {
     Deinit();
 
     if (repairshop->GetUnitType() == AIRTRANS) {
@@ -698,7 +698,7 @@ void RepairShopMenu::Activate(UnitInfo *target_unit) {
     }
 }
 
-void RepairShopMenu::Reload(UnitInfo *target_unit) {
+void RepairShopMenu::Reload(UnitInfo* target_unit) {
     if (IsReloadViable(target_unit)) {
         repairshop->SetParent(target_unit);
         UnitsManager_SetNewOrder(&*repairshop, ORDER_RELOAD, ORDER_STATE_INIT);
@@ -712,7 +712,7 @@ void RepairShopMenu::Reload(UnitInfo *target_unit) {
     }
 }
 
-void RepairShopMenu::Repair(UnitInfo *target_unit) {
+void RepairShopMenu::Repair(UnitInfo* target_unit) {
     if (IsRepairViable(target_unit)) {
         repairshop->SetParent(target_unit);
         UnitsManager_SetNewOrder(&*repairshop, ORDER_REPAIR, ORDER_STATE_INIT);
@@ -726,7 +726,7 @@ void RepairShopMenu::Repair(UnitInfo *target_unit) {
     }
 }
 
-void RepairShopMenu::Upgrade(UnitInfo *target_unit) {
+void RepairShopMenu::Upgrade(UnitInfo* target_unit) {
     if (IsUpgradeViable(target_unit)) {
         repairshop->SetParent(target_unit);
         UnitsManager_SetNewOrder(&*repairshop, ORDER_UPGRADE, ORDER_STATE_INIT);
@@ -740,12 +740,12 @@ void RepairShopMenu::Upgrade(UnitInfo *target_unit) {
     }
 }
 
-void RepairShopMenu_Menu(UnitInfo *unit) { RepairShopMenu(unit).Run(); }
+void RepairShopMenu_Menu(UnitInfo* unit) { RepairShopMenu(unit).Run(); }
 
 void RepairShopSlot_OnClick_Activate(ButtonID bid, intptr_t value) {
-    RepairShopSlot *slot;
+    RepairShopSlot* slot;
 
-    slot = reinterpret_cast<RepairShopSlot *>(value);
+    slot = reinterpret_cast<RepairShopSlot*>(value);
 
     if (slot->client != nullptr) {
         slot->menu->Activate(&*slot->client);
@@ -753,9 +753,9 @@ void RepairShopSlot_OnClick_Activate(ButtonID bid, intptr_t value) {
 }
 
 void RepairShopSlot_OnClick_Reload(ButtonID bid, intptr_t value) {
-    RepairShopSlot *slot;
+    RepairShopSlot* slot;
 
-    slot = reinterpret_cast<RepairShopSlot *>(value);
+    slot = reinterpret_cast<RepairShopSlot*>(value);
 
     if (slot->client != nullptr && slot->menu->IsReloadViable(&*slot->client)) {
         slot->menu->Reload(&*slot->client);
@@ -769,9 +769,9 @@ void RepairShopSlot_OnClick_Reload(ButtonID bid, intptr_t value) {
 }
 
 void RepairShopSlot_OnClick_Repair(ButtonID bid, intptr_t value) {
-    RepairShopSlot *slot;
+    RepairShopSlot* slot;
 
-    slot = reinterpret_cast<RepairShopSlot *>(value);
+    slot = reinterpret_cast<RepairShopSlot*>(value);
 
     if (slot->client != nullptr && slot->menu->IsRepairViable(&*slot->client)) {
         slot->menu->Repair(&*slot->client);
@@ -785,9 +785,9 @@ void RepairShopSlot_OnClick_Repair(ButtonID bid, intptr_t value) {
 }
 
 void RepairShopSlot_OnClick_Upgrade(ButtonID bid, intptr_t value) {
-    RepairShopSlot *slot;
+    RepairShopSlot* slot;
 
-    slot = reinterpret_cast<RepairShopSlot *>(value);
+    slot = reinterpret_cast<RepairShopSlot*>(value);
 
     if (slot->client != nullptr && slot->menu->IsUpgradeViable(&*slot->client)) {
         slot->menu->Upgrade(&*slot->client);
@@ -798,7 +798,7 @@ void RepairShopSlot_OnClick_Upgrade(ButtonID bid, intptr_t value) {
 }
 
 void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
-    RepairShopMenu *shop = reinterpret_cast<RepairShopMenu *>(value);
+    RepairShopMenu* shop = reinterpret_cast<RepairShopMenu*>(value);
     SmartPointer<UnitInfo> unit(shop->repairshop);
     SmartList<UnitInfo> units;
     Point point(unit->grid_x - 1, unit->grid_y + 1);
@@ -860,10 +860,10 @@ void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
 }
 
 void RepairShopMenu_OnClick_ReloadAll(ButtonID bid, intptr_t value) {
-    RepairShopMenu *shop;
+    RepairShopMenu* shop;
     bool success;
 
-    shop = reinterpret_cast<RepairShopMenu *>(value);
+    shop = reinterpret_cast<RepairShopMenu*>(value);
     success = false;
 
     for (SmartList<UnitInfo>::Iterator it = shop->units.Begin(); it != shop->units.End(); ++it) {
@@ -881,10 +881,10 @@ void RepairShopMenu_OnClick_ReloadAll(ButtonID bid, intptr_t value) {
 }
 
 void RepairShopMenu_OnClick_RepairAll(ButtonID bid, intptr_t value) {
-    RepairShopMenu *shop;
+    RepairShopMenu* shop;
     bool success;
 
-    shop = reinterpret_cast<RepairShopMenu *>(value);
+    shop = reinterpret_cast<RepairShopMenu*>(value);
     success = false;
 
     for (SmartList<UnitInfo>::Iterator it = shop->units.Begin(); it != shop->units.End(); ++it) {
@@ -902,9 +902,9 @@ void RepairShopMenu_OnClick_RepairAll(ButtonID bid, intptr_t value) {
 }
 
 void RepairShopMenu_OnClick_UpgradeAll(ButtonID bid, intptr_t value) {
-    RepairShopMenu *shop;
+    RepairShopMenu* shop;
 
-    shop = reinterpret_cast<RepairShopMenu *>(value);
+    shop = reinterpret_cast<RepairShopMenu*>(value);
 
     for (SmartList<UnitInfo>::Iterator it = shop->units.Begin(); it != shop->units.End(); ++it) {
         shop->Upgrade(&*it);
@@ -914,9 +914,9 @@ void RepairShopMenu_OnClick_UpgradeAll(ButtonID bid, intptr_t value) {
 }
 
 void RepairShopMenu_OnClick_Done(ButtonID bid, intptr_t value) {
-    RepairShopMenu *shop;
+    RepairShopMenu* shop;
 
-    shop = reinterpret_cast<RepairShopMenu *>(value);
+    shop = reinterpret_cast<RepairShopMenu*>(value);
 
     shop->Deinit();
 
@@ -924,9 +924,9 @@ void RepairShopMenu_OnClick_Done(ButtonID bid, intptr_t value) {
 }
 
 void RepairShopMenu_OnClick_UpArrow(ButtonID bid, intptr_t value) {
-    RepairShopMenu *shop;
+    RepairShopMenu* shop;
 
-    shop = reinterpret_cast<RepairShopMenu *>(value);
+    shop = reinterpret_cast<RepairShopMenu*>(value);
 
     shop->unit_slot_index -= shop->unit_slots_per_screen;
 
@@ -938,9 +938,9 @@ void RepairShopMenu_OnClick_UpArrow(ButtonID bid, intptr_t value) {
 }
 
 void RepairShopMenu_OnClick_DownArrow(ButtonID bid, intptr_t value) {
-    RepairShopMenu *shop;
+    RepairShopMenu* shop;
 
-    shop = reinterpret_cast<RepairShopMenu *>(value);
+    shop = reinterpret_cast<RepairShopMenu*>(value);
 
     if (shop->unit_slot_index + shop->unit_slots_per_screen < shop->units.GetCount()) {
         shop->unit_slot_index += shop->unit_slots_per_screen;
@@ -950,9 +950,9 @@ void RepairShopMenu_OnClick_DownArrow(ButtonID bid, intptr_t value) {
 }
 
 void RepairShopMenu_OnClick_Help(ButtonID bid, intptr_t value) {
-    RepairShopMenu *shop;
+    RepairShopMenu* shop;
 
-    shop = reinterpret_cast<RepairShopMenu *>(value);
+    shop = reinterpret_cast<RepairShopMenu*>(value);
 
     switch (shop->repairshop->GetUnitType()) {
         case HANGAR: {
@@ -977,7 +977,7 @@ void RepairShopMenu_OnClick_Help(ButtonID bid, intptr_t value) {
     }
 }
 
-void RepairShopMenu_ProcessOrders(UnitInfo *unit, uint8_t order, bool process_tick) {
+void RepairShopMenu_ProcessOrders(UnitInfo* unit, uint8_t order, bool process_tick) {
     while (unit->GetOrder() == order) {
         GameManager_ProcessState(process_tick);
     }
@@ -1075,7 +1075,7 @@ void RepairShopMenu::DrawCargoBar(bool draw_to_screen) {
     Cargo capacity;
     WindowInfo window;
     int32_t bar_height;
-    uint8_t *buffer;
+    uint8_t* buffer;
     char text[50];
 
     FillWindowInfo(&window);

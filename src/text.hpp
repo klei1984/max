@@ -37,15 +37,16 @@ void Text_TextBox(uint8_t* buffer, uint16_t length, const char* text, int32_t ul
 void Text_TextBox(WindowInfo* window, const char* text, int32_t ulx, int32_t uly, int32_t width, int32_t height,
                   bool horizontal_align = false, bool vertical_align = true, FontColor color = Fonts_GoldColor);
 
-void Text_TextLine(WindowInfo* window, const char* str, int32_t ulx, int32_t uly, int32_t swidth, bool horizontal_align = false,
-                   FontColor color = Fonts_GoldColor);
+void Text_TextLine(WindowInfo* window, const char* str, int32_t ulx, int32_t uly, int32_t swidth,
+                   bool horizontal_align = false, FontColor color = Fonts_GoldColor);
 
-void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int32_t ulx, int32_t uly, int32_t width, int32_t alignment);
+void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int32_t ulx, int32_t uly, int32_t width,
+                             int32_t alignment);
 
-void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, const char* text, int32_t ulx, int32_t uly, int32_t width,
-                                              int32_t height, int32_t alignment);
+void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, const char* text, int32_t ulx, int32_t uly,
+                                              int32_t width, int32_t height, int32_t alignment);
 
-void Text_AutofitTextBox(uint8_t* buffer, uint16_t pitch, const char* text, Rect* text_area,
-                         Rect* draw_area, int32_t color, bool horizontal_align);
+void Text_AutofitTextBox(uint8_t* buffer, uint16_t pitch, const char* text, Rect* text_area, Rect* draw_area,
+                         int32_t color, bool horizontal_align);
 
 #endif /* TEXT_HPP */

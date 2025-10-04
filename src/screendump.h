@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 
-int32_t screendump_pcx(int32_t width, int32_t length, uint8_t *buffer, uint8_t *palette);
+int32_t screendump_pcx(int32_t width, int32_t length, uint8_t* buffer, uint8_t* palette);
 
 #ifdef __cplusplus
 }

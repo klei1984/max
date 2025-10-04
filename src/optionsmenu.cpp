@@ -108,7 +108,7 @@ OptionsMenu::~OptionsMenu() {
 
 void OptionsMenu::InitSliderControl(int32_t id, int32_t ulx, int32_t uly) {
     IniParameter ini_param_index;
-    struct ImageSimpleHeader *slider_slit_image;
+    struct ImageSimpleHeader* slider_slit_image;
     int32_t prfslit_ulx;
     int32_t prfslit_uly;
     int32_t prfslit_pos_x;
@@ -117,7 +117,7 @@ void OptionsMenu::InitSliderControl(int32_t id, int32_t ulx, int32_t uly) {
     ini_param_index = options_menu_buttons[id].ini_param_index;
 
     Text_TextBox(&window, options_menu_buttons[id].format, ulx, uly, 185, 20, false, true);
-    slider_slit_image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(PRFSLIT));
+    slider_slit_image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(PRFSLIT));
     prfslit_ulx = slider_slit_image->width;
 
     prfslit_pos_x = Text_GetWidth(options_menu_buttons[id].format) + ulx + 10;
@@ -142,7 +142,7 @@ void OptionsMenu::InitSliderControl(int32_t id, int32_t ulx, int32_t uly) {
 void OptionsMenu::InitEditControl(int32_t id, int32_t ulx, int32_t uly) {
     IniParameter ini_param_index;
     ResourceID resource_id{INVALID_ID};
-    struct ImageSimpleHeader *resource_image;
+    struct ImageSimpleHeader* resource_image;
     int32_t image_ulx;
     int32_t image_uly;
     int32_t image_pos_x;
@@ -184,7 +184,7 @@ void OptionsMenu::InitEditControl(int32_t id, int32_t ulx, int32_t uly) {
         } break;
     }
 
-    resource_image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(resource_id));
+    resource_image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(resource_id));
 
     image_ulx = resource_image->width;
     image_uly = resource_image->height;
@@ -207,7 +207,7 @@ void OptionsMenu::InitEditControl(int32_t id, int32_t ulx, int32_t uly) {
 }
 
 void OptionsMenu::InitCheckboxControl(int32_t id, int32_t ulx, int32_t uly) {
-    Button *button;
+    Button* button;
     IniParameter ini_param_index;
 
     ini_param_index = options_menu_buttons[id].ini_param_index;
@@ -266,9 +266,9 @@ void OptionsMenu::InitLabelControl(int32_t id, int32_t ulx, int32_t uly) {
 }
 
 void OptionsMenu::DrawSlider(int32_t id, int32_t value) {
-    OptionsButton *button;
-    struct ImageSimpleHeader *slider_slit_image;
-    struct ImageSimpleHeader *slider_slide_image;
+    OptionsButton* button;
+    struct ImageSimpleHeader* slider_slit_image;
+    struct ImageSimpleHeader* slider_slide_image;
     int16_t max;
     int32_t ulx;
     int32_t uly;
@@ -282,11 +282,11 @@ void OptionsMenu::DrawSlider(int32_t id, int32_t value) {
     ulx = button->image->GetULX() + 10;
     uly = button->image->GetULY();
 
-    slider_slit_image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(PRFSLIT));
+    slider_slit_image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(PRFSLIT));
 
     ulx += (value * slider_slit_image->width) / button->range_max;
 
-    slider_slide_image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(PRFSLIDE));
+    slider_slide_image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(PRFSLIDE));
 
     ulx -= slider_slide_image->width / 2;
     uly += (20 - slider_slide_image->height) / 2;
@@ -297,7 +297,7 @@ void OptionsMenu::DrawSlider(int32_t id, int32_t value) {
 }
 
 void OptionsMenu::UpdateSlider(int32_t id) {
-    OptionsButton *button;
+    OptionsButton* button;
     Rect bounds;
     int32_t mouse_x;
     int32_t mouse_y;
@@ -341,7 +341,7 @@ int32_t OptionsMenu::ProcessTextEditKeyPress(int32_t key) {
     int32_t result;
 
     if (text_edit) {
-        OptionsButton *button;
+        OptionsButton* button;
 
         button = &options_menu_buttons[control_id];
 

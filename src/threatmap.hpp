@@ -36,7 +36,7 @@ public:
     void Init();
 
     static uint16_t GetRiskLevel(ResourceID unit_type);
-    static uint16_t GetRiskLevel(UnitInfo *unit);
+    static uint16_t GetRiskLevel(UnitInfo* unit);
     void SetRiskLevel(uint8_t risk_level);
 
     void Update(int32_t armor);
@@ -47,8 +47,8 @@ public:
     uint8_t caution_level;
     bool for_attacking;
     int16_t armor;
-    int16_t **damage_potential_map;
-    int16_t **shots_map;
+    int16_t** damage_potential_map;
+    int16_t** shots_map;
 };
 
 #endif /* THREATMAP_HPP */

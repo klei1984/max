@@ -37,45 +37,45 @@
 #include "zonewalker.hpp"
 
 class PathsManager {
-    uint8_t **access_map;
+    uint8_t** access_map;
     Point access_map_size;
 
     SmartPointer<PathRequest> request;
     SmartList<PathRequest> requests;
     uint32_t time_stamp;
     uint32_t elapsed_time;
-    Searcher *forward_searcher;
-    Searcher *backward_searcher;
+    Searcher* forward_searcher;
+    Searcher* backward_searcher;
 
-    void CompleteRequest(GroundPath *path);
+    void CompleteRequest(GroundPath* path);
 
-    friend uint8_t **PathsManager_GetAccessMap();
+    friend uint8_t** PathsManager_GetAccessMap();
 
 public:
     PathsManager();
     ~PathsManager();
 
-    void PushBack(PathRequest &object);
-    void PushFront(PathRequest &object);
+    void PushBack(PathRequest& object);
+    void PushFront(PathRequest& object);
     void Clear();
     int32_t GetRequestCount(uint16_t team) const;
-    void RemoveRequest(PathRequest *path_request);
-    void RemoveRequest(UnitInfo *unit);
+    void RemoveRequest(PathRequest* path_request);
+    void RemoveRequest(UnitInfo* unit);
     void EvaluateTiles();
-    bool HasRequest(UnitInfo *unit) const;
-    bool Init(UnitInfo *unit);
+    bool HasRequest(UnitInfo* unit) const;
+    bool Init(UnitInfo* unit);
     void ProcessRequest();
 };
 
 static PathsManager PathsManager_Instance;
 
-static void PathsManager_ProcessStationaryUnits(uint8_t **map, UnitInfo *unit);
-static void PathsManager_ProcessMobileUnits(uint8_t **map, SmartList<UnitInfo> *units, UnitInfo *unit, uint8_t flags);
-static void PathsManager_ProcessMapSurface(uint8_t **map, int32_t surface_type, uint8_t value);
-static void PathsManager_ProcessGroundCover(uint8_t **map, UnitInfo *unit, int32_t surface_type);
+static void PathsManager_ProcessStationaryUnits(uint8_t** map, UnitInfo* unit);
+static void PathsManager_ProcessMobileUnits(uint8_t** map, SmartList<UnitInfo>* units, UnitInfo* unit, uint8_t flags);
+static void PathsManager_ProcessMapSurface(uint8_t** map, int32_t surface_type, uint8_t value);
+static void PathsManager_ProcessGroundCover(uint8_t** map, UnitInfo* unit, int32_t surface_type);
 static bool PathsManager_IsProcessed(int32_t grid_x, int32_t grid_y);
-static void PathsManager_ProcessDangers(uint8_t **map, UnitInfo *unit);
-static void PathsManager_ProcessSurface(uint8_t **map, UnitInfo *unit);
+static void PathsManager_ProcessDangers(uint8_t** map, UnitInfo* unit);
+static void PathsManager_ProcessSurface(uint8_t** map, UnitInfo* unit);
 
 PathsManager::PathsManager()
     : access_map(nullptr),
@@ -87,7 +87,7 @@ PathsManager::PathsManager()
 
 PathsManager::~PathsManager() { Clear(); }
 
-void PathsManager::PushBack(PathRequest &object) { requests.PushBack(object); }
+void PathsManager::PushBack(PathRequest& object) { requests.PushBack(object); }
 
 void PathsManager::Clear() {
     delete forward_searcher;
@@ -111,7 +111,7 @@ void PathsManager::Clear() {
     requests.Clear();
 }
 
-void PathsManager::PushFront(PathRequest &object) {
+void PathsManager::PushFront(PathRequest& object) {
     if (request != nullptr) {
         AiLog log("Pre-empting path request for %s.",
                   UnitsManager_BaseUnits[request->GetClient()->GetUnitType()].singular_name);
@@ -136,7 +136,7 @@ int32_t PathsManager::GetRequestCount(uint16_t team) const {
     count = 0;
 
     for (SmartList<PathRequest>::Iterator it = requests.Begin(); it != requests.End(); ++it) {
-        UnitInfo *unit = (*it).GetClient();
+        UnitInfo* unit = (*it).GetClient();
 
         if (unit && unit->team == team) {
             ++count;
@@ -150,7 +150,7 @@ int32_t PathsManager::GetRequestCount(uint16_t team) const {
     return count;
 }
 
-void PathsManager::RemoveRequest(PathRequest *path_request) {
+void PathsManager::RemoveRequest(PathRequest* path_request) {
     /// the smart pointer is required to avoid premature destruction of the held object
     SmartPointer<PathRequest> protect_request(path_request);
 
@@ -171,7 +171,7 @@ void PathsManager::RemoveRequest(PathRequest *path_request) {
     requests.Remove(*protect_request);
 }
 
-void PathsManager::RemoveRequest(UnitInfo *unit) {
+void PathsManager::RemoveRequest(UnitInfo* unit) {
     for (SmartList<PathRequest>::Iterator it = requests.Begin(); it != requests.End(); ++it) {
         if ((*it).GetClient() == unit) {
             AiLog log("Remove path request for %s.",
@@ -290,7 +290,7 @@ void PathsManager::EvaluateTiles() {
     elapsed_time = timer_get() - elapsed_time;
 }
 
-bool PathsManager::HasRequest(UnitInfo *unit) const {
+bool PathsManager::HasRequest(UnitInfo* unit) const {
     for (SmartList<PathRequest>::Iterator it = requests.Begin(); it != requests.End(); ++it) {
         if ((*it).GetClient() == unit) {
             return true;
@@ -306,13 +306,13 @@ bool PathsManager::HasRequest(UnitInfo *unit) const {
 
 int32_t PathsManager_GetRequestCount(uint16_t team) { return PathsManager_Instance.GetRequestCount(team); }
 
-void PathsManager_RemoveRequest(PathRequest *request) { PathsManager_Instance.RemoveRequest(request); }
+void PathsManager_RemoveRequest(PathRequest* request) { PathsManager_Instance.RemoveRequest(request); }
 
-void PathsManager_RemoveRequest(UnitInfo *unit) { PathsManager_Instance.RemoveRequest(unit); }
+void PathsManager_RemoveRequest(UnitInfo* unit) { PathsManager_Instance.RemoveRequest(unit); }
 
-void PathsManager_PushBack(PathRequest &object) { PathsManager_Instance.PushBack(object); }
+void PathsManager_PushBack(PathRequest& object) { PathsManager_Instance.PushBack(object); }
 
-void PathsManager_PushFront(PathRequest &object) { PathsManager_Instance.PushFront(object); }
+void PathsManager_PushFront(PathRequest& object) { PathsManager_Instance.PushFront(object); }
 
 void PathsManager_EvaluateTiles() { PathsManager_Instance.EvaluateTiles(); }
 
@@ -321,9 +321,9 @@ void PathsManager_Clear() {
     Paths_ClearSiteReservations();
 }
 
-bool PathsManager_HasRequest(UnitInfo *unit) { return PathsManager_Instance.HasRequest(unit); }
+bool PathsManager_HasRequest(UnitInfo* unit) { return PathsManager_Instance.HasRequest(unit); }
 
-bool PathsManager::Init(UnitInfo *unit) {
+bool PathsManager::Init(UnitInfo* unit) {
     bool result;
 
     if (access_map_size != ResourceManager_MapSize) {
@@ -338,7 +338,7 @@ bool PathsManager::Init(UnitInfo *unit) {
 
         access_map_size = ResourceManager_MapSize;
 
-        access_map = new (std::nothrow) uint8_t *[access_map_size.x];
+        access_map = new (std::nothrow) uint8_t*[access_map_size.x];
 
         for (int32_t i = 0; i < access_map_size.x; ++i) {
             access_map[i] = new (std::nothrow) uint8_t[access_map_size.y];
@@ -473,7 +473,7 @@ bool PathsManager::Init(UnitInfo *unit) {
     return result;
 }
 
-void PathsManager::CompleteRequest(GroundPath *path) {
+void PathsManager::CompleteRequest(GroundPath* path) {
     SmartPointer<PathRequest> path_request(request);
 
     delete forward_searcher;
@@ -590,7 +590,7 @@ void PathsManager::ProcessRequest() {
     }
 }
 
-void PathsManager_ProcessStationaryUnits(uint8_t **map, UnitInfo *unit) {
+void PathsManager_ProcessStationaryUnits(uint8_t** map, UnitInfo* unit) {
     uint16_t team = unit->team;
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
@@ -607,7 +607,7 @@ void PathsManager_ProcessStationaryUnits(uint8_t **map, UnitInfo *unit) {
     }
 }
 
-void PathsManager_ProcessMobileUnits(uint8_t **map, SmartList<UnitInfo> *units, UnitInfo *unit, uint8_t flags) {
+void PathsManager_ProcessMobileUnits(uint8_t** map, SmartList<UnitInfo>* units, UnitInfo* unit, uint8_t flags) {
     uint16_t team = unit->team;
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
@@ -625,7 +625,7 @@ void PathsManager_ProcessMobileUnits(uint8_t **map, SmartList<UnitInfo> *units, 
     }
 }
 
-void PathsManager_ProcessMapSurface(uint8_t **map, int32_t surface_type, uint8_t value) {
+void PathsManager_ProcessMapSurface(uint8_t** map, int32_t surface_type, uint8_t value) {
     for (int32_t index_x = 0; index_x < ResourceManager_MapSize.x; ++index_x) {
         for (int32_t index_y = 0; index_y < ResourceManager_MapSize.y; ++index_y) {
             if (ResourceManager_MapSurfaceMap[index_y * ResourceManager_MapSize.x + index_x] == surface_type) {
@@ -635,7 +635,7 @@ void PathsManager_ProcessMapSurface(uint8_t **map, int32_t surface_type, uint8_t
     }
 }
 
-void PathsManager_ProcessGroundCover(uint8_t **map, UnitInfo *unit, int32_t surface_type) {
+void PathsManager_ProcessGroundCover(uint8_t** map, UnitInfo* unit, int32_t surface_type) {
     uint16_t team = unit->team;
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
@@ -709,7 +709,7 @@ void PathsManager_ProcessGroundCover(uint8_t **map, UnitInfo *unit, int32_t surf
     }
 }
 
-void PathsManager_InitAccessMap(UnitInfo *unit, uint8_t **map, uint8_t flags, int32_t caution_level) {
+void PathsManager_InitAccessMap(UnitInfo* unit, uint8_t** map, uint8_t flags, int32_t caution_level) {
     AiLog log("Mark cost map for %s.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
     if (unit->flags & MOBILE_AIR_UNIT) {
@@ -753,9 +753,9 @@ void PathsManager_InitAccessMap(UnitInfo *unit, uint8_t **map, uint8_t flags, in
     }
 }
 
-uint8_t **PathsManager_GetAccessMap() { return PathsManager_Instance.access_map; }
+uint8_t** PathsManager_GetAccessMap() { return PathsManager_Instance.access_map; }
 
-void PathsManager_ApplyCautionLevel(uint8_t **map, UnitInfo *unit, int32_t caution_level) {
+void PathsManager_ApplyCautionLevel(uint8_t** map, UnitInfo* unit, int32_t caution_level) {
     if (caution_level > 0) {
         if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_PLAYER) {
             PathsManager_ProcessDangers(map, unit);
@@ -763,7 +763,7 @@ void PathsManager_ApplyCautionLevel(uint8_t **map, UnitInfo *unit, int32_t cauti
 
         if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) {
             int32_t unit_hits = unit->hits;
-            int16_t **damage_potential_map;
+            int16_t** damage_potential_map;
 
             if (unit->GetId() == 0xFFFF) {
                 damage_potential_map =
@@ -828,7 +828,7 @@ void PathsManager_SetPathDebugMode() {
     }
 }
 
-void PathsManager_ProcessDangers(uint8_t **map, UnitInfo *unit) {
+void PathsManager_ProcessDangers(uint8_t** map, UnitInfo* unit) {
     uint16_t team = unit->team;
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
@@ -862,7 +862,7 @@ void PathsManager_ProcessDangers(uint8_t **map, UnitInfo *unit) {
     }
 }
 
-void PathsManager_ProcessSurface(uint8_t **map, UnitInfo *unit) {
+void PathsManager_ProcessSurface(uint8_t** map, UnitInfo* unit) {
     int32_t range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
     Point position(unit->grid_x, unit->grid_y);
 

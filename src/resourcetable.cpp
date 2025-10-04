@@ -21,7 +21,7 @@
 
 #include "resourcetable.hpp"
 
-const char *const ResourceManager_ResourceIdList[RESOURCE_E] = {
+const char* const ResourceManager_ResourceIdList[RESOURCE_E] = {
     "COMMTWR",  "POWERSTN", "POWGEN",   "BARRACKS", "SHIELDGN", "RADAR",    "ADUMP",    "FDUMP",    "GOLDSM",
     "DEPOT",    "HANGAR",   "DOCK",     "CNCT_4W",  "LRGRUBLE", "SMLRUBLE", "LRGTAPE",  "SMLTAPE",  "LRGSLAB",
     "SMLSLAB",  "LRGCONES", "SMLCONES", "ROAD",     "LANDPAD",  "SHIPYARD", "LIGHTPLT", "LANDPLT",  "SUPRTPLT",

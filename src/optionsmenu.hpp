@@ -48,23 +48,23 @@ enum OptionsType {
 
 struct OptionsButton {
     char type;
-    const char *format;
+    const char* format;
     IniParameter ini_param_index;
     int16_t ulx;
     int16_t range_min;
     int16_t range_max;
-    Button *button;
-    Image *image;
-    char *ini_string_value;
+    Button* button;
+    Image* image;
+    char* ini_string_value;
     int16_t rest_state;
     int16_t last_rest_state;
 };
 
 class OptionsMenu : public Window {
-    const char *options_menu_play_mode_strings[OPTIONS_PLAY_MODE_ITEM_COUNT] = {_(d0a7), _(ee25)};
-    const char *options_menu_opponent_strings[OPTIONS_OPPONENT_ITEM_COUNT] = {_(a24d), _(37b7), _(bb85),
+    const char* options_menu_play_mode_strings[OPTIONS_PLAY_MODE_ITEM_COUNT] = {_(d0a7), _(ee25)};
+    const char* options_menu_opponent_strings[OPTIONS_OPPONENT_ITEM_COUNT] = {_(a24d), _(37b7), _(bb85),
                                                                               _(b663), _(ab89), _(c7e3)};
-    const char *options_menu_victory_type_strings[OPTIONS_VICTORY_TYPE_ITEM_COUNT] = {_(b542), _(c303)};
+    const char* options_menu_victory_type_strings[OPTIONS_VICTORY_TYPE_ITEM_COUNT] = {_(b542), _(c303)};
 
     struct OptionsButton options_menu_buttons[OPTIONS_BUTTON_COUNT] = {
         OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, INI_SETUP, 0, 0, 0),
@@ -103,12 +103,12 @@ class OptionsMenu : public Window {
     };
 
     WindowInfo window;
-    Button *button_cancel;
-    Button *button_done;
-    Button *button_help;
+    Button* button_cancel;
+    Button* button_done;
+    Button* button_help;
     uint16_t team;
     ResourceID bg_image;
-    TextEdit *text_edit;
+    TextEdit* text_edit;
     uint16_t control_id;
     uint16_t button_count;
     bool exit_menu;

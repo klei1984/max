@@ -29,8 +29,8 @@ int32_t AiAttack_GetTargetValue(UnitInfo* unit);
 bool AiAttack_DecideDesperationAttack(UnitInfo* attacker, UnitInfo* target);
 bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site, int32_t* projected_damage,
                                    int32_t caution_level);
-bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, int32_t* projected_damage, int32_t caution_level,
-                                    int32_t range, bool mode = false);
+bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, int32_t* projected_damage,
+                                    int32_t caution_level, int32_t range, bool mode = false);
 bool AiAttack_IsWithinReach(UnitInfo* unit, uint16_t team, bool* relevant_teams);
 bool AiAttack_IsValidSabotageTarget(UnitInfo* unit, UnitInfo* target);
 bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target);
@@ -42,7 +42,8 @@ bool AiAttack_IsAttackProfitable(UnitInfo* friendly_unit, UnitInfo* enemy_unit, 
 bool AiAttack_IsAttackProfitable(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int32_t damage_to_friendly,
                                  int32_t caution_level, bool is_desperation_attack);
 void AiAttack_GetTargetTeams(uint16_t team, bool* teams);
-SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_t scan, int32_t caution_level, bool mode);
+SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_t scan, int32_t caution_level,
+                                           bool mode);
 int32_t AiAttack_GetAttackPotential(UnitInfo* attacker, UnitInfo* target);
 void AiAttack_UpdateTargetFlags(UnitInfo* unit);
 bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode = true);

@@ -41,7 +41,7 @@ struct GameSetupMenuItem {
 struct GameSetupMenuControlItem {
     Rect bounds;
     ResourceID image_id;
-    const char *label;
+    const char* label;
     int32_t event_code;
     void (GameSetupMenu::*event_handler)();
     ResourceID sfx;
@@ -87,17 +87,17 @@ class GameSetupMenu {
     int32_t FindNextValidFile(int32_t game_slot);
 
 public:
-    WindowInfo *window;
+    WindowInfo* window;
     bool event_click_done;
     bool event_click_cancel;
     int32_t key;
-    Button *buttons[GAME_SETUP_MENU_ITEM_COUNT];
+    Button* buttons[GAME_SETUP_MENU_ITEM_COUNT];
     GameSetupMenuItem menu_item[GAME_SETUP_MENU_ITEM_COUNT];
     std::string mission_titles[GAME_SETUP_MENU_ITEM_COUNT];
     int32_t game_index_first_on_page;
     int32_t game_count;
     int32_t game_file_number;
-    SmartString *strings;
+    SmartString* strings;
     int32_t string_row_count;
     int16_t string_row_index;
     int16_t rows_per_page;

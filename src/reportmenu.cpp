@@ -82,16 +82,16 @@ class MessageLine : public SmartObject {
     SmartString string;
 
 public:
-    MessageLine(MessageLogEntry *message, SmartString string);
+    MessageLine(MessageLogEntry* message, SmartString string);
     ~MessageLine();
 
-    const char *GetCStr() const;
-    MessageLogEntry *GetMessage() const;
+    const char* GetCStr() const;
+    MessageLogEntry* GetMessage() const;
 };
 
 class ReportMenu : public Window {
     char radio_button_index;
-    const char *ReportMenu_TeamNames[PLAYER_TEAM_MAX] = {_(a18e), _(f3cd), _(2b0e), _(7e3b), ""};
+    const char* ReportMenu_TeamNames[PLAYER_TEAM_MAX] = {_(a18e), _(f3cd), _(2b0e), _(7e3b), ""};
 
     SmartArray<UnitInfo> units;
     SmartObjectArray<ResourceID> unit_types;
@@ -106,24 +106,24 @@ class ReportMenu : public Window {
 
     bool exit_loop;
 
-    Button *button_units;
-    Button *button_casulties;
-    Button *button_score;
-    Button *button_messages;
-    Button *button_air_units;
-    Button *button_land_units;
-    Button *button_sea_units;
-    Button *button_stationary_units;
-    Button *button_production_units;
-    Button *button_combat_units;
-    Button *button_damaged_units;
-    Button *button_stealthy_units;
-    Button *button_up;
-    Button *button_down;
-    Button *button_done;
-    Button *button_help;
+    Button* button_units;
+    Button* button_casulties;
+    Button* button_score;
+    Button* button_messages;
+    Button* button_air_units;
+    Button* button_land_units;
+    Button* button_sea_units;
+    Button* button_stationary_units;
+    Button* button_production_units;
+    Button* button_combat_units;
+    Button* button_damaged_units;
+    Button* button_stealthy_units;
+    Button* button_up;
+    Button* button_down;
+    Button* button_done;
+    Button* button_help;
 
-    Image *report_screen_image;
+    Image* report_screen_image;
 
     friend void ReportMenu_OnClick_Units(ButtonID bid, intptr_t value);
     friend void ReportMenu_OnClick_Casualties(ButtonID bid, intptr_t value);
@@ -157,14 +157,14 @@ class ReportMenu : public Window {
     void SelectUnit(Point point);
 
     static int64_t GetWorkingEcoSphereCount(uint16_t team);
-    static void UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, int32_t ulx, int32_t uly, int32_t width,
+    static void UpdateSelectedUnitStatus(UnitInfo* unit, WindowInfo* window, int32_t ulx, int32_t uly, int32_t width,
                                          int32_t height);
 
-    void AddUnits(SmartList<UnitInfo> *unit_list);
+    void AddUnits(SmartList<UnitInfo>* unit_list);
     int64_t GetSelectedUnitIndex();
-    int64_t GetMessageIndex(MessageLogEntry *message);
-    int64_t GetNextMessageIndex(MessageLogEntry *message);
-    void SelectMessage(MessageLogEntry *message);
+    int64_t GetMessageIndex(MessageLogEntry* message);
+    int64_t GetNextMessageIndex(MessageLogEntry* message);
+    void SelectMessage(MessageLogEntry* message);
     void SelectMessage(Point point);
     void MessageUp();
     void MessageDown();
@@ -179,13 +179,13 @@ public:
     void Draw(bool draw_to_screen);
 };
 
-MessageLine::MessageLine(MessageLogEntry *message, SmartString string) : message(message), string(string) {}
+MessageLine::MessageLine(MessageLogEntry* message, SmartString string) : message(message), string(string) {}
 
 MessageLine::~MessageLine() {}
 
-const char *MessageLine::GetCStr() const { return string.GetCStr(); }
+const char* MessageLine::GetCStr() const { return string.GetCStr(); }
 
-MessageLogEntry *MessageLine::GetMessage() const { return &*message; }
+MessageLogEntry* MessageLine::GetMessage() const { return &*message; }
 
 void ReportMenu_Menu() { ReportMenu().Run(); }
 
@@ -623,7 +623,7 @@ void ReportMenu::UpdateStatistics() {
 void ReportMenu::InitMessages() {
     int32_t row_limit;
     int32_t row_count;
-    SmartString *rows;
+    SmartString* rows;
     bool skip_new_paragraph;
 
     skip_new_paragraph = true;
@@ -795,7 +795,7 @@ void ReportMenu::DrawScores() {
     int32_t ecosphere_counts[PLAYER_TEAM_MAX - 1];
     int32_t team_score;
     int32_t max_score;
-    const char *unit_name;
+    const char* unit_name;
     int32_t width;
     int32_t height;
     int32_t y_min;
@@ -982,8 +982,8 @@ void ReportMenu::DrawMessages() {
     int32_t window_uly;
     int64_t item_max;
     WindowInfo window;
-    MessageLogEntry *message1;
-    MessageLogEntry *message2;
+    MessageLogEntry* message1;
+    MessageLogEntry* message2;
     ColorIndex color;
 
     Text_SetFont(GNW_TEXT_FONT_5);
@@ -1019,7 +1019,7 @@ void ReportMenu::DrawMessages() {
             (report_screen_image->GetULY() + report_screen_image->GetHeight() - window_uly) >= 38) {
             if (message2->GetUnit()) {
                 Point position = message2->GetPosition();
-                UnitInfo *unit = message2->GetUnit();
+                UnitInfo* unit = message2->GetUnit();
                 SmartString string;
 
                 string.Sprintf(10, "%i,%i", position.x + 1, position.y + 1);
@@ -1031,8 +1031,8 @@ void ReportMenu::DrawMessages() {
                                              window_ulx + 16, window_uly + 16);
 
             } else if (message2->GetIcon() != INVALID_ID) {
-                struct ImageSimpleHeader *sprite =
-                    reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(message2->GetIcon()));
+                struct ImageSimpleHeader* sprite =
+                    reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(message2->GetIcon()));
 
                 WindowManager_DecodeSimpleImage(sprite, window_ulx, window_uly + 16 - (sprite->height / 2), true,
                                                 &window);
@@ -1098,7 +1098,7 @@ int64_t ReportMenu::GetWorkingEcoSphereCount(uint16_t team) {
     return result;
 }
 
-void ReportMenu::UpdateSelectedUnitStatus(UnitInfo *unit, WindowInfo *window, int32_t ulx, int32_t uly, int32_t width,
+void ReportMenu::UpdateSelectedUnitStatus(UnitInfo* unit, WindowInfo* window, int32_t ulx, int32_t uly, int32_t width,
                                           int32_t height) {
     SmartString string;
 
@@ -1184,7 +1184,7 @@ void ReportMenu::SelectUnit(Point point) {
     }
 }
 
-void ReportMenu::AddUnits(SmartList<UnitInfo> *unit_list) {
+void ReportMenu::AddUnits(SmartList<UnitInfo>* unit_list) {
     int64_t index;
 
     for (SmartList<UnitInfo>::Iterator it = unit_list->Begin(); it != unit_list->End(); ++it) {
@@ -1216,7 +1216,7 @@ int64_t ReportMenu::GetSelectedUnitIndex() {
     return -1;
 }
 
-int64_t ReportMenu::GetMessageIndex(MessageLogEntry *message) {
+int64_t ReportMenu::GetMessageIndex(MessageLogEntry* message) {
     int64_t index;
 
     for (index = 0; index < message_lines.GetCount(); ++index) {
@@ -1228,7 +1228,7 @@ int64_t ReportMenu::GetMessageIndex(MessageLogEntry *message) {
     return index;
 }
 
-int64_t ReportMenu::GetNextMessageIndex(MessageLogEntry *message) {
+int64_t ReportMenu::GetNextMessageIndex(MessageLogEntry* message) {
     int64_t index;
 
     for (index = GetMessageIndex(message); index < message_lines.GetCount(); ++index) {
@@ -1240,7 +1240,7 @@ int64_t ReportMenu::GetNextMessageIndex(MessageLogEntry *message) {
     return index;
 }
 
-void ReportMenu::SelectMessage(MessageLogEntry *message) {
+void ReportMenu::SelectMessage(MessageLogEntry* message) {
     int64_t message_index;
     int64_t index;
 
@@ -1354,9 +1354,9 @@ void ReportMenu::Draw(bool draw_to_screen) {
 }
 
 void ReportMenu_OnClick_Units(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     if (menu->radio_button_index != REPORT_TYPE_UNITS) {
         menu->radio_button_index = REPORT_TYPE_UNITS;
@@ -1366,9 +1366,9 @@ void ReportMenu_OnClick_Units(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_Casualties(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     if (menu->radio_button_index != REPORT_TYPE_CASUALTIES) {
         menu->radio_button_index = REPORT_TYPE_CASUALTIES;
@@ -1378,9 +1378,9 @@ void ReportMenu_OnClick_Casualties(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_Score(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     if (menu->radio_button_index != REPORT_TYPE_SCORE) {
         menu->radio_button_index = REPORT_TYPE_SCORE;
@@ -1390,9 +1390,9 @@ void ReportMenu_OnClick_Score(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_Messages(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     if (menu->radio_button_index != REPORT_TYPE_MESSAGES) {
         menu->radio_button_index = REPORT_TYPE_MESSAGES;
@@ -1402,9 +1402,9 @@ void ReportMenu_OnClick_Messages(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_PAirUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_AirUnits = true;
 
@@ -1416,9 +1416,9 @@ void ReportMenu_OnClick_PAirUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_RAirUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_AirUnits = false;
 
@@ -1430,9 +1430,9 @@ void ReportMenu_OnClick_RAirUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_PLandUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_LandUnits = true;
 
@@ -1444,9 +1444,9 @@ void ReportMenu_OnClick_PLandUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_RLandUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_LandUnits = false;
 
@@ -1458,9 +1458,9 @@ void ReportMenu_OnClick_RLandUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_PSeaUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_SeaUnits = true;
 
@@ -1472,9 +1472,9 @@ void ReportMenu_OnClick_PSeaUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_RSeaUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_SeaUnits = false;
 
@@ -1486,9 +1486,9 @@ void ReportMenu_OnClick_RSeaUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_PStationaryUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_StationaryUnits = true;
 
@@ -1500,9 +1500,9 @@ void ReportMenu_OnClick_PStationaryUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_RStationaryUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_StationaryUnits = false;
 
@@ -1514,9 +1514,9 @@ void ReportMenu_OnClick_RStationaryUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_PProductionUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_ProductionUnits = true;
 
@@ -1534,9 +1534,9 @@ void ReportMenu_OnClick_PProductionUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_RProductionUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_ProductionUnits = false;
 
@@ -1548,9 +1548,9 @@ void ReportMenu_OnClick_RProductionUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_PCombatUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_CombatUnits = true;
 
@@ -1565,9 +1565,9 @@ void ReportMenu_OnClick_PCombatUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_RCombatUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_CombatUnits = false;
 
@@ -1579,9 +1579,9 @@ void ReportMenu_OnClick_RCombatUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_PDamagedUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_DamagedUnits = true;
 
@@ -1593,9 +1593,9 @@ void ReportMenu_OnClick_PDamagedUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_RDamagedUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_DamagedUnits = false;
 
@@ -1607,9 +1607,9 @@ void ReportMenu_OnClick_RDamagedUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_PStealthyUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_StealthyUnits = true;
 
@@ -1624,9 +1624,9 @@ void ReportMenu_OnClick_PStealthyUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_RStealthyUnits(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     ReportMenu_ButtonState_StealthyUnits = false;
 
@@ -1638,9 +1638,9 @@ void ReportMenu_OnClick_RStealthyUnits(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_Up(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     switch (menu->radio_button_index) {
         case REPORT_TYPE_UNITS: {
@@ -1679,9 +1679,9 @@ void ReportMenu_OnClick_Up(ButtonID bid, intptr_t value) {
 }
 
 void ReportMenu_OnClick_Down(ButtonID bid, intptr_t value) {
-    ReportMenu *menu;
+    ReportMenu* menu;
 
-    menu = reinterpret_cast<ReportMenu *>(value);
+    menu = reinterpret_cast<ReportMenu*>(value);
 
     switch (menu->radio_button_index) {
         case REPORT_TYPE_UNITS: {

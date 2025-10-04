@@ -39,7 +39,7 @@ struct ChoosePlayerMenuItem {
 struct ChoosePlayerMenuControlItem {
     Rect bounds;
     ResourceID image_id;
-    const char *label;
+    const char* label;
     int32_t event_code;
     void (ChoosePlayerMenu::*event_handler)();
     ResourceID sfx;
@@ -83,11 +83,11 @@ class ChoosePlayerMenu {
     void ButtonSetState(int32_t team, int32_t rest_state);
 
 public:
-    WindowInfo *window;
+    WindowInfo* window;
     uint32_t event_click_done;
     uint32_t event_click_cancel;
     int32_t key_press;
-    Button *buttons[CHOOSE_PLAYER_MENU_ITEM_COUNT];
+    Button* buttons[CHOOSE_PLAYER_MENU_ITEM_COUNT];
     ChoosePlayerMenuItem menu_item[CHOOSE_PLAYER_MENU_ITEM_COUNT];
     bool is_single_player;
 

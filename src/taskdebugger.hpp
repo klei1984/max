@@ -33,20 +33,20 @@ class TaskDebugger {
     uint32_t row_index;
     uint32_t task_count;
     uint32_t row_count;
-    Image *image;
-    Button *button_up;
-    Button *button_down;
+    Image* image;
+    Button* button_up;
+    Button* button_down;
     uint16_t first_row_r_value;
     uint16_t button_up_r_value;
     uint16_t button_down_r_value;
     ButtonManager button_manager;
 
-    void InitTaskList(Task *task);
-    void DrawRow(int32_t uly, const char *caption, Task *task, int32_t color);
+    void InitTaskList(Task* task);
+    void DrawRow(int32_t uly, const char* caption, Task* task, int32_t color);
     void SetLimits(int32_t limit);
 
 public:
-    TaskDebugger(WindowInfo *win, Task *task, int32_t button_up_value, int32_t button_down_value,
+    TaskDebugger(WindowInfo* win, Task* task, int32_t button_up_value, int32_t button_down_value,
                  int32_t first_row_value);
     ~TaskDebugger();
 

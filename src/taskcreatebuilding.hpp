@@ -58,8 +58,7 @@ class TaskCreateBuilding : public TaskCreate {
                                int32_t value);
 
 public:
-    TaskCreateBuilding(Task* task, uint16_t flags, ResourceID unit_type, Point site,
-                       TaskManageBuildings* manager);
+    TaskCreateBuilding(Task* task, uint16_t flags, ResourceID unit_type, Point site, TaskManageBuildings* manager);
     TaskCreateBuilding(UnitInfo* unit, TaskManageBuildings* manager);
     ~TaskCreateBuilding();
 

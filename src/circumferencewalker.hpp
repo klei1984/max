@@ -31,8 +31,8 @@ class CircumferenceWalker {
     int16_t distance;
     Point offset;
     Point current;
-    int16_t *grid_x;
-    int16_t *grid_y;
+    int16_t* grid_x;
+    int16_t* grid_y;
     int16_t factor_x;
     int16_t factor_y;
 
@@ -44,7 +44,7 @@ public:
 
     int32_t GetGridX() const;
     int32_t GetGridY() const;
-    const Point *GetGridXY() const;
+    const Point* GetGridXY() const;
 
     bool FindNext();
 };

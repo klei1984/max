@@ -31,16 +31,16 @@ class CargoMenu : public AbstractUpgradeMenu {
     SmartObjectArray<ResourceID> unit_types1;
     SmartObjectArray<ResourceID> unit_types2;
     SmartObjectArray<uint16_t> cargos;
-    CargoSelector *cargo_selector;
-    UnitTypeSelector *active_selector;
-    Button *button_purchase_list_up;
-    Button *button_purchase_list_down;
-    Button *button_cargo_up;
-    Button *button_cargo_down;
-    Button *button_buy_upgrade_toggle;
-    Button *button_delete;
-    Button *button_buy;
-    LimitedScrollbar *scrollbar;
+    CargoSelector* cargo_selector;
+    UnitTypeSelector* active_selector;
+    Button* button_purchase_list_up;
+    Button* button_purchase_list_down;
+    Button* button_cargo_up;
+    Button* button_cargo_down;
+    Button* button_buy_upgrade_toggle;
+    Button* button_delete;
+    Button* button_buy;
+    LimitedScrollbar* scrollbar;
     uint32_t unit_count;
 
     void Select(uint32_t index);
@@ -53,16 +53,16 @@ public:
     CargoMenu(uint16_t team);
     ~CargoMenu();
 
-    bool EventHandler(Event *event);
+    bool EventHandler(Event* event);
     void DrawUnitInfo(ResourceID unit_type);
     void AbstractUpgradeMenu_vfunc3(ResourceID unit_type);
-    bool AbstractUpgradeMenu_vfunc4(UnitTypeSelector *selector, bool mode);
+    bool AbstractUpgradeMenu_vfunc4(UnitTypeSelector* selector, bool mode);
     void PopulateTeamUnitsList();
     void DrawUnitStats(ResourceID unit_type);
     void AbstractUpgradeMenu_vfunc7();
     bool ProcessKey(int32_t key);
 
-    UnitValues *GetCurrentUnitValues(ResourceID unit_type);
+    UnitValues* GetCurrentUnitValues(ResourceID unit_type);
 };
 
 #endif /* CARGOMENU_HPP */

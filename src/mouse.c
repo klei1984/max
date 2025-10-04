@@ -38,15 +38,15 @@ static uint8_t or_mask[64] = {1,  1,  1,  1,  1,  1,  1,  0, 1, 15, 15, 15, 15, 
                               1,  0,  1,  15, 15, 15, 15, 1, 1, 0,  1,  15, 15, 15, 15, 15, 1, 1,  1,  15, 1,  1,
                               15, 15, 15, 1,  1,  1,  1,  1, 1, 15, 15, 1,  0,  0,  0,  0,  1, 1,  1,  1};
 static uint32_t last_buttons;
-static uint8_t *mouse_fptr;
-static uint8_t *mouse_shape;
+static uint8_t* mouse_fptr;
+static uint8_t* mouse_shape;
 static int32_t mouse_is_hidden;
 static int32_t mouse_length;
 static int32_t mouse_disabled;
 static int32_t mouse_buttons;
 static TOCKS mouse_speed;
 static int32_t mouse_curr_frame;
-static uint8_t *mouse_buf;
+static uint8_t* mouse_buf;
 static int32_t mouse_full;
 static int32_t mouse_num_frames;
 static int32_t mouse_hotx;
@@ -122,8 +122,8 @@ void mouse_colorize(void) {
     }
 }
 
-int32_t mouse_get_shape(uint8_t **buf, int32_t *width, int32_t *length, int32_t *full, int32_t *hotx, int32_t *hoty,
-                        char *trans) {
+int32_t mouse_get_shape(uint8_t** buf, int32_t* width, int32_t* length, int32_t* full, int32_t* hotx, int32_t* hoty,
+                        char* trans) {
     *buf = mouse_shape;
     *width = mouse_width;
     *length = mouse_length;
@@ -135,7 +135,7 @@ int32_t mouse_get_shape(uint8_t **buf, int32_t *width, int32_t *length, int32_t 
     return 0;
 }
 
-int32_t mouse_set_shape(uint8_t *buf, int32_t width, int32_t length, int32_t full, int32_t hotx, int32_t hoty,
+int32_t mouse_set_shape(uint8_t* buf, int32_t width, int32_t length, int32_t full, int32_t hotx, int32_t hoty,
                         char trans) {
     int32_t mh;
 
@@ -150,9 +150,9 @@ int32_t mouse_set_shape(uint8_t *buf, int32_t width, int32_t length, int32_t ful
     }
 
     if (width != mouse_width || length != mouse_length) {
-        uint8_t *temp;
+        uint8_t* temp;
 
-        temp = (uint8_t *)malloc(length * width);
+        temp = (uint8_t*)malloc(length * width);
         if (!temp) {
             if (!mh) {
                 mouse_show();
@@ -194,8 +194,8 @@ int32_t mouse_set_shape(uint8_t *buf, int32_t width, int32_t length, int32_t ful
     return 0;
 }
 
-int32_t mouse_get_anim(uint8_t **frames, int32_t *num_frames, int32_t *width, int32_t *length, int32_t *hotx,
-                       int32_t *hoty, char *trans, TOCKS *speed) {
+int32_t mouse_get_anim(uint8_t** frames, int32_t* num_frames, int32_t* width, int32_t* length, int32_t* hotx,
+                       int32_t* hoty, char* trans, TOCKS* speed) {
     int32_t result;
 
     if (mouse_fptr) {
@@ -215,7 +215,7 @@ int32_t mouse_get_anim(uint8_t **frames, int32_t *num_frames, int32_t *width, in
     return result;
 }
 
-int32_t mouse_set_anim_frames(uint8_t *frames, int32_t num_frames, int32_t start_frame, int32_t width, int32_t length,
+int32_t mouse_set_anim_frames(uint8_t* frames, int32_t num_frames, int32_t start_frame, int32_t width, int32_t length,
                               int32_t hotx, int32_t hoty, char trans, TOCKS speed) {
     int32_t result;
 
@@ -457,14 +457,14 @@ int32_t mouse_click_in(int32_t ulx, int32_t uly, int32_t lrx, int32_t lry) {
     return result;
 }
 
-void mouse_get_rect(Rect *m) {
+void mouse_get_rect(Rect* m) {
     m->ulx = mouse_x;
     m->uly = mouse_y;
     m->lrx = mouse_width + mouse_x - 1;
     m->lry = mouse_length + mouse_y - 1;
 }
 
-void mouse_get_position(int32_t *x, int32_t *y) {
+void mouse_get_position(int32_t* x, int32_t* y) {
     *x = mouse_hotx + mouse_x;
     *y = mouse_hoty + mouse_y;
 }
@@ -499,7 +499,7 @@ uint32_t mouse_get_buttons(void) { return mouse_buttons; }
 
 int32_t mouse_hidden(void) { return mouse_is_hidden; }
 
-void mouse_get_hotspot(int32_t *hotx, int32_t *hoty) {
+void mouse_get_hotspot(int32_t* hotx, int32_t* hoty) {
     *hotx = mouse_hotx;
     *hoty = mouse_hoty;
 }

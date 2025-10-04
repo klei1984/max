@@ -41,7 +41,7 @@ struct ClanSelectMenuItem {
 struct ClanSelectMenuControlItem {
     Rect bounds;
     ResourceID image_id;
-    const char *label;
+    const char* label;
     int32_t event_code;
     void (ClanSelectMenu::*event_handler)();
     ResourceID sfx;
@@ -84,19 +84,19 @@ class ClanSelectMenu {
 
     void ButtonInit(int32_t index, int32_t mode);
     void SelectMenuItems();
-    void DrawClanUpgrades(const char *text, int32_t index, int32_t color);
+    void DrawClanUpgrades(const char* text, int32_t index, int32_t color);
 
 public:
-    WindowInfo *window;
+    WindowInfo* window;
 
     bool event_click_done_cancel_random;
     IniParameter team_clan_ini_id;
     int32_t team_clan;
     int32_t team_clan_selection;
     int32_t key;
-    Image *image;
+    Image* image;
 
-    Button *buttons[CLAN_SELECT_MENU_ITEM_COUNT];
+    Button* buttons[CLAN_SELECT_MENU_ITEM_COUNT];
     ClanSelectMenuItem menu_item[CLAN_SELECT_MENU_ITEM_COUNT];
 
     void Init(int32_t team);

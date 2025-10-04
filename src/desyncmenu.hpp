@@ -29,8 +29,8 @@ class DesyncMenu : public Window {
     WindowInfo window;
     bool event_click_restart;
     bool event_click_quit;
-    Button *button_restart;
-    Button *button_quit;
+    Button* button_restart;
+    Button* button_quit;
     bool event_release;
 
 public:

@@ -26,7 +26,7 @@
 int32_t UpgradeControl_Factors[UPGRADE_CONTROL_COUNT] = {4, 4, 8, 2, 2, 2, 8, 4, 16};
 
 UpgradeControl::UpgradeControl(WinID window_id, int32_t ulx, int32_t uly, int32_t button_right_r_value,
-                               int32_t button_left_r_value, int32_t *team_gold)
+                               int32_t button_left_r_value, int32_t* team_gold)
     : team_gold(team_gold), factor(1), upgrade_ratio(nullptr), uly(uly) {
     upgrade_right = new (std::nothrow) Button(UPGRGT_U, UPGRGT_D, ulx + 18, uly);
     upgrade_right->SetRValue(button_right_r_value);
@@ -91,13 +91,13 @@ int32_t UpgradeControl::GetRatio(uint16_t value) const {
     return result;
 }
 
-void UpgradeControl::SetupRatio(uint16_t factor, int32_t *upgrade_ratio) {
+void UpgradeControl::SetupRatio(uint16_t factor, int32_t* upgrade_ratio) {
     this->factor = factor;
     this->upgrade_ratio = upgrade_ratio;
 }
 
 void UpgradeControl::Init(int32_t id, int32_t team_base_value, int32_t control_base_value,
-                          uint16_t *control_actual_value, int32_t research_factor) {
+                          uint16_t* control_actual_value, int32_t research_factor) {
     this->id = id;
     this->team_base_value = team_base_value;
     this->control_base_value = control_base_value;

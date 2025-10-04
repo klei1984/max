@@ -41,7 +41,7 @@ enum : uint8_t { TRANSPORT_TP_PACKET_ID = 0x00, TRANSPORT_APPL_PACKET_ID = 0x50 
 
 class Transport {
 public:
-    virtual ~Transport(){};
+    virtual ~Transport() {};
     virtual const char* GetError() const = 0;
     virtual bool Init(int32_t mode) = 0;
     virtual bool Deinit() = 0;

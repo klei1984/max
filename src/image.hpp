@@ -25,7 +25,7 @@
 #include "resource_manager.hpp"
 
 class Image {
-    uint8_t *data;
+    uint8_t* data;
     int16_t ulx;
     int16_t uly;
     int16_t width;
@@ -37,7 +37,7 @@ public:
     Image(ResourceID id, int16_t ulx, int16_t uly);
     ~Image();
 
-    uint8_t *GetData() const;
+    uint8_t* GetData() const;
     int16_t GetULX() const;
     int16_t GetULY() const;
     int16_t GetWidth() const;
@@ -45,12 +45,12 @@ public:
 
     void Allocate();
     Rect GetBounds() const;
-    void Copy(WindowInfo *w);
-    void Copy(const Image &other);
-    void Blend(const Image &other);
-    void Write(WindowInfo *w) const;
-    void Write(WindowInfo *w, Rect *r) const;
-    void Write(WindowInfo *w, int32_t ulx, int32_t uly) const;
+    void Copy(WindowInfo* w);
+    void Copy(const Image& other);
+    void Blend(const Image& other);
+    void Write(WindowInfo* w) const;
+    void Write(WindowInfo* w, Rect* r) const;
+    void Write(WindowInfo* w, int32_t ulx, int32_t uly) const;
     void Draw(WinID wid) const;
 };
 

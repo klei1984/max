@@ -29,11 +29,11 @@
 class Scrollbar;
 
 class EventScrollbarChange : public Event {
-    Scrollbar *scrollbar;
+    Scrollbar* scrollbar;
     int16_t value;
 
 public:
-    EventScrollbarChange(Scrollbar *scrollbar, int16_t value);
+    EventScrollbarChange(Scrollbar* scrollbar, int16_t value);
     uint16_t GetEventId() const;
 
     int16_t GetValue() const;
@@ -42,32 +42,32 @@ public:
 
 EVENTS_DECLARE_EVENT_ID(ScrollbarEvent);
 
-void LoadHorizontalBar(uint8_t *buffer, int32_t width, int32_t capacity, int32_t height, ResourceID id);
-void LoadHorizontalTape(uint8_t *buffer, int32_t full2, int32_t length, int32_t width, ResourceID id);
-void LoadVerticalBar(uint8_t *buffer, int32_t width, int32_t capacity, int32_t height, ResourceID id);
+void LoadHorizontalBar(uint8_t* buffer, int32_t width, int32_t capacity, int32_t height, ResourceID id);
+void LoadHorizontalTape(uint8_t* buffer, int32_t full2, int32_t length, int32_t width, ResourceID id);
+void LoadVerticalBar(uint8_t* buffer, int32_t width, int32_t capacity, int32_t height, ResourceID id);
 
 class Scrollbar {
 protected:
     int16_t free_capacity;
     int16_t zero_offset;
     int16_t value;
-    Image *xfer_slider;
-    Image *xfer_amount_background;
+    Image* xfer_slider;
+    Image* xfer_amount_background;
     ResourceID material_bar;
     int32_t key_code_increase;
     int32_t key_code_decrease;
     int32_t button_p_value;
-    Button *button_slider;
-    Window *window;
+    Button* button_slider;
+    Window* window;
     uint16_t scaling_factor;
     bool scrollbar_type;
 
-    friend void LoadHorizontalBar(uint8_t *buffer, int32_t width, int32_t capacity, int32_t height, ResourceID id);
-    friend void LoadVerticalBar(uint8_t *buffer, int32_t width, int32_t capacity, int32_t height, ResourceID id);
+    friend void LoadHorizontalBar(uint8_t* buffer, int32_t width, int32_t capacity, int32_t height, ResourceID id);
+    friend void LoadVerticalBar(uint8_t* buffer, int32_t width, int32_t capacity, int32_t height, ResourceID id);
     void ProcessValueChange(int16_t value);
 
 public:
-    Scrollbar(Window *window, Rect *xfer_slider_bounds, Rect *xfer_amount_bounds, ResourceID id,
+    Scrollbar(Window* window, Rect* xfer_slider_bounds, Rect* xfer_amount_bounds, ResourceID id,
               int32_t key_code_increase, int32_t key_code_decrease, int32_t key_code_click_slider,
               int16_t scaling_factor, bool vertical = false);
     virtual ~Scrollbar();
@@ -89,7 +89,7 @@ class LimitedScrollbar : public Scrollbar {
     int16_t xfer_take_max;
 
 public:
-    LimitedScrollbar(Window *window, Rect *xfer_slider_bounds, Rect *xfer_amount_bounds, ResourceID id,
+    LimitedScrollbar(Window* window, Rect* xfer_slider_bounds, Rect* xfer_amount_bounds, ResourceID id,
                      int32_t key_code_increase, int32_t key_code_decrease, int32_t key_code_click_slider,
                      int16_t scaling_factor, bool vertical = false);
     ~LimitedScrollbar();

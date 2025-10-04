@@ -37,11 +37,11 @@
 
 class ChatMenu : public Window {
     WindowInfo window;
-    Button *button_cancel;
-    Button *button_send;
-    Button *button_help;
-    Button *button_team[PLAYER_TEAM_MAX - 1];
-    TextEdit *text_edit;
+    Button* button_cancel;
+    Button* button_send;
+    Button* button_help;
+    Button* button_team[PLAYER_TEAM_MAX - 1];
+    TextEdit* text_edit;
     uint16_t team;
     bool event_click_done_cancel;
     bool event_release;

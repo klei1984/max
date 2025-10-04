@@ -120,7 +120,7 @@ void MapHashObject::PushBack(UnitInfo* unit) { list.PushBack(*unit); }
 void MapHashObject::Remove(UnitInfo* unit) { list.Remove(*unit); }
 
 MapHash::MapHash(uint16_t hash_size)
-    : hash_size(hash_size), x_shift(0), entry(new(std::nothrow) SmartList<MapHashObject>[hash_size]) {
+    : hash_size(hash_size), x_shift(0), entry(new (std::nothrow) SmartList<MapHashObject>[hash_size]) {
     while (hash_size > 128) {
         ++x_shift;
         hash_size >>= 1;
@@ -265,7 +265,8 @@ SmartList<UnitInfo>* MapHash::operator[](const Point& key) {
     return result;
 }
 
-UnitHash::UnitHash(uint16_t hash_size) : hash_size(hash_size), list(new(std::nothrow) SmartList<UnitInfo>[hash_size]) {}
+UnitHash::UnitHash(uint16_t hash_size)
+    : hash_size(hash_size), list(new (std::nothrow) SmartList<UnitInfo>[hash_size]) {}
 UnitHash::~UnitHash() { delete[] list; }
 
 void UnitHash::PushBack(UnitInfo* unit) {

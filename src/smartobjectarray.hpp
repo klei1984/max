@@ -133,10 +133,10 @@ class SmartObjectArray : public SmartPointer<ObjectSmartArrayData<T>> {
 
 public:
     explicit SmartObjectArray(const uint32_t growth_factor = DEFAULT_GROWTH_FACTOR) noexcept
-        : SmartPointer<ObjectSmartArrayData<T>>(*new(std::nothrow) ObjectSmartArrayData<T>(growth_factor)) {}
+        : SmartPointer<ObjectSmartArrayData<T>>(*new (std::nothrow) ObjectSmartArrayData<T>(growth_factor)) {}
 
     SmartObjectArray(const SmartObjectArray& other, const bool deep_copy = false) noexcept
-        : SmartPointer<ObjectSmartArrayData<T>>(deep_copy ? (*new(std::nothrow) ObjectSmartArrayData<T>(*other.Get()))
+        : SmartPointer<ObjectSmartArrayData<T>>(deep_copy ? (*new (std::nothrow) ObjectSmartArrayData<T>(*other.Get()))
                                                           : (*other.Get())) {}
 
     inline void Clear() noexcept { GetArray()->Clear(); }

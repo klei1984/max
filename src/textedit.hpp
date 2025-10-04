@@ -32,10 +32,10 @@ enum {
 
 class TextEdit {
     WindowInfo window;
-    Image *bg_image;
-    char *approved_text;
-    char *edited_text;
-    char *text_before_cursor;
+    Image* bg_image;
+    char* approved_text;
+    char* edited_text;
+    char* text_before_cursor;
     uint16_t cursor_position;
     uint16_t buffer_size;
     uint16_t color;
@@ -54,17 +54,17 @@ class TextEdit {
     void InsertCharacter(char character);
 
 public:
-    TextEdit(WindowInfo *window, char *text, int32_t buffer_size, int32_t ulx, int32_t uly, int32_t width, int32_t height,
-             uint16_t color, int32_t font_num);
+    TextEdit(WindowInfo* window, char* text, int32_t buffer_size, int32_t ulx, int32_t uly, int32_t width,
+             int32_t height, uint16_t color, int32_t font_num);
     ~TextEdit();
 
     void SetMode(int32_t mode);
-    void SetEditedText(const char *text);
+    void SetEditedText(const char* text);
     void LoadBgImage();
     void EnterTextEditField();
     void LeaveTextEditField();
     void DrawFullText(int32_t refresh_screen = true);
-    void UpdateWindow(WindowInfo *window);
+    void UpdateWindow(WindowInfo* window);
     void AcceptEditedText();
     int32_t ProcessKeyPress(int32_t key);
 };

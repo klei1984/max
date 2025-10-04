@@ -24,6 +24,6 @@
 
 class UnitInfo;
 
-void RepairShopMenu_Menu(UnitInfo *unit);
+void RepairShopMenu_Menu(UnitInfo* unit);
 
 #endif /* REPAIRSHOPMENU_HPP */

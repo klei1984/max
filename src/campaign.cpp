@@ -20,4 +20,3 @@
  */
 
 #include "campaign.hpp"
-

@@ -25,9 +25,9 @@
 #include "reportstats.hpp"
 #include "units_manager.hpp"
 
-PurchaseTypeSelector::PurchaseTypeSelector(Window *window, WindowInfo *window_info,
+PurchaseTypeSelector::PurchaseTypeSelector(Window* window, WindowInfo* window_info,
                                            SmartObjectArray<ResourceID> unit_types, uint16_t team, int32_t key_code,
-                                           Button *button_scroll_up, Button *button_scroll_down, int32_t ulx,
+                                           Button* button_scroll_up, Button* button_scroll_down, int32_t ulx,
                                            int32_t width)
     : UnitTypeSelector(window, window_info, unit_types, team, key_code, button_scroll_up, button_scroll_down) {
     image = new (std::nothrow) Image(ulx, 0, width, max_item_count * 32);

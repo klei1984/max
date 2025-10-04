@@ -48,7 +48,7 @@ struct GameConfigMenuItem {
 struct GameConfigMenuControlItem {
     Rect bounds;
     ResourceID image_id;
-    const char *label;
+    const char* label;
     int32_t event_code;
     void (GameConfigMenu::*event_handler)();
     ResourceID sfx;
@@ -152,7 +152,7 @@ class GameConfigMenu {
         MENU_CONTROL_DEF(514, 438, 0, 0, MNUBTN6U, _(da62), GNW_KB_KEY_RETURN, &GameConfigMenu::EventDone, NDONE0),
     };
 
-    const char *game_config_menu_difficulty_descriptions[GAME_CONFIG_MENU_DIFFICULTY_COUNT] = {
+    const char* game_config_menu_difficulty_descriptions[GAME_CONFIG_MENU_DIFFICULTY_COUNT] = {
         _(1dc3), _(eb1c), _(0e00), _(2de0), _(e22c), _(7cb8),
     };
 
@@ -168,15 +168,15 @@ class GameConfigMenu {
     void DrawPanels();
 
 public:
-    WindowInfo *window;
+    WindowInfo* window;
     bool event_click_done;
     bool event_click_cancel;
     uint8_t game_mode;
     int32_t key;
     GameConfigMenuItem menu_item[GAME_CONFIG_MENU_ITEM_COUNT];
-    Button *buttons[GAME_CONFIG_MENU_ITEM_COUNT];
-    TextEdit *text_edit;
-    Image *bg_panels[6];
+    Button* buttons[GAME_CONFIG_MENU_ITEM_COUNT];
+    TextEdit* text_edit;
+    Image* bg_panels[6];
     char victory_limit_text[30];
     uint32_t field_867;
     uint8_t ini_play_mode;

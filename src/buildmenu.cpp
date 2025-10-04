@@ -41,12 +41,12 @@
 #include "window_manager.hpp"
 
 class BuildUnitTypeSelector : public UnitTypeSelector {
-    uint8_t *sprite;
-    UnitInfo *unit;
+    uint8_t* sprite;
+    UnitInfo* unit;
 
 public:
-    BuildUnitTypeSelector(Window *window, WindowInfo *window_info, SmartObjectArray<ResourceID> unit_types,
-                          UnitInfo *unit, int32_t key_code, Button *button_scroll_up, Button *button_scroll_down);
+    BuildUnitTypeSelector(Window* window, WindowInfo* window_info, SmartObjectArray<ResourceID> unit_types,
+                          UnitInfo* unit, int32_t key_code, Button* button_scroll_up, Button* button_scroll_down);
     ~BuildUnitTypeSelector();
 
     void Draw();
@@ -55,7 +55,7 @@ public:
 class AbstractBuildMenu : public Window {
 protected:
     WindowInfo window;
-    UnitInfo *unit;
+    UnitInfo* unit;
 
     bool event_success;
     bool event_click_cancel;
@@ -65,41 +65,41 @@ protected:
     uint16_t build_rate;
 
     SmartObjectArray<ResourceID> unit_types;
-    BuildUnitTypeSelector *selector;
+    BuildUnitTypeSelector* selector;
 
-    Button *button_up_arrow;
-    Button *button_down_arrow;
-    Button *button_description;
-    Button *button_done;
-    Button *button_help;
-    Button *button_cancel;
-    Button *button_path_build;
+    Button* button_up_arrow;
+    Button* button_down_arrow;
+    Button* button_description;
+    Button* button_done;
+    Button* button_help;
+    Button* button_cancel;
+    Button* button_path_build;
 
-    Button *build_rate_x1;
-    Button *build_rate_x2;
-    Button *build_rate_x4;
+    Button* build_rate_x1;
+    Button* build_rate_x2;
+    Button* build_rate_x4;
 
-    Image *stats_background;
-    Image *turns_background_x1;
-    Image *cost_background_x1;
-    Image *turns_background_x2;
-    Image *cost_background_x2;
-    Image *turns_background_x4;
-    Image *cost_background_x4;
+    Image* stats_background;
+    Image* turns_background_x1;
+    Image* cost_background_x1;
+    Image* turns_background_x2;
+    Image* cost_background_x2;
+    Image* turns_background_x4;
+    Image* cost_background_x4;
 
     static bool button_description_rest_state;
 
 public:
-    AbstractBuildMenu(ResourceID resource_id, UnitInfo *unit);
+    AbstractBuildMenu(ResourceID resource_id, UnitInfo* unit);
     ~AbstractBuildMenu();
 
-    bool EventHandler(Event *event);
+    bool EventHandler(Event* event);
 
     virtual bool ProcessKey(int32_t key);
     virtual void InitControls();
     virtual int32_t GetTurnsToBuild(ResourceID unit_type);
     virtual void Build() = 0;
-    virtual bool Select(UnitTypeSelector *type_selector, bool mode);
+    virtual bool Select(UnitTypeSelector* type_selector, bool mode);
 
     void Draw(ResourceID unit_type);
     bool Run();
@@ -107,7 +107,7 @@ public:
 
 class MobileBuildMenu : public AbstractBuildMenu {
 public:
-    MobileBuildMenu(UnitInfo *unit);
+    MobileBuildMenu(UnitInfo* unit);
     ~MobileBuildMenu();
 
     void Build();
@@ -116,37 +116,37 @@ public:
 class FactoryBuildMenu : public AbstractBuildMenu {
     SmartObjectArray<ResourceID> build_queue;
     ResourceID building_id;
-    UnitTypeSelector *cargo_selector;
-    UnitTypeSelector *active_selector;
+    UnitTypeSelector* cargo_selector;
+    UnitTypeSelector* active_selector;
 
-    Button *button_build_queue_up_arrow;
-    Button *button_build_queue_down_arrow;
-    Button *button_build_queue_delete;
-    Button *button_build_queue_build;
-    Button *button_build_queue_repeat;
+    Button* button_build_queue_up_arrow;
+    Button* button_build_queue_down_arrow;
+    Button* button_build_queue_delete;
+    Button* button_build_queue_build;
+    Button* button_build_queue_repeat;
 
     void AddSelection();
     void RemoveSelection();
 
 public:
-    FactoryBuildMenu(UnitInfo *unit);
+    FactoryBuildMenu(UnitInfo* unit);
     ~FactoryBuildMenu();
 
     bool ProcessKey(int32_t key);
     void InitControls();
     int32_t GetTurnsToBuild(ResourceID unit_type);
     void Build();
-    bool Select(UnitTypeSelector *type_selector, bool mode);
+    bool Select(UnitTypeSelector* type_selector, bool mode);
 };
 
 bool AbstractBuildMenu::button_description_rest_state = true;
 
-BuildUnitTypeSelector::BuildUnitTypeSelector(Window *window, WindowInfo *window_info,
-                                             SmartObjectArray<ResourceID> unit_types, UnitInfo *unit, int32_t key_code,
-                                             Button *button_scroll_up, Button *button_scroll_down)
+BuildUnitTypeSelector::BuildUnitTypeSelector(Window* window, WindowInfo* window_info,
+                                             SmartObjectArray<ResourceID> unit_types, UnitInfo* unit, int32_t key_code,
+                                             Button* button_scroll_up, Button* button_scroll_down)
     : UnitTypeSelector(window, window_info, unit_types, unit->team, key_code, button_scroll_up, button_scroll_down),
       unit(unit) {
-    struct ImageSimpleHeader *local_image;
+    struct ImageSimpleHeader* local_image;
     int32_t width;
     int32_t height;
 
@@ -154,7 +154,7 @@ BuildUnitTypeSelector::BuildUnitTypeSelector(Window *window, WindowInfo *window_
     height = max_item_count * 32;
 
     sprite = new (std::nothrow) uint8_t[4 * sizeof(uint16_t) + width * height];
-    local_image = reinterpret_cast<struct ImageSimpleHeader *>(sprite);
+    local_image = reinterpret_cast<struct ImageSimpleHeader*>(sprite);
 
     local_image->width = width;
     local_image->height = height;
@@ -165,13 +165,13 @@ BuildUnitTypeSelector::BuildUnitTypeSelector(Window *window, WindowInfo *window_
 BuildUnitTypeSelector::~BuildUnitTypeSelector() { delete[] sprite; }
 
 void BuildUnitTypeSelector::Draw() {
-    struct ImageSimpleHeader *local_image;
+    struct ImageSimpleHeader* local_image;
     int32_t consumption_rate;
     Rect bounds;
     int32_t turns;
     ColorIndex color;
 
-    local_image = reinterpret_cast<struct ImageSimpleHeader *>(sprite);
+    local_image = reinterpret_cast<struct ImageSimpleHeader*>(sprite);
 
     UnitTypeSelector::Draw();
 
@@ -205,7 +205,7 @@ void BuildUnitTypeSelector::Draw() {
     win_draw_rect(window_info.id, &bounds);
 }
 
-AbstractBuildMenu::AbstractBuildMenu(ResourceID resource_id, UnitInfo *unit)
+AbstractBuildMenu::AbstractBuildMenu(ResourceID resource_id, UnitInfo* unit)
     : Window(resource_id, GameManager_GetDialogWindowCenterMode()), unit(unit) {
     event_success = false;
     event_click_cancel = false;
@@ -271,11 +271,11 @@ AbstractBuildMenu::~AbstractBuildMenu() {
     delete cost_background_x4;
 }
 
-bool AbstractBuildMenu::EventHandler(Event *event) {
+bool AbstractBuildMenu::EventHandler(Event* event) {
     bool result;
 
     if (event->GetEventId() == EVENTS_GET_EVENT_ID(UnitSelectEvent)) {
-        EventUnitSelect *select = dynamic_cast<EventUnitSelect *>(event);
+        EventUnitSelect* select = dynamic_cast<EventUnitSelect*>(event);
 
         result = Select(select->GetSelector(), select->GetValue());
     } else {
@@ -485,7 +485,7 @@ int32_t AbstractBuildMenu::GetTurnsToBuild(ResourceID unit_type) {
     return BuildMenu_GetTurnsToBuild(unit_type, unit->team);
 }
 
-bool AbstractBuildMenu::Select(UnitTypeSelector *type_selector, bool mode) {
+bool AbstractBuildMenu::Select(UnitTypeSelector* type_selector, bool mode) {
     bool result;
 
     if (selector == type_selector) {
@@ -506,7 +506,7 @@ bool AbstractBuildMenu::Select(UnitTypeSelector *type_selector, bool mode) {
 }
 
 void AbstractBuildMenu::Draw(ResourceID unit_type) {
-    BaseUnit *base_unit;
+    BaseUnit* base_unit;
     WindowInfo local_window;
     int32_t turns;
     int32_t max_build_rate;
@@ -666,7 +666,7 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
     win_draw(window.id);
 }
 
-bool BuildMenu_Menu(UnitInfo *unit) {
+bool BuildMenu_Menu(UnitInfo* unit) {
     bool result;
 
     if (unit->flags & STATIONARY) {
@@ -692,7 +692,7 @@ int32_t BuildMenu_GetTurnsToBuild(ResourceID unit_type, uint16_t team) {
         result = 1;
 
     } else {
-        CTInfo *team_info;
+        CTInfo* team_info;
         int32_t turns_to_build;
 
         team_info = &UnitsManager_TeamInfo[team];
@@ -818,7 +818,7 @@ bool AbstractBuildMenu::Run() {
     return event_success;
 }
 
-MobileBuildMenu::MobileBuildMenu(UnitInfo *unit) : AbstractBuildMenu(CONBUILD, unit) {
+MobileBuildMenu::MobileBuildMenu(UnitInfo* unit) : AbstractBuildMenu(CONBUILD, unit) {
     WindowInfo window_info;
 
     Text_SetFont(GNW_TEXT_FONT_5);
@@ -872,8 +872,8 @@ MobileBuildMenu::~MobileBuildMenu() {}
 void MobileBuildMenu::Build() {
     ResourceID unit_type;
     const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
-    const char *const BuildMenu_EventStrings_InvalidSquare[] = {_(1031), _(05fa), _(ff73)};
-    const char *const BuildMenu_EventStrings_Available1[] = {_(fa62), _(9eb5), _(01fa)};
+    const char* const BuildMenu_EventStrings_InvalidSquare[] = {_(1031), _(05fa), _(ff73)};
+    const char* const BuildMenu_EventStrings_Available1[] = {_(fa62), _(9eb5), _(01fa)};
 
     unit_type = selector->GetLast();
 
@@ -887,7 +887,7 @@ void MobileBuildMenu::Build() {
         grid_y = unit->grid_y;
 
         if (UnitsManager_IssueBuildOrder(unit, &grid_x, &grid_y, unit_type)) {
-            BaseUnit *base_unit;
+            BaseUnit* base_unit;
             int32_t turns_to_build;
             int32_t max_build_rate;
 
@@ -971,7 +971,7 @@ void MobileBuildMenu::Build() {
     }
 }
 
-FactoryBuildMenu::FactoryBuildMenu(UnitInfo *unit)
+FactoryBuildMenu::FactoryBuildMenu(UnitInfo* unit)
     : AbstractBuildMenu(FACBUILD, unit), build_queue(unit->GetBuildList(), true) {
     WindowInfo window_info;
 
@@ -1168,7 +1168,7 @@ int32_t FactoryBuildMenu::GetTurnsToBuild(ResourceID unit_type) {
 }
 
 void FactoryBuildMenu::Build() {
-    const char *const BuildMenu_EventStrings_Available2[] = {_(c4e7), _(803c), _(3346)};
+    const char* const BuildMenu_EventStrings_Available2[] = {_(c4e7), _(803c), _(3346)};
     SmartObjectArray<ResourceID> build_list = unit->GetBuildList();
 
     build_list->Clear();
@@ -1178,7 +1178,7 @@ void FactoryBuildMenu::Build() {
     }
 
     if (build_list->GetCount()) {
-        BaseUnit *base_unit;
+        BaseUnit* base_unit;
         ResourceID unit_type;
         SmartString string;
 
@@ -1208,7 +1208,7 @@ void FactoryBuildMenu::Build() {
     }
 }
 
-bool FactoryBuildMenu::Select(UnitTypeSelector *type_selector, bool mode) {
+bool FactoryBuildMenu::Select(UnitTypeSelector* type_selector, bool mode) {
     bool result;
 
     active_selector = type_selector;

@@ -142,8 +142,8 @@ void Survey_RenderMarkers(uint16_t team, int32_t grid_ulx, int32_t grid_uly, int
 
     mask |= team_info->team_units->hash_team_id;
 
-    for (int32_t i = std::max(GameManager_MapView.ulx, grid_ulx);
-         i < std::min(GameManager_MapView.lrx + 1, grid_lrx); ++i) {
+    for (int32_t i = std::max(GameManager_MapView.ulx, grid_ulx); i < std::min(GameManager_MapView.lrx + 1, grid_lrx);
+         ++i) {
         for (int32_t j = std::max(GameManager_MapView.uly, grid_uly);
              j < std::min(GameManager_MapView.lry + 1, grid_lry); ++j) {
             if (Access_GetModifiedSurfaceType(i, j) != SURFACE_TYPE_AIR &&

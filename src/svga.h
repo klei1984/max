@@ -32,7 +32,7 @@ extern "C" {
 
 #include "rect.h"
 
-typedef void (*ScreenBlitFunc)(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY,
+typedef void (*ScreenBlitFunc)(uint8_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY,
                                uint32_t subW, uint32_t subH, uint32_t dstX, uint32_t dstY);
 
 extern Rect scr_size;
@@ -40,17 +40,17 @@ extern ScreenBlitFunc scr_blit;
 
 int32_t Svga_Init(void);
 void Svga_Deinit(void);
-void Svga_Blit(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY, uint32_t subW,
+void Svga_Blit(uint8_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY, uint32_t subW,
                uint32_t subH, uint32_t dstX, uint32_t dstY);
 int32_t Svga_WarpMouse(int32_t window_x, int32_t window_y);
-void Svga_SetPaletteColor(int32_t index, SDL_Color *color);
-void Svga_SetPalette(SDL_Palette *palette);
-SDL_Palette *Svga_GetPalette(void);
+void Svga_SetPaletteColor(int32_t index, SDL_Color* color);
+void Svga_SetPalette(SDL_Palette* palette);
+SDL_Palette* Svga_GetPalette(void);
 int32_t Svga_GetScreenWidth(void);
 int32_t Svga_GetScreenHeight(void);
 int32_t Svga_GetScreenRefreshRate(void);
 bool Svga_IsFullscreen(void);
-bool Svga_GetWindowFlags(uint32_t *flags);
+bool Svga_GetWindowFlags(uint32_t* flags);
 
 #ifdef __cplusplus
 }

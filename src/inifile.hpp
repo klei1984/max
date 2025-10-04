@@ -43,17 +43,17 @@ public:
     void Save();
     int32_t SetNumericValue(IniParameter param, int32_t value);
     int32_t GetNumericValue(IniParameter param);
-    int32_t SetStringValue(IniParameter param, const char *buffer);
-    int32_t GetStringValue(IniParameter param, char *buffer, int32_t buffer_size);
-    void SaveSection(SmartFileWriter &file, IniParameter section);
-    void LoadSection(SmartFileReader &file, IniParameter section, char mode);
+    int32_t SetStringValue(IniParameter param, const char* buffer);
+    int32_t GetStringValue(IniParameter param, char* buffer, int32_t buffer_size);
+    void SaveSection(SmartFileWriter& file, IniParameter section);
+    void LoadSection(SmartFileReader& file, IniParameter section, char mode);
 
 private:
     void Destroy();
-    static const char *SeekToSection(IniParameter param);
+    static const char* SeekToSection(IniParameter param);
 
     Ini_descriptor ini;
-    uint32_t *items;
+    uint32_t* items;
 };
 
 class IniClans {
@@ -62,11 +62,11 @@ public:
     ~IniClans();
     void Init();
     int32_t SeekUnit(int32_t clan, int32_t unit);
-    int32_t GetNextUnitUpgrade(int16_t *attrib_id, int16_t *value);
-    void GetStringValue(char *buffer, int32_t buffer_size);
+    int32_t GetNextUnitUpgrade(int16_t* attrib_id, int16_t* value);
+    void GetStringValue(char* buffer, int32_t buffer_size);
     int32_t GetClanGold(int32_t clan);
-    void GetClanText(int32_t clan, char *buffer, int32_t buffer_size);
-    void GetClanName(int32_t clan, char *buffer, int32_t buffer_size);
+    void GetClanText(int32_t clan, char* buffer, int32_t buffer_size);
+    void GetClanName(int32_t clan, char* buffer, int32_t buffer_size);
 
 private:
     Ini_descriptor ini;

@@ -41,31 +41,31 @@ enum {
 };
 
 class UpgradeControl {
-    int32_t *team_gold;
+    int32_t* team_gold;
     uint16_t uly;
-    Button *upgrade_right;
-    Button *upgrade_left;
+    Button* upgrade_right;
+    Button* upgrade_left;
     uint8_t id;
     uint16_t team_base_value;
     uint16_t control_base_value;
     uint16_t upgrade_amount;
-    uint16_t *control_actual_value;
+    uint16_t* control_actual_value;
     uint16_t factor;
-    int32_t *upgrade_ratio;
+    int32_t* upgrade_ratio;
     uint16_t research_factor;
 
     void Disable();
     int32_t CalculateCost();
     int32_t GetLevelCost(uint16_t current_value);
     int32_t GetRatio(uint16_t value) const;
-    void SetupRatio(uint16_t factor, int32_t *upgrade_ratio);
+    void SetupRatio(uint16_t factor, int32_t* upgrade_ratio);
 
 public:
     UpgradeControl(WinID window_id, int32_t ulx, int32_t uly, int32_t button_right_r_value, int32_t button_left_r_value,
-                   int32_t *team_gold);
+                   int32_t* team_gold);
     ~UpgradeControl();
 
-    void Init(int32_t id, int32_t base_value_team, int32_t base_value_control, uint16_t *actual_value_control,
+    void Init(int32_t id, int32_t base_value_team, int32_t base_value_control, uint16_t* actual_value_control,
               int32_t value);
     void Increase();
     void Decrease();

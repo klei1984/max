@@ -55,7 +55,7 @@ struct MveControlBlock {
 };
 
 struct MveMemBlock {
-    uint8_t *buffer;
+    uint8_t* buffer;
     size_t length;
     int32_t is_allocated;
 };
@@ -106,12 +106,12 @@ int16_t snd_8to16[256] = {
     -18,    -17,    -16,    -15,    -14,    -13,    -12,    -11,    -10,    -9,     -8,     -7,     -6,     -5,
     -4,     -3,     -2,     -1};
 
-static void MemFree(struct MveMemBlock *ptr);
-static void MemInit(struct MveMemBlock *ptr, size_t length, void *address);
-static void *MemAlloc(struct MveMemBlock *ptr, size_t size);
-static void MVE_memIO(void *buffer, size_t length);
-static void MVE_ShowFrame(uint8_t *buffer, int bufw, int bufh, int sx, int sy, int w, int h, int dstx, int dsty);
-static void MVE_SetPalette(uint8_t *p, int32_t start, int32_t count);
+static void MemFree(struct MveMemBlock* ptr);
+static void MemInit(struct MveMemBlock* ptr, size_t length, void* address);
+static void* MemAlloc(struct MveMemBlock* ptr, size_t size);
+static void MVE_memIO(void* buffer, size_t length);
+static void MVE_ShowFrame(uint8_t* buffer, int bufw, int bufh, int sx, int sy, int w, int h, int dstx, int dsty);
+static void MVE_SetPalette(uint8_t* p, int32_t start, int32_t count);
 static int32_t MVE_gfxMode(int32_t mode);
 static void MVE_gfxSetDoubleBuffer(int32_t v1, int32_t v2, int32_t v3);
 
@@ -122,42 +122,42 @@ static int32_t syncWaitLevel(int32_t level);
 static void syncReset(int32_t level);
 static void syncSync(void);
 
-static int32_t ioReset(FILE *handle);
-static void *ioRead(size_t size);
-static uint8_t *ioNextRecord(void);
+static int32_t ioReset(FILE* handle);
+static void* ioRead(size_t size);
+static uint8_t* ioNextRecord(void);
 static void ioRelease(void);
 
-static ma_result mveDataSourceRead(ma_data_source *data_source, void *frames_out, ma_uint64 frame_count,
-                                   ma_uint64 *frames_read);
-static ma_result mveDataSourceSeek(ma_data_source *data_source, ma_uint64 frame_index);
-static ma_result mveDataSourceGetDataFormat(ma_data_source *data_source, ma_format *format, ma_uint32 *channels,
-                                            ma_uint32 *sample_rate, ma_channel *channel_map, size_t channel_map_cap);
-static ma_result mveDataSourceGetCursor(ma_data_source *data_source, ma_uint64 *cursor);
-static ma_result mveDataSourceGetLength(ma_data_source *data_source, ma_uint64 *length);
-static ma_result mveDataSourceSetLooping(ma_data_source *data_source, ma_bool32 is_looping);
+static ma_result mveDataSourceRead(ma_data_source* data_source, void* frames_out, ma_uint64 frame_count,
+                                   ma_uint64* frames_read);
+static ma_result mveDataSourceSeek(ma_data_source* data_source, ma_uint64 frame_index);
+static ma_result mveDataSourceGetDataFormat(ma_data_source* data_source, ma_format* format, ma_uint32* channels,
+                                            ma_uint32* sample_rate, ma_channel* channel_map, size_t channel_map_cap);
+static ma_result mveDataSourceGetCursor(ma_data_source* data_source, ma_uint64* cursor);
+static ma_result mveDataSourceGetLength(ma_data_source* data_source, ma_uint64* length);
+static ma_result mveDataSourceSetLooping(ma_data_source* data_source, ma_bool32 is_looping);
 
-static ma_result sndDataSourceInit(struct mve_data_source *data_source);
-static void sndDataSourceUninit(struct mve_data_source *data_source);
-static void sndMveSoundInit(struct mve_sound **sound, int32_t format, int32_t channels, int32_t sample_rate,
+static ma_result sndDataSourceInit(struct mve_data_source* data_source);
+static void sndDataSourceUninit(struct mve_data_source* data_source);
+static void sndMveSoundInit(struct mve_sound** sound, int32_t format, int32_t channels, int32_t sample_rate,
                             int32_t minimum_buffer_size);
-static void sndMveSoundUninit(struct mve_sound **sound);
+static void sndMveSoundUninit(struct mve_sound** sound);
 
 static void sndReset(void);
 static int32_t sndConfigure(int32_t unused, int32_t minimum_buffer_size, int32_t channels, int32_t sample_rate,
                             int32_t format, int32_t compression);
 static void sndSync(void);
-static void sndDecompS16(uint8_t *dst, uint8_t *src, int32_t length);
-static void sndDecompM16(uint8_t *dst, uint8_t *src, int32_t length);
-static void sndAdd(uint8_t *buffer, int32_t length);
+static void sndDecompS16(uint8_t* dst, uint8_t* src, int32_t length);
+static void sndDecompM16(uint8_t* dst, uint8_t* src, int32_t length);
+static void sndAdd(uint8_t* buffer, int32_t length);
 static void sndRelease(void);
 static void sndPause(void);
 static void sndResume(void);
 
-static void nfBlockCopy(uint8_t *dst, uint8_t *src);
+static void nfBlockCopy(uint8_t* dst, uint8_t* src);
 static int32_t nfConfig(int32_t width, int32_t height, int32_t stride, int32_t hicolor);
 static void nfPkConfig(void);
-static void nfDecomp(uint8_t *buffer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height);
-static void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t pos_y, int32_t width,
+static void nfDecomp(uint8_t* buffer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height);
+static void nfPkDecomp(uint8_t* decoding_map, uint8_t* buffer, int32_t pos_x, int32_t pos_y, int32_t width,
                        int32_t height);
 static void nfRelease(void);
 static void nfAdvance(void);
@@ -165,11 +165,11 @@ static void nfAdvance(void);
 static void palMakePal15(void);
 static void palSetPalette(int32_t start, int32_t count);
 static void palClrPalette(int32_t start, int32_t count);
-static void palLoadPalette(uint8_t *p, int32_t start, int32_t count);
+static void palLoadPalette(uint8_t* p, int32_t start, int32_t count);
 
 static void sfShowFrame(int32_t dst_x, int32_t dst_y, int32_t flags);
 
-static FILE *io_handle;
+static FILE* io_handle;
 static struct MveControlBlock io_next_hdr;
 
 static struct MveMemBlock snd_mem_buf;
@@ -177,8 +177,8 @@ static struct MveMemBlock io_mem_buf;
 static struct MveMemBlock nf_mem_buf1;
 static struct MveMemBlock nf_mem_buf2;
 static int32_t nf_conf_tbl[256];
-static uint8_t *nf_buf_cur;
-static uint8_t *nf_buf_prv;
+static uint8_t* nf_buf_cur;
+static uint8_t* nf_buf_prv;
 static int32_t nf_new_row0;
 static int32_t nf_hicolor;
 static int32_t nf_width;
@@ -206,8 +206,8 @@ static int32_t sf_LineWidth;
 static int32_t sf_WinGranPerSize;
 static int32_t sf_WinSize;
 static int32_t sf_WinGran;
-static uint8_t *sf_WriteWinPtr;
-static uint8_t *sf_WriteWinLimit;
+static uint8_t* sf_WriteWinPtr;
+static uint8_t* sf_WriteWinLimit;
 static int32_t sf_WriteWin;
 static int32_t sf_ScreenWidth;
 static int32_t sf_ResolutionWidth;
@@ -223,7 +223,7 @@ static mve_cb_Ctl rm_ctl;
 
 static int32_t rm_hold;
 static int32_t rm_active;
-static uint8_t *rm_p;
+static uint8_t* rm_p;
 static int32_t rm_len;
 static int32_t rm_FrameCount;
 static int32_t rm_FrameDropCount;
@@ -244,13 +244,13 @@ static int32_t sync_late;
 static int32_t sync_FrameDropped;
 static int32_t sync_time;
 
-static void *snd_hDriver;
-static struct mve_sound *snd_SampleHandle;
+static void* snd_hDriver;
+static struct mve_sound* snd_SampleHandle;
 static int32_t snd_paused;
 static float snd_vol = 1.f;
 static int32_t snd_bits16;
 static int32_t snd_stereo;
-static uint8_t *snd_buf;
+static uint8_t* snd_buf;
 static int32_t snd_comp16;
 static int32_t snd_done;
 
@@ -259,7 +259,7 @@ void MVE_memCallbacks(mve_cb_Alloc alloc, mve_cb_Free free) {
     mem_free = free;
 }
 
-void MemFree(struct MveMemBlock *ptr) {
+void MemFree(struct MveMemBlock* ptr) {
     if (ptr->is_allocated && mem_free) {
         mem_free(ptr->buffer);
         ptr->is_allocated = 0;
@@ -268,7 +268,7 @@ void MemFree(struct MveMemBlock *ptr) {
     ptr->length = 0;
 }
 
-void MemInit(struct MveMemBlock *ptr, size_t length, void *buffer) {
+void MemInit(struct MveMemBlock* ptr, size_t length, void* buffer) {
     if (buffer) {
         SDL_assert(ptr);
 
@@ -280,8 +280,8 @@ void MemInit(struct MveMemBlock *ptr, size_t length, void *buffer) {
     }
 }
 
-void *MemAlloc(struct MveMemBlock *ptr, size_t size) {
-    void *buffer;
+void* MemAlloc(struct MveMemBlock* ptr, size_t size) {
+    void* buffer;
 
     if (ptr->length < size) {
         if (mem_alloc) {
@@ -309,7 +309,7 @@ void *MemAlloc(struct MveMemBlock *ptr, size_t size) {
     return buffer;
 }
 
-void MVE_sndInit(void *handle) { snd_hDriver = handle; }
+void MVE_sndInit(void* handle) { snd_hDriver = handle; }
 
 void syncRelease(void) { sync_active = 0; }
 
@@ -358,14 +358,14 @@ void syncSync(void) {
     }
 }
 
-void MVE_memIO(void *buffer, size_t length) { MemInit(&io_mem_buf, length, buffer); }
+void MVE_memIO(void* buffer, size_t length) { MemInit(&io_mem_buf, length, buffer); }
 
 void MVE_logDumpStats(void) {}
 
 void MVE_ioCallbacks(mve_cb_Read read) { io_read = read; }
 
-int32_t ioReset(FILE *handle) {
-    struct MveHeader *header;
+int32_t ioReset(FILE* handle) {
+    struct MveHeader* header;
     int32_t result;
 
     io_handle = handle;
@@ -384,8 +384,8 @@ int32_t ioReset(FILE *handle) {
     return result;
 }
 
-void *ioRead(size_t size) {
-    void *buffer = MemAlloc(&io_mem_buf, size);
+void* ioRead(size_t size) {
+    void* buffer = MemAlloc(&io_mem_buf, size);
 
     if (buffer) {
         buffer = io_read(io_handle, buffer, size) ? buffer : NULL;
@@ -394,11 +394,11 @@ void *ioRead(size_t size) {
     return buffer;
 }
 
-uint8_t *ioNextRecord(void) {
-    uint8_t *buffer = ioRead(io_next_hdr.size + sizeof(struct MveControlBlock));
+uint8_t* ioNextRecord(void) {
+    uint8_t* buffer = ioRead(io_next_hdr.size + sizeof(struct MveControlBlock));
 
     if (buffer) {
-        io_next_hdr = *(struct MveControlBlock *)&buffer[io_next_hdr.size];
+        io_next_hdr = *(struct MveControlBlock*)&buffer[io_next_hdr.size];
     }
 
     return buffer;
@@ -422,21 +422,21 @@ void sndReset(void) {
     }
 }
 
-ma_result mveDataSourceRead(ma_data_source *data_source, void *frames_out, ma_uint64 frame_count,
-                            ma_uint64 *frames_read) {
+ma_result mveDataSourceRead(ma_data_source* data_source, void* frames_out, ma_uint64 frame_count,
+                            ma_uint64* frames_read) {
     if (frame_count == 0 || frames_read == NULL || data_source == NULL) {
         return MA_INVALID_ARGS;
     }
 
     *frames_read = 0;
 
-    struct mve_data_source *ds = (struct mve_data_source *)data_source;
+    struct mve_data_source* ds = (struct mve_data_source*)data_source;
 
     if (!snd_paused) {
         ma_result result;
 
         while (*frames_read < frame_count) {
-            void *mapped_buffer;
+            void* mapped_buffer;
             ma_uint32 frames_to_read = frame_count - *frames_read;
 
             result = ma_pcm_rb_acquire_read(&snd_SampleHandle->rb, &frames_to_read, &mapped_buffer);
@@ -467,15 +467,15 @@ ma_result mveDataSourceRead(ma_data_source *data_source, void *frames_out, ma_ui
     return MA_SUCCESS;
 }
 
-ma_result mveDataSourceSeek(ma_data_source *data_source, ma_uint64 frame_index) { return MA_NOT_IMPLEMENTED; }
+ma_result mveDataSourceSeek(ma_data_source* data_source, ma_uint64 frame_index) { return MA_NOT_IMPLEMENTED; }
 
-ma_result mveDataSourceGetDataFormat(ma_data_source *data_source, ma_format *format, ma_uint32 *channels,
-                                     ma_uint32 *sample_rate, ma_channel *channel_map, size_t channel_map_cap) {
+ma_result mveDataSourceGetDataFormat(ma_data_source* data_source, ma_format* format, ma_uint32* channels,
+                                     ma_uint32* sample_rate, ma_channel* channel_map, size_t channel_map_cap) {
     if (data_source == NULL) {
         return MA_INVALID_ARGS;
     }
 
-    struct mve_data_source *ds = (struct mve_data_source *)data_source;
+    struct mve_data_source* ds = (struct mve_data_source*)data_source;
 
     if (format != NULL) {
         *format = ds->format;
@@ -496,7 +496,7 @@ ma_result mveDataSourceGetDataFormat(ma_data_source *data_source, ma_format *for
     return MA_SUCCESS;
 }
 
-ma_result mveDataSourceGetCursor(ma_data_source *data_source, ma_uint64 *cursor) {
+ma_result mveDataSourceGetCursor(ma_data_source* data_source, ma_uint64* cursor) {
     if (data_source == NULL || cursor == NULL) {
         return MA_INVALID_ARGS;
     }
@@ -505,7 +505,7 @@ ma_result mveDataSourceGetCursor(ma_data_source *data_source, ma_uint64 *cursor)
     return MA_NOT_IMPLEMENTED;
 }
 
-ma_result mveDataSourceGetLength(ma_data_source *data_source, ma_uint64 *length) {
+ma_result mveDataSourceGetLength(ma_data_source* data_source, ma_uint64* length) {
     if (length == NULL) {
         return MA_INVALID_ARGS;
     }
@@ -514,9 +514,9 @@ ma_result mveDataSourceGetLength(ma_data_source *data_source, ma_uint64 *length)
     return MA_NOT_IMPLEMENTED;
 }
 
-ma_result mveDataSourceSetLooping(ma_data_source *data_source, ma_bool32 is_looping) { return MA_NOT_IMPLEMENTED; }
+ma_result mveDataSourceSetLooping(ma_data_source* data_source, ma_bool32 is_looping) { return MA_NOT_IMPLEMENTED; }
 
-ma_result sndDataSourceInit(struct mve_data_source *data_source) {
+ma_result sndDataSourceInit(struct mve_data_source* data_source) {
     ma_result result;
     ma_data_source_config baseConfig;
 
@@ -540,9 +540,9 @@ ma_result sndDataSourceInit(struct mve_data_source *data_source) {
     return MA_SUCCESS;
 }
 
-void sndDataSourceUninit(struct mve_data_source *data_source) { ma_data_source_uninit(&data_source->base); }
+void sndDataSourceUninit(struct mve_data_source* data_source) { ma_data_source_uninit(&data_source->base); }
 
-void sndMveSoundInit(struct mve_sound **sound, int32_t format, int32_t channels, int32_t sample_rate,
+void sndMveSoundInit(struct mve_sound** sound, int32_t format, int32_t channels, int32_t sample_rate,
                      int32_t minimum_buffer_size) {
     (*sound) = malloc(sizeof(struct mve_sound));
 
@@ -589,7 +589,7 @@ void sndMveSoundInit(struct mve_sound **sound, int32_t format, int32_t channels,
     }
 }
 
-void sndMveSoundUninit(struct mve_sound **sound) {
+void sndMveSoundUninit(struct mve_sound** sound) {
     if (sound && *sound) {
         ma_sound_uninit(&(*sound)->sound);
         sndDataSourceUninit(&(*sound)->data_source);
@@ -659,7 +659,7 @@ void sndSync(void) {
     }
 }
 
-void sndDecompM16(uint8_t *dst, uint8_t *src, int32_t length) {
+void sndDecompM16(uint8_t* dst, uint8_t* src, int32_t length) {
     int32_t count;
     int16_t left;
 
@@ -667,7 +667,7 @@ void sndDecompM16(uint8_t *dst, uint8_t *src, int32_t length) {
 
     if (count) {
         left = (src[1] << 8) | src[0];
-        ((int16_t *)dst)[0] = left;
+        ((int16_t*)dst)[0] = left;
         src += sizeof(int16_t);
         dst += sizeof(int16_t);
 
@@ -675,7 +675,7 @@ void sndDecompM16(uint8_t *dst, uint8_t *src, int32_t length) {
 
         while (count > 0) {
             left += snd_8to16[src[0]];
-            ((int16_t *)dst)[0] = left;
+            ((int16_t*)dst)[0] = left;
 
             src += sizeof(int8_t);
             dst += sizeof(int16_t);
@@ -685,7 +685,7 @@ void sndDecompM16(uint8_t *dst, uint8_t *src, int32_t length) {
     }
 }
 
-void sndDecompS16(uint8_t *dst, uint8_t *src, int32_t length) {
+void sndDecompS16(uint8_t* dst, uint8_t* src, int32_t length) {
     int32_t count;
     int16_t left;
     int16_t right;
@@ -694,7 +694,7 @@ void sndDecompS16(uint8_t *dst, uint8_t *src, int32_t length) {
 
     if (count) {
         left = (src[1] << 8) | src[0];
-        ((int16_t *)dst)[0] = left;
+        ((int16_t*)dst)[0] = left;
         src += sizeof(int16_t);
         dst += sizeof(int16_t);
 
@@ -702,7 +702,7 @@ void sndDecompS16(uint8_t *dst, uint8_t *src, int32_t length) {
 
         if (count) {
             right = (src[1] << 8) | src[0];
-            ((int16_t *)dst)[0] = right;
+            ((int16_t*)dst)[0] = right;
             src += sizeof(int16_t);
             dst += sizeof(int16_t);
 
@@ -710,7 +710,7 @@ void sndDecompS16(uint8_t *dst, uint8_t *src, int32_t length) {
 
             while (count > 0) {
                 left += snd_8to16[src[0]];
-                ((int16_t *)dst)[0] = left;
+                ((int16_t*)dst)[0] = left;
 
                 src += sizeof(int8_t);
                 dst += sizeof(int16_t);
@@ -722,7 +722,7 @@ void sndDecompS16(uint8_t *dst, uint8_t *src, int32_t length) {
                 }
 
                 right += snd_8to16[src[0]];
-                ((int16_t *)dst)[0] = right;
+                ((int16_t*)dst)[0] = right;
 
                 src += sizeof(int8_t);
                 dst += sizeof(int16_t);
@@ -733,7 +733,7 @@ void sndDecompS16(uint8_t *dst, uint8_t *src, int32_t length) {
     }
 }
 
-void sndAdd(uint8_t *buffer, int32_t length) {
+void sndAdd(uint8_t* buffer, int32_t length) {
     if (snd_hDriver && snd_SampleHandle) {
         snd_paused = 0;
 
@@ -761,7 +761,7 @@ void sndAdd(uint8_t *buffer, int32_t length) {
                 length / (snd_SampleHandle->data_source.format * snd_SampleHandle->data_source.channels);
 
             while (frames_written < frame_count) {
-                void *mapped_buffer;
+                void* mapped_buffer;
                 ma_uint32 frames_to_write = frame_count - frames_written;
 
                 result = ma_pcm_rb_acquire_write(&snd_SampleHandle->rb, &frames_to_write, &mapped_buffer);
@@ -852,7 +852,7 @@ void nfPkConfig(void) {
     }
 }
 
-void nfDecomp(uint8_t *buffer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height) {
+void nfDecomp(uint8_t* buffer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height) {
     SDL_assert(NULL);
     /// \todo
 }
@@ -863,15 +863,15 @@ void nfRelease(void) {
 }
 
 void nfAdvance(void) {
-    uint8_t *ptr;
+    uint8_t* ptr;
 
     ptr = nf_buf_prv;
     nf_buf_prv = nf_buf_cur;
     nf_buf_cur = ptr;
 }
 
-void MVE_sfSVGA(int width, int height, int bytes_per_scan_line, int write_window, uint8_t *write_win_ptr,
-                int window_size, int window_granuality, void *window_function, int hicolor) {
+void MVE_sfSVGA(int width, int height, int bytes_per_scan_line, int write_window, uint8_t* write_win_ptr,
+                int window_size, int window_granuality, void* window_function, int hicolor) {
     int32_t line_width;
     uint32_t size;
 
@@ -963,12 +963,12 @@ void sfShowFrame(int32_t dst_x, int32_t dst_y, int32_t flags) {
     }
 }
 
-void MVE_ShowFrame(uint8_t *buffer, int bufw, int bufh, int sx, int sy, int w, int h, int dstx, int dsty) {
+void MVE_ShowFrame(uint8_t* buffer, int bufw, int bufh, int sx, int sy, int w, int h, int dstx, int dsty) {
     SDL_assert(NULL);
     /// \todo
 }
 
-void MVE_SetPalette(uint8_t *p, int32_t start, int32_t count) {
+void MVE_SetPalette(uint8_t* p, int32_t start, int32_t count) {
     SDL_assert(NULL);
     /// \todo
 }
@@ -1005,7 +1005,7 @@ void palClrPalette(int32_t start, int32_t count) {
     }
 }
 
-void palLoadPalette(uint8_t *p, int32_t start, int32_t count) {
+void palLoadPalette(uint8_t* p, int32_t start, int32_t count) {
     memcpy(&pal_tbl[PALETTE_STRIDE * start], p, PALETTE_STRIDE * count);
 }
 
@@ -1021,12 +1021,12 @@ void MVE_rmFastMode(int32_t fastmode) { opt_fastmode = fastmode; }
 
 void MVE_rmHScale(int32_t hscale_step) { opt_hscale_step = (hscale_step != 3) ? 4 : 3; }
 
-void MVE_rmFrameCounts(int32_t *frame_count, int32_t *drop_count) {
+void MVE_rmFrameCounts(int32_t* frame_count, int32_t* drop_count) {
     *frame_count = rm_FrameCount;
     *drop_count = rm_FrameDropCount;
 }
 
-int32_t MVE_rmPrepMovie(FILE *handle, int32_t dx, int32_t dy, int32_t track) {
+int32_t MVE_rmPrepMovie(FILE* handle, int32_t dx, int32_t dy, int32_t track) {
     int32_t result;
 
     mve_rm_dx = dx;
@@ -1074,9 +1074,9 @@ int32_t MVE_rmHoldMovie(void) {
 }
 
 int32_t MVE_rmStepMovie(void) {
-    uint8_t *buffer;
-    uint8_t *decoding_map1;
-    uint8_t *decoding_map2;
+    uint8_t* buffer;
+    uint8_t* decoding_map1;
+    uint8_t* decoding_map2;
     int32_t buffer_length;
 
     buffer_length = rm_len;
@@ -1101,7 +1101,7 @@ int32_t MVE_rmStepMovie(void) {
     }
 
     for (;;) {
-        struct MveControlBlock cb = *(struct MveControlBlock *)&buffer[buffer_length];
+        struct MveControlBlock cb = *(struct MveControlBlock*)&buffer[buffer_length];
 
         buffer = &buffer[buffer_length + sizeof(struct MveControlBlock)];
         buffer_length = cb.size;
@@ -1129,7 +1129,7 @@ int32_t MVE_rmStepMovie(void) {
                 struct __attribute__((packed)) MveOpcodeCreateTimer {
                     uint32_t timer_rate;
                     uint16_t divider;
-                } *const opcode = (struct MveOpcodeCreateTimer *)buffer;
+                }* const opcode = (struct MveOpcodeCreateTimer*)buffer;
 
                 if (!syncInit(opcode->timer_rate, opcode->divider)) {
                     MVE_rmEndMovie();
@@ -1147,7 +1147,7 @@ int32_t MVE_rmStepMovie(void) {
                         uint16_t flags;
                         uint16_t sample_rate;
                         uint16_t minimum_buffer_size;
-                    } *const opcode = (struct MveOpcodeAllocAudioBuffersV0 *)buffer;
+                    }* const opcode = (struct MveOpcodeAllocAudioBuffersV0*)buffer;
 
                     opcode_result =
                         sndConfigure(opcode->unused, opcode->minimum_buffer_size, (opcode->flags & 1) ? 2 : 1,
@@ -1159,7 +1159,7 @@ int32_t MVE_rmStepMovie(void) {
                         uint16_t flags;
                         uint16_t sample_rate;
                         uint32_t minimum_buffer_size;
-                    } *const opcode = (struct MveOpcodeAllocAudioBuffersV1 *)buffer;
+                    }* const opcode = (struct MveOpcodeAllocAudioBuffersV1*)buffer;
 
                     opcode_result =
                         sndConfigure(opcode->unused, opcode->minimum_buffer_size,
@@ -1184,7 +1184,7 @@ int32_t MVE_rmStepMovie(void) {
                     uint16_t height;
                     uint16_t fqty;
                     uint16_t hicolor;
-                } *const opcode = (struct MveOpcodeAllocVideoBuffers *)buffer;
+                }* const opcode = (struct MveOpcodeAllocVideoBuffers*)buffer;
 
                 if (nfConfig(opcode->width, opcode->height, (cb.version < 1) ? 0 : opcode->fqty,
                              (cb.version < 2) ? 0 : opcode->hicolor)) {
@@ -1220,7 +1220,7 @@ int32_t MVE_rmStepMovie(void) {
                     uint16_t height;
                     uint16_t flags;
                     uint8_t data;
-                } *const opcode = (struct MveOpcodeNfDecomp *)buffer;
+                }* const opcode = (struct MveOpcodeNfDecomp*)buffer;
 
                 if (opcode->flags & 0x01) {
                     nfAdvance();
@@ -1234,7 +1234,7 @@ int32_t MVE_rmStepMovie(void) {
                     uint16_t start;
                     uint16_t count;
                     uint16_t flags;
-                } *const opcode = (struct MveOpcodeShowVideoFrame *)buffer;
+                }* const opcode = (struct MveOpcodeShowVideoFrame*)buffer;
 
                 ++rm_FrameCount;
 
@@ -1284,7 +1284,7 @@ int32_t MVE_rmStepMovie(void) {
                     uint16_t mask;
                     uint16_t length;
                     uint8_t data;
-                } *const opcode = (struct MveOpcodeAudioFrame *)buffer;
+                }* const opcode = (struct MveOpcodeAudioFrame*)buffer;
 
                 if (rm_track_bit & opcode->mask) {
                     sndAdd((cb.opcode == MVE_OPCODE_AUDIO_FRAME) ? &opcode->data : NULL, opcode->length);
@@ -1296,7 +1296,7 @@ int32_t MVE_rmStepMovie(void) {
                     uint16_t window_width;
                     uint16_t window_height;
                     uint16_t flags;
-                } *const opcode = (struct MveOpcodeInitGfx *)buffer;
+                }* const opcode = (struct MveOpcodeInitGfx*)buffer;
 
                 if (sf_auto) {
                     uint16_t flags = opcode->flags;
@@ -1333,7 +1333,7 @@ int32_t MVE_rmStepMovie(void) {
                     uint8_t base_rg;
                     uint8_t num_r_rg;
                     uint8_t num_g_rg;
-                } *const opcode = (struct MveOpcodeSynthPalette *)buffer;
+                }* const opcode = (struct MveOpcodeSynthPalette*)buffer;
 
                 SDL_assert(NULL);
                 /// \todo
@@ -1347,7 +1347,7 @@ int32_t MVE_rmStepMovie(void) {
                     uint16_t start;
                     uint16_t count;
                     uint8_t data;
-                } *const opcode = (struct MveOpcodeLoadPalette *)buffer;
+                }* const opcode = (struct MveOpcodeLoadPalette*)buffer;
 
                 palLoadPalette(&opcode->data, opcode->start, opcode->count);
                 palMakePal15();
@@ -1378,7 +1378,7 @@ int32_t MVE_rmStepMovie(void) {
                     uint16_t height;
                     uint16_t flags;
                     uint8_t data;
-                } *const opcode = (struct MveOpcodeDecompVideo1 *)buffer;
+                }* const opcode = (struct MveOpcodeDecompVideo1*)buffer;
 
                 if (opcode->flags & 0x01) {
                     nfAdvance();
@@ -1400,7 +1400,7 @@ int32_t MVE_rmStepMovie(void) {
                     uint16_t height;
                     uint16_t flags;
                     uint8_t data;
-                } *const opcode = (struct MveOpcodeDecompVideo2 *)buffer;
+                }* const opcode = (struct MveOpcodeDecompVideo2*)buffer;
 
                 if (cb.version < 3) {
                     MVE_rmEndMovie();
@@ -1446,7 +1446,7 @@ void MVE_rmEndMovie(void) {
     }
 }
 
-int32_t MVE_RunMovie(FILE *handle, int32_t dx, int32_t dy, int32_t track) {
+int32_t MVE_RunMovie(FILE* handle, int32_t dx, int32_t dy, int32_t track) {
     int32_t result = MVE_RunMovieContinue(handle, dx, dy, track);
 
     MVE_rmEndMovie();
@@ -1454,7 +1454,7 @@ int32_t MVE_RunMovie(FILE *handle, int32_t dx, int32_t dy, int32_t track) {
     return result;
 }
 
-int32_t MVE_RunMovieContinue(FILE *handle, int32_t dx, int32_t dy, int32_t track) {
+int32_t MVE_RunMovieContinue(FILE* handle, int32_t dx, int32_t dy, int32_t track) {
     int32_t result = MVE_rmPrepMovie(handle, dx, dy, track);
 
     while (!result) {
@@ -1488,8 +1488,8 @@ void MVE_ReleaseMem(void) {
     nfRelease();
 }
 
-const char *MVE_strerror(int32_t error_code) {
-    const char *str_error;
+const char* MVE_strerror(int32_t error_code) {
+    const char* str_error;
 
     switch (error_code) {
         case 2:
@@ -1650,7 +1650,7 @@ uint32_t nf_pk_lut_6[256] = {
     0xE5C3E5C5, 0xE5C7E5C5, 0xE5C1E5C5, 0xE5C5E5C5,
 };
 
-void nfBlockCopy(uint8_t *dst, uint8_t *src) {
+void nfBlockCopy(uint8_t* dst, uint8_t* src) {
     for (int32_t i = 0; i < 8; ++i) {
         memcpy(dst, src, 8);
         dst += nf_width;
@@ -1658,7 +1658,7 @@ void nfBlockCopy(uint8_t *dst, uint8_t *src) {
     }
 }
 
-void nfFillPattern(uint8_t *dst, uint8_t *src, uint8_t *map1, uint32_t *map2, uint8_t stride, uint8_t offset,
+void nfFillPattern(uint8_t* dst, uint8_t* src, uint8_t* map1, uint32_t* map2, uint8_t stride, uint8_t offset,
                    int32_t mode) {
     uint32_t value;
 
@@ -1677,26 +1677,26 @@ void nfFillPattern(uint8_t *dst, uint8_t *src, uint8_t *map1, uint32_t *map2, ui
 
     for (int32_t i = 0; i < stride; ++i) {
         if (mode == 2) {
-            ((uint32_t *)dst)[0] = (map2[map1[offset + i * 4 + 0]] << 16) | map2[map1[offset + i * 4 + 1]];
+            ((uint32_t*)dst)[0] = (map2[map1[offset + i * 4 + 0]] << 16) | map2[map1[offset + i * 4 + 1]];
             dst += nf_width;
-            ((uint32_t *)dst)[0] = (map2[map1[offset + i * 4 + 2]] << 16) | map2[map1[offset + i * 4 + 3]];
+            ((uint32_t*)dst)[0] = (map2[map1[offset + i * 4 + 2]] << 16) | map2[map1[offset + i * 4 + 3]];
             dst += nf_width;
 
         } else if (mode == 1) {
-            ((uint32_t *)dst)[0] = (map2[map1[offset + i * 4 + 2]] << 16) | map2[map1[offset + i * 4 + 1]];
+            ((uint32_t*)dst)[0] = (map2[map1[offset + i * 4 + 2]] << 16) | map2[map1[offset + i * 4 + 1]];
             dst += nf_width;
-            ((uint32_t *)dst)[0] = (map2[map1[offset + i * 4 + 2]] << 16) | map2[map1[offset + i * 4 + 3]];
+            ((uint32_t*)dst)[0] = (map2[map1[offset + i * 4 + 2]] << 16) | map2[map1[offset + i * 4 + 3]];
             dst += nf_width;
 
         } else if (mode == 0) {
-            ((uint32_t *)dst)[0] = (map2[map1[offset + i * 4 + 0]] << 16) | map2[map1[offset + i * 4 + 1]];
-            ((uint32_t *)dst)[1] = (map2[map1[offset + i * 4 + 2]] << 16) | map2[map1[offset + i * 4 + 3]];
+            ((uint32_t*)dst)[0] = (map2[map1[offset + i * 4 + 0]] << 16) | map2[map1[offset + i * 4 + 1]];
+            ((uint32_t*)dst)[1] = (map2[map1[offset + i * 4 + 2]] << 16) | map2[map1[offset + i * 4 + 3]];
             dst += nf_width;
         }
     }
 }
 
-void nfFillPattern11(uint8_t *src, uint8_t *map1, uint32_t *map2, uint8_t stride, int32_t mode) {
+void nfFillPattern11(uint8_t* src, uint8_t* map1, uint32_t* map2, uint8_t stride, int32_t mode) {
     uint32_t value;
 
     for (int32_t i = 0; i < stride; ++i) {
@@ -1722,29 +1722,29 @@ void nfFillPattern11(uint8_t *src, uint8_t *map1, uint32_t *map2, uint8_t stride
     map2[0xE7] = src[1];
 }
 
-void nfFillPattern12(uint8_t *dst, uint8_t *map1, uint32_t *map2, int32_t index, int32_t mode) {
+void nfFillPattern12(uint8_t* dst, uint8_t* map1, uint32_t* map2, int32_t index, int32_t mode) {
     switch (mode) {
         case 0: {
-            ((uint32_t *)dst)[0] = (map2[map1[index + 0]] << 16) | (map2[map1[index + 1]] << 24) |
-                                   (map2[map1[index + 2]] << 0) | (map2[map1[index + 3]] << 8);
-            ((uint32_t *)dst)[1] = (map2[map1[index + 4]] << 16) | (map2[map1[index + 5]] << 24) |
-                                   (map2[map1[index + 6]] << 0) | (map2[map1[index + 7]] << 8);
+            ((uint32_t*)dst)[0] = (map2[map1[index + 0]] << 16) | (map2[map1[index + 1]] << 24) |
+                                  (map2[map1[index + 2]] << 0) | (map2[map1[index + 3]] << 8);
+            ((uint32_t*)dst)[1] = (map2[map1[index + 4]] << 16) | (map2[map1[index + 5]] << 24) |
+                                  (map2[map1[index + 6]] << 0) | (map2[map1[index + 7]] << 8);
         } break;
 
         case 1: {
-            ((uint32_t *)dst)[0] = (map2[map1[index + 0]] << 24) | (map2[map1[index + 0]] << 16) |
-                                   (map2[map1[index + 1]] << 8) | (map2[map1[index + 1]]);
-            ((uint32_t *)dst)[1] = (map2[map1[index + 2]] << 24) | (map2[map1[index + 2]] << 16) |
-                                   (map2[map1[index + 3]] << 8) | (map2[map1[index + 3]]);
+            ((uint32_t*)dst)[0] = (map2[map1[index + 0]] << 24) | (map2[map1[index + 0]] << 16) |
+                                  (map2[map1[index + 1]] << 8) | (map2[map1[index + 1]]);
+            ((uint32_t*)dst)[1] = (map2[map1[index + 2]] << 24) | (map2[map1[index + 2]] << 16) |
+                                  (map2[map1[index + 3]] << 8) | (map2[map1[index + 3]]);
         } break;
     }
 }
 
-void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height) {
+void nfPkDecomp(uint8_t* decoding_map, uint8_t* buffer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height) {
     uint8_t map1[512];
     uint32_t map2[256];
     uint32_t nibbles[2];
-    uint8_t *dst;
+    uint8_t* dst;
     intptr_t offset;
     int32_t code_type;
     int32_t byte;
@@ -1812,7 +1812,7 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                     } break;
 
                     case 5: {
-                        value3 = *(uint16_t *)buffer;
+                        value3 = *(uint16_t*)buffer;
                         buffer += 2;
                         offset = ((value3 << 24) >> 24) + nf_conf_tbl[value3 >> 8] + (nf_buf_prv - nf_buf_cur);
 
@@ -1855,12 +1855,12 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                             map2[0xC3] = (buffer[0] << 8) | buffer[0];
 
                             for (int32_t i = 0; i < 4; ++i) {
-                                ((uint32_t *)dst)[0] = (map2[map1[i * 4 + 0]] << 16) | (map2[map1[i * 4 + 1]]);
-                                ((uint32_t *)dst)[1] = (map2[map1[i * 4 + 2]] << 16) | (map2[map1[i * 4 + 3]]);
+                                ((uint32_t*)dst)[0] = (map2[map1[i * 4 + 0]] << 16) | (map2[map1[i * 4 + 1]]);
+                                ((uint32_t*)dst)[1] = (map2[map1[i * 4 + 2]] << 16) | (map2[map1[i * 4 + 3]]);
                                 dst += nf_width;
 
-                                ((uint32_t *)dst)[0] = (map2[map1[i * 4 + 0]] << 16) | (map2[map1[i * 4 + 1]]);
-                                ((uint32_t *)dst)[1] = (map2[map1[i * 4 + 2]] << 16) | (map2[map1[i * 4 + 3]]);
+                                ((uint32_t*)dst)[0] = (map2[map1[i * 4 + 0]] << 16) | (map2[map1[i * 4 + 1]]);
+                                ((uint32_t*)dst)[1] = (map2[map1[i * 4 + 2]] << 16) | (map2[map1[i * 4 + 3]]);
                                 dst += nf_width;
                             }
 
@@ -2003,12 +2003,12 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                                 map2[0xE7] = buffer[1];
 
                                 for (int32_t i = 0; i < 4; ++i) {
-                                    ((uint32_t *)dst)[0] = (map2[map1[i * 8 + 0]] << 16) |
-                                                           (map2[map1[i * 8 + 1]] << 24) | (map2[map1[i * 8 + 2]]) |
-                                                           (map2[map1[i * 8 + 3]] << 8);
-                                    ((uint32_t *)dst)[1] = (map2[map1[i * 8 + 4]] << 16) |
-                                                           (map2[map1[i * 8 + 5]] << 24) | (map2[map1[i * 8 + 6]]) |
-                                                           (map2[map1[i * 8 + 7]] << 8);
+                                    ((uint32_t*)dst)[0] = (map2[map1[i * 8 + 0]] << 16) |
+                                                          (map2[map1[i * 8 + 1]] << 24) | (map2[map1[i * 8 + 2]]) |
+                                                          (map2[map1[i * 8 + 3]] << 8);
+                                    ((uint32_t*)dst)[1] = (map2[map1[i * 8 + 4]] << 16) |
+                                                          (map2[map1[i * 8 + 5]] << 24) | (map2[map1[i * 8 + 6]]) |
+                                                          (map2[map1[i * 8 + 7]] << 8);
                                     dst += nf_width;
                                 }
 
@@ -2022,10 +2022,10 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                                 map2[0xE7] = buffer[12 + 1];
 
                                 for (int32_t i = 0; i < 4; ++i) {
-                                    ((uint32_t *)dst)[0] =
+                                    ((uint32_t*)dst)[0] =
                                         (map2[map1[32 + i * 8 + 0]] << 16) | (map2[map1[32 + i * 8 + 1]] << 24) |
                                         (map2[map1[32 + i * 8 + 2]]) | (map2[map1[32 + i * 8 + 3]] << 8);
-                                    ((uint32_t *)dst)[1] =
+                                    ((uint32_t*)dst)[1] =
                                         (map2[map1[32 + i * 8 + 4]] << 16) | (map2[map1[32 + i * 8 + 5]] << 24) |
                                         (map2[map1[32 + i * 8 + 6]]) | (map2[map1[32 + i * 8 + 7]] << 8);
                                     dst += nf_width;
@@ -2063,14 +2063,14 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                                 map2[0xE7] = buffer[1];
 
                                 for (int32_t i = 0; i < 4; ++i) {
-                                    ((uint32_t *)dst)[0] = (map2[map1[i * 8 + 0]] << 16) |
-                                                           (map2[map1[i * 8 + 1]] << 24) | (map2[map1[i * 8 + 2]]) |
-                                                           (map2[map1[i * 8 + 3]] << 8);
+                                    ((uint32_t*)dst)[0] = (map2[map1[i * 8 + 0]] << 16) |
+                                                          (map2[map1[i * 8 + 1]] << 24) | (map2[map1[i * 8 + 2]]) |
+                                                          (map2[map1[i * 8 + 3]] << 8);
                                     dst += nf_width;
 
-                                    ((uint32_t *)dst)[0] = (map2[map1[i * 8 + 4]] << 16) |
-                                                           (map2[map1[i * 8 + 5]] << 24) | (map2[map1[i * 8 + 6]]) |
-                                                           (map2[map1[i * 8 + 7]] << 8);
+                                    ((uint32_t*)dst)[0] = (map2[map1[i * 8 + 4]] << 16) |
+                                                          (map2[map1[i * 8 + 5]] << 24) | (map2[map1[i * 8 + 6]]) |
+                                                          (map2[map1[i * 8 + 7]] << 8);
                                     dst += nf_width;
                                 }
 
@@ -2086,12 +2086,12 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                                 map2[0xE7] = buffer[12 + 1];
 
                                 for (int32_t i = 0; i < 4; ++i) {
-                                    ((uint32_t *)dst)[0] =
+                                    ((uint32_t*)dst)[0] =
                                         (map2[map1[32 + i * 8 + 0]] << 16) | (map2[map1[32 + i * 8 + 1]] << 24) |
                                         (map2[map1[32 + i * 8 + 2]]) | (map2[map1[32 + i * 8 + 3]] << 8);
                                     dst += nf_width;
 
-                                    ((uint32_t *)dst)[0] =
+                                    ((uint32_t*)dst)[0] =
                                         (map2[map1[32 + i * 8 + 4]] << 16) | (map2[map1[32 + i * 8 + 5]] << 24) |
                                         (map2[map1[32 + i * 8 + 6]]) | (map2[map1[32 + i * 8 + 7]] << 8);
                                     dst += nf_width;
@@ -2146,12 +2146,12 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                             map2[0xE7] = buffer[1];
 
                             for (int32_t i = 0; i < 2; ++i) {
-                                ((uint32_t *)dst)[0] = (map2[map1[i * 8 + 0]] << 16) | (map2[map1[i * 8 + 1]] << 24) |
-                                                       (map2[map1[i * 8 + 2]]) | (map2[map1[i * 8 + 3]] << 8);
+                                ((uint32_t*)dst)[0] = (map2[map1[i * 8 + 0]] << 16) | (map2[map1[i * 8 + 1]] << 24) |
+                                                      (map2[map1[i * 8 + 2]]) | (map2[map1[i * 8 + 3]] << 8);
                                 dst += nf_width;
 
-                                ((uint32_t *)dst)[0] = (map2[map1[i * 8 + 4]] << 16) | (map2[map1[i * 8 + 5]] << 24) |
-                                                       (map2[map1[i * 8 + 6]]) | (map2[map1[i * 8 + 7]] << 8);
+                                ((uint32_t*)dst)[0] = (map2[map1[i * 8 + 4]] << 16) | (map2[map1[i * 8 + 5]] << 24) |
+                                                      (map2[map1[i * 8 + 6]]) | (map2[map1[i * 8 + 7]] << 8);
                                 dst += nf_width;
                             }
 
@@ -2165,14 +2165,14 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                             map2[0xE7] = buffer[8 + 1];
 
                             for (int32_t i = 0; i < 2; ++i) {
-                                ((uint32_t *)dst)[0] = (map2[map1[16 + i * 8 + 0]] << 16) |
-                                                       (map2[map1[16 + i * 8 + 1]] << 24) |
-                                                       (map2[map1[16 + i * 8 + 2]]) | (map2[map1[16 + i * 8 + 3]] << 8);
+                                ((uint32_t*)dst)[0] = (map2[map1[16 + i * 8 + 0]] << 16) |
+                                                      (map2[map1[16 + i * 8 + 1]] << 24) |
+                                                      (map2[map1[16 + i * 8 + 2]]) | (map2[map1[16 + i * 8 + 3]] << 8);
                                 dst += nf_width;
 
-                                ((uint32_t *)dst)[0] = (map2[map1[16 + i * 8 + 4]] << 16) |
-                                                       (map2[map1[16 + i * 8 + 5]] << 24) |
-                                                       (map2[map1[16 + i * 8 + 6]]) | (map2[map1[16 + i * 8 + 7]] << 8);
+                                ((uint32_t*)dst)[0] = (map2[map1[16 + i * 8 + 4]] << 16) |
+                                                      (map2[map1[16 + i * 8 + 5]] << 24) |
+                                                      (map2[map1[16 + i * 8 + 6]]) | (map2[map1[16 + i * 8 + 7]] << 8);
                                 dst += nf_width;
                             }
 
@@ -2188,14 +2188,14 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                             map2[0xE7] = buffer[16 + 1];
 
                             for (int32_t i = 0; i < 2; ++i) {
-                                ((uint32_t *)dst)[0] = (map2[map1[32 + i * 8 + 0]] << 16) |
-                                                       (map2[map1[32 + i * 8 + 1]] << 24) |
-                                                       (map2[map1[32 + i * 8 + 2]]) | (map2[map1[32 + i * 8 + 3]] << 8);
+                                ((uint32_t*)dst)[0] = (map2[map1[32 + i * 8 + 0]] << 16) |
+                                                      (map2[map1[32 + i * 8 + 1]] << 24) |
+                                                      (map2[map1[32 + i * 8 + 2]]) | (map2[map1[32 + i * 8 + 3]] << 8);
                                 dst += nf_width;
 
-                                ((uint32_t *)dst)[0] = (map2[map1[32 + i * 8 + 4]] << 16) |
-                                                       (map2[map1[32 + i * 8 + 5]] << 24) |
-                                                       (map2[map1[32 + i * 8 + 6]]) | (map2[map1[32 + i * 8 + 7]] << 8);
+                                ((uint32_t*)dst)[0] = (map2[map1[32 + i * 8 + 4]] << 16) |
+                                                      (map2[map1[32 + i * 8 + 5]] << 24) |
+                                                      (map2[map1[32 + i * 8 + 6]]) | (map2[map1[32 + i * 8 + 7]] << 8);
                                 dst += nf_width;
                             }
 
@@ -2209,14 +2209,14 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                             map2[0xE7] = buffer[24 + 1];
 
                             for (int32_t i = 0; i < 2; ++i) {
-                                ((uint32_t *)dst)[0] = (map2[map1[48 + i * 8 + 0]] << 16) |
-                                                       (map2[map1[48 + i * 8 + 1]] << 24) |
-                                                       (map2[map1[48 + i * 8 + 2]]) | (map2[map1[48 + i * 8 + 3]] << 8);
+                                ((uint32_t*)dst)[0] = (map2[map1[48 + i * 8 + 0]] << 16) |
+                                                      (map2[map1[48 + i * 8 + 1]] << 24) |
+                                                      (map2[map1[48 + i * 8 + 2]]) | (map2[map1[48 + i * 8 + 3]] << 8);
                                 dst += nf_width;
 
-                                ((uint32_t *)dst)[0] = (map2[map1[48 + i * 8 + 4]] << 16) |
-                                                       (map2[map1[48 + i * 8 + 5]] << 24) |
-                                                       (map2[map1[48 + i * 8 + 6]]) | (map2[map1[48 + i * 8 + 7]] << 8);
+                                ((uint32_t*)dst)[0] = (map2[map1[48 + i * 8 + 4]] << 16) |
+                                                      (map2[map1[48 + i * 8 + 5]] << 24) |
+                                                      (map2[map1[48 + i * 8 + 6]]) | (map2[map1[48 + i * 8 + 7]] << 8);
                                 dst += nf_width;
                             }
 
@@ -2230,8 +2230,8 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
 
                     case 11: {
                         for (int32_t i = 0; i < 8; ++i) {
-                            ((uint32_t *)dst)[0] = ((uint32_t *)buffer)[i * 2];
-                            ((uint32_t *)dst)[1] = ((uint32_t *)buffer)[i * 2 + 1];
+                            ((uint32_t*)dst)[0] = ((uint32_t*)buffer)[i * 2];
+                            ((uint32_t*)dst)[1] = ((uint32_t*)buffer)[i * 2 + 1];
                             dst += nf_width;
                         }
 
@@ -2257,12 +2257,12 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                             byte = buffer[i * 4 + 3];
                             value2 |= (byte << 16) | (byte << 24);
 
-                            ((uint32_t *)dst)[0] = value1;
-                            ((uint32_t *)dst)[1] = value2;
+                            ((uint32_t*)dst)[0] = value1;
+                            ((uint32_t*)dst)[1] = value2;
                             dst += nf_width;
 
-                            ((uint32_t *)dst)[0] = value1;
-                            ((uint32_t *)dst)[1] = value2;
+                            ((uint32_t*)dst)[0] = value1;
+                            ((uint32_t*)dst)[1] = value2;
                             dst += nf_width;
                         }
 
@@ -2279,12 +2279,12 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                         value2 = byte | (byte << 8) | (byte << 16) | (byte << 24);
 
                         for (int32_t i = 0; i < 2; ++i) {
-                            ((uint32_t *)dst)[0] = value1;
-                            ((uint32_t *)dst)[1] = value2;
+                            ((uint32_t*)dst)[0] = value1;
+                            ((uint32_t*)dst)[1] = value2;
                             dst += nf_width;
 
-                            ((uint32_t *)dst)[0] = value1;
-                            ((uint32_t *)dst)[1] = value2;
+                            ((uint32_t*)dst)[0] = value1;
+                            ((uint32_t*)dst)[1] = value2;
                             dst += nf_width;
                         }
 
@@ -2295,12 +2295,12 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                         value2 = byte | (byte << 8) | (byte << 16) | (byte << 24);
 
                         for (int32_t i = 0; i < 2; ++i) {
-                            ((uint32_t *)dst)[0] = value1;
-                            ((uint32_t *)dst)[1] = value2;
+                            ((uint32_t*)dst)[0] = value1;
+                            ((uint32_t*)dst)[1] = value2;
                             dst += nf_width;
 
-                            ((uint32_t *)dst)[0] = value1;
-                            ((uint32_t *)dst)[1] = value2;
+                            ((uint32_t*)dst)[0] = value1;
+                            ((uint32_t*)dst)[1] = value2;
                             dst += nf_width;
                         }
 
@@ -2317,7 +2317,7 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                             value2 = value1;
 
                         } else {
-                            byte = *(uint16_t *)buffer;
+                            byte = *(uint16_t*)buffer;
                             buffer += 2;
                             value1 = byte | (byte << 16);
                             value2 = value1;
@@ -2325,12 +2325,12 @@ void nfPkDecomp(uint8_t *decoding_map, uint8_t *buffer, int32_t pos_x, int32_t p
                         }
 
                         for (int32_t i = 0; i < 4; ++i) {
-                            ((uint32_t *)dst)[0] = value1;
-                            ((uint32_t *)dst)[1] = value1;
+                            ((uint32_t*)dst)[0] = value1;
+                            ((uint32_t*)dst)[1] = value1;
                             dst += nf_width;
 
-                            ((uint32_t *)dst)[0] = value2;
-                            ((uint32_t *)dst)[1] = value2;
+                            ((uint32_t*)dst)[0] = value2;
+                            ((uint32_t*)dst)[1] = value2;
                             dst += nf_width;
                         }
 

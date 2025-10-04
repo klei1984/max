@@ -29,17 +29,17 @@
 #define SVGA_DEFAULT_HEIGHT (480)
 #define SVGA_DEFAULT_REFRESH_RATE (30)
 
-static Uint32 Svga_SetupDisplayMode(SDL_Rect *bounds);
-static void Svga_CorrectAspectRatio(SDL_DisplayMode *display_mode);
+static Uint32 Svga_SetupDisplayMode(SDL_Rect* bounds);
+static void Svga_CorrectAspectRatio(SDL_DisplayMode* display_mode);
 static void Svga_RefreshSystemPalette(bool force);
 
 static const bool SVGA_NO_TEXTURE_UPDATE = true;
 
-static SDL_Window *sdlWindow;
-static SDL_Renderer *sdlRenderer;
-static SDL_Surface *sdlWindowSurface;
-static SDL_Surface *sdlPaletteSurface;
-static SDL_Texture *sdlTexture;
+static SDL_Window* sdlWindow;
+static SDL_Renderer* sdlRenderer;
+static SDL_Surface* sdlWindowSurface;
+static SDL_Surface* sdlPaletteSurface;
+static SDL_Texture* sdlTexture;
 static uint32_t Svga_RenderTimer;
 static int32_t sdl_win_init_flag;
 static bool Svga_PaletteChanged;
@@ -55,7 +55,7 @@ static Uint32 Svga_DisplayPixelFormat;
 Rect scr_size;
 ScreenBlitFunc scr_blit;
 
-Uint32 Svga_SetupDisplayMode(SDL_Rect *bounds) {
+Uint32 Svga_SetupDisplayMode(SDL_Rect* bounds) {
     Uint32 flags = 0uL;
     SDL_DisplayMode display_mode;
 
@@ -113,7 +113,7 @@ Uint32 Svga_SetupDisplayMode(SDL_Rect *bounds) {
     return flags;
 }
 
-void Svga_CorrectAspectRatio(SDL_DisplayMode *display_mode) {
+void Svga_CorrectAspectRatio(SDL_DisplayMode* display_mode) {
     const double minimum_aspect_ratio = static_cast<double>(SVGA_DEFAULT_WIDTH) / SVGA_DEFAULT_HEIGHT;
     const double display_aspect_ratio = static_cast<double>(display_mode->w) / display_mode->h;
     double user_aspect_ratio = static_cast<double>(Svga_ScreenWidth) / Svga_ScreenHeight;
@@ -209,14 +209,14 @@ void Svga_Deinit(void) {
     }
 }
 
-void Svga_Blit(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY, uint32_t subW,
+void Svga_Blit(uint8_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY, uint32_t subW,
                uint32_t subH, uint32_t dstX, uint32_t dstY) {
     SDL_assert(sdlPaletteSurface && sdlPaletteSurface->format &&
                sdlPaletteSurface->format->BytesPerPixel == sizeof(uint8_t));
 
     {
         buf_to_buf(&srcBuf[subX + srcW * subY], subW, subH, srcW,
-                   &((uint8_t *)sdlPaletteSurface->pixels)[dstX + sdlPaletteSurface->pitch * dstY],
+                   &((uint8_t*)sdlPaletteSurface->pixels)[dstX + sdlPaletteSurface->pitch * dstY],
                    sdlPaletteSurface->pitch);
     }
 
@@ -238,8 +238,8 @@ void Svga_Blit(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uin
     }
 
     if (SVGA_NO_TEXTURE_UPDATE) {
-        Uint32 *source_pixels = &((Uint32 *)sdlWindowSurface->pixels)[bounds.x + sdlWindowSurface->w * bounds.y];
-        void *target_pixels = nullptr;
+        Uint32* source_pixels = &((Uint32*)sdlWindowSurface->pixels)[bounds.x + sdlWindowSurface->w * bounds.y];
+        void* target_pixels = nullptr;
         int32_t target_pitch = 0;
 
         if (SDL_LockTexture(sdlTexture, &bounds, &target_pixels, &target_pitch)) {
@@ -249,7 +249,7 @@ void Svga_Blit(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uin
             for (int32_t h = 0; h < bounds.h; ++h) {
                 SDL_memcpy(target_pixels, source_pixels, bounds.w * sizeof(Uint32));
                 source_pixels += sdlWindowSurface->w;
-                target_pixels = &(static_cast<Uint32 *>(target_pixels)[target_pitch / sizeof(Uint32)]);
+                target_pixels = &(static_cast<Uint32*>(target_pixels)[target_pitch / sizeof(Uint32)]);
             }
 
             SDL_UnlockTexture(sdlTexture);
@@ -257,7 +257,7 @@ void Svga_Blit(uint8_t *srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uin
 
     } else {
         if (SDL_UpdateTexture(sdlTexture, &bounds,
-                              &((Uint32 *)sdlWindowSurface->pixels)[bounds.x + sdlPaletteSurface->pitch * bounds.y],
+                              &((Uint32*)sdlWindowSurface->pixels)[bounds.x + sdlPaletteSurface->pitch * bounds.y],
                               sdlWindowSurface->pitch) != 0) {
             AiLog log("SDL_UpdateTexture failed: %s\n", SDL_GetError());
         }
@@ -296,7 +296,7 @@ void Svga_RefreshSystemPalette(bool force) {
     }
 }
 
-void Svga_SetPaletteColor(int32_t index, SDL_Color *color) {
+void Svga_SetPaletteColor(int32_t index, SDL_Color* color) {
     if (SDL_SetPaletteColors(sdlPaletteSurface->format->palette, color, index, 1)) {
         AiLog log("SDL_SetPaletteColors failed: %s\n", SDL_GetError());
     }
@@ -304,7 +304,7 @@ void Svga_SetPaletteColor(int32_t index, SDL_Color *color) {
     Svga_RefreshSystemPalette(index == PALETTE_SIZE - 1);
 }
 
-void Svga_SetPalette(SDL_Palette *palette) {
+void Svga_SetPalette(SDL_Palette* palette) {
     if (SDL_SetSurfacePalette(sdlPaletteSurface, palette)) {
         AiLog log("SDL_SetSurfacePalette failed: %s\n", SDL_GetError());
     }
@@ -312,7 +312,7 @@ void Svga_SetPalette(SDL_Palette *palette) {
     Svga_RefreshSystemPalette(true);
 }
 
-SDL_Palette *Svga_GetPalette(void) { return sdlPaletteSurface->format->palette; }
+SDL_Palette* Svga_GetPalette(void) { return sdlPaletteSurface->format->palette; }
 
 int32_t Svga_GetScreenWidth(void) { return Svga_ScreenWidth; }
 
@@ -322,7 +322,7 @@ int32_t Svga_GetScreenRefreshRate(void) { return Svga_DisplayRefreshRate; }
 
 bool Svga_IsFullscreen(void) { return (sdlWindow && (SDL_GetWindowFlags(sdlWindow) & (SDL_WINDOW_FULLSCREEN))); }
 
-bool Svga_GetWindowFlags(uint32_t *flags) {
+bool Svga_GetWindowFlags(uint32_t* flags) {
     bool result{false};
 
     if (flags && sdlWindow) {
