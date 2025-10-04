@@ -123,8 +123,8 @@ struct QuickBuildMenuGuiItem {
 struct MenuGuiItem {
     uint8_t wid;
     ResourceID gfx;
-    const char* label;
-    Button* button;
+    const char *label;
+    Button *button;
     bool disabled;
     ResourceID sfx;
 };
@@ -132,11 +132,11 @@ struct MenuGuiItem {
 struct MenuDisplayControl {
     uint8_t window_id;
     ResourceID resource_id;
-    void* unknown_1;
-    Button* button;
+    void *unknown_1;
+    Button *button;
     char unknown_2;
     ResourceID unknown_3;
-    Image* image;
+    Image *image;
 };
 
 struct ResourceRange {
@@ -144,7 +144,7 @@ struct ResourceRange {
     int16_t max;
 
     ResourceRange() : min(0), max(0) {}
-    ResourceRange(const ResourceRange& other) : min(other.min), max(other.max) {}
+    ResourceRange(const ResourceRange &other) : min(other.min), max(other.max) {}
     ResourceRange(int32_t min, int32_t max) : min(min), max(max) {}
 
     int32_t GetValue() const {
@@ -377,7 +377,7 @@ struct ResourceAllocator {
         }
     }
 
-    void SeparateResources(ResourceAllocator* allocator) {
+    void SeparateResources(ResourceAllocator *allocator) {
         Point point1;
         Point point2;
         int32_t max_resources;
@@ -410,7 +410,7 @@ struct ResourceAllocator {
     }
 };
 
-const char* const GameManager_CheatCodes[CHEAT_CODE_COUNT] = {"[MAXSPY]", "[MAXSURVEY]", "[MAXSTORAGE]", "[MAXAMMO]",
+const char *const GameManager_CheatCodes[CHEAT_CODE_COUNT] = {"[MAXSPY]", "[MAXSURVEY]", "[MAXSTORAGE]", "[MAXAMMO]",
                                                               "[MAXSUPER]"};
 
 const ResourceID GameManager_AlienBuildings[] = {SHIELDGN, SUPRTPLT, RECCENTR};
@@ -428,7 +428,7 @@ bool GameManager_IsActiveMapPositionDisplay;
 Point GameManager_MousePosition2;
 Point GameManager_ScaledMousePosition;
 Rect GameManager_MultiSelectBounds;
-UnitInfo* GameManager_Unit;
+UnitInfo *GameManager_Unit;
 
 Rect GameManager_MapView;
 Rect GameManager_MapWindowDrawBounds;
@@ -437,8 +437,8 @@ SmartPointer<UnitInfo> GameManager_TempTape;
 SmartPointer<UnitInfo> GameManager_QuickBuilderUnit;
 SmartPointer<UnitInfo> GameManager_UnknownUnit3;
 SmartPointer<UnitInfo> GameManager_UnitUnderMouseCursor;
-Image* GameManager_TurnTimerImageNormal;
-Image* GameManager_TurnTimerImageScaled;
+Image *GameManager_TurnTimerImageNormal;
+Image *GameManager_TurnTimerImageScaled;
 Point GameManager_MapViewCenter;
 Point GameManager_GridCenterOffset;
 Point GameManager_SpottedEnemyPosition;
@@ -493,7 +493,7 @@ bool GameManager_RenderFlag2;
 ResourceID GameManager_QuickBuildUnitId;
 ResourceID GameManager_QuickBuildMenuUnitId;
 
-Button* Gamemanager_FlicButton;
+Button *Gamemanager_FlicButton;
 
 uint8_t GameManager_CheaterTeam;
 SmartString GameManager_TextInput;
@@ -526,7 +526,7 @@ struct ColorCycleData {
 struct MenuFlic {
     WindowInfo sw;
     WindowInfo dw;
-    Flic* flc;
+    Flic *flc;
     int32_t text_height;
 };
 
@@ -596,7 +596,7 @@ struct PopupButtons GameManager_PopupButtons;
 
 static uint32_t GameManager_NotifyTimeout;
 static struct MenuFlic GameManager_Flic;
-static TextEdit* GameManager_TextEditUnitName;
+static TextEdit *GameManager_TextEditUnitName;
 static char GameManager_UnitName[30];
 static uint8_t GameManager_ColorCycleStep;
 static bool GameManager_UpdateFlag;
@@ -616,34 +616,34 @@ static void GameManager_GameLoopCleanup();
 static uint16_t GameManager_EvaluateWinner();
 static void GameManager_AnnounceWinner(uint16_t team);
 static void GameManager_DrawTurnCounter(int32_t turn_count);
-static void GameManager_DrawTimer(char* text, int32_t color);
+static void GameManager_DrawTimer(char *text, int32_t color);
 static bool GameManager_ProcessTextInput(int32_t key);
-static bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo>& units);
+static bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo> &units);
 static void GameManager_ProcessKey();
-static int32_t GameManager_GetBuilderUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2);
-static int32_t GameManager_GetAirUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2);
-static bool GameManager_IsUnitNotInAir(UnitInfo* unit);
-static UnitInfo* GameManager_GetUnitWithCargoType(Complex* complex, int32_t cargo_type);
-static int32_t GameManager_GetUnitActionCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2);
-static bool GameManager_IsValidTransferTarget(UnitInfo* unit1, UnitInfo* unit2);
-static void GameManager_SetUnitOrder(const UnitOrderType, const UnitOrderStateType state, UnitInfo* unit,
+static int32_t GameManager_GetBuilderUnitCursor(UnitInfo *unit1, int32_t grid_x, int32_t grid_y, UnitInfo *unit2);
+static int32_t GameManager_GetAirUnitCursor(UnitInfo *unit1, int32_t grid_x, int32_t grid_y, UnitInfo *unit2);
+static bool GameManager_IsUnitNotInAir(UnitInfo *unit);
+static UnitInfo *GameManager_GetUnitWithCargoType(Complex *complex, int32_t cargo_type);
+static int32_t GameManager_GetUnitActionCursor(UnitInfo *unit1, int32_t grid_x, int32_t grid_y, UnitInfo *unit2);
+static bool GameManager_IsValidTransferTarget(UnitInfo *unit1, UnitInfo *unit2);
+static void GameManager_SetUnitOrder(const UnitOrderType, const UnitOrderStateType state, UnitInfo *unit,
                                      int32_t grid_x, int32_t grid_y);
-static bool GameManager_IsValidStealTarget(UnitInfo* unit1, UnitInfo* unit2);
-static bool GameManager_IsValidDisableTarget(UnitInfo* unit1, UnitInfo* unit2);
-static int32_t GameManager_GetMilitaryCursor(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
-static void GameManager_UnitSelectOther(UnitInfo* unit1, UnitInfo* unit2, int32_t grid_x, int32_t grid_y);
-static void GameManager_UnitSelect(UnitInfo* unit);
-static void GameManager_ClickUnit(UnitInfo* unit1, UnitInfo* unit2, int32_t grid_x, int32_t grid_y);
-static bool GameManager_UpdateSelection(UnitInfo* unit1, UnitInfo* unit2, int32_t grid_x, int32_t grid_y);
+static bool GameManager_IsValidStealTarget(UnitInfo *unit1, UnitInfo *unit2);
+static bool GameManager_IsValidDisableTarget(UnitInfo *unit1, UnitInfo *unit2);
+static int32_t GameManager_GetMilitaryCursor(UnitInfo *unit, int32_t grid_x, int32_t grid_y);
+static void GameManager_UnitSelectOther(UnitInfo *unit1, UnitInfo *unit2, int32_t grid_x, int32_t grid_y);
+static void GameManager_UnitSelect(UnitInfo *unit);
+static void GameManager_ClickUnit(UnitInfo *unit1, UnitInfo *unit2, int32_t grid_x, int32_t grid_y);
+static bool GameManager_UpdateSelection(UnitInfo *unit1, UnitInfo *unit2, int32_t grid_x, int32_t grid_y);
 static void GameManager_SetGridOffset(int32_t grid_x_offset, int32_t grid_y_offset);
 static void GameManager_ProcessInput();
 static bool GameManager_CargoSelection(uint16_t team);
 static void GameManager_UpdateTurnTimer(bool mode, int32_t turn_time);
-static void GameManager_DrawDisplayPanel(int32_t control_id, const char* text, int32_t color, int32_t ulx = 0);
+static void GameManager_DrawDisplayPanel(int32_t control_id, const char *text, int32_t color, int32_t ulx = 0);
 static void GameManager_ProgressBuildState(uint16_t team);
 static void GameManager_UpdateGuiControl(uint16_t team);
 static uint16_t GameManager_GetCrc16(uint16_t data, uint16_t crc_checksum);
-static uint16_t GameManager_GetUnitListChecksum(SmartList<UnitInfo>* units, uint16_t team, uint16_t crc_checksum);
+static uint16_t GameManager_GetUnitListChecksum(SmartList<UnitInfo> *units, uint16_t team, uint16_t crc_checksum);
 static bool GameManager_CheckDesync();
 static void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosave);
 static bool GameManager_AreTeamsFinishedTurn();
@@ -659,10 +659,10 @@ static bool GameManager_InitGame();
 static void GameManager_UpdateHumanPlayerCount();
 static void GameManager_MenuAnimateDisplayControls();
 static void GameManager_ManagePlayerAction();
-static bool GameManager_InitPopupButtons(UnitInfo* unit);
+static bool GameManager_InitPopupButtons(UnitInfo *unit);
 static void GameManager_UpdateGridCenterOffset();
 static void GameManager_UpdatePanelButtons(uint16_t team);
-static bool GameManager_ScrollMainMapView(int32_t& offset_x, int32_t& offset_y);
+static bool GameManager_ScrollMainMapView(int32_t &offset_x, int32_t &offset_y);
 static bool GameManager_CenterMainMapView(int32_t ulx, int32_t uly);
 static void GameManager_UpdateZoomSlider();
 static void GameManager_MenuClickLockButton(bool rest_state);
@@ -693,65 +693,65 @@ static void GameManager_DrawMouseCoordinates(int32_t x, int32_t y);
 static bool GameManager_HandleProximityOverlaps();
 static bool GameManager_IsValidStartingPosition(int32_t grid_x, int32_t grid_y);
 static uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y);
-static void GameManager_PathBuild(UnitInfo* unit);
-static void GameManager_ReloadUnit(UnitInfo* unit1, UnitInfo* unit2);
-static void GameManager_RepairUnit(UnitInfo* unit1, UnitInfo* unit2);
-static void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2);
-static void GameManager_StealUnit(UnitInfo* unit1, UnitInfo* unit2);
-static void GameManager_DisableUnit(UnitInfo* unit1, UnitInfo* unit2);
-static void GameManager_FindValidStartingPosition(Point* position);
+static void GameManager_PathBuild(UnitInfo *unit);
+static void GameManager_ReloadUnit(UnitInfo *unit1, UnitInfo *unit2);
+static void GameManager_RepairUnit(UnitInfo *unit1, UnitInfo *unit2);
+static void GameManager_TransferCargo(UnitInfo *unit1, UnitInfo *unit2);
+static void GameManager_StealUnit(UnitInfo *unit1, UnitInfo *unit2);
+static void GameManager_DisableUnit(UnitInfo *unit1, UnitInfo *unit2);
+static void GameManager_FindValidStartingPosition(Point *position);
 static void GameManager_PopulateMapWithResources();
-static void GameManager_FindSpot(Point* point);
+static void GameManager_FindSpot(Point *point);
 static void GameManager_SpawnAlienDerelicts(Point point, int32_t alien_unit_value);
 static void GameManager_PopulateMapWithAlienUnits(int32_t alien_seperation, int32_t alien_unit_value);
 static void GameManager_ProcessTeamMissionSupplyUnits(uint16_t team);
 static void GameManager_FlicButtonRFunction(ButtonID bid, intptr_t value);
-static void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit);
-static void GameManager_DrawDisabledUnitStatusMessage(UnitInfo* unit);
-static void GameManager_PlayUnitStatusVoice(UnitInfo* unit);
-static void GameManager_DrawUnitStatusMessage(UnitInfo* unit);
+static void GameManager_DrawBuilderUnitStatusMessage(UnitInfo *unit);
+static void GameManager_DrawDisabledUnitStatusMessage(UnitInfo *unit);
+static void GameManager_PlayUnitStatusVoice(UnitInfo *unit);
+static void GameManager_DrawUnitStatusMessage(UnitInfo *unit);
 static void GameManager_MenuDeinitDisplayControls();
-static void GameManager_SpawnNewUnits(uint16_t team, SmartList<UnitInfo>* units, uint16_t* counts);
-static char* GameManager_PrependMessageChunk(const char* chunk, char* message);
-static void GameManager_ReportNewUnitsMessage(uint16_t* counts);
+static void GameManager_SpawnNewUnits(uint16_t team, SmartList<UnitInfo> *units, uint16_t *counts);
+static char *GameManager_PrependMessageChunk(const char *chunk, char *message);
+static void GameManager_ReportNewUnitsMessage(uint16_t *counts);
 static void GameManager_DrawProximityZones();
 static int32_t GameManager_UpdateProximityState(uint16_t team);
-static UnitInfo* GameManager_GetFirstRelevantUnit(uint16_t team);
-static void GameManager_ColorEffect(struct ColorCycleData* color_cycle_table);
-static bool GameManager_IsUnitNextToPosition(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
-static bool GameManager_IsInteractable(UnitInfo* unit);
-static void GameManager_DrawInfoDisplayRowIcons(uint8_t* buffer, int32_t full_width, int32_t width, int32_t height,
+static UnitInfo *GameManager_GetFirstRelevantUnit(uint16_t team);
+static void GameManager_ColorEffect(struct ColorCycleData *color_cycle_table);
+static bool GameManager_IsUnitNextToPosition(UnitInfo *unit, int32_t grid_x, int32_t grid_y);
+static bool GameManager_IsInteractable(UnitInfo *unit);
+static void GameManager_DrawInfoDisplayRowIcons(uint8_t *buffer, int32_t full_width, int32_t width, int32_t height,
                                                 ResourceID icon, int32_t current_value, int32_t base_value);
-static void GameManager_DrawInfoDisplayRow(const char* label, int32_t window_id, ResourceID icon, int32_t current_value,
+static void GameManager_DrawInfoDisplayRow(const char *label, int32_t window_id, ResourceID icon, int32_t current_value,
                                            int32_t base_value, int32_t factor);
-static void GameManager_DrawInfoDisplayType2(UnitInfo* unit);
-static void GameManager_DrawInfoDisplayType1(UnitInfo* unit);
-static void GameManager_DrawInfoDisplayType3(UnitInfo* unit);
+static void GameManager_DrawInfoDisplayType2(UnitInfo *unit);
+static void GameManager_DrawInfoDisplayType1(UnitInfo *unit);
+static void GameManager_DrawInfoDisplayType3(UnitInfo *unit);
 static bool GameManager_SyncTurnTimer();
 static void GameManager_MenuCreateFlic(ResourceID unit_type, int32_t ulx, int32_t uly);
-static void GameManager_DrawFlic(Rect* bounds);
+static void GameManager_DrawFlic(Rect *bounds);
 static void GameManager_AdvanceFlic();
-static void GameManager_DrawCircle(UnitInfo* unit, WindowInfo* window, int32_t radius, int32_t color);
+static void GameManager_DrawCircle(UnitInfo *unit, WindowInfo *window, int32_t radius, int32_t color);
 static void GameManager_RenderMap();
-static void GameManager_UpdateProductions(uint16_t team, SmartList<UnitInfo>* units);
-static void GameManager_ResupplyUnits(uint16_t team, SmartList<UnitInfo>* units);
+static void GameManager_UpdateProductions(uint16_t team, SmartList<UnitInfo> *units);
+static void GameManager_ResupplyUnits(uint16_t team, SmartList<UnitInfo> *units);
 static void GameManager_ManageEconomy(uint16_t team);
 static Point GameManager_GetStartPositionMiningStation(uint16_t team);
 static Point GameManager_GetStartingPositionPowerGenerator(Point point, uint16_t team);
 static float GameManager_GetScrollRateLimit();
 static float GameManager_UpdateScrollRateLimit();
 static Point GameManager_GetMinimapPosition();
-static void GameManager_TeamTurnTurnBased(int32_t& game_state);
-static void GameManager_TeamTurnConcurrent(int32_t& game_state);
+static void GameManager_TeamTurnTurnBased(int32_t &game_state);
+static void GameManager_TeamTurnConcurrent(int32_t &game_state);
 static bool GameManager_TeamTurnFinish(uint32_t turn_counter_session_start, uint16_t team_winner);
 static void GameManager_RenderScanRangeIndicators();
-static void GameManager_RenderSurveyIndicator(DrawMapBuffer* drawmap);
+static void GameManager_RenderSurveyIndicator(DrawMapBuffer *drawmap);
 static void GameManager_RenderMultiSelectIndicator();
 static void GameManager_RenderMinimap();
-static void GameManager_QuickBuildMenuDrawPortraits(WindowInfo* window, ResourceID id1, ResourceID id2, int32_t width);
+static void GameManager_QuickBuildMenuDrawPortraits(WindowInfo *window, ResourceID id1, ResourceID id2, int32_t width);
 static void GameManager_QuickBuildMenu();
 
-void GameManager_TeamTurnTurnBased(int32_t& game_state) {
+void GameManager_TeamTurnTurnBased(int32_t &game_state) {
     bool enable_autosave;
 
     AiLog log("Turn based team turn.");
@@ -800,7 +800,7 @@ void GameManager_TeamTurnTurnBased(int32_t& game_state) {
     }
 }
 
-void GameManager_TeamTurnConcurrent(int32_t& game_state) {
+void GameManager_TeamTurnConcurrent(int32_t &game_state) {
     AiLog log("Concurrent team turn.");
 
     if (Remote_IsNetworkGame) {
@@ -994,7 +994,7 @@ void GameManager_UpdateDrawBounds() {
     Drawmap_UpdateDirtyZones(&bounds);
 }
 
-void GameManager_AddDrawBounds(Rect* bounds) {
+void GameManager_AddDrawBounds(Rect *bounds) {
     Rect new_bounds;
 
     rect_init(&new_bounds, bounds->ulx, bounds->uly, bounds->lrx + 1, bounds->lry + 1);
@@ -1022,7 +1022,7 @@ void GameManager_DeployUnit(uint16_t team, ResourceID unit_type, int32_t grid_x,
         }
 
         UnitsManager_DeployUnit(slab_type, team, nullptr, grid_x, grid_y,
-                                Randomizer_Generate(reinterpret_cast<struct BaseUnitDataFile*>(
+                                Randomizer_Generate(reinterpret_cast<struct BaseUnitDataFile *>(
                                                         UnitsManager_BaseUnits[slab_type].data_buffer)
                                                         ->image_count));
     }
@@ -1036,7 +1036,7 @@ void GameManager_DeployUnit(uint16_t team, ResourceID unit_type, int32_t grid_x,
     }
 }
 
-void GameManager_DrawUnitSelector(uint8_t* buffer, int32_t pitch, int32_t offsetx, int32_t height, int32_t offsety,
+void GameManager_DrawUnitSelector(uint8_t *buffer, int32_t pitch, int32_t offsetx, int32_t height, int32_t offsety,
                                   int32_t bottom, int32_t item_height, int32_t top, int32_t scaling_factor,
                                   int32_t is_big_sprite, bool double_marker) {
     uint8_t color;
@@ -1131,7 +1131,7 @@ void GameManager_DrawUnitSelector(uint8_t* buffer, int32_t pitch, int32_t offset
 }
 
 bool GameManager_RefreshOrders(uint16_t team, bool check_production) {
-    CTInfo* team_info;
+    CTInfo *team_info;
     bool is_player;
     char message[200];
 
@@ -1141,7 +1141,7 @@ bool GameManager_RefreshOrders(uint16_t team, bool check_production) {
 
     SDL_assert(team_info->team_type != TEAM_TYPE_REMOTE);
 
-    const auto& complexes = team_info->team_units->GetComplexes();
+    const auto &complexes = team_info->team_units->GetComplexes();
 
     for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
         Access_UpdateResourcesTotal(&(*it));
@@ -1181,11 +1181,8 @@ bool GameManager_RefreshOrders(uint16_t team, bool check_production) {
 
 void GameManager_HandleTurnTimer() {
     if (GameManager_PlayMode != PLAY_MODE_TURN_BASED) {
-        int32_t timer_setting;
-        bool flag;
-
-        timer_setting = ini_get_setting(INI_ENDTURN);
-        flag = false;
+        int32_t timer_setting = ini_get_setting(INI_ENDTURN);
+        bool flag = false;
 
         if (timer_setting < 15) {
             for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
@@ -1207,8 +1204,8 @@ void GameManager_HandleTurnTimer() {
     }
 }
 
-void GameManager_GetScaledMessageBoxBounds(Rect* bounds) {
-    WindowInfo* window_message_box;
+void GameManager_GetScaledMessageBoxBounds(Rect *bounds) {
+    WindowInfo *window_message_box;
 
     window_message_box = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
 
@@ -1223,7 +1220,7 @@ void GameManager_GetScaledMessageBoxBounds(Rect* bounds) {
 }
 
 void GameManager_RenderScanRangeIndicators() {
-    WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
+    WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
     if (GameManager_SelectedUnit != nullptr) {
         if (GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_EXECUTING_ORDER ||
@@ -1232,7 +1229,7 @@ void GameManager_RenderScanRangeIndicators() {
             GameManager_SelectedUnit->GetOrder() == ORDER_BUILD) {
             if (GameManager_SelectedUnit->IsVisibleToTeam(GameManager_PlayerTeam)) {
                 SmartPointer<UnitValues> unit_values(GameManager_SelectedUnit->GetBaseValues());
-                UnitInfo* unit = &*GameManager_SelectedUnit;
+                UnitInfo *unit = &*GameManager_SelectedUnit;
                 if (unit->team == GameManager_PlayerTeam && unit->path != nullptr) {
                     unit->path->Draw(unit, window);
                 }
@@ -1279,14 +1276,14 @@ void GameManager_RenderScanRangeIndicators() {
     }
 }
 
-void GameManager_RenderSurveyIndicator(DrawMapBuffer* drawmap) {
+void GameManager_RenderSurveyIndicator(DrawMapBuffer *drawmap) {
     if (GameManager_DisplayButtonSurvey || GameManager_IsSurveyorSelected) {
         DrawMap_RenderSurveyDisplay(drawmap);
     }
 }
 
 void GameManager_RenderMultiSelectIndicator() {
-    WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
+    WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
 
     int32_t map_ulx{(GameManager_MultiSelectBounds.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor -
                     Gfx_MapWindowUlx};
@@ -1327,7 +1324,7 @@ void GameManager_RenderMultiSelectIndicator() {
 
 void GameManager_RenderMinimap() {
     if (GameManager_RenderMinimapDisplay) {
-        WindowInfo* mmw = WindowManager_GetWindow(WINDOW_MINIMAP);
+        WindowInfo *mmw = WindowManager_GetWindow(WINDOW_MINIMAP);
         const int32_t mmw_width{mmw->window.lrx - mmw->window.ulx + 1};
         const int32_t mmw_height{mmw->window.lry - mmw->window.uly + 1};
         Point map_size{ResourceManager_MapSize};
@@ -1355,7 +1352,7 @@ void GameManager_RenderMinimap() {
             (static_cast<double>(GameManager_MapView.lry) + 0.9) * ResourceManager_MinimapWindowScale, COLOR_RED);
 
         if (GameManager_DisplayButtonMinimap2x) {
-            uint8_t* minimap2x = new (std::nothrow) uint8_t[mmw_width * mmw_height];
+            uint8_t *minimap2x = new (std::nothrow) uint8_t[mmw_width * mmw_height];
             Point minimap_view_offset;
 
             minimap_view_offset.x = ResourceManager_MinimapWindowOffset.x / 2 +
@@ -1363,7 +1360,7 @@ void GameManager_RenderMinimap() {
             minimap_view_offset.y = ResourceManager_MinimapWindowOffset.y / 2 +
                                     GameManager_GridCenterOffset.y * ResourceManager_MinimapWindowScale;
 
-            uint8_t* address = &mmw->buffer[minimap_view_offset.y * mmw->width + minimap_view_offset.x];
+            uint8_t *address = &mmw->buffer[minimap_view_offset.y * mmw->width + minimap_view_offset.x];
 
             for (int32_t y = 0; y < (mmw_height / 2); ++y) {
                 for (int32_t x = 0; x < (mmw_width / 2); ++x) {
@@ -1418,7 +1415,7 @@ void GameManager_RenderMap() {
 
         if (GameManager_RenderEnable) {
             Rect bounds = GameManager_MultiSelectBounds;
-            WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
+            WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
             int32_t width;
             int32_t height;
 
@@ -1509,7 +1506,7 @@ void GameManager_RenderMap() {
 bool GameManager_CargoSelection(uint16_t team) {
     CargoMenu cargo_menu(team);
     char message[200];
-    const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
+    const char *menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
 
     if (GameManager_HumanPlayerCount) {
         sprintf(message, _(df78), menu_team_names[team]);
@@ -1574,7 +1571,7 @@ bool GameManager_PlayerMissionSetup(uint16_t team) {
 
 void GameManager_DrawSelectSiteMessage(uint16_t team) {
     SmartString string;
-    const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
+    const char *menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
 
     string = menu_team_names[team];
     string += ":\n";
@@ -1804,7 +1801,7 @@ void GameManager_InitMap() {
 }
 
 void GameManager_SelectNextUnit(int32_t seek_direction) {
-    UnitInfo* unit;
+    UnitInfo *unit;
 
     GameManager_ManagePlayerAction();
     GameManager_UpdateDrawBounds();
@@ -1911,7 +1908,7 @@ float GameManager_UpdateScrollRateLimit() {
     return GameManager_ScrollRateLimit;
 }
 
-bool GameManager_ScrollMainMapView(int32_t& offset_x, int32_t& offset_y) {
+bool GameManager_ScrollMainMapView(int32_t &offset_x, int32_t &offset_y) {
     bool result;
     GameManager_ScrollRate += GameManager_GridStepLevel * GameManager_GetScrollRateLimit();
     const int32_t step_level = GameManager_ScrollRate;
@@ -1992,7 +1989,7 @@ bool GameManager_ZoomMainMapView(int32_t zoom_level, bool mode) {
 
 void GameManager_UpdateZoomSlider() {
     if (GameManager_GameState != GAME_STATE_7_SITE_SELECT) {
-        WindowInfo* window{WindowManager_GetWindow(WINDOW_ZOOM_SLIDER_WINDOW)};
+        WindowInfo *window{WindowManager_GetWindow(WINDOW_ZOOM_SLIDER_WINDOW)};
         const int32_t width = (25 + 3) * WindowManager_GetScale();
         const int32_t offset =
             ((window->window.lrx - window->window.ulx - width) * (64 - Gfx_ZoomLevel)) / 60 + width / 2;
@@ -2038,7 +2035,7 @@ void GameManager_UpdateMainMapView(int32_t mode, int32_t ulx, int32_t uly, bool 
     SoundManager_UpdateSfxPosition();
 }
 
-void GameManager_AutoSelectNext(UnitInfo* unit) {
+void GameManager_AutoSelectNext(UnitInfo *unit) {
     if (!ini_get_setting(INI_AUTO_SELECT) || GameManager_IsInteractable(unit)) {
         GameManager_EnableMainMenu(unit);
 
@@ -2054,7 +2051,7 @@ void GameManager_AutoSelectNext(UnitInfo* unit) {
 }
 
 Point GameManager_GetStartPositionMiningStation(uint16_t team) {
-    TeamMissionSupplies* supplies = &UnitsManager_TeamMissionSupplies[team];
+    TeamMissionSupplies *supplies = &UnitsManager_TeamMissionSupplies[team];
     const int32_t max_resources = ini_get_setting(INI_MAX_RESOURCES);
     const int32_t minimum_fuel = (max_resources * 8 + 10) / 20;
     const int32_t minimum_materials = (max_resources * 12 + 10) / 20;
@@ -2112,7 +2109,7 @@ Point GameManager_GetStartingPositionPowerGenerator(Point point, uint16_t team) 
 }
 
 void GameManager_GameSetup(int32_t game_state) {
-    WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
+    WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     int32_t zoom_level;
     int32_t max_zoom_level;
     uint32_t timestamp;
@@ -2146,7 +2143,7 @@ void GameManager_GameSetup(int32_t game_state) {
 
         if (mission_category == MISSION_CATEGORY_CUSTOM) {
             if (GameManager_PlayScenarioIntro) {
-                Color* palette;
+                Color *palette;
 
                 GameManager_LandingSequence.DeleteButtons();
                 palette = GameManager_MenuFadeOut(250);
@@ -2294,7 +2291,7 @@ void GameManager_GameLoopCleanup() {
     ResourceManager_FreeResources();
 }
 
-void GameManager_UpdateProductions(uint16_t team, SmartList<UnitInfo>* units) {
+void GameManager_UpdateProductions(uint16_t team, SmartList<UnitInfo> *units) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).team == team) {
             (*it).UpdateProduction();
@@ -2302,7 +2299,7 @@ void GameManager_UpdateProductions(uint16_t team, SmartList<UnitInfo>* units) {
     }
 }
 
-void GameManager_ResupplyUnits(uint16_t team, SmartList<UnitInfo>* units) {
+void GameManager_ResupplyUnits(uint16_t team, SmartList<UnitInfo> *units) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).team == team && (*it).GetOrder() != ORDER_DISABLE) {
             (*it).Resupply();
@@ -2322,7 +2319,7 @@ void GameManager_ManageEconomy(uint16_t team) {
     GameManager_ResupplyUnits(team, &UnitsManager_MobileAirUnits);
 
     for (int32_t i = 0; i < RESEARCH_TOPIC_COUNT; ++i) {
-        ResearchTopic* topic = &UnitsManager_TeamInfo[team].research_topics[i];
+        ResearchTopic *topic = &UnitsManager_TeamInfo[team].research_topics[i];
 
         if (topic->allocation && topic->turns_to_complete == 0) {
             ResearchMenu_UpdateResearchProgress(team, i, 0);
@@ -2392,10 +2389,10 @@ void GameManager_DrawTurnCounter(int32_t turn_count) {
     GameManager_DrawDisplayPanel(MENU_DISPLAY_CONTROL_TURN_COUNTER, text, 0xA2);
 }
 
-void GameManager_DrawTimer(char* text, int32_t color) {
+void GameManager_DrawTimer(char *text, int32_t color) {
     Rect bounds;
     WindowInfo window;
-    Image* turn_timer_image;
+    Image *turn_timer_image;
 
     window.id = win_get_top_win(WindowManager_WindowWidth / 2, WindowManager_WindowHeight / 2);
     window.buffer = win_get_buf(window.id);
@@ -2492,11 +2489,11 @@ void GameManager_UpdateTurnTimer(bool mode, int32_t turn_time) {
     GameManager_RequestMenuExit = false;
 }
 
-void GameManager_DrawDisplayPanel(int32_t control_id, const char* text, int32_t color, int32_t ulx) {
+void GameManager_DrawDisplayPanel(int32_t control_id, const char *text, int32_t color, int32_t ulx) {
     if (GameManager_DisplayControlsInitialized) {
-        struct MenuDisplayControl* control = &GameManager_MenuDisplayControls[control_id];
-        struct ImageSimpleHeader* image =
-            reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(control->resource_id));
+        struct MenuDisplayControl *control = &GameManager_MenuDisplayControls[control_id];
+        struct ImageSimpleHeader *image =
+            reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(control->resource_id));
 
         buf_to_buf(&image->transparent_color, image->width, image->height, image->width, control->image->GetData(),
                    image->width);
@@ -2514,9 +2511,9 @@ void GameManager_DrawDisplayPanel(int32_t control_id, const char* text, int32_t 
 }
 
 void GameManager_UpdateGuiControl(uint16_t team) {
-    WindowInfo* window;
+    WindowInfo *window;
     char message[200];
-    const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
+    const char *menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
 
     GameManager_UpdateTurnTimer(false, 0);
     GameManager_MenuClickSurveyButton(false);
@@ -2578,7 +2575,7 @@ uint16_t GameManager_GetCrc16(uint16_t data, uint16_t crc_checksum) {
     return crc_checksum ^ data;
 }
 
-uint16_t GameManager_GetUnitListChecksum(SmartList<UnitInfo>* units, uint16_t team, uint16_t crc_checksum) {
+uint16_t GameManager_GetUnitListChecksum(SmartList<UnitInfo> *units, uint16_t team, uint16_t crc_checksum) {
     if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE || team == PLAYER_TEAM_ALIEN) {
         for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
             if ((*it).GetId() != 0xFFFF && !((*it).flags & EXPLODING) && (*it).team == team) {
@@ -2777,7 +2774,7 @@ bool GameManager_AreTeamsFinishedTurn() {
     return true;
 }
 
-bool GameManager_IsInsideMapView(UnitInfo* unit) {
+bool GameManager_IsInsideMapView(UnitInfo *unit) {
     bool result;
 
     if (unit->flags & BUILDING) {
@@ -2800,7 +2797,7 @@ bool GameManager_IsInsideMapView(UnitInfo* unit) {
     return result;
 }
 
-bool GameManager_OptimizeProduction(uint16_t team, Complex* complex, bool is_player_team, bool mode) {
+bool GameManager_OptimizeProduction(uint16_t team, Complex *complex, bool is_player_team, bool mode) {
     bool result;
 
     if (complex->material >= 0 && complex->fuel >= 0 && complex->gold >= 0 && complex->power >= 0 &&
@@ -3089,7 +3086,7 @@ void GameManager_ProcessCheatCodes() {
                 if (GameManager_SelectedUnit != nullptr) {
                     SmartPointer<UnitValues> unit_values(GameManager_SelectedUnit->GetBaseValues());
                     SmartPointer<UnitValues> new_unit_values(new (std::nothrow) UnitValues(*unit_values));
-                    UnitValues* selected_unit_values;
+                    UnitValues *selected_unit_values;
 
                     selected_unit_values =
                         UnitsManager_TeamInfo[GameManager_SelectedUnit->team].team_units->GetBaseUnitValues(
@@ -3354,8 +3351,8 @@ bool GameManager_InitGame() {
     return true;
 }
 
-Color* GameManager_MenuFadeOut(int32_t time_limit) {
-    Color* palette;
+Color *GameManager_MenuFadeOut(int32_t time_limit) {
+    Color *palette;
 
     palette = new (std::nothrow) Color[PALETTE_STRIDE * PALETTE_SIZE];
     memcpy(palette, WindowManager_ColorPalette, PALETTE_STRIDE * PALETTE_SIZE);
@@ -3368,8 +3365,8 @@ Color* GameManager_MenuFadeOut(int32_t time_limit) {
 
 void GameManager_InitLandingSequenceMenu(bool enable_controls) { GameManager_LandingSequence.Init(enable_controls); }
 
-UnitInfo* GameManager_GetFirstRelevantUnit(uint16_t team) {
-    UnitInfo* unit;
+UnitInfo *GameManager_GetFirstRelevantUnit(uint16_t team) {
+    UnitInfo *unit;
 
     unit = Access_GetFirstMiningStation(team);
 
@@ -3388,12 +3385,12 @@ UnitInfo* GameManager_GetFirstRelevantUnit(uint16_t team) {
     return unit;
 }
 
-void GameManager_ColorEffect(struct ColorCycleData* color_cycle_table) {
+void GameManager_ColorEffect(struct ColorCycleData *color_cycle_table) {
     int32_t start_index;
     int32_t end_index;
     int32_t step_count;
-    Color* start_address;
-    Color* end_address;
+    Color *start_address;
+    Color *end_address;
     Color rgb_color[3];
 
     start_index = color_cycle_table->start_index;
@@ -3436,7 +3433,7 @@ void GameManager_ColorEffect(struct ColorCycleData* color_cycle_table) {
     }
 }
 
-bool GameManager_IsUnitNextToPosition(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
+bool GameManager_IsUnitNextToPosition(UnitInfo *unit, int32_t grid_x, int32_t grid_y) {
     int32_t grid_size;
     bool result;
 
@@ -3458,7 +3455,7 @@ bool GameManager_IsUnitNextToPosition(UnitInfo* unit, int32_t grid_x, int32_t gr
     return result;
 }
 
-bool GameManager_IsInteractable(UnitInfo* unit) {
+bool GameManager_IsInteractable(UnitInfo *unit) {
     bool result;
 
     if (unit->GetOrder() == ORDER_SENTRY || unit->GetOrder() == ORDER_IDLE || unit->GetOrder() == ORDER_DISABLE ||
@@ -3513,8 +3510,8 @@ void GameManager_UpdateHumanPlayerCount() {
 }
 
 void GameManager_MenuAnimateDisplayControls() {
-    WindowInfo* top_window;
-    WindowInfo* bottom_window;
+    WindowInfo *top_window;
+    WindowInfo *bottom_window;
     uint32_t time_stamp;
 
     top_window = WindowManager_GetWindow(WINDOW_TOP_INSTRUMENTS_WINDOW);
@@ -3539,8 +3536,8 @@ void GameManager_MenuAnimateDisplayControls() {
     }
 }
 
-bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
-    WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
+bool GameManager_LoadGame(int32_t save_slot, Color *palette_buffer) {
+    WindowInfo *window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     bool load_successful;
 
     WindowManager_FadeOut(0);
@@ -3645,8 +3642,8 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
     return load_successful;
 }
 
-void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
-    const char* const GameManager_EventStrings_EnemySpotted[] = {_(a2a6), _(7ccc), _(1f7a)};
+void GameManager_NotifyEvent(UnitInfo *unit, int32_t event) {
+    const char *const GameManager_EventStrings_EnemySpotted[] = {_(a2a6), _(7ccc), _(1f7a)};
     ResourceID resource_id1;
     ResourceID resource_id2;
     char text[300];
@@ -3727,7 +3724,7 @@ void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
     }
 }
 
-void GameManager_SelectBuildSite(UnitInfo* unit) {
+void GameManager_SelectBuildSite(UnitInfo *unit) {
     while (unit->GetOrderState() == ORDER_STATE_IN_TRANSITION) {
         GameManager_ProcessTick(false);
     }
@@ -3766,9 +3763,9 @@ void GameManager_ManagePlayerAction() {
     }
 }
 
-bool GameManager_InitPopupButtons(UnitInfo* unit) {
-    WindowInfo* main_map_window;
-    WindowInfo* popups_window;
+bool GameManager_InitPopupButtons(UnitInfo *unit) {
+    WindowInfo *main_map_window;
+    WindowInfo *popups_window;
     bool result;
 
     main_map_window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
@@ -3780,11 +3777,11 @@ bool GameManager_InitPopupButtons(UnitInfo* unit) {
         unit->popup->init(unit, &GameManager_PopupButtons);
 
         if (GameManager_PopupButtons.popup_count) {
-            struct ImageSimpleHeader* image;
+            struct ImageSimpleHeader *image;
             int32_t ulx;
             int32_t uly;
 
-            image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(UNTBTN_U));
+            image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(UNTBTN_U));
 
             GameManager_PopupButtons.width = image->width + 6;
             GameManager_PopupButtons.height =
@@ -3823,7 +3820,7 @@ bool GameManager_InitPopupButtons(UnitInfo* unit) {
             Text_SetFont(GNW_TEXT_FONT_2);
 
             for (int32_t i = 0; i < GameManager_PopupButtons.popup_count; ++i) {
-                Button* button;
+                Button *button;
                 ResourceID image_up;
                 ResourceID image_down;
 
@@ -3864,10 +3861,10 @@ bool GameManager_InitPopupButtons(UnitInfo* unit) {
 
 void GameManager_DeinitPopupButtons(bool clear_mouse_events) {
     if (GameManager_PopupButtons.popup_count) {
-        WindowInfo* popups;
-        WindowInfo* main_map;
-        WindowInfo* main_window;
-        Image* image;
+        WindowInfo *popups;
+        WindowInfo *main_map;
+        WindowInfo *main_window;
+        Image *image;
         Rect bounds;
 
         main_window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
@@ -3933,7 +3930,7 @@ void GameManager_UpdateGridCenterOffset() {
 }
 
 void GameManager_UpdatePanelButtons(uint16_t team) {
-    CTInfo* team_info;
+    CTInfo *team_info;
 
     team_info = &UnitsManager_TeamInfo[team];
 
@@ -4182,7 +4179,7 @@ void GameManager_FlicButtonRFunction(ButtonID bid, intptr_t value) {
     if (!GameManager_TextEditUnitName && GameManager_SelectedUnit != nullptr &&
         GameManager_SelectedUnit->team == GameManager_PlayerTeam &&
         UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type == TEAM_TYPE_PLAYER) {
-        WindowInfo* window;
+        WindowInfo *window;
         Rect bounds;
         char text[40];
 
@@ -4242,7 +4239,7 @@ void GameManager_SaveLoadGame(bool save_load_mode) {
                     MessageManager_DrawMessage(_(f640), 1, 0);
 
                 } else {
-                    Color* palette_buffer;
+                    Color *palette_buffer;
 
                     palette_buffer = GameManager_MenuFadeOut();
                     GameManager_LoadGame(SaveLoadMenu_SaveSlot, palette_buffer);
@@ -4256,7 +4253,7 @@ void GameManager_SaveLoadGame(bool save_load_mode) {
 }
 
 void GameManager_MenuInitDisplayControls() {
-    WindowInfo* window;
+    WindowInfo *window;
     int32_t width;
     int32_t height;
 
@@ -4269,7 +4266,7 @@ void GameManager_MenuInitDisplayControls() {
     Gamemanager_FlicButton->RegisterButton(window->id);
     GameManager_MenuInitButtons(true);
 
-    for (auto& control : GameManager_MenuDisplayControls) {
+    for (auto &control : GameManager_MenuDisplayControls) {
         window = WindowManager_GetWindow(control.window_id);
         width = window->window.lrx - window->window.ulx + 1;
         height = window->window.lry - window->window.uly + 1;
@@ -4326,12 +4323,12 @@ bool GameManager_HandleProximityOverlaps() {
     return true;
 }
 
-void GameManager_SetUnitOrder(const UnitOrderType order, const UnitOrderStateType state, UnitInfo* unit, int32_t grid_x,
+void GameManager_SetUnitOrder(const UnitOrderType order, const UnitOrderStateType state, UnitInfo *unit, int32_t grid_x,
                               int32_t grid_y) {
     GameManager_DeinitPopupButtons(false);
 
     if (order == ORDER_MOVE_TO_ATTACK) {
-        UnitInfo* target = Access_GetAttackTarget(unit, grid_x, grid_y);
+        UnitInfo *target = Access_GetAttackTarget(unit, grid_x, grid_y);
 
         if (target) {
             unit->SetEnemy(target);
@@ -4391,8 +4388,8 @@ bool GameManager_IsValidStartingPosition(int32_t grid_x, int32_t grid_y) {
 }
 
 uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
-    UnitInfo* team_unit = Access_GetTeamUnit(grid_x, grid_y, GameManager_PlayerTeam, SELECTABLE);
-    UnitInfo* unit_under_cursor = team_unit;
+    UnitInfo *team_unit = Access_GetTeamUnit(grid_x, grid_y, GameManager_PlayerTeam, SELECTABLE);
+    UnitInfo *unit_under_cursor = team_unit;
 
     if (!unit_under_cursor) {
         unit_under_cursor = Access_GetEnemyUnit(GameManager_PlayerTeam, grid_x, grid_y, SELECTABLE);
@@ -4542,7 +4539,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
     }
 
     if (GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_EXECUTING_ORDER) {
-        UnitInfo* enemy;
+        UnitInfo *enemy;
 
         enemy = Access_GetEnemyUnit(GameManager_PlayerTeam, grid_x, grid_y, SELECTABLE);
 
@@ -4737,7 +4734,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
     }
 }
 
-void GameManager_PathBuild(UnitInfo* unit) {
+void GameManager_PathBuild(UnitInfo *unit) {
     SDL_assert(GameManager_TempTape != nullptr);
 
     SoundManager_PlayVoice(V_M049, V_F050, -1);
@@ -4771,7 +4768,7 @@ void GameManager_PathBuild(UnitInfo* unit) {
     GameManager_AutoSelectNext(unit);
 }
 
-void GameManager_ReloadUnit(UnitInfo* unit1, UnitInfo* unit2) {
+void GameManager_ReloadUnit(UnitInfo *unit1, UnitInfo *unit2) {
     if (unit2->GetOrder() == ORDER_DISABLE) {
         SoundManager_PlaySfx(NCANC0);
         MessageManager_DrawMessage(_(d984), 1, 0);
@@ -4788,7 +4785,7 @@ void GameManager_ReloadUnit(UnitInfo* unit1, UnitInfo* unit2) {
     }
 }
 
-void GameManager_RepairUnit(UnitInfo* unit1, UnitInfo* unit2) {
+void GameManager_RepairUnit(UnitInfo *unit1, UnitInfo *unit2) {
     if (unit2->GetOrder() == ORDER_DISABLE) {
         SoundManager_PlaySfx(NCANC0);
         MessageManager_DrawMessage(_(7c90), 1, 0);
@@ -4805,7 +4802,7 @@ void GameManager_RepairUnit(UnitInfo* unit1, UnitInfo* unit2) {
     }
 }
 
-void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
+void GameManager_TransferCargo(UnitInfo *unit1, UnitInfo *unit2) {
     if (unit2->GetOrder() == ORDER_DISABLE) {
         SoundManager_PlaySfx(NCANC0);
         MessageManager_DrawMessage(_(42b7), 1, 0);
@@ -4851,7 +4848,7 @@ void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
     }
 }
 
-void GameManager_StealUnit(UnitInfo* unit1, UnitInfo* unit2) {
+void GameManager_StealUnit(UnitInfo *unit1, UnitInfo *unit2) {
     unit2 = Access_GetAttackTarget(unit1, unit2->grid_x, unit2->grid_y);
 
     if (unit2) {
@@ -4867,7 +4864,7 @@ void GameManager_StealUnit(UnitInfo* unit1, UnitInfo* unit2) {
     }
 }
 
-void GameManager_DisableUnit(UnitInfo* unit1, UnitInfo* unit2) {
+void GameManager_DisableUnit(UnitInfo *unit1, UnitInfo *unit2) {
     unit2 = Access_GetAttackTarget(unit1, unit2->grid_x, unit2->grid_y);
 
     if (unit2) {
@@ -4883,7 +4880,7 @@ void GameManager_DisableUnit(UnitInfo* unit1, UnitInfo* unit2) {
     }
 }
 
-void GameManager_FindValidStartingPosition(Point* position) {
+void GameManager_FindValidStartingPosition(Point *position) {
     if (!GameManager_IsValidStartingPosition(position->x, position->y)) {
         for (int32_t range = 2;; range += 2) {
             --position->x;
@@ -4935,7 +4932,7 @@ void GameManager_PopulateMapWithResources() {
     ResourceAllocator::SettleMinimumResourceLevels(ini_get_setting(INI_MIN_RESOURCES));
 }
 
-void GameManager_FindSpot(Point* point) {
+void GameManager_FindSpot(Point *point) {
     for (int32_t range = 2;; range += 2) {
         --point->x;
         ++point->y;
@@ -5141,7 +5138,7 @@ void GameManager_PopulateMapWithAlienUnits(int32_t alien_seperation, int32_t ali
 }
 
 void GameManager_ProcessTeamMissionSupplyUnits(uint16_t team) {
-    TeamMissionSupplies* supplies = &UnitsManager_TeamMissionSupplies[team];
+    TeamMissionSupplies *supplies = &UnitsManager_TeamMissionSupplies[team];
     SmartObjectArray<ResourceID> units(supplies->units);
     SmartObjectArray<uint16_t> cargos(supplies->cargos);
     SmartPointer<UnitInfo> mining_station;
@@ -5172,7 +5169,7 @@ void GameManager_ProcessTeamMissionSupplyUnits(uint16_t team) {
     UnitsManager_DeployUnit(
         LRGSLAB, team, nullptr, mining_station_location.x, mining_station_location.y,
         Randomizer_Generate(
-            reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[LRGSLAB].data_buffer)->image_count));
+            reinterpret_cast<struct BaseUnitDataFile *>(UnitsManager_BaseUnits[LRGSLAB].data_buffer)->image_count));
 
     UnitsManager_SetInitialMining(&*mining_station, mining_station_location.x, mining_station_location.y);
 
@@ -5187,7 +5184,7 @@ void GameManager_ProcessTeamMissionSupplyUnits(uint16_t team) {
     UnitsManager_DeployUnit(
         SMLSLAB, team, nullptr, power_generator_location.x, power_generator_location.y,
         Randomizer_Generate(
-            reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[SMLSLAB].data_buffer)->image_count));
+            reinterpret_cast<struct BaseUnitDataFile *>(UnitsManager_BaseUnits[SMLSLAB].data_buffer)->image_count));
 
     UnitsManager_UpdateConnectors(&*power_generator);
 
@@ -5219,10 +5216,10 @@ bool GameManager_SyncTurnTimer() {
 
         time_stamp = timer_get();
 
-        seconds_elapsed = (time_stamp - Remote_PauseTimeStamp) / (TIMER_FPS_TO_MS(1) - 1);
+        seconds_elapsed = (time_stamp - Remote_PauseTimeStamp) / TIMER_FPS_TO_MS(1);
 
         if (seconds_elapsed) {
-            Remote_PauseTimeStamp = time_stamp;
+            Remote_PauseTimeStamp += seconds_elapsed * TIMER_FPS_TO_MS(1);
             GameManager_TurnTimerValue -= seconds_elapsed;
 
             if (GameManager_TurnTimerValue <= 0) {
@@ -5296,7 +5293,7 @@ bool GameManager_ProcessTick(bool render_screen) {
     time_stamp = timer_get();
 
     for (int32_t i = sizeof(GameManager_ColorCycleTable) / sizeof(struct ColorCycleData) - 1; i >= 0; --i) {
-        ColorCycleData* data;
+        ColorCycleData *data;
         data = &GameManager_ColorCycleTable[i];
 
         if ((time_stamp - data->time_stamp) >= data->time_limit) {
@@ -5358,7 +5355,7 @@ bool GameManager_ProcessTick(bool render_screen) {
 }
 
 void GameManager_GuiSwitchTeam(uint16_t team) {
-    CTInfo* team_info;
+    CTInfo *team_info;
 
     team_info = &UnitsManager_TeamInfo[team];
 
@@ -5379,7 +5376,7 @@ void GameManager_GuiSwitchTeam(uint16_t team) {
     team_info->display_button_survey = GameManager_DisplayButtonSurvey;
 }
 
-void GameManager_EnableMainMenu(UnitInfo* unit) {
+void GameManager_EnableMainMenu(UnitInfo *unit) {
     if (!GameManager_IsMainMenuEnabled && GameManager_DisplayControlsInitialized) {
         Gamemanager_FlicButton->Enable();
 
@@ -5470,9 +5467,9 @@ bool GameManager_ProcessTextInput(int32_t key) {
     return result;
 }
 
-bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo>& units) {
+bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo> &units) {
     bool result{false};
-    const char* const GameManager_OrderStatusMessages[] = {
+    const char *const GameManager_OrderStatusMessages[] = {
         _(1f51), _(e96b), _(8dac), _(1d99), _(87c5), _(0010), _(2200), _(feff), _(2c8d), _(ce0f), _(dfe7),
         _(0664), _(5ece), _(68b7), _(6553), _(dc38), _(ab01), _(e2c5), _(1469), _(a4b3), _(5e16), _(6172),
         _(7bcd), _(5f83), _(8115), _(e843), _(7508), _(d80d), _(85f8), _(1925), _(bc06), _(c331)};
@@ -5497,7 +5494,7 @@ bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo>& units) {
 }
 
 void GameManager_ProcessKey() {
-    CTInfo* team_info;
+    CTInfo *team_info;
     int32_t key;
 
     team_info = &UnitsManager_TeamInfo[GameManager_PlayerTeam];
@@ -5930,7 +5927,7 @@ void GameManager_ProcessKey() {
     }
 }
 
-int32_t GameManager_GetBuilderUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2) {
+int32_t GameManager_GetBuilderUnitCursor(UnitInfo *unit1, int32_t grid_x, int32_t grid_y, UnitInfo *unit2) {
     int32_t result;
 
     if (unit1->GetOrderState() == ORDER_STATE_UNIT_READY) {
@@ -6038,8 +6035,8 @@ int32_t GameManager_GetBuilderUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_
     return result;
 }
 
-int32_t GameManager_GetAirUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2) {
-    UnitInfo* parent;
+int32_t GameManager_GetAirUnitCursor(UnitInfo *unit1, int32_t grid_x, int32_t grid_y, UnitInfo *unit2) {
+    UnitInfo *parent;
     int32_t result;
 
     parent = unit1->GetParent();
@@ -6065,11 +6062,11 @@ int32_t GameManager_GetAirUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_t gr
     return result;
 }
 
-bool GameManager_IsUnitNotInAir(UnitInfo* unit) {
+bool GameManager_IsUnitNotInAir(UnitInfo *unit) {
     return !(unit->flags & MOBILE_AIR_UNIT) || !(unit->flags & HOVERING);
 }
 
-UnitInfo* GameManager_GetUnitWithCargoType(Complex* complex, int32_t cargo_type) {
+UnitInfo *GameManager_GetUnitWithCargoType(Complex *complex, int32_t cargo_type) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).GetComplex() == complex && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == cargo_type) {
@@ -6080,7 +6077,7 @@ UnitInfo* GameManager_GetUnitWithCargoType(Complex* complex, int32_t cargo_type)
     return nullptr;
 }
 
-int32_t GameManager_GetUnitActionCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2) {
+int32_t GameManager_GetUnitActionCursor(UnitInfo *unit1, int32_t grid_x, int32_t grid_y, UnitInfo *unit2) {
     int32_t result;
 
     uint32_t flags = GameManager_MaxSpy ? AccessModifier_IgnoreVisibility : AccessModifier_NoModifiers;
@@ -6188,7 +6185,7 @@ int32_t GameManager_GetUnitActionCursor(UnitInfo* unit1, int32_t grid_x, int32_t
     return result;
 }
 
-bool GameManager_IsValidTransferTarget(UnitInfo* unit1, UnitInfo* unit2) {
+bool GameManager_IsValidTransferTarget(UnitInfo *unit1, UnitInfo *unit2) {
     bool result;
 
     if (unit1 != unit2) {
@@ -6222,7 +6219,7 @@ bool GameManager_IsValidTransferTarget(UnitInfo* unit1, UnitInfo* unit2) {
     return result;
 }
 
-bool GameManager_IsValidStealTarget(UnitInfo* unit1, UnitInfo* unit2) {
+bool GameManager_IsValidStealTarget(UnitInfo *unit1, UnitInfo *unit2) {
     bool result;
 
     if ((unit2->flags & STATIONARY) || !(unit2->flags & ELECTRONIC_UNIT) || unit2->GetOrder() == ORDER_TRANSFORM ||
@@ -6245,7 +6242,7 @@ bool GameManager_IsValidStealTarget(UnitInfo* unit1, UnitInfo* unit2) {
     return result;
 }
 
-bool GameManager_IsValidDisableTarget(UnitInfo* unit1, UnitInfo* unit2) {
+bool GameManager_IsValidDisableTarget(UnitInfo *unit1, UnitInfo *unit2) {
     bool result;
 
     if (!(unit2->flags & ELECTRONIC_UNIT) || unit2->GetOrder() == ORDER_TRANSFORM || unit2->GetOrder() == ORDER_FIRE ||
@@ -6263,7 +6260,7 @@ bool GameManager_IsValidDisableTarget(UnitInfo* unit1, UnitInfo* unit2) {
     return result;
 }
 
-int32_t GameManager_GetMilitaryCursor(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
+int32_t GameManager_GetMilitaryCursor(UnitInfo *unit, int32_t grid_x, int32_t grid_y) {
     if (GameManager_SelectedUnit->delayed_reaction) {
         return CURSOR_UNIT_NO_GO;
     }
@@ -6281,7 +6278,7 @@ int32_t GameManager_GetMilitaryCursor(UnitInfo* unit, int32_t grid_x, int32_t gr
     }
 
     {
-        UnitInfo* target = Access_GetAttackTarget(GameManager_SelectedUnit.Get(), grid_x, grid_y);
+        UnitInfo *target = Access_GetAttackTarget(GameManager_SelectedUnit.Get(), grid_x, grid_y);
 
         if (target) {
             if (GameManager_SelectedUnit->GetUnitType() == COMMANDO && GameManager_SelectedUnit->targeting_mode == 0) {
@@ -6343,7 +6340,7 @@ int32_t GameManager_GetMilitaryCursor(UnitInfo* unit, int32_t grid_x, int32_t gr
     }
 }
 
-void GameManager_UnitSelectOther(UnitInfo* unit1, UnitInfo* unit2, int32_t grid_x, int32_t grid_y) {
+void GameManager_UnitSelectOther(UnitInfo *unit1, UnitInfo *unit2, int32_t grid_x, int32_t grid_y) {
     if (unit1 != unit2) {
         GameManager_DeinitPopupButtons(false);
         GameManager_UpdateDrawBounds();
@@ -6360,7 +6357,7 @@ void GameManager_UnitSelectOther(UnitInfo* unit1, UnitInfo* unit2, int32_t grid_
     }
 }
 
-void GameManager_UnitSelect(UnitInfo* unit) {
+void GameManager_UnitSelect(UnitInfo *unit) {
     GameManager_DeinitPopupButtons(false);
     GameManager_UpdateDrawBounds();
     GameManager_MenuUnitSelect(unit);
@@ -6379,7 +6376,7 @@ void GameManager_UnitSelect(UnitInfo* unit) {
     }
 }
 
-void GameManager_ClickUnit(UnitInfo* unit1, UnitInfo* unit2, int32_t grid_x, int32_t grid_y) {
+void GameManager_ClickUnit(UnitInfo *unit1, UnitInfo *unit2, int32_t grid_x, int32_t grid_y) {
     if (unit1 != unit2) {
         unit2->ClearUnitList();
         GameManager_UnitSelect(unit2);
@@ -6406,7 +6403,7 @@ void GameManager_ClickUnit(UnitInfo* unit1, UnitInfo* unit2, int32_t grid_x, int
     }
 }
 
-bool GameManager_UpdateSelection(UnitInfo* unit1, UnitInfo* unit2, int32_t grid_x, int32_t grid_y) {
+bool GameManager_UpdateSelection(UnitInfo *unit1, UnitInfo *unit2, int32_t grid_x, int32_t grid_y) {
     bool result;
 
     if (unit2 && unit2->team != GameManager_PlayerTeam) {
@@ -6431,7 +6428,7 @@ bool GameManager_UpdateSelection(UnitInfo* unit1, UnitInfo* unit2, int32_t grid_
                            (unit2->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
                            unit1->GetOrderState() == ORDER_STATE_EXECUTING_ORDER &&
                            unit2->GetOrderState() == ORDER_STATE_EXECUTING_ORDER) {
-                    SmartList<UnitInfo>* units = unit1->GetUnitList();
+                    SmartList<UnitInfo> *units = unit1->GetUnitList();
 
                     if (!units || units->GetCount() < 10) {
                         unit2->ClearUnitList();
@@ -6474,7 +6471,7 @@ void GameManager_SetGridOffset(int32_t grid_x_offset, int32_t grid_y_offset) {
 }
 
 void GameManager_ProcessInput() {
-    WindowInfo* window;
+    WindowInfo *window;
     uint8_t window_index;
     uint8_t window_cursor;
 
@@ -6831,7 +6828,7 @@ void GameManager_ProcessInput() {
                             }
 
                         } else {
-                            UnitInfo* unit =
+                            UnitInfo *unit =
                                 Access_GetTeamUnit(GameManager_MousePosition.x, GameManager_MousePosition.y,
                                                    GameManager_PlayerTeam, SELECTABLE);
 
@@ -6863,7 +6860,7 @@ void GameManager_ProcessInput() {
                                 }
 
                             } else {
-                                UnitInfo* unit2 =
+                                UnitInfo *unit2 =
                                     Access_GetEnemyUnit(GameManager_PlayerTeam, GameManager_MousePosition.x,
                                                         GameManager_MousePosition.y, SELECTABLE);
 
@@ -7056,7 +7053,7 @@ void GameManager_ProcessInput() {
                                         } break;
 
                                         case CURSOR_ACTIVATE: {
-                                            UnitInfo* parent = GameManager_SelectedUnit->GetParent();
+                                            UnitInfo *parent = GameManager_SelectedUnit->GetParent();
 
                                             parent->target_grid_x = GameManager_MousePosition.x;
                                             parent->target_grid_y = GameManager_MousePosition.y;
@@ -7110,9 +7107,9 @@ void GameManager_MenuDeleteFlic() {
 }
 
 void GameManager_MenuCreateFlic(ResourceID unit_type, int32_t ulx, int32_t uly) {
-    WindowInfo* main_window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
-    WindowInfo* flic_window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
-    BaseUnit* base_unit = &UnitsManager_BaseUnits[unit_type];
+    WindowInfo *main_window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
+    WindowInfo *flic_window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
+    BaseUnit *base_unit = &UnitsManager_BaseUnits[unit_type];
 
     GameManager_MenuDeleteFlic();
 
@@ -7142,11 +7139,11 @@ void GameManager_MenuCreateFlic(ResourceID unit_type, int32_t ulx, int32_t uly) 
     GameManager_DrawFlic(&GameManager_Flic.dw.window);
 }
 
-void GameManager_DrawFlic(Rect* bounds) {
+void GameManager_DrawFlic(Rect *bounds) {
     const int32_t local_width = GameManager_Flic.dw.window.lrx - GameManager_Flic.dw.window.ulx + 1;
     const int32_t local_height = GameManager_Flic.dw.window.lry - GameManager_Flic.dw.window.uly + 1;
     const int32_t local_offset_y = bounds->uly - GameManager_Flic.dw.window.uly;
-    uint8_t* const local_buffer = new (std::nothrow) uint8_t[local_width * local_height];
+    uint8_t *const local_buffer = new (std::nothrow) uint8_t[local_width * local_height];
 
     cscale(GameManager_Flic.sw.buffer, FLICSMGR_FLIC_SIZE, FLICSMGR_FLIC_SIZE, FLICSMGR_FLIC_SIZE, local_buffer,
            local_width, local_height, local_width);
@@ -7178,7 +7175,7 @@ void GameManager_AdvanceFlic() {
     }
 }
 
-void GameManager_DrawCircle(UnitInfo* unit, WindowInfo* window, int32_t radius, int32_t color) {
+void GameManager_DrawCircle(UnitInfo *unit, WindowInfo *window, int32_t radius, int32_t color) {
     if (radius > 0 && unit->GetOrder() != ORDER_DISABLE) {
         Rect bounds;
         int32_t scaled_radius;
@@ -7217,7 +7214,7 @@ void GameManager_DrawCircle(UnitInfo* unit, WindowInfo* window, int32_t radius, 
     }
 }
 
-void GameManager_MenuUnitSelect(UnitInfo* unit) {
+void GameManager_MenuUnitSelect(UnitInfo *unit) {
     if (GameManager_DisplayControlsInitialized) {
         if (GameManager_SelectedUnit != nullptr && GameManager_SelectedUnit != unit) {
             GameManager_SelectedUnit->RefreshScreen();
@@ -7232,7 +7229,7 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
         }
 
         if (unit) {
-            WindowInfo* window;
+            WindowInfo *window;
             int32_t sound;
             char text[100];
 
@@ -7333,7 +7330,7 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
 }
 
 void GameManager_FillOrRestoreWindow(uint8_t id, int32_t color, bool redraw) {
-    WindowInfo* window;
+    WindowInfo *window;
 
     window = WindowManager_GetWindow(id);
 
@@ -7357,9 +7354,9 @@ void GameManager_FillOrRestoreWindow(uint8_t id, int32_t color, bool redraw) {
     }
 }
 
-void GameManager_DrawInfoDisplayRowIcons(uint8_t* buffer, int32_t full_width, int32_t width, int32_t height,
+void GameManager_DrawInfoDisplayRowIcons(uint8_t *buffer, int32_t full_width, int32_t width, int32_t height,
                                          ResourceID icon, int32_t current_value, int32_t base_value) {
-    struct ImageSimpleHeader* image;
+    struct ImageSimpleHeader *image;
     int32_t width_offset;
     int32_t height_offset;
     int32_t buffer_offset;
@@ -7372,10 +7369,10 @@ void GameManager_DrawInfoDisplayRowIcons(uint8_t* buffer, int32_t full_width, in
     int32_t icon_index;
 
     if (current_value) {
-        image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(icon));
+        image = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(icon));
 
     } else {
-        image = reinterpret_cast<struct ImageSimpleHeader*>(
+        image = reinterpret_cast<struct ImageSimpleHeader *>(
             ResourceManager_LoadResource(static_cast<ResourceID>(icon + 1)));
     }
 
@@ -7430,16 +7427,16 @@ void GameManager_DrawInfoDisplayRowIcons(uint8_t* buffer, int32_t full_width, in
             --current_value;
 
             if (current_value == 0) {
-                image = reinterpret_cast<struct ImageSimpleHeader*>(
+                image = reinterpret_cast<struct ImageSimpleHeader *>(
                     ResourceManager_LoadResource(static_cast<ResourceID>(icon + 1)));
             }
         }
     }
 }
 
-void GameManager_DrawInfoDisplayRow(const char* label, int32_t window_id, ResourceID icon, int32_t current_value,
+void GameManager_DrawInfoDisplayRow(const char *label, int32_t window_id, ResourceID icon, int32_t current_value,
                                     int32_t base_value, int32_t factor) {
-    WindowInfo* window;
+    WindowInfo *window;
     int32_t width;
     int32_t height;
     int32_t color;
@@ -7504,7 +7501,7 @@ void GameManager_DrawInfoDisplayRow(const char* label, int32_t window_id, Resour
     }
 }
 
-void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
+void GameManager_DrawInfoDisplayType2(UnitInfo *unit) {
     int32_t power_need;
 
     power_need = Cargo_GetPowerConsumptionRate(unit->GetUnitType());
@@ -7576,7 +7573,7 @@ void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
     }
 }
 
-void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
+void GameManager_DrawInfoDisplayType1(UnitInfo *unit) {
     int32_t life_need;
 
     life_need = Cargo_GetLifeConsumptionRate(unit->GetUnitType());
@@ -7648,7 +7645,7 @@ void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
     }
 }
 
-void GameManager_DrawInfoDisplayType3(UnitInfo* unit) {
+void GameManager_DrawInfoDisplayType3(UnitInfo *unit) {
     uint32_t current_value;
     uint32_t value_limit;
 
@@ -7677,9 +7674,9 @@ void GameManager_DrawInfoDisplayType3(UnitInfo* unit) {
                                    current_value, value_limit);
 }
 
-SmartString GameManager_GetUnitStatusMessage(UnitInfo* unit) {
+SmartString GameManager_GetUnitStatusMessage(UnitInfo *unit) {
     SmartString message;
-    const char* const GameManager_OrderStatusMessages[] = {
+    const char *const GameManager_OrderStatusMessages[] = {
         _(1f51), _(e96b), _(8dac), _(1d99), _(87c5), _(0010), _(2200), _(feff), _(2c8d), _(ce0f), _(dfe7),
         _(0664), _(5ece), _(68b7), _(6553), _(dc38), _(ab01), _(e2c5), _(1469), _(a4b3), _(5e16), _(6172),
         _(7bcd), _(5f83), _(8115), _(e843), _(7508), _(d80d), _(85f8), _(1925), _(bc06), _(c331)};
@@ -7734,10 +7731,10 @@ uint8_t GameManager_GetDialogWindowCenterMode() {
     return result;
 }
 
-void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
+void GameManager_UpdateInfoDisplay(UnitInfo *unit) {
     if (unit->IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy) {
         SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
-        WindowInfo* window;
+        WindowInfo *window;
         uint8_t scaling_factor{0};
 
         window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
@@ -7852,7 +7849,7 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
 }
 
 void GameManager_MenuInitButtons(bool mode) {
-    WindowInfo* window;
+    WindowInfo *window;
     int32_t r_value;
     int32_t p_value;
     uint32_t flags;
@@ -7928,11 +7925,11 @@ void GameManager_MenuInitButtons(bool mode) {
     Text_SetFont(GNW_TEXT_FONT_5);
 
     for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
-        struct ImageSimpleHeader* image;
+        struct ImageSimpleHeader *image;
         WindowInfo wininfo;
         int32_t color;
 
-        image = reinterpret_cast<struct ImageSimpleHeader*>(
+        image = reinterpret_cast<struct ImageSimpleHeader *>(
             ResourceManager_LoadResource(static_cast<ResourceID>(R_ENDT_D + i)));
 
         wininfo.id = window->id;
@@ -7960,17 +7957,17 @@ void GameManager_MenuDeinitButtons() {
     }
 }
 
-void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
+void GameManager_DrawBuilderUnitStatusMessage(UnitInfo *unit) {
     SmartString string;
-    const char* const GameManager_EventStrings_FinishedBuilding[] = {_(1200), _(74d3), _(8c62)};
-    const char* const GameManager_EventStrings_FinishedConstruction[] = {_(276c), _(d82e), _(01d0)};
+    const char *const GameManager_EventStrings_FinishedBuilding[] = {_(1200), _(74d3), _(8c62)};
+    const char *const GameManager_EventStrings_FinishedConstruction[] = {_(276c), _(d82e), _(01d0)};
 
     if (unit->GetUnitType() == BULLDOZR) {
         string.Sprintf(80, _(af4a), unit->build_time);
 
     } else if (unit->GetOrderState() == ORDER_STATE_UNIT_READY) {
-        BaseUnit* base_unit1 = &UnitsManager_BaseUnits[unit->GetUnitType()];
-        BaseUnit* base_unit2 = &UnitsManager_BaseUnits[unit->GetParent()->GetUnitType()];
+        BaseUnit *base_unit1 = &UnitsManager_BaseUnits[unit->GetUnitType()];
+        BaseUnit *base_unit2 = &UnitsManager_BaseUnits[unit->GetParent()->GetUnitType()];
 
         if (unit->flags & STATIONARY) {
             string.Sprintf(200, GameManager_EventStrings_FinishedBuilding[base_unit2->gender],
@@ -8000,7 +7997,7 @@ void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
     MessageManager_DrawMessage(string.GetCStr(), 0, 0);
 }
 
-void GameManager_DrawDisabledUnitStatusMessage(UnitInfo* unit) {
+void GameManager_DrawDisabledUnitStatusMessage(UnitInfo *unit) {
     SmartString string;
 
     string.Sprintf(200, _(bda4), unit->recoil_delay);
@@ -8008,7 +8005,7 @@ void GameManager_DrawDisabledUnitStatusMessage(UnitInfo* unit) {
     MessageManager_DrawMessage(string.GetCStr(), 0, 0);
 }
 
-void GameManager_PlayUnitStatusVoice(UnitInfo* unit) {
+void GameManager_PlayUnitStatusVoice(UnitInfo *unit) {
     bool is_ammo_low;
     bool is_ammo_depleted;
     bool is_movement_exhausted;
@@ -8103,7 +8100,7 @@ void GameManager_PlayUnitStatusVoice(UnitInfo* unit) {
     }
 }
 
-void GameManager_DrawUnitStatusMessage(UnitInfo* unit) {
+void GameManager_DrawUnitStatusMessage(UnitInfo *unit) {
     const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
 
     if (unit->GetOrder() == ORDER_DISABLE && unit->team != PLAYER_TEAM_ALIEN) {
@@ -8140,7 +8137,7 @@ void GameManager_MenuDeinitDisplayControls() {
     }
 }
 
-void GameManager_SpawnNewUnits(uint16_t team, SmartList<UnitInfo>* units, uint16_t* counts) {
+void GameManager_SpawnNewUnits(uint16_t team, SmartList<UnitInfo> *units, uint16_t *counts) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).team == team && (*it).build_time && (*it).GetOrder() != ORDER_HALT_BUILDING &&
             (*it).GetOrder() != ORDER_HALT_BUILDING_2) {
@@ -8160,16 +8157,16 @@ void GameManager_SpawnNewUnits(uint16_t team, SmartList<UnitInfo>* units, uint16
     }
 }
 
-char* GameManager_PrependMessageChunk(const char* chunk, char* message) {
+char *GameManager_PrependMessageChunk(const char *chunk, char *message) {
     memmove(&message[strlen(chunk)], message, strlen(message) + 1);
     memcpy(message, chunk, strlen(chunk));
 
     return message;
 }
 
-void GameManager_ReportNewUnitsMessage(uint16_t* counts) {
-    const char* const GameManager_EventStrings_NewSingular[] = {_(c64e), _(8d3e), _(9df3)};
-    const char* const GameManager_EventStrings_NewPlural[] = {_(5e9c), _(6fe5), _(2488)};
+void GameManager_ReportNewUnitsMessage(uint16_t *counts) {
+    const char *const GameManager_EventStrings_NewSingular[] = {_(c64e), _(8d3e), _(9df3)};
+    const char *const GameManager_EventStrings_NewPlural[] = {_(5e9c), _(6fe5), _(2488)};
     int32_t unit_count;
     int32_t different_type_count;
     bool flag;
@@ -8261,7 +8258,7 @@ void GameManager_ProgressBuildState(uint16_t team) {
         GameManager_ReportNewUnitsMessage(unit_counters);
     }
 
-    const auto& complexes = UnitsManager_TeamInfo[team].team_units->GetComplexes();
+    const auto &complexes = UnitsManager_TeamInfo[team].team_units->GetComplexes();
 
     for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
         Access_UpdateResourcesTotal(&(*it));
@@ -8310,7 +8307,7 @@ void GameManager_DrawProximityZones() {
 Point GameManager_GetMinimapPosition() {
     const double scale = WindowManager_GetScale();
     double map_scale;
-    WindowInfo* minimap = WindowManager_GetWindow(WINDOW_MINIMAP);
+    WindowInfo *minimap = WindowManager_GetWindow(WINDOW_MINIMAP);
     Point minimap_position;
     constexpr int32_t minimap_slot_size{112};
     Rect minimap_bounds;
@@ -8357,7 +8354,7 @@ Point GameManager_GetMinimapPosition() {
     return minimap_position;
 }
 
-void GameManager_QuickBuildMenuDrawPortraits(WindowInfo* window, ResourceID id1, ResourceID id2, int32_t width) {
+void GameManager_QuickBuildMenuDrawPortraits(WindowInfo *window, ResourceID id1, ResourceID id2, int32_t width) {
     uint16_t unit_id{id1};
 
     for (int32_t i = 0; i < MENU_QUICK_BUILD_UNIT_SLOTS; ++i) {
@@ -8405,11 +8402,11 @@ void GameManager_QuickBuildMenu() {
 
         Cursor_SetCursor(CURSOR_HAND);
 
-        for (auto& item : GameManager_QuickBuildMenuItems) {
-            auto image_off = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(item.id1));
-            auto image_on = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(item.id2));
-            uint8_t* up;
-            uint8_t* down;
+        for (auto &item : GameManager_QuickBuildMenuItems) {
+            auto image_off = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(item.id1));
+            auto image_on = reinterpret_cast<struct ImageSimpleHeader *>(ResourceManager_LoadResource(item.id2));
+            uint8_t *up;
+            uint8_t *down;
 
             if (image_off != nullptr) {
                 up = &image_off->transparent_color;
@@ -8512,7 +8509,7 @@ void GameManager_QuickBuildMenu() {
 
         } while (key != 1000);
 
-        for (auto& item : GameManager_QuickBuildMenuItems) {
+        for (auto &item : GameManager_QuickBuildMenuItems) {
             win_delete_button(item.bid);
         }
     }

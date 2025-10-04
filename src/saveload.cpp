@@ -36,7 +36,6 @@
 #include "units_manager.hpp"
 
 /// \todo
-extern const char *menu_team_names[];
 extern uint16_t SaveLoadMenu_TurnTimer;
 extern uint8_t SaveLoadMenu_GameState;
 
