@@ -175,7 +175,7 @@ void TaskClearZone::EndTurn() {
 
                 if (state == CLEARZONE_STATE_WAITING) {
                     while (!ExamineZones()) {
-                        if (TickTimer_HaveTimeToThink()) {
+                        if (!TickTimer_HaveTimeToThink()) {
                             state = CLEARZONE_STATE_WAITING;
 
                             RemindTurnEnd(true);
