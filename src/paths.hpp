@@ -96,7 +96,7 @@ public:
 
     void AddStep(int32_t step_x, int32_t step_y);
     SmartObjectArray<PathStep> GetSteps();
-    uint16_t GetPathStepIndex() const;
+    uint32_t GetPathStepIndex() const;
 };
 
 class AirPath : public UnitPath {

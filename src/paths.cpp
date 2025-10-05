@@ -460,7 +460,17 @@ void GroundPath::FileLoad(SmartFileReader& file) noexcept {
 
     file.Read(x_end);
     file.Read(y_end);
-    file.Read(index);
+
+    if (file.GetFormat() == SmartFileFormat::V70) {
+        uint16_t local_index;
+
+        file.Read(local_index);
+
+        index = local_index;
+
+    } else {
+        file.Read(index);
+    }
 
     count = file.ReadObjectCount();
 
@@ -1014,7 +1024,7 @@ void GroundPath::AddStep(int32_t step_x, int32_t step_y) {
 
 SmartObjectArray<PathStep> GroundPath::GetSteps() { return steps; }
 
-uint16_t GroundPath::GetPathStepIndex() const { return index; }
+uint32_t GroundPath::GetPathStepIndex() const { return index; }
 
 bool Paths_RequestPath(UnitInfo* unit, int32_t mode) {
     bool result;

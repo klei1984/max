@@ -2459,7 +2459,7 @@ void UnitInfo::Move() {
             if (path) {
                 GroundPath* ground_path = dynamic_cast<GroundPath*>(&*path);
                 SmartObjectArray<PathStep> path_steps = ground_path->GetSteps();
-                int32_t path_step_index = ground_path->GetPathStepIndex();
+                uint32_t path_step_index = ground_path->GetPathStepIndex();
 
                 path_steps[path_step_index]->x -= offset_x;
                 path_steps[path_step_index]->y -= offset_y;
