@@ -244,7 +244,7 @@ void MessageManager_LoadMessageLogs(SmartFileReader& file) {
     for (int32_t i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
         MessageManager_TeamMessageLog[i].Clear();
 
-        for (int32_t count = file.ReadObjectCount(); count > 0; --count) {
+        for (int64_t count = file.ReadObjectCount(); count > 0; --count) {
             MessageManager_TeamMessageLog[i].PushBack(
                 *dynamic_cast<MessageLogEntry*>(new (std::nothrow) MessageLogEntry(file)));
         }

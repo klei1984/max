@@ -110,7 +110,7 @@ public:
 
 TEST_F(SmartFileTest, ReadWrite) {
     uint32_t integer{123456};
-    uint16_t count{111};
+    uint32_t count{111};
     SmartPointer<TestSmartFileObject> object = dynamic_cast<TestSmartFileObject*>(TestSmartFileObject::Allocate());
 
     object->SetInt8(INT8_MIN);

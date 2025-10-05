@@ -451,7 +451,7 @@ void UnitInfo_BuildList_FileLoad(SmartObjectArray<ResourceID>* build_list, Smart
 
     build_list->Clear();
 
-    for (int32_t count = file.ReadObjectCount(); count > 0; --count) {
+    for (int64_t count = file.ReadObjectCount(); count > 0; --count) {
         file.Read(unit_type);
         build_list->PushBack(&unit_type);
     }

@@ -4563,7 +4563,7 @@ bool AiPlayer::SelectStrategy() {
 }
 
 void AiPlayer::FileSave(SmartFileWriter& file) {
-    uint16_t item_count;
+    uint32_t item_count;
 
     file.Write(player_team);
     file.Write(strategy);
@@ -4580,7 +4580,7 @@ void AiPlayer::FileSave(SmartFileWriter& file) {
 
     item_count = info_map ? 1 : 0;
 
-    file.Write(item_count);
+    file.WriteObjectCount(item_count);
 
     if (item_count) {
         for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
@@ -4590,7 +4590,7 @@ void AiPlayer::FileSave(SmartFileWriter& file) {
 
     item_count = mine_map ? 1 : 0;
 
-    file.Write(item_count);
+    file.WriteObjectCount(item_count);
 
     if (item_count) {
         for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
@@ -4602,7 +4602,7 @@ void AiPlayer::FileSave(SmartFileWriter& file) {
 }
 
 void AiPlayer::FileLoad(SmartFileReader& file) {
-    uint16_t item_count;
+    uint32_t item_count;
 
     file.Read(player_team);
     file.Read(strategy);
@@ -4617,7 +4617,7 @@ void AiPlayer::FileLoad(SmartFileReader& file) {
     air_force.Clear();
     ground_forces.Clear();
 
-    for (int32_t i = 0; i < item_count; ++i) {
+    for (uint32_t i = 0; i < item_count; ++i) {
         SmartPointer<SpottedUnit> spotted_unit(new (std::nothrow) SpottedUnit(file));
 
         spotted_units.PushBack(*spotted_unit);

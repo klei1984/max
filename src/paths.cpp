@@ -455,7 +455,7 @@ FileObject* GroundPath::Allocate() noexcept { return new (std::nothrow) GroundPa
 uint32_t GroundPath::GetTypeIndex() const { return Paths_GroundPath_TypeIndex; }
 
 void GroundPath::FileLoad(SmartFileReader& file) noexcept {
-    int32_t count;
+    uint32_t count;
     PathStep step;
 
     file.Read(x_end);
@@ -466,14 +466,14 @@ void GroundPath::FileLoad(SmartFileReader& file) noexcept {
 
     steps.Clear();
 
-    for (int32_t i = 0; i < count; ++i) {
+    for (uint32_t i = 0; i < count; ++i) {
         file.Read(step);
         steps.PushBack(&step);
     }
 }
 
 void GroundPath::FileSave(SmartFileWriter& file) noexcept {
-    int32_t count;
+    uint32_t count;
     PathStep step;
 
     file.Write(x_end);
@@ -484,7 +484,7 @@ void GroundPath::FileSave(SmartFileWriter& file) noexcept {
 
     file.WriteObjectCount(count);
 
-    for (int32_t i = 0; i < count; ++i) {
+    for (uint32_t i = 0; i < count; ++i) {
         file.Write(*steps[i]);
     }
 }
