@@ -6544,7 +6544,9 @@ void GameManager_ProcessInput() {
     }
 
     if (GameManager_GameState == GAME_STATE_7_SITE_SELECT && window_index != WINDOW_MAIN_MAP) {
-        window_index = WINDOW_MAIN_WINDOW;
+        if (window_index < WINDOW_SCROLL_UP_WINDOW || window_index > WINDOW_SCROLL_UP_LEFT_WINDOW) {
+            window_index = WINDOW_MAIN_WINDOW;
+        }
     }
 
     window_cursor = Cursor_GetDefaultWindowCursor(window_index);
