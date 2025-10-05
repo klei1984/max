@@ -232,18 +232,18 @@ void GNW_process_key(SDL_KeyboardEvent* key_data) {
         GNW_INPUT_SCANCODE_MAP_ITEM(0x55, SDL_SCANCODE_KP_MULTIPLY, GNW_KB_SCAN_KP_MULTIPLY),
         GNW_INPUT_SCANCODE_MAP_ITEM(0x56, SDL_SCANCODE_KP_MINUS, GNW_KB_SCAN_KP_MINUS),
         GNW_INPUT_SCANCODE_MAP_ITEM(0x57, SDL_SCANCODE_KP_PLUS, GNW_KB_SCAN_KP_PLUS),
-        GNW_INPUT_SCANCODE_MAP_ITEM(0x58, SDL_SCANCODE_KP_ENTER, GNW_KB_SCAN_KP_ENTER),
-        GNW_INPUT_SCANCODE_MAP_ITEM(0x59, SDL_SCANCODE_KP_1, -1),
-        GNW_INPUT_SCANCODE_MAP_ITEM(0x5A, SDL_SCANCODE_KP_2, -1),
-        GNW_INPUT_SCANCODE_MAP_ITEM(0x5B, SDL_SCANCODE_KP_3, -1),
-        GNW_INPUT_SCANCODE_MAP_ITEM(0x5C, SDL_SCANCODE_KP_4, -1),
-        GNW_INPUT_SCANCODE_MAP_ITEM(0x5D, SDL_SCANCODE_KP_5, -1),
-        GNW_INPUT_SCANCODE_MAP_ITEM(0x5E, SDL_SCANCODE_KP_6, -1),
-        GNW_INPUT_SCANCODE_MAP_ITEM(0x5F, SDL_SCANCODE_KP_7, -1),
-        GNW_INPUT_SCANCODE_MAP_ITEM(0x60, SDL_SCANCODE_KP_8, -1),
-        GNW_INPUT_SCANCODE_MAP_ITEM(0x61, SDL_SCANCODE_KP_9, -1),
-        GNW_INPUT_SCANCODE_MAP_ITEM(0x62, SDL_SCANCODE_KP_0, -1),
-        GNW_INPUT_SCANCODE_MAP_ITEM(0x63, SDL_SCANCODE_KP_PERIOD, -1),
+        GNW_INPUT_SCANCODE_MAP_ITEM(0x58, SDL_SCANCODE_KP_ENTER, GNW_KB_SCAN_RETURN),
+        GNW_INPUT_SCANCODE_MAP_ITEM(0x59, SDL_SCANCODE_KP_1, GNW_KB_SCAN_END),
+        GNW_INPUT_SCANCODE_MAP_ITEM(0x5A, SDL_SCANCODE_KP_2, GNW_KB_SCAN_DOWN),
+        GNW_INPUT_SCANCODE_MAP_ITEM(0x5B, SDL_SCANCODE_KP_3, GNW_KB_SCAN_PAGEDOWN),
+        GNW_INPUT_SCANCODE_MAP_ITEM(0x5C, SDL_SCANCODE_KP_4, GNW_KB_SCAN_LEFT),
+        GNW_INPUT_SCANCODE_MAP_ITEM(0x5D, SDL_SCANCODE_KP_5, GNW_KB_SCAN_KP_5),
+        GNW_INPUT_SCANCODE_MAP_ITEM(0x5E, SDL_SCANCODE_KP_6, GNW_KB_SCAN_RIGHT),
+        GNW_INPUT_SCANCODE_MAP_ITEM(0x5F, SDL_SCANCODE_KP_7, GNW_KB_SCAN_HOME),
+        GNW_INPUT_SCANCODE_MAP_ITEM(0x60, SDL_SCANCODE_KP_8, GNW_KB_SCAN_UP),
+        GNW_INPUT_SCANCODE_MAP_ITEM(0x61, SDL_SCANCODE_KP_9, GNW_KB_SCAN_PAGEUP),
+        GNW_INPUT_SCANCODE_MAP_ITEM(0x62, SDL_SCANCODE_KP_0, GNW_KB_SCAN_INSERT),
+        GNW_INPUT_SCANCODE_MAP_ITEM(0x63, SDL_SCANCODE_KP_PERIOD, GNW_KB_SCAN_DELETE),
         GNW_INPUT_SCANCODE_MAP_ITEM(0x64, SDL_SCANCODE_NONUSBACKSLASH, -1),
         GNW_INPUT_SCANCODE_MAP_ITEM(0x65, SDL_SCANCODE_APPLICATION, -1),
         GNW_INPUT_SCANCODE_MAP_ITEM(0x66, SDL_SCANCODE_POWER, -1),
@@ -405,13 +405,33 @@ void GNW_process_key(SDL_KeyboardEvent* key_data) {
     switch (key_data->type) {
         case SDL_KEYDOWN:
             if (key_data->keysym.scancode < 256) {
-                kb_simulate_key(input_scancode_map[key_data->keysym.scancode]);
+                uint16_t dos_scancode = input_scancode_map[key_data->keysym.scancode];
+
+                if (key_data->keysym.scancode >= SDL_SCANCODE_INSERT && key_data->keysym.scancode <= SDL_SCANCODE_UP) {
+                    kb_simulate_key(0xE0);
+                }
+
+                if (key_data->keysym.scancode == SDL_SCANCODE_KP_ENTER) {
+                    kb_simulate_key(0xE0);
+                }
+
+                kb_simulate_key(dos_scancode);
             }
             break;
 
         case SDL_KEYUP:
             if (key_data->keysym.scancode < 256) {
-                kb_simulate_key(0x80 | input_scancode_map[key_data->keysym.scancode]);
+                uint16_t dos_scancode = input_scancode_map[key_data->keysym.scancode];
+
+                if (key_data->keysym.scancode >= SDL_SCANCODE_INSERT && key_data->keysym.scancode <= SDL_SCANCODE_UP) {
+                    kb_simulate_key(0xE0);
+                }
+
+                if (key_data->keysym.scancode == SDL_SCANCODE_KP_ENTER) {
+                    kb_simulate_key(0xE0);
+                }
+
+                kb_simulate_key(0x80 | dos_scancode);
             }
             break;
     }
