@@ -546,7 +546,7 @@ UnitInfo::UnitInfo()
       unit_list(nullptr),
       in_transit(false),
       pin_count(0),
-      field_165(false),
+      tasks_enabled(true),
       laying_state(0),
       visible_to_team(),
       spotted_by_team(),
@@ -631,7 +631,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
       unit_list(nullptr),
       in_transit(false),
       pin_count(0),
-      field_165(true),
+      tasks_enabled(true),
       laying_state(0),
       visible_to_team(),
       spotted_by_team(),
@@ -784,7 +784,7 @@ UnitInfo::UnitInfo(const UnitInfo& other)
       in_transit(other.in_transit),
       last_target(other.last_target),
       pin_count(other.pin_count),
-      field_165(other.field_165),
+      tasks_enabled(other.tasks_enabled),
       laying_state(other.laying_state),
       name(nullptr),
       sprite_bounds(other.sprite_bounds),
@@ -1295,13 +1295,13 @@ void UnitInfo::AddTask(Task* task) {
 }
 
 void UnitInfo::ScheduleDelayedTasks(bool priority) {
-    if (field_165) {
+    if (tasks_enabled) {
         for (SmartList<Task>::Iterator it = delayed_tasks.Begin(); it != delayed_tasks.End(); ++it) {
             (*it).RemindTurnEnd(true);
         }
     }
 
-    if (GetTask() && field_165) {
+    if (GetTask() && tasks_enabled) {
         Task_RemindMoveFinished(this, priority);
     }
 }
@@ -4795,16 +4795,16 @@ bool UnitInfo::Upgrade(UnitInfo* parent) {
 }
 
 void UnitInfo::BusyWaitOrder() {
-    bool last_state = field_165;
+    bool last_state = tasks_enabled;
 
-    field_165 = false;
+    tasks_enabled = false;
 
     while (orders != ORDER_AWAIT) {
         GameManager_ProcessTick(false);
         MouseEvent::ProcessInput();
     }
 
-    field_165 = last_state;
+    tasks_enabled = last_state;
 }
 
 void UnitInfo::PositionInTape() {

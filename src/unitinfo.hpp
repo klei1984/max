@@ -434,7 +434,7 @@ public:
     bool in_transit;
     Point last_target;
     int16_t pin_count;
-    bool field_165;
+    bool tasks_enabled;
     uint8_t laying_state;
     uint8_t visible_to_team[PLAYER_TEAM_MAX];
     uint8_t spotted_by_team[PLAYER_TEAM_MAX];
