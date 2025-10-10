@@ -48,6 +48,8 @@ TaskAutoSurvey::TaskAutoSurvey(UnitInfo* unit_) : Task(unit_->team, nullptr, 0x2
         if ((*it).team == team && (*it).GetUnitType() == MININGST) {
             central_site.x = (*it).grid_x;
             central_site.y = (*it).grid_y;
+
+            break;
         }
     }
 }
