@@ -58,7 +58,7 @@ void Access_UpdateUnitVisibilityStatus(SmartList<UnitInfo>& units);
 void Access_UpdateVisibilityStatus(bool all_visible);
 void Access_UpdateMinimapFogOfWar(uint16_t team, bool all_visible, bool ignore_team_scan_map = false);
 uint8_t Access_GetSurfaceType(int32_t grid_x, int32_t grid_y);
-uint8_t Access_GetModifiedSurfaceType(int32_t grid_x, int32_t grid_y);
+uint8_t Access_GetModifiedSurfaceType(const int32_t grid_x, const int32_t grid_y, const bool mode = false);
 bool Access_IsAnyLandPresent(int32_t grid_x, int32_t grid_y, uint32_t flags);
 bool Access_IsFullyLandCovered(int32_t grid_x, int32_t grid_y, uint32_t flags);
 UnitInfo* Access_GetRemovableRubble(uint16_t team, int32_t grid_x, int32_t grid_y);

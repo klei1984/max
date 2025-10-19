@@ -1131,9 +1131,10 @@ bool AiPlayer::IsSurfaceTypePresent(Point site, int32_t range, int32_t surface_t
     ZoneWalker walker(site, range);
 
     do {
-        if (Access_GetModifiedSurfaceType(walker.GetGridX(), walker.GetGridY()) == surface_type) {
+        if (Access_GetModifiedSurfaceType(walker.GetGridX(), walker.GetGridY(), true) == surface_type) {
             return true;
         }
+
     } while (walker.FindNext());
 
     return false;

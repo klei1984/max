@@ -908,10 +908,8 @@ uint8_t Access_GetSurfaceType(int32_t grid_x, int32_t grid_y) {
     return result;
 }
 
-uint8_t Access_GetModifiedSurfaceType(int32_t grid_x, int32_t grid_y) {
-    uint8_t surface_type;
-
-    surface_type = Access_GetSurfaceType(grid_x, grid_y);
+uint8_t Access_GetModifiedSurfaceType(const int32_t grid_x, const int32_t grid_y, const bool mode) {
+    uint8_t surface_type = Access_GetSurfaceType(grid_x, grid_y);
 
     if (surface_type == SURFACE_TYPE_WATER || surface_type == SURFACE_TYPE_COAST) {
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
@@ -919,8 +917,25 @@ uint8_t Access_GetModifiedSurfaceType(int32_t grid_x, int32_t grid_y) {
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
             for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-                if ((*it).GetUnitType() == WTRPLTFM || (*it).GetUnitType() == BRIDGE) {
-                    surface_type = SURFACE_TYPE_LAND;
+                const auto unit_type = (*it).GetUnitType();
+
+                if (mode) {
+                    // for sea units a bridge covered grid cell shall be reported as water surface
+                    if (unit_type == WTRPLTFM) {
+                        surface_type = SURFACE_TYPE_LAND;
+                        break;
+
+                    } else if (unit_type == BRIDGE) {
+                        break;
+                    }
+
+                } else {
+                    // for land units both a water platform and a bridge covered grid cell shall be reported as land
+                    // surface
+                    if (unit_type == WTRPLTFM || unit_type == BRIDGE) {
+                        surface_type = SURFACE_TYPE_LAND;
+                        break;
+                    }
                 }
             }
         }
