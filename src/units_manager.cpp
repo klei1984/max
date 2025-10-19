@@ -4302,7 +4302,7 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t te
             unit->DrawSpriteFrame(unit->image_base + 1);
         }
 
-        Ai_UpdateTerrain(unit);
+        Ai_UpdateTerrainDistanceField(unit);
     }
 
     return SmartPointer<UnitInfo>(unit);

@@ -50,8 +50,8 @@ uint8_t TaskUpdateTerrain::GetType() const { return TaskType_TaskUpdateTerrain; 
 void TaskUpdateTerrain::BeginTurn() {
     while (location.x < ResourceManager_MapSize.x) {
         if (TickTimer_HaveTimeToThink()) {
-            AiPlayer_TerrainMap.TerrainMap_sub_690D6(location, SURFACE_TYPE_LAND);
-            AiPlayer_TerrainMap.TerrainMap_sub_690D6(location, SURFACE_TYPE_WATER);
+            AiPlayer_TerrainDistanceField->GetMinimumRange(location, SURFACE_TYPE_LAND);
+            AiPlayer_TerrainDistanceField->GetMinimumRange(location, SURFACE_TYPE_WATER);
 
             ++location.y;
 

@@ -54,7 +54,7 @@
 #define AIPLAYER_THREAT_MAP_CACHE_ENTRIES 10
 
 AiPlayer AiPlayer_Teams[PLAYER_TEAM_MAX - 1];
-TerrainMap AiPlayer_TerrainMap;
+std::unique_ptr<TerrainDistanceField> AiPlayer_TerrainDistanceField;
 ThreatMap AiPlayer_ThreatMaps[AIPLAYER_THREAT_MAP_CACHE_ENTRIES];
 
 void AiPlayer::AddBuilding(UnitInfo* unit) { FindManager(Point(unit->grid_x, unit->grid_y))->AddUnit(*unit); }
@@ -2330,6 +2330,10 @@ void AiPlayer::DetermineTargetTeam() {
 
 void AiPlayer::BeginTurn() {
     if (UnitsManager_TeamInfo[player_team].team_type == TEAM_TYPE_COMPUTER) {
+        if (!AiPlayer_TerrainDistanceField) {
+            AiPlayer_TerrainDistanceField = std::make_unique<TerrainDistanceField>();
+        }
+
         InvalidateThreatMaps();
 
         field_16 = 0;
@@ -4725,9 +4729,9 @@ int32_t AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* ene
     distance = Access_GetDistance(friendly_unit, enemy_unit);
     shots = 0;
 
-    if (AiPlayer_TerrainMap.TerrainMap_sub_690D6(Point(enemy_unit->grid_x, enemy_unit->grid_y),
-                                                 UnitsManager_BaseUnits[friendly_unit->GetUnitType()].land_type) <=
-        range * range) {
+    if (AiPlayer_TerrainDistanceField->GetMinimumRange(
+            Point(enemy_unit->grid_x, enemy_unit->grid_y),
+            UnitsManager_BaseUnits[friendly_unit->GetUnitType()].land_type) <= range * range) {
         if (unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE) && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
             int32_t distance2 = ((friendly_unit->speed / 2) + range);
 

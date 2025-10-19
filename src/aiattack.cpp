@@ -612,9 +612,10 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
                             base_values->GetAttribute(ATTRIB_ATTACK_RADIUS) > 0 ||
                             base_values->GetAttribute(ATTRIB_TURNS) < 6) {
                             if (target_unit->IsVisibleToTeam(unit_team) ||
-                                AiPlayer_TerrainMap.TerrainMap_sub_690D6(unit_position, surface_type) <= unit_scan) {
-                                if (AiPlayer_TerrainMap.TerrainMap_sub_690D6(unit_position, surface_type) <=
-                                    unit_range) {
+                                AiPlayer_TerrainDistanceField->GetMinimumRange(unit_position, surface_type) <=
+                                    static_cast<uint32_t>(unit_scan)) {
+                                if (AiPlayer_TerrainDistanceField->GetMinimumRange(unit_position, surface_type) <=
+                                    static_cast<uint32_t>(unit_range)) {
                                     int32_t score;
                                     int32_t damage_potential;
 

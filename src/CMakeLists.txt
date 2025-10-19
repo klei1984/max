@@ -161,7 +161,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/circumferencewalker.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/zonewalker.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/threatmap.cpp	
-	${CMAKE_CURRENT_SOURCE_DIR}/terrainmap.cpp	
+	${CMAKE_CURRENT_SOURCE_DIR}/terraindistancefield.cpp	
 	${CMAKE_CURRENT_SOURCE_DIR}/pathrequest.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskpathrequest.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/adjustrequest.cpp

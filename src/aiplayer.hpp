@@ -26,7 +26,7 @@
 #include "taskattackreserve.hpp"
 #include "taskclearzone.hpp"
 #include "taskpathrequest.hpp"
-#include "terrainmap.hpp"
+#include "terraindistancefield.hpp"
 #include "threatmap.hpp"
 #include "transportorder.hpp"
 #include "unitinfo.hpp"
@@ -205,6 +205,6 @@ int32_t AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* ene
 int32_t AiPlayer_GetProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int32_t caution_level);
 
 extern AiPlayer AiPlayer_Teams[PLAYER_TEAM_MAX - 1];
-extern TerrainMap AiPlayer_TerrainMap;
+extern std::unique_ptr<TerrainDistanceField> AiPlayer_TerrainDistanceField;
 
 #endif /* AI_PLAYER_HPP */

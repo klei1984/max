@@ -40,7 +40,7 @@ void Ai_SelectStartingPosition(uint16_t team);
 void Ai_AddUnitToTrackerList(UnitInfo* unit);
 void Ai_EnableAutoSurvey(UnitInfo* unit);
 bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int32_t caution_level, bool is_for_attacking);
-void Ai_UpdateTerrain(UnitInfo* unit);
+void Ai_UpdateTerrainDistanceField(UnitInfo* unit);
 int32_t Ai_DetermineCautionLevel(UnitInfo* unit);
 void Ai_RemoveUnit(UnitInfo* unit);
 void Ai_UnitSpotted(UnitInfo* unit, uint16_t team);

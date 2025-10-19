@@ -5259,7 +5259,7 @@ void UnitInfo::ChangeTeam(uint16_t target_team) {
 
     visible_to_team[target_team] = true;
 
-    Ai_UpdateTerrain(this);
+    Ai_UpdateTerrainDistanceField(this);
     Ai_UnitSpotted(this, old_team);
 
     RefreshScreen();

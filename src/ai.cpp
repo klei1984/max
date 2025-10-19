@@ -143,7 +143,8 @@ void Ai_BeginTurn(uint16_t team) {
 
 void Ai_Init() {
     TaskManager.Clear();
-    AiPlayer_TerrainMap.Deinit();
+
+    AiPlayer_TerrainDistanceField.reset();
 
     for (uint16_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         AiPlayer_Teams[team].Init(team);
@@ -202,19 +203,21 @@ bool Ai_IsDangerousLocation(UnitInfo* unit, Point destination, int32_t caution_l
     return result;
 }
 
-void Ai_UpdateTerrain(UnitInfo* unit) {
-    if (unit->flags & STATIONARY) {
-        if (unit->GetUnitType() == BRIDGE) {
-            AiPlayer_TerrainMap.UpdateTerrain(Point(unit->grid_x, unit->grid_y),
-                                              SURFACE_TYPE_LAND | SURFACE_TYPE_WATER);
-        }
+void Ai_UpdateTerrainDistanceField(UnitInfo* unit) {
+    if (AiPlayer_TerrainDistanceField) {
+        if (unit->flags & STATIONARY) {
+            if (unit->GetUnitType() == BRIDGE) {
+                AiPlayer_TerrainDistanceField->OnTerrainChanged(Point(unit->grid_x, unit->grid_y),
+                                                                SURFACE_TYPE_LAND | SURFACE_TYPE_WATER);
+            }
 
-        if (unit->GetUnitType() == CNCT_4W) {
-            AiPlayer_TerrainMap.UpdateTerrain(Point(unit->grid_x, unit->grid_y), SURFACE_TYPE_LAND);
-        }
+            if (unit->GetUnitType() == CNCT_4W) {
+                AiPlayer_TerrainDistanceField->OnTerrainChanged(Point(unit->grid_x, unit->grid_y), SURFACE_TYPE_LAND);
+            }
 
-        if (unit->GetUnitType() != CNCT_4W && !(unit->flags & GROUND_COVER)) {
-            AiPlayer_TerrainMap.UpdateTerrain(Point(unit->grid_x, unit->grid_y), SURFACE_TYPE_NONE);
+            if (unit->GetUnitType() != CNCT_4W && !(unit->flags & GROUND_COVER)) {
+                AiPlayer_TerrainDistanceField->OnTerrainChanged(Point(unit->grid_x, unit->grid_y), SURFACE_TYPE_NONE);
+            }
         }
     }
 
@@ -314,7 +317,9 @@ void Ai_RemoveUnit(UnitInfo* unit) {
                     }
                 }
 
-                AiPlayer_TerrainMap.UpdateTerrain(site, surface_type);
+                if (AiPlayer_TerrainDistanceField) {
+                    AiPlayer_TerrainDistanceField->OnTerrainChanged(site, surface_type);
+                }
             }
         }
     }
