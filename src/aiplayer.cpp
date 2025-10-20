@@ -2332,7 +2332,7 @@ void AiPlayer::DetermineTargetTeam() {
 void AiPlayer::BeginTurn() {
     if (UnitsManager_TeamInfo[player_team].team_type == TEAM_TYPE_COMPUTER) {
         if (!AiPlayer_TerrainDistanceField) {
-            AiPlayer_TerrainDistanceField = std::make_unique<TerrainDistanceField>();
+            AiPlayer_TerrainDistanceField = std::make_unique<TerrainDistanceField>(ResourceManager_MapSize);
         }
 
         InvalidateThreatMaps();

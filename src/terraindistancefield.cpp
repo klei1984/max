@@ -90,26 +90,24 @@
 #include "ticktimer.hpp"
 #include "units_manager.hpp"
 
-TerrainDistanceField::TerrainDistanceField() {
-    auto dimensions = ResourceManager_MapSize;
-
+TerrainDistanceField::TerrainDistanceField(const Point dimensions) : m_dimensions(dimensions) {
     // Initialize both fields with RANGE_MASK (lazy evaluation - will compute on first query)
-    m_land_unit_range_field.resize(dimensions.x * dimensions.y, RANGE_MASK);
-    m_water_unit_range_field.resize(dimensions.x * dimensions.y, RANGE_MASK);
+    m_land_unit_range_field.resize(m_dimensions.x * m_dimensions.y, RANGE_MASK);
+    m_water_unit_range_field.resize(m_dimensions.x * m_dimensions.y, RANGE_MASK);
 
     // Step 1: Process base terrain from map data
     // LAND cells → Traversable for land units (no range calculation needed)
     // WATER cells → Traversable for water units (no range calculation needed)
-    for (int32_t i = 0; i < dimensions.x; ++i) {
-        for (int32_t j = 0; j < dimensions.y; ++j) {
-            if (ResourceManager_MapSurfaceMap[i + j * dimensions.x] == SURFACE_TYPE_LAND) {
+    for (int32_t i = 0; i < m_dimensions.x; ++i) {
+        for (int32_t j = 0; j < m_dimensions.y; ++j) {
+            if (ResourceManager_MapSurfaceMap[i + j * m_dimensions.x] == SURFACE_TYPE_LAND) {
                 // This is land - traversable for land units
-                m_land_unit_range_field[i + j * dimensions.x] = MOVEMENT_RANGE_ONLY;
+                m_land_unit_range_field[i + j * m_dimensions.x] = MOVEMENT_RANGE_ONLY;
             }
 
-            if (ResourceManager_MapSurfaceMap[i + j * dimensions.x] == SURFACE_TYPE_WATER) {
+            if (ResourceManager_MapSurfaceMap[i + j * m_dimensions.x] == SURFACE_TYPE_WATER) {
                 // This is water - traversable for water units
-                m_water_unit_range_field[i + j * dimensions.x] = MOVEMENT_RANGE_ONLY;
+                m_water_unit_range_field[i + j * m_dimensions.x] = MOVEMENT_RANGE_ONLY;
             }
         }
     }
@@ -122,12 +120,12 @@ TerrainDistanceField::TerrainDistanceField() {
                 // BRIDGES: Built on water - water units can traverse, land units need to calculate range
                 // Water field: Already marked as traversable by Step 1
                 // Land field: Mark as traversable
-                m_land_unit_range_field[(*it).grid_x + (*it).grid_y * dimensions.x] = MOVEMENT_RANGE_ONLY;
+                m_land_unit_range_field[(*it).grid_x + (*it).grid_y * m_dimensions.x] = MOVEMENT_RANGE_ONLY;
 
                 if ((*it).GetUnitType() == WTRPLTFM) {
                     // WATER PLATFORMS: Converts water to land (land units traverse, water units need to calculate
                     // range)
-                    m_water_unit_range_field[(*it).grid_x + (*it).grid_y * dimensions.x] = RANGE_MASK;
+                    m_water_unit_range_field[(*it).grid_x + (*it).grid_y * m_dimensions.x] = RANGE_MASK;
                 }
             }
         }
@@ -145,8 +143,8 @@ TerrainDistanceField::TerrainDistanceField() {
             for (int32_t i = bounds.ulx; i < bounds.lrx; ++i) {
                 for (int32_t j = bounds.uly; j < bounds.lry; ++j) {
                     // Mark for lazy computation in both fields (will compute range on first query)
-                    m_land_unit_range_field[i + j * dimensions.x] = RANGE_MASK;
-                    m_water_unit_range_field[i + j * dimensions.x] = RANGE_MASK;
+                    m_land_unit_range_field[i + j * m_dimensions.x] = RANGE_MASK;
+                    m_water_unit_range_field[i + j * m_dimensions.x] = RANGE_MASK;
                 }
             }
         }
@@ -172,8 +170,7 @@ TerrainDistanceField::~TerrainDistanceField() {}
  * Returns: Squared range required, or 0 if out of time budget
  */
 uint32_t TerrainDistanceField::GetCalculatedRange(std::vector<uint32_t>& range_field, const Point location) {
-    const auto dimensions = ResourceManager_MapSize;
-    const auto stored_distance = range_field[location.x + location.y * dimensions.x] & RANGE_MASK;
+    const auto stored_distance = range_field[location.x + location.y * m_dimensions.x] & RANGE_MASK;
     uint32_t result;
 
     if (stored_distance >= RANGE_MASK) {
@@ -193,10 +190,10 @@ uint32_t TerrainDistanceField::GetCalculatedRange(std::vector<uint32_t>& range_f
                     for (uint32_t j = 0; j < i * 2; ++j) {
                         position += Paths_8DirPointsArray[direction];
 
-                        if (position.x >= 0 && position.x < dimensions.x && position.y >= 0 &&
-                            position.y < dimensions.y) {
+                        if (position.x >= 0 && position.x < m_dimensions.x && position.y >= 0 &&
+                            position.y < m_dimensions.y) {
                             // Check if this cell is non-traversable (requires range calculation)
-                            if (range_field[position.x + position.y * dimensions.x] & TRAVERSABLE_FLAG) {
+                            if (range_field[position.x + position.y * m_dimensions.x] & TRAVERSABLE_FLAG) {
                                 const uint32_t distance = Access_GetDistance(position, location);
 
                                 if (distance < shortest_distance) {
@@ -209,8 +206,8 @@ uint32_t TerrainDistanceField::GetCalculatedRange(std::vector<uint32_t>& range_f
             }
 
             // Cache the computed range for future queries
-            range_field[location.x + location.y * dimensions.x] =
-                (range_field[location.x + location.y * dimensions.x] & TRAVERSABLE_FLAG) | shortest_distance;
+            range_field[location.x + location.y * m_dimensions.x] =
+                (range_field[location.x + location.y * m_dimensions.x] & TRAVERSABLE_FLAG) | shortest_distance;
 
             result = shortest_distance;
 
@@ -250,11 +247,10 @@ uint32_t TerrainDistanceField::GetCalculatedRange(std::vector<uint32_t>& range_f
  * location: Grid position that became non-traversable
  */
 void TerrainDistanceField::AddNonTraversableTerrain(std::vector<uint32_t>& range_field, const Point location) {
-    const auto dimensions = ResourceManager_MapSize;
     auto position = location;
     bool flag = true;
 
-    if (!(range_field[location.x + location.y * dimensions.x] & TRAVERSABLE_FLAG)) {
+    if (!(range_field[location.x + location.y * m_dimensions.x] & TRAVERSABLE_FLAG)) {
         // Only proceed if this cell wasn't already marked as non-traversable
 
         // Schedule lazy updates for first AI team
@@ -263,7 +259,7 @@ void TerrainDistanceField::AddNonTraversableTerrain(std::vector<uint32_t>& range
                 TaskManager.AppendTask(*new (std::nothrow) TaskUpdateTerrain(team));
 
                 // Mark this cell as non-traversable (units can't move here)
-                range_field[location.x + location.y * dimensions.x] = MOVEMENT_RANGE_ONLY;
+                range_field[location.x + location.y * m_dimensions.x] = MOVEMENT_RANGE_ONLY;
 
                 // Flood fill: Update all cells that now have a closer non-traversable terrain
                 for (int32_t i = 1; flag; ++i) {
@@ -276,21 +272,21 @@ void TerrainDistanceField::AddNonTraversableTerrain(std::vector<uint32_t>& range
                         for (int32_t j = 0; j < i * 2; ++j) {
                             position += Paths_8DirPointsArray[direction];
 
-                            if (position.x >= 0 && position.x < dimensions.x && position.y >= 0 &&
-                                position.y < dimensions.y) {
+                            if (position.x >= 0 && position.x < m_dimensions.x && position.y >= 0 &&
+                                position.y < m_dimensions.y) {
                                 const uint32_t distance = Access_GetDistance(position, location);
 
                                 // If this cell's stored range is longer than range to newly non-traversable terrain
-                                if ((range_field[position.x + position.y * dimensions.x] & RANGE_MASK) > distance) {
+                                if ((range_field[position.x + position.y * m_dimensions.x] & RANGE_MASK) > distance) {
                                     // If cell had a valid range (not RANGE_MASK), need to propagate further
-                                    if ((range_field[position.x + position.y * dimensions.x] & RANGE_MASK) !=
+                                    if ((range_field[position.x + position.y * m_dimensions.x] & RANGE_MASK) !=
                                         RANGE_MASK) {
                                         flag = true;  // Continue to next ring
                                     }
 
                                     // Update to shorter range
-                                    range_field[position.x + position.y * dimensions.x] =
-                                        (range_field[position.x + position.y * dimensions.x] & TRAVERSABLE_FLAG) |
+                                    range_field[position.x + position.y * m_dimensions.x] =
+                                        (range_field[position.x + position.y * m_dimensions.x] & TRAVERSABLE_FLAG) |
                                         distance;
                                 }
                             }
@@ -333,11 +329,10 @@ void TerrainDistanceField::AddNonTraversableTerrain(std::vector<uint32_t>& range
  * location: Grid position that became traversable
  */
 void TerrainDistanceField::RemoveNonTraversableTerrain(std::vector<uint32_t>& range_field, const Point location) {
-    const auto dimensions = ResourceManager_MapSize;
     auto position = location;
     bool flag = true;
 
-    if (range_field[location.x + location.y * dimensions.x] & TRAVERSABLE_FLAG) {
+    if (range_field[location.x + location.y * m_dimensions.x] & TRAVERSABLE_FLAG) {
         // Only proceed if this cell was actually marked as non-traversable
 
         // Notify all AI teams
@@ -346,7 +341,7 @@ void TerrainDistanceField::RemoveNonTraversableTerrain(std::vector<uint32_t>& ra
                 TaskManager.AppendTask(*new (std::nothrow) TaskUpdateTerrain(team));
 
                 // Clear traversable flag and invalidate stored range
-                range_field[location.x + location.y * dimensions.x] = RANGE_MASK;
+                range_field[location.x + location.y * m_dimensions.x] = RANGE_MASK;
 
                 // Invalidation flood: Mark cells that had this terrain as their nearest
                 for (int32_t i = 1; flag; ++i) {
@@ -359,15 +354,15 @@ void TerrainDistanceField::RemoveNonTraversableTerrain(std::vector<uint32_t>& ra
                         for (int32_t j = 0; j < i * 2; ++j) {
                             position += Paths_8DirPointsArray[direction];
 
-                            if (position.x >= 0 && position.x < dimensions.x && position.y >= 0 &&
-                                position.y < dimensions.y) {
+                            if (position.x >= 0 && position.x < m_dimensions.x && position.y >= 0 &&
+                                position.y < m_dimensions.y) {
                                 const uint32_t distance = Access_GetDistance(position, location);
 
                                 // If cell's range exactly matches range to removed non-traversable terrain
-                                if ((range_field[position.x + position.y * dimensions.x] & RANGE_MASK) == distance) {
+                                if ((range_field[position.x + position.y * m_dimensions.x] & RANGE_MASK) == distance) {
                                     // Invalidate it (will recompute on next query)
-                                    range_field[position.x + position.y * dimensions.x] =
-                                        (range_field[position.x + position.y * dimensions.x] & TRAVERSABLE_FLAG) |
+                                    range_field[position.x + position.y * m_dimensions.x] =
+                                        (range_field[position.x + position.y * m_dimensions.x] & TRAVERSABLE_FLAG) |
                                         RANGE_MASK;
 
                                     flag = true;  // Continue propagating invalidation

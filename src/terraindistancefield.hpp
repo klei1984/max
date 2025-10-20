@@ -44,6 +44,8 @@ class TerrainDistanceField {
     static constexpr uint32_t TRAVERSABLE_FLAG = RANGE_MASK + 1uL;
     static constexpr uint32_t MOVEMENT_RANGE_ONLY = (TRAVERSABLE_FLAG | RANGE_MASK);
 
+    const Point m_dimensions;
+
     std::vector<uint32_t> m_land_unit_range_field;
     std::vector<uint32_t> m_water_unit_range_field;
 
@@ -52,7 +54,7 @@ class TerrainDistanceField {
     void RemoveNonTraversableTerrain(std::vector<uint32_t>& range_field, const Point location);
 
 public:
-    TerrainDistanceField();
+    TerrainDistanceField(const Point dimensions);
 
     ~TerrainDistanceField();
 
