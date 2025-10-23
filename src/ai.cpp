@@ -211,7 +211,7 @@ void Ai_UpdateTerrainDistanceField(UnitInfo* unit) {
                                                                 SURFACE_TYPE_LAND | SURFACE_TYPE_WATER);
             }
 
-            if (unit->GetUnitType() == CNCT_4W) {
+            if (unit->GetUnitType() == WTRPLTFM) {
                 AiPlayer_TerrainDistanceField->OnTerrainChanged(Point(unit->grid_x, unit->grid_y), SURFACE_TYPE_LAND);
             }
 
