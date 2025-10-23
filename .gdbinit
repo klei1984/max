@@ -354,116 +354,425 @@ class PlotMatrix(PlotterBase):
         
         else:
             print(f"Unknown mode {self.mode}. Use 0 (BMP), 1 (text), or 2 (multi-view)")
+ 
+class PlotVector(PlotterBase):
+    """
+    Plot a flat contiguous vector/array of integers as a 2D heat map.
+
+    Supports variable base integer types (int8/uint8/int16/uint16/int32/uint32),
+    reading from:
+      - std::vector<T>
+      - raw T* pointer (or pointer field)
+      - common members: m_values, m_data, values, data, buffer, m_field
+      - as a fallback, index as a 2D array via val[x][y]
+
+    Modes (same as PlotDistanceField):
+      0 - BMP color heatmap (no dependencies)
+      1 - Text file with decimal values
+      2 - Multi-view: 2D heatmap + 3D surface (requires matplotlib/numpy)
+
+    Example:
+      py PlotVector("UnitsManager_TeamInfo[team].heat_map_complete", (112,112), 0).plot()
+      py PlotVector("some_int_array_ptr", (W,H), 2).plot()
+    """
+    def __init__(self, name, dimensions, mode):
+        self.name = name
+        self.val = gdb.parse_and_eval(name)
+        self.dim = dimensions
+        self.mode = mode
+
+    def _detect_data_ptr(self):
+        """Return (data_ptr, elem_bits, is_unsigned) or (None, None, None) to fall back to val[x][y]."""
+        # 1) std::vector<T>
+        try:
+            impl = self.val['_M_impl']
+            start = impl['_M_start']
+            tgt = start.type.target()
+            elem_bits = tgt.sizeof * 8
+            is_unsigned = 'unsigned' in str(tgt)
+            return start, elem_bits, is_unsigned
+        except Exception:
+            pass
+
+        # 2) Raw pointer
+        try:
+            if self.val.type.code == gdb.TYPE_CODE_PTR:
+                tgt = self.val.type.target()
+                elem_bits = tgt.sizeof * 8
+                is_unsigned = 'unsigned' in str(tgt)
+                return self.val, elem_bits, is_unsigned
+        except Exception:
+            pass
+
+        # 3) Common member names
+        candidates = ['m_values', 'm_data', 'values', 'data', 'buffer', 'm_field']
+        try:
+            for f in self.val.type.fields():
+                fname = f.name
+                if not fname:
+                    continue
+                if fname in candidates:
+                    try:
+                        sub = self.val[fname]
+                    except Exception:
+                        continue
+                    # vector-like
+                    try:
+                        impl = sub['_M_impl']
+                        start = impl['_M_start']
+                        tgt = start.type.target()
+                        elem_bits = tgt.sizeof * 8
+                        is_unsigned = 'unsigned' in str(tgt)
+                        return start, elem_bits, is_unsigned
+                    except Exception:
+                        pass
+                    # pointer-like
+                    try:
+                        if sub.type.code == gdb.TYPE_CODE_PTR:
+                            tgt = sub.type.target()
+                            elem_bits = tgt.sizeof * 8
+                            is_unsigned = 'unsigned' in str(tgt)
+                            return sub, elem_bits, is_unsigned
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+        return None, None, None
+
+    def _read_linear(self, ptr, idx):
+        try:
+            return int((ptr + idx).dereference())
+        except Exception:
+            return 0
+
+    def _read_2d(self, x, y):
+        # Try val[x][y] first (matches existing PlotMatrix convention)
+        try:
+            return int(self.val[x][y])
+        except Exception:
+            # Fallback to val[y][x]
+            try:
+                return int(self.val[y][x])
+            except Exception:
+                return 0
+
+    def _normalize(self, data, min_val, max_val):
+        # Special handling for heat_map_complete: emphasize presence vs absence
+        if 'heat_map_complete' in self.name:
+            # Compute non-zero max and fraction occupied
+            total = self.dim[0] * self.dim[1]
+            nonzero = sum(1 for row in data for v in row if v > 0)
+            nz_max = max((v for row in data for v in row if v > 0), default=1)
+            # Occupancy-focused scaling: 0 -> 0.0, nonzero -> 0.5..1.0
+            if nz_max <= 0:
+                return [[0.0 for _ in row] for row in data]
+            scale = 0.5 / nz_max
+            normalized = [[0.0 if v <= 0 else 0.5 + v * scale for v in row] for row in data]
+            print(f"  heat_map_complete: occupied {nonzero}/{total} ({100*nonzero/total:.1f}%), max count={nz_max}")
+            return normalized
+
+        # General linear scaling
+        if max_val > min_val:
+            return [[(v - min_val) / (max_val - min_val) for v in row] for row in data]
+        else:
+            return [[0.0 for _ in row] for row in data]
+
+    def _extract_data(self):
+        width, height = self.dim[0], self.dim[1]
+        data_ptr, elem_bits, is_unsigned = self._detect_data_ptr()
+
+        data = []
+        min_val = float('inf')
+        max_val = float('-inf')
+
+        if data_ptr is not None:
+            for y in range(height):
+                row = []
+                base = y * width
+                for x in range(width):
+                    v = self._read_linear(data_ptr, base + x)
+                    row.append(v)
+                    if v < min_val: min_val = v
+                    if v > max_val: max_val = v
+                data.append(row)
+        else:
+            # 2D indexing fallback
+            for y in range(height):
+                row = []
+                for x in range(width):
+                    v = self._read_2d(x, y)
+                    row.append(v)
+                    if v < min_val: min_val = v
+                    if v > max_val: max_val = v
+                data.append(row)
+
+        if min_val == float('inf'):
+            min_val, max_val = 0, 1
+
+        normalized = self._normalize(data, min_val, max_val)
+        return data, normalized, min_val, max_val
+
+    def plot(self):
+        data, normalized, min_val, max_val = self._extract_data()
+        width, height = self.dim[0], self.dim[1]
+
+        # Derive output base name from expression
+        base_name = self.name.replace('->', '.').split('.')[-1]
+        base_name = base_name.replace('*', '').replace('&', '').strip()
+
+        if self.mode == 1:
+            filename = f"{base_name}.txt"
+            with open(filename, "wt", encoding="utf-8") as f:
+                f.write(f"# VectorPlot: {self.name}\n")
+                f.write(f"# Data range: [{min_val}, {max_val}]\n")
+                # Print rows with a sign-or-space separator:
+                # replace the inter-value space with '-' for negative numbers to avoid shifting
+                for y in range(height):
+                    if width > 0:
+                        f.write(str(int(data[y][0])))
+                    for x in range(1, width):
+                        v = int(data[y][x])
+                        if v < 0:
+                            f.write("-" + str(-v))
+                        else:
+                            f.write(" " + str(v))
+                    f.write("\n")
+            print(f"Saved {filename} (range: {min_val}-{max_val})")
+
+        elif self.mode == 0:
+            filename = f"{base_name}_heatmap.bmp"
+            pixel_data = [[self._apply_colormap(normalized[y][x]) for x in range(width)] for y in range(height)]
+            self._save_bmp_24bit(filename, width, height, pixel_data)
+            print(f"Saved {filename} (range: {min_val}-{max_val})")
+
+        elif self.mode == 2:
+            try:
+                import numpy as np
+                import matplotlib
+                matplotlib.use('Agg')
+                import matplotlib.pyplot as plt
+                from mpl_toolkits.mplot3d import Axes3D
+
+                z = np.array(data, dtype=float)
+                x = np.arange(0, width)
+                y = np.arange(0, height)
+                X, Y = np.meshgrid(x, y)
+
+                fig = plt.figure(figsize=(16, 12))
+
+                ax1 = fig.add_subplot(2, 2, 1)
+                vmin = 0 if min_val >= 0 else min_val
+                im1 = ax1.imshow(z, cmap='turbo', aspect='equal', origin='upper', vmin=vmin, vmax=max_val)
+                ax1.set_title('Top-Down Heatmap', fontsize=14, fontweight='bold')
+                ax1.set_xlabel('X')
+                ax1.set_ylabel('Y')
+                plt.colorbar(im1, ax=ax1, label='Value')
+
+                ax2 = fig.add_subplot(2, 2, 2, projection='3d')
+                ax2.plot_surface(X, Y, z, cmap='turbo', vmin=vmin, vmax=max_val, linewidth=0, antialiased=True, alpha=0.9)
+                ax2.set_title('3D Surface (High Angle)', fontsize=14, fontweight='bold')
+                ax2.set_xlabel('X')
+                ax2.set_ylabel('Y')
+                ax2.set_zlabel('Value')
+                ax2.invert_xaxis()
+                ax2.view_init(elev=60, azim=45)
+
+                ax3 = fig.add_subplot(2, 2, 3, projection='3d')
+                ax3.plot_surface(X, Y, z, cmap='turbo', vmin=vmin, vmax=max_val, linewidth=0, antialiased=True, alpha=0.9)
+                ax3.set_title('Isometric View (Low Angle)', fontsize=14, fontweight='bold')
+                ax3.set_xlabel('X')
+                ax3.set_ylabel('Y')
+                ax3.set_zlabel('Value')
+                ax3.invert_yaxis()
+                ax3.view_init(elev=25, azim=225)
+
+                ax4 = fig.add_subplot(2, 2, 4)
+                contour = ax4.contourf(X, Y, z, levels=20, cmap='turbo', vmin=vmin, vmax=max_val)
+                ax4.contour(X, Y, z, levels=20, colors='black', linewidths=0.5, alpha=0.3)
+                ax4.set_title('Contour Map', fontsize=14, fontweight='bold')
+                ax4.set_xlabel('X')
+                ax4.set_ylabel('Y')
+                ax4.invert_yaxis()
+                ax4.set_aspect('equal')
+                plt.colorbar(contour, ax=ax4, label='Value')
+
+                plt.suptitle(f'Vector Visualization: {self.name}\nRange: {min_val}-{max_val}', fontsize=16, fontweight='bold')
+                plt.tight_layout()
+
+                filename = f"{base_name}_multiview.png"
+                plt.savefig(filename, dpi=150, bbox_inches='tight')
+                plt.close()
+
+                print(f"Saved {filename} (range: {min_val}-{max_val})")
+                print("  Contains: 2D heatmap, 3D surface, isometric view, contour map")
+
+            except ImportError as e:
+                print(f"Mode 2 requires matplotlib and numpy: {e}")
+                print("Falling back to BMP mode...")
+                self.mode = 0
+                self.plot()
+
+        else:
+            print(f"Unknown mode {self.mode}. Use 0 (BMP), 1 (text), or 2 (multi-view)")
 
 class PlotDistanceField(PlotterBase):
     """
-    Plot TerrainDistanceField data (range² values with traversable flags)
-    
-    Handles TerrainDistanceField-specific encoding:
-    - Bits 0-30 (RANGE_MASK): Range² value or pending marker (0x7FFFFFFF)
-    - Bit 31 (TRAVERSABLE_FLAG): Metadata flag (meaning unclear, not used for visualization)
-    - Filters out pending (RANGE_MASK = 0x7FFFFFFF) cells to avoid polluting visualization
-    - Displays all other range² values regardless of flag state
-    - Linear scaling of range² values for visualization
-    
+    Plot TerrainDistanceField data (range² values with traversable/pending flags).
+
+    Compatible with legacy and updated terraindistancefield layouts by:
+      - Locating the contiguous data buffer from either a std::vector or common members
+        (m_range_field, m_values, m_data, values, data, buffer)
+      - Adapting bit masks based on 16-bit or 32-bit element size
+      - Treating RANGE_MASK and RANGE_MASK|FLAG as pending/uninitialized
+      - Treating FLAG|RANGE_MASK as "traversable-only" sentinel (shown as 1)
+
     Modes:
       0 - BMP color heatmap (no dependencies)
       1 - Text file with decimal values
       2 - Multi-view: 2D heatmap + 3D surface (requires matplotlib/numpy)
-    
+
     Examples:
       py PlotDistanceField("terrain_distance_field.m_land_unit_range_field", (112,112), 0).plot()
       py PlotDistanceField("terrain_distance_field.m_water_unit_range_field", (112,112), 2).plot()
+      py PlotDistanceField("terraindistancefield.m_range_field", (W,H), 0).plot()
     """
     def __init__(self, name, dimensions, mode):
         self.val = gdb.parse_and_eval(name)
         self.dim = dimensions
         self.mode = mode
         self.name = name
-        
-        # TerrainDistanceField constants
-        self.RANGE_MASK = 0x7FFFFFFF
-        self.TRAVERSABLE_FLAG = 0x80000000
+
+    def _detect_data_ptr_and_masks(self):
+        """Find the underlying contiguous data pointer and choose masks by element size."""
+        # Try direct std::vector layout
+        try:
+            impl = self.val['_M_impl']
+            start = impl['_M_start']
+            elem_bits = start.type.target().sizeof * 8
+            return start, elem_bits
+        except Exception:
+            pass
+
+        # Try raw pointer
+        try:
+            if self.val.type.code == gdb.TYPE_CODE_PTR:
+                elem_bits = self.val.type.target().sizeof * 8
+                return self.val, elem_bits
+        except Exception:
+            pass
+
+        # Try common member names that may hold a vector or pointer
+        candidates = ['m_range_field', 'm_values', 'm_data', 'values', 'data', 'buffer', 'm_field']
+        try:
+            for f in self.val.type.fields():
+                fname = f.name
+                if not fname:
+                    continue
+                if fname in candidates:
+                    try:
+                        sub = self.val[fname]
+                    except Exception:
+                        continue
+
+                    # sub as vector
+                    try:
+                        impl = sub['_M_impl']
+                        start = impl['_M_start']
+                        elem_bits = start.type.target().sizeof * 8
+                        return start, elem_bits
+                    except Exception:
+                        pass
+
+                    # sub as raw pointer
+                    try:
+                        if sub.type.code == gdb.TYPE_CODE_PTR:
+                            elem_bits = sub.type.target().sizeof * 8
+                            return sub, elem_bits
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+        raise RuntimeError("PlotDistanceField: couldn't find a contiguous data buffer from '{}'".format(self.name))
 
     def _extract_data(self):
-        """Extract and process TerrainDistanceField data with filtering"""
-        # Access the underlying array in std::vector
-        vec_impl = self.val['_M_impl']
-        vec_start = vec_impl['_M_start']
-        
-        # Extract all values and decode TerrainDistanceField encoding
+        """Extract and process TerrainDistanceField data with filtering."""
+        data_ptr, elem_bits = self._detect_data_ptr_and_masks()
+
+        # Choose masks from element size
+        if elem_bits == 16:
+            RANGE_MASK = 0x7FFF
+            FLAG_MASK = 0x8000
+        else:
+            # Default to 32-bit encoding
+            RANGE_MASK = 0x7FFFFFFF
+            FLAG_MASK = 0x80000000
+
+        MOVEMENT_RANGE_ONLY = (RANGE_MASK | FLAG_MASK)
+
+        width, height = self.dim[0], self.dim[1]
         data = []
         min_val = float('inf')
         max_val = float('-inf')
-        
-        # Statistics for debugging
+
         traversable_count = 0
         pending_count = 0
         computed_count = 0
-        
-        for y in range(self.dim[1]):
+
+        for y in range(height):
             row = []
-            for x in range(self.dim[0]):
-                idx = x + y * self.dim[0]
-                encoded_value = int((vec_start + idx).dereference())
-                
-                # Check for MOVEMENT_RANGE_ONLY (0xFFFFFFFF) - traversable terrain
-                if encoded_value == (self.TRAVERSABLE_FLAG | self.RANGE_MASK):
-                    # Traversable - display as 1 (minimum non-zero range)
+            for x in range(width):
+                idx = x + y * width
+                try:
+                    encoded = int((data_ptr + idx).dereference())
+                except Exception:
+                    encoded = 0
+
+                # Pending/uninitialized
+                if (encoded & RANGE_MASK) == RANGE_MASK:
+                    decoded = 0
+                    pending_count += 1
+                # Traversable-only sentinel
+                elif encoded == MOVEMENT_RANGE_ONLY:
                     decoded = 1
                     traversable_count += 1
                 else:
-                    # Extract range² from bits 0-30
-                    range_value = encoded_value & self.RANGE_MASK
-                    decoded = range_value
-                    
-                    # Track statistics
-                    if range_value == self.RANGE_MASK:
-                        pending_count += 1
-                    else:
-                        computed_count += 1
-                    
-                    # Track min/max for normalization (exclude traversable=1)
+                    decoded = (encoded & RANGE_MASK)
+                    computed_count += 1
                     if decoded < min_val:
                         min_val = decoded
                     if decoded > max_val:
                         max_val = decoded
-                
+
                 row.append(decoded)
             data.append(row)
-        
-        # Print diagnostics
-        total = self.dim[0] * self.dim[1]
+
+        total = width * height
         print(f"  Traversable cells: {traversable_count}/{total} ({100*traversable_count/total:.1f}%)")
         print(f"  Pending cells: {pending_count}/{total} ({100*pending_count/total:.1f}%)")
         print(f"  Computed range cells: {computed_count}/{total} ({100*computed_count/total:.1f}%)")
-        
-        # Handle edge case where all cells are traversable or pending
+
         if min_val == float('inf'):
             min_val = 0
             max_val = 1
-        
-        # Normalize to 0-1 range (linear scaling)
+
         if max_val > min_val:
             normalized = [[(val - min_val) / (max_val - min_val) for val in row] for row in data]
         else:
-            normalized = [[0.0 for val in row] for row in data]
-        
+            normalized = [[0.0 for _ in row] for row in data]
+
         return data, normalized, min_val, max_val
 
     def plot(self):
         data, normalized, min_val, max_val = self._extract_data()
         width, height = self.dim[0], self.dim[1]
-        
-        # Extract base filename from rightmost part of variable name
-        # e.g., "terrain_distance_field.m_land_unit_range_field" -> "m_land_unit_range_field"
-        # Handle both . and -> separators, sanitize for valid filenames
+
+        # Derive output base name from the expression tail
         base_name = self.name.replace('->', '.').split('.')[-1]
-        # Remove any remaining invalid filename characters
         base_name = base_name.replace('*', '').replace('&', '').strip()
-        
+
         if self.mode == 1:
-            # Text mode - output formatted decimal values
             filename = f"{base_name}.txt"
             with open(filename, "wt", encoding="utf-8") as f:
                 f.write(f"# TerrainDistanceField: {self.name}\n")
@@ -474,96 +783,79 @@ class PlotDistanceField(PlotterBase):
                         f.write(fmt.format(data[y][x]))
                     f.write("\n")
             print(f"Saved {filename} (range²: {min_val}-{max_val})")
-        
+
         elif self.mode == 0:
-            # BMP color heatmap (no dependencies)
             filename = f"{base_name}_heatmap.bmp"
-            pixel_data = [[self._apply_colormap(normalized[y][x]) 
-                          for x in range(width)] 
-                          for y in range(height)]
+            pixel_data = [[self._apply_colormap(normalized[y][x]) for x in range(width)] for y in range(height)]
             self._save_bmp_24bit(filename, width, height, pixel_data)
             print(f"Saved {filename} (range²: {min_val}-{max_val})")
-        
+
         elif self.mode == 2:
-            # Multi-view with matplotlib (requires matplotlib/numpy)
             try:
                 import numpy as np
                 import matplotlib
-                matplotlib.use('Agg')  # Non-interactive backend
+                matplotlib.use('Agg')
                 import matplotlib.pyplot as plt
                 from mpl_toolkits.mplot3d import Axes3D
-                
-                # Convert to numpy array (use original data, not normalized)
+
                 z = np.array(data, dtype=float)
                 x = np.arange(0, width)
                 y = np.arange(0, height)
                 X, Y = np.meshgrid(x, y)
-                
-                # Create figure with 2x2 subplots
+
                 fig = plt.figure(figsize=(16, 12))
-                
-                # 1. Top-down heatmap (REFERENCE - correct orientation)
+
                 ax1 = fig.add_subplot(2, 2, 1)
-                im1 = ax1.imshow(z, cmap='turbo', aspect='equal', origin='upper',
-                                vmin=0, vmax=max_val)
+                im1 = ax1.imshow(z, cmap='turbo', aspect='equal', origin='upper', vmin=0, vmax=max_val)
                 ax1.set_title('Top-Down Heatmap (Linear Scale)', fontsize=14, fontweight='bold')
                 ax1.set_xlabel('X')
                 ax1.set_ylabel('Y')
-                plt.colorbar(im1, ax=ax1, label='Range² Value')
-                
-                # 2. 3D Surface plot (high angle - flatter perspective)
+                plt.colorbar(im1, ax=ax1, label='Range²')
+
                 ax2 = fig.add_subplot(2, 2, 2, projection='3d')
-                surf = ax2.plot_surface(X, Y, z, cmap='turbo', 
-                                       vmin=0, vmax=max_val,
-                                       linewidth=0, antialiased=True, alpha=0.9)
+                ax2.plot_surface(X, Y, z, cmap='turbo', vmin=0, vmax=max_val, linewidth=0, antialiased=True, alpha=0.9)
                 ax2.set_title('3D Surface (High Angle)', fontsize=14, fontweight='bold')
                 ax2.set_xlabel('X')
                 ax2.set_ylabel('Y')
                 ax2.set_zlabel('Range²')
-                ax2.invert_xaxis()  # Flip X to match top-down view
-                ax2.view_init(elev=60, azim=45)  # Higher elevation = flatter view
-                
-                # 3. Isometric-style 3D view (low angle - more dramatic depth)
+                ax2.invert_xaxis()
+                ax2.view_init(elev=60, azim=45)
+
                 ax3 = fig.add_subplot(2, 2, 3, projection='3d')
-                surf2 = ax3.plot_surface(X, Y, z, cmap='turbo',
-                                        vmin=0, vmax=max_val,
-                                        linewidth=0, antialiased=True, alpha=0.9)
+                ax3.plot_surface(X, Y, z, cmap='turbo', vmin=0, vmax=max_val, linewidth=0, antialiased=True, alpha=0.9)
                 ax3.set_title('Isometric View (Low Angle)', fontsize=14, fontweight='bold')
                 ax3.set_xlabel('X')
                 ax3.set_ylabel('Y')
                 ax3.set_zlabel('Range²')
-                ax3.invert_yaxis()  # Flip Y to match top-down view
-                ax3.view_init(elev=25, azim=225)  # Lower elevation = more dramatic
-                
-                # 4. Contour plot (flipped to match heatmap orientation)
+                ax3.invert_yaxis()
+                ax3.view_init(elev=25, azim=225)
+
                 ax4 = fig.add_subplot(2, 2, 4)
-                contour = ax4.contourf(X, Y, z, levels=20, cmap='turbo',
-                                      vmin=0, vmax=max_val)
+                contour = ax4.contourf(X, Y, z, levels=20, cmap='turbo', vmin=0, vmax=max_val)
                 ax4.contour(X, Y, z, levels=20, colors='black', linewidths=0.5, alpha=0.3)
                 ax4.set_title('Contour Map', fontsize=14, fontweight='bold')
                 ax4.set_xlabel('X')
                 ax4.set_ylabel('Y')
-                ax4.invert_yaxis()  # Flip Y to match top-down view
+                ax4.invert_yaxis()
                 ax4.set_aspect('equal')
                 plt.colorbar(contour, ax=ax4, label='Range²')
-                
-                plt.suptitle(f'TerrainDistanceField: {self.name}\nRange²: {min_val}-{max_val}', 
-                            fontsize=16, fontweight='bold')
+
+                plt.suptitle(f'TerrainDistanceField: {self.name}\nRange²: {min_val}-{max_val}', fontsize=16, fontweight='bold')
                 plt.tight_layout()
-                
+
                 filename = f"{base_name}_multiview.png"
                 plt.savefig(filename, dpi=150, bbox_inches='tight')
                 plt.close()
-                
+
                 print(f"Saved {filename} (range²: {min_val}-{max_val})")
                 print("  Contains: 2D heatmap, 3D surface, isometric view, contour map")
-                
+
             except ImportError as e:
                 print(f"Mode 2 requires matplotlib and numpy: {e}")
                 print("Falling back to BMP mode...")
                 self.mode = 0
                 self.plot()
-        
+
         else:
             print(f"Unknown mode {self.mode}. Use 0 (BMP), 1 (text), or 2 (multi-view)")
 
