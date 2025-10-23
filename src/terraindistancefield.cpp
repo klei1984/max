@@ -24,17 +24,16 @@
  *
  * OVERVIEW
  * ========
- * Provides pre-computed range fields enabling the AI to quickly determine if targets
- * are within weapon or scan range without expensive pathfinding. For each map cell,
- * stores the minimum range² required for a unit to reach that cell from any position
- * on its traversable terrain.
+ * Provides pre-computed range fields enabling the AI to quickly determine if targets are within reachable weapon or
+ * scan range without expensive pathfinding. For each map cell, stores the minimum range² required for a unit to reach
+ * that cell from any position on its traversable terrain.
  *
  * PURPOSE
  * =======
  * Answers: "How much range does a unit need to reach this target?"
  *
  * - Land units: Query m_land_unit_range_field for range² from nearest land position
- * - Water units: Query m_water_unit_range_field for range² from nearest water position
+ * - Sea units: Query m_water_unit_range_field for range² from nearest water position
  * - Amphibious units: Return 0 (can reach any cell by movement)
  *
  * Enables efficient target filtering in AI planning:
@@ -49,11 +48,11 @@
  * Distance Transform with lazy evaluation:
  *
  * 1. INITIALIZATION (Constructor):
- *    - Traversable cells: MOVEMENT_RANGE_ONLY
- *    - Non-traversable cells: RANGE_MASK (compute on first query)
+ *    - Traversable cells: TRAVERSABLE_UNEVALUATED
+ *    - Non-traversable cells: DISTANCE_UNEVALUATED (compute on first query)
  *
  * 2. LAZY COMPUTATION (GetMinimumRange):
- *    - On first query: expanding ring BFS to find nearest opposite terrain
+ *    - On first query: expanding ring search to find the nearest traversable tile for the queried movement type
  *    - Caches result for subsequent queries
  *    - Time budget prevents frame drops (returns 0 if out of time)
  *
@@ -65,12 +64,12 @@
  * ===================
  * Each field is a vector of uint32_t (one per map cell):
  *
- * - Bits 0-30 (RANGE_MASK): Range² value or lazy-eval marker
- * - Bit 31 (TRAVERSABLE_FLAG): Set if cell is traversable by that unit type
+ * - Bits 0-30: Range² value or DISTANCE_UNEVALUATED (lazy-eval marker)
+ * - Bit 31 (TRAVERSABLE_BIT): Set if cell is traversable by that unit type
  *
  * Special values:
- * - MOVEMENT_RANGE_ONLY (0xFFFFFFFF): Traversable, no range calculation needed
- * - RANGE_MASK (0x7FFFFFFF): Not yet computed, will calculate on first query
+ * - TRAVERSABLE_UNEVALUATED (0xFFFFFFFF): Traversable, distance not yet computed
+ * - DISTANCE_UNEVALUATED (0x7FFFFFFF): Not yet computed, will calculate on first query
  * - 0x00000000 - 0x7FFFFFFE: Computed range²
  *
  * IMPLEMENTATION NOTES
@@ -91,49 +90,54 @@
 #include "units_manager.hpp"
 
 TerrainDistanceField::TerrainDistanceField(const Point dimensions) : m_dimensions(dimensions) {
-    // Initialize both fields with RANGE_MASK (lazy evaluation - will compute on first query)
-    m_land_unit_range_field.resize(m_dimensions.x * m_dimensions.y, RANGE_MASK);
-    m_water_unit_range_field.resize(m_dimensions.x * m_dimensions.y, RANGE_MASK);
+    // Initialize both fields with DISTANCE_UNEVALUATED (lazy evaluation - will compute on first query)
+    m_land_unit_range_field.resize(m_dimensions.x * m_dimensions.y, DISTANCE_UNEVALUATED);
+    m_water_unit_range_field.resize(m_dimensions.x * m_dimensions.y, DISTANCE_UNEVALUATED);
 
     // Step 1: Process base terrain from map data
     // LAND cells → Traversable for land units (no range calculation needed)
-    // WATER cells → Traversable for water units (no range calculation needed)
+    // WATER cells → Traversable for sea units (no range calculation needed)
     for (int32_t i = 0; i < m_dimensions.x; ++i) {
         for (int32_t j = 0; j < m_dimensions.y; ++j) {
-            if (ResourceManager_MapSurfaceMap[i + j * m_dimensions.x] == SURFACE_TYPE_LAND) {
+            const uint32_t field_offset = i + j * m_dimensions.x;
+
+            if (ResourceManager_MapSurfaceMap[field_offset] == SURFACE_TYPE_LAND) {
                 // This is land - traversable for land units
-                m_land_unit_range_field[i + j * m_dimensions.x] = MOVEMENT_RANGE_ONLY;
+                m_land_unit_range_field[field_offset] = TRAVERSABLE_UNEVALUATED;
             }
 
-            if (ResourceManager_MapSurfaceMap[i + j * m_dimensions.x] == SURFACE_TYPE_WATER) {
-                // This is water - traversable for water units
-                m_water_unit_range_field[i + j * m_dimensions.x] = MOVEMENT_RANGE_ONLY;
+            if (ResourceManager_MapSurfaceMap[field_offset] == SURFACE_TYPE_WATER) {
+                // This is water - traversable for sea units
+                m_water_unit_range_field[field_offset] = TRAVERSABLE_UNEVALUATED;
             }
         }
     }
 
     // Step 2: Process ground cover units (bridges and water platforms)
-    // Bridges count as both land and water cells
     for (auto it = UnitsManager_GroundCoverUnits.Begin(); it != UnitsManager_GroundCoverUnits.End(); ++it) {
         if ((*it).GetUnitType() == BRIDGE || (*it).GetUnitType() == WTRPLTFM) {
             if ((*it).GetOrder() != ORDER_IDLE && (*it).hits > 0) {
-                // BRIDGES: Built on water - water units can traverse, land units need to calculate range
-                // Water field: Already marked as traversable by Step 1
-                // Land field: Mark as traversable
-                m_land_unit_range_field[(*it).grid_x + (*it).grid_y * m_dimensions.x] = MOVEMENT_RANGE_ONLY;
+                const int32_t field_offset = (*it).grid_x + (*it).grid_y * m_dimensions.x;
 
-                if ((*it).GetUnitType() == WTRPLTFM) {
-                    // WATER PLATFORMS: Converts water to land (land units traverse, water units need to calculate
-                    // range)
-                    m_water_unit_range_field[(*it).grid_x + (*it).grid_y * m_dimensions.x] = RANGE_MASK;
+                if ((*it).GetUnitType() == BRIDGE) {
+                    // BRIDGES: Traversable by BOTH land and sea units
+                    // Must explicitly mark water field since bridges can be on SURFACE_TYPE_COAST (which is not water)
+                    m_land_unit_range_field[field_offset] = TRAVERSABLE_UNEVALUATED;
+                    m_water_unit_range_field[field_offset] = TRAVERSABLE_UNEVALUATED;
+
+                } else {
+                    // WATER PLATFORMS: Converts water to land (land units traverse, sea units cannot)
+                    m_land_unit_range_field[field_offset] = TRAVERSABLE_UNEVALUATED;
+                    m_water_unit_range_field[field_offset] = DISTANCE_UNEVALUATED;
                 }
             }
         }
     }
 
-    // Step 3: Process buildings - require range calculation from both terrain types (RANGE_MASK)
-    // Buildings can be targeted from either land or water positions
+    // Step 3: Process stationary units - require range calculation from both terrain types (RANGE_MASK)
+    // Stationary units can be targeted from either land or water positions
     // They are neither land nor water - both unit types need to calculate range
+    // Stationary units can be constructed on top of water platforms
     for (auto it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).GetOrder() != ORDER_IDLE && (*it).hits > 0 && (*it).GetUnitType() != CNCT_4W) {
             Rect bounds;
@@ -142,9 +146,11 @@ TerrainDistanceField::TerrainDistanceField(const Point dimensions) : m_dimension
 
             for (int32_t i = bounds.ulx; i < bounds.lrx; ++i) {
                 for (int32_t j = bounds.uly; j < bounds.lry; ++j) {
+                    const uint32_t field_offset = i + j * m_dimensions.x;
+
                     // Mark for lazy computation in both fields (will compute range on first query)
-                    m_land_unit_range_field[i + j * m_dimensions.x] = RANGE_MASK;
-                    m_water_unit_range_field[i + j * m_dimensions.x] = RANGE_MASK;
+                    m_land_unit_range_field[field_offset] = DISTANCE_UNEVALUATED;
+                    m_water_unit_range_field[field_offset] = DISTANCE_UNEVALUATED;
                 }
             }
         }
@@ -156,27 +162,29 @@ TerrainDistanceField::~TerrainDistanceField() {}
 /*
  * Lazy evaluation of range using expanding ring search
  *
- * ALGORITHM: Distance Transform via multi-source Breadth-First Search (BFS).
+ * When a cell has DISTANCE_UNEVALUATED (not yet computed), this performs an expanding ring search to find the nearest
+ * traversable cell for the queried movement type. The search radiates outward in concentric rings until a traversable
+ * tile is found or time limit is hit.
  *
- * When a cell has RANGE_MASK (not yet computed), this performs an expanding
- * ring search to find the nearest non-traversable cell. The search radiates
- * outward in concentric rings until non-traversable terrain is found or time limit is hit.
+ * Time complexity: O(r²) where r is range to nearest traversable terrain
  *
- * Time complexity: O(r²) where r is range to nearest non-traversable terrain
- * Optimization: Stops expanding when ring radius² exceeds current shortest range
+ * Optimization:
+ * - Stops expanding when ring radius² exceeds current shortest range
  *
- * range_field: The range field to query (land or water unit field)
+ * range_field: The range field to query (land or sea unit field)
  * location: Grid position to query
  * Returns: Squared range required, or 0 if out of time budget
  */
-uint32_t TerrainDistanceField::GetCalculatedRange(std::vector<uint32_t>& range_field, const Point location) {
-    const auto stored_distance = range_field[location.x + location.y * m_dimensions.x] & RANGE_MASK;
+uint32_t TerrainDistanceField::ComputeDistanceToNearestTraversable(std::vector<uint32_t>& range_field,
+                                                                   const Point location) {
+    const int32_t target_field_offset = location.x + location.y * m_dimensions.x;
+    const auto stored_distance = range_field[target_field_offset] & DISTANCE_UNEVALUATED;
     uint32_t result;
 
-    if (stored_distance >= RANGE_MASK) {
+    if (stored_distance >= DISTANCE_UNEVALUATED) {
         // Range not yet computed - do lazy evaluation
         auto position = location;
-        uint32_t shortest_distance = RANGE_MASK;
+        uint32_t shortest_distance = DISTANCE_UNEVALUATED;
 
         if (TickTimer_HaveTimeToThink()) {
             // Expanding ring search: Check cells at increasing distances
@@ -192,8 +200,10 @@ uint32_t TerrainDistanceField::GetCalculatedRange(std::vector<uint32_t>& range_f
 
                         if (position.x >= 0 && position.x < m_dimensions.x && position.y >= 0 &&
                             position.y < m_dimensions.y) {
-                            // Check if this cell is non-traversable (requires range calculation)
-                            if (range_field[position.x + position.y * m_dimensions.x] & TRAVERSABLE_FLAG) {
+                            const int32_t field_offset = position.x + position.y * m_dimensions.x;
+
+                            // Check if position is traversable (then calculate range to location)
+                            if (range_field[field_offset] & TRAVERSABLE_BIT) {
                                 const uint32_t distance = Access_GetDistance(position, location);
 
                                 if (distance < shortest_distance) {
@@ -206,8 +216,7 @@ uint32_t TerrainDistanceField::GetCalculatedRange(std::vector<uint32_t>& range_f
             }
 
             // Cache the computed range for future queries
-            range_field[location.x + location.y * m_dimensions.x] =
-                (range_field[location.x + location.y * m_dimensions.x] & TRAVERSABLE_FLAG) | shortest_distance;
+            range_field[target_field_offset] = (range_field[target_field_offset] & TRAVERSABLE_BIT) | shortest_distance;
 
             result = shortest_distance;
 
@@ -225,43 +234,39 @@ uint32_t TerrainDistanceField::GetCalculatedRange(std::vector<uint32_t>& range_f
 }
 
 /*
- * Handle terrain becoming non-traversable (e.g., bridge destroyed, building placed)
+ * Mark a cell traversable (add anchor) and decrease nearby ranges
  *
- * ALGORITHM: Eager propagation via incremental Distance Transform
+ * Marks the cell as traversable (adds an anchor for the corresponding movement type), then performs a local flood
+ * update to decrease stored ranges where this new anchor provides a closer approach. Starting from the changed
+ * location, it expands outward in concentric rings, updating any cell whose range to this position is shorter than its
+ * currently stored range.
  *
- * When a cell becomes non-traversable, this immediately performs a flood fill to update
- * all affected cells. Starting from the changed location, it expands outward in concentric
- * rings, updating any cell whose new range to this non-traversable terrain is shorter
- * than its currently stored range.
- *
- * The flood continues expanding until no more cells need updating (all cells in the
- * current ring already have shorter ranges stored).
- *
- * PERFORMANCE OPTIMIZATION:
+ * Optimization:
  * - Only executes if at least one computer player exists in the game
- * - Human-only games skip all processing (no AI needs range data)
- * - Schedules TaskUpdateTerrain for first computer player found to lazily process
- *   any remaining RANGE_MASK cells across multiple game ticks
+ * - Stops expanding when ring radius² exceeds current shortest range
+ * - Schedules TaskUpdateTerrain for first computer player found to lazily process any remaining DISTANCE_UNEVALUATED
+ * cells across multiple game ticks
  *
- * range_field: The range field to update (land or water unit field)
- * location: Grid position that became non-traversable
+ * range_field: The range field to update (land or sea unit field)
+ * location: Grid position that changed
  */
-void TerrainDistanceField::AddNonTraversableTerrain(std::vector<uint32_t>& range_field, const Point location) {
+void TerrainDistanceField::AddAnchorAndPropagate(std::vector<uint32_t>& range_field, const Point location) {
+    const int32_t target_field_offset = location.x + location.y * m_dimensions.x;
     auto position = location;
     bool flag = true;
 
-    if (!(range_field[location.x + location.y * m_dimensions.x] & TRAVERSABLE_FLAG)) {
-        // Only proceed if this cell wasn't already marked as non-traversable
+    if (!(range_field[target_field_offset] & TRAVERSABLE_BIT)) {
+        // Only proceed if this cell wasn't already marked as traversable
 
-        // Schedule lazy updates for first AI team
+        // Schedule lazy updates for first AI team if any
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
                 TaskManager.AppendTask(*new (std::nothrow) TaskUpdateTerrain(team));
 
-                // Mark this cell as non-traversable (units can't move here)
-                range_field[location.x + location.y * m_dimensions.x] = MOVEMENT_RANGE_ONLY;
+                // Mark this cell as traversable and unevaluated (add anchor here)
+                range_field[target_field_offset] = TRAVERSABLE_UNEVALUATED;
 
-                // Flood fill: Update all cells that now have a closer non-traversable terrain
+                // Flood fill: Update all cells that now have a closer traversable position
                 for (int32_t i = 1; flag; ++i) {
                     --position.x;
                     ++position.y;
@@ -274,20 +279,19 @@ void TerrainDistanceField::AddNonTraversableTerrain(std::vector<uint32_t>& range
 
                             if (position.x >= 0 && position.x < m_dimensions.x && position.y >= 0 &&
                                 position.y < m_dimensions.y) {
+                                const int32_t field_offset = position.x + position.y * m_dimensions.x;
                                 const uint32_t distance = Access_GetDistance(position, location);
 
-                                // If this cell's stored range is longer than range to newly non-traversable terrain
-                                if ((range_field[position.x + position.y * m_dimensions.x] & RANGE_MASK) > distance) {
-                                    // If cell had a valid range (not RANGE_MASK), need to propagate further
-                                    if ((range_field[position.x + position.y * m_dimensions.x] & RANGE_MASK) !=
-                                        RANGE_MASK) {
+                                // If this cell's stored range is longer than range to the newly marked traversable cell
+                                if ((range_field[field_offset] & DISTANCE_UNEVALUATED) > distance) {
+                                    // If cell had a valid range (not DISTANCE_UNEVALUATED), need to propagate further
+                                    if ((range_field[field_offset] & DISTANCE_UNEVALUATED) != DISTANCE_UNEVALUATED) {
                                         flag = true;  // Continue to next ring
                                     }
 
                                     // Update to shorter range
-                                    range_field[position.x + position.y * m_dimensions.x] =
-                                        (range_field[position.x + position.y * m_dimensions.x] & TRAVERSABLE_FLAG) |
-                                        distance;
+                                    range_field[field_offset] =
+                                        (range_field[field_offset] & TRAVERSABLE_BIT) | distance;
                                 }
                             }
                         }
@@ -301,47 +305,42 @@ void TerrainDistanceField::AddNonTraversableTerrain(std::vector<uint32_t>& range
 }
 
 /*
- * Handle terrain becoming traversable (e.g., bridge placed, building destroyed)
+ * Mark a cell non-traversable (remove anchor) and invalidate dependent ranges
  *
  * ALGORITHM: Lazy invalidation via conservative marking
  *
- * When a cell becomes traversable, we cannot efficiently determine new ranges immediately
- * (affected cells may now have farther ranges to different non-traversable terrain).
- * Instead, this conservatively invalidates any cell whose stored range exactly matches
- * its distance to the removed non-traversable terrain, marking it with RANGE_MASK.
+ * When a cell becomes non-traversable (anchor removed), we cannot efficiently determine new ranges immediately for all
+ * affected cells. Instead, conservatively invalidate any cell whose stored range exactly matches its distance to this
+ * cell, marking it with DISTANCE_UNEVALUATED so it will recompute lazily.
  *
  * Invalidated cells are lazily recomputed later:
  * 1. TaskUpdateTerrain iteratively processes the entire map across multiple game ticks
- * 2. For each cell with RANGE_MASK, calls GetCalculatedRange() to compute actual range
- * 3. Expanding ring BFS finds nearest non-traversable terrain and caches result
- *
- * CONSERVATIVE STRATEGY:
- * This may invalidate cells that coincidentally have the same range to other non-traversable
- * terrain, but this is safe - it just triggers unnecessary recomputation. The alternative
- * (tracking all dependencies) would be more complex and memory-intensive.
+ * 2. For each cell with DISTANCE_UNEVALUATED, calls ComputeDistanceToNearestTraversable() to compute actual range
+ * 3. Expanding ring search finds nearest traversable terrain and caches result
  *
  * PERFORMANCE OPTIMIZATION:
  * - Only executes if at least one computer player exists in the game
  * - Human-only games skip all processing (no AI needs range data)
  * - Schedules TaskUpdateTerrain for first computer player found to handle lazy recalculation
  *
- * range_field: The range field to update (land or water unit field)
+ * range_field: The range field to update (land or sea unit field)
  * location: Grid position that became traversable
  */
-void TerrainDistanceField::RemoveNonTraversableTerrain(std::vector<uint32_t>& range_field, const Point location) {
+void TerrainDistanceField::RemoveAnchorAndInvalidate(std::vector<uint32_t>& range_field, const Point location) {
+    const int32_t target_field_offset = location.x + location.y * m_dimensions.x;
     auto position = location;
     bool flag = true;
 
-    if (range_field[location.x + location.y * m_dimensions.x] & TRAVERSABLE_FLAG) {
-        // Only proceed if this cell was actually marked as non-traversable
+    if (range_field[target_field_offset] & TRAVERSABLE_BIT) {
+        // Only proceed if this cell is currently traversable (has an anchor)
 
         // Notify all AI teams
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
                 TaskManager.AppendTask(*new (std::nothrow) TaskUpdateTerrain(team));
 
-                // Clear traversable flag and invalidate stored range
-                range_field[location.x + location.y * m_dimensions.x] = RANGE_MASK;
+                // Remove traversable flag and invalidate stored range (remove anchor here)
+                range_field[target_field_offset] = DISTANCE_UNEVALUATED;
 
                 // Invalidation flood: Mark cells that had this terrain as their nearest
                 for (int32_t i = 1; flag; ++i) {
@@ -356,14 +355,14 @@ void TerrainDistanceField::RemoveNonTraversableTerrain(std::vector<uint32_t>& ra
 
                             if (position.x >= 0 && position.x < m_dimensions.x && position.y >= 0 &&
                                 position.y < m_dimensions.y) {
+                                const int32_t field_offset = position.x + position.y * m_dimensions.x;
                                 const uint32_t distance = Access_GetDistance(position, location);
 
-                                // If cell's range exactly matches range to removed non-traversable terrain
-                                if ((range_field[position.x + position.y * m_dimensions.x] & RANGE_MASK) == distance) {
+                                // If cell's range exactly matches range to the modified terrain at 'location'
+                                if ((range_field[field_offset] & DISTANCE_UNEVALUATED) == distance) {
                                     // Invalidate it (will recompute on next query)
-                                    range_field[position.x + position.y * m_dimensions.x] =
-                                        (range_field[position.x + position.y * m_dimensions.x] & TRAVERSABLE_FLAG) |
-                                        RANGE_MASK;
+                                    range_field[field_offset] =
+                                        (range_field[field_offset] & TRAVERSABLE_BIT) | DISTANCE_UNEVALUATED;
 
                                     flag = true;  // Continue propagating invalidation
                                 }
@@ -381,14 +380,14 @@ void TerrainDistanceField::RemoveNonTraversableTerrain(std::vector<uint32_t>& ra
 /*
  * Query minimum range² required to reach a target cell
  *
- * Main public API for range queries. Returns the minimum range² needed to reach
- * the target from any position on the unit's traversable terrain.
+ * Main public API for range queries. Returns the minimum range² needed to reach the target from any position on the
+ * unit's traversable terrain.
  *
  * Used by AI for attack and scan range planning without expensive pathfinding.
  *
  * location: Target cell position to evaluate
  * surface_type: Unit's movement type (SURFACE_TYPE_LAND, SURFACE_TYPE_WATER, or both)
- * Returns: Squared range required, or 0 for amphibious units
+ * Returns: Squared range required, or 0 for amphibious units or when out of time budget
  */
 uint32_t TerrainDistanceField::GetMinimumRange(const Point location, const int32_t surface_type) {
     uint32_t result;
@@ -396,12 +395,12 @@ uint32_t TerrainDistanceField::GetMinimumRange(const Point location, const int32
     if (!(surface_type & SURFACE_TYPE_WATER)) {
         // LAND-ONLY unit: Query land unit range field
         // Returns attack range² from nearest land position to target
-        result = GetCalculatedRange(m_land_unit_range_field, location);
+        result = ComputeDistanceToNearestTraversable(m_land_unit_range_field, location);
 
     } else if (!(surface_type & SURFACE_TYPE_LAND)) {
-        // SEA-ONLY unit: Query water unit range field
+        // SEA-ONLY unit: Query sea unit range field
         // Returns attack range² from nearest water position to target
-        result = GetCalculatedRange(m_water_unit_range_field, location);
+        result = ComputeDistanceToNearestTraversable(m_water_unit_range_field, location);
 
     } else {
         // AMPHIBIOUS unit: Can reach any cell by movement, no attack range needed
@@ -414,13 +413,13 @@ uint32_t TerrainDistanceField::GetMinimumRange(const Point location, const int32
 /*
  * Update range fields when terrain changes
  *
- * Called when buildings are placed/destroyed or terrain permanently changes.
+ * Called when stationary units are placed or destroyed.
  *
  * Surface type flags indicate traversability:
  * - SURFACE_TYPE_LAND: Land units can traverse
- * - SURFACE_TYPE_WATER: Water units can traverse
+ * - SURFACE_TYPE_WATER: Sea units can traverse
  * - Both flags: Both unit types can traverse
- * - No flags: Non-traversable (e.g., building)
+ * - No flags: Non-traversable (e.g., a building is present)
  *
  * location: Grid position that changed
  * surface_type: New terrain type flags
@@ -428,21 +427,21 @@ uint32_t TerrainDistanceField::GetMinimumRange(const Point location, const int32
 void TerrainDistanceField::OnTerrainChanged(const Point location, const int32_t surface_type) {
     // Update land unit range field (affects land unit attack planning)
     if (surface_type & SURFACE_TYPE_LAND) {
-        // Cell is land → Land units can traverse (no range calculation needed)
-        RemoveNonTraversableTerrain(m_land_unit_range_field, location);
+        // Cell is land → Land units can traverse (add anchor)
+        AddAnchorAndPropagate(m_land_unit_range_field, location);
 
     } else {
-        // Cell is not land → Land units need range calculation
-        AddNonTraversableTerrain(m_land_unit_range_field, location);
+        // Cell is not land → Land units cannot traverse (remove anchor)
+        RemoveAnchorAndInvalidate(m_land_unit_range_field, location);
     }
 
-    // Update water unit range field (affects water unit attack planning)
+    // Update sea unit range field (affects sea unit attack planning)
     if (surface_type & SURFACE_TYPE_WATER) {
-        // Cell is water → Water units can traverse (no range calculation needed)
-        RemoveNonTraversableTerrain(m_water_unit_range_field, location);
+        // Cell is water → Sea units can traverse (add anchor)
+        AddAnchorAndPropagate(m_water_unit_range_field, location);
 
     } else {
-        // Cell is not water → Water units need range calculation
-        AddNonTraversableTerrain(m_water_unit_range_field, location);
+        // Cell is not water → Sea units cannot traverse (remove anchor)
+        RemoveAnchorAndInvalidate(m_water_unit_range_field, location);
     }
 }

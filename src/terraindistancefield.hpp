@@ -23,9 +23,8 @@
  * \file terraindistancefield.hpp
  * \brief Terrain-aware range optimization for strategic level AI attack planning
  *
- * Provides efficient range queries for the AI system. For any target cell on the map,
- * quickly determines the minimum weapon/scan range² needed for a unit to reach that
- * target from any position on its traversable terrain.
+ * Provides efficient range queries for the AI system. For any target cell on the map, quickly determines the minimum
+ * weapon/scan range² needed for a unit to reach that target from any position on its traversable terrain.
  *
  * This enables efficient target filtering without expensive pathfinding.
  * All ranges are squared to avoid expensive sqrt operations.
@@ -40,18 +39,18 @@
 #include "point.hpp"
 
 class TerrainDistanceField {
-    static constexpr uint32_t RANGE_MASK = static_cast<uint32_t>(INT_MAX);
-    static constexpr uint32_t TRAVERSABLE_FLAG = RANGE_MASK + 1uL;
-    static constexpr uint32_t MOVEMENT_RANGE_ONLY = (TRAVERSABLE_FLAG | RANGE_MASK);
+    static constexpr uint32_t DISTANCE_UNEVALUATED = static_cast<uint32_t>(INT_MAX);
+    static constexpr uint32_t TRAVERSABLE_BIT = DISTANCE_UNEVALUATED + 1uL;
+    static constexpr uint32_t TRAVERSABLE_UNEVALUATED = (TRAVERSABLE_BIT | DISTANCE_UNEVALUATED);
 
     const Point m_dimensions;
 
     std::vector<uint32_t> m_land_unit_range_field;
     std::vector<uint32_t> m_water_unit_range_field;
 
-    uint32_t GetCalculatedRange(std::vector<uint32_t>& range_field, const Point location);
-    void AddNonTraversableTerrain(std::vector<uint32_t>& range_field, const Point location);
-    void RemoveNonTraversableTerrain(std::vector<uint32_t>& range_field, const Point location);
+    uint32_t ComputeDistanceToNearestTraversable(std::vector<uint32_t>& range_field, const Point location);
+    void AddAnchorAndPropagate(std::vector<uint32_t>& range_field, const Point location);
+    void RemoveAnchorAndInvalidate(std::vector<uint32_t>& range_field, const Point location);
 
 public:
     TerrainDistanceField(const Point dimensions);
@@ -61,15 +60,14 @@ public:
     /**
      * \brief Get minimum range² required to reach a target location
      *
-     * Returns the range² needed for a unit to reach the specified target cell from
-     * any position on its traversable terrain. Used by AI for attack and scan range
-     * planning without expensive pathfinding.
+     * Returns the range² needed for a unit to reach the specified target cell from any position on its traversable
+     * terrain. Used by AI for attack and scan range planning without expensive pathfinding.
      *
      * \param location Target cell position to evaluate
      * \param surface_type Unit's movement type (SURFACE_TYPE_LAND, SURFACE_TYPE_WATER, or both)
      * \return Range² required from nearest traversable position
      *         - Land units: Range² from nearest land position
-     *         - Water units: Range² from nearest water position
+     *         - Sea units: Range² from nearest water position
      *         - Amphibious units: 0 (can reach any cell by movement)
      *         - Returns 0 if computation budget exceeded
      */
@@ -78,22 +76,22 @@ public:
     /**
      * \brief Update range fields when terrain changes
      *
-     * Call when permanent terrain features change (buildings placed/destroyed, etc.).
+     * Call when permanent terrain features change (buildings placed/destroyed, bridges/platforms placed, etc.).
      *
      * \note Range updates are NOT immediate:
-     *       - Adding non-traversable terrain: Immediately propagates closer ranges via flood fill,
-     *         but remaining invalidated cells are recalculated lazily
-     *       - Removing non-traversable terrain: Conservatively invalidates affected cells,
-     *         actual recalculation happens lazily via TaskUpdateTerrain across multiple game ticks
+     *       - Adding traversable terrain (flag present): Immediately propagates decreased ranges around the new anchor
+     *         via flood update; remaining cells recompute lazily
+     *       - Removing traversable terrain / adding blocking (flag absent): Conservatively invalidates affected cells
+     *         (marks as DISTANCE_UNEVALUATED), actual recalculation happens lazily via TaskUpdateTerrain across ticks
      *       - Range queries may return stale or 0 values until lazy processing completes
      *       - Only processes updates if computer players exist (optimization for human-only games)
      *
      * \param location Grid position that changed
      * \param surface_type New terrain type:
-     *        - SURFACE_TYPE_LAND: Land terrain (land units can traverse)
-     *        - SURFACE_TYPE_WATER: Water terrain (water units can traverse)
-     *        - Both flags: Traversable by both unit types
-     *        - No flags: Non-traversable (e.g., building)
+     *        - SURFACE_TYPE_LAND: Land units can traverse (adds anchor to land field)
+     *        - SURFACE_TYPE_WATER: Sea units can traverse (adds anchor to water field)
+     *        - Both flags: Both unit types can traverse (adds anchors to both fields)
+     *        - No flags: Non-traversable (removes anchors from both fields)
      */
     void OnTerrainChanged(const Point location, const int32_t surface_type);
 };
