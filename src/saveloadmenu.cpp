@@ -598,7 +598,7 @@ void SaveLoadMenu_Save(const char* file_name, const char* save_name, bool play_v
     char team_types[PLAYER_TEAM_MAX - 1];
     uint32_t rng_seed;
 
-    filepath = (ResourceManager_FilePathGamePref / filename.Toupper().GetCStr()).lexically_normal();
+    filepath = (ResourceManager_FilePathGamePref / filename.GetCStr()).lexically_normal();
 
     if (backup) {
         SaveLoadMenu_CreateBackup(filepath.string().c_str());

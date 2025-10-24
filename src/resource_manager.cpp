@@ -187,6 +187,9 @@ static void ResourceManager_InitHelpManager();
 static void ResourceManager_InitMissionManager();
 static void ResourceManager_InitUnitAttributes();
 static void ResourceManager_InitClans();
+static std::filesystem::path ResourceManager_GetFileResourcePath(const std::string& string,
+                                                                 std::filesystem::path& path);
+static std::filesystem::path ResourceManager_GetFileResourcePath(const std::string& string, const ResourceType type);
 
 static inline std::filesystem::path ResourceManager_GetFileResourcePathPrefix(ResourceType type) {
     auto path{ResourceManager_FilePathGameData};
@@ -569,14 +572,16 @@ void ResourceManager_PreloadPatches() {
         exit(EXIT_FAILURE);
     }
 
-    if (ResourceManager_BuildResourceTable((path / "PATCHES.RES").lexically_normal()) != EXIT_CODE_NO_ERROR) {
+    if (ResourceManager_BuildResourceTable(
+            (ResourceManager_GetFileResourcePath("PATCHES.RES", path)).lexically_normal()) != EXIT_CODE_NO_ERROR) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "M.A.X. Error", "Failed to load PATCHES.RES.", nullptr);
         exit(EXIT_FAILURE);
     }
 }
 
 void ResourceManager_LoadMaxResources() {
-    if (ResourceManager_BuildResourceTable((ResourceManager_FilePathGameData / "MAX.RES").lexically_normal()) !=
+    if (ResourceManager_BuildResourceTable(
+            (ResourceManager_GetFileResourcePath("MAX.RES", ResourceManager_FilePathGameData)).lexically_normal()) !=
         EXIT_CODE_NO_ERROR) {
         /// \todo Convert to translated string
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "M.A.X. Error", "Failed to load MAX.RES.", nullptr);
@@ -757,6 +762,23 @@ FILE* ResourceManager_GetFileHandle(ResourceID id) {
     }
 
     return fp;
+}
+
+std::filesystem::path ResourceManager_GetFileResourcePath(const std::string& string, std::filesystem::path& path) {
+    auto filename = ResourceManager_StringToLowerCase(string);
+    auto filepath = (path / filename).lexically_normal();
+    std::error_code ec;
+
+    if (!std::filesystem::exists(filepath, ec) || ec) {
+        filename = ResourceManager_StringToUpperCase(string);
+        filepath = (path / filename).lexically_normal();
+
+        if (!std::filesystem::exists(filepath, ec) || ec) {
+            filepath = string;
+        }
+    }
+
+    return filepath;
 }
 
 std::filesystem::path ResourceManager_GetFileResourcePath(const std::string& string, const ResourceType type) {

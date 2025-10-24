@@ -32,6 +32,7 @@
 #include "missionmanager.hpp"
 #include "missionregistry.hpp"
 #include "remote.hpp"
+#include "resource_manager.hpp"
 #include "smartfile.hpp"
 #include "units_manager.hpp"
 
@@ -63,19 +64,24 @@ void SaveLoad_TeamClearUnitList(SmartList<UnitInfo>& units, uint16_t team) {
 
 std::filesystem::path SaveLoad_GetFilePath(const MissionCategory mission_category, const int32_t save_slot,
                                            std::string* file_name) {
-    std::filesystem::path filepath;
-    const auto filename = SaveLoad_GetSaveFileName(mission_category, save_slot);
+    const auto savename = SaveLoad_GetSaveFileName(mission_category, save_slot);
+    const bool use_pref_path =
+        (mission_category == MISSION_CATEGORY_CUSTOM || mission_category == MISSION_CATEGORY_HOT_SEAT ||
+         mission_category == MISSION_CATEGORY_MULTI);
+    const auto& rootpath = use_pref_path ? ResourceManager_FilePathGamePref : ResourceManager_FilePathGameData;
+
+    auto filename = ResourceManager_StringToLowerCase(savename);
+    auto filepath = (rootpath / filename).lexically_normal();
 
     if (file_name) {
         *file_name = filename;
     }
 
-    if (mission_category == MISSION_CATEGORY_CUSTOM || mission_category == MISSION_CATEGORY_HOT_SEAT ||
-        mission_category == MISSION_CATEGORY_MULTI) {
-        filepath = (ResourceManager_FilePathGamePref / filename.c_str()).lexically_normal();
+    std::error_code ec;
 
-    } else {
-        filepath = (ResourceManager_FilePathGameData / filename.c_str()).lexically_normal();
+    if (!std::filesystem::exists(filepath, ec) || ec) {
+        filename = ResourceManager_StringToUpperCase(savename);
+        filepath = (rootpath / filename).lexically_normal();
     }
 
     return filepath;

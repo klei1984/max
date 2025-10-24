@@ -293,18 +293,26 @@ static void Mission_ProcessMission(const json& j, MissionObject& m) {
     j.at("mission").get_to(file);
     j.at("hash").get_to(hash);
 
-    if (Mission_IsWithinBasePath(ResourceManager_FilePathGameData, file, path) && Mission_TestMissionFile(path, hash)) {
+    if ((Mission_IsWithinBasePath(ResourceManager_FilePathGameData, ResourceManager_StringToLowerCase(file), path) ||
+         Mission_IsWithinBasePath(ResourceManager_FilePathGameData, ResourceManager_StringToUpperCase(file), path)) &&
+        Mission_TestMissionFile(path, hash)) {
         m.mission = path;
         m.hash = hash;
 
     } else {
-        if (Mission_IsWithinBasePath(ResourceManager_FilePathGameBase, file, path) &&
+        if ((Mission_IsWithinBasePath(ResourceManager_FilePathGameBase, ResourceManager_StringToLowerCase(file),
+                                      path) ||
+             Mission_IsWithinBasePath(ResourceManager_FilePathGameBase, ResourceManager_StringToUpperCase(file),
+                                      path)) &&
             Mission_TestMissionFile(path, hash)) {
             m.mission = path;
             m.hash = hash;
 
         } else {
-            if (Mission_IsWithinBasePath(ResourceManager_FilePathGamePref, file, path) &&
+            if ((Mission_IsWithinBasePath(ResourceManager_FilePathGamePref, ResourceManager_StringToLowerCase(file),
+                                          path) ||
+                 Mission_IsWithinBasePath(ResourceManager_FilePathGamePref, ResourceManager_StringToUpperCase(file),
+                                          path)) &&
                 Mission_TestMissionFile(path, hash)) {
                 m.mission = path;
                 m.hash = hash;
