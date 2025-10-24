@@ -4165,7 +4165,11 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
 
 void UnitsManager_RemoveUnitFromUnitLists(UnitInfo* unit) {
     if (unit->flags & GROUND_COVER) {
-        UnitsManager_GroundCoverUnits.Remove(*unit);
+        if (!UnitsManager_GroundCoverUnits.Remove(*unit)) {
+            if (unit->GetUnitType() == BRIDGE) {
+                UnitsManager_StationaryUnits.Remove(*unit);
+            }
+        }
 
     } else if (unit->flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
         UnitsManager_MobileLandSeaUnits.Remove(*unit);
