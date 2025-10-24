@@ -3252,7 +3252,10 @@ void GameManager_InitUnitsAndGameState() {
     MessageManager_MessageBox_IsActive = false;
     GameManager_PlayFlic = false;
     GameManager_Progress1 = false;
+
     GameManager_MaxSurvey = false;
+    GameManager_MaxSpy = false;
+
     GameManager_QuickBuildMenuActive = false;
 
     GameManager_AllVisible = ini_get_setting(INI_ALL_VISIBLE);
