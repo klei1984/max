@@ -5682,13 +5682,7 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
     }
 
     if ((unit_flags & (MOBILE_AIR_UNIT | MOBILE_LAND_UNIT | STATIONARY)) && !(unit->flags & HOVERING)) {
-        Access_DestroyGroundCovers(unit_grid_x, unit_grid_y);
-
-        if (unit_flags & BUILDING) {
-            Access_DestroyGroundCovers(unit_grid_x + 1, unit_grid_y);
-            Access_DestroyGroundCovers(unit_grid_x, unit_grid_y + 1);
-            Access_DestroyGroundCovers(unit_grid_x + 1, unit_grid_y + 1);
-        }
+        Access_DestroyGroundCovers(unit);
     }
 
     if (unit_type == LANDMINE || unit_type == SEAMINE) {

@@ -1558,19 +1558,42 @@ void Access_DestroyUtilities(int32_t grid_x, int32_t grid_y, bool remove_slabs, 
     }
 }
 
-void Access_DestroyGroundCovers(int32_t grid_x, int32_t grid_y) {
-    const auto units = Hash_MapHash[Point(grid_x, grid_y)];
+void Access_DestroyGroundCovers(UnitInfo* unit) {
+    const int16_t unit_grid_x = unit->grid_x;
+    const int16_t unit_grid_y = unit->grid_y;
+    Point positions[4];
+    int32_t cell_count;
 
-    if (units) {
-        // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-            switch ((*it).GetUnitType()) {
-                case ROAD:
-                case LANDPAD:
-                case WTRPLTFM:
-                case BRIDGE: {
-                    UnitsManager_DestroyUnit(&*it);
-                } break;
+    if (unit->flags & BUILDING) {
+        cell_count = 4;
+
+        positions[0] = Point(unit_grid_x, unit_grid_y);
+        positions[1] = Point(unit_grid_x + 1, unit_grid_y);
+        positions[2] = Point(unit_grid_x, unit_grid_y + 1);
+        positions[3] = Point(unit_grid_x + 1, unit_grid_y + 1);
+
+    } else {
+        cell_count = 1;
+
+        positions[0] = Point(unit_grid_x, unit_grid_y);
+    }
+
+    for (int32_t i = 0; i < cell_count; ++i) {
+        const auto units = Hash_MapHash[positions[i]];
+
+        if (units) {
+            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                if (unit != it->Get()) {
+                    switch ((*it).GetUnitType()) {
+                        case ROAD:
+                        case LANDPAD:
+                        case WTRPLTFM:
+                        case BRIDGE: {
+                            UnitsManager_DestroyUnit(it->Get());
+                        } break;
+                    }
+                }
             }
         }
     }
