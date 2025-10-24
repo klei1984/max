@@ -53,6 +53,10 @@ void PurchaseTypeSelector::Draw() {
 
         if (UnitsManager_BaseUnits[*unit_types[page_min_index + i]].flags & STATIONARY) {
             cost = Cargo_GetRawConsumptionRate(CONSTRCT, 1) * turns;
+
+        } else if (*unit_types[page_min_index + i] == COMMANDO || *unit_types[page_min_index + i] == INFANTRY) {
+            cost = Cargo_GetRawConsumptionRate(TRAINHAL, 1) * turns;
+
         } else {
             cost = Cargo_GetRawConsumptionRate(LANDPLT, 1) * turns;
         }
