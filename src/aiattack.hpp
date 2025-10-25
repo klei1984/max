@@ -45,7 +45,7 @@ void AiAttack_GetTargetTeams(uint16_t team, bool* teams);
 SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_t scan, int32_t caution_level,
                                            bool mode);
 int32_t AiAttack_GetAttackPotential(UnitInfo* attacker, UnitInfo* target);
-void AiAttack_UpdateTargetFlags(UnitInfo* unit);
+void AiAttack_SetAttackTargetCooldown(UnitInfo* unit);
 bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode = true);
 bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                               void (*result_callback)(Task* task, UnitInfo* unit, char result));

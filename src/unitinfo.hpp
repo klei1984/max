@@ -97,6 +97,10 @@ private:
     UnitOrderStateType prior_state;
 
 public:
+    static constexpr uint32_t AI_STATE_NO_RETREAT = 0x00000001;
+    static constexpr uint32_t AI_STATE_TARGET_COOLDOWN_MASK = 0x000000FE;
+    static constexpr uint32_t AI_STATE_MOVE_FINISHED_REMINDER = 0x00000100;
+
     /**
      * The default constructor is only usable in special use cases.
      */
@@ -242,9 +246,9 @@ public:
     uint16_t GetId() const;
     UnitInfo* GetFirstFromUnitList() const;
     SmartList<UnitInfo>* GetUnitList() const;
-    uint32_t GetField221() const;
-    void SetField221(uint32_t value);
-    void ChangeField221(uint32_t flags, bool mode);
+    uint32_t GetAiStateBits() const;
+    void SetAiStateBits(const uint32_t value);
+    void ChangeAiStateBits(const uint32_t value, const bool mode);
     uint16_t GetImageIndex() const;
     void SetBaseValues(UnitValues* unit_values);
     UnitValues* GetBaseValues() const;
@@ -443,7 +447,7 @@ public:
     int16_t image_index;
     int16_t turret_image_index;
     Point shadow_offset;
-    uint32_t field_221;
+    uint32_t ai_state_bits;
 };
 
 #endif /* UNITINFO_HPP */

@@ -129,7 +129,7 @@ void TaskRetreat::Search() {
                     field_23 += 2;
 
                     if (field_34 == 0 || field_23 > unit_to_retreat->GetBaseValues()->GetAttribute(ATTRIB_SPEED) * 2) {
-                        unit_to_retreat->ChangeField221(0x01, true);
+                        unit_to_retreat->ChangeAiStateBits(UnitInfo::AI_STATE_NO_RETREAT, true);
                         RemoveTask();
 
                         return;

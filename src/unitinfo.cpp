@@ -554,7 +554,7 @@ UnitInfo::UnitInfo()
       shadow_bounds(),
       image_index(0),
       turret_image_index(0),
-      field_221(0) {}
+      ai_state_bits(0) {}
 
 UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t angle)
     : name(nullptr),
@@ -639,7 +639,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
       shadow_bounds(),
       image_index(0),
       turret_image_index(0),
-      field_221(0) {
+      ai_state_bits(0) {
     BaseUnit* unit;
 
     rect_init(&sprite_bounds, 0, 0, 0, 0);
@@ -792,7 +792,7 @@ UnitInfo::UnitInfo(const UnitInfo& other)
       image_index(other.image_index),
       turret_image_index(other.turret_image_index),
       shadow_offset(other.shadow_offset),
-      field_221(other.field_221) {
+      ai_state_bits(other.ai_state_bits) {
     memcpy(visible_to_team, other.visible_to_team, sizeof(visible_to_team));
     memcpy(spotted_by_team, other.spotted_by_team, sizeof(spotted_by_team));
 }
@@ -1265,16 +1265,16 @@ UnitInfo* UnitInfo::GetFirstFromUnitList() const {
 
 SmartList<UnitInfo>* UnitInfo::GetUnitList() const { return unit_list; }
 
-uint32_t UnitInfo::GetField221() const { return field_221; }
+uint32_t UnitInfo::GetAiStateBits() const { return ai_state_bits; }
 
-void UnitInfo::SetField221(uint32_t value) { field_221 = value; }
+void UnitInfo::SetAiStateBits(const uint32_t value) { ai_state_bits = value; }
 
-void UnitInfo::ChangeField221(uint32_t flags, bool mode) {
+void UnitInfo::ChangeAiStateBits(const uint32_t value, const bool mode) {
     if (mode) {
-        field_221 |= flags;
+        ai_state_bits |= value;
 
     } else {
-        field_221 &= ~flags;
+        ai_state_bits &= ~value;
     }
 }
 
@@ -3066,9 +3066,9 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
     file.Read(build_rate);
     file.Read(disabled_reaction_fire);
     file.Read(auto_survey);
-    file.Read(field_221);
+    file.Read(ai_state_bits);
 
-    field_221 &= ~0x100;
+    ai_state_bits &= ~AI_STATE_MOVE_FINISHED_REMINDER;
 
     if (build_rate == 0) {
         build_rate = 1;
@@ -3182,7 +3182,7 @@ void UnitInfo::FileSave(SmartFileWriter& file) noexcept {
     file.Write(build_rate);
     file.Write(disabled_reaction_fire);
     file.Write(auto_survey);
-    file.Write(field_221);
+    file.Write(ai_state_bits);
     file.WriteObject(&*path);
     file.Write(connectors);
     file.WriteObject(&*base_values);

@@ -48,7 +48,7 @@ TaskMove::TaskMove(UnitInfo* unit, Task* task, uint16_t minimum_distance_, uint8
 
     caution_level = caution_level_;
 
-    if (passenger->GetField221() & 0x01) {
+    if (passenger->GetAiStateBits() & UnitInfo::AI_STATE_NO_RETREAT) {
         caution_level = CAUTION_LEVEL_NONE;
     }
 
@@ -1071,7 +1071,7 @@ void TaskMove::MoveAirUnit() {
 
             field_70 = true;
 
-            passenger->ChangeField221(1, false);
+            passenger->ChangeAiStateBits(UnitInfo::AI_STATE_NO_RETREAT, false);
 
             UnitsManager_SetNewOrder(&*passenger, ORDER_MOVE, ORDER_STATE_INIT);
         }
@@ -1317,7 +1317,7 @@ void TaskMove::MoveUnit(GroundPath* path) {
         passenger->target_grid_x = passenger_waypoint.x;
         passenger->target_grid_y = passenger_waypoint.y;
         field_70 = true;
-        passenger->ChangeField221(1, false);
+        passenger->ChangeAiStateBits(UnitInfo::AI_STATE_NO_RETREAT, false);
 
         if (passenger->flags & MOBILE_AIR_UNIT) {
             UnitsManager_SetNewOrder(&*passenger, ORDER_MOVE, ORDER_STATE_INIT);

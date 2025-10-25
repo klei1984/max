@@ -64,7 +64,7 @@ void Task_UpgradeStationaryUnit(UnitInfo* unit) {
 }
 
 void Task_RemindMoveFinished(UnitInfo* unit, bool priority) {
-    if (unit && (unit->GetField221() & 0x100) == 0) {
+    if (unit && (unit->GetAiStateBits() & UnitInfo::AI_STATE_MOVE_FINISHED_REMINDER) == 0) {
         TaskManager.AppendReminder(new (std::nothrow) RemindMoveFinished(*unit), priority);
     }
 }
@@ -229,7 +229,7 @@ bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int32_t caution_level) {
     int32_t unit_hits = unit->hits;
     bool result;
 
-    if (unit->GetField221() & 1) {
+    if (unit->GetAiStateBits() & UnitInfo::AI_STATE_NO_RETREAT) {
         result = true;
 
     } else {
@@ -254,7 +254,7 @@ bool Task_IsUnitDoomedToDestruction(UnitInfo* unit, int32_t caution_level) {
                     }
                 } while (walker.FindNext());
 
-                unit->ChangeField221(0x01, true);
+                unit->ChangeAiStateBits(UnitInfo::AI_STATE_NO_RETREAT, true);
 
                 result = true;
 
@@ -405,7 +405,7 @@ Point Task::DeterminePosition() {
 bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int32_t caution_level) {
     bool result;
 
-    if (caution_level == CAUTION_LEVEL_NONE || (unit->GetField221() & 1)) {
+    if (caution_level == CAUTION_LEVEL_NONE || (unit->GetAiStateBits() & UnitInfo::AI_STATE_NO_RETREAT)) {
         result = false;
 
     } else if (unit->speed > 0) {
@@ -430,7 +430,7 @@ bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int32_t caution_level) 
                 (unit->shots > 0 || !unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) ||
                  ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_AVERAGE) &&
                 Task_IsUnitDoomedToDestruction(unit, caution_level)) {
-                unit->ChangeField221(0x01, true);
+                unit->ChangeAiStateBits(UnitInfo::AI_STATE_NO_RETREAT, true);
 
                 result = false;
 

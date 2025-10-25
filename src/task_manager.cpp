@@ -539,7 +539,7 @@ void TaskManager::RemindAvailable(UnitInfo* unit, bool priority) {
     AiLog log("Task manager: make %s at [%i,%i] available.", unit_name, unit->grid_x + 1, unit->grid_y + 1);
 
     unit->RemoveTasks();
-    unit->ChangeField221(0x100, false);
+    unit->ChangeAiStateBits(UnitInfo::AI_STATE_MOVE_FINISHED_REMINDER, false);
 
     if (unit->hits > 0 && UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) {
         Reminder* reminder = new (std::nothrow) class RemindAvailable(*unit);

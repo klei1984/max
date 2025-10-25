@@ -620,18 +620,18 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
                                     int32_t damage_potential;
 
                                     if (mode) {
-                                        uint32_t unit_flags = target_unit->GetField221();
+                                        uint32_t ai_state_bits = target_unit->GetAiStateBits();
 
-                                        score = unit_flags & 0xFE;
+                                        score = ai_state_bits & UnitInfo::AI_STATE_TARGET_COOLDOWN_MASK;
 
                                         if (score) {
-                                            unit_flags &= ~0xFE;
+                                            ai_state_bits &= ~UnitInfo::AI_STATE_TARGET_COOLDOWN_MASK;
 
                                             if (score > 2) {
-                                                unit_flags |= score - 2;
+                                                ai_state_bits |= score - 2;
                                             }
 
-                                            target_unit->SetField221(unit_flags);
+                                            target_unit->SetAiStateBits(ai_state_bits);
 
                                             score <<= 7;
                                         }
@@ -693,7 +693,9 @@ int32_t AiAttack_GetAttackPotential(UnitInfo* attacker, UnitInfo* target) {
     return result;
 }
 
-void AiAttack_UpdateTargetFlags(UnitInfo* unit) { unit->SetField221(unit->GetField221() | 0xFE); }
+void AiAttack_SetAttackTargetCooldown(UnitInfo* unit) {
+    unit->ChangeAiStateBits(UnitInfo::AI_STATE_TARGET_COOLDOWN_MASK, true);
+}
 
 bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
     bool result;
@@ -780,7 +782,7 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
                                             if (Task_RetreatIfNecessary(nullptr, unit,
                                                                         Ai_DetermineCautionLevel(unit))) {
                                                 if (mode) {
-                                                    AiAttack_UpdateTargetFlags(target);
+                                                    AiAttack_SetAttackTargetCooldown(target);
                                                 }
 
                                                 return false;
@@ -956,7 +958,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
 
                             if (projected_damage > attack_potential || projected_damage >= unit->hits) {
                                 if (ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_APPRENTICE) {
-                                    AiAttack_UpdateTargetFlags(target);
+                                    AiAttack_SetAttackTargetCooldown(target);
 
                                     result = Task_RetreatIfNecessary(task, unit, Ai_DetermineCautionLevel(unit));
 
@@ -984,7 +986,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                                     }
 
                                     if (!is_profitable) {
-                                        AiAttack_UpdateTargetFlags(target);
+                                        AiAttack_SetAttackTargetCooldown(target);
 
                                         result = Task_RetreatIfNecessary(task, unit, Ai_DetermineCautionLevel(unit));
 
@@ -1027,7 +1029,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                             result = true;
 
                         } else {
-                            AiAttack_UpdateTargetFlags(target);
+                            AiAttack_SetAttackTargetCooldown(target);
 
                             result = false;
                         }

@@ -270,7 +270,7 @@ void Ai_ClearTasksPendingFlags() {
 int32_t Ai_DetermineCautionLevel(UnitInfo* unit) {
     int32_t result;
 
-    if (unit->GetField221() & 1) {
+    if (unit->GetAiStateBits() & UnitInfo::AI_STATE_NO_RETREAT) {
         result = CAUTION_LEVEL_NONE;
 
     } else if (unit->GetTask()) {

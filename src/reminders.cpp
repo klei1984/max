@@ -76,13 +76,15 @@ void RemindAvailable::Execute() {
 
 int32_t RemindAvailable::GetType() { return REMINDER_TYPE_AVAILABLE; }
 
-RemindMoveFinished::RemindMoveFinished(UnitInfo& new_unit_) : unit(new_unit_) { unit->ChangeField221(0x100, true); }
+RemindMoveFinished::RemindMoveFinished(UnitInfo& new_unit_) : unit(new_unit_) {
+    unit->ChangeAiStateBits(UnitInfo::AI_STATE_MOVE_FINISHED_REMINDER, true);
+}
 
 RemindMoveFinished::~RemindMoveFinished() {}
 
 void RemindMoveFinished::Execute() {
     if (unit) {
-        unit->ChangeField221(0x100, false);
+        unit->ChangeAiStateBits(UnitInfo::AI_STATE_MOVE_FINISHED_REMINDER, false);
     }
 
     Task* task = unit->GetTask();
