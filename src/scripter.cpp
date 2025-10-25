@@ -120,7 +120,6 @@ static inline void ScriptLuaValuesToResults(lua_State* lua, ScriptParameters& re
 static inline MaxRegistryValueType MaxRegistryFromLuaValue(lua_State* lua, int index);
 static inline void ScriptArgsToLuaValues(lua_State* lua, const ScriptParameters& args);
 static inline void MaxRegistryToLuaValue(lua_State* lua, const MaxRegistryValueType& value);
-static std::string LoadDefaultBuildRules();
 static int MaxRegistryTableIndex(lua_State* lua);
 static int MaxRegistryTableAddRemove(lua_State* lua);
 static inline void ScriptArgsToLuaValues(lua_State* lua, const ScriptParameters& args);
@@ -1386,9 +1385,26 @@ static inline void MaxRegistryToLuaValue(lua_State* lua, const MaxRegistryValueT
     }
 }
 
-static std::string LoadDefaultBuildRules() {
+std::string LoadDefaultGameRules() {
     uint32_t file_size = ResourceManager_GetResourceSize(SC_L0001);
     uint8_t* file_base = ResourceManager_ReadResource(SC_L0001);
+
+    SDL_assert(file_size && file_base);
+
+    for (int64_t i = 0; i < file_size; ++i) {
+        file_base[i] = file_base[i] ^ ResourceManager_GenericTable[i % sizeof(ResourceManager_GenericTable)];
+    }
+
+    std::string script(reinterpret_cast<const char*>(file_base), file_size);
+
+    delete[] file_base;
+
+    return script;
+}
+
+std::string LoadDefaultWinLossConditions() {
+    uint32_t file_size = ResourceManager_GetResourceSize(SC_L0002);
+    uint8_t* file_base = ResourceManager_ReadResource(SC_L0002);
 
     SDL_assert(file_size && file_base);
 
@@ -1717,16 +1733,6 @@ void* CreateContext(const ScriptType type) {
                 }
 
                 if (type == GAME_RULES) {
-                    ScriptParameters args{};
-                    ScriptParameters results{};
-                    std::string script = LoadDefaultBuildRules();
-                    std::string error;
-
-                    if (!RunScript(static_cast<void*>(context), script, args, results, &error)) {
-                        SDL_Log("\n%s\n", error.c_str());
-
-                        SDL_assert(0);
-                    }
                 }
             }
 

@@ -31,24 +31,42 @@ bool GameRulesHandler::LoadScript(const Mission& mission) {
     bool result;
 
     if (m_interpreter) {
-        m_game_rules_script = "";
+        m_game_rules_script.clear();
         Scripter::DestroyContext(m_interpreter);
     }
 
     m_interpreter = Scripter::CreateContext(Scripter::GAME_RULES);
 
     if (m_interpreter) {
-        if (mission.HasGameRules()) {
+        {
             Scripter::ScriptParameters arguments;
             Scripter::ScriptParameters results;
             std::string error;
+            std::string script = Scripter::LoadDefaultGameRules();
 
-            (void)Scripter::SetTimeBudget(m_interpreter);
+            if (Scripter::RunScript(static_cast<void*>(m_interpreter), script, arguments, results, &error)) {
+                if (mission.HasGameRules()) {
+                    arguments.clear();
+                    results.clear();
+                    error.clear();
 
-            m_game_rules_script = mission.GetGameRules();
+                    (void)Scripter::SetTimeBudget(m_interpreter);
 
-            if (Scripter::RunScript(m_interpreter, m_game_rules_script, arguments, results, &error)) {
-                result = true;
+                    m_game_rules_script = mission.GetGameRules();
+
+                    if (Scripter::RunScript(m_interpreter, m_game_rules_script, arguments, results, &error)) {
+                        result = true;
+
+                    } else {
+                        SDL_Log("\n%s\n", error.c_str());
+                        SDL_assert(0);
+
+                        result = false;
+                    }
+
+                } else {
+                    result = true;
+                }
 
             } else {
                 SDL_Log("\n%s\n", error.c_str());
@@ -56,9 +74,6 @@ bool GameRulesHandler::LoadScript(const Mission& mission) {
 
                 result = false;
             }
-
-        } else {
-            result = true;
         }
 
     } else {

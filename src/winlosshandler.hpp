@@ -28,7 +28,7 @@
 #include "mission.hpp"
 
 class WinLossHandler {
-    std::string m_script{"return MAX_VICTORY_STATE.GENERIC"};
+    std::string m_script;
     void* m_interpreter{nullptr};
 
 public:

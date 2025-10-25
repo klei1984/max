@@ -31,17 +31,20 @@ bool WinLossHandler::LoadScript(const Mission& mission) {
     bool result;
 
     if (m_interpreter) {
-        m_script = "return MAX_VICTORY_STATE.GENERIC";
+        m_script.clear();
         Scripter::DestroyContext(m_interpreter);
     }
 
     m_interpreter = Scripter::CreateContext(Scripter::WINLOSS_CONDITIONS);
 
     if (m_interpreter) {
-        if (mission.HasWinLossConditions()) {
-            (void)Scripter::SetTimeBudget(m_interpreter);
+        (void)Scripter::SetTimeBudget(m_interpreter);
 
+        if (mission.HasWinLossConditions()) {
             m_script = mission.GetWinLossConditions();
+
+        } else {
+            m_script = Scripter::LoadDefaultWinLossConditions();
         }
 
         result = true;

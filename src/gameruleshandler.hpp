@@ -29,7 +29,7 @@
 #include "mission.hpp"
 
 class GameRulesHandler {
-    std::string m_game_rules_script{""};
+    std::string m_game_rules_script;
     void* m_interpreter{nullptr};
 
 public:
