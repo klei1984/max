@@ -698,6 +698,7 @@ void AiAttack_SetAttackTargetCooldown(UnitInfo* unit) {
 }
 
 bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
+    bool consider_cooldown;
     bool result;
 
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
@@ -728,15 +729,15 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
                         }
 
                         if (Randomizer_Generate(2)) {
-                            mode = true;
+                            consider_cooldown = true;
 
                         } else {
-                            mode = false;
+                            consider_cooldown = false;
                         }
 
                         spotted_unit = AiAttack_SelectTargetToAttack(
                             unit, unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE) + attack_radius,
-                            unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN), CAUTION_LEVEL_NONE, mode);
+                            unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN), CAUTION_LEVEL_NONE, consider_cooldown);
 
                         if (spotted_unit) {
                             UnitInfo* target = spotted_unit->GetUnit();
@@ -781,7 +782,7 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
                                             !AiAttack_DecideDesperationAttack(unit, target)) {
                                             if (Task_RetreatIfNecessary(nullptr, unit,
                                                                         Ai_DetermineCautionLevel(unit))) {
-                                                if (mode) {
+                                                if (consider_cooldown) {
                                                     AiAttack_SetAttackTargetCooldown(target);
                                                 }
 
