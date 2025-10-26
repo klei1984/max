@@ -3819,14 +3819,14 @@ void UnitsManager_ProcessOrders() {
                 }
 
             } else {
-                AiLog log("%s at [%i,%i] cannot fire.", UnitsManager_BaseUnits[(*unit_it).GetUnitType()].singular_name,
-                          (*unit_it).grid_x + 1, (*unit_it).grid_y + 1);
+                AILOG(log, "{} at [{},{}] cannot fire.", UnitsManager_BaseUnits[(*unit_it).GetUnitType()].singular_name,
+                      (*unit_it).grid_x + 1, (*unit_it).grid_y + 1);
 
                 (*unit_it).UpdatePinCount((*unit_it).target_grid_x, (*unit_it).target_grid_x, -1);
                 (*unit_it).RestoreOrders();
 
                 if ((*unit_it).GetOrder() == ORDER_FIRE) {
-                    log.Log("Error, unit's prior orders were fire orders.");
+                    AILOG_LOG(log, "Error, unit's prior orders were fire orders.");
 
                     (*unit_it).SetOrder(ORDER_AWAIT);
                     (*unit_it).SetOrderState(ORDER_STATE_EXECUTING_ORDER);
@@ -3865,15 +3865,15 @@ void UnitsManager_SetNewOrderInt(UnitInfo* unit, const UnitOrderType order, cons
         bool delete_path = false;
 
         if (unit->GetOrder() == ORDER_AWAIT_SCALING) {
-            AiLog log("New order (%s) issued for %s while scaling.", UnitsManager_Orders[order],
-                      UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+            AILOG(log, "New order ({}) issued for {} while scaling.", UnitsManager_Orders[order],
+                  UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
             UnitsManager_NewOrderWhileScaling(unit);
         }
 
         if (unit->GetOrderState() == ORDER_STATE_NEW_ORDER) {
-            AiLog log("New order (%s) issued for %s while waiting for path.", UnitsManager_Orders[order],
-                      UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+            AILOG(log, "New order ({}) issued for {} while waiting for path.", UnitsManager_Orders[order],
+                  UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
             unit->SetOrder(ORDER_AWAIT);
             unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
@@ -4107,8 +4107,8 @@ void UnitsManager_UpdateConnectors(UnitInfo* unit) {
 void UnitsManager_DestroyUnit(UnitInfo* unit) {
     SmartPointer<UnitInfo> unit_to_destroy(unit);
 
-    AiLog log("%s at [%i,%i] destroyed.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1,
-              unit->grid_y + 1);
+    AILOG(log, "{} at [{},{}] destroyed.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1,
+          unit->grid_y + 1);
 
     PathsManager_RemoveRequest(unit);
 
@@ -6517,7 +6517,7 @@ bool UnitsManager_AssessAttacks() {
         result = false;
 
     } else {
-        AiLog log("Assess pending attacks.");
+        AILOG(log, "Assess pending attacks.");
 
         bool are_attacks_delayed = false;
 
@@ -6863,7 +6863,7 @@ bool UnitsManager_CheckDelayedReactions(uint16_t team) {
 
     if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
         UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
-        AiLog log("Check pending reactions.");
+        AILOG(log, "Check pending reactions.");
 
         if (UnitsManager_Units[team]) {
             UnitInfo* unit1 = UnitsManager_Units[team].Get();

@@ -203,7 +203,7 @@ Point AirPath::GetPosition(UnitInfo* unit) const {
 }
 
 void AirPath::CancelMovement(UnitInfo* unit) {
-    AiLog log("Airpath: emergency stop.");
+    AILOG(log, "Airpath: emergency stop.");
 
     if (length) {
         if (unit->angle == angle) {
@@ -240,10 +240,10 @@ void AirPath::CancelMovement(UnitInfo* unit) {
             delta_x = (delta_x << 16) / length;
             delta_y = (delta_y << 16) / length;
 
-            log.Log("Recalculated path to [%i,%i], length %i.", x_end + 1, y_end + 1, length);
+            AILOG_LOG(log, "Recalculated path to [{},{}], length {}.", x_end + 1, y_end + 1, length);
 
         } else {
-            log.Log("Haven't finished turning.");
+            AILOG_LOG(log, "Haven't finished turning.");
 
             unit->Redraw();
 
@@ -253,7 +253,7 @@ void AirPath::CancelMovement(UnitInfo* unit) {
         }
 
     } else {
-        log.Log("Length is zero.");
+        AILOG_LOG(log, "Length is zero.");
     }
 }
 
@@ -563,15 +563,15 @@ bool GroundPath::IsInPath(int32_t grid_x, int32_t grid_y) const {
 }
 
 void GroundPath::CancelMovement(UnitInfo* unit) {
-    AiLog log("Ground path: emergency stop.");
+    AILOG(log, "Ground path: emergency stop.");
 
     if (unit->GetOrderState() == ORDER_STATE_IN_PROGRESS) {
-        log.Log("In turn state.");
+        AILOG_LOG(log, "In turn state.");
 
         unit->BlockedOnPathRequest();
 
     } else {
-        log.Log("Emptying steps.");
+        AILOG_LOG(log, "Emptying steps.");
 
         index = 0;
         steps.Clear();

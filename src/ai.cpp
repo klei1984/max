@@ -252,7 +252,7 @@ void Ai_CheckEndTurn() {
             if (GameManager_GameState == GAME_STATE_8_IN_GAME) {
                 if (UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_COMPUTER) {
                     if (UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].finished_turn) {
-                        AiLog log("Error- had to force ENDTURN!");
+                        AILOG(log, "Error- had to force ENDTURN!");
                         GameManager_GameState = GAME_STATE_9_END_TURN;
                     }
                 }

@@ -804,9 +804,9 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
                     }
 
                     if (friendly_target_class & enemy_target_class) {
-                        AiLog log("Access: %s at [%i,%i] spotted enemies",
-                                  UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1,
-                                  unit->grid_y + 1);
+                        AILOG(log, "Access: {} at [{},{}] spotted enemies",
+                              UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1,
+                              unit->grid_y + 1);
 
                         if (unit->GetUnitList()) {
                             for (SmartList<UnitInfo>::Iterator it = unit->GetUnitList()->Begin();

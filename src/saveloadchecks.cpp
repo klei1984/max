@@ -76,7 +76,7 @@ bool SaveLoadChecks_Defect11() {
             const int32_t storable_units = shop->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
 
             if (stored_units > storable_units || shop->storage != stored_units) {
-                AiLog log("Repair shop corruption detected at [%i,%i].", shop->grid_x, shop->grid_y);
+                AILOG(log, "Repair shop corruption detected at [{},{}].", shop->grid_x, shop->grid_y);
 
                 shop->storage = stored_units;
 
@@ -153,18 +153,18 @@ bool SaveLoadChecks_CorrectHashMap(SmartList<UnitInfo>* units) {
                 SmartPointer<UnitInfo> parent(unit->GetParent());
 
                 if (unit->hits > 0) {
-                    AiLog log("Map hash corruption detected. %s at [%i,%i] is missing.",
-                              UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1,
-                              unit->grid_y + 1);
+                    AILOG(log, "Map hash corruption detected. {} at [{},{}] is missing.",
+                          UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1,
+                          unit->grid_y + 1);
 
                     Hash_MapHash.Remove(&*unit);
                     Hash_MapHash.Add(&*unit);
                     Access_UpdateMapStatus(&*unit, true);
 
                 } else {
-                    AiLog log("Map hash corruption detected. %s at [%i,%i] is already gone.",
-                              UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1,
-                              unit->grid_y + 1);
+                    AILOG(log, "Map hash corruption detected. {} at [{},{}] is already gone.",
+                          UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1,
+                          unit->grid_y + 1);
 
                     Hash_MapHash.Remove(&*unit);
                     units->Remove(it);
@@ -172,9 +172,8 @@ bool SaveLoadChecks_CorrectHashMap(SmartList<UnitInfo>* units) {
                 }
 
             } else {
-                AiLog log("Map hash corruption detected. %s at [%i,%i] is missing.",
-                          UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1,
-                          unit->grid_y + 1);
+                AILOG(log, "Map hash corruption detected. {} at [{},{}] is missing.",
+                      UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1, unit->grid_y + 1);
 
                 Hash_MapHash.Remove(&*unit);
                 Hash_MapHash.Add(&*unit);
@@ -201,10 +200,10 @@ bool SaveLoadChecks_Defect151() {
                     if (((*hash_it).flags & STATIONARY) && !((*hash_it).flags & (GROUND_COVER | CONNECTOR_UNIT)) &&
                         !((*hash_it).GetOrder() == ORDER_IDLE &&
                           (*hash_it).GetOrderState() == ORDER_STATE_BUILDING_READY)) {
-                        AiLog log("Unit corruption detected. Connector at [%i,%i] overlaps with %s at [%i,%i].",
-                                  (*it).grid_x + 1, (*it).grid_y + 1,
-                                  UnitsManager_BaseUnits[(*hash_it).GetUnitType()].singular_name, (*hash_it).grid_x + 1,
-                                  (*hash_it).grid_y + 1);
+                        AILOG(log, "Unit corruption detected. Connector at [{},{}] overlaps with {} at [{},{}].",
+                              (*it).grid_x + 1, (*it).grid_y + 1,
+                              UnitsManager_BaseUnits[(*hash_it).GetUnitType()].singular_name, (*hash_it).grid_x + 1,
+                              (*hash_it).grid_y + 1);
 
                         UnitsManager_DestroyUnit(&*it);
 
@@ -242,9 +241,9 @@ bool SaveLoadChecks_Defect183() {
                         }
 
                         if (!Access_IsInsideBounds(&bounds, &site)) {
-                            AiLog log("Map hash corruption detected in pot [%i,%i]. %s is at [%i,%i].", site.x + 1,
-                                      site.y + 1, UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name,
-                                      position.x + 1, position.y + 1);
+                            AILOG(log, "Map hash corruption detected in pot [{},{}]. {} is at [{},{}].", site.x + 1,
+                                  site.y + 1, UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, position.x + 1,
+                                  position.y + 1);
 
                             Hash_MapHash.Remove(&*it);
                             Access_UpdateMapStatus(&*it, false);

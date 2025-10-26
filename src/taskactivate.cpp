@@ -57,12 +57,11 @@ void TaskActivate::Activate() {
                                 }
                             }
 
-                            AiLog log("Activate %s %i at [%i,%i] from %s %i at [%i,%i].",
-                                      UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].singular_name,
-                                      unit_to_activate->unit_id, unit_to_activate->grid_x + 1,
-                                      unit_to_activate->grid_y + 1,
-                                      UnitsManager_BaseUnits[unit_parent->GetUnitType()].singular_name,
-                                      unit_parent->unit_id, unit_parent->grid_x + 1, unit_parent->grid_y + 1);
+                            AILOG(log, "Activate {} {} at [{},{}] from {} {} at [{},{}].",
+                                  UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].singular_name,
+                                  unit_to_activate->unit_id, unit_to_activate->grid_x + 1, unit_to_activate->grid_y + 1,
+                                  UnitsManager_BaseUnits[unit_parent->GetUnitType()].singular_name,
+                                  unit_parent->unit_id, unit_parent->grid_x + 1, unit_parent->grid_y + 1);
 
                             if (unit_to_activate->GetOrder() != ORDER_IDLE || unit_parent->GetOrder() == ORDER_BUILD ||
                                 unit_parent->GetOrder() == ORDER_AWAIT) {
@@ -84,7 +83,7 @@ void TaskActivate::Activate() {
 
                                         if (Access_IsAccessible(unit_to_activate->GetUnitType(), team, position.x,
                                                                 position.y, AccessModifier_SameClassBlocks)) {
-                                            log.Log("Open square: [%i,%i].", position.x + 1, position.y + 1);
+                                            AILOG_LOG(log, "Open square: [{},{}].", position.x + 1, position.y + 1);
 
                                             switch (unit_to_activate->GetOrder()) {
                                                 case ORDER_BUILD: {
@@ -115,9 +114,9 @@ void TaskActivate::Activate() {
                                                 } break;
                                             }
 
-                                            log.Log("Unit order %s state %i.",
-                                                    UnitsManager_Orders[unit_to_activate->GetOrder()],
-                                                    unit_to_activate->GetOrderState());
+                                            AILOG_LOG(log, "Unit order {} state {}.",
+                                                      UnitsManager_Orders[unit_to_activate->GetOrder()],
+                                                      static_cast<int>(unit_to_activate->GetOrderState()));
 
                                             /* abort zone clearing if it was requested */
                                             if (zone) {
@@ -146,7 +145,8 @@ void TaskActivate::Activate() {
                                             }
 
                                             if (zone->points.Find(&position) == -1) {
-                                                log.Log("Clearing square: [%i,%i].", position.x + 1, position.y + 1);
+                                                AILOG_LOG(log, "Clearing square: [{},{}].", position.x + 1,
+                                                          position.y + 1);
                                                 zone->Add(&position);
                                             }
                                         }
@@ -154,8 +154,8 @@ void TaskActivate::Activate() {
                                 }
 
                             } else {
-                                log.Log("%s is not ready for orders.",
-                                        UnitsManager_BaseUnits[unit_parent->GetUnitType()].singular_name);
+                                AILOG_LOG(log, "{} is not ready for orders.",
+                                          UnitsManager_BaseUnits[unit_parent->GetUnitType()].singular_name);
                             }
                         }
                     }
@@ -230,9 +230,8 @@ bool TaskActivate::Execute(UnitInfo& unit) {
             Point position(unit_to_activate->grid_x, unit_to_activate->grid_y);
 
             if (!Access_IsInsideBounds(&bounds, &position)) {
-                AiLog log("Completed activation of %s %i.",
-                          UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].singular_name,
-                          unit_to_activate->unit_id);
+                AILOG(log, "Completed activation of {} {}.",
+                      UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].singular_name, unit_to_activate->unit_id);
 
                 unit_to_activate->RemoveTask(this);
 
@@ -281,8 +280,8 @@ void TaskActivate::RemoveSelf() {
 
 void TaskActivate::RemoveUnit(UnitInfo& unit) {
     if (unit_to_activate == unit) {
-        AiLog log("Removing %s from Activate Unit.",
-                  UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].singular_name);
+        AILOG(log, "Removing {} from Activate Unit.",
+              UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].singular_name);
 
         unit_to_activate = nullptr;
         zone = nullptr;

@@ -70,8 +70,8 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
     bool result;
 
     if (unit == unit_ && unit->IsReadyForOrders(this) && GameManager_IsActiveTurn(team) && unit->speed > 0) {
-        AiLog log("Auto survey: Move %s at [%i,%i]", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
-                  unit->grid_x + 1, unit->grid_y + 1);
+        AILOG(log, "Auto survey: Move {} at [{},{}]", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
+              unit->grid_x + 1, unit->grid_y + 1);
 
         uint16_t hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;
         TransporterMap map(&*unit, 2, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
@@ -165,7 +165,7 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
                 }
             }
 
-            log.Log("Search paused, %i msecs since frame update", TickTimer_GetElapsedTime());
+            AILOG_LOG(log, "Search paused, {} msecs since frame update", TickTimer_GetElapsedTime());
 
             result = false;
 

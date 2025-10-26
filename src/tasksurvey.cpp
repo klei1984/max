@@ -54,7 +54,7 @@ uint8_t TaskSurvey::GetType() const { return TaskType_TaskSurvey; }
 bool TaskSurvey::Execute(UnitInfo& unit) {
     bool result;
 
-    AiLog log("Survey: move finished.");
+    AILOG(log, "Survey: move finished.");
 
     if (unit.IsReadyForOrders(this)) {
         if (unit.speed) {
@@ -124,7 +124,7 @@ bool TaskSurvey::Execute(UnitInfo& unit) {
         }
 
     } else {
-        log.Log("Not ready for orders.");
+        AILOG_LOG(log, "Not ready for orders.");
 
         result = false;
     }

@@ -35,7 +35,7 @@ TaskCheckAssaults::TaskCheckAssaults(uint16_t team)
 TaskCheckAssaults::~TaskCheckAssaults() {}
 
 void TaskCheckAssaults::CheckAssaults() {
-    AiLog log("Task check assaults");
+    AILOG(log, "Task check assaults");
     uint16_t unit_count = 0;
 
     if (unit_iterator == UnitsManager_MobileAirUnits.End() && IsInitNeeded()) {
@@ -55,7 +55,7 @@ void TaskCheckAssaults::CheckAssaults() {
     for (; unit_iterator != UnitsManager_MobileAirUnits.End(); SelectNext()) {
         if (TickTimer_HaveTimeToThink()) {
             if (EvaluateAssaults()) {
-                log.Log("Assault check paused.");
+                AILOG_LOG(log, "Assault check paused.");
 
                 return;
             }
@@ -63,8 +63,8 @@ void TaskCheckAssaults::CheckAssaults() {
             ++unit_count;
 
         } else {
-            log.Log("Assault check paused, %i msecs since frame update, %i units checked.", TickTimer_GetElapsedTime(),
-                    unit_count);
+            AILOG_LOG(log, "Assault check paused, {} msecs since frame update, {} units checked.",
+                      TickTimer_GetElapsedTime(), unit_count);
 
             if (!IsScheduledForTurnEnd()) {
                 TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));

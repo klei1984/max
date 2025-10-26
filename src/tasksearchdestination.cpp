@@ -63,7 +63,7 @@ uint8_t TaskSearchDestination::GetType() const { return TaskType_TaskSearchDesti
 void TaskSearchDestination::Begin() {
     Point position;
 
-    AiLog log("Search destination begin.");
+    AILOG(log, "Search destination begin.");
 
     unit->AddTask(this);
     point3 = search_task->GetPoint();
@@ -101,15 +101,15 @@ void TaskSearchDestination::RemoveSelf() {
 }
 
 void TaskSearchDestination::FinishSearch() {
-    AiLog log("Search destination: finished.");
+    AILOG(log, "Search destination: finished.");
 
-    log.Log("Calls: valid %i, searched %i, can enter %i", valid_sites, searched_sites, enterable_sites);
+    AILOG_LOG(log, "Calls: valid {}, searched {}, can enter {}", valid_sites, searched_sites, enterable_sites);
 
     if (unit) {
         unit->RemoveTask(this);
 
     } else {
-        log.Log("Unit is null.");
+        AILOG_LOG(log, "Unit is null.");
     }
 
     unit = nullptr;
@@ -123,7 +123,7 @@ void TaskSearchDestination::SearchNextCircle() {
     Point position(unit->grid_x, unit->grid_y);
     int32_t direction;
 
-    AiLog log("Search destination: NextCircle");
+    AILOG(log, "Search destination: NextCircle");
 
     while (field_61) {
         direction = UnitsManager_GetTargetAngle(point3.x - point2.x, point3.y - point2.y);
@@ -137,7 +137,7 @@ void TaskSearchDestination::SearchNextCircle() {
 
         radius = TaskManager_GetDistance(position, point2) / 2;
 
-        log.Log("Radius %i", radius);
+        AILOG_LOG(log, "Radius {}", radius);
 
         field_61 = true;
 
@@ -233,10 +233,10 @@ bool TaskSearchDestination::Search() {
             }
 
         } else {
-            AiLog log("Search paused, %i msecs since frame update", TickTimer_GetElapsedTime());
+            AILOG(log, "Search paused, {} msecs since frame update", TickTimer_GetElapsedTime());
 
             if (!IsScheduledForTurnEnd()) {
-                log.Log("Adding end turn reminder");
+                AILOG_LOG(log, "Adding end turn reminder");
 
                 TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
             }
@@ -256,7 +256,7 @@ void TaskSearchDestination::SearchTrySite() {
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
-    AiLog log("Search destination: try [%i,%i]", points[index].x + 1, points[index].y + 1);
+    AILOG(log, "Search destination: try [{},{}]", points[index].x + 1, points[index].y + 1);
 
     Point_object1 = search_task->GetPoint();
     direction = UnitsManager_GetTargetAngle(points[index].x - Point_object1.x, points[index].y - Point_object1.y);
@@ -301,8 +301,8 @@ void TaskSearchDestination::SearchTrySite() {
                 SmartPointer<UnitInfo> backup = unit;
                 unit = &*it;
 
-                log.Log("Swapping for %s at [%i,%i]", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
-                        unit->grid_x + 1, unit->grid_y + 1);
+                AILOG_LOG(log, "Swapping for {} at [{},{}]", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
+                          unit->grid_x + 1, unit->grid_y + 1);
 
                 unit->RemoveTasks();
                 search_task->AddUnit(*unit);
@@ -339,16 +339,16 @@ bool TaskSearchDestination::sub_3DFCF(UnitInfo* unit_, Point point) {
 }
 
 void TaskSearchDestination::ResumeSearch() {
-    AiLog log("Search destination: resume search.");
+    AILOG(log, "Search destination: resume search.");
 
     if (unit) {
         if (unit->IsReadyForOrders(this) && unit->speed > 0) {
-            log.Log("Client unit: %s at [%i,%i]", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
-                    unit->grid_x + 1, unit->grid_y + 1);
+            AILOG_LOG(log, "Client unit: {} at [{},{}]", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
+                      unit->grid_x + 1, unit->grid_y + 1);
 
             if (!is_doomed) {
                 if (Task_RetreatFromDanger(this, &*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
-                    log.Log("Retreating from danger.");
+                    AILOG_LOG(log, "Retreating from danger.");
 
                     FinishSearch();
 
@@ -360,11 +360,11 @@ void TaskSearchDestination::ResumeSearch() {
             }
 
             if (is_doomed) {
-                log.Log("Unit is doomed to destruction.");
+                AILOG_LOG(log, "Unit is doomed to destruction.");
             }
 
             if (is_doomed && (unit->grid_x != point1.x || unit->grid_y != point1.y)) {
-                log.Log("Unit has moved.");
+                AILOG_LOG(log, "Unit has moved.");
 
                 FinishSearch();
 
@@ -377,20 +377,20 @@ void TaskSearchDestination::ResumeSearch() {
             }
 
         } else {
-            log.Log("Not ready for orders, or no movement left.");
+            AILOG_LOG(log, "Not ready for orders, or no movement left.");
 
             FinishSearch();
         }
 
     } else {
-        log.Log("Unit is null.");
+        AILOG_LOG(log, "Unit is null.");
     }
 }
 
 void TaskSearchDestination::CloseMoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
     TaskSearchDestination* search_task = dynamic_cast<TaskSearchDestination*>(task);
 
-    AiLog log("Search destination: close result");
+    AILOG(log, "Search destination: close result");
 
     if (result == TASKMOVE_RESULT_BLOCKED) {
         SmartPointer<Task> move_task = new (std::nothrow)
@@ -407,7 +407,7 @@ void TaskSearchDestination::CloseMoveFinishedCallback(Task* task, UnitInfo* unit
 void TaskSearchDestination::FarMoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
     TaskSearchDestination* search_task = dynamic_cast<TaskSearchDestination*>(task);
 
-    AiLog log("Search destination: far result");
+    AILOG(log, "Search destination: far result");
 
     if (result == TASKMOVE_RESULT_BLOCKED) {
         search_task->ResumeSearch();

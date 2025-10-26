@@ -71,7 +71,7 @@ TaskCreateBuilding::TaskCreateBuilding(Task* task, uint16_t flags_, ResourceID u
     field_42 = false;
     op_state = CREATE_BUILDING_STATE_INITIALIZING;
 
-    AiLog("Task Create Building: %s", WriteStatusLog(buffer));
+    AILOG(log, "Task Create Building: {}", WriteStatusLog(buffer));
 
     SDL_assert(site.x >= 0 && site.x < ResourceManager_MapSize.x && site.y >= 0 && site.y < ResourceManager_MapSize.y);
 }
@@ -105,7 +105,7 @@ int32_t TaskCreateBuilding::EstimateBuildTime() {
 }
 
 void TaskCreateBuilding::RequestBuilder() {
-    AiLog log("Task Create Building: Request Builder");
+    AILOG(log, "Task Create Building: Request Builder");
 
     const auto builder_type = Builder_GetBuilderType(unit_type);
 
@@ -189,7 +189,7 @@ void TaskCreateBuilding::BeginBuilding() {
     SmartObjectArray<ResourceID> build_list = builder->GetBuildList();
 
     if (!build_list.GetCount()) {
-        AiLog log("Task Create Building: Begin Building");
+        AILOG(log, "Task Create Building: Begin Building");
 
         op_state = CREATE_BUILDING_STATE_BUILDING;
 
@@ -242,37 +242,37 @@ void TaskCreateBuilding::BeginBuilding() {
                                     }
 
                                 } else {
-                                    log.Log("Location has rubble.");
+                                    AILOG_LOG(log, "Location has rubble.");
                                 }
 
                             } else {
-                                log.Log("Location has a minefield.");
+                                AILOG_LOG(log, "Location has a minefield.");
                             }
 
                         } else {
-                            log.Log("Location needs a water platform.");
+                            AILOG_LOG(log, "Location needs a water platform.");
                         }
 
                     } else {
-                        log.Log("Builder currently under another tasks's control.");
+                        AILOG_LOG(log, "Builder currently under another tasks's control.");
 
                         op_state = CREATE_BUILDING_STATE_MOVING_TO_SITE;
                     }
 
                 } else {
-                    log.Log("Parent doesn't need units.");
+                    AILOG_LOG(log, "Parent doesn't need units.");
 
                     Abort();
                 }
 
             } else {
-                log.Log("Site blocked.");
+                AILOG_LOG(log, "Site blocked.");
 
                 Abort();
             }
 
         } else {
-            log.Log("Not enough time left.");
+            AILOG_LOG(log, "Not enough time left.");
 
             Abort();
         }
@@ -280,7 +280,8 @@ void TaskCreateBuilding::BeginBuilding() {
 }
 
 void TaskCreateBuilding::Abort() {
-    AiLog log("Create %s at [%i,%i] aborted.", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1, site.y + 1);
+    AILOG(log, "Create {} at [{},{}] aborted.", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
+          site.y + 1);
 
     SmartPointer<Task> create_building(this);
 
@@ -310,8 +311,8 @@ void TaskCreateBuilding::Abort() {
 }
 
 void TaskCreateBuilding::Finish() {
-    AiLog log("Create %s at [%i,%i] finished.", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
-              site.y + 1);
+    AILOG(log, "Create {} at [{},{}] finished.", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
+          site.y + 1);
 
     // prevent early destruction of object
     SmartPointer<Task> create_building_task(this);
@@ -515,8 +516,8 @@ bool TaskCreateBuilding::IsNeeded() {
 
 void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
     if (unit_type != INVALID_ID) {
-        AiLog log("Build %s at [%i,%i]: Add %s", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
-                  site.y + 1, UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+        AILOG(log, "Build {} at [{},{}]: Add {}", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
+              site.y + 1, UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
         if (unit.GetUnitType() == unit_type && unit.grid_x == site.x && unit.grid_y == site.y &&
             unit.GetOrder() != ORDER_IDLE) {
@@ -575,18 +576,18 @@ void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
                     Task_RemindMoveFinished(&*builder);
 
                 } else {
-                    log.Log("Task already complete.");
+                    AILOG_LOG(log, "Task already complete.");
                 }
 
             } else {
-                log.Log("Already have builder.");
+                AILOG_LOG(log, "Already have builder.");
             }
         }
     }
 }
 
 void TaskCreateBuilding::Begin() {
-    AiLog log("Task Create Building: Begin");
+    AILOG(log, "Task Create Building: Begin");
 
     if (builder) {
         builder->AddTask(this);
@@ -618,16 +619,16 @@ void TaskCreateBuilding::EndTurn() {
     if (builder) {
         switch (op_state) {
             case CREATE_BUILDING_STATE_EVALUTING_SITE: {
-                AiLog log("Task Create %s at [%i,%i]: evaluating site", UnitsManager_BaseUnits[unit_type].singular_name,
-                          site.x + 1, site.y + 1);
+                AILOG(log, "Task Create {} at [{},{}]: evaluating site",
+                      UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1, site.y + 1);
 
                 FindBuildSite();
             } break;
 
             case CREATE_BUILDING_STATE_SITE_BLOCKED: {
                 if (IsInitNeeded()) {
-                    AiLog log("Task Create %s at [%i,%i]: site blocked",
-                              UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1, site.y + 1);
+                    AILOG(log, "Task Create {} at [{},{}]: site blocked",
+                          UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1, site.y + 1);
 
                     ChangeInitNeededFlag(false);
 
@@ -682,7 +683,7 @@ bool TaskCreateBuilding::ExchangeOperator(UnitInfo& unit_) {
     if (builder && builder->GetUnitType() == unit_.GetUnitType()) {
         if (op_state < CREATE_BUILDING_STATE_BUILDING) {
             if (Access_GetDistance(&*builder, site) > Access_GetDistance(&unit_, site)) {
-                AiLog log("Task Create Building: Exchange unit.");
+                AILOG(log, "Task Create Building: Exchange unit.");
 
                 TaskManager.RemindAvailable(&*builder);
 
@@ -710,7 +711,7 @@ bool TaskCreateBuilding::ExchangeOperator(UnitInfo& unit_) {
 bool TaskCreateBuilding::Execute(UnitInfo& unit) {
     bool result;
 
-    AiLog log("Task Create Building: Move Finished.");
+    AILOG(log, "Task Create Building: Move Finished.");
 
     if (builder == unit && unit.IsReadyForOrders(this)) {
         if (Task_RetreatFromDanger(this, &unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
@@ -745,7 +746,7 @@ bool TaskCreateBuilding::Execute(UnitInfo& unit) {
                                 }
 
                             } else {
-                                log.Log("Site blocked.");
+                                AILOG_LOG(log, "Site blocked.");
 
                                 Abort();
 
@@ -797,7 +798,7 @@ bool TaskCreateBuilding::Execute(UnitInfo& unit) {
                 case CREATE_BUILDING_STATE_GETTING_MATERIALS: {
                     if (CheckMaterials()) {
                         if (manager && !Task_vfunc29()) {
-                            log.Log("Materials now available.");
+                            AILOG_LOG(log, "Materials now available.");
 
                             FindBuildSite();
 
@@ -844,8 +845,8 @@ bool TaskCreateBuilding::Execute(UnitInfo& unit) {
 void TaskCreateBuilding::RemoveSelf() { Abort(); }
 
 void TaskCreateBuilding::RemoveUnit(UnitInfo& unit) {
-    AiLog log("Create %s at [%i,%i]: remove %s.", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
-              site.y + 1, UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+    AILOG(log, "Create {} at [{},{}]: remove {}.", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
+          site.y + 1, UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
     if (builder == unit) {
         builder = nullptr;
@@ -854,7 +855,7 @@ void TaskCreateBuilding::RemoveUnit(UnitInfo& unit) {
 }
 
 void TaskCreateBuilding::EventZoneCleared(Zone* zone_, bool status) {
-    AiLog log("Task Create Building: zone cleared.");
+    AILOG(log, "Task Create Building: zone cleared.");
 
     if (zone == zone_) {
         zone = nullptr;
@@ -874,7 +875,7 @@ void TaskCreateBuilding::EventZoneCleared(Zone* zone_, bool status) {
                 }
 
             } else {
-                log.Log("Zone could not be cleared.");
+                AILOG_LOG(log, "Zone could not be cleared.");
 
                 FindBuildSite();
             }
@@ -901,7 +902,7 @@ void TaskCreateBuilding::Activate() {
 }
 
 void TaskCreateBuilding::FindBuildSite() {
-    AiLog log("Task Create Building: Choose new site for %s.", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Task Create Building: Choose new site for {}.", UnitsManager_BaseUnits[unit_type].singular_name);
 
     if (builder->GetTask() == this) {
         Point new_site;
@@ -915,8 +916,8 @@ void TaskCreateBuilding::FindBuildSite() {
                 if (unit_type != INVALID_ID) {
                     site = new_site;
 
-                    log.Log("New site for %s is [%i, %i].", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
-                            site.y + 1);
+                    AILOG_LOG(log, "New site for {} is [{}, {}].", UnitsManager_BaseUnits[unit_type].singular_name,
+                              site.x + 1, site.y + 1);
 
                     SDL_assert(site.x > 0 && site.y > 0);
 
@@ -929,27 +930,27 @@ void TaskCreateBuilding::FindBuildSite() {
                         }
 
                     } else {
-                        log.Log("Requirements for site pre-empted builder.");
+                        AILOG_LOG(log, "Requirements for site pre-empted builder.");
                     }
 
                 } else {
-                    log.Log("Site blocked and no alternative found.");
+                    AILOG_LOG(log, "Site blocked and no alternative found.");
                 }
 
             } else {
-                log.Log("Site blocked and no alternative found.");
+                AILOG_LOG(log, "Site blocked and no alternative found.");
 
                 Abort();
             }
 
         } else {
-            log.Log("Site no longer valid for connector/platform, or no manager.");
+            AILOG_LOG(log, "Site no longer valid for connector/platform, or no manager.");
 
             Abort();
         }
 
     } else {
-        log.Log("Builder pre-empted by another task.");
+        AILOG_LOG(log, "Builder pre-empted by another task.");
     }
 }
 
@@ -960,7 +961,7 @@ bool TaskCreateBuilding::RequestWaterPlatform() {
         Rect bounds;
         Point position;
 
-        AiLog("Requesting water platform.");
+        AILOG(log, "Requesting water platform.");
 
         GetBounds(&bounds);
 
@@ -1084,7 +1085,7 @@ void TaskCreateBuilding::BuildBoardwalks() {
         Rect bounds;
         int32_t range_limit;
 
-        AiLog log("Create boardwalks around unit.");
+        AILOG(log, "Create boardwalks around unit.");
 
         MarkBridgeAreas(map.GetMap());
 
@@ -1104,7 +1105,7 @@ void TaskCreateBuilding::BuildBoardwalks() {
                 if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
                     position.y < ResourceManager_MapSize.y) {
                     if (map.GetMapColumn(position.x)[position.y] == 1) {
-                        log.Log("Create boardwalk at [%i,%i].", position.x + 1, position.y + 1);
+                        AILOG_LOG(log, "Create boardwalk at [{},{}].", position.x + 1, position.y + 1);
 
                         SmartPointer<TaskCreateBuilding> create_building_task =
                             new (std::nothrow) TaskCreateBuilding(this, 0x1C80, BRIDGE, position, &*manager);
@@ -1113,7 +1114,7 @@ void TaskCreateBuilding::BuildBoardwalks() {
                             manager->AddCreateOrder(&*create_building_task);
 
                         } else {
-                            log.Log("No building manager!");
+                            AILOG_LOG(log, "No building manager!");
 
                             TaskManager.AppendTask(*create_building_task);
                         }
@@ -1131,7 +1132,7 @@ void TaskCreateBuilding::BuildBridges() {
     bool spot_found;
     Point position;
 
-    AiLog log("Building bridges.");
+    AILOG(log, "Building bridges.");
 
     MarkBridgeAreas(map.GetMap());
 
@@ -1172,14 +1173,14 @@ void TaskCreateBuilding::BuildBridges() {
         }
 
     } else {
-        log.Log("No starting point found.");
+        AILOG_LOG(log, "No starting point found.");
     }
 }
 
 void TaskCreateBuilding::MarkBridgeAreas(uint8_t** map) {
     int16_t** damage_potential_map;
 
-    AiLog log("Marking bridge areas.");
+    AILOG(log, "Marking bridge areas.");
 
     for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
         for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
@@ -1290,7 +1291,7 @@ bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
     int32_t range_limit;
     int32_t direction2;
 
-    AiLog log("Find bridge path.");
+    AILOG(log, "Find bridge path.");
 
     GetBounds(&bounds);
 
@@ -1308,7 +1309,7 @@ bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
             if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
                 position.y < ResourceManager_MapSize.y) {
                 if (map[position.x][position.y] == value) {
-                    log.Log("Unit is already connected.");
+                    AILOG_LOG(log, "Unit is already connected.");
 
                     return true;
 
@@ -1317,7 +1318,8 @@ bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
 
                     is_found = true;
 
-                    log.Log("Found: start point [%i,%i], %i bridges.", position.x + 1, position.y + 1, bridge_count);
+                    AILOG_LOG(log, "Found: start point [{},{}], {} bridges.", position.x + 1, position.y + 1,
+                              bridge_count);
                 }
             }
         }
@@ -1336,7 +1338,7 @@ bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
 
         while (bridge_count > 0) {
             if (map[position.x][position.y] == 1) {
-                log.Log("Create bridge at [%i,%i].", position.x + 1, position.y + 1);
+                AILOG_LOG(log, "Create bridge at [{},{}].", position.x + 1, position.y + 1);
 
                 create_building_task =
                     new (std::nothrow) TaskCreateBuilding(this, flags1 + bridge_count, BRIDGE, position, &*manager);
@@ -1347,7 +1349,7 @@ bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
                     manager->AddCreateOrder(&*create_building_task);
 
                 } else {
-                    log.Log("No building manager!");
+                    AILOG_LOG(log, "No building manager!");
 
                     TaskManager.AppendTask(*create_building_task);
                 }
@@ -1359,7 +1361,7 @@ bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
         }
 
     } else {
-        log.Log("No connection found.");
+        AILOG_LOG(log, "No connection found.");
     }
 
     return is_found;

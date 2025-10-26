@@ -63,8 +63,8 @@ uint8_t TaskFindPath::GetType() const { return TaskType_TaskFindPath; }
 bool TaskFindPath::IsThinking() { return path_request != nullptr; }
 
 void TaskFindPath::Begin() {
-    AiLog log("Task find path for %s: begin.",
-              UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].singular_name);
+    AILOG(log, "Task find path for {}: begin.",
+          UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].singular_name);
 
     path_request->GetClient()->AddTask(this);
     PathsManager_RemoveRequest(path_request->GetClient());
@@ -75,8 +75,8 @@ void TaskFindPath::EndTurn() {}
 
 void TaskFindPath::RemoveSelf() {
     if (path_request) {
-        AiLog log("Task find path for %s: parent complete.",
-                  UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].singular_name);
+        AILOG(log, "Task find path for {}: parent complete.",
+              UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].singular_name);
 
         PathsManager_RemoveRequest(&*path_request);
 
@@ -89,9 +89,9 @@ void TaskFindPath::RemoveSelf() {
 
 void TaskFindPath::RemoveUnit(UnitInfo& unit) {
     if (path_request) {
-        AiLog log("Task find path for %s: remove %s.",
-                  UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].singular_name,
-                  UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+        AILOG(log, "Task find path for {}: remove {}.",
+              UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].singular_name,
+              UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
         SDL_assert(path_request->GetClient() == &unit);
 
@@ -101,8 +101,8 @@ void TaskFindPath::RemoveUnit(UnitInfo& unit) {
 
 void TaskFindPath::CancelRequest() {
     if (path_request) {
-        AiLog log("Task find path for %s: cancelled.",
-                  UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].singular_name);
+        AILOG(log, "Task find path for {}: cancelled.",
+              UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].singular_name);
 
         path_request->GetClient()->RemoveTask(this, false);
 
@@ -115,9 +115,8 @@ void TaskFindPath::CancelRequest() {
 }
 
 void TaskFindPath::Finish(Point position, GroundPath* path, bool result) {
-    AiLog log("Task find path for %s: finished (%s).",
-              UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].singular_name,
-              result ? "True" : "False");
+    AILOG(log, "Task find path for {}: finished ({}).",
+          UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].singular_name, result ? "True" : "False");
 
     path_request->GetClient()->RemoveTask(this, false);
 

@@ -113,8 +113,8 @@ void PathsManager::Clear() {
 
 void PathsManager::PushFront(PathRequest& object) {
     if (request != nullptr) {
-        AiLog log("Pre-empting path request for %s.",
-                  UnitsManager_BaseUnits[request->GetClient()->GetUnitType()].singular_name);
+        AILOG(log, "Pre-empting path request for {}.",
+              UnitsManager_BaseUnits[request->GetClient()->GetUnitType()].singular_name);
 
         requests.PushFront(*request);
 
@@ -164,8 +164,8 @@ void PathsManager::RemoveRequest(PathRequest* path_request) {
         request = nullptr;
     }
 
-    AiLog log("Remove path request for %s.",
-              UnitsManager_BaseUnits[protect_request->GetClient()->GetUnitType()].singular_name);
+    AILOG(log, "Remove path request for {}.",
+          UnitsManager_BaseUnits[protect_request->GetClient()->GetUnitType()].singular_name);
 
     protect_request->Cancel();
     requests.Remove(*protect_request);
@@ -174,8 +174,8 @@ void PathsManager::RemoveRequest(PathRequest* path_request) {
 void PathsManager::RemoveRequest(UnitInfo* unit) {
     for (SmartList<PathRequest>::Iterator it = requests.Begin(); it != requests.End(); ++it) {
         if ((*it).GetClient() == unit) {
-            AiLog log("Remove path request for %s.",
-                      UnitsManager_BaseUnits[(*it).GetClient()->GetUnitType()].singular_name);
+            AILOG(log, "Remove path request for {}.",
+                  UnitsManager_BaseUnits[(*it).GetClient()->GetUnitType()].singular_name);
 
             (*it).Cancel();
             requests.Remove(it);
@@ -196,7 +196,7 @@ void PathsManager::EvaluateTiles() {
         elapsed_time = timer_get() - elapsed_time;
 
         if (backward_searcher == nullptr) {
-            AiLog log("Interrupting path request which was in SimpleFinder");
+            AILOG(log, "Interrupting path request which was in SimpleFinder");
 
             requests.PushFront(*request);
             request = nullptr;
@@ -218,7 +218,7 @@ void PathsManager::EvaluateTiles() {
             }
         }
 
-        AiLog log("Path generator.");
+        AILOG(log, "Path generator.");
 
         unit = request->GetClient();
         path_request = request;
@@ -229,7 +229,7 @@ void PathsManager::EvaluateTiles() {
 
             if (index >= 0) {
                 if (path_request != request) {
-                    log.Log("Path request interrupted inside main loop.");
+                    AILOG_LOG(log, "Path request interrupted inside main loop.");
 
                     return;
                 }
@@ -248,7 +248,7 @@ void PathsManager::EvaluateTiles() {
                         MessageManager_DrawMessage(message, 0, 0);
                     }
 
-                    log.Log("Transcribe path.");
+                    AILOG_LOG(log, "Transcribe path.");
 
                     ground_path =
                         forward_searcher->DeterminePath(Point(unit->grid_x, unit->grid_y), path_request->GetMaxCost());
@@ -260,13 +260,14 @@ void PathsManager::EvaluateTiles() {
                     backward_searcher = nullptr;
 
                     if (ground_path) {
-                        log.Log(
-                            "Found path (%i/%i msecs), %i steps, air distance %i.", timer_elapsed_time(elapsed_time),
-                            timer_elapsed_time(time_stamp), ground_path->GetSteps()->GetCount(),
+                        AILOG_LOG(
+                            log, "Found path ({}/{} msecs), {} steps, air distance {}.",
+                            timer_elapsed_time(elapsed_time), timer_elapsed_time(time_stamp),
+                            ground_path->GetSteps()->GetCount(),
                             TaskManager_GetDistance(request->GetDestination(), Point(unit->grid_x, unit->grid_y)) / 2);
 
                     } else {
-                        log.Log("No path, error in transcription.");
+                        AILOG_LOG(log, "No path, error in transcription.");
                     }
 
                     CompleteRequest(&*ground_path);
@@ -284,7 +285,7 @@ void PathsManager::EvaluateTiles() {
         }
 
     } else {
-        AiLog log("Skipping path generator, %i msecs since update.", TickTimer_GetElapsedTime());
+        AILOG(log, "Skipping path generator, {} msecs since update.", TickTimer_GetElapsedTime());
     }
 
     elapsed_time = timer_get() - elapsed_time;
@@ -502,9 +503,9 @@ void PathsManager::ProcessRequest() {
             request = nullptr;
 
         } else {
-            AiLog log("Start Search for path for %s at [%i,%i] to [%i,%i].",
-                      UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, position.x + 1, position.y + 1,
-                      destination.x + 1, destination.y + 1);
+            AILOG(log, "Start Search for path for {} at [{},{}] to [{},{}].",
+                  UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, position.x + 1, position.y + 1,
+                  destination.x + 1, destination.y + 1);
 
             time_stamp = timer_get();
             elapsed_time = time_stamp;
@@ -517,7 +518,7 @@ void PathsManager::ProcessRequest() {
             Paths_MaxDepth = 0;
 
             if (position == destination) {
-                log.Log("Start and destination are the same.");
+                AILOG_LOG(log, "Start and destination are the same.");
 
                 CompleteRequest(nullptr);
 
@@ -533,7 +534,7 @@ void PathsManager::ProcessRequest() {
                             mode = false;
                         }
 
-                        log.Log("Checking if destination is reachable.");
+                        AILOG_LOG(log, "Checking if destination is reachable.");
 
                         SmartPointer<PathRequest> path_request(request);
 
@@ -549,13 +550,13 @@ void PathsManager::ProcessRequest() {
                             backward_searcher->Process(destination, false);
 
                         } else {
-                            log.Log("Path not found (%i msecs).", timer_elapsed_time(time_stamp));
+                            AILOG_LOG(log, "Path not found ({} msecs).", timer_elapsed_time(time_stamp));
 
                             CompleteRequest(nullptr);
                         }
 
                     } else {
-                        log.Log("No valid destination found (%i msecs).", timer_elapsed_time(time_stamp));
+                        AILOG_LOG(log, "No valid destination found ({} msecs).", timer_elapsed_time(time_stamp));
 
                         CompleteRequest(nullptr);
                     }
@@ -710,7 +711,7 @@ void PathsManager_ProcessGroundCover(uint8_t** map, UnitInfo* unit, int32_t surf
 }
 
 void PathsManager_InitAccessMap(UnitInfo* unit, uint8_t** map, uint8_t flags, int32_t caution_level) {
-    AiLog log("Mark cost map for %s.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+    AILOG(log, "Mark cost map for {}.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
     if (unit->flags & MOBILE_AIR_UNIT) {
         for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {

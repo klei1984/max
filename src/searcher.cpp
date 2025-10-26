@@ -533,7 +533,7 @@ SmartPointer<GroundPath> Searcher::DeterminePath(const Point position, const int
                 return ground_path;
 
             } else {
-                AiLog log("Error: null path.");
+                AILOG(log, "Error: null path.");
 
                 return ground_path;
             }
@@ -555,7 +555,7 @@ SmartPointer<GroundPath> Searcher::DeterminePath(const Point position, const int
                 }
 
             } else {
-                AiLog log("Error in path transcription.");
+                AILOG(log, "Error in path transcription.");
 
                 return ground_path;
             }

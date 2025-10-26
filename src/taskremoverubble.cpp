@@ -94,7 +94,7 @@ bool TaskRemoveRubble::Execute(UnitInfo& unit_) {
 
         if (target && !Ai_IsDangerousLocation(&unit_, Point(target->grid_x, target->grid_y),
                                               CAUTION_LEVEL_AVOID_ALL_DAMAGE, true)) {
-            AiLog log("Remove Rubble: move finished.");
+            AILOG(log, "Remove Rubble: move finished.");
 
             if (unit_.GetBaseValues()->GetAttribute(ATTRIB_STORAGE) != unit_.storage) {
                 if (unit_.grid_x == target->grid_x && unit_.grid_y == target->grid_y) {
@@ -191,7 +191,7 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
         int32_t distance;
         int32_t minimum_distance{INT32_MAX};
 
-        AiLog log("Remove Rubble: attempt to dump materials.");
+        AILOG(log, "Remove Rubble: attempt to dump materials.");
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {

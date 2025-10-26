@@ -146,7 +146,7 @@ int32_t MAXFloodFill::Fill(Point point) {
     int32_t elapsed_time = timer_elapsed_time(time_stamp);
 
     if (elapsed_time > 10 || max_runs > 10) {
-        AiLog log("Flood fill, %i msecs, %i max depth.", elapsed_time, max_runs);
+        AILOG(log, "Flood fill, {} msecs, {} max depth.", elapsed_time, max_runs);
     }
 
     return cell_count;

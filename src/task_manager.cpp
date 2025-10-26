@@ -158,7 +158,7 @@ TaskManager::~TaskManager() {}
 bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t flags) {
     bool result;
 
-    AiLog log("Task: should build %s?", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Task: should build {}?", UnitsManager_BaseUnits[unit_type].singular_name);
 
     int32_t available_count = 0;
     int32_t requested_count = 0;
@@ -210,7 +210,8 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t fla
                     result = true;
 
                 } else if (TaskManager_NeedToReserveRawMaterials(team)) {
-                    log.Log("No, existing %s have a materials shortage", UnitsManager_BaseUnits[unit_type].plural_name);
+                    AILOG_LOG(log, "No, existing {} have a materials shortage",
+                              UnitsManager_BaseUnits[unit_type].plural_name);
 
                     result = false;
 
@@ -238,7 +239,7 @@ bool TaskManager::CheckTasksThinking(uint16_t team) {
         if ((*it).GetTeam() == team && (*it).IsThinking()) {
             char text[200];
 
-            AiLog log("Task thinking: %s", (*it).WriteStatusLog(text));
+            AILOG(log, "Task thinking: {}", (*it).WriteStatusLog(text));
 
             return true;
         }
@@ -251,7 +252,7 @@ void TaskManager::CheckComputerReactions() {
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
         if (GameManager_PlayMode != PLAY_MODE_TURN_BASED ||
             UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_COMPUTER) {
-            AiLog log("Checking computer reactions");
+            AILOG(log, "Checking computer reactions");
 
             for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
                 if (GameManager_IsActiveTurn((*it).GetTeam())) {
@@ -338,7 +339,7 @@ void TaskManager::ManufactureUnits(ResourceID unit_type, uint16_t team, int32_t 
     uint16_t task_flags = task->GetFlags();
     uint16_t task_team = task->GetTeam();
 
-    AiLog log("Task: Request %s.", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Task: Request {}.", UnitsManager_BaseUnits[unit_type].singular_name);
 
     if (Task_EstimateTurnsTillMissionEnd() >=
         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[task_team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
@@ -387,7 +388,7 @@ void TaskManager::ManufactureUnits(ResourceID unit_type, uint16_t team, int32_t 
 }
 
 void TaskManager::AppendTask(Task& task) {
-    AiLog log("Task Manager: append task '%s'.", TaskManager_GetTaskName(&task));
+    AILOG(log, "Task Manager: append task '{}'.", TaskManager_GetTaskName(&task));
 
     tasks.PushBack(task);
 
@@ -411,7 +412,7 @@ bool TaskManager::ExecuteReminders() {
     bool result;
 
     if (normal_reminders.GetCount() + priority_reminders.GetCount() > 0) {
-        AiLog log("Execute reminders");
+        AILOG(log, "Execute reminders");
 
         if (TickTimer_HaveTimeToThink()) {
             SmartPointer<Reminder> reminder;
@@ -442,13 +443,13 @@ bool TaskManager::ExecuteReminders() {
                 reminder->Execute();
 
                 if (!TickTimer_HaveTimeToThink()) {
-                    log.Log("%i reminders executed", reminders_executed);
+                    AILOG_LOG(log, "{} reminders executed", reminders_executed);
                     break;
                 }
             }
 
         } else {
-            log.Log("No reminders executed, %i msecs since frame update", TickTimer_GetElapsedTime());
+            AILOG_LOG(log, "No reminders executed, {} msecs since frame update", TickTimer_GetElapsedTime());
         }
 
         result = true;
@@ -461,7 +462,7 @@ bool TaskManager::ExecuteReminders() {
 }
 
 void TaskManager::BeginTurn(uint16_t team) {
-    AiLog log("Task Manager: begin turn.");
+    AILOG(log, "Task Manager: begin turn.");
 
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team && (*it).GetType() != TaskType_TaskTransport) {
@@ -490,16 +491,16 @@ void TaskManager::BeginTurn(uint16_t team) {
             ++reminders[(*it).GetType()];
         }
 
-        log.Log("Turn start reminders: %i", reminders[REMINDER_TYPE_TURN_START]);
-        log.Log("Turn end reminders: %i", reminders[REMINDER_TYPE_TURN_END]);
-        log.Log("Available reminders: %i", reminders[REMINDER_TYPE_AVAILABLE]);
-        log.Log("Move reminders: %i", reminders[REMINDER_TYPE_MOVE]);
-        log.Log("Attack reminders: %i", reminders[REMINDER_TYPE_ATTACK]);
+        AILOG_LOG(log, "Turn start reminders: {}", reminders[REMINDER_TYPE_TURN_START]);
+        AILOG_LOG(log, "Turn end reminders: {}", reminders[REMINDER_TYPE_TURN_END]);
+        AILOG_LOG(log, "Available reminders: {}", reminders[REMINDER_TYPE_AVAILABLE]);
+        AILOG_LOG(log, "Move reminders: {}", reminders[REMINDER_TYPE_MOVE]);
+        AILOG_LOG(log, "Attack reminders: {}", reminders[REMINDER_TYPE_ATTACK]);
     }
 }
 
 void TaskManager::EndTurn(uint16_t team) {
-    AiLog log("Task Manager: end turn.");
+    AILOG(log, "Task Manager: end turn.");
 
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team) {
@@ -509,7 +510,7 @@ void TaskManager::EndTurn(uint16_t team) {
 }
 
 void TaskManager::ChangeFlagsSet(uint16_t team) {
-    AiLog log("Task Manager: change flags set");
+    AILOG(log, "Task Manager: change flags set");
 
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team) {
@@ -536,7 +537,7 @@ void TaskManager::RemindAvailable(UnitInfo* unit, bool priority) {
 
     unit->GetDisplayName(unit_name, sizeof(unit_name));
 
-    AiLog log("Task manager: make %s at [%i,%i] available.", unit_name, unit->grid_x + 1, unit->grid_y + 1);
+    AILOG(log, "Task manager: make {} at [{},{}] available.", unit_name, unit->grid_x + 1, unit->grid_y + 1);
 
     unit->RemoveTasks();
     unit->ChangeAiStateBits(UnitInfo::AI_STATE_MOVE_FINISHED_REMINDER, false);
@@ -562,7 +563,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
 
                     unit->GetDisplayName(unit_name, sizeof(unit_name));
 
-                    AiLog log("Task manager: find a task for %s.", unit_name);
+                    AILOG(log, "Task manager: find a task for {}.", unit_name);
                 }
 
                 {
@@ -717,7 +718,7 @@ void TaskManager::RemoveTask(Task& task) {
         unit_requests.Remove(*dynamic_cast<TaskObtainUnits*>(&task));
     }
 
-    AiLog log("Task Manager: remove task '%s'.", TaskManager_GetTaskName(&task));
+    AILOG(log, "Task Manager: remove task '{}'.", TaskManager_GetTaskName(&task));
 
     tasks.Remove(task);
 }

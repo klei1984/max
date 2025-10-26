@@ -68,7 +68,7 @@ AbstractUnit::AbstractUnit(uint32_t flags, ResourceID sprite, ResourceID shadows
             gender = 0;
             break;
         default:
-            AiLog log("Incorrect gender for %s", singular_name);
+            AILOG(log, "Incorrect gender for {}", singular_name);
             SDL_assert(new_gender == 'M' || new_gender == 'F' || new_gender == 'N');
     }
 }

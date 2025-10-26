@@ -160,7 +160,7 @@ int32_t UnitValues::GetAttribute(char attribute) {
             result = agent_adjust;
             break;
         default:
-            AiLog log("UnitValues::GetAttribute called with invalid index.");
+            AILOG(log, "UnitValues::GetAttribute called with invalid index.");
             SDL_assert(0);
             result = 0;
             break;
@@ -213,7 +213,7 @@ uint16_t* UnitValues::GetAttributeAddress(char attribute) {
             result = &agent_adjust;
             break;
         default:
-            AiLog log("UnitValues::GetAttributeAddress called with invalid index.");
+            AILOG(log, "UnitValues::GetAttributeAddress called with invalid index.");
             SDL_assert(0);
             result = nullptr;
             break;
@@ -267,7 +267,7 @@ void UnitValues::SetAttribute(char attribute, int32_t value) {
             agent_adjust = value;
             break;
         default:
-            AiLog log("UnitValues::SetAttribute called with invalid index.");
+            AILOG(log, "UnitValues::SetAttribute called with invalid index.");
             SDL_assert(0);
             break;
     }
@@ -317,7 +317,7 @@ void UnitValues::AddAttribute(char attribute, int32_t value) {
             agent_adjust += value;
             break;
         default:
-            AiLog log("UnitValues::AddAttribute called with invalid index.");
+            AILOG(log, "UnitValues::AddAttribute called with invalid index.");
             SDL_assert(0);
             break;
     }

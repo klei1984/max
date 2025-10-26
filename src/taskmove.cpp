@@ -146,7 +146,7 @@ Point TaskMove::GetTransporterWaypoint() const { return transport_waypoint; }
 void TaskMove::RemoveTransport() { transporter_unit_type = INVALID_ID; }
 
 void TaskMove::AddUnit(UnitInfo& unit) {
-    AiLog log("Move: add %s.", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+    AILOG(log, "Move: add {}.", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
     if (passenger == &unit && unit.GetTask() == this) {
         Task_RemindMoveFinished(&*passenger, true);
@@ -168,7 +168,7 @@ void TaskMove::Begin() {
 
 void TaskMove::BeginTurn() {
     if (passenger) {
-        AiLog log("Move %s: Begin Turn", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name);
+        AILOG(log, "Move {}: Begin Turn", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name);
 
         if (passenger->GetOrder() == ORDER_IDLE && passenger->GetOrderState() == ORDER_STATE_PREPARE_STORE &&
             (passenger_destination.x < 0 || passenger_destination.y < 0)) {
@@ -191,7 +191,7 @@ void TaskMove::BeginTurn() {
                 }
 
             } else {
-                log.Log("Checking if direct route remains blocked.");
+                AILOG_LOG(log, "Checking if direct route remains blocked.");
 
                 Search(true);
             }
@@ -214,8 +214,8 @@ bool TaskMove::Execute(UnitInfo& unit) {
     bool result;
 
     if (passenger == &unit) {
-        AiLog log("Move finished for %s at [%i,%i].", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name,
-                  unit.grid_x + 1, unit.grid_y + 1);
+        AILOG(log, "Move finished for {} at [{},{}].", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name,
+              unit.grid_x + 1, unit.grid_y + 1);
 
         if (unit.IsReadyForOrders(this)) {
             if (UnitsManager_TeamInfo[passenger->team].team_type == TEAM_TYPE_COMPUTER) {
@@ -253,7 +253,7 @@ bool TaskMove::Execute(UnitInfo& unit) {
                                     result = true;
 
                                 } else if (!zone) {
-                                    log.Log("Find Direct path.");
+                                    AILOG_LOG(log, "Find Direct path.");
 
                                     PathRequest* request = new (std::nothrow) TaskPathRequest(
                                         &*passenger, AccessModifier_SameClassBlocks, passenger_waypoint);
@@ -270,7 +270,7 @@ bool TaskMove::Execute(UnitInfo& unit) {
                                     result = true;
 
                                 } else {
-                                    log.Log("Wait for zone to be cleared.");
+                                    AILOG_LOG(log, "Wait for zone to be cleared.");
 
                                     result = false;
                                 }
@@ -306,7 +306,7 @@ bool TaskMove::Execute(UnitInfo& unit) {
             }
 
         } else {
-            log.Log("Not ready for orders.");
+            AILOG_LOG(log, "Not ready for orders.");
 
             result = false;
         }
@@ -322,9 +322,9 @@ void TaskMove::RemoveSelf() {
     if (passenger) {
         passenger->RemoveTask(this);
 
-        AiLog log("Move (RemoveSelf): Remove %s at [%i,%i].",
-                  UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name, passenger->grid_x + 1,
-                  passenger->grid_y + 1);
+        AILOG(log, "Move (RemoveSelf): Remove {} at [{},{}].",
+              UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name, passenger->grid_x + 1,
+              passenger->grid_y + 1);
 
         passenger = nullptr;
     }
@@ -337,15 +337,15 @@ void TaskMove::RemoveSelf() {
 
 void TaskMove::RemoveUnit(UnitInfo& unit) {
     if (passenger == &unit) {
-        AiLog log("Move (RemoveUnit): Remove %s at [%i,%i].", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name,
-                  unit.grid_x + 1, unit.grid_y + 1);
+        AILOG(log, "Move (RemoveUnit): Remove {} at [{},{}].", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name,
+              unit.grid_x + 1, unit.grid_y + 1);
 
         Finished(TASKMOVE_RESULT_CANCELLED);
     }
 }
 
 void TaskMove::EventZoneCleared(Zone* zone_, bool status) {
-    AiLog log("Move: Zone Cleared");
+    AILOG(log, "Move: Zone Cleared");
 
     if (zone == zone_) {
         zone = nullptr;
@@ -400,7 +400,7 @@ void TaskMove::AttemptTransport() {
 }
 
 void TaskMove::AttemptTransportType(ResourceID unit_type) {
-    AiLog log("Attempt %s.", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Attempt {}.", UnitsManager_BaseUnits[unit_type].singular_name);
 
     PathRequest* request =
         new (std::nothrow) TaskPathRequest(&*passenger, AccessModifier_NoModifiers, destination_waypoint);
@@ -454,7 +454,7 @@ void TaskMove::FindWaypointUsingTransport() {
 }
 
 void TaskMove::Search(bool mode) {
-    AiLog log("Move %s: find path.", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name);
+    AILOG(log, "Move {}: find path.", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name);
 
     Point line_distance(destination_waypoint.x - passenger->grid_x, destination_waypoint.y - passenger->grid_y);
 
@@ -494,12 +494,12 @@ void TaskMove::Finished(int32_t result) {
     if (passenger) {
         const char* result_codes[] = {"success", "already in range", "blocked", "cancelled"};
 
-        AiLog log("Move %s: finished (%s)", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name,
-                  result_codes[result]);
+        AILOG(log, "Move {}: finished ({})", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name,
+              result_codes[result]);
 
-        log.Log("Move (Finished): Remove %s at [%i,%i].",
-                UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name, passenger->grid_x + 1,
-                passenger->grid_y + 1);
+        AILOG_LOG(log, "Move (Finished): Remove {} at [{},{}].",
+                  UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name, passenger->grid_x + 1,
+                  passenger->grid_y + 1);
 
         passenger->RemoveTask(this, false);
 
@@ -539,7 +539,7 @@ void TaskMove::PathResultCallback(Task* task, PathRequest* path_request, Point d
 
 void TaskMove::FullPathResultCallback(Task* task, PathRequest* path_request, Point destination, GroundPath* path,
                                       uint8_t result) {
-    AiLog log("Move full path result.");
+    AILOG(log, "Move full path result.");
 
     SmartPointer<TaskMove> move(dynamic_cast<TaskMove*>(task));
 
@@ -594,12 +594,12 @@ void TaskMove::DirectPathResultCallback(Task* task, PathRequest* path_request, P
                                         uint8_t result) {
     SmartPointer<TaskMove> move = dynamic_cast<TaskMove*>(task);
 
-    AiLog log("Direct path result.");
+    AILOG(log, "Direct path result.");
 
     if (move == dynamic_cast<TaskMove*>(move->passenger->GetTask())) {
         if (path) {
             if (move->caution_level > CAUTION_LEVEL_NONE && (move->passenger->flags & MOBILE_AIR_UNIT)) {
-                log.Log("Adjusting path.");
+                AILOG_LOG(log, "Adjusting path.");
 
                 AdjustRequest* request = new (std::nothrow)
                     AdjustRequest(&*move->passenger, AccessModifier_SameClassBlocks, move->passenger_waypoint, path);
@@ -614,7 +614,7 @@ void TaskMove::DirectPathResultCallback(Task* task, PathRequest* path_request, P
             }
 
         } else {
-            log.Log("Looking for alternate path.");
+            AILOG_LOG(log, "Looking for alternate path.");
 
             PathRequest* request = new (std::nothrow)
                 TaskPathRequest(&*move->passenger, AccessModifier_EnemySameClassBlocks, move->passenger_waypoint);
@@ -629,7 +629,7 @@ void TaskMove::DirectPathResultCallback(Task* task, PathRequest* path_request, P
         }
 
     } else {
-        log.Log("Unit currently belongs to another task.");
+        AILOG_LOG(log, "Unit currently belongs to another task.");
     }
 }
 
@@ -637,7 +637,7 @@ void TaskMove::BlockedPathResultCallback(Task* task, PathRequest* path_request, 
                                          uint8_t result) {
     SmartPointer<TaskMove> move = dynamic_cast<TaskMove*>(task);
 
-    AiLog log("Blocked path result.");
+    AILOG(log, "Blocked path result.");
 
     if (move == dynamic_cast<TaskMove*>(move->passenger->GetTask())) {
         if (path) {
@@ -669,13 +669,13 @@ void TaskMove::BlockedPathResultCallback(Task* task, PathRequest* path_request, 
                 unit = Access_GetTeamUnit(site.x, site.y, move->team, unit_flags);
 
                 if (unit) {
-                    log.Log("Blocked by %s at [%i,%i].", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
-                            site.x + 1, site.y + 1);
+                    AILOG_LOG(log, "Blocked by {} at [{},{}].",
+                              UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, site.x + 1, site.y + 1);
 
                     flag = true;
 
                     if (unit == move->passenger) {
-                        log.Log("Unit blocks itself!");
+                        AILOG_LOG(log, "Unit blocks itself!");
 
                         move->Finished(TASKMOVE_RESULT_BLOCKED);
 
@@ -700,7 +700,7 @@ void TaskMove::BlockedPathResultCallback(Task* task, PathRequest* path_request, 
         }
 
     } else {
-        log.Log("Unit currently belongs to another task.");
+        AILOG_LOG(log, "Unit currently belongs to another task.");
     }
 }
 
@@ -709,7 +709,7 @@ void TaskMove::ActualPathResultCallback(Task* task, PathRequest* path_request, P
     SmartPointer<TaskMove> move = dynamic_cast<TaskMove*>(task);
     AdjustRequest* request = dynamic_cast<AdjustRequest*>(path_request);
 
-    AiLog log("Actual path result.");
+    AILOG(log, "Actual path result.");
 
     if (move == dynamic_cast<TaskMove*>(move->passenger->GetTask())) {
         if (path) {
@@ -753,13 +753,13 @@ void TaskMove::ActualPathResultCallback(Task* task, PathRequest* path_request, P
             }
 
         } else {
-            log.Log("Problem: actual path is null.");
+            AILOG_LOG(log, "Problem: actual path is null.");
 
             move->Finished(TASKMOVE_RESULT_BLOCKED);
         }
 
     } else {
-        log.Log("Unit currently belongs to another task.");
+        AILOG_LOG(log, "Unit currently belongs to another task.");
     }
 }
 
@@ -796,7 +796,7 @@ void TaskMove::ProcessPath(Point site, GroundPath* path) {
         Task_RemindMoveFinished(&*passenger, true);
 
     } else if (transporter_unit_type == INVALID_ID) {
-        AiLog log("Result had no steps.");
+        AILOG(log, "Result had no steps.");
 
         Finished(TASKMOVE_RESULT_BLOCKED);
 
@@ -810,7 +810,7 @@ void TaskMove::RetryMove() {
         Finished(TASKMOVE_RESULT_SUCCESS);
 
     } else if (path_result) {
-        AiLog log("Re-trying move without precalculated paths.");
+        AILOG(log, "Re-trying move without precalculated paths.");
 
         planned_path.Clear();
         transport_waypoint = destination_waypoint;
@@ -830,7 +830,7 @@ void TaskMove::TranscribeTransportPath(Point site, GroundPath* path) {
     bool flag1 = false;
     bool needs_transport = false;
 
-    AiLog log("Transcribe transport path.");
+    AILOG(log, "Transcribe transport path.");
 
     for (uint32_t i = 0; i < steps.GetCount(); ++i) {
         position.x += steps[i]->x;
@@ -859,7 +859,7 @@ void TaskMove::TranscribeTransportPath(Point site, GroundPath* path) {
 
     if (needs_transport) {
         if (flag1) {
-            log.Log("No landing spot.");
+            AILOG_LOG(log, "No landing spot.");
 
             if (path_result) {
                 Search(false);
@@ -909,7 +909,7 @@ void TaskMove::TranscribeTransportPath(Point site, GroundPath* path) {
         }
 
     } else {
-        log.Log("Transport not needed?!");
+        AILOG_LOG(log, "Transport not needed?!");
 
         ProcessPath(site, path);
     }
@@ -918,7 +918,7 @@ void TaskMove::TranscribeTransportPath(Point site, GroundPath* path) {
 bool TaskMove::CheckAirPath() {
     bool result;
 
-    AiLog log("Check air path.");
+    AILOG(log, "Check air path.");
 
     if (caution_level == CAUTION_LEVEL_NONE) {
         result = true;
@@ -947,7 +947,7 @@ bool TaskMove::CheckAirPath() {
                     site.y = (((i * line_distance_y) >> 16) + passenger->y) >> 6;
 
                     if (damage_potential_map[site.x][site.y] >= unit_hits) {
-                        log.Log("[%i,%i] is too dangerous", site.x + 1, site.y + 1);
+                        AILOG_LOG(log, "[{},{}] is too dangerous", site.x + 1, site.y + 1);
 
                         return false;
                     }
@@ -969,7 +969,7 @@ bool TaskMove::CheckAirPath() {
 
 void TaskMove::MoveAirUnit() {
     if (passenger->IsReadyForOrders(this)) {
-        AiLog log("Move air unit.");
+        AILOG(log, "Move air unit.");
 
         if (GameManager_IsActiveTurn(team)) {
             SmartPointer<UnitInfo> unit;
@@ -996,13 +996,13 @@ void TaskMove::MoveAirUnit() {
                         // the end node must be cached in case Hash_MapHash.Remove() deletes the list
                         for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                             if ((*it).flags & MOBILE_AIR_UNIT) {
-                                log.Log("Blocked by %s at [%i,%i]",
-                                        UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, (*it).grid_x + 1,
-                                        (*it).grid_y + 1);
+                                AILOG_LOG(log, "Blocked by {} at [{},{}]",
+                                          UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, (*it).grid_x + 1,
+                                          (*it).grid_y + 1);
 
                                 if ((*it).GetOrder() == ORDER_MOVE &&
                                     (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER) {
-                                    log.Log("Blocker is moving.");
+                                    AILOG_LOG(log, "Blocker is moving.");
 
                                     class RemindTurnEnd* reminder = new (std::nothrow) class RemindTurnEnd(*this);
 
@@ -1011,7 +1011,7 @@ void TaskMove::MoveAirUnit() {
                                     return;
 
                                 } else if ((*it).team == team && (*it).speed >= 2) {
-                                    log.Log("Attempting to displace blocker.");
+                                    AILOG_LOG(log, "Attempting to displace blocker.");
 
                                     if (!zone) {
                                         zone = new (std::nothrow) Zone(&*passenger, this);
@@ -1023,7 +1023,7 @@ void TaskMove::MoveAirUnit() {
                                     }
 
                                 } else {
-                                    log.Log("Can't move blocker.");
+                                    AILOG_LOG(log, "Can't move blocker.");
 
                                     if (step_index) {
                                         flag = false;
@@ -1043,9 +1043,10 @@ void TaskMove::MoveAirUnit() {
                         if ((*it).GetOrder() == ORDER_MOVE && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER &&
                             (*it).team == team && (*it).target_grid_x == passenger_waypoint.x &&
                             (*it).target_grid_y == passenger_waypoint.y) {
-                            log.Log("[%i,%i] is a destination for %s at [%i,%i].", passenger_waypoint.x + 1,
-                                    passenger_waypoint.y + 1, UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name,
-                                    (*it).grid_x + 1, (*it).grid_y + 1);
+                            AILOG_LOG(log, "[{},{}] is a destination for {} at [{},{}].", passenger_waypoint.x + 1,
+                                      passenger_waypoint.y + 1,
+                                      UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, (*it).grid_x + 1,
+                                      (*it).grid_y + 1);
 
                             if (step_index) {
                                 flag = false;
@@ -1064,7 +1065,7 @@ void TaskMove::MoveAirUnit() {
                 }
             }
 
-            log.Log("Air move issued to [%i,%i].", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
+            AILOG_LOG(log, "Air move issued to [{},{}].", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
 
             passenger->target_grid_x = passenger_waypoint.x;
             passenger->target_grid_y = passenger_waypoint.y;
@@ -1081,10 +1082,10 @@ void TaskMove::MoveAirUnit() {
 bool TaskMove::IsPathClear() {
     bool result;
 
-    AiLog log("Check if path is clear.");
+    AILOG(log, "Check if path is clear.");
 
     if (Access_GetDistance(&*passenger, *planned_path[0]) > 2) {
-        log.Log("[%i,%i] is too far away.", planned_path[0]->x + 1, planned_path[0]->y + 1);
+        AILOG_LOG(log, "[{},{}] is too far away.", planned_path[0]->x + 1, planned_path[0]->y + 1);
 
         result = false;
 
@@ -1099,7 +1100,7 @@ bool TaskMove::IsPathClear() {
                 }
 
             } else {
-                log.Log("Can't enter [%i,%i]", planned_path[step_index]->x + 1, planned_path[step_index]->y + 1);
+                AILOG_LOG(log, "Can't enter [{},{}]", planned_path[step_index]->x + 1, planned_path[step_index]->y + 1);
 
                 result = false;
 
@@ -1127,7 +1128,7 @@ bool TaskMove::IsPathClear() {
             result = true;
 
         } else {
-            log.Log("Waypoint isn't on path!");
+            AILOG_LOG(log, "Waypoint isn't on path!");
 
             result = false;
         }
@@ -1137,7 +1138,7 @@ bool TaskMove::IsPathClear() {
 }
 
 void TaskMove::FindCurrentLocation() {
-    AiLog log("Find current location.");
+    AILOG(log, "Find current location.");
 
     if (planned_path.GetCount()) {
         Point position(passenger->grid_x, passenger->grid_y);
@@ -1180,14 +1181,14 @@ void TaskMove::FindCurrentLocation() {
         }
 
         if (minimum_distance == 0) {
-            log.Log("Removing [%i,%i]", planned_path[minimum_distance_step_index]->x + 1,
-                    planned_path[minimum_distance_step_index]->y + 1);
+            AILOG_LOG(log, "Removing [{},{}]", planned_path[minimum_distance_step_index]->x + 1,
+                      planned_path[minimum_distance_step_index]->y + 1);
 
             planned_path.Remove(minimum_distance_step_index);
         }
 
         for (uint32_t i = 0; i < minimum_distance_step_index; ++i) {
-            log.Log("Removing [%i,%i]", planned_path[0]->x + 1, planned_path[0]->y + 1);
+            AILOG_LOG(log, "Removing [{},{}]", planned_path[0]->x + 1, planned_path[0]->y + 1);
 
             planned_path.Remove(0);
         }
@@ -1200,7 +1201,7 @@ bool TaskMove::FindWaypoint() {
     int32_t step_cost = 0;
     int32_t unit_hits = passenger->hits;
 
-    AiLog log("Find waypoint.");
+    AILOG(log, "Find waypoint.");
 
     if (caution_level == CAUTION_LEVEL_AVOID_ALL_DAMAGE) {
         unit_hits = 1;
@@ -1234,12 +1235,12 @@ bool TaskMove::FindWaypoint() {
         }
 
         if (damage_potential_map && damage_potential_map[passenger_waypoint.x][passenger_waypoint.y] >= unit_hits) {
-            log.Log("[%i,%i] is too dangerous.", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
+            AILOG_LOG(log, "[{},{}] is too dangerous.", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
 
             result = false;
 
         } else {
-            log.Log("Found [%i,%i].", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
+            AILOG_LOG(log, "Found [{},{}].", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
 
             passenger->target_grid_x = passenger_waypoint.x;
             passenger->target_grid_y = passenger_waypoint.y;
@@ -1248,7 +1249,7 @@ bool TaskMove::FindWaypoint() {
         }
 
     } else {
-        log.Log("Can't enter [%i,%i].", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
+        AILOG_LOG(log, "Can't enter [{},{}].", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
 
         result = false;
     }
@@ -1258,7 +1259,7 @@ bool TaskMove::FindWaypoint() {
 
 void TaskMove::MoveUnit(GroundPath* path) {
     if (passenger->IsReadyForOrders(this) && path && GameManager_IsActiveTurn(team)) {
-        AiLog log("Moving unit to [%i,%i].", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
+        AILOG(log, "Moving unit to [{},{}].", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
 
         if (caution_level > CAUTION_LEVEL_NONE && Task_ShouldReserveShot(&*passenger, passenger_waypoint)) {
             int32_t unit_shots = passenger->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS);
@@ -1301,7 +1302,7 @@ void TaskMove::MoveUnit(GroundPath* path) {
                     }
                 }
 
-                log.Log("New waypoint [%i,%i].", position.x + 1, position.y + 1);
+                AILOG_LOG(log, "New waypoint [{},{}].", position.x + 1, position.y + 1);
 
                 passenger_waypoint = position;
 
@@ -1312,7 +1313,7 @@ void TaskMove::MoveUnit(GroundPath* path) {
             }
         }
 
-        log.Log("Move order issued to [%i,%i]", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
+        AILOG_LOG(log, "Move order issued to [{},{}]", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
 
         passenger->target_grid_x = passenger_waypoint.x;
         passenger->target_grid_y = passenger_waypoint.y;
@@ -1344,7 +1345,7 @@ void TaskMove::FindTransport(ResourceID unit_type) {
     int32_t distance;
     int32_t minimum_distance{INT32_MAX};
 
-    AiLog log("Find transport.");
+    AILOG(log, "Find transport.");
 
     transporter_unit_type = unit_type;
 

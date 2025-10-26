@@ -21,18 +21,20 @@
 
 #include "ailog.hpp"
 
-#include "gnw.h"
-#include "resource_manager.hpp"
-#include "smartstring.hpp"
+#include <SDL.h>
 
-#define AILOG_FILE_LIMIT UINT16_MAX
+#include <cstdarg>
+
+constexpr int32_t AILOG_FILE_LIMIT_DEFAULT = UINT16_MAX;
 
 std::ofstream AiLog::AiLog_File;
-SDL_mutex* AiLog::AiLog_Mutex;
-int32_t AiLog::AiLog_SectionCount;
-int32_t AiLog::AiLog_EntryCount;
+SDL_mutex* AiLog::AiLog_Mutex = nullptr;
+int32_t AiLog::AiLog_SectionCount = 0;
+int32_t AiLog::AiLog_EntryCount = 0;
+int32_t AiLog::AiLog_EntryLimit = AILOG_FILE_LIMIT_DEFAULT;
+std::optional<std::regex> AiLog::AiLog_Filter;
 
-inline void AiLog::AiLog_InitMutex() {
+void AiLog::AiLog_InitMutex() {
     if (!AiLog_Mutex) {
         AiLog_Mutex = ResourceManager_CreateMutex();
 
@@ -42,23 +44,37 @@ inline void AiLog::AiLog_InitMutex() {
     }
 }
 
-AiLog::AiLog(const char* format, ...) {
-    AiLog_InitMutex();
-
-    ResourceManager_MutexLock lock(AiLog_Mutex);
-
-    if (AiLog_File.is_open()) {
-        time_stamp = timer_get();
-
-        va_list args;
-
-        va_start(args, format);
-        VSprintf(format, args);
-        va_end(args);
+bool AiLog::ShouldFilter() const noexcept {
+    if (!AiLog_Filter.has_value()) {
+        return false;
     }
 
-    ++AiLog_SectionCount;
+    try {
+        std::string subject = std::format("{}|{}", m_file, m_function);
+
+        bool filter_matches = std::regex_search(subject, AiLog_Filter.value());
+
+        return !filter_matches;
+
+    } catch (...) {
+        return false;
+    }
 }
+
+void AiLog::WriteLog(std::string_view message) {
+    AiLog_File << std::format("\n{:3d}: ", AiLog_SectionCount + 1);
+
+    if (AiLog_SectionCount > 0) {
+        AiLog_File << std::format("{:{}}", "", AiLog_SectionCount);
+    }
+
+    AiLog_File << message;
+    AiLog_File.flush();
+
+    ++AiLog_EntryCount;
+}
+
+void AiLog::NoLockLog(std::string_view message) { WriteLog(message); }
 
 AiLog::~AiLog() {
     AiLog_InitMutex();
@@ -67,68 +83,27 @@ AiLog::~AiLog() {
 
     --AiLog_SectionCount;
 
-    if (AiLog_File.is_open()) {
-        auto elapsed_time{timer_elapsed_time(time_stamp)};
+    if (AiLog_File.is_open() && !m_is_filtered) {
+        auto elapsed_time =
+            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_time_stamp)
+                .count();
 
-        if (elapsed_time >= TIMER_FPS_TO_MS(50)) {
-            NoLockLog("log section complete, %li msecs elapsed", elapsed_time);
+        constexpr int64_t THRESHOLD_MS = 1000;
+
+        if (elapsed_time >= THRESHOLD_MS) {
+            NoLockLog(std::format("log section complete, {} msecs elapsed", elapsed_time));
 
         } else {
             NoLockLog("log section complete");
         }
 
-        if (AiLog_EntryCount > AILOG_FILE_LIMIT) {
-            auto filepath{(ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal()};
+        if (AiLog_EntryCount > AiLog_EntryLimit) {
+            auto filepath = (ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal();
 
-            AiLog::AiLog_File.close();
-            AiLog::AiLog_File.open(filepath.string().c_str());
-            AiLog::AiLog_EntryCount = 0;
+            AiLog_File.close();
+            AiLog_File.open(filepath.string().c_str(), std::ios::out);
+            AiLog_EntryCount = 0;
         }
-    }
-}
-
-void AiLog::VSprintf(const char* format, va_list args) {
-    AiLog_File << SmartString().Sprintf(200, "\n%3i: ", AiLog_SectionCount + 1).GetCStr();
-
-    if (AiLog_SectionCount > 0) {
-        AiLog_File << SmartString().Sprintf(200, "%*s", AiLog_SectionCount, "").GetCStr();
-    }
-
-    AiLog_File << SmartString().VSprintf(200, format, args).GetCStr();
-    AiLog_File.flush();
-
-    ++AiLog_EntryCount;
-}
-
-void AiLog::Log(const char* format, ...) {
-    AiLog_InitMutex();
-
-    ResourceManager_MutexLock lock(AiLog_Mutex);
-
-    if (AiLog_File.is_open()) {
-        va_list args;
-
-        va_start(args, format);
-        VSprintf(format, args);
-        va_end(args);
-    }
-}
-
-void AiLog::NoLockLog(const char* format, ...) {
-    va_list args;
-
-    va_start(args, format);
-    VSprintf(format, args);
-    va_end(args);
-}
-
-void AiLog::VLog(const char* format, va_list args) {
-    AiLog_InitMutex();
-
-    ResourceManager_MutexLock lock(AiLog_Mutex);
-
-    if (AiLog_File.is_open()) {
-        VSprintf(format, args);
     }
 }
 
@@ -138,10 +113,45 @@ void AiLog_Open() {
     ResourceManager_MutexLock lock(AiLog::AiLog_Mutex);
 
     if (!AiLog::AiLog_File.is_open()) {
-        auto filepath{(ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal()};
+        auto filepath = (ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal();
 
-        AiLog::AiLog_File.open(filepath.string().c_str());
+        AiLog::AiLog_File.open(filepath.string().c_str(), std::ios::out);
         AiLog::AiLog_EntryCount = 0;
+
+        const char* filter_env = SDL_getenv("MAX_AILOG_FILTER");
+
+        if (filter_env && filter_env[0] != '\0') {
+            try {
+                AiLog::AiLog_Filter = std::regex(filter_env, std::regex::icase);
+
+            } catch (const std::regex_error&) {
+                AiLog::AiLog_Filter = std::nullopt;
+            }
+
+        } else {
+            AiLog::AiLog_Filter = std::nullopt;
+        }
+
+        const char* limit_env = SDL_getenv("MAX_AILOG_ENTRY_LIMIT");
+
+        if (limit_env && limit_env[0] != '\0') {
+            try {
+                int32_t limit = std::stoi(limit_env);
+
+                if (limit > 0) {
+                    AiLog::AiLog_EntryLimit = limit;
+
+                } else {
+                    AiLog::AiLog_EntryLimit = AILOG_FILE_LIMIT_DEFAULT;
+                }
+
+            } catch (...) {
+                AiLog::AiLog_EntryLimit = AILOG_FILE_LIMIT_DEFAULT;
+            }
+
+        } else {
+            AiLog::AiLog_EntryLimit = AILOG_FILE_LIMIT_DEFAULT;
+        }
     }
 }
 
@@ -151,6 +161,7 @@ void AiLog_Close() {
     ResourceManager_MutexLock lock(AiLog::AiLog_Mutex);
 
     AiLog::AiLog_File.close();
+    AiLog::AiLog_Filter = std::nullopt;
 }
 
 [[nodiscard]] bool AiLog_IsEnabled() noexcept {
@@ -158,7 +169,7 @@ void AiLog_Close() {
 
     ResourceManager_MutexLock lock(AiLog::AiLog_Mutex);
 
-    auto result{AiLog::AiLog_File.is_open()};
+    auto result = AiLog::AiLog_File.is_open();
 
     return result;
 }

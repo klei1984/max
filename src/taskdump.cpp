@@ -47,7 +47,7 @@ TaskDump::~TaskDump() {}
 
 void TaskDump::TaskDump_PathResultCallback(Task* task, PathRequest* request, Point destination_, GroundPath* path,
                                            uint8_t result) {
-    AiLog log("Dump: path result.");
+    AILOG(log, "Dump: path result.");
 
     TaskDump* dump_task = dynamic_cast<TaskDump*>(task);
 
@@ -87,7 +87,7 @@ void TaskDump::Search() {
 
     passenger = task_move->GetPassenger();
 
-    AiLog log("Dump %s: search for position.", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name);
+    AILOG(log, "Dump {}: search for position.", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name);
 
     for (;;) {
         if (--steps_counter < 0) {

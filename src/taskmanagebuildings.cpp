@@ -160,7 +160,7 @@ void TaskManageBuildings::MarkMiningAreas(uint16_t** construction_map) {
     uint16_t hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;
     bool mining_station_found = false;
 
-    AiLog log("Mark mining areas.");
+    AILOG(log, "Mark mining areas.");
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if ((*it).GetUnitType() != WTRPLTFM && (*it).GetUnitType() != BRIDGE) {
@@ -194,7 +194,7 @@ void TaskManageBuildings::MarkMiningAreas(uint16_t** construction_map) {
 }
 
 void TaskManageBuildings::MarkBuildingAreas(uint16_t** construction_map, int32_t area_expanse, int32_t area_offset) {
-    AiLog log("Mark building areas.");
+    AILOG(log, "Mark building areas.");
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if ((*it).GetUnitType() != WTRPLTFM && (*it).GetUnitType() != BRIDGE) {
@@ -256,7 +256,7 @@ void TaskManageBuildings::MarkBuildingAreas(uint16_t** construction_map, int32_t
 }
 
 void TaskManageBuildings::ClearBuildingAreas(uint16_t** construction_map, TaskCreateBuilding* task) {
-    AiLog log("Clear building areas.");
+    AILOG(log, "Clear building areas.");
 
     int16_t** damage_potential_map =
         AiPlayer_Teams[team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
@@ -348,7 +348,7 @@ void TaskManageBuildings::ClearPathways(uint16_t** construction_map, Rect bounds
 
 void TaskManageBuildings::ClearPlannedBuildings(uint16_t** construction_map, TaskCreateBuilding* task,
                                                 ResourceID unit_type, uint16_t task_flags) {
-    AiLog log("Clear planned buildings.");
+    AILOG(log, "Clear planned buildings.");
 
     int32_t unit_size = UnitsManager_BaseUnits[unit_type].flags & BUILDING ? 2 : 1;
 
@@ -543,7 +543,7 @@ void TaskManageBuildings::LimitBlockSize(uint16_t** construction_map, int32_t un
     Block** block_map;
     int32_t marker;
 
-    AiLog log("Limit block size.");
+    AILOG(log, "Limit block size.");
 
     block_map = new (std::nothrow) Block*[ResourceManager_MapSize.x];
 
@@ -838,7 +838,7 @@ bool TaskManageBuildings::EvaluateSite(uint16_t** construction_map, ResourceID u
     bool is_site_found = false;
     bool result;
 
-    AiLog log("Find site / site map.");
+    AILOG(log, "Find site / site map.");
 
     for (position.x = 0; position.x < ResourceManager_MapSize.x; ++position.x) {
         for (position.y = 0; position.y < ResourceManager_MapSize.y; ++position.y) {
@@ -889,7 +889,7 @@ bool TaskManageBuildings::FindSite(ResourceID unit_type, TaskCreateBuilding* tas
     int32_t unit_size = (UnitsManager_BaseUnits[unit_type].flags & BUILDING) ? 2 : 1;
     bool result;
 
-    AiLog log("Find Site.");
+    AILOG(log, "Find Site.");
 
     if (unit_type == MININGST) {
         MarkMiningAreas(construction_map);
@@ -1213,7 +1213,7 @@ void TaskManageBuildings::UpdateCargoDemand(int16_t* limit, int16_t* material, i
 }
 
 void TaskManageBuildings::UpdateMiningNeeds() {
-    AiLog log("Task Manage Buildings: Update Mining Needs");
+    AILOG(log, "Task Manage Buildings: Update Mining Needs");
 
     cargo_demand.Init();
 
@@ -1311,15 +1311,15 @@ void TaskManageBuildings::UpdateMiningNeeds() {
     }
 
     if (cargo_demand.raw < 0) {
-        log.Log("%i desired material", -cargo_demand.raw);
+        AILOG_LOG(log, "{} desired material", -cargo_demand.raw);
     }
 
     if (cargo_demand.fuel < 0) {
-        log.Log("%i desired fuel", -cargo_demand.fuel);
+        AILOG_LOG(log, "{} desired fuel", -cargo_demand.fuel);
     }
 
     if (cargo_demand.gold < 0) {
-        log.Log("%i desired gold", -cargo_demand.gold);
+        AILOG_LOG(log, "{} desired gold", -cargo_demand.gold);
     }
 
     if (Cargo_GetGoldConsumptionRate(COMMTWR) <= cargo_gold) {
@@ -1330,7 +1330,7 @@ void TaskManageBuildings::UpdateMiningNeeds() {
 void TaskManageBuildings::MakeConnectors(int32_t ulx, int32_t uly, int32_t lrx, int32_t lry, Task* task) {
     Point site;
 
-    AiLog log("Task Manage Buildings: Make Connectors.");
+    AILOG(log, "Task Manage Buildings: Make Connectors.");
 
     if (ulx < 1) {
         ulx = 1;
@@ -1362,7 +1362,7 @@ bool TaskManageBuildings::CheckNeeds() {
     bool result;
     bool build_order = false;
 
-    AiLog log("Task Manage Buildings: Check Needs.");
+    AILOG(log, "Task Manage Buildings: Check Needs.");
 
     if (PlanNextBuildJob()) {
         TaskManager.AppendReminder(new (std::nothrow) class RemindTurnStart(*this));
@@ -1406,7 +1406,7 @@ void TaskManageBuildings::ClearAreasNearBuildings(uint8_t** access_map, int32_t 
     Point site;
     int32_t unit_size;
 
-    AiLog log("Clear areas near buildings.");
+    AILOG(log, "Clear areas near buildings.");
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
@@ -1478,7 +1478,7 @@ void TaskManageBuildings::EvaluateDangers(uint8_t** access_map) {
 
 void TaskManageBuildings::MarkDefenseSites(uint16_t** construction_map, uint8_t** access_map, TaskCreateBuilding* task,
                                            int32_t value) {
-    AiLog log("Mark defense sites.");
+    AILOG(log, "Mark defense sites.");
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if (((*it).flags & BUILDING) || (*it).GetUnitType() == RADAR) {
@@ -1538,7 +1538,7 @@ void TaskManageBuildings::ClearDefenseSites(uint8_t** access_map, ResourceID uni
                                             uint16_t task_flags) {
     Point position;
 
-    AiLog log("Clear defended sites for %s.", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Clear defended sites for {}.", UnitsManager_BaseUnits[unit_type].singular_name);
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if ((*it).GetUnitType() == unit_type) {
@@ -1702,7 +1702,7 @@ bool TaskManageBuildings::MarkBuildings(uint8_t** access_map, Point& site) {
     ResourceID best_unit_type = INVALID_ID;
     int32_t best_complex_size = 0;
 
-    AiLog log("Mark Buildings.");
+    AILOG(log, "Mark Buildings.");
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if ((*it).GetUnitType() != WTRPLTFM && (*it).GetUnitType() != BRIDGE && (*it).GetUnitType() != CNCT_4W) {
@@ -1792,8 +1792,8 @@ void TaskManageBuildings::MarkConnections(uint8_t** access_map, Point site, int3
     bool flag4;
 
     do {
-        AiLog log("Mark Connections from %s at [%i,%i].", TaskManageBuildings_ConnectionStrings[value], site.x + 1,
-                  site.y + 1);
+        AILOG(log, "Mark Connections from {} at [{},{}].", TaskManageBuildings_ConnectionStrings[value], site.x + 1,
+              site.y + 1);
 
         while (site.x > 0 &&
                (access_map[site.x][site.y] == value || access_map[site.x][site.y] == MARKER_BUILT_SQUARE)) {
@@ -1966,7 +1966,7 @@ bool TaskManageBuildings::ConnectBuilding(uint8_t** access_map, Point site, int3
     bool is_site_found;
     bool result = false;
 
-    AiLog log("Connect %s at [%i,%i]", TaskManageBuildings_ConnectionStrings[value], site.x + 1, site.y + 1);
+    AILOG(log, "Connect {} at [{},{}]", TaskManageBuildings_ConnectionStrings[value], site.x + 1, site.y + 1);
 
     do {
         site1 = site;
@@ -2140,7 +2140,7 @@ uint8_t TaskManageBuildings::GetType() const { return TaskType_TaskManageBuildin
 bool TaskManageBuildings::IsNeeded() { return true; }
 
 void TaskManageBuildings::AddUnit(UnitInfo& unit) {
-    AiLog log("Task Manage Buildings: Add %s.", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+    AILOG(log, "Task Manage Buildings: Add {}.", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
     if (unit.flags & STATIONARY) {
         units.PushBack(unit);
@@ -2211,7 +2211,7 @@ void TaskManageBuildings::Begin() {
 }
 
 void TaskManageBuildings::BeginTurn() {
-    AiLog log("Manage buildings: begin turn.");
+    AILOG(log, "Manage buildings: begin turn.");
 
     MouseEvent::ProcessInput();
     CheckNeeds();
@@ -2225,7 +2225,7 @@ void TaskManageBuildings::ChildComplete(Task* task) {
     if (task->GetType() == TaskType_TaskCreateBuilding) {
         char text[100];
 
-        AiLog log("Manage Buildings: Remove project %s", task->WriteStatusLog(text));
+        AILOG(log, "Manage Buildings: Remove project {}", task->WriteStatusLog(text));
 
         tasks.Remove(*dynamic_cast<TaskCreateBuilding*>(task));
     }
@@ -2239,7 +2239,7 @@ void TaskManageBuildings::EndTurn() {
     int32_t fuel_mining_max = 0;
     int32_t gold_mining_max = 0;
 
-    AiLog log("Manage buildings: end turn.");
+    AILOG(log, "Manage buildings: end turn.");
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if ((*it).GetUnitType() == MININGST) {
@@ -2337,7 +2337,7 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
     Point site;
     bool result;
 
-    AiLog log("Manager: Create %s", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Manager: Create {}", UnitsManager_BaseUnits[unit_type].singular_name);
 
     if (Builder_IsBuildable(unit_type)) {
         if (Task_EstimateTurnsTillMissionEnd() >=
@@ -2390,7 +2390,7 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
                     result = true;
 
                 } else {
-                    log.Log("No site found.");
+                    AILOG_LOG(log, "No site found.");
 
                     result = false;
                 }
@@ -2400,13 +2400,13 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
             }
 
         } else {
-            log.Log("Not enough time.");
+            AILOG_LOG(log, "Not enough time.");
 
             result = false;
         }
 
     } else {
-        log.Log("Illegal type.");
+        AILOG_LOG(log, "Illegal type.");
 
         result = false;
     }
@@ -2422,7 +2422,7 @@ bool TaskManageBuildings::ReconnectBuildings() {
         Point site;
 
         if (MarkBuildings(access_map.GetMap(), site)) {
-            AiLog log("Reconnect buildings.");
+            AILOG(log, "Reconnect buildings.");
 
             MarkConnections(access_map.GetMap(), site, MARKER_BUILT_SQUARE);
 
@@ -2479,7 +2479,7 @@ bool TaskManageBuildings::ReconnectBuildings() {
                 }
             }
 
-            log.Log("Finished reconnecting.");
+            AILOG_LOG(log, "Finished reconnecting.");
 
         } else {
             result = false;
@@ -2495,7 +2495,7 @@ bool TaskManageBuildings::ReconnectBuildings() {
 void TaskManageBuildings::CheckWorkers() {
     int32_t total_consumption = 0;
 
-    AiLog log("Task Manage Buildings: Check Workers.");
+    AILOG(log, "Task Manage Buildings: Check Workers.");
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         int32_t consumption_rate = Cargo_GetLifeConsumptionRate((*it).GetUnitType());
@@ -2529,7 +2529,7 @@ bool TaskManageBuildings::CheckPower() {
     int32_t total_power_generation = 0;
     int32_t total_storage = 0;
 
-    AiLog log("Task Manage Buildings: Check Power.");
+    AILOG(log, "Task Manage Buildings: Check Power.");
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         int32_t power_consumption_rate = Cargo_GetPowerConsumptionRate((*it).GetUnitType());
@@ -2608,7 +2608,7 @@ bool TaskManageBuildings::FindSiteForRadar(TaskCreateBuilding* task, Point& site
         int32_t access_map_value;
         int32_t best_access_map_value{INT32_MAX};
 
-        AiLog log("Find site for radar.");
+        AILOG(log, "Find site for radar.");
 
         MouseEvent::ProcessInput();
 
@@ -2648,7 +2648,7 @@ bool TaskManageBuildings::FindDefenseSite(ResourceID unit_type, TaskCreateBuildi
                                           uint16_t task_flags) {
     bool result;
 
-    AiLog log("Find defense site for %s.", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Find defense site for {}.", UnitsManager_BaseUnits[unit_type].singular_name);
 
     if (ResourceManager_MapSize.x > 0 && ResourceManager_MapSize.y > 0) {
         uint16_t** construction_map = CreateMap();
@@ -2726,7 +2726,7 @@ bool TaskManageBuildings::ChangeSite(TaskCreateBuilding* task, Point& site) {
     ResourceID unit_type = task->GetUnitType();
     bool is_site_found;
 
-    AiLog log("Change site for %s", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Change site for {}", UnitsManager_BaseUnits[unit_type].singular_name);
 
     if (unit_type == RADAR) {
         is_site_found = FindSiteForRadar(task, site);
@@ -2739,10 +2739,10 @@ bool TaskManageBuildings::ChangeSite(TaskCreateBuilding* task, Point& site) {
     }
 
     if (is_site_found) {
-        log.Log("new site [%i,%i].", site.x + 1, site.y + 1);
+        AILOG_LOG(log, "new site [{},{}].", site.x + 1, site.y + 1);
 
     } else {
-        log.Log("No site found.");
+        AILOG_LOG(log, "No site found.");
     }
 
     return is_site_found;

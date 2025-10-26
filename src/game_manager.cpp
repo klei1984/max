@@ -754,7 +754,7 @@ static void GameManager_QuickBuildMenu();
 void GameManager_TeamTurnTurnBased(int32_t& game_state) {
     bool enable_autosave;
 
-    AiLog log("Turn based team turn.");
+    AILOG(log, "Turn based team turn.");
 
     enable_autosave = true;
 
@@ -801,7 +801,7 @@ void GameManager_TeamTurnTurnBased(int32_t& game_state) {
 }
 
 void GameManager_TeamTurnConcurrent(int32_t& game_state) {
-    AiLog log("Concurrent team turn.");
+    AILOG(log, "Concurrent team turn.");
 
     if (Remote_IsNetworkGame) {
         Remote_WaitBeginTurnAcknowledge();
@@ -825,7 +825,7 @@ void GameManager_TeamTurnConcurrent(int32_t& game_state) {
 
     GameManager_UpdateGui(GameManager_PlayerTeam, game_state, true);
 
-    log.Log("Waiting for all teams to end turn.");
+    AILOG_LOG(log, "Waiting for all teams to end turn.");
 
     GameManager_EnableMainMenu(nullptr);
 
@@ -847,7 +847,7 @@ void GameManager_TeamTurnConcurrent(int32_t& game_state) {
 
         GameManager_ResetRenderState();
 
-        log.Log("Waiting for units to finish moving.  Game status = %i.", GameManager_GameState);
+        AILOG_LOG(log, "Waiting for units to finish moving.  Game status = {}.", GameManager_GameState);
 
         while (GameManager_GameState == GAME_STATE_9_END_TURN && Access_AreTaskEventsPending()) {
             GameManager_ProgressTurn();
@@ -861,7 +861,7 @@ void GameManager_TeamTurnConcurrent(int32_t& game_state) {
         }
     }
 
-    log.Log("Getting ready for next turn.  Game status = %i.", GameManager_GameState);
+    AILOG_LOG(log, "Getting ready for next turn.  Game status = {}.", GameManager_GameState);
 
     GameManager_PlayMode = PLAY_MODE_SIMULTANEOUS_MOVES;
 
@@ -872,7 +872,7 @@ void GameManager_TeamTurnConcurrent(int32_t& game_state) {
         GameManager_GameState = GAME_STATE_8_IN_GAME;
 
     } else if (GameManager_GameState == GAME_STATE_9_END_TURN) {
-        log.Log("Resetting units.");
+        AILOG_LOG(log, "Resetting units.");
 
         for (uint8_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].finished_turn) {
@@ -888,11 +888,11 @@ bool GameManager_TeamTurnFinish(uint32_t turn_counter_session_start, uint16_t te
     bool result{false};
 
     if (GameManager_GameState == GAME_STATE_9_END_TURN) {
-        AiLog log("End turn %i.", GameManager_TurnCounter);
+        AILOG(log, "End turn {}.", GameManager_TurnCounter);
 
         GameManager_GameState = GAME_STATE_8_IN_GAME;
 
-        log.Log("Checking victory conditions.");
+        AILOG_LOG(log, "Checking victory conditions.");
 
         if (menu_check_end_game_conditions(GameManager_TurnCounter, turn_counter_session_start, GameManager_DemoMode)) {
             result = true;
@@ -946,7 +946,7 @@ void GameManager_GameLoop(int32_t game_state) {
         GameManager_DemoMode = false;
     }
 
-    AiLog log("Main game loop start.");
+    AILOG(log, "Main game loop start.");
 
     GameManager_GameSetup(game_state);
 
@@ -968,7 +968,7 @@ void GameManager_GameLoop(int32_t game_state) {
         }
     }
 
-    log.Log("Main game loop end.");
+    AILOG_LOG(log, "Main game loop end.");
 
     GameManager_GameLoopCleanup();
 

@@ -39,7 +39,7 @@ RemindTurnStart::~RemindTurnStart() {}
 void RemindTurnStart::Execute() {
     char buffer[500];
 
-    AiLog log("Begin turn for %s", task->WriteStatusLog(buffer));
+    AILOG(log, "Begin turn for {}", task->WriteStatusLog(buffer));
 
     task->ChangeIsScheduledForTurnStart(false);
     TaskDebugger_DebugBreak(task->GetId());
@@ -55,7 +55,7 @@ RemindTurnEnd::~RemindTurnEnd() {}
 void RemindTurnEnd::Execute() {
     char buffer[500];
 
-    AiLog log("End turn for %s", task->WriteStatusLog(buffer));
+    AILOG(log, "End turn for {}", task->WriteStatusLog(buffer));
 
     task->ChangeIsScheduledForTurnEnd(false);
     TaskDebugger_DebugBreak(task->GetId());
@@ -92,7 +92,7 @@ void RemindMoveFinished::Execute() {
     if (task && unit->hits > 0) {
         char buffer[500];
 
-        AiLog log("Move finished reminder for %s", task->WriteStatusLog(buffer));
+        AILOG(log, "Move finished reminder for {}", task->WriteStatusLog(buffer));
 
         task->Execute(*unit);
     }
@@ -109,7 +109,7 @@ void RemindAttack::Execute() {
         if (unit->GetTask()) {
             char buffer[500];
 
-            AiLog log("Attack reminder for %s", unit->GetTask()->WriteStatusLog(buffer));
+            AILOG(log, "Attack reminder for {}", unit->GetTask()->WriteStatusLog(buffer));
         }
 
         AiAttack_EvaluateAttack(&*unit);

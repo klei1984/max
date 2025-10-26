@@ -272,8 +272,8 @@ bool TransportUdpDefault::TransmitPacket(NetPacket& packet) {
 
         SDL_AtomicUnlock(&context->QueueLock);
 
-        NetLog log("Transmit");
-        log.Log(*local);
+        NETLOG(log, "Transmit");
+        NETLOG_LOG(log, *local);
     }
 
     return true;
@@ -300,8 +300,8 @@ bool TransportUdpDefault::ReceivePacket(NetPacket& packet) {
     }
 
     if (result) {
-        NetLog log("Receive from %4X", packet.GetAddress(0).port);
-        log.Log(packet);
+        NETLOG(log, "Receive from {:4X}", packet.GetAddress(0).port);
+        NETLOG_LOG(log, packet);
     }
 
     return result;
@@ -481,7 +481,7 @@ void TransportUdpDefault_ProtocolErrorMessage(ENetPeer* const peer, uint8_t pack
         peer_ip[0] = '\0';
     }
 
-    AiLog log("Transport protocol error: Unknown packet type received (%i) from '%s'.\n", packet_type, peer_ip);
+    AILOG(log, "Transport protocol error: Unknown packet type received ({}) from '{}'.\n", packet_type, peer_ip);
 }
 
 void TransportUdpDefault_ProcessTpPacket(struct TransportUdpDefault_Context* const context, ENetPeer* const peer,

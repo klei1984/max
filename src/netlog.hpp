@@ -22,13 +22,15 @@
 #ifndef NETLOG_HPP
 #define NETLOG_HPP
 
+#include <format>
+
 #include "ailog.hpp"
 #include "transport.hpp"
 
 class NetLog {
+    const char* m_file;
+    const char* m_function;
     AiLog log;
-
-    inline void ProcessLog(const char* format, va_list args) noexcept { log.VLog(format, args); }
 
     inline void ProcessLog(NetPacket& packet) noexcept {
         uint8_t packet_type;
@@ -36,12 +38,13 @@ class NetLog {
 
         if (packet.Peek(0, &packet_type, sizeof(packet_type)) == sizeof(packet_type)) {
             if (packet_type < TRANSPORT_APPL_PACKET_ID) {
-                log.Log("Tp. packet (type %i).", packet_type);
+                log.Log(m_file, m_function, "Tp. packet (type {}).", packet_type);
 
             } else {
                 if (packet.GetDataSize() >= static_cast<int32_t>(sizeof(packet_type) + sizeof(entity_id)) &&
                     packet.Peek(sizeof(packet_type), &entity_id, sizeof(entity_id)) == sizeof(entity_id)) {
-                    log.Log("Appl. packet (type %i, id %4X).", packet_type - TRANSPORT_APPL_PACKET_ID, entity_id);
+                    log.Log(m_file, m_function, "Appl. packet (type {}, id {:4X}).",
+                            packet_type - TRANSPORT_APPL_PACKET_ID, entity_id);
                 }
             }
         }
@@ -50,28 +53,36 @@ class NetLog {
 public:
     NetLog() noexcept = delete;
 
-    NetLog(const char* format, ...) noexcept : log("Network Event") {
-        va_list args;
-
-        va_start(args, format);
-        ProcessLog(format, args);
-        va_end(args);
+    template <typename... Args>
+    NetLog(const char* file, const char* function, std::format_string<Args...> fmt, Args&&... args) noexcept
+        : m_file(file), m_function(function), log(file, function, "Network Event") {
+        auto message = std::format(fmt, std::forward<Args>(args)...);
+        log.Log(file, function, "{}", message);
     }
 
-    NetLog(NetPacket& packet) noexcept : log("Network Packet") { ProcessLog(packet); }
+    NetLog(const char* file, const char* function, NetPacket& packet) noexcept
+        : m_file(file), m_function(function), log(file, function, "Network Packet") {
+        ProcessLog(packet);
+    }
 
     ~NetLog() noexcept {}
 
-    inline void Log(const char* format, ...) noexcept {
-        va_list args;
-
-        va_start(args, format);
-        ProcessLog(format, args);
-        va_end(args);
+    template <typename... Args>
+    inline void Log(std::format_string<Args...> fmt, Args&&... args) noexcept {
+        auto message = std::format(fmt, std::forward<Args>(args)...);
+        log.Log(m_file, m_function, "{}", message);
     }
 
     inline void Log(NetPacket& packet) noexcept { ProcessLog(packet); }
 };
+
+#if !defined(NDEBUG)
+#define NETLOG(log, ...) NetLog log(__FILE__, __func__, __VA_ARGS__)
+#define NETLOG_LOG(log, ...) (log).Log(__FILE__, __func__, __VA_ARGS__)
+#else
+#define NETLOG(log, ...)
+#define NETLOG_LOG(log, ...)
+#endif /* !defined(NDEBUG) */
 
 inline void NetLog_Enable() noexcept { AiLog_Open(); }
 

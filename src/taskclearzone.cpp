@@ -36,7 +36,7 @@
 void TaskClearZone::PathFindResultCallback(Task* task, PathRequest* request, Point point, GroundPath* path,
                                            uint8_t result) {
     TaskClearZone* clear_zone = dynamic_cast<TaskClearZone*>(task);
-    AiLog log("Clear zone: path result.");
+    AILOG(log, "Clear zone: path result.");
 
     if (path && (!clear_zone->moving_unit || clear_zone->moving_unit->IsReadyForOrders(clear_zone)) &&
         GameManager_IsActiveTurn(clear_zone->team)) {
@@ -77,7 +77,7 @@ void TaskClearZone::PathFindResultCallback(Task* task, PathRequest* request, Poi
 
 void TaskClearZone::PathFindCancelCallback(Task* task, PathRequest* request) {
     TaskClearZone* clear_zone = dynamic_cast<TaskClearZone*>(task);
-    AiLog log("Clear zone: path cancelled.");
+    AILOG(log, "Clear zone: path cancelled.");
 
     if (clear_zone->moving_unit) {
         clear_zone->moving_unit->RemoveTask(clear_zone);
@@ -138,19 +138,19 @@ uint8_t TaskClearZone::GetType() const { return TaskType_TaskClearZone; }
 bool TaskClearZone::IsThinking() { return state != CLEARZONE_STATE_WAITING && state != CLEARZONE_STATE_MOVING_UNIT; }
 
 void TaskClearZone::Begin() {
-    AiLog log("Clear Zone: Begin.");
+    AILOG(log, "Clear Zone: Begin.");
 
     RemindTurnEnd();
 }
 
 void TaskClearZone::BeginTurn() {
-    AiLog log("Clear Zone: Begin Turn.");
+    AILOG(log, "Clear Zone: Begin Turn.");
 
     EndTurn();
 }
 
 void TaskClearZone::EndTurn() {
-    AiLog log("Clear Zone: End Turn.");
+    AILOG(log, "Clear Zone: End Turn.");
 
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
         if (GameManager_IsActiveTurn(team)) {
@@ -159,9 +159,9 @@ void TaskClearZone::EndTurn() {
                     state = CLEARZONE_STATE_WAITING;
 
                     if (moving_unit) {
-                        log.Log("Clear Zone: Move Finished for %s at [%i,%i].",
-                                UnitsManager_BaseUnits[moving_unit->GetUnitType()].singular_name,
-                                moving_unit->grid_x + 1, moving_unit->grid_y + 1);
+                        AILOG_LOG(log, "Clear Zone: Move Finished for {} at [{},{}].",
+                                  UnitsManager_BaseUnits[moving_unit->GetUnitType()].singular_name,
+                                  moving_unit->grid_x + 1, moving_unit->grid_y + 1);
 
                         moving_unit->RemoveTask(this);
 
@@ -214,8 +214,8 @@ void TaskClearZone::RemoveSelf() {
 
 void TaskClearZone::RemoveUnit(UnitInfo& unit) {
     if (moving_unit == unit) {
-        AiLog log("Clear Zone: Remove %s at [%i,%i].", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name,
-                  unit.grid_x + 1, unit.grid_y + 1);
+        AILOG(log, "Clear Zone: Remove {} at [{},{}].", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name,
+              unit.grid_x + 1, unit.grid_y + 1);
 
         moving_unit = nullptr;
         state = CLEARZONE_STATE_WAITING;
@@ -225,7 +225,7 @@ void TaskClearZone::RemoveUnit(UnitInfo& unit) {
 bool TaskClearZone::ExamineZones() {
     Point site;
     SmartPointer<Zone> zone;
-    AiLog log("Clear Zone: Examine Zones.");
+    AILOG(log, "Clear Zone: Examine Zones.");
 
     state = CLEARZONE_STATE_EXAMINING_ZONES;
 
@@ -312,7 +312,7 @@ bool TaskClearZone::ExamineZones() {
                         points1.Append(&site);
 
                     } else {
-                        log.Log("Anomalous block at [%i,%i].", site.x + 1, site.y + 1);
+                        AILOG_LOG(log, "Anomalous block at [{},{}].", site.x + 1, site.y + 1);
 
                         points2.Append(&site);
                     }
@@ -486,9 +486,9 @@ void TaskClearZone::SearchMap() {
 void TaskClearZone::AddZone(Zone* zone) {
     auto info_map = AiPlayer_Teams[team].GetInfoMap();
 
-    AiLog log("Clear Zone: Add Zone for %s at [%i,%i].",
-              UnitsManager_BaseUnits[zone->unit->GetUnitType()].singular_name, zone->unit->grid_x + 1,
-              zone->unit->grid_y + 1);
+    AILOG(log, "Clear Zone: Add Zone for {} at [{},{}].",
+          UnitsManager_BaseUnits[zone->unit->GetUnitType()].singular_name, zone->unit->grid_x + 1,
+          zone->unit->grid_y + 1);
 
     zones.Insert(zone);
 

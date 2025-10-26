@@ -39,7 +39,7 @@ char* TaskFindMines::WriteStatusLog(char* buffer) const {
 uint8_t TaskFindMines::GetType() const { return TaskType_TaskFindMines; }
 
 void TaskFindMines::BeginTurn() {
-    AiLog log("Find mines: begin turn");
+    AILOG(log, "Find mines: begin turn");
 
     SmartList<UnitInfo>::Iterator unit = units.Begin();
 
@@ -74,7 +74,7 @@ void TaskFindMines::BeginTurn() {
 bool TaskFindMines::Execute(UnitInfo& unit) {
     bool result;
 
-    AiLog log("Find mines: move finished.");
+    AILOG(log, "Find mines: move finished.");
 
     if (unit.IsReadyForOrders(this) && unit.speed) {
         FindDestination(unit, 1);
@@ -82,7 +82,7 @@ bool TaskFindMines::Execute(UnitInfo& unit) {
         result = true;
 
     } else {
-        log.Log("Not ready for orders.");
+        AILOG_LOG(log, "Not ready for orders.");
 
         result = false;
     }

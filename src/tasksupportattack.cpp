@@ -35,7 +35,7 @@ void TaskSupportAttack::ObtainUnits(uint32_t unit_flags_) {
     bool needs_repair_unit = true;
     int32_t highest_scan;
 
-    AiLog log("Support attack: get units");
+    AILOG(log, "Support attack: get units");
 
     unit_flags = unit_flags_;
 
@@ -100,7 +100,7 @@ bool TaskSupportAttack::IssueOrders(UnitInfo* unit) {
     bool result;
 
     if (unit->IsReadyForOrders(this) && parent && unit->speed > 0) {
-        AiLog log("Support attack: give orders to %s.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+        AILOG(log, "Support attack: give orders to {}.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
         if (unit->ammo >= unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {
             if (unit->hits < unit->GetBaseValues()->GetAttribute(ATTRIB_HITS) / 4) {
@@ -117,7 +117,7 @@ bool TaskSupportAttack::IssueOrders(UnitInfo* unit) {
             }
 
         } else {
-            log.Log("Removing unit, low on ammunition.");
+            AILOG_LOG(log, "Removing unit, low on ammunition.");
 
             TaskManager.RemindAvailable(unit);
 
@@ -212,7 +212,7 @@ void TaskSupportAttack::EndTurn() { AddReminders(); }
 bool TaskSupportAttack::Execute(UnitInfo& unit) {
     bool result;
 
-    AiLog log("Support attack: think about moving %s", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+    AILOG(log, "Support attack: think about moving {}", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
     if (parent) {
         if (unit.IsReadyForOrders(this)) {

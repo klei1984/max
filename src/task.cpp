@@ -93,7 +93,7 @@ void Task_RemoveMovementTasks(UnitInfo* unit) {
     if (unit->GetOrder() != ORDER_IDLE || unit->hits <= 0) {
         for (SmartList<Task>::Iterator it = unit->GetTasks().Begin(); it != unit->GetTasks().End(); ++it) {
             if ((*it).GetType() == TaskType_TaskMove || (*it).GetType() == TaskType_TaskFindPath) {
-                AiLog log("Move %s: removing old move task", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+                AILOG(log, "Move {}: removing old move task", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
 
                 unit->RemoveTask(&*it, false);
                 (*it).RemoveUnit(*unit);
@@ -152,7 +152,7 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
         }
 
         if (team != PLAYER_TEAM_ALIEN) {
-            AiLog log("Determine if %s should reserve a shot at [%i,%i].",
+            AILOG(log, "Determine if {} should reserve a shot at [{},{}].",
                       UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, site.x + 1, site.y + 1);
 
             if (Ai_IsDangerousLocation(unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
@@ -183,7 +183,7 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
                                     unit_range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
                                 } else {
-                                    log.Log("%s at [%i,%i] outranges us.",
+                                    AILOG_LOG(log, "{} at [{},{}] outranges us.",
                                             UnitsManager_BaseUnits[spotted_unit->GetUnitType()].singular_name,
                                             (*it).GetLastPositionX(), (*it).GetLastPositionY());
 
@@ -198,12 +198,12 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
                 }
 
                 if (unit_range) {
-                    log.Log("Square is dangerous but there are no longer range threats.");
+                    AILOG_LOG(log, "Square is dangerous but there are no longer range threats.");
 
                     result = true;
 
                 } else {
-                    log.Log("No danger.");
+                    AILOG_LOG(log, "No danger.");
 
                     result = false;
                 }

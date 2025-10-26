@@ -93,7 +93,7 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
         list = &UnitsManager_MobileLandSeaUnits;
     }
 
-    AiLog log("Obtain Unit: Find %s ", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Obtain Unit: Find {} ", UnitsManager_BaseUnits[unit_type].singular_name);
 
     for (SmartList<UnitInfo>::Iterator unit = list->Begin(); unit != list->End(); ++unit) {
         if ((*unit).GetUnitType() == unit_type) {
@@ -124,18 +124,18 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
 
     if (selected_unit) {
         if (!is_unit_available) {
-            log.Log("%s at [%i,%i] has %i turns left to build",
-                    UnitsManager_BaseUnits[selected_unit->GetUnitType()].singular_name, selected_unit->grid_x + 1,
-                    selected_unit->grid_y + 1, selected_unit->build_time);
+            AILOG_LOG(log, "{} at [{},{}] has {} turns left to build",
+                      UnitsManager_BaseUnits[selected_unit->GetUnitType()].singular_name, selected_unit->grid_x + 1,
+                      selected_unit->grid_y + 1, selected_unit->build_time);
 
             selected_unit = nullptr;
 
         } else {
-            log.Log("found.");
+            AILOG_LOG(log, "found.");
         }
 
     } else {
-        log.Log("not found.");
+        AILOG_LOG(log, "not found.");
     }
 
     return selected_unit;
@@ -193,7 +193,7 @@ void TaskObtainUnits::AddUnit(UnitInfo& unit) {
 
     int32_t index = units->Find(&unit_type);
 
-    AiLog log("Obtain Units: Add %s %i.", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name, unit.unit_id);
+    AILOG(log, "Obtain Units: Add {} {}.", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name, unit.unit_id);
 
     if (CountInstancesOfUnitType(unit.GetUnitType())) {
         units->Remove(index);
@@ -220,7 +220,7 @@ void TaskObtainUnits::Begin() {
 }
 
 void TaskObtainUnits::BeginTurn() {
-    AiLog log("Obtain Unit: Begin Turn");
+    AILOG(log, "Obtain Unit: Begin Turn");
 
     reinit = true;
     EndTurn();
@@ -283,7 +283,7 @@ void TaskObtainUnits::EndTurn() {
 }
 
 void TaskObtainUnits::RemoveSelf() {
-    AiLog log("Obtain Unit: Parent Complete");
+    AILOG(log, "Obtain Unit: Parent Complete");
 
     units.Clear();
     parent = nullptr;

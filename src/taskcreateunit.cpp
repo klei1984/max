@@ -74,7 +74,7 @@ char* TaskCreateUnit::WriteStatusLog(char* buffer) const {
 uint8_t TaskCreateUnit::GetType() const { return TaskType_TaskCreateUnit; }
 
 void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
-    AiLog log("Task Create Unit: Add builder %s.", UnitsManager_BaseUnits[unit_.GetUnitType()].singular_name);
+    AILOG(log, "Task Create Unit: Add builder {}.", UnitsManager_BaseUnits[unit_.GetUnitType()].singular_name);
 
     if (op_state == CREATE_UNIT_STATE_OBTAININING_BUILDER && (unit_.flags & STATIONARY)) {
         op_state = CREATE_UNIT_STATE_WAITING_FOR_MATERIALS;
@@ -123,7 +123,7 @@ void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
 }
 
 void TaskCreateUnit::Begin() {
-    AiLog log("Task Create Unit: Begin.");
+    AILOG(log, "Task Create Unit: Begin.");
 
     if (builder) {
         builder->AddTask(this);
@@ -133,7 +133,7 @@ void TaskCreateUnit::Begin() {
 }
 
 void TaskCreateUnit::BeginTurn() {
-    AiLog log("Task Create Unit: Begin Turn.");
+    AILOG(log, "Task Create Unit: Begin Turn.");
 
     if (op_state == CREATE_UNIT_STATE_WAITING_FOR_MATERIALS) {
         WaitForMaterials();
@@ -153,7 +153,7 @@ void TaskCreateUnit::BeginTurn() {
 }
 
 void TaskCreateUnit::EndTurn() {
-    AiLog log("Create %s: End Turn.", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Create {}: End Turn.", UnitsManager_BaseUnits[unit_type].singular_name);
 
     if (op_state == CREATE_UNIT_STATE_INITIALIZING) {
         const auto builder_type = Builder_GetBuilderType(unit_type);
@@ -189,7 +189,7 @@ bool TaskCreateUnit::Execute(UnitInfo& unit_) {
 }
 
 void TaskCreateUnit::RemoveUnit(UnitInfo& unit_) {
-    AiLog log("Task Create Unit: Remove %s.", UnitsManager_BaseUnits[unit_.GetUnitType()].singular_name);
+    AILOG(log, "Task Create Unit: Remove {}.", UnitsManager_BaseUnits[unit_.GetUnitType()].singular_name);
 
     if (builder == unit_) {
         if (op_state <= CREATE_UNIT_STATE_BUILDING) {
@@ -348,7 +348,7 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
                 result = true;
 
             } else {
-                AiLog log("Create %s: aborting, no longer needed.", UnitsManager_BaseUnits[unit_type].singular_name);
+                AILOG(log, "Create {}: aborting, no longer needed.", UnitsManager_BaseUnits[unit_type].singular_name);
 
                 if (op_state == CREATE_UNIT_STATE_BUILDING && builder) {
                     UnitsManager_SetNewOrder(&*builder, ORDER_HALT_BUILDING, ORDER_STATE_BUILD_CANCEL);

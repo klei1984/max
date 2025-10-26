@@ -29,7 +29,7 @@
 #include "units_manager.hpp"
 
 void TaskAbstractSearch::FindDestination(UnitInfo& unit, int32_t radius) {
-    AiLog log("Abstract Search: Find Destination");
+    AILOG(log, "Abstract Search: Find Destination");
 
     if (!Task_RetreatFromDanger(this, &unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE) && IsInitNeeded() && unit.speed) {
         ChangeInitNeededFlag(false);
@@ -51,7 +51,7 @@ TaskAbstractSearch::~TaskAbstractSearch() {}
 Point TaskAbstractSearch::GetPoint() const { return point; }
 
 void TaskAbstractSearch::AddUnit(UnitInfo& unit) {
-    AiLog log("Abstract search: Add %s", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+    AILOG(log, "Abstract search: Add {}", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
     units.PushBack(unit);
     unit.AddTask(this);
@@ -61,7 +61,7 @@ void TaskAbstractSearch::AddUnit(UnitInfo& unit) {
 void TaskAbstractSearch::BeginTurn() { EndTurn(); }
 
 void TaskAbstractSearch::ChildComplete(Task* task) {
-    AiLog log("Abstract Search:: Child Complete.");
+    AILOG(log, "Abstract Search:: Child Complete.");
 
     if (task->GetType() == TaskType_TaskObtainUnits) {
         --requestors;
@@ -70,12 +70,12 @@ void TaskAbstractSearch::ChildComplete(Task* task) {
             requestors = 0;
         }
 
-        log.Log("Requestors open: %i", requestors);
+        AILOG_LOG(log, "Requestors open: {}", requestors);
     }
 }
 
 void TaskAbstractSearch::EndTurn() {
-    AiLog log("Abstract search end turn");
+    AILOG(log, "Abstract search end turn");
 
     if (units.GetCount()) {
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
@@ -118,8 +118,8 @@ void TaskAbstractSearch::RemoveSelf() {
 }
 
 void TaskAbstractSearch::RemoveUnit(UnitInfo& unit) {
-    AiLog log("Abstract search: Remove %s (requestors open: %i)",
-              UnitsManager_BaseUnits[unit.GetUnitType()].singular_name, requestors);
+    AILOG(log, "Abstract search: Remove {} (requestors open: {})",
+          UnitsManager_BaseUnits[unit.GetUnitType()].singular_name, requestors);
 
     units.Remove(unit);
 }

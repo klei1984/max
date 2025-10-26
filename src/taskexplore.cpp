@@ -48,7 +48,7 @@ bool TaskExplore::IsUnitUsable(UnitInfo& unit) {
     if (obtain_requests[unit.GetUnitType()]) {
         int32_t unit_count = 0;
 
-        AiLog log("Can explore task use %s?", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+        AILOG(log, "Can explore task use {}?", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
             if ((*it).GetUnitType() == unit.GetUnitType()) {
@@ -56,7 +56,7 @@ bool TaskExplore::IsUnitUsable(UnitInfo& unit) {
             }
         }
 
-        log.Log("Task has %i %s", unit_count, UnitsManager_BaseUnits[unit.GetUnitType()].plural_name);
+        AILOG_LOG(log, "Task has {} {}", unit_count, UnitsManager_BaseUnits[unit.GetUnitType()].plural_name);
 
         if (unit.GetUnitType() == SCOUT || unit.GetUnitType() == FASTBOAT) {
             result = unit_count < 3;
@@ -84,7 +84,7 @@ bool TaskExplore::Execute(UnitInfo& unit) {
     bool result;
 
     if (unit.IsReadyForOrders(this) && unit.speed) {
-        AiLog log("Explore: Move Finished");
+        AILOG(log, "Explore: Move Finished");
 
         FindDestination(unit, unit.GetBaseValues()->GetAttribute(ATTRIB_SCAN));
 

@@ -45,7 +45,7 @@ void TaskRepair::ChooseOperator() {
     if (target_unit != nullptr) {
         operator_unit = nullptr;
 
-        AiLog log("Choose unit to repair %s.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name);
+        AILOG(log, "Choose unit to repair {}.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name);
 
         unit = SelectRepairShop();
 
@@ -69,7 +69,7 @@ void TaskRepair::ChooseOperator() {
         }
 
         if (operator_unit != nullptr) {
-            log.Log("Found %s.", UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
+            AILOG_LOG(log, "Found {}.", UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
 
             operator_unit->AddTask(this);
         }
@@ -81,8 +81,8 @@ void TaskRepair::DoRepairs() {
         (operator_unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == 0) {
         if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
             if (GameManager_IsActiveTurn(team)) {
-                AiLog log("Repair/reload %s: perform repair.",
-                          UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name);
+                AILOG(log, "Repair/reload {}: perform repair.",
+                      UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name);
 
                 if (operator_unit->flags & STATIONARY) {
                     Cargo materials;
@@ -96,8 +96,8 @@ void TaskRepair::DoRepairs() {
                         }
 
                     } else {
-                        log.Log("%s has no material.",
-                                UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
+                        AILOG_LOG(log, "{} has no material.",
+                                  UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
                     }
 
                 } else if (operator_unit->storage > 0) {
@@ -153,7 +153,7 @@ void TaskRepair::RemoveOperator() {
 }
 
 void TaskRepair::RendezvousResultCallback(Task* task, UnitInfo* unit, char result) {
-    AiLog log("Repair: rendezvous result.");
+    AILOG(log, "Repair: rendezvous result.");
 
     if (result == TASKMOVE_RESULT_BLOCKED) {
         dynamic_cast<TaskRepair*>(task)->RemoveOperator();
@@ -250,7 +250,7 @@ Rect* TaskRepair::GetBounds(Rect* bounds) {
 uint8_t TaskRepair::GetType() const { return TaskType_TaskRepair; }
 
 void TaskRepair::Begin() {
-    AiLog log("Begin repair/reload/upgrade unit.");
+    AILOG(log, "Begin repair/reload/upgrade unit.");
 
     target_unit->AddTask(this);
     CreateUnit();
@@ -270,7 +270,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
     bool result;
 
     if (target_unit == unit && target_unit->GetTask() == this) {
-        AiLog log("Repair/reload %s move unit.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name);
+        AILOG(log, "Repair/reload {} move unit.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name);
 
         if (IsInPerfectCondition()) {
             SmartPointer<Task> task;
@@ -313,8 +313,9 @@ bool TaskRepair::Execute(UnitInfo& unit) {
             } else {
                 if (target_unit->GetOrderState() == ORDER_STATE_STORE) {
                     if (GameManager_IsActiveTurn(team)) {
-                        log.Log("%s is inside %s.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name,
-                                UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
+                        AILOG_LOG(log, "{} is inside {}.",
+                                  UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name,
+                                  UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
 
                         DoRepairs();
                     }
@@ -325,8 +326,8 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                     if ((operator_unit->flags & STATIONARY) || operator_unit->storage > 0 ||
                         operator_unit->GetTask() != this) {
                         if (Task_IsAdjacent(&*operator_unit, target_unit->grid_x, target_unit->grid_y)) {
-                            log.Log("Adjacent to %s.",
-                                    UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
+                            AILOG_LOG(log, "Adjacent to {}.",
+                                      UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
 
                             if (GameManager_PlayMode != PLAY_MODE_UNKNOWN && GameManager_IsActiveTurn(team)) {
                                 if (operator_unit->flags & STATIONARY) {
@@ -334,7 +335,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                                         // only enter repair shop if there is free capacity in it
                                         if (Access_GetStoredUnitCount(&*operator_unit) <
                                             operator_unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
-                                            log.Log("Sending Board order.");
+                                            AILOG_LOG(log, "Sending Board order.");
 
                                             target_unit->target_grid_x = operator_unit->grid_x;
                                             target_unit->target_grid_y = operator_unit->grid_y;
@@ -428,8 +429,8 @@ void TaskRepair::RemoveSelf() {
 }
 
 void TaskRepair::RemoveUnit(UnitInfo& unit) {
-    AiLog log("Repair %s: remove %s.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name,
-              UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+    AILOG(log, "Repair {}: remove {}.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name,
+          UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
 
     if (target_unit == unit) {
         SmartPointer<Task> task(this);
@@ -515,7 +516,7 @@ void TaskRepair::CreateUnit() {
 }
 
 void TaskRepair::IssueOrder() {
-    AiLog log("Sending repair order.");
+    AILOG(log, "Sending repair order.");
 
     operator_unit->SetParent(&*target_unit);
 

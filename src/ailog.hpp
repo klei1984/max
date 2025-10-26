@@ -24,32 +24,81 @@
 
 #include <SDL_mutex.h>
 
+#include <chrono>
+#include <cstdarg>
 #include <cstdint>
+#include <format>
 #include <fstream>
+#include <optional>
+#include <regex>
+#include <string>
+#include <string_view>
+
+#include "resource_manager.hpp"
 
 class AiLog {
     static std::ofstream AiLog_File;
     static SDL_mutex* AiLog_Mutex;
     static int32_t AiLog_SectionCount;
     static int32_t AiLog_EntryCount;
+    static int32_t AiLog_EntryLimit;
+    static std::optional<std::regex> AiLog_Filter;
 
-    uint32_t time_stamp;
+    std::chrono::steady_clock::time_point m_time_stamp;
+    const char* m_file;
+    const char* m_function;
+    const bool m_is_filtered;
 
     static void AiLog_InitMutex();
-    void VSprintf(const char* format, va_list args);
-    void NoLockLog(const char* format, ...);
+    void WriteLog(std::string_view message);
+    void NoLockLog(std::string_view message);
+    [[nodiscard]] bool ShouldFilter() const noexcept;
 
     friend void AiLog_Open();
     friend void AiLog_Close();
     friend bool AiLog_IsEnabled() noexcept;
 
 public:
-    AiLog(const char* format, ...);
+    template <typename... Args>
+    AiLog(const char* file, const char* function, std::format_string<Args...> fmt, Args&&... args)
+        : m_time_stamp(std::chrono::steady_clock::now()),
+          m_file(file),
+          m_function(function),
+          m_is_filtered(ShouldFilter()) {
+        AiLog_InitMutex();
+
+        ResourceManager_MutexLock lock(AiLog_Mutex);
+
+        if (AiLog_File.is_open() && !m_is_filtered) {
+            auto message = std::format(fmt, std::forward<Args>(args)...);
+            WriteLog(message);
+        }
+
+        ++AiLog_SectionCount;
+    }
+
     ~AiLog();
 
-    void Log(const char* format, ...);
-    void VLog(const char* format, va_list args);
+    template <typename... Args>
+    void Log(const char* file, const char* function, std::format_string<Args...> fmt, Args&&... args) {
+        AiLog_InitMutex();
+
+        ResourceManager_MutexLock lock(AiLog_Mutex);
+
+        if (AiLog_File.is_open() && !m_is_filtered) {
+            auto message = std::format(fmt, std::forward<Args>(args)...);
+            WriteLog(message);
+        }
+    }
 };
+
+#if !defined(NDEBUG)
+#define AILOG(log, ...) AiLog log(__FILE__, __func__, __VA_ARGS__)
+#define AILOG_LOG(log, ...) (log).Log(__FILE__, __func__, __VA_ARGS__)
+#else
+#define AILOG(log, ...)
+#define AILOG_LOG(log, ...)
+#endif /* !defined(NDEBUG) */
 
 void AiLog_Open();
 void AiLog_Close();

@@ -1284,13 +1284,13 @@ void UnitInfo::AddTask(Task* task) {
     SmartPointer<Task> old_task(GetTask());
     char text[100];
 
-    AiLog log("Adding task to %s %i: %s", UnitsManager_BaseUnits[unit_type].singular_name, unit_id,
-              task->WriteStatusLog(text));
+    AILOG(log, "Adding task to {} {}: {}", UnitsManager_BaseUnits[unit_type].singular_name, unit_id,
+          task->WriteStatusLog(text));
 
     tasks.PushFront(*task);
 
     if (old_task) {
-        log.Log("Old topmost task: %s", old_task->WriteStatusLog(text));
+        AILOG_LOG(log, "Old topmost task: {}", old_task->WriteStatusLog(text));
     }
 }
 
@@ -3758,18 +3758,19 @@ int32_t UnitInfo::GetMaxAllowedBuildRate() {
 }
 
 void UnitInfo::StopMovement() {
-    AiLog log("%s at [%i,%i]: Emergency Stop", UnitsManager_BaseUnits[unit_type].singular_name, grid_x + 1, grid_y + 1);
+    AILOG(log, "{} at [{},{}]: Emergency Stop", UnitsManager_BaseUnits[unit_type].singular_name, grid_x + 1,
+          grid_y + 1);
 
     if (orders == ORDER_MOVE && path != nullptr) {
         if (state == ORDER_STATE_IN_PROGRESS || state == ORDER_STATE_IN_TRANSITION) {
             path->CancelMovement(this);
 
         } else {
-            log.Log("Not in move / turn state.");
+            AILOG_LOG(log, "Not in move / turn state.");
         }
 
     } else {
-        log.Log("Not moving.");
+        AILOG_LOG(log, "Not moving.");
     }
 }
 
@@ -4203,8 +4204,8 @@ void UnitInfo::RemoveTask(Task* task, bool mode) {
     SmartPointer<Task> unit_task(GetTask());
     char text[100];
 
-    AiLog log("Removing task from %s %i: %s", UnitsManager_BaseUnits[unit_type].singular_name, unit_id,
-              task->WriteStatusLog(text));
+    AILOG(log, "Removing task from {} {}: {}", UnitsManager_BaseUnits[unit_type].singular_name, unit_id,
+          task->WriteStatusLog(text));
 
     if (unit_task) {
         SmartPointer<Task> reference_task;
@@ -4214,10 +4215,10 @@ void UnitInfo::RemoveTask(Task* task, bool mode) {
         reference_task = GetTask();
 
         if (unit_task == reference_task) {
-            log.Log("No change in top task (%s)", unit_task->WriteStatusLog(text));
+            AILOG_LOG(log, "No change in top task ({})", unit_task->WriteStatusLog(text));
 
         } else if (tasks.GetCount() > 0) {
-            log.Log("New topmost task: %s", reference_task->WriteStatusLog(text));
+            AILOG_LOG(log, "New topmost task: {}", reference_task->WriteStatusLog(text));
 
             if (mode && Task_IsReadyToTakeOrders(this)) {
                 Task_RemindMoveFinished(this);
@@ -4227,7 +4228,7 @@ void UnitInfo::RemoveTask(Task* task, bool mode) {
     } else {
         SDL_assert(tasks.GetCount() == 0);
 
-        log.Log("Unit has no tasks!");
+        AILOG_LOG(log, "Unit has no tasks!");
     }
 }
 
