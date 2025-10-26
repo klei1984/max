@@ -80,7 +80,7 @@ public:
     ~AiLog();
 
     template <typename... Args>
-    void Log(const char* file, const char* function, std::format_string<Args...> fmt, Args&&... args) {
+    void Log(std::format_string<Args...> fmt, Args&&... args) {
         AiLog_InitMutex();
 
         ResourceManager_MutexLock lock(AiLog_Mutex);
@@ -94,7 +94,7 @@ public:
 
 #if !defined(NDEBUG)
 #define AILOG(log, ...) AiLog log(__FILE__, __func__, __VA_ARGS__)
-#define AILOG_LOG(log, ...) (log).Log(__FILE__, __func__, __VA_ARGS__)
+#define AILOG_LOG(log, ...) (log).Log(__VA_ARGS__)
 #else
 #define AILOG(log, ...)
 #define AILOG_LOG(log, ...)

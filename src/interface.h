@@ -27,12 +27,12 @@
 
 #include "rect.h"
 
-#define GNW_WCOLOR_0 0x100
-#define GNW_WCOLOR_1 0x101
-#define GNW_WCOLOR_2 0x102
-#define GNW_WCOLOR_3 0x103
-#define GNW_WCOLOR_4 0x104
-#define GNW_WCOLOR_5 0x105
+#define GNW_WCOLOR_0 0u
+#define GNW_WCOLOR_1 1u
+#define GNW_WCOLOR_2 2u
+#define GNW_WCOLOR_3 3u
+#define GNW_WCOLOR_4 4u
+#define GNW_WCOLOR_5 5u
 #define GNW_WCOLOR_COUNT 6u
 
 enum {

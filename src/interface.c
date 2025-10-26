@@ -412,7 +412,7 @@ int32_t win_debug(const char* str) {
         int32_t text_height = Text_GetHeight();
 
         if (wd == -1) {
-            wd = win_add(80, 80, 300, 192, GNW_WCOLOR_0, WINDOW_MODAL | WINDOW_MOVE_ON_TOP);
+            wd = win_add(80, 80, 300, 192, GNW_WCOLOR_0 | 0x100, WINDOW_MODAL | WINDOW_MOVE_ON_TOP);
 
             if (wd != -1) {
                 ButtonID button_id;
@@ -422,16 +422,16 @@ int32_t win_debug(const char* str) {
 
                 buffer = GNW_find(wd)->buf;
 
-                win_fill(wd, 8, 8, 282 + 2, text_height, GNW_WCOLOR_1);
+                win_fill(wd, 8, 8, 282 + 2, text_height, GNW_WCOLOR_1 | 0x100);
 
                 text_width = Text_GetWidth("Debug");
 
-                win_print(wd, "Debug", 0, (300 - text_width) / 2, 8, GNW_TEXT_FILL_WINDOW | GNW_WCOLOR_4);
+                win_print(wd, "Debug", 0, (300 - text_width) / 2, 8, GNW_TEXT_FILL_WINDOW | GNW_WCOLOR_4 | 0x100);
 
                 draw_shaded_box(buffer, 300, 8, 8, 282 + 9, text_height + 8, Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_2]),
                                 Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_1]));
 
-                win_fill(wd, 9, 26, 282, 135, GNW_WCOLOR_1);
+                win_fill(wd, 9, 26, 282, 135, GNW_WCOLOR_1 | 0x100);
 
                 draw_shaded_box(buffer, 300, 8, 25, 291, text_height + 145, Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_2]),
                                 Color_RGB2Color(GNW_wcolor[GNW_WCOLOR_1]));
@@ -472,13 +472,13 @@ int32_t win_debug(const char* str) {
 
                     curry -= text_height;
 
-                    win_fill(wd, 9, curry, 282, text_height, GNW_WCOLOR_1);
+                    win_fill(wd, 9, curry, 282, text_height, GNW_WCOLOR_1 | 0x100);
                 }
 
                 if (*str != '\n') {
                     character[0] = *str;
 
-                    win_print(wd, character, 0, currx, curry, GNW_TEXT_FILL_WINDOW | GNW_WCOLOR_4);
+                    win_print(wd, character, 0, currx, curry, GNW_TEXT_FILL_WINDOW | GNW_WCOLOR_4 | 0x100);
 
                     currx += glyph_width + Text_GetSpacing();
                 }
