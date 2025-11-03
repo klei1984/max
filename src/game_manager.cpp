@@ -6519,6 +6519,17 @@ void GameManager_ProcessInput() {
         GameManager_GridOffset.y = position_change.y;
     }
 
+    if (GameManager_IsMainMenuEnabled) {
+        int32_t wheel_delta_x;
+        int32_t wheel_delta_y;
+
+        mouse_get_wheel_delta(&wheel_delta_x, &wheel_delta_y);
+
+        if (wheel_delta_y != 0) {
+            GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, Gfx_ZoomLevel + wheel_delta_y, 0, false);
+        }
+    }
+
     {
         MouseEvent mouse_event;
 

@@ -34,6 +34,7 @@ static void mouse_colorize(void);
 static void mouse_clip(void);
 
 static double mouse_sensitivity = 1.0;
+static int32_t mouse_wheel_sensitivity = 3;
 static uint8_t or_mask[64] = {1,  1,  1,  1,  1,  1,  1,  0, 1, 15, 15, 15, 15, 15, 1,  0,  1, 15, 15, 15, 15, 1,
                               1,  0,  1,  15, 15, 15, 15, 1, 1, 0,  1,  15, 15, 15, 15, 15, 1, 1,  1,  15, 1,  1,
                               15, 15, 15, 1,  1,  1,  1,  1, 1, 15, 15, 1,  0,  0,  0,  0,  1, 1,  1,  1};
@@ -57,6 +58,8 @@ static int32_t have_mouse;
 static int32_t mouse_width;
 static int32_t mouse_lock;
 static char mouse_trans;
+static int32_t mouse_wheel_x;
+static int32_t mouse_wheel_y;
 
 ScreenBlitFunc mouse_blit;
 
@@ -71,6 +74,8 @@ int32_t GNW_mouse_init(void) {
         mouse_disabled = 0;
         mouse_is_hidden = 1;
         mouse_lock = (window_flags & SDL_WINDOW_FULLSCREEN) ? MOUSE_LOCK_LOCKED : MOUSE_LOCK_UNLOCKED;
+        mouse_wheel_x = 0;
+        mouse_wheel_y = 0;
 
         mouse_blit = scr_blit;
 
@@ -540,3 +545,23 @@ double mouse_get_sensitivity(void) { return mouse_sensitivity; }
 int32_t mouse_get_lock(void) { return mouse_lock; }
 
 void mouse_set_lock(int32_t state) { mouse_lock = state; }
+
+void mouse_add_wheel_event(int32_t delta_x, int32_t delta_y) {
+    mouse_wheel_x += delta_x;
+    mouse_wheel_y += delta_y;
+}
+
+void mouse_get_wheel_delta(int32_t* delta_x, int32_t* delta_y) {
+    *delta_x = mouse_wheel_x * mouse_wheel_sensitivity;
+    *delta_y = mouse_wheel_y * mouse_wheel_sensitivity;
+    mouse_wheel_x = 0;
+    mouse_wheel_y = 0;
+}
+
+void mouse_set_wheel_sensitivity(int32_t new_sensitivity) {
+    if (new_sensitivity >= 1 && new_sensitivity <= 10) {
+        mouse_wheel_sensitivity = new_sensitivity;
+    }
+}
+
+int32_t mouse_get_wheel_sensitivity(void) { return mouse_wheel_sensitivity; }

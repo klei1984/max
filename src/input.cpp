@@ -264,6 +264,9 @@ void GNW_process_message(void) {
                     }
                 }
             } break;
+            case SDL_MOUSEWHEEL: {
+                mouse_add_wheel_event(ev.wheel.x, ev.wheel.y);
+            } break;
             case SDL_WINDOWEVENT: {
                 if (!SDL_GetRelativeMouseMode()) {
                     switch (ev.window.event) {

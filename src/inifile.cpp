@@ -117,6 +117,7 @@ static const IniKey ini_keys_table[] = {
     {"language", "english", INI_STRING},
     {"game_data", "", INI_STRING},
     {"cheating_computer", "3", INI_NUMERIC},
+    {"mouse_wheel_sensitivity", "3", INI_NUMERIC},
 
     {"OPTIONS", nullptr, INI_SECTION},
     {"world", "0", INI_NUMERIC},

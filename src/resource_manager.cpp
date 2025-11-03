@@ -501,6 +501,8 @@ void ResourceManager_InitInternals() {
         ResourceManager_ExitGame(EXIT_CODE_SCREEN_INIT_FAILED);
     }
 
+    mouse_set_wheel_sensitivity(ini_get_setting(INI_MOUSE_WHEEL_SENSITIVITY));
+
     SDL_SetAssertionHandler(&ResourceManager_AssertionHandler, nullptr);
 
     if (SDL_GetSystemRAM() < ResourceManager_MinimumMemoryEnhancedGfx) {
