@@ -25,18 +25,16 @@
 #include <cstring>
 #include <new>
 
-/* Convert key codes 128-255 to code page 437 characters */
-static const int16_t TextEdit_KeyToAsciiMap[] = {
-    '\0', '\0', '\0', 159,  '\0', '\0', '\0', '\0', 94,   '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
-    '\0', '\0', '\0', 45,   95,   126,  '\0', '\0', '\0', '\0', '\0', '\0', 152,  '\0', 173,  155,  156,  214,  157,
-    124,  213,  215,  '\0', 166,  174,  170,  '\0', '\0', '\0', 248,  241,  '\0', '\0', 216,  230,  20,   250,  '\0',
-    '\0', 248,  175,  172,  171,  '\0', 168,  192,  193,  194,  195,  142,  143,  146,  128,  196,  144,  197,  198,
-    217,  199,  200,  201,  '\0', 165,  202,  203,  204,  205,  153,  218,  '\0', 206,  207,  208,  154,  209,  '\0',
-    225,  133,  160,  131,  210,  132,  134,  145,  135,  138,  130,  136,  137,  141,  161,  140,  139,  '\0', 164,
-    149,  162,  147,  211,  148,  246,  237,  151,  163,  150,  129,  212,  '\0', '\0',
-};
+#include "input.h"
+#include "utf8.hpp"
 
-static_assert(sizeof(TextEdit_KeyToAsciiMap) == 128 * sizeof(const int16_t));
+/* Active TextEdit instance for UTF-8 input routing */
+static TextEdit* g_active_text_edit = nullptr;
+
+/* Static callback wrapper for UTF-8 input */
+static int32_t TextEdit_UTF8InputCallback(const char* utf8_text) {
+    return (g_active_text_edit) ? g_active_text_edit->ProcessUTF8Input(utf8_text) : 0;
+}
 
 TextEdit::TextEdit(WindowInfo* window, char* text, int32_t buffer_size, int32_t ulx, int32_t uly, int32_t width,
                    int32_t height, uint16_t color, int32_t font_num)
@@ -52,6 +50,7 @@ TextEdit::TextEdit(WindowInfo* window, char* text, int32_t buffer_size, int32_t 
       cursor_position(0),
       time_stamp(0) {
     Text_SetFont(this->font_num);
+
     uly += (height - Text_GetHeight()) / 2;
 
     this->window.buffer = &window->buffer[window->width * uly + ulx];
@@ -66,6 +65,7 @@ TextEdit::TextEdit(WindowInfo* window, char* text, int32_t buffer_size, int32_t 
     text_before_cursor = new (std::nothrow) char[buffer_size];
 
     strcpy(edited_text, text);
+
     bg_image = new (std::nothrow) Image(0, 0, width, Text_GetHeight());
 }
 
@@ -86,6 +86,11 @@ void TextEdit::EnterTextEditField() {
         time_stamp = timer_get();
 
         is_being_edited = true;
+
+        /* Register this TextEdit instance for UTF-8 input */
+        g_active_text_edit = this;
+
+        GNW_register_utf8_input(TextEdit_UTF8InputCallback);
     }
 
     cursor_blink = false;
@@ -101,8 +106,16 @@ void TextEdit::LeaveTextEditField() {
     if (is_being_edited) {
         is_being_edited = false;
 
+        /* Unregister UTF-8 input callback */
+        if (g_active_text_edit == this) {
+            g_active_text_edit = nullptr;
+
+            GNW_unregister_utf8_input();
+        }
+
         if (cursor_blink) {
             cursor_blink = false;
+
             DrawTillCursor();
         }
 
@@ -128,10 +141,12 @@ void TextEdit::DrawFullText(int32_t refresh_screen) {
     int32_t color;
 
     Text_SetFont(font_num);
+
     bg_image->Write(&window);
 
     if (is_being_edited && is_selected) {
         color = 0xFF;
+
     } else {
         color = this->color;
     }
@@ -176,7 +191,6 @@ void TextEdit::DrawTillCursor() {
 void TextEdit::SetCursorPosition(int32_t position) {
     is_selected = false;
     cursor_blink = false;
-    int32_t text_size;
 
     DrawTillCursor();
 
@@ -184,10 +198,11 @@ void TextEdit::SetCursorPosition(int32_t position) {
         position = 0;
     }
 
-    text_size = strlen(edited_text);
+    /* Note: cursor_position is stored as byte offset, not codepoint index */
+    size_t text_byte_size = strlen(edited_text);
 
-    if (position > text_size) {
-        position = text_size;
+    if (static_cast<size_t>(position) > text_byte_size) {
+        position = text_byte_size;
     }
 
     cursor_position = position;
@@ -199,25 +214,29 @@ void TextEdit::SetCursorPosition(int32_t position) {
 void TextEdit::Delete() {
     if (is_selected) {
         Clear();
+
     } else {
-        int32_t text_size;
+        size_t text_size = strlen(edited_text);
 
-        text_size = strlen(edited_text);
-
-        if (cursor_position != text_size) {
+        if (cursor_position < text_size) {
             cursor_blink = false;
+
             DrawTillCursor();
 
+            size_t next_char_offset = utf8_next_char_offset(edited_text, cursor_position);
+
             strncpy(text_before_cursor, edited_text, cursor_position);
+
             text_before_cursor[cursor_position] = '\0';
 
-            strcat(text_before_cursor, &edited_text[cursor_position + 1]);
+            strcat(text_before_cursor, &edited_text[next_char_offset]);
 
             strcpy(edited_text, text_before_cursor);
 
             DrawFullText();
 
             cursor_blink = true;
+
             DrawTillCursor();
         }
     }
@@ -226,8 +245,10 @@ void TextEdit::Delete() {
 void TextEdit::Backspace() {
     if (is_selected) {
         Clear();
+
     } else if (cursor_position) {
-        --cursor_position;
+        cursor_position = utf8_prev_char_offset(edited_text, cursor_position);
+
         Delete();
     }
 }
@@ -239,11 +260,14 @@ void TextEdit::InsertCharacter(char character) {
         is_selected = false;
     }
 
-    if ((mode != 1 || isdigit(character)) && (mode != 2 || isxdigit(character))) {
+    if ((mode != TEXTEDIT_MODE_INT || isdigit(character)) && (mode != TEXTEDIT_MODE_HEX || isxdigit(character))) {
         if (strlen(edited_text) < static_cast<uint32_t>(buffer_size - 1)) {
             cursor_blink = false;
+
             DrawTillCursor();
+
             strncpy(text_before_cursor, edited_text, cursor_position);
+
             text_before_cursor[cursor_position] = character;
             text_before_cursor[cursor_position + 1] = '\0';
 
@@ -253,11 +277,52 @@ void TextEdit::InsertCharacter(char character) {
                 strcpy(edited_text, text_before_cursor);
 
                 DrawFullText();
+
                 ++cursor_position;
 
                 cursor_blink = false;
+
                 DrawTillCursor();
             }
+        }
+    }
+}
+
+void TextEdit::InsertUTF8Text(const char* utf8_text) {
+    if (!utf8_text || !*utf8_text) {
+        return;
+    }
+
+    if (is_selected) {
+        Clear();
+        is_selected = false;
+    }
+
+    /* Calculate UTF-8 string length in bytes */
+    size_t utf8_len = strlen(utf8_text);
+    size_t current_len = strlen(edited_text);
+
+    /* Check if we have space (accounting for null terminator) */
+    if (current_len + utf8_len < static_cast<size_t>(buffer_size - 1)) {
+        cursor_blink = false;
+        DrawTillCursor();
+
+        /* Build new string: text before cursor + utf8 text + text after cursor */
+        strncpy(text_before_cursor, edited_text, cursor_position);
+        text_before_cursor[cursor_position] = '\0';
+        strcat(text_before_cursor, utf8_text);
+        strcat(text_before_cursor, &edited_text[cursor_position]);
+
+        /* Check if text fits in visible area */
+        if ((Text_GetWidth(text_before_cursor) + Text_GetWidth("|")) <= (window.window.lrx - window.window.ulx)) {
+            strcpy(edited_text, text_before_cursor);
+            DrawFullText();
+
+            /* Move cursor past the inserted UTF-8 text */
+            cursor_position += utf8_len;
+
+            cursor_blink = false;
+            DrawTillCursor();
         }
     }
 }
@@ -268,7 +333,9 @@ int32_t TextEdit::ProcessKeyPress(int32_t key) {
     if (is_being_edited) {
         if (timer_elapsed_time(time_stamp) >= 500) {
             cursor_blink = !cursor_blink;
+
             DrawTillCursor();
+
             time_stamp = timer_get();
         }
 
@@ -276,6 +343,7 @@ int32_t TextEdit::ProcessKeyPress(int32_t key) {
             case GNW_KB_KEY_HOME:
             case GNW_KB_KEY_PAGEUP: {
                 SetCursorPosition(0);
+
                 result = true;
 
             } break;
@@ -283,13 +351,17 @@ int32_t TextEdit::ProcessKeyPress(int32_t key) {
             case GNW_KB_KEY_END:
             case GNW_KB_KEY_PAGEDOWN: {
                 SetCursorPosition(strlen(edited_text));
+
                 result = true;
 
             } break;
 
             case GNW_KB_KEY_RIGHT:
             case GNW_KB_KEY_DOWN: {
-                SetCursorPosition(cursor_position + 1);
+                size_t next_pos = utf8_next_char_offset(edited_text, cursor_position);
+
+                SetCursorPosition(next_pos);
+
                 result = true;
 
             } break;
@@ -301,19 +373,24 @@ int32_t TextEdit::ProcessKeyPress(int32_t key) {
 
             case GNW_KB_KEY_DELETE: {
                 Delete();
+
                 result = true;
 
             } break;
 
             case GNW_KB_KEY_LEFT:
             case GNW_KB_KEY_UP: {
-                SetCursorPosition(cursor_position - 1);
+                size_t prev_pos = utf8_prev_char_offset(edited_text, cursor_position);
+
+                SetCursorPosition(prev_pos);
+
                 result = true;
 
             } break;
 
             case GNW_KB_KEY_CTRL_X: {
                 Clear();
+
                 result = true;
 
             } break;
@@ -321,12 +398,14 @@ int32_t TextEdit::ProcessKeyPress(int32_t key) {
             case GNW_KB_KEY_ESCAPE: {
                 strcpy(edited_text, approved_text);
                 LeaveTextEditField();
+
                 result = true;
 
             } break;
 
             case GNW_KB_KEY_BACKSPACE: {
                 Backspace();
+
                 result = true;
 
             } break;
@@ -334,32 +413,55 @@ int32_t TextEdit::ProcessKeyPress(int32_t key) {
             case GNW_KB_KEY_RETURN: {
                 strcpy(approved_text, edited_text);
                 LeaveTextEditField();
+
                 result = true;
 
             } break;
 
             default: {
-                if (key < 0) {
-                    result = false;
+                /* Don't handle printable characters here - SDL_TEXTINPUT handles them */
+                /* This prevents double input: key press + text input event */
 
-                } else {
-                    if (key >= 128 && key <= 255) {
-                        key = TextEdit_KeyToAsciiMap[key - 128];
-                    }
-
-                    if (key >= 32 && key <= 255) {
-                        InsertCharacter(key);
-                        result = true;
-
-                    } else {
-                        result = false;
-                    }
-                }
+                result = false;
 
             } break;
         }
+
     } else {
         result = false;
+    }
+
+    return result;
+}
+
+int32_t TextEdit::ProcessUTF8Input(const char* utf8_text) {
+    int32_t result = false;
+
+    if (is_being_edited && utf8_text && *utf8_text) {
+        if (timer_elapsed_time(time_stamp) >= 500) {
+            cursor_blink = !cursor_blink;
+
+            DrawTillCursor();
+
+            time_stamp = timer_get();
+        }
+
+        if (mode == TEXTEDIT_MODE_STR) {
+            InsertUTF8Text(utf8_text);
+
+            result = true;
+
+        } else if (mode == TEXTEDIT_MODE_INT || mode == TEXTEDIT_MODE_HEX) {
+            if (strlen(utf8_text) == 1) {
+                char ch = utf8_text[0];
+
+                if ((mode == TEXTEDIT_MODE_INT && isdigit(ch)) || (mode == TEXTEDIT_MODE_HEX && isxdigit(ch))) {
+                    InsertCharacter(ch);
+
+                    result = true;
+                }
+            }
+        }
     }
 
     return result;

@@ -44,7 +44,7 @@ static int32_t mouse_is_hidden;
 static int32_t mouse_length;
 static int32_t mouse_disabled;
 static int32_t mouse_buttons;
-static TOCKS mouse_speed;
+static uint32_t mouse_speed;
 static int32_t mouse_curr_frame;
 static uint8_t* mouse_buf;
 static int32_t mouse_full;
@@ -195,7 +195,7 @@ int32_t mouse_set_shape(uint8_t* buf, int32_t width, int32_t length, int32_t ful
 }
 
 int32_t mouse_get_anim(uint8_t** frames, int32_t* num_frames, int32_t* width, int32_t* length, int32_t* hotx,
-                       int32_t* hoty, char* trans, TOCKS* speed) {
+                       int32_t* hoty, char* trans, uint32_t* speed) {
     int32_t result;
 
     if (mouse_fptr) {
@@ -216,7 +216,7 @@ int32_t mouse_get_anim(uint8_t** frames, int32_t* num_frames, int32_t* width, in
 }
 
 int32_t mouse_set_anim_frames(uint8_t* frames, int32_t num_frames, int32_t start_frame, int32_t width, int32_t length,
-                              int32_t hotx, int32_t hoty, char trans, TOCKS speed) {
+                              int32_t hotx, int32_t hoty, char trans, uint32_t speed) {
     int32_t result;
 
     result = mouse_set_shape(&frames[length * width * start_frame], width, length, width, hotx, hoty, trans);
@@ -235,10 +235,10 @@ int32_t mouse_set_anim_frames(uint8_t* frames, int32_t num_frames, int32_t start
 }
 
 void mouse_anim(void) {
-    static TOCKS ticker = 0;
+    static uint32_t ticker = 0;
 
-    if (elapsed_time(ticker) >= mouse_speed) {
-        ticker = get_time();
+    if (timer_elapsed_time(ticker) >= mouse_speed) {
+        ticker = timer_get();
 
         mouse_curr_frame++;
 
@@ -385,9 +385,9 @@ void mouse_simulate_input(int32_t delta_x, int32_t delta_y, uint32_t buttons) {
         if (buttons & GNW_MOUSE_BUTTON_LEFT) {
             mouse_buttons = MOUSE_LONG_PRESS_LEFT;
 
-            if (elapsed_time(left_time) > 250) {
+            if (timer_elapsed_time(left_time) > 250) {
                 mouse_buttons |= MOUSE_PRESS_LEFT;
-                left_time = get_time();
+                left_time = timer_get();
             }
         } else {
             mouse_buttons = MOUSE_RELEASE_LEFT;
@@ -395,23 +395,23 @@ void mouse_simulate_input(int32_t delta_x, int32_t delta_y, uint32_t buttons) {
     } else {
         if (buttons & GNW_MOUSE_BUTTON_LEFT) {
             mouse_buttons = MOUSE_PRESS_LEFT;
-            left_time = get_time();
+            left_time = timer_get();
         }
     }
 
     if (old & (MOUSE_PRESS_RIGHT | MOUSE_LONG_PRESS_RIGHT)) {
         if (buttons & GNW_MOUSE_BUTTON_RIGHT) {
             mouse_buttons |= MOUSE_LONG_PRESS_RIGHT;
-            if (elapsed_time(right_time) > 250) {
+            if (timer_elapsed_time(right_time) > 250) {
                 mouse_buttons |= MOUSE_PRESS_RIGHT;
-                right_time = get_time();
+                right_time = timer_get();
             }
         } else {
             mouse_buttons |= MOUSE_RELEASE_RIGHT;
         }
     } else if (buttons & GNW_MOUSE_BUTTON_RIGHT) {
         mouse_buttons |= MOUSE_PRESS_RIGHT;
-        right_time = get_time();
+        right_time = timer_get();
     }
 
     if (delta_x || delta_y) {

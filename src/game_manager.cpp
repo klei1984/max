@@ -5522,8 +5522,8 @@ void GameManager_ProcessKey() {
         key = -1;
     }
 
-    GameManager_IsShiftKeyPressed = keys[GNW_KB_SCAN_RSHIFT] | keys[GNW_KB_SCAN_LSHIFT];
-    GameManager_IsCtrlKeyPressed = keys[GNW_KB_SCAN_LCTRL] | keys[GNW_KB_SCAN_RCTRL];
+    GameManager_IsShiftKeyPressed = input_is_shift_pressed();
+    GameManager_IsCtrlKeyPressed = input_is_ctrl_pressed();
 
     if (GameManager_RequestMenuExit) {
         if (UnitsManager_TeamInfo[GameManager_PlayerTeam].finished_turn) {
@@ -6484,7 +6484,7 @@ void GameManager_ProcessInput() {
         Point position_change(0, 0);
 
         if (GameManager_ArrowKeyFlags & 1) {
-            if (keys[GNW_KB_SCAN_UP_REL] || keys[GNW_KB_SCAN_UP]) {
+            if (input_is_up_arrow_pressed()) {
                 position_change.y = -1;
             } else {
                 GameManager_ArrowKeyFlags ^= 1;
@@ -6492,7 +6492,7 @@ void GameManager_ProcessInput() {
         }
 
         if (GameManager_ArrowKeyFlags & 2) {
-            if (keys[GNW_KB_SCAN_DOWN_REL] || keys[GNW_KB_SCAN_DOWN]) {
+            if (input_is_down_arrow_pressed()) {
                 position_change.y = 1;
             } else {
                 GameManager_ArrowKeyFlags ^= 2;
@@ -6500,7 +6500,7 @@ void GameManager_ProcessInput() {
         }
 
         if (GameManager_ArrowKeyFlags & 4) {
-            if (keys[GNW_KB_SCAN_LEFT_REL] || keys[GNW_KB_SCAN_LEFT]) {
+            if (input_is_left_arrow_pressed()) {
                 position_change.x = -1;
             } else {
                 GameManager_ArrowKeyFlags ^= 4;
@@ -6508,7 +6508,7 @@ void GameManager_ProcessInput() {
         }
 
         if (GameManager_ArrowKeyFlags & 8) {
-            if (keys[GNW_KB_SCAN_RIGHT_REL] || keys[GNW_KB_SCAN_RIGHT]) {
+            if (input_is_right_arrow_pressed()) {
                 position_change.x = 1;
             } else {
                 GameManager_ArrowKeyFlags ^= 8;

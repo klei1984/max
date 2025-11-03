@@ -38,10 +38,10 @@ extern "C" {
 #include "grbuf.h"
 #include "input.h"
 #include "interface.h"
-#include "kb.h"
 #include "mouse.h"
 #include "rect.h"
 #include "text.h"
+#include "timer.h"
 
 typedef int32_t (*SetModeFunc)(void);
 typedef void (*ResetModeFunc)(void);

@@ -350,7 +350,7 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
                 } break;
                 default: {
                     if (slots[save_slot_index].text_edit->ProcessKeyPress(key)) {
-                        if (key == GNW_KB_KEY_RALT_RETURN && is_saving_allowed) {
+                        if (key == GNW_KB_KEY_RETURN && is_saving_allowed) {
                             key = 1022;
                         } else {
                             key = -1;

@@ -49,7 +49,6 @@ enum {
 };
 
 typedef int32_t WinID;
-typedef uint32_t TOCKS;
 
 typedef void (*Trans_b2b)(uint8_t* src, int32_t width, int32_t length, int32_t full, uint8_t* dst, int32_t full2);
 
@@ -92,7 +91,7 @@ int32_t win_width_needed(char** list, int32_t num);
 int32_t win_input_str(WinID id, char* str, int32_t limit, int32_t x, int32_t y, int32_t text_color, int32_t back_color);
 int32_t win_get_num_i(int32_t* value, int32_t min, int32_t max, int32_t clear, char* title, int32_t x, int32_t y);
 void GNW_intr_init(void);
-void win_timed_msg_defaults(TOCKS persistence);
+void win_timed_msg_defaults(uint32_t persistence);
 void GNW_intr_exit(void);
 int32_t win_timed_msg(char* msg, int32_t color);
 

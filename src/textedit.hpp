@@ -52,6 +52,7 @@ class TextEdit {
     void Delete();
     void Backspace();
     void InsertCharacter(char character);
+    void InsertUTF8Text(const char* utf8_text);
 
 public:
     TextEdit(WindowInfo* window, char* text, int32_t buffer_size, int32_t ulx, int32_t uly, int32_t width,
@@ -67,6 +68,7 @@ public:
     void UpdateWindow(WindowInfo* window);
     void AcceptEditedText();
     int32_t ProcessKeyPress(int32_t key);
+    int32_t ProcessUTF8Input(const char* utf8_text);
 };
 
 #endif /* TEXTEDIT_HPP */

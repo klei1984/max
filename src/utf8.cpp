@@ -104,3 +104,92 @@ std::string utf8_toupper_str(const std::string& input) {
 
     return result;
 }
+
+size_t utf8_strlen(const char* str) {
+    if (!str) {
+        return 0;
+    }
+
+    try {
+        auto codepoints = utf8_to_codepoints(std::string(str));
+
+        return codepoints.size();
+
+    } catch (const std::exception& e) {
+        SDL_Log("\nUTF-8 strlen error: %s\n", e.what());
+
+        return strlen(str);
+    }
+}
+
+size_t utf8_byte_offset(const char* str, size_t codepoint_index) {
+    if (!str) {
+        return 0;
+    }
+
+    const auto data = reinterpret_cast<const utf8proc_uint8_t*>(str);
+    utf8proc_ssize_t length = strlen(str);
+    size_t current_codepoint = 0;
+
+    for (utf8proc_ssize_t i = 0; i < length && current_codepoint < codepoint_index;) {
+        utf8proc_int32_t codepoint;
+        utf8proc_ssize_t bytes_read = utf8proc_iterate(data + i, length - i, &codepoint);
+
+        if (bytes_read <= 0) {
+            break;
+        }
+
+        i += bytes_read;
+        current_codepoint++;
+
+        if (current_codepoint == codepoint_index) {
+            return i;
+        }
+    }
+
+    return length; /* Return end of string if index out of range */
+}
+
+size_t utf8_prev_char_offset(const char* str, size_t byte_offset) {
+    if (!str || byte_offset == 0) {
+        return 0;
+    }
+
+    /* Walk backward to find the start of the previous UTF-8 character */
+    size_t pos = byte_offset;
+
+    /* Move back at least one byte */
+    if (pos > 0) {
+        --pos;
+    }
+
+    /* Skip continuation bytes (0x80-0xBF) */
+    while (pos > 0 && (static_cast<unsigned char>(str[pos]) & 0xC0) == 0x80) {
+        --pos;
+    }
+
+    return pos;
+}
+
+size_t utf8_next_char_offset(const char* str, size_t byte_offset) {
+    if (!str) {
+        return 0;
+    }
+
+    size_t length = strlen(str);
+
+    if (byte_offset >= length) {
+        return length;
+    }
+
+    const auto data = reinterpret_cast<const utf8proc_uint8_t*>(str);
+
+    utf8proc_int32_t codepoint;
+    utf8proc_ssize_t bytes_read = utf8proc_iterate(data + byte_offset, length - byte_offset, &codepoint);
+
+    if (bytes_read > 0) {
+        return byte_offset + bytes_read;
+    }
+
+    return byte_offset + 1; /* Fallback: move one byte */
+}

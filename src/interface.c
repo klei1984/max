@@ -24,7 +24,7 @@
 #include "gnw.h"
 
 typedef struct tm_item_s {
-    TOCKS created;
+    uint32_t created;
     WinID id;
     int32_t location;
 } tm_item;
@@ -52,7 +52,7 @@ static tm_location_item tm_location[5];
 static int32_t tm_text_x;
 static int32_t tm_h;
 static tm_item tm_queue[5];
-static TOCKS tm_persistence;
+static uint32_t tm_persistence;
 static int32_t tm_kill;
 static int32_t scr_center_x;
 static int32_t tm_add;
@@ -761,7 +761,7 @@ void GNW_intr_init(void) {
     }
 }
 
-void win_timed_msg_defaults(TOCKS persistence) { tm_persistence = persistence; }
+void win_timed_msg_defaults(uint32_t persistence) { tm_persistence = persistence; }
 
 void GNW_intr_exit(void) {
     remove_bk_process(tm_watch_msgs);
@@ -781,7 +781,7 @@ void tm_watch_msgs(void) {
     if (!tm_watch_active) {
         tm_watch_active = 1;
 
-        while (tm_kill != -1 && elapsed_time(tm_queue[tm_kill].created) >= tm_persistence) {
+        while (tm_kill != -1 && timer_elapsed_time(tm_queue[tm_kill].created) >= tm_persistence) {
             tm_kill_msg();
         }
 
