@@ -1344,33 +1344,26 @@ void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
     ResourceID unit_type;
     uint16_t cargo;
 
-    mission_supplies->team_gold =
-        ini_clans.GetClanGold(UnitsManager_TeamInfo[player_team].team_clan) + ini_get_setting(INI_START_GOLD);
+    auto clans = ResourceManager_GetClans();
+    std::string clan_id =
+        ResourceManager_GetClanID(static_cast<TeamClanType>(UnitsManager_TeamInfo[player_team].team_clan));
+
+    mission_supplies->team_gold = ini_get_setting(INI_START_GOLD);
+
+    if (clans) {
+        mission_supplies->team_gold += clans->GetCredits(clan_id);
+    }
 
     mission_supplies->units.Clear();
-
-    unit_type = CONSTRCT;
-    mission_supplies->units.PushBack(&unit_type);
-
-    unit_type = ENGINEER;
-    mission_supplies->units.PushBack(&unit_type);
-
-    unit_type = SURVEYOR;
-    mission_supplies->units.PushBack(&unit_type);
-
-    UnitsManager_AddAxisMissionLoadout(player_team, mission_supplies->units);
-
     mission_supplies->cargos.Clear();
 
-    cargo = 40;
-    mission_supplies->cargos.PushBack(&cargo);
+    auto mission_manager = ResourceManager_GetMissionManager();
 
-    cargo = 20;
-    mission_supplies->cargos.PushBack(&cargo);
-
-    for (uint32_t i = 2; i < mission_supplies->units.GetCount(); ++i) {
-        cargo = 0;
-        mission_supplies->cargos.PushBack(&cargo);
+    if (mission_manager && mission_manager->GetGameRulesHandler()) {
+        if (!mission_manager->GetGameRulesHandler()->GetMissionLoadout(player_team, clan_id, *mission_supplies)) {
+            /* There is no error reporting from RollTeamMissionSupplies */
+            SDL_assert(0);
+        }
     }
 
     switch (strategy) {

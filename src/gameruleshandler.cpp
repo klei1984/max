@@ -21,7 +21,9 @@
 
 #include "gameruleshandler.hpp"
 
+#include "resource_manager.hpp"
 #include "scripter.hpp"
+#include "units_manager.hpp"
 
 GameRulesHandler::GameRulesHandler() {}
 
@@ -38,42 +40,46 @@ bool GameRulesHandler::LoadScript(const Mission& mission) {
     m_interpreter = Scripter::CreateContext(Scripter::GAME_RULES);
 
     if (m_interpreter) {
-        {
-            Scripter::ScriptParameters arguments;
-            Scripter::ScriptParameters results;
-            std::string error;
-            std::string script = Scripter::LoadDefaultGameRules();
+        Scripter::ScriptParameters arguments;
+        Scripter::ScriptParameters results;
+        std::string error;
+        std::string script = Scripter::LoadDefaultGameRules();
 
-            if (Scripter::RunScript(static_cast<void*>(m_interpreter), script, arguments, results, &error)) {
-                if (mission.HasGameRules()) {
-                    arguments.clear();
-                    results.clear();
-                    error.clear();
+        if (Scripter::RunScript(static_cast<void*>(m_interpreter), script, arguments, results, &error)) {
+            if (mission.HasGameRules()) {
+                arguments.clear();
+                results.clear();
+                error.clear();
 
-                    (void)Scripter::SetTimeBudget(m_interpreter);
+                (void)Scripter::SetTimeBudget(m_interpreter);
 
-                    m_game_rules_script = mission.GetGameRules();
+                m_game_rules_script = mission.GetGameRules();
 
-                    if (Scripter::RunScript(m_interpreter, m_game_rules_script, arguments, results, &error)) {
-                        result = true;
-
-                    } else {
-                        SDL_Log("\n%s\n", error.c_str());
-                        SDL_assert(0);
-
-                        result = false;
-                    }
+                if (Scripter::RunScript(m_interpreter, m_game_rules_script, arguments, results, &error)) {
+                    result = true;
 
                 } else {
-                    result = true;
+                    SDL_Log("\n%s\n", error.c_str());
+                    SDL_assert(0);
+
+                    result = false;
                 }
 
             } else {
-                SDL_Log("\n%s\n", error.c_str());
-                SDL_assert(0);
-
-                result = false;
+                result = true;
             }
+
+            if (result == true) {
+                if (!InitClanLoadoutRules()) {
+                    result = false;
+                }
+            }
+
+        } else {
+            SDL_Log("\n%s\n", error.c_str());
+            SDL_assert(0);
+
+            result = false;
         }
 
     } else {
@@ -158,6 +164,68 @@ std::vector<ResourceID> GameRulesHandler::GetBuildableUnits(const ResourceID uni
 
                     result.push_back(buildable_unit_type);
                 }
+            }
+
+        } else {
+            SDL_Log("\n%s\n", error.c_str());
+        }
+    }
+
+    return result;
+}
+
+bool GameRulesHandler::InitClanLoadoutRules() {
+    auto clans = ResourceManager_GetClans();
+
+    if (clans) {
+        for (const auto& clan_id : clans->GetClanKeys()) {
+            if (clans->HasLoadoutRules(clan_id)) {
+                const std::string clan_script = clans->GetLoadoutRules(clan_id);
+                Scripter::ScriptParameters arguments;
+                Scripter::ScriptParameters results;
+                std::string error;
+
+                if (!Scripter::RunScript(m_interpreter, clan_script, arguments, results, &error)) {
+                    SDL_Log("\n%s\n", error.c_str());
+
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+bool GameRulesHandler::GetMissionLoadout(const uint16_t team, const std::string& clan_id,
+                                         TeamMissionSupplies& supplies) {
+    bool result = false;
+
+    SDL_assert(m_interpreter);
+
+    if (m_interpreter) {
+        Scripter::ScriptParameters args{static_cast<int64_t>(team), static_cast<std::string>(clan_id),
+                                        static_cast<int64_t>(supplies.team_gold)};
+
+        Scripter::ScriptParameters script_results{Scripter::ScriptTable{}, Scripter::ScriptTable{}};
+        std::string error;
+
+        if (Scripter::RunScript(m_interpreter, "return max_get_mission_loadout(...)", args, script_results, &error)) {
+            if (script_results.size() == 2) {
+                const auto units_table = std::get<Scripter::ScriptTable>(script_results[0]);
+                const auto cargos_table = std::get<Scripter::ScriptTable>(script_results[1]);
+
+                for (const auto& value : units_table) {
+                    const ResourceID unit_type = static_cast<ResourceID>(std::get<int64_t>(value));
+                    supplies.units.PushBack(&unit_type);
+                }
+
+                for (const auto& value : cargos_table) {
+                    const uint16_t cargo = static_cast<uint16_t>(std::get<int64_t>(value));
+                    supplies.cargos.PushBack(&cargo);
+                }
+
+                result = true;
             }
 
         } else {

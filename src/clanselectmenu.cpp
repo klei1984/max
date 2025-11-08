@@ -21,9 +21,14 @@
 
 #include "clanselectmenu.hpp"
 
+#include <format>
+
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
+#include "resource_manager.hpp"
+#include "text.hpp"
+#include "units_manager.hpp"
 #include "window_manager.hpp"
 
 void ClanSelectMenu::Init(int32_t team) {
@@ -133,59 +138,85 @@ void ClanSelectMenu::ButtonInit(int32_t index, int32_t mode) {
 }
 
 void ClanSelectMenu::SelectMenuItems() {
-    char buffer[500];
-    char buffer2[500];
-    char* pointer;
-    int32_t color;
-    int32_t index;
+    auto clans = ResourceManager_GetClans();
 
-    for (int32_t i = 0; i < 8; ++i) {
-        ini_clans.GetClanName(i + 1, buffer, 100);
-        clan_select_menu_clan_icons[i].title = buffer;
-        color = ((i + 1) == team_clan_selection) ? COLOR_GREEN : 0xA2;
+    if (clans) {
+        for (int32_t i = 0; i < 8; ++i) {
+            const auto clan_id = ResourceManager_GetClanID(static_cast<TeamClanType>(i + 1));
+            const int32_t color = ((i + 1) == team_clan_selection) ? COLOR_GREEN : 0xA2;
 
-        menu_draw_menu_title(window, &clan_select_menu_clan_icons[i], color | GNW_TEXT_OUTLINE, true);
+            clan_select_menu_clan_icons[i].title = clans->GetName(clan_id);
+
+            menu_draw_menu_title(window, &clan_select_menu_clan_icons[i], color | GNW_TEXT_OUTLINE, true);
+        }
     }
 
     image->Write(window, WindowManager_ScaleUlx(window, clan_select_menu_screen_text[0].bounds.ulx),
                  WindowManager_ScaleUly(window, clan_select_menu_screen_text[0].bounds.uly));
-    ini_clans.GetClanText(team_clan_selection, buffer, 100);
 
-    index = 0;
-
-    DrawClanUpgrades(buffer, index++, COLOR_GREEN);
-
-    while (team_clan_selection) {
-        ini_clans.GetStringValue(buffer2, 100);
-        pointer = strstr(buffer2, "=");
-
-        if (!pointer) {
-            break;
-        }
-
-        pointer[0] = '\0';
-
-        strcpy(buffer, buffer2);
-
-        if (SDL_strcasecmp(buffer, "Name") && SDL_strcasecmp(buffer, "Text")) {
-            strcat(buffer, ": ");
-            strcat(buffer, &pointer[1]);
-
-            DrawClanUpgrades(buffer, index++, 0xA2);
-        }
+    if (clans && team_clan_selection) {
+        DrawClanUpgrades();
     }
 
     win_draw(window->id);
 }
 
-void ClanSelectMenu::DrawClanUpgrades(const char* text, int32_t index, int32_t color) {
-    const int32_t position = (index / 5) ? 1 : 0;
-    const int32_t limit1 = index % 5;
-    const int32_t limit2 = 5 - limit1;
+void ClanSelectMenu::DrawClanUpgrades() {
+    const char* attribute_names[Clans::ATTRIB_COUNT] = {
+        _(6976), _(62f5), _(d81e), _(fca3), _(4027), _(bbcc), _(2269),
+        _(206c), _(59ad), _(49a2), _(24d8), _(4a91), _(e9d8),
+    };
 
-    clan_select_menu_screen_text[position].title = std::string(limit1, '\n') + text + std::string(limit2, '\n');
+    auto clans = ResourceManager_GetClans();
+    const auto clan_id = ResourceManager_GetClanID(static_cast<TeamClanType>(team_clan_selection));
+    const auto description = clans->GetDescription(clan_id);
+    std::string unit_bonuses_text;
 
-    menu_draw_menu_title(window, &clan_select_menu_screen_text[position], color | GNW_TEXT_OUTLINE, false);
+    for (ResourceID unit_id = UNIT_START; unit_id < UNIT_END; unit_id = static_cast<ResourceID>(unit_id + 1)) {
+        std::string unit_bonuses;
+
+        for (int32_t attr = Clans::ATTRIB_TURNS_TO_BUILD; attr < Clans::ATTRIB_COUNT; ++attr) {
+            int32_t value = clans->GetUnitTradeoff(clan_id, unit_id, static_cast<Clans::AttributeID>(attr));
+
+            if (value != 0) {
+                if (!unit_bonuses.empty()) {
+                    unit_bonuses += ", ";
+                }
+
+                // use non breaking space
+                unit_bonuses += std::format("{:+}\xC2\xA0{}", value, attribute_names[attr]);
+            }
+        }
+
+        if (!unit_bonuses.empty()) {
+            const char* unit_name = UnitsManager_BaseUnits[unit_id].singular_name;
+
+            unit_bonuses_text += std::format(" {}: {}.", unit_name, unit_bonuses);
+        }
+    }
+
+    const int32_t description_width_pixels = Text_GetWidth(description.c_str());
+    const int32_t nbsp_width_pixels = Text_GetGlyphWidth(U'\u00A0');
+
+    SDL_assert(nbsp_width_pixels != 0);
+
+    const int32_t space_count = description_width_pixels / nbsp_width_pixels + 1;
+
+    std::string spacing;
+
+    // spacing must use non breaking space as normal spaces are merged down to one by the text engine
+    for (int32_t i = 0; i < space_count; ++i) {
+        spacing += "\xC2\xA0";
+    }
+
+    unit_bonuses_text = spacing + unit_bonuses_text;
+
+    clan_select_menu_screen_text[0].title = description;
+
+    menu_draw_menu_title(window, &clan_select_menu_screen_text[0], COLOR_GREEN | GNW_TEXT_OUTLINE, false, false);
+
+    clan_select_menu_screen_text[0].title = unit_bonuses_text;
+    menu_draw_menu_title(window, &clan_select_menu_screen_text[0], 0xA2 | GNW_TEXT_OUTLINE, false, false);
 }
 
 void ClanSelectMenu::EventDone() {

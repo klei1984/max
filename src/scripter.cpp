@@ -113,6 +113,14 @@ static void RegisterCountUnitsWithReducedAttrib(lua_State* lua);
 static lua_Integer GetResearchLevel(const lua_Integer team, const lua_Integer research_topic);
 static int LuaGetResearchLevel(lua_State* lua);
 static void RegisterGetResearchLevel(lua_State* lua);
+static lua_Integer GetCurrentUnitAttribute(const lua_Integer team, const lua_Integer unit_type,
+                                           const lua_Integer attribute);
+static int LuaGetCurrentUnitAttribute(lua_State* lua);
+static void RegisterGetCurrentUnitAttribute(lua_State* lua);
+static lua_Integer GetBaseUnitAttribute(const lua_Integer team, const lua_Integer unit_type,
+                                        const lua_Integer attribute);
+static int LuaGetBaseUnitAttribute(lua_State* lua);
+static void RegisterGetBaseUnitAttribute(lua_State* lua);
 static void TimoutHook(lua_State* lua, lua_Debug* ar);
 static int LuaPrintRedirect(lua_State* lua);
 static inline void AddEnum(lua_State* lua, const char* global_name, const MaxEnumType& fields);
@@ -992,6 +1000,86 @@ static void RegisterGetResearchLevel(lua_State* lua) {
     lua_register(lua, "max_get_research_level", LuaGetResearchLevel);
 }
 
+static lua_Integer GetCurrentUnitAttribute(const lua_Integer team, const lua_Integer unit_type,
+                                           const lua_Integer attribute) {
+    auto unit_values = UnitsManager_TeamInfo[team].team_units->GetCurrentUnitValues(unit_type);
+    return unit_values->GetAttribute(attribute);
+}
+
+static int LuaGetCurrentUnitAttribute(lua_State* lua) {
+    if (lua_gettop(lua) < 3) {
+        return luaL_error(lua,
+                          "[max_get_current_unit_attribute] Error: 3 arguments required: MAX_TEAM, MAX_UNIT, "
+                          "MAX_UNIT_ATTRIB");
+    }
+
+    auto team = luaL_checkinteger(lua, 1);
+    auto unit_type = luaL_checkinteger(lua, 2);
+    auto attribute = luaL_checkinteger(lua, 3);
+
+    if (team >= PLAYER_TEAM_MAX or team < PLAYER_TEAM_RED) {
+        return luaL_error(lua, "[max_get_current_unit_attribute] Error: Invalid MAX_TEAM (%d)", team);
+    }
+
+    if (unit_type < 0 or unit_type >= UNIT_END) {
+        return luaL_error(lua, "[max_get_current_unit_attribute] Error: Invalid MAX_UNIT (%d)", unit_type);
+    }
+
+    if (attribute < ATTRIB_ATTACK or attribute >= ATTRIB_COUNT) {
+        return luaL_error(lua, "[max_get_current_unit_attribute] Error: Invalid MAX_UNIT_ATTRIB (%d)", attribute);
+    }
+
+    auto result = GetCurrentUnitAttribute(team, unit_type, attribute);
+
+    lua_pushinteger(lua, result);
+
+    return 1;
+}
+
+static void RegisterGetCurrentUnitAttribute(lua_State* lua) {
+    lua_register(lua, "max_get_current_unit_attribute", LuaGetCurrentUnitAttribute);
+}
+
+static lua_Integer GetBaseUnitAttribute(const lua_Integer team, const lua_Integer unit_type,
+                                        const lua_Integer attribute) {
+    auto unit_values = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(unit_type);
+    return unit_values->GetAttribute(attribute);
+}
+
+static int LuaGetBaseUnitAttribute(lua_State* lua) {
+    if (lua_gettop(lua) < 3) {
+        return luaL_error(lua,
+                          "[max_get_base_unit_attribute] Error: 3 arguments required: MAX_TEAM, MAX_UNIT, "
+                          "MAX_UNIT_ATTRIB");
+    }
+
+    auto team = luaL_checkinteger(lua, 1);
+    auto unit_type = luaL_checkinteger(lua, 2);
+    auto attribute = luaL_checkinteger(lua, 3);
+
+    if (team >= PLAYER_TEAM_MAX or team < PLAYER_TEAM_RED) {
+        return luaL_error(lua, "[max_get_base_unit_attribute] Error: Invalid MAX_TEAM (%d)", team);
+    }
+
+    if (unit_type < 0 or unit_type >= UNIT_END) {
+        return luaL_error(lua, "[max_get_base_unit_attribute] Error: Invalid MAX_UNIT (%d)", unit_type);
+    }
+
+    if (attribute < ATTRIB_ATTACK or attribute >= ATTRIB_COUNT) {
+        return luaL_error(lua, "[max_get_base_unit_attribute] Error: Invalid MAX_UNIT_ATTRIB (%d)", attribute);
+    }
+
+    auto result = GetBaseUnitAttribute(team, unit_type, attribute);
+
+    lua_pushinteger(lua, result);
+
+    return 1;
+}
+
+static void RegisterGetBaseUnitAttribute(lua_State* lua) {
+    lua_register(lua, "max_get_base_unit_attribute", LuaGetBaseUnitAttribute);
+}
+
 bool TestScript(const std::string script, std::string* error) {
     auto lua = luaL_newstate();
     bool result;
@@ -1669,21 +1757,21 @@ void* CreateContext(const ScriptType type) {
             }
 
             {
-                AddEnum(lua, "MAX_UNIT_ATTRIB",
+                AddEnum(lua, "MAX_ATTRIBUTE",
                         {
-                            {"ATTACK", ATTRIB_ATTACK},
-                            {"SHOTS", ATTRIB_ROUNDS},
-                            {"RANGE", ATTRIB_RANGE},
-                            {"ARMOR", ATTRIB_ARMOR},
-                            {"HITS", ATTRIB_HITS},
-                            {"SPEED", ATTRIB_SPEED},
-                            {"SCAN", ATTRIB_SCAN},
-                            {"COST", ATTRIB_TURNS},
-                            {"AMMO", ATTRIB_AMMO},
+                            {"ATTACK_RATING", ATTRIB_ATTACK},
+                            {"SHOTS_PER_TURN", ATTRIB_ROUNDS},
+                            {"ATTACK_RANGE", ATTRIB_RANGE},
+                            {"ARMOR_RATING", ATTRIB_ARMOR},
+                            {"HIT_POINTS", ATTRIB_HITS},
+                            {"MOVEMENT_POINTS", ATTRIB_SPEED},
+                            {"ATTRIB_SCAN_RANGE", ATTRIB_SCAN},
+                            {"TURNS_TO_BUILD", ATTRIB_TURNS},
+                            {"AMMUNITION", ATTRIB_AMMO},
                             {"MOVE_AND_FIRE", ATTRIB_MOVE_AND_FIRE},
-                            {"STORAGE", ATTRIB_STORAGE},
-                            {"ATTACK_RADIUS", ATTRIB_ATTACK_RADIUS},
-                            {"AGENT_ADJUST", ATTRIB_AGENT_ADJUST},
+                            {"STORAGE_CAPACITY", ATTRIB_STORAGE},
+                            {"BLAST_RADIUS", ATTRIB_ATTACK_RADIUS},
+                            {"EXPERIENCE", ATTRIB_AGENT_ADJUST},
                         });
             }
 
@@ -1730,9 +1818,13 @@ void* CreateContext(const ScriptType type) {
                     RegisterCountUnitsAboveAttribLevel(lua);
                     RegisterCountUnitsWithReducedAttrib(lua);
                     RegisterGetResearchLevel(lua);
+                    RegisterGetCurrentUnitAttribute(lua);
+                    RegisterGetBaseUnitAttribute(lua);
                 }
 
                 if (type == GAME_RULES) {
+                    RegisterGetCurrentUnitAttribute(lua);
+                    RegisterGetBaseUnitAttribute(lua);
                 }
             }
 

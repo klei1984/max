@@ -1485,6 +1485,41 @@ void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitVal
     }
 }
 
+void ResourceManager_SetClanUpgradesFromClans(const std::string& clan_id, ResourceID unit_type,
+                                              UnitValues* unit_values) {
+    auto clans = ResourceManager_GetClans();
+    if (clans) {
+        const Clans::AttributeID attrib_map[] = {
+            Clans::ATTRIB_ATTACK_RATING,     // ATTRIB_ATTACK
+            Clans::ATTRIB_SHOTS_PER_TURN,    // ATTRIB_ROUNDS
+            Clans::ATTRIB_ATTACK_RANGE,      // ATTRIB_RANGE
+            Clans::ATTRIB_ARMOR_RATING,      // ATTRIB_ARMOR
+            Clans::ATTRIB_HIT_POINTS,        // ATTRIB_HITS
+            Clans::ATTRIB_MOVEMENT_POINTS,   // ATTRIB_SPEED
+            Clans::ATTRIB_SCAN_RANGE,        // ATTRIB_SCAN
+            Clans::ATTRIB_TURNS_TO_BUILD,    // ATTRIB_TURNS
+            Clans::ATTRIB_AMMUNITION,        // ATTRIB_AMMO
+            Clans::ATTRIB_MOVE_AND_FIRE,     // ATTRIB_MOVE_AND_FIRE
+            Clans::ATTRIB_MOVEMENT_POINTS,   // ATTRIB_FUEL (cannot happen, must be skipped)
+            Clans::ATTRIB_STORAGE_CAPACITY,  // ATTRIB_STORAGE
+            Clans::ATTRIB_BLAST_RADIUS,      // ATTRIB_ATTACK_RADIUS
+            Clans::ATTRIB_EXPERIENCE,        // ATTRIB_AGENT_ADJUST
+        };
+
+        for (int32_t i = ATTRIB_ATTACK; i < ATTRIB_COUNT; ++i) {
+            if (i == ATTRIB_FUEL) {
+                continue;
+            }
+
+            int32_t value = clans->GetUnitTradeoff(clan_id, unit_type, attrib_map[i]);
+
+            if (value != 0) {
+                unit_values->AddAttribute(i, value);
+            }
+        }
+    }
+}
+
 void ResourceManager_InitClanUnitValues(uint16_t team) {
     SmartPointer<UnitValues> unit_values;
     TeamUnits* team_units{nullptr};
@@ -1530,10 +1565,13 @@ void ResourceManager_InitClanUnitValues(uint16_t team) {
     team_units->ClearComplexes();
     team_units->Init();
 
-    for (int32_t i = 0; i < UNIT_END; ++i) {
+    auto clans = ResourceManager_GetClans();
+    const auto clan_id = ResourceManager_GetClanID(static_cast<TeamClanType>(team_clan));
+
+    for (int32_t i = UNIT_START; i < UNIT_END; ++i) {
         unit_values = new (std::nothrow) UnitValues(*team_units->GetBaseUnitValues(i));
 
-        ResourceManager_SetClanUpgrades(team_clan, static_cast<ResourceID>(i), &*unit_values);
+        ResourceManager_SetClanUpgradesFromClans(clan_id, static_cast<ResourceID>(i), &*unit_values);
         team_units->SetBaseUnitValues(i, *unit_values);
         team_units->SetCurrentUnitValues(i, *unit_values);
     }

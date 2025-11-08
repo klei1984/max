@@ -24,6 +24,7 @@
 #include "helpmenu.hpp"
 #include "inifile.hpp"
 #include "menu.hpp"
+#include "resource_manager.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"
 #include "window_manager.hpp"
@@ -38,9 +39,15 @@ CargoMenu::CargoMenu(uint16_t team) : AbstractUpgradeMenu(team, CARGOPIC) {
     WindowInfo wininfo1;
     WindowInfo wininfo2;
 
-    start_gold = ini_get_setting(INI_START_GOLD) + ini_clans.GetClanGold(UnitsManager_TeamInfo[team].team_clan);
+    auto clans = ResourceManager_GetClans();
+    const auto clan_id = ResourceManager_GetClanID(static_cast<TeamClanType>(UnitsManager_TeamInfo[team].team_clan));
 
-    UnitsManager_TeamInfo[this->team].stats_gold_spent_on_upgrades = 0;
+    start_gold = ini_get_setting(INI_START_GOLD);
+
+    if (clans) {
+        start_gold += clans->GetCredits(clan_id);
+    }
+
     interface_icon_full = I_GOLD;
     interface_icon_empty = I_GOLDE;
 
@@ -48,20 +55,27 @@ CargoMenu::CargoMenu(uint16_t team) : AbstractUpgradeMenu(team, CARGOPIC) {
     cargos = UnitsManager_TeamMissionSupplies[team].cargos;
 
     if (unit_types2->GetCount()) {
-        SmartObjectArray<ResourceID> default_units;
-
-        UnitsManager_AddAxisMissionLoadout(team, default_units);
-
-        unit_count = default_units.GetCount() + 3;
         team_gold = UnitsManager_TeamMissionSupplies[team].team_gold;
+        unit_count = UnitsManager_TeamMissionSupplies[team].units.GetCount();
 
-        for (int32_t i = 0; i < UNIT_END; ++i) {
+        for (int32_t i = UNIT_START; i < UNIT_END; ++i) {
             unitvalues_base[i] = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(i);
         }
 
     } else {
-        unit_count = UnitsManager_AddDefaultMissionLoadout(team);
+        UnitsManager_TeamMissionSupplies[team].team_gold = start_gold;
+        UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades = 0;
+
         team_gold = start_gold;
+        unit_count = 0;
+
+        auto mission_manager = ResourceManager_GetMissionManager();
+        if (mission_manager && mission_manager->GetGameRulesHandler()) {
+            if (mission_manager->GetGameRulesHandler()->GetMissionLoadout(team, clan_id,
+                                                                          UnitsManager_TeamMissionSupplies[team])) {
+                unit_count = UnitsManager_TeamMissionSupplies[team].units.GetCount();
+            }
+        }
     }
 
     stats_background = new (std::nothrow) Image(11, 293, 250, 174);

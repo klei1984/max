@@ -84,7 +84,7 @@ class ClanSelectMenu {
 
     void ButtonInit(int32_t index, int32_t mode);
     void SelectMenuItems();
-    void DrawClanUpgrades(const char* text, int32_t index, int32_t color);
+    void DrawClanUpgrades();
 
 public:
     WindowInfo* window;

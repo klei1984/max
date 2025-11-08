@@ -69,8 +69,6 @@ void UnitsManager_InitAbstractUnits();
 void UnitsManager_PerformAction(UnitInfo* unit);
 int32_t UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int32_t damage_potential);
 UnitValues* UnitsManager_GetCurrentUnitValues(CTInfo* team_info, ResourceID unit_type);
-void UnitsManager_AddAxisMissionLoadout(uint16_t team, SmartObjectArray<ResourceID> units);
-int32_t UnitsManager_AddDefaultMissionLoadout(uint16_t team);
 bool UnitsManager_IsMasterBuilderPlaceable(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
 void UnitsManager_InitPopupMenus();
 int32_t UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, int32_t order);

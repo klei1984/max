@@ -77,6 +77,41 @@ public:
     [[nodiscard]] int32_t GetUnitTradeoff(const std::string& clan_id, const ResourceID resource_id,
                                           const AttributeID attribute) const;
     [[nodiscard]] ResourceType GetLogo(const std::string& clan_id) const;
+
+    class KeyIterator {
+        using MapIterator = std::unordered_map<std::string, ClanObject>::const_iterator;
+        MapIterator m_iter;
+
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = std::string;
+        using difference_type = std::ptrdiff_t;
+        using pointer = const std::string*;
+        using reference = const std::string&;
+
+        explicit KeyIterator(MapIterator iter);
+
+        reference operator*() const;
+        pointer operator->() const;
+
+        KeyIterator& operator++();
+        KeyIterator operator++(int);
+
+        friend bool operator==(const KeyIterator& a, const KeyIterator& b);
+        friend bool operator!=(const KeyIterator& a, const KeyIterator& b);
+    };
+
+    class KeyRange {
+        const std::unordered_map<std::string, ClanObject>* m_map;
+
+    public:
+        explicit KeyRange(const std::unordered_map<std::string, ClanObject>* map);
+
+        KeyIterator begin() const;
+        KeyIterator end() const;
+    };
+
+    [[nodiscard]] KeyRange GetClanKeys() const { return KeyRange(m_clans.get()); }
 };
 
 #endif /* CLANS_HPP */

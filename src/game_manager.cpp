@@ -1519,6 +1519,7 @@ bool GameManager_CargoSelection(uint16_t team) {
 
 bool GameManager_PlayerMissionSetup(uint16_t team) {
     int32_t team_gold;
+    auto mission_supplies = &UnitsManager_TeamMissionSupplies[team];
 
     GameManager_GameState = GAME_STATE_7_SITE_SELECT;
 
@@ -1534,17 +1535,40 @@ bool GameManager_PlayerMissionSetup(uint16_t team) {
         GameManager_ProcessTick(1);
     }
 
+    mission_supplies->units.Clear();
+    mission_supplies->cargos.Clear();
+
     do {
         GameManager_GameState = GAME_STATE_7_SITE_SELECT;
 
-        team_gold = ini_get_setting(INI_START_GOLD) + ini_clans.GetClanGold(UnitsManager_TeamInfo[team].team_clan);
+        auto clans = ResourceManager_GetClans();
+        auto clan_id = ResourceManager_GetClanID(static_cast<TeamClanType>(UnitsManager_TeamInfo[team].team_clan));
+
+        team_gold = ini_get_setting(INI_START_GOLD);
+
+        if (clans) {
+            team_gold += clans->GetCredits(clan_id);
+        }
 
         if (team_gold) {
             if (!GameManager_CargoSelection(team)) {
                 return false;
             }
+
         } else {
-            UnitsManager_AddDefaultMissionLoadout(team);
+            auto mission_manager = ResourceManager_GetMissionManager();
+
+            if (mission_manager && mission_manager->GetGameRulesHandler()) {
+                mission_supplies->team_gold = 0;
+                UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades = 0;
+
+                mission_supplies->units.Clear();
+                mission_supplies->cargos.Clear();
+
+                if (!mission_manager->GetGameRulesHandler()->GetMissionLoadout(team, clan_id, *mission_supplies)) {
+                    return false;
+                }
+            }
         }
 
         if (!GameManager_IsMapInitialized) {

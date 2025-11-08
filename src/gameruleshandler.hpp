@@ -27,19 +27,30 @@
 #include <vector>
 
 #include "mission.hpp"
+#include "teammissionsupplies.hpp"
+
+struct LoadoutResult {
+    std::vector<ResourceID> units;
+    std::vector<uint16_t> cargos;
+};
 
 class GameRulesHandler {
     std::string m_game_rules_script;
     void* m_interpreter{nullptr};
+
+    [[nodiscard]] bool InitClanLoadoutRules();
 
 public:
     GameRulesHandler();
     virtual ~GameRulesHandler();
 
     [[nodiscard]] bool LoadScript(const Mission& mission);
+    [[nodiscard]] void* GetInterpreter() const { return m_interpreter; }
     [[nodiscard]] ResourceID GetBuilderType(const ResourceID unit_type);
     [[nodiscard]] bool IsBuildable(const ResourceID unit_type);
     [[nodiscard]] std::vector<ResourceID> GetBuildableUnits(const ResourceID unit_type);
+    [[nodiscard]] bool GetMissionLoadout(const uint16_t team, const std::string& clan_id,
+                                         TeamMissionSupplies& supplies);
 };
 
 #endif /* BUILDHANDLER_HPP */

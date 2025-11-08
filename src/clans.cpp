@@ -239,6 +239,33 @@ Clans::Clans()
 
 Clans::~Clans() {}
 
+Clans::KeyIterator::KeyIterator(MapIterator iter) : m_iter(iter) {}
+
+Clans::KeyIterator::reference Clans::KeyIterator::operator*() const { return m_iter->first; }
+
+Clans::KeyIterator::pointer Clans::KeyIterator::operator->() const { return &m_iter->first; }
+
+Clans::KeyIterator& Clans::KeyIterator::operator++() {
+    ++m_iter;
+    return *this;
+}
+
+Clans::KeyIterator Clans::KeyIterator::operator++(int) {
+    KeyIterator tmp = *this;
+    ++(*this);
+    return tmp;
+}
+
+bool operator==(const Clans::KeyIterator& a, const Clans::KeyIterator& b) { return a.m_iter == b.m_iter; }
+
+bool operator!=(const Clans::KeyIterator& a, const Clans::KeyIterator& b) { return a.m_iter != b.m_iter; }
+
+Clans::KeyRange::KeyRange(const std::unordered_map<std::string, ClanObject>* map) : m_map(map) {}
+
+Clans::KeyIterator Clans::KeyRange::begin() const { return KeyIterator(m_map->begin()); }
+
+Clans::KeyIterator Clans::KeyRange::end() const { return KeyIterator(m_map->end()); }
+
 [[nodiscard]] std::string Clans::LoadSchema() {
     uint32_t file_size = ResourceManager_GetResourceSize(SC_SCHEC);
     uint8_t* file_base = ResourceManager_ReadResource(SC_SCHEC);
