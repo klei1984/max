@@ -6,7 +6,7 @@
 		"de-DE": "Interplay Productions",
 		"it-IT": "Interplay Productions",
 		"es-ES": "Interplay Productions",
-		"ru-RU": ""
+		"ru-RU": "Interplay Productions"
 	},
 	"copyright": {
 		"en-US": "(c) 1996 Interplay Productions",
@@ -14,7 +14,7 @@
 		"de-DE": "(c) 1996 Interplay Productions",
 		"it-IT": "(c) 1996 Interplay Productions",
 		"es-ES": "(c) 1996 Interplay Productions",
-		"ru-RU": ""
+		"ru-RU": "(c) 1996 Interplay Productions"
 	},
 	"license": {
 		"en-US": "All rights reserved",
@@ -22,7 +22,7 @@
 		"de-DE": "All rights reserved",
 		"it-IT": "All rights reserved",
 		"es-ES": "All rights reserved",
-		"ru-RU": ""
+		"ru-RU": "All rights reserved"
 	},
 	"language": {
 		"acbe": {
@@ -2539,107 +2539,107 @@
 		},
 		"6976": {
 			"en-US": "turns",
-			"fr-FR": "turns",
-			"de-DE": "turns",
-			"it-IT": "turns",
-			"es-ES": "turns",
+			"fr-FR": "Tours",
+			"de-DE": "Runden",
+			"it-IT": "turni",
+			"es-ES": "turnos",
 			"ru-RU": "turns"
 		},
 		"62f5": {
 			"en-US": "hits",
-			"fr-FR": "hits",
-			"de-DE": "hits",
-			"it-IT": "hits",
-			"es-ES": "hits",
-			"ru-RU": "hits"
+			"fr-FR": "Coups",
+			"de-DE": "Treffer",
+			"it-IT": "colpi",
+			"es-ES": "impactos",
+			"ru-RU": "Жизнь"
 		},
 		"d81e": {
 			"en-US": "armor",
-			"fr-FR": "armor",
-			"de-DE": "armor",
-			"it-IT": "armor",
-			"es-ES": "armor",
+			"fr-FR": "Blindage",
+			"de-DE": "Panzerung",
+			"it-IT": "corazza",
+			"es-ES": "blindaje",
 			"ru-RU": "броня"
 		},
 		"fca3": {
 			"en-US": "attack",
-			"fr-FR": "attack",
-			"de-DE": "attack",
-			"it-IT": "attack",
-			"es-ES": "attack",
+			"fr-FR": "Attaque",
+			"de-DE": "Angriff",
+			"it-IT": "attacco",
+			"es-ES": "ataque",
 			"ru-RU": "атака"
 		},
 		"4027": {
 			"en-US": "reload",
-			"fr-FR": "reload",
-			"de-DE": "reload",
-			"it-IT": "reload",
-			"es-ES": "reload",
-			"ru-RU": "дальн"
+			"fr-FR": "Rechargement",
+			"de-DE": "Nachladen",
+			"it-IT": "ricarica",
+			"es-ES": "recarga",
+			"ru-RU": "перезарядка"
 		},
 		"bbcc": {
 			"en-US": "speed",
-			"fr-FR": "speed",
-			"de-DE": "speed",
-			"it-IT": "speed",
-			"es-ES": "speed",
-			"ru-RU": "speed"
+			"fr-FR": "Vitesse",
+			"de-DE": "Geschwindigkeit",
+			"it-IT": "velocitè",
+			"es-ES": "rapidez",
+			"ru-RU": "скорость"
 		},
 		"2269": {
 			"en-US": "range",
-			"fr-FR": "range",
-			"de-DE": "range",
-			"it-IT": "range",
-			"es-ES": "range",
-			"ru-RU": "range"
+			"fr-FR": "Portée",
+			"de-DE": "Reichweite",
+			"it-IT": "portata",
+			"es-ES": "alcance",
+			"ru-RU": "дальность"
 		},
 		"206c": {
 			"en-US": "rounds",
-			"fr-FR": "rounds",
-			"de-DE": "rounds",
-			"it-IT": "rounds",
-			"es-ES": "rounds",
-			"ru-RU": "rounds"
+			"fr-FR": "Projectiles",
+			"de-DE": "Geschosse",
+			"it-IT": "munizioni",
+			"es-ES": "proyectiles",
+			"ru-RU": "снаряды"
 		},
 		"59ad": {
 			"en-US": "scan",
-			"fr-FR": "scan",
-			"de-DE": "scan",
-			"it-IT": "scan",
-			"es-ES": "scan",
-			"ru-RU": "scan"
+			"fr-FR": "Balayage",
+			"de-DE": "Scan",
+			"it-IT": "scanner",
+			"es-ES": "escaneo",
+			"ru-RU": "сканирование"
 		},
 		"49a2": {
 			"en-US": "storage",
-			"fr-FR": "storage",
-			"de-DE": "storage",
-			"it-IT": "storage",
-			"es-ES": "storage",
-			"ru-RU": "storage"
+			"fr-FR": "Stockage",
+			"de-DE": "Speicher",
+			"it-IT": "stoccaggio",
+			"es-ES": "almacenamiento",
+			"ru-RU": "хранилище"
 		},
 		"24d8": {
 			"en-US": "ammo",
-			"fr-FR": "ammo",
-			"de-DE": "ammo",
-			"it-IT": "ammo",
-			"es-ES": "ammo",
-			"ru-RU": "ammo"
+			"fr-FR": "Munitions",
+			"de-DE": "Munition",
+			"it-IT": "munizioni",
+			"es-ES": "munición",
+			"ru-RU": "боеприпасы"
 		},
 		"4a91": {
 			"en-US": "area",
-			"fr-FR": "area",
-			"de-DE": "area",
+			"fr-FR": "Zone",
+			"de-DE": "Bereich",
 			"it-IT": "area",
-			"es-ES": "area",
-			"ru-RU": "area"
+			"es-ES": "área",
+			"ru-RU": "зона"
 		},
 		"e9d8": {
 			"en-US": "disable",
-			"fr-FR": "disable",
-			"de-DE": "disable",
-			"it-IT": "disable",
-			"es-ES": "disable",
-			"ru-RU": "отменен"
+			"fr-FR": "Désactivation",
+			"de-DE": "Deaktivierung",
+			"it-IT": "disattivazione",
+			"es-ES": "neutralización",
+			"ru-RU": "деактивация"
 		},
 		"5512": {
 			"en-US": "Custom Game Menu",

@@ -479,20 +479,20 @@ void ResourceManager_TestDiskSpace() {
 void ResourceManager_InitInternals() {
     int32_t error_code;
 
-    error_code = ResourceManager_InitResManager();
-
-    if (error_code) {
-        ResourceManager_ExitGame(error_code);
-    }
-
     ini_config.Init();
 
     {
         char language[30];
 
-        ini_config.GetStringValue(INI_PLAYER_NAME, language, sizeof(language));
+        ini_config.GetStringValue(INI_LANGUAGE, language, sizeof(language));
 
         ResourceManager_SetSystemLocale(language);
+    }
+
+    error_code = ResourceManager_InitResManager();
+
+    if (error_code) {
+        ResourceManager_ExitGame(error_code);
     }
 
     ini_clans.Init();
