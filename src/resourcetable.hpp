@@ -1968,6 +1968,8 @@ enum ResourceID : uint16_t {
     SC_SCHEH,
     SC_SCHEL,
     SC_SCHEA,
+    SC_UNITS,
+    SC_SCHEU,
     SC_MIS_S,
     SC_CUST1 = SC_MIS_S,
     SC_HOTS1,
