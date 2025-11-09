@@ -64,6 +64,20 @@ jobs:
       -  name: Checkout
          uses: actions/checkout@v4
 
+      -  name: Cache dependencies
+         uses: actions/cache@v4
+         with:
+            path: dependencies
+            key: ${{ runner.os }}-dependencies-${{ hashFiles('dependencies/dependencies.md5') }}
+            restore-keys: |
+               ${{ runner.os }}-dependencies-
+
+      -  name: Download dependencies
+         continue-on-error: true
+         run: |
+            mkdir -p dependencies
+            bash cmake/scripts/linux/get-dependencies cmake/versions.cmake
+
       -  name: Build
          run: |-
             mkdir ${{steps.build_configuration.outputs.build_type}}
@@ -130,6 +144,20 @@ jobs:
       -  name: Checkout
          uses: actions/checkout@v4
 
+      -  name: Cache dependencies
+         uses: actions/cache@v4
+         with:
+            path: dependencies
+            key: ${{ runner.os }}-dependencies-${{ hashFiles('dependencies/dependencies.md5') }}
+            restore-keys: |
+               ${{ runner.os }}-dependencies-
+
+      -  name: Download dependencies
+         continue-on-error: true
+         run: |
+            mkdir -p dependencies
+            bash cmake/scripts/linux/get-dependencies cmake/versions.cmake
+
       -  name: Build
          run: |-
             mkdir ${{steps.build_configuration.outputs.build_type}}
@@ -193,6 +221,20 @@ jobs:
 
       -  name: Checkout
          uses: actions/checkout@v4
+
+      -  name: Cache dependencies
+         uses: actions/cache@v4
+         with:
+            path: dependencies
+            key: ${{ runner.os }}-dependencies-${{ hashFiles('dependencies/dependencies.md5') }}
+            restore-keys: |
+               ${{ runner.os }}-dependencies-
+
+      -  name: Download dependencies
+         continue-on-error: true
+         run: |
+            mkdir -p dependencies
+            bash cmake/scripts/linux/get-dependencies cmake/versions.cmake
 
       -  name: Build
          run: |-
@@ -260,6 +302,20 @@ jobs:
       -  name: Checkout
          uses: actions/checkout@v4
 
+      -  name: Cache dependencies
+         uses: actions/cache@v4
+         with:
+            path: dependencies
+            key: ${{ runner.os }}-dependencies-${{ hashFiles('dependencies/dependencies.md5') }}
+            restore-keys: |
+               ${{ runner.os }}-dependencies-
+
+      -  name: Download dependencies
+         continue-on-error: true
+         run: |
+            mkdir -p dependencies
+            bash cmake/scripts/linux/get-dependencies cmake/versions.cmake
+
       -  name: Build
          run: |-
             mkdir ${{steps.build_configuration.outputs.build_type}}
@@ -314,6 +370,20 @@ jobs:
 
       -  name: Checkout
          uses: actions/checkout@v4
+
+      -  name: Cache dependencies
+         uses: actions/cache@v4
+         with:
+            path: dependencies
+            key: ${{ runner.os }}-dependencies-${{ hashFiles('dependencies/dependencies.md5') }}
+            restore-keys: |
+               ${{ runner.os }}-dependencies-
+
+      -  name: Download dependencies
+         continue-on-error: true
+         run: |
+            mkdir -p dependencies
+            bash cmake/scripts/linux/get-dependencies cmake/versions.cmake
 
       -  name: Build
          run: |-
@@ -374,6 +444,20 @@ jobs:
 
       -  name: Checkout
          uses: actions/checkout@v4
+
+      -  name: Cache dependencies
+         uses: actions/cache@v4
+         with:
+            path: dependencies
+            key: ${{ runner.os }}-dependencies-${{ hashFiles('dependencies/dependencies.md5') }}
+            restore-keys: |
+               ${{ runner.os }}-dependencies-
+
+      -  name: Download dependencies
+         continue-on-error: true
+         run: |
+            mkdir -p dependencies
+            bash cmake/scripts/linux/get-dependencies cmake/versions.cmake
 
       -  name: Build
          run: |-

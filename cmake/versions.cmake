@@ -1,6 +1,6 @@
 set(FREETYPE_VERSION 2.13.3)
 set(FREETYPE_FILE freetype-${FREETYPE_VERSION}.tar.gz)
-set(FREETYPE_URI http://prdownloads.sourceforge.net/freetype/${FREETYPE_FILE})
+set(FREETYPE_URI https://download-mirror.savannah.gnu.org/releases/freetype/${FREETYPE_FILE})
 set(FREETYPE_HASH ac1f0b517f62bd40d50bc995faa5741d)
 set(FREETYPE_HASH_TYPE MD5)
 
