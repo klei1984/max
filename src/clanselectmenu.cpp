@@ -189,7 +189,7 @@ void ClanSelectMenu::DrawClanUpgrades() {
         }
 
         if (!unit_bonuses.empty()) {
-            const char* unit_name = UnitsManager_BaseUnits[unit_id].singular_name;
+            const char* unit_name = UnitsManager_BaseUnits[unit_id].GetSingularName();
 
             unit_bonuses_text += std::format(" {}: {}.", unit_name, unit_bonuses);
         }

@@ -423,7 +423,7 @@ void IniClans::Init() { inifile_load_from_resource(&ini, CLANATRB); }
 
 int32_t IniClans::SeekUnit(int32_t clan, int32_t unit) {
     return inifile_ini_seek_section(&ini, clan_ini_section_name_lut[clan]) &&
-           inifile_ini_seek_param(&ini, UnitsManager_BaseUnits[unit].singular_name);
+           inifile_ini_seek_param(&ini, UnitsManager_BaseUnits[unit].GetSingularName());
 }
 
 int32_t IniClans::GetNextUnitUpgrade(int16_t* attrib_id, int16_t* value) {

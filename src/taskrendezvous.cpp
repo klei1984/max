@@ -138,9 +138,9 @@ char* TaskRendezvous::WriteStatusLog(char* buffer) const {
         strcpy(buffer, "Completed rendezvous task.");
     } else {
         strcpy(buffer, "Bring ");
-        strcat(buffer, UnitsManager_BaseUnits[unit2->GetUnitType()].singular_name);
+        strcat(buffer, UnitsManager_BaseUnits[unit2->GetUnitType()].GetSingularName());
         strcat(buffer, " and ");
-        strcat(buffer, UnitsManager_BaseUnits[unit1->GetUnitType()].singular_name);
+        strcat(buffer, UnitsManager_BaseUnits[unit1->GetUnitType()].GetSingularName());
         strcat(buffer, " together.");
     }
 

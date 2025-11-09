@@ -38,8 +38,8 @@
 
 AbstractUnit::AbstractUnit(uint32_t flags, ResourceID sprite, ResourceID shadows, ResourceID data, ResourceID flics,
                            ResourceID portrait, ResourceID icon, ResourceID armory_portrait, ResourceID field_18,
-                           uint8_t land_type, uint8_t cargo_type, char new_gender, const char* singular_name,
-                           const char* plural_name, const char* description, const char* tutorial)
+                           uint8_t land_type, uint8_t cargo_type, char new_gender, uint32_t singular_name,
+                           uint32_t plural_name, uint32_t description, uint32_t tutorial)
     : flags(flags),
       sprite(sprite),
       shadows(shadows),
@@ -68,12 +68,19 @@ AbstractUnit::AbstractUnit(uint32_t flags, ResourceID sprite, ResourceID shadows
             gender = 0;
             break;
         default:
-            AILOG(log, "Incorrect gender for {}", singular_name);
+            AILOG(log, "Incorrect gender for {}", this->singular_name);
             SDL_assert(new_gender == 'M' || new_gender == 'F' || new_gender == 'N');
     }
 }
 
-BaseUnit::BaseUnit() : sprite(nullptr), shadows(nullptr), field_47(nullptr) {}
+BaseUnit::BaseUnit()
+    : sprite(nullptr),
+      shadows(nullptr),
+      field_47(nullptr),
+      singular_name(0),
+      plural_name(0),
+      description(0),
+      tutorial(0) {}
 
 void BaseUnit::Init(AbstractUnit* unit) {
     sprite = nullptr;
@@ -99,6 +106,34 @@ void BaseUnit::Init(AbstractUnit* unit) {
     plural_name = unit->plural_name;
     description = unit->description;
     tutorial = unit->tutorial;
+}
+
+const char* BaseUnit::GetSingularName() const {
+    if (singular_name == 0) {
+        return "";
+    }
+    return ResourceManager_GetLanguageEntry(singular_name).c_str();
+}
+
+const char* BaseUnit::GetPluralName() const {
+    if (plural_name == 0) {
+        return "";
+    }
+    return ResourceManager_GetLanguageEntry(plural_name).c_str();
+}
+
+const char* BaseUnit::GetDescription() const {
+    if (description == 0) {
+        return "";
+    }
+    return ResourceManager_GetLanguageEntry(description).c_str();
+}
+
+const char* BaseUnit::GetTutorial() const {
+    if (tutorial == 0) {
+        return "";
+    }
+    return ResourceManager_GetLanguageEntry(tutorial).c_str();
 }
 
 TeamUnits::TeamUnits() : gold(0), hash_team_id(0), color_index_table(nullptr) {}

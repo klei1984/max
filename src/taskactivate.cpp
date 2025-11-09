@@ -58,9 +58,9 @@ void TaskActivate::Activate() {
                             }
 
                             AILOG(log, "Activate {} {} at [{},{}] from {} {} at [{},{}].",
-                                  UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].singular_name,
+                                  UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].GetSingularName(),
                                   unit_to_activate->unit_id, unit_to_activate->grid_x + 1, unit_to_activate->grid_y + 1,
-                                  UnitsManager_BaseUnits[unit_parent->GetUnitType()].singular_name,
+                                  UnitsManager_BaseUnits[unit_parent->GetUnitType()].GetSingularName(),
                                   unit_parent->unit_id, unit_parent->grid_x + 1, unit_parent->grid_y + 1);
 
                             if (unit_to_activate->GetOrder() != ORDER_IDLE || unit_parent->GetOrder() == ORDER_BUILD ||
@@ -155,7 +155,7 @@ void TaskActivate::Activate() {
 
                             } else {
                                 AILOG_LOG(log, "{} is not ready for orders.",
-                                          UnitsManager_BaseUnits[unit_parent->GetUnitType()].singular_name);
+                                          UnitsManager_BaseUnits[unit_parent->GetUnitType()].GetSingularName());
                             }
                         }
                     }
@@ -170,9 +170,9 @@ bool TaskActivate::Task_vfunc1(UnitInfo& unit) { return unit_to_activate != unit
 char* TaskActivate::WriteStatusLog(char* buffer) const {
     if (unit_to_activate && unit_parent) {
         sprintf(buffer, "Activate %s %i at [%i,%i] from %s %i at [%i,%i].",
-                UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].singular_name, unit_to_activate->unit_id,
+                UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].GetSingularName(), unit_to_activate->unit_id,
                 unit_to_activate->grid_x + 1, unit_to_activate->grid_y + 1,
-                UnitsManager_BaseUnits[unit_parent->GetUnitType()].singular_name, unit_parent->unit_id,
+                UnitsManager_BaseUnits[unit_parent->GetUnitType()].GetSingularName(), unit_parent->unit_id,
                 unit_parent->grid_x + 1, unit_parent->grid_y + 1);
 
     } else {
@@ -231,7 +231,8 @@ bool TaskActivate::Execute(UnitInfo& unit) {
 
             if (!Access_IsInsideBounds(&bounds, &position)) {
                 AILOG(log, "Completed activation of {} {}.",
-                      UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].singular_name, unit_to_activate->unit_id);
+                      UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].GetSingularName(),
+                      unit_to_activate->unit_id);
 
                 unit_to_activate->RemoveTask(this);
 
@@ -281,7 +282,7 @@ void TaskActivate::RemoveSelf() {
 void TaskActivate::RemoveUnit(UnitInfo& unit) {
     if (unit_to_activate == unit) {
         AILOG(log, "Removing {} from Activate Unit.",
-              UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].singular_name);
+              UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].GetSingularName());
 
         unit_to_activate = nullptr;
         zone = nullptr;

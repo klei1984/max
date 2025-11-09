@@ -1538,7 +1538,7 @@ void TaskManageBuildings::ClearDefenseSites(uint8_t** access_map, ResourceID uni
                                             uint16_t task_flags) {
     Point position;
 
-    AILOG(log, "Clear defended sites for {}.", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Clear defended sites for {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if ((*it).GetUnitType() == unit_type) {
@@ -2140,7 +2140,7 @@ uint8_t TaskManageBuildings::GetType() const { return TaskType_TaskManageBuildin
 bool TaskManageBuildings::IsNeeded() { return true; }
 
 void TaskManageBuildings::AddUnit(UnitInfo& unit) {
-    AILOG(log, "Task Manage Buildings: Add {}.", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+    AILOG(log, "Task Manage Buildings: Add {}.", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
 
     if (unit.flags & STATIONARY) {
         units.PushBack(unit);
@@ -2337,7 +2337,7 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
     Point site;
     bool result;
 
-    AILOG(log, "Manager: Create {}", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Manager: Create {}", UnitsManager_BaseUnits[unit_type].GetSingularName());
 
     if (Builder_IsBuildable(unit_type)) {
         if (Task_EstimateTurnsTillMissionEnd() >=
@@ -2648,7 +2648,7 @@ bool TaskManageBuildings::FindDefenseSite(ResourceID unit_type, TaskCreateBuildi
                                           uint16_t task_flags) {
     bool result;
 
-    AILOG(log, "Find defense site for {}.", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Find defense site for {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
 
     if (ResourceManager_MapSize.x > 0 && ResourceManager_MapSize.y > 0) {
         uint16_t** construction_map = CreateMap();
@@ -2726,7 +2726,7 @@ bool TaskManageBuildings::ChangeSite(TaskCreateBuilding* task, Point& site) {
     ResourceID unit_type = task->GetUnitType();
     bool is_site_found;
 
-    AILOG(log, "Change site for {}", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Change site for {}", UnitsManager_BaseUnits[unit_type].GetSingularName());
 
     if (unit_type == RADAR) {
         is_site_found = FindSiteForRadar(task, site);

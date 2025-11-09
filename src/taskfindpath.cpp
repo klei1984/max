@@ -64,7 +64,7 @@ bool TaskFindPath::IsThinking() { return path_request != nullptr; }
 
 void TaskFindPath::Begin() {
     AILOG(log, "Task find path for {}: begin.",
-          UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].singular_name);
+          UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].GetSingularName());
 
     path_request->GetClient()->AddTask(this);
     PathsManager_RemoveRequest(path_request->GetClient());
@@ -76,7 +76,7 @@ void TaskFindPath::EndTurn() {}
 void TaskFindPath::RemoveSelf() {
     if (path_request) {
         AILOG(log, "Task find path for {}: parent complete.",
-              UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].singular_name);
+              UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].GetSingularName());
 
         PathsManager_RemoveRequest(&*path_request);
 
@@ -90,8 +90,8 @@ void TaskFindPath::RemoveSelf() {
 void TaskFindPath::RemoveUnit(UnitInfo& unit) {
     if (path_request) {
         AILOG(log, "Task find path for {}: remove {}.",
-              UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].singular_name,
-              UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+              UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].GetSingularName(),
+              UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
 
         SDL_assert(path_request->GetClient() == &unit);
 
@@ -102,7 +102,7 @@ void TaskFindPath::RemoveUnit(UnitInfo& unit) {
 void TaskFindPath::CancelRequest() {
     if (path_request) {
         AILOG(log, "Task find path for {}: cancelled.",
-              UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].singular_name);
+              UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].GetSingularName());
 
         path_request->GetClient()->RemoveTask(this, false);
 
@@ -116,7 +116,8 @@ void TaskFindPath::CancelRequest() {
 
 void TaskFindPath::Finish(Point position, GroundPath* path, bool result) {
     AILOG(log, "Task find path for {}: finished ({}).",
-          UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].singular_name, result ? "True" : "False");
+          UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].GetSingularName(),
+          result ? "True" : "False");
 
     path_request->GetClient()->RemoveTask(this, false);
 

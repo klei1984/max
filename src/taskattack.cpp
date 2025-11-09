@@ -148,13 +148,13 @@ char* TaskAttack::WriteStatusLog(char* buffer) const {
         position = task->DeterminePosition();
 
         sprintf(buffer, "%s %s at [%i,%i]", status,
-                UnitsManager_BaseUnits[task->GetUnitSpotted()->GetUnitType()].singular_name, position.x + 1,
+                UnitsManager_BaseUnits[task->GetUnitSpotted()->GetUnitType()].GetSingularName(), position.x + 1,
                 position.y + 1);
 
         if (leader) {
             char text[100];
 
-            sprintf(text, ", leader %s %i at [%i,%i]", UnitsManager_BaseUnits[leader->GetUnitType()].singular_name,
+            sprintf(text, ", leader %s %i at [%i,%i]", UnitsManager_BaseUnits[leader->GetUnitType()].GetSingularName(),
                     leader->unit_id, leader->grid_x + 1, leader->grid_y + 1);
 
             strcat(buffer, text);
@@ -483,7 +483,7 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
 
                 } else {
                     AILOG_LOG(log, "Attack with {} impossible.",
-                              UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+                              UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
 
                     TaskManager.RemindAvailable(unit);
 
@@ -505,7 +505,7 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
 
                     } else {
                         AILOG_LOG(log, "Grouping unit with {} at [{},{}]",
-                                  UnitsManager_BaseUnits[leader->GetUnitType()].singular_name, leader->grid_x + 1,
+                                  UnitsManager_BaseUnits[leader->GetUnitType()].GetSingularName(), leader->grid_x + 1,
                                   leader->grid_y + 1);
 
                         if (TaskManager_GetDistance(&*leader, unit) / 2 >
@@ -1050,7 +1050,7 @@ void TaskAttack::ChooseFirstTarget() {
 
     if (kill_unit_task && kill_unit_task->GetUnitSpotted()) {
         AILOG_LOG(log, "Chose to attack {}",
-                  UnitsManager_BaseUnits[kill_unit_task->GetUnitSpotted()->GetUnitType()].singular_name);
+                  UnitsManager_BaseUnits[kill_unit_task->GetUnitSpotted()->GetUnitType()].GetSingularName());
     } else {
         AILOG_LOG(log, "No target chosen.");
     }
@@ -1145,7 +1145,7 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
     }
 
     AILOG(log, "Task Attack: Move {} at [{},{}] near [{},{}].",
-          UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, target_position.x + 1, target_position.y + 1,
+          UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), target_position.x + 1, target_position.y + 1,
           site.x + 1, site.y + 1);
 
     TransporterMap map(unit, 0x01, caution_level, transporter);
@@ -1877,7 +1877,7 @@ void TaskAttack::EvaluateAttackReadiness() {
 
                     if (Access_GetDistance(&*it2, position) <= unit_range * unit_range) {
                         AILOG_LOG(log, "{} at [{},{}] is in assault range, shifting to attack mode.",
-                                  UnitsManager_BaseUnits[(*it2).GetUnitType()].singular_name, (*it2).grid_x + 1,
+                                  UnitsManager_BaseUnits[(*it2).GetUnitType()].GetSingularName(), (*it2).grid_x + 1,
                                   (*it2).grid_y + 1);
 
                         op_state = ATTACK_STATE_NORMAL_SEARCH;

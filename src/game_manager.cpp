@@ -3685,7 +3685,7 @@ void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
     switch (event) {
         case 0: {
             sprintf(text, GameManager_EventStrings_EnemySpotted[UnitsManager_BaseUnits[unit->GetUnitType()].gender],
-                    UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+                    UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
 
             if (!GameManager_IsInsideMapView(unit) && timer_elapsed_time(GameManager_NotifyTimeout) > 5000) {
                 resource_id1 = V_M070;
@@ -3697,7 +3697,8 @@ void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
         } break;
 
         case 1: {
-            sprintf(text, unit->hits ? _(fd20) : _(73cc), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+            sprintf(text, unit->hits ? _(fd20) : _(73cc),
+                    UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
 
             if (unit->hits && !GameManager_IsInsideMapView(unit)) {
                 resource_id1 = V_M229;
@@ -3712,28 +3713,28 @@ void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
         } break;
 
         case 2: {
-            sprintf(text, _(3206), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+            sprintf(text, _(3206), UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
 
             resource_id1 = V_M243;
             resource_id2 = V_F243;
         } break;
 
         case 3: {
-            sprintf(text, _(20c3), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+            sprintf(text, _(20c3), UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
 
             resource_id1 = V_M249;
             resource_id2 = V_F249;
         } break;
 
         case 4: {
-            sprintf(text, _(f900), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+            sprintf(text, _(f900), UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
 
             resource_id1 = V_M012;
             resource_id2 = V_F012;
         } break;
 
         case 5: {
-            sprintf(text, _(eb6c), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+            sprintf(text, _(eb6c), UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
 
             resource_id1 = V_M012;
             resource_id2 = V_F012;
@@ -5507,7 +5508,7 @@ bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo>& units) {
             ((*it).GetOrder() == ORDER_MOVE_TO_UNIT && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER)) {
             char text[200];
 
-            sprintf(text, _(dcc6), UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, (*it).grid_x + 1,
+            sprintf(text, _(dcc6), UnitsManager_BaseUnits[(*it).GetUnitType()].GetSingularName(), (*it).grid_x + 1,
                     (*it).grid_y + 1, GameManager_OrderStatusMessages[(*it).GetOrder()]);
 
             MessageManager_DrawMessage(text, 0, 0);
@@ -8011,10 +8012,10 @@ void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
 
         if (unit->flags & STATIONARY) {
             string.Sprintf(200, GameManager_EventStrings_FinishedBuilding[base_unit2->gender],
-                           base_unit2->singular_name, base_unit2->singular_name);
+                           base_unit2->GetSingularName(), base_unit2->GetSingularName());
         } else {
             string.Sprintf(200, GameManager_EventStrings_FinishedConstruction[base_unit1->gender],
-                           base_unit2->singular_name, base_unit1->singular_name);
+                           base_unit2->GetSingularName(), base_unit1->GetSingularName());
         }
 
     } else {
@@ -8023,14 +8024,14 @@ void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
         SDL_assert(build_list.GetCount() > 0);
 
         if (unit->GetOrder() == ORDER_HALT_BUILDING || unit->GetOrder() == ORDER_HALT_BUILDING_2) {
-            string.Sprintf(200, _(cdf8), UnitsManager_BaseUnits[*build_list[0]].singular_name, unit->build_time);
+            string.Sprintf(200, _(cdf8), UnitsManager_BaseUnits[*build_list[0]].GetSingularName(), unit->build_time);
 
         } else {
             int32_t turns_to_build;
 
             unit->GetTurnsToBuild(*build_list[0], unit->GetBuildRate(), &turns_to_build);
 
-            string.Sprintf(200, _(ee24), UnitsManager_BaseUnits[*build_list[0]].singular_name, turns_to_build);
+            string.Sprintf(200, _(ee24), UnitsManager_BaseUnits[*build_list[0]].GetSingularName(), turns_to_build);
         }
     }
 
@@ -8148,7 +8149,7 @@ void GameManager_DrawUnitStatusMessage(UnitInfo* unit) {
     }
 
     if (mission_category == MISSION_CATEGORY_TRAINING) {
-        MessageManager_DrawMessage(UnitsManager_BaseUnits[unit->GetUnitType()].tutorial, 0, 0);
+        MessageManager_DrawMessage(UnitsManager_BaseUnits[unit->GetUnitType()].GetTutorial(), 0, 0);
     }
 
     if (unit->GetOrder() == ORDER_BUILD || unit->GetOrder() == ORDER_CLEAR || unit->GetOrder() == ORDER_HALT_BUILDING ||
@@ -8229,11 +8230,11 @@ void GameManager_ReportNewUnitsMessage(uint16_t* counts) {
 
             if (counts[unit_type] > 1) {
                 sprintf(chunk, GameManager_EventStrings_NewPlural[UnitsManager_BaseUnits[unit_type].gender],
-                        counts[unit_type], UnitsManager_BaseUnits[unit_type].plural_name);
+                        counts[unit_type], UnitsManager_BaseUnits[unit_type].GetPluralName());
 
             } else {
                 sprintf(chunk, GameManager_EventStrings_NewSingular[UnitsManager_BaseUnits[unit_type].gender],
-                        UnitsManager_BaseUnits[unit_type].singular_name);
+                        UnitsManager_BaseUnits[unit_type].GetSingularName());
             }
 
             if (different_type_count == 1) {
@@ -8416,7 +8417,7 @@ void GameManager_QuickBuildMenuDrawPortraits(WindowInfo* window, ResourceID id1,
                      GameManager_QuickBuildMenuItems[i].height, width, COLOR_BLACK);
 
         } else {
-            win_print(window->id, base_unit->singular_name, GameManager_QuickBuildMenuItems[i].width, bounds.ulx,
+            win_print(window->id, base_unit->GetSingularName(), GameManager_QuickBuildMenuItems[i].width, bounds.ulx,
                       bounds.lry, 0x20 | GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_ALLOW_TRUNCATED);
             flicsmgr_construct(base_unit->flics, window, width, bounds.ulx, bounds.uly, false, false);
             win_enable_button(GameManager_QuickBuildMenuItems[i].bid);

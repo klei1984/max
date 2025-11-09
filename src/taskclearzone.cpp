@@ -126,7 +126,7 @@ char* TaskClearZone::WriteStatusLog(char* buffer) const {
 
         case CLEARZONE_STATE_MOVING_UNIT: {
             strcat(buffer, "moving ");
-            strcat(buffer, UnitsManager_BaseUnits[moving_unit->GetUnitType()].singular_name);
+            strcat(buffer, UnitsManager_BaseUnits[moving_unit->GetUnitType()].GetSingularName());
         } break;
     }
 
@@ -160,7 +160,7 @@ void TaskClearZone::EndTurn() {
 
                     if (moving_unit) {
                         AILOG_LOG(log, "Clear Zone: Move Finished for {} at [{},{}].",
-                                  UnitsManager_BaseUnits[moving_unit->GetUnitType()].singular_name,
+                                  UnitsManager_BaseUnits[moving_unit->GetUnitType()].GetSingularName(),
                                   moving_unit->grid_x + 1, moving_unit->grid_y + 1);
 
                         moving_unit->RemoveTask(this);
@@ -214,7 +214,7 @@ void TaskClearZone::RemoveSelf() {
 
 void TaskClearZone::RemoveUnit(UnitInfo& unit) {
     if (moving_unit == unit) {
-        AILOG(log, "Clear Zone: Remove {} at [{},{}].", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name,
+        AILOG(log, "Clear Zone: Remove {} at [{},{}].", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName(),
               unit.grid_x + 1, unit.grid_y + 1);
 
         moving_unit = nullptr;
@@ -487,7 +487,7 @@ void TaskClearZone::AddZone(Zone* zone) {
     auto info_map = AiPlayer_Teams[team].GetInfoMap();
 
     AILOG(log, "Clear Zone: Add Zone for {} at [{},{}].",
-          UnitsManager_BaseUnits[zone->unit->GetUnitType()].singular_name, zone->unit->grid_x + 1,
+          UnitsManager_BaseUnits[zone->unit->GetUnitType()].GetSingularName(), zone->unit->grid_x + 1,
           zone->unit->grid_y + 1);
 
     zones.Insert(zone);

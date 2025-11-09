@@ -301,8 +301,9 @@ void TaskSearchDestination::SearchTrySite() {
                 SmartPointer<UnitInfo> backup = unit;
                 unit = &*it;
 
-                AILOG_LOG(log, "Swapping for {} at [{},{}]", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
-                          unit->grid_x + 1, unit->grid_y + 1);
+                AILOG_LOG(log, "Swapping for {} at [{},{}]",
+                          UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), unit->grid_x + 1,
+                          unit->grid_y + 1);
 
                 unit->RemoveTasks();
                 search_task->AddUnit(*unit);
@@ -343,7 +344,7 @@ void TaskSearchDestination::ResumeSearch() {
 
     if (unit) {
         if (unit->IsReadyForOrders(this) && unit->speed > 0) {
-            AILOG_LOG(log, "Client unit: {} at [{},{}]", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
+            AILOG_LOG(log, "Client unit: {} at [{},{}]", UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(),
                       unit->grid_x + 1, unit->grid_y + 1);
 
             if (!is_doomed) {

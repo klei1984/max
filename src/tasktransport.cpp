@@ -240,7 +240,7 @@ bool TaskTransport::ChooseNewTask() {
 
         if (task_move) {
             AILOG_LOG(log, "Transport: moving to drop off {}.",
-                      UnitsManager_BaseUnits[task_move->GetPassenger()->GetUnitType()].singular_name);
+                      UnitsManager_BaseUnits[task_move->GetPassenger()->GetUnitType()].GetSingularName());
 
             result = true;
 
@@ -284,7 +284,8 @@ bool TaskTransport::IsClient(TaskMove* move) {
 }
 
 void TaskTransport::AddClient(TaskMove* move) {
-    AILOG(log, "Transport: Add Client {}.", UnitsManager_BaseUnits[move->GetPassenger()->GetUnitType()].singular_name);
+    AILOG(log, "Transport: Add Client {}.",
+          UnitsManager_BaseUnits[move->GetPassenger()->GetUnitType()].GetSingularName());
 
     move_tasks.PushBack(*move);
     move->GetPassenger()->AddDelayedTask(this);
@@ -335,7 +336,7 @@ void TaskTransport::MoveFinishedCallback2(Task* task, UnitInfo* unit, char resul
 
         if (transport->task_move->GetPassenger()) {
             AILOG(log, "Transport: dump client {}.",
-                  UnitsManager_BaseUnits[transport->task_move->GetPassenger()->GetUnitType()].singular_name);
+                  UnitsManager_BaseUnits[transport->task_move->GetPassenger()->GetUnitType()].GetSingularName());
 
             SmartPointer<Task> dump =
                 new (std::nothrow) TaskDump(transport, &*transport->task_move, &*transport->unit_transporter);
@@ -383,7 +384,7 @@ char* TaskTransport::WriteStatusLog(char* buffer) const {
 
     } else {
         sprintf(buffer, "Transport units: Waiting for %s.",
-                UnitsManager_BaseUnits[transporter_unit_type].singular_name);
+                UnitsManager_BaseUnits[transporter_unit_type].GetSingularName());
     }
 
     return buffer;
@@ -411,7 +412,7 @@ uint8_t TaskTransport::GetType() const { return TaskType_TaskTransport; }
 bool TaskTransport::IsNeeded() { return !unit_transporter && move_tasks.GetCount() > 0; }
 
 void TaskTransport::AddUnit(UnitInfo& unit) {
-    AILOG(log, "Transport: Add {}.", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+    AILOG(log, "Transport: Add {}.", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
 
     if (!unit_transporter && unit.GetUnitType() == transporter_unit_type) {
         unit_transporter = unit;
@@ -454,7 +455,7 @@ void TaskTransport::ChildComplete(Task* task) {
         if (&*task_move == task) {
             if (unit_transporter) {
                 AILOG_LOG(log, "client {}",
-                          UnitsManager_BaseUnits[task_move->GetPassenger()->GetUnitType()].singular_name);
+                          UnitsManager_BaseUnits[task_move->GetPassenger()->GetUnitType()].GetSingularName());
 
                 Task_RemoveMovementTasks(&*unit_transporter);
                 Task_RemindMoveFinished(&*unit_transporter, true);
@@ -600,7 +601,7 @@ void TaskTransport::RemoveSelf() {
 
 void TaskTransport::RemoveUnit(UnitInfo& unit) {
     if (unit_transporter == &unit) {
-        AILOG(log, "Transport: Remove {}.", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+        AILOG(log, "Transport: Remove {}.", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
 
         for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
             RemoveClient(&*it);
@@ -614,7 +615,7 @@ void TaskTransport::RemoveUnit(UnitInfo& unit) {
 
 void TaskTransport::EventUnitLoaded(UnitInfo& unit1, UnitInfo& unit2) {
     if (unit_transporter == &unit1) {
-        AILOG(log, "Transport: {} Loaded.", UnitsManager_BaseUnits[unit2.GetUnitType()].singular_name);
+        AILOG(log, "Transport: {} Loaded.", UnitsManager_BaseUnits[unit2.GetUnitType()].GetSingularName());
 
         for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
             if ((*it).GetPassenger() == &unit2) {
@@ -629,7 +630,7 @@ void TaskTransport::EventUnitLoaded(UnitInfo& unit1, UnitInfo& unit2) {
 }
 
 void TaskTransport::EventUnitUnloaded(UnitInfo& unit1, UnitInfo& unit2) {
-    AILOG(log, "Transport: {} Unloaded.", UnitsManager_BaseUnits[unit2.GetUnitType()].singular_name);
+    AILOG(log, "Transport: {} Unloaded.", UnitsManager_BaseUnits[unit2.GetUnitType()].GetSingularName());
 
     if (unit2.GetTask() && unit2.GetTask()->GetType() == TaskType_TaskMove) {
         dynamic_cast<TaskMove*>(unit2.GetTask())->RemoveTransport();
@@ -705,7 +706,7 @@ void TaskTransport_MoveFinishedCallback(Task* task, UnitInfo* unit, char result)
 
 void TaskTransport_FinishTransport(Task* const task, UnitInfo* const transporter, UnitInfo* const client, Point site) {
     if (GameManager_IsActiveTurn(task->GetTeam())) {
-        AILOG(log, "TaskAssistMove: Unload {}.", UnitsManager_BaseUnits[client->GetUnitType()].singular_name);
+        AILOG(log, "TaskAssistMove: Unload {}.", UnitsManager_BaseUnits[client->GetUnitType()].GetSingularName());
 
         auto unit_in_the_way = Access_GetTeamUnit(site.x, site.y, task->GetTeam(), MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
 
@@ -746,8 +747,8 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
     bool result;
 
     if (unit_transporter && unit_transporter->IsReadyForOrders(this) && GameManager_IsActiveTurn(team)) {
-        AILOG(log, "Transport: Load {} on {}.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
-              UnitsManager_BaseUnits[unit_transporter->GetUnitType()].singular_name);
+        AILOG(log, "Transport: Load {} on {}.", UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(),
+              UnitsManager_BaseUnits[unit_transporter->GetUnitType()].GetSingularName());
 
         if (Task_IsReadyToTakeOrders(unit) && GameManager_IsActiveTurn(team)) {
             int32_t distance = TaskManager_GetDistance(unit, &*unit_transporter);

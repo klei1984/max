@@ -93,7 +93,8 @@ void Task_RemoveMovementTasks(UnitInfo* unit) {
     if (unit->GetOrder() != ORDER_IDLE || unit->hits <= 0) {
         for (SmartList<Task>::Iterator it = unit->GetTasks().Begin(); it != unit->GetTasks().End(); ++it) {
             if ((*it).GetType() == TaskType_TaskMove || (*it).GetType() == TaskType_TaskFindPath) {
-                AILOG(log, "Move {}: removing old move task", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+                AILOG(log, "Move {}: removing old move task",
+                      UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
 
                 unit->RemoveTask(&*it, false);
                 (*it).RemoveUnit(*unit);
@@ -153,7 +154,7 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
 
         if (team != PLAYER_TEAM_ALIEN) {
             AILOG(log, "Determine if {} should reserve a shot at [{},{}].",
-                      UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, site.x + 1, site.y + 1);
+                  UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), site.x + 1, site.y + 1);
 
             if (Ai_IsDangerousLocation(unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
                 for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[unit->team].GetSpottedUnits().Begin();
@@ -184,8 +185,8 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
 
                                 } else {
                                     AILOG_LOG(log, "{} at [{},{}] outranges us.",
-                                            UnitsManager_BaseUnits[spotted_unit->GetUnitType()].singular_name,
-                                            (*it).GetLastPositionX(), (*it).GetLastPositionY());
+                                              UnitsManager_BaseUnits[spotted_unit->GetUnitType()].GetSingularName(),
+                                              (*it).GetLastPositionX(), (*it).GetLastPositionY());
 
                                     return false;
                                 }

@@ -1284,7 +1284,7 @@ void UnitInfo::AddTask(Task* task) {
     SmartPointer<Task> old_task(GetTask());
     char text[100];
 
-    AILOG(log, "Adding task to {} {}: {}", UnitsManager_BaseUnits[unit_type].singular_name, unit_id,
+    AILOG(log, "Adding task to {} {}: {}", UnitsManager_BaseUnits[unit_type].GetSingularName(), unit_id,
           task->WriteStatusLog(text));
 
     tasks.PushFront(*task);
@@ -1412,13 +1412,13 @@ void UnitInfo::GetName(char* const text, const size_t size) const noexcept {
             SDL_utf8strlcpy(text, name, size);
         } else {
             const auto name_length{
-                snprintf(nullptr, 0, "%s %i", UnitsManager_BaseUnits[unit_type].singular_name, unit_id)};
+                snprintf(nullptr, 0, "%s %i", UnitsManager_BaseUnits[unit_type].GetSingularName(), unit_id)};
 
             if (name_length > 0) {
                 auto buffer{new (std::nothrow) char[name_length + sizeof(char)]};
 
-                snprintf(buffer, name_length + sizeof(char), "%s %i", UnitsManager_BaseUnits[unit_type].singular_name,
-                         unit_id);
+                snprintf(buffer, name_length + sizeof(char), "%s %i",
+                         UnitsManager_BaseUnits[unit_type].GetSingularName(), unit_id);
                 SDL_utf8strlcpy(text, buffer, size);
 
                 delete[] buffer;
@@ -2174,7 +2174,7 @@ void UnitInfo::GainExperience(int32_t experience) {
                 if (team == GameManager_PlayerTeam) {
                     SmartString string;
 
-                    string.Sprintf(80, _(d6a7), UnitsManager_BaseUnits[unit_type].singular_name, grid_x + 1,
+                    string.Sprintf(80, _(d6a7), UnitsManager_BaseUnits[unit_type].GetSingularName(), grid_x + 1,
                                    grid_y + 1);
                     MessageManager_DrawMessage(string.GetCStr(), 0, this, Point(grid_x, grid_y));
                 }
@@ -2264,7 +2264,7 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int32_t attack_potential, int32_t dir
             Point position(grid_x, grid_y);
             SmartString message;
 
-            message.Sprintf(80, formats[base_unit->gender], base_unit->singular_name, grid_x + 1, grid_y + 1);
+            message.Sprintf(80, formats[base_unit->gender], base_unit->GetSingularName(), grid_x + 1, grid_y + 1);
 
             MessageManager_DrawMessage(message.GetCStr(), 0, this, position);
         }
@@ -3758,7 +3758,7 @@ int32_t UnitInfo::GetMaxAllowedBuildRate() {
 }
 
 void UnitInfo::StopMovement() {
-    AILOG(log, "{} at [{},{}]: Emergency Stop", UnitsManager_BaseUnits[unit_type].singular_name, grid_x + 1,
+    AILOG(log, "{} at [{},{}]: Emergency Stop", UnitsManager_BaseUnits[unit_type].GetSingularName(), grid_x + 1,
           grid_y + 1);
 
     if (orders == ORDER_MOVE && path != nullptr) {
@@ -4204,7 +4204,7 @@ void UnitInfo::RemoveTask(Task* task, bool mode) {
     SmartPointer<Task> unit_task(GetTask());
     char text[100];
 
-    AILOG(log, "Removing task from {} {}: {}", UnitsManager_BaseUnits[unit_type].singular_name, unit_id,
+    AILOG(log, "Removing task from {} {}: {}", UnitsManager_BaseUnits[unit_type].GetSingularName(), unit_id,
           task->WriteStatusLog(text));
 
     if (unit_task) {
@@ -4757,7 +4757,7 @@ bool UnitInfo::Upgrade(UnitInfo* parent) {
 
                 GetVersion(unit_mark, parent->GetBaseValues()->GetVersion());
 
-                message.Sprintf(80, _(d23e), UnitsManager_BaseUnits[parent->unit_type].singular_name, unit_mark,
+                message.Sprintf(80, _(d23e), UnitsManager_BaseUnits[parent->unit_type].GetSingularName(), unit_mark,
                                 materials_cost);
 
                 MessageManager_DrawMessage(message.GetCStr(), 0, parent, Point(parent->grid_x, parent->grid_y));

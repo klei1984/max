@@ -87,7 +87,7 @@ void TaskDump::Search() {
 
     passenger = task_move->GetPassenger();
 
-    AILOG(log, "Dump {}: search for position.", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name);
+    AILOG(log, "Dump {}: search for position.", UnitsManager_BaseUnits[passenger->GetUnitType()].GetSingularName());
 
     for (;;) {
         if (--steps_counter < 0) {
@@ -151,7 +151,7 @@ char* TaskDump::WriteStatusLog(char* buffer) const {
 
     } else if (task_move->GetPassenger()) {
         strcpy(buffer, "Find a place to unload ");
-        strcat(buffer, UnitsManager_BaseUnits[task_move->GetPassenger()->GetUnitType()].singular_name);
+        strcat(buffer, UnitsManager_BaseUnits[task_move->GetPassenger()->GetUnitType()].GetSingularName());
 
     } else {
         strcpy(buffer, "Dump unit task, null unit.");

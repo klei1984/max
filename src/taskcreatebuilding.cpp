@@ -280,7 +280,7 @@ void TaskCreateBuilding::BeginBuilding() {
 }
 
 void TaskCreateBuilding::Abort() {
-    AILOG(log, "Create {} at [{},{}] aborted.", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
+    AILOG(log, "Create {} at [{},{}] aborted.", UnitsManager_BaseUnits[unit_type].GetSingularName(), site.x + 1,
           site.y + 1);
 
     SmartPointer<Task> create_building(this);
@@ -311,7 +311,7 @@ void TaskCreateBuilding::Abort() {
 }
 
 void TaskCreateBuilding::Finish() {
-    AILOG(log, "Create {} at [{},{}] finished.", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
+    AILOG(log, "Create {} at [{},{}] finished.", UnitsManager_BaseUnits[unit_type].GetSingularName(), site.x + 1,
           site.y + 1);
 
     // prevent early destruction of object
@@ -422,7 +422,7 @@ bool TaskCreateBuilding::RequestRubbleRemoval() {
 
 char* TaskCreateBuilding::WriteStatusLog(char* buffer) const {
     if (unit_type != INVALID_ID) {
-        sprintf(buffer, "Create a %s at [%i,%i]", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
+        sprintf(buffer, "Create a %s at [%i,%i]", UnitsManager_BaseUnits[unit_type].GetSingularName(), site.x + 1,
                 site.y + 1);
 
         switch (op_state) {
@@ -516,8 +516,8 @@ bool TaskCreateBuilding::IsNeeded() {
 
 void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
     if (unit_type != INVALID_ID) {
-        AILOG(log, "Build {} at [{},{}]: Add {}", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
-              site.y + 1, UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+        AILOG(log, "Build {} at [{},{}]: Add {}", UnitsManager_BaseUnits[unit_type].GetSingularName(), site.x + 1,
+              site.y + 1, UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
 
         if (unit.GetUnitType() == unit_type && unit.grid_x == site.x && unit.grid_y == site.y &&
             unit.GetOrder() != ORDER_IDLE) {
@@ -620,7 +620,7 @@ void TaskCreateBuilding::EndTurn() {
         switch (op_state) {
             case CREATE_BUILDING_STATE_EVALUTING_SITE: {
                 AILOG(log, "Task Create {} at [{},{}]: evaluating site",
-                      UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1, site.y + 1);
+                      UnitsManager_BaseUnits[unit_type].GetSingularName(), site.x + 1, site.y + 1);
 
                 FindBuildSite();
             } break;
@@ -628,7 +628,7 @@ void TaskCreateBuilding::EndTurn() {
             case CREATE_BUILDING_STATE_SITE_BLOCKED: {
                 if (IsInitNeeded()) {
                     AILOG(log, "Task Create {} at [{},{}]: site blocked",
-                          UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1, site.y + 1);
+                          UnitsManager_BaseUnits[unit_type].GetSingularName(), site.x + 1, site.y + 1);
 
                     ChangeInitNeededFlag(false);
 
@@ -845,8 +845,8 @@ bool TaskCreateBuilding::Execute(UnitInfo& unit) {
 void TaskCreateBuilding::RemoveSelf() { Abort(); }
 
 void TaskCreateBuilding::RemoveUnit(UnitInfo& unit) {
-    AILOG(log, "Create {} at [{},{}]: remove {}.", UnitsManager_BaseUnits[unit_type].singular_name, site.x + 1,
-          site.y + 1, UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+    AILOG(log, "Create {} at [{},{}]: remove {}.", UnitsManager_BaseUnits[unit_type].GetSingularName(), site.x + 1,
+          site.y + 1, UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
 
     if (builder == unit) {
         builder = nullptr;
@@ -902,7 +902,7 @@ void TaskCreateBuilding::Activate() {
 }
 
 void TaskCreateBuilding::FindBuildSite() {
-    AILOG(log, "Task Create Building: Choose new site for {}.", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Task Create Building: Choose new site for {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
 
     if (builder->GetTask() == this) {
         Point new_site;
@@ -916,7 +916,7 @@ void TaskCreateBuilding::FindBuildSite() {
                 if (unit_type != INVALID_ID) {
                     site = new_site;
 
-                    AILOG_LOG(log, "New site for {} is [{}, {}].", UnitsManager_BaseUnits[unit_type].singular_name,
+                    AILOG_LOG(log, "New site for {} is [{}, {}].", UnitsManager_BaseUnits[unit_type].GetSingularName(),
                               site.x + 1, site.y + 1);
 
                     SDL_assert(site.x > 0 && site.y > 0);

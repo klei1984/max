@@ -324,8 +324,8 @@ void ReportStats_DrawListItemIcon(uint8_t* buffer, int32_t width, ResourceID uni
 void ReportStats_DrawListItem(uint8_t* buffer, int32_t width, ResourceID unit_type, int32_t ulx, int32_t uly,
                               int32_t full, int32_t color) {
     ReportStats_DrawListItemIcon(buffer, width, unit_type, GameManager_PlayerTeam, ulx + 16, uly + 16);
-    Text_TextBox(buffer, width, UnitsManager_BaseUnits[unit_type].singular_name, ulx + 35, uly, full - 35, 32, color,
-                 false);
+    Text_TextBox(buffer, width, UnitsManager_BaseUnits[unit_type].GetSingularName(), ulx + 35, uly, full - 35, 32,
+                 color, false);
 }
 
 void ReportStats_DrawNumber(uint8_t* buffer, int32_t number, int32_t width, int32_t full, int32_t color) {

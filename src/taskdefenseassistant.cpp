@@ -33,7 +33,7 @@ TaskDefenseAssistant::TaskDefenseAssistant(TaskManageBuildings* manager_, Resour
 TaskDefenseAssistant::~TaskDefenseAssistant() {}
 
 char* TaskDefenseAssistant::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, UnitsManager_BaseUnits[unit_type].singular_name);
+    strcpy(buffer, UnitsManager_BaseUnits[unit_type].GetSingularName());
     strcat(buffer, " defense assistant");
 
     return buffer;

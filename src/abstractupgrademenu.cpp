@@ -365,8 +365,8 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
 
     if (unit_type != INVALID_ID && button_description_rest_state) {
         Text_SetFont(GNW_TEXT_FONT_5);
-        Text_TextBox(window2.buffer, window1.width, base_unit->description, 16, 17, 280, 230, GNW_TEXT_OUTLINE | 0xA2,
-                     false, false);
+        Text_TextBox(window2.buffer, window1.width, base_unit->GetDescription(), 16, 17, 280, 230,
+                     GNW_TEXT_OUTLINE | 0xA2, false, false);
     }
 
     for (int32_t i = 0; i < upgrade_control_count; ++i) {

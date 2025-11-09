@@ -311,7 +311,7 @@ int32_t TaskFrontalAttack::GetCautionLevel(UnitInfo& unit) {
 char* TaskFrontalAttack::WriteStatusLog(char* buffer) const {
     if (spotted_unit && spotted_unit->GetUnit() && spotted_unit->GetUnit()->hits > 0) {
         sprintf(buffer, "Frontal attack on %s in [%i,%i]",
-                UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].singular_name,
+                UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].GetSingularName(),
                 spotted_unit->GetLastPositionX() + 1, spotted_unit->GetLastPositionY() + 1);
 
     } else {

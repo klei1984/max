@@ -753,7 +753,7 @@ void DrawMap_RenderNamesDisplay(UnitInfo* unit) {
 
         if (parent) {
             sprintf(text, DrawMap_UnitCompletionLabels[UnitsManager_BaseUnits[parent->GetUnitType()].gender],
-                    UnitsManager_BaseUnits[parent->GetUnitType()].singular_name);
+                    UnitsManager_BaseUnits[parent->GetUnitType()].GetSingularName());
 
             if (parent->flags & STATIONARY) {
                 unit = parent;

@@ -253,14 +253,14 @@ TransferMenu::TransferMenu(UnitInfo* unit) : Window(XFERPIC, GameManager_GetDial
     ReportStats_DrawListItemIcon(window.buffer, window.width, source_unit->GetUnitType(), GameManager_PlayerTeam, 104,
                                  36);
 
-    Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[source_unit->GetUnitType()].singular_name, 10, 52,
-                 110, 30, COLOR_BLACK, true);
+    Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[source_unit->GetUnitType()].GetSingularName(), 10,
+                 52, 110, 30, COLOR_BLACK, true);
 
     ReportStats_DrawListItemIcon(window.buffer, window.width, target_unit->GetUnitType(), GameManager_PlayerTeam, 207,
                                  36);
 
-    Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name, 191, 52,
-                 110, 30, COLOR_BLACK, true);
+    Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName(), 191,
+                 52, 110, 30, COLOR_BLACK, true);
 
     UpdateIndicators();
 }

@@ -30,7 +30,7 @@
 const char* PathRequest_CautionLevels[] = {"none", "avoid reaction fire", "avoid next turn's fire", "avoid all damage"};
 
 PathRequest::PathRequest(UnitInfo* unit, int32_t mode, Point point) : client(unit), point(point), flags(mode) {
-    AILOG(log, "Path request for {} at [{},{}].", UnitsManager_BaseUnits[client->GetUnitType()].singular_name,
+    AILOG(log, "Path request for {} at [{},{}].", UnitsManager_BaseUnits[client->GetUnitType()].GetSingularName(),
           client->grid_x + 1, client->grid_y + 1);
 
     max_cost = INT16_MAX;
@@ -95,7 +95,7 @@ void PathRequest::SetOptimizeFlag(bool value) {
 
 void PathRequest::CreateTransport(ResourceID unit_type) {
     if (unit_type != INVALID_ID) {
-        AILOG(log, "Use {}.", UnitsManager_BaseUnits[unit_type].singular_name);
+        AILOG(log, "Use {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
 
         transporter = new (std::nothrow) UnitInfo(unit_type, client->team, 0xFFFF);
 

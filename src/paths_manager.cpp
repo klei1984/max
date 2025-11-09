@@ -114,7 +114,7 @@ void PathsManager::Clear() {
 void PathsManager::PushFront(PathRequest& object) {
     if (request != nullptr) {
         AILOG(log, "Pre-empting path request for {}.",
-              UnitsManager_BaseUnits[request->GetClient()->GetUnitType()].singular_name);
+              UnitsManager_BaseUnits[request->GetClient()->GetUnitType()].GetSingularName());
 
         requests.PushFront(*request);
 
@@ -165,7 +165,7 @@ void PathsManager::RemoveRequest(PathRequest* path_request) {
     }
 
     AILOG(log, "Remove path request for {}.",
-          UnitsManager_BaseUnits[protect_request->GetClient()->GetUnitType()].singular_name);
+          UnitsManager_BaseUnits[protect_request->GetClient()->GetUnitType()].GetSingularName());
 
     protect_request->Cancel();
     requests.Remove(*protect_request);
@@ -175,7 +175,7 @@ void PathsManager::RemoveRequest(UnitInfo* unit) {
     for (SmartList<PathRequest>::Iterator it = requests.Begin(); it != requests.End(); ++it) {
         if ((*it).GetClient() == unit) {
             AILOG(log, "Remove path request for {}.",
-                  UnitsManager_BaseUnits[(*it).GetClient()->GetUnitType()].singular_name);
+                  UnitsManager_BaseUnits[(*it).GetClient()->GetUnitType()].GetSingularName());
 
             (*it).Cancel();
             requests.Remove(it);
@@ -504,7 +504,7 @@ void PathsManager::ProcessRequest() {
 
         } else {
             AILOG(log, "Start Search for path for {} at [{},{}] to [{},{}].",
-                  UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, position.x + 1, position.y + 1,
+                  UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), position.x + 1, position.y + 1,
                   destination.x + 1, destination.y + 1);
 
             time_stamp = timer_get();
@@ -711,7 +711,7 @@ void PathsManager_ProcessGroundCover(uint8_t** map, UnitInfo* unit, int32_t surf
 }
 
 void PathsManager_InitAccessMap(UnitInfo* unit, uint8_t** map, uint8_t flags, int32_t caution_level) {
-    AILOG(log, "Mark cost map for {}.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+    AILOG(log, "Mark cost map for {}.", UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
 
     if (unit->flags & MOBILE_AIR_UNIT) {
         for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {

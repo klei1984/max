@@ -1120,14 +1120,15 @@ void ReportMenu::UpdateSelectedUnitStatus(UnitInfo* unit, WindowInfo* window, in
             SDL_assert(build_list.GetCount() > 0);
 
             if (unit->GetOrder() == ORDER_HALT_BUILDING || unit->GetOrder() == ORDER_HALT_BUILDING_2) {
-                string.Sprintf(200, _(abea), UnitsManager_BaseUnits[*build_list[0]].singular_name, unit->build_time);
+                string.Sprintf(200, _(abea), UnitsManager_BaseUnits[*build_list[0]].GetSingularName(),
+                               unit->build_time);
 
             } else {
                 int32_t turns_to_build;
 
                 unit->GetTurnsToBuild(*build_list[0], unit->GetBuildRate(), &turns_to_build);
 
-                string.Sprintf(200, _(4262), UnitsManager_BaseUnits[*build_list[0]].singular_name, turns_to_build);
+                string.Sprintf(200, _(4262), UnitsManager_BaseUnits[*build_list[0]].GetSingularName(), turns_to_build);
 
                 ReportStats_DrawListItemIcon(window->buffer, window->width, *build_list[0], GameManager_PlayerTeam,
                                              ulx + width + 20, (height / 2) + uly);

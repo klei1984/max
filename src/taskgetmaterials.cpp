@@ -63,7 +63,7 @@ char* TaskGetMaterials::WriteStatusLog(char* buffer) const {
 
                 sprintf(text, "get %i from ", remaining_demand);
                 strcat(buffer, text);
-                strcat(buffer, UnitsManager_BaseUnits[source->GetUnitType()].singular_name);
+                strcat(buffer, UnitsManager_BaseUnits[source->GetUnitType()].GetSingularName());
 
             } else {
                 strcat(buffer, "waiting for source.");
@@ -161,9 +161,9 @@ void TaskGetMaterials::DoTransfer() {
         SDL_assert(GameManager_IsActiveTurn(team));
 
         AILOG_LOG(log, "Order {} materials from {} at [{},{}] for {} at [{},{}] holding {} materials.",
-                  source->target_grid_x, UnitsManager_BaseUnits[source->GetUnitType()].singular_name,
+                  source->target_grid_x, UnitsManager_BaseUnits[source->GetUnitType()].GetSingularName(),
                   source->grid_x + 1, source->grid_y + 1,
-                  UnitsManager_BaseUnits[requestor->GetUnitType()].singular_name, requestor->grid_x + 1,
+                  UnitsManager_BaseUnits[requestor->GetUnitType()].GetSingularName(), requestor->grid_x + 1,
                   requestor->grid_y + 1, requestor->storage);
 
         UnitsManager_SetNewOrder(source.Get(), ORDER_TRANSFER, ORDER_STATE_INIT);

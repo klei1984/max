@@ -111,7 +111,7 @@ char* TaskMove::WriteStatusLog(char* buffer) const {
             } else {
                 sprintf(buffer, "Move to [%i,%i] via [%i,%i] using %s", passenger_destination.x + 1,
                         passenger_destination.y + 1, waypoint.x + 1, waypoint.y + 1,
-                        UnitsManager_BaseUnits[transporter_unit_type].singular_name);
+                        UnitsManager_BaseUnits[transporter_unit_type].GetSingularName());
             }
 
         } else if (transporter_unit_type == INVALID_ID) {
@@ -119,7 +119,7 @@ char* TaskMove::WriteStatusLog(char* buffer) const {
 
         } else {
             sprintf(buffer, "Move to [%i,%i] using %s", passenger_destination.x + 1, passenger_destination.y + 1,
-                    UnitsManager_BaseUnits[transporter_unit_type].singular_name);
+                    UnitsManager_BaseUnits[transporter_unit_type].GetSingularName());
         }
 
     } else {
@@ -146,7 +146,7 @@ Point TaskMove::GetTransporterWaypoint() const { return transport_waypoint; }
 void TaskMove::RemoveTransport() { transporter_unit_type = INVALID_ID; }
 
 void TaskMove::AddUnit(UnitInfo& unit) {
-    AILOG(log, "Move: add {}.", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+    AILOG(log, "Move: add {}.", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
 
     if (passenger == &unit && unit.GetTask() == this) {
         Task_RemindMoveFinished(&*passenger, true);
@@ -168,7 +168,7 @@ void TaskMove::Begin() {
 
 void TaskMove::BeginTurn() {
     if (passenger) {
-        AILOG(log, "Move {}: Begin Turn", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name);
+        AILOG(log, "Move {}: Begin Turn", UnitsManager_BaseUnits[passenger->GetUnitType()].GetSingularName());
 
         if (passenger->GetOrder() == ORDER_IDLE && passenger->GetOrderState() == ORDER_STATE_PREPARE_STORE &&
             (passenger_destination.x < 0 || passenger_destination.y < 0)) {
@@ -214,7 +214,7 @@ bool TaskMove::Execute(UnitInfo& unit) {
     bool result;
 
     if (passenger == &unit) {
-        AILOG(log, "Move finished for {} at [{},{}].", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name,
+        AILOG(log, "Move finished for {} at [{},{}].", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName(),
               unit.grid_x + 1, unit.grid_y + 1);
 
         if (unit.IsReadyForOrders(this)) {
@@ -323,7 +323,7 @@ void TaskMove::RemoveSelf() {
         passenger->RemoveTask(this);
 
         AILOG(log, "Move (RemoveSelf): Remove {} at [{},{}].",
-              UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name, passenger->grid_x + 1,
+              UnitsManager_BaseUnits[passenger->GetUnitType()].GetSingularName(), passenger->grid_x + 1,
               passenger->grid_y + 1);
 
         passenger = nullptr;
@@ -337,8 +337,8 @@ void TaskMove::RemoveSelf() {
 
 void TaskMove::RemoveUnit(UnitInfo& unit) {
     if (passenger == &unit) {
-        AILOG(log, "Move (RemoveUnit): Remove {} at [{},{}].", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name,
-              unit.grid_x + 1, unit.grid_y + 1);
+        AILOG(log, "Move (RemoveUnit): Remove {} at [{},{}].",
+              UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName(), unit.grid_x + 1, unit.grid_y + 1);
 
         Finished(TASKMOVE_RESULT_CANCELLED);
     }
@@ -400,7 +400,7 @@ void TaskMove::AttemptTransport() {
 }
 
 void TaskMove::AttemptTransportType(ResourceID unit_type) {
-    AILOG(log, "Attempt {}.", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Attempt {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
 
     PathRequest* request =
         new (std::nothrow) TaskPathRequest(&*passenger, AccessModifier_NoModifiers, destination_waypoint);
@@ -454,7 +454,7 @@ void TaskMove::FindWaypointUsingTransport() {
 }
 
 void TaskMove::Search(bool mode) {
-    AILOG(log, "Move {}: find path.", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name);
+    AILOG(log, "Move {}: find path.", UnitsManager_BaseUnits[passenger->GetUnitType()].GetSingularName());
 
     Point line_distance(destination_waypoint.x - passenger->grid_x, destination_waypoint.y - passenger->grid_y);
 
@@ -494,11 +494,11 @@ void TaskMove::Finished(int32_t result) {
     if (passenger) {
         const char* result_codes[] = {"success", "already in range", "blocked", "cancelled"};
 
-        AILOG(log, "Move {}: finished ({})", UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name,
+        AILOG(log, "Move {}: finished ({})", UnitsManager_BaseUnits[passenger->GetUnitType()].GetSingularName(),
               result_codes[result]);
 
         AILOG_LOG(log, "Move (Finished): Remove {} at [{},{}].",
-                  UnitsManager_BaseUnits[passenger->GetUnitType()].singular_name, passenger->grid_x + 1,
+                  UnitsManager_BaseUnits[passenger->GetUnitType()].GetSingularName(), passenger->grid_x + 1,
                   passenger->grid_y + 1);
 
         passenger->RemoveTask(this, false);
@@ -670,7 +670,7 @@ void TaskMove::BlockedPathResultCallback(Task* task, PathRequest* path_request, 
 
                 if (unit) {
                     AILOG_LOG(log, "Blocked by {} at [{},{}].",
-                              UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, site.x + 1, site.y + 1);
+                              UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), site.x + 1, site.y + 1);
 
                     flag = true;
 
@@ -997,8 +997,8 @@ void TaskMove::MoveAirUnit() {
                         for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                             if ((*it).flags & MOBILE_AIR_UNIT) {
                                 AILOG_LOG(log, "Blocked by {} at [{},{}]",
-                                          UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, (*it).grid_x + 1,
-                                          (*it).grid_y + 1);
+                                          UnitsManager_BaseUnits[(*it).GetUnitType()].GetSingularName(),
+                                          (*it).grid_x + 1, (*it).grid_y + 1);
 
                                 if ((*it).GetOrder() == ORDER_MOVE &&
                                     (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER) {
@@ -1045,7 +1045,7 @@ void TaskMove::MoveAirUnit() {
                             (*it).target_grid_y == passenger_waypoint.y) {
                             AILOG_LOG(log, "[{},{}] is a destination for {} at [{},{}].", passenger_waypoint.x + 1,
                                       passenger_waypoint.y + 1,
-                                      UnitsManager_BaseUnits[(*it).GetUnitType()].singular_name, (*it).grid_x + 1,
+                                      UnitsManager_BaseUnits[(*it).GetUnitType()].GetSingularName(), (*it).grid_x + 1,
                                       (*it).grid_y + 1);
 
                             if (step_index) {

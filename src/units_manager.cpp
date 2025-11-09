@@ -237,10 +237,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(79a5),
-        /* plural name     */ _(08ad),
+        /* singular name   */ 0x79a5,
+        /* plural name     */ 0x08ad,
         /* description */
-        _(9ed6)
+        0x9ed6
         /* tutorial description (optional) */
     );
 
@@ -257,10 +257,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(1c9b),
-        /* plural name     */ _(1522),
+        /* singular name   */ 0x1c9b,
+        /* plural name     */ 0x1522,
         /* description */
-        _(1a05)
+        0x1a05
         /* tutorial description (optional) */
     );
 
@@ -277,12 +277,12 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(bbf4),
-        /* plural name     */ _(7084),
+        /* singular name   */ 0xbbf4,
+        /* plural name     */ 0x7084,
         /* description */
-        _(7ed6),
+        0x7ed6,
         /* tutorial description (optional) */
-        _(fbcd));
+        0xfbcd);
 
     UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE | REQUIRES_SLAB,
@@ -297,10 +297,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ 4,
         /* gender          */ 'N',
-        /* singular name   */ _(c8d3),
-        /* plural name     */ _(10c9),
+        /* singular name   */ 0xc8d3,
+        /* plural name     */ 0x10c9,
         /* description */
-        _(5a81)
+        0x5a81
         /* tutorial description (optional) */
     );
 
@@ -317,10 +317,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(5ea2),
-        /* plural name     */ _(5a91),
+        /* singular name   */ 0x5ea2,
+        /* plural name     */ 0x5a91,
         /* description */
-        _(4582)
+        0x4582
         /* tutorial description (optional) */
     );
 
@@ -338,10 +338,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(524f),
-        /* plural name     */ _(3184),
+        /* singular name   */ 0x524f,
+        /* plural name     */ 0x3184,
         /* description */
-        _(a5d2)
+        0xa5d2
         /* tutorial description (optional) */
     );
 
@@ -358,12 +358,12 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ _(c2d8),
-        /* plural name     */ _(5053),
+        /* singular name   */ 0xc2d8,
+        /* plural name     */ 0x5053,
         /* description */
-        _(53b3),
+        0x53b3,
         /* tutorial description (optional) */
-        _(656d));
+        0x656d);
 
     UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ STATIONARY | UPGRADABLE | SELECTABLE | STANDALONE | REQUIRES_SLAB,
@@ -378,12 +378,12 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ FUEL,
         /* gender          */ 'N',
-        /* singular name   */ _(93dc),
-        /* plural name     */ _(51d9),
+        /* singular name   */ 0x93dc,
+        /* plural name     */ 0x51d9,
         /* description */
-        _(e1a5),
+        0xe1a5,
         /* tutorial description (optional) */
-        _(75d4));
+        0x75d4);
 
     UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ STATIONARY | UPGRADABLE | SELECTABLE | STANDALONE | REQUIRES_SLAB,
@@ -398,12 +398,12 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ GOLD,
         /* gender          */ 'N',
-        /* singular name   */ _(282f),
-        /* plural name     */ _(4340),
+        /* singular name   */ 0x282f,
+        /* plural name     */ 0x4340,
         /* description */
-        _(760c),
+        0x760c,
         /* tutorial description (optional) */
-        _(8672));
+        0x8672);
 
     UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE | REQUIRES_SLAB,
@@ -418,12 +418,12 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ 4,
         /* gender          */ 'N',
-        /* singular name   */ _(f830),
-        /* plural name     */ _(e8a8),
+        /* singular name   */ 0xf830,
+        /* plural name     */ 0xe8a8,
         /* description */
-        _(a135),
+        0xa135,
         /* tutorial description (optional) */
-        _(731e));
+        0x731e);
 
     UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE | REQUIRES_SLAB,
@@ -438,10 +438,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ 6,
         /* gender          */ 'N',
-        /* singular name   */ _(66ad),
-        /* plural name     */ _(43a4),
+        /* singular name   */ 0x66ad,
+        /* plural name     */ 0x43a4,
         /* description */
-        _(42ec)
+        0x42ec
         /* tutorial description (optional) */
     );
 
@@ -458,10 +458,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ 5,
         /* gender          */ 'N',
-        /* singular name   */ _(49c1),
-        /* plural name     */ _(5d61),
+        /* singular name   */ 0x49c1,
+        /* plural name     */ 0x5d61,
         /* description */
-        _(1c3b)
+        0x1c3b
         /* tutorial description (optional) */
     );
 
@@ -478,12 +478,12 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ 0,
         /* gender          */ 'N',
-        /* singular name   */ _(8f0d),
-        /* plural name     */ _(c3d2),
+        /* singular name   */ 0x8f0d,
+        /* plural name     */ 0xc3d2,
         /* description */
-        _(c971),
+        0xc971,
         /* tutorial description (optional) */
-        _(9736));
+        0x9736);
 
     UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | BUILDING | STATIONARY,
@@ -498,10 +498,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Large Rubble 1",
-        /* plural name     */ "",
+        /* singular name   */ 0x53d5,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -518,10 +518,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Small Rubble 1",
-        /* plural name     */ "",
+        /* singular name   */ 0xd9e7,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -538,10 +538,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Large tape",
-        /* plural name     */ "",
+        /* singular name   */ 0xf243,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -558,10 +558,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Small tape",
-        /* plural name     */ "",
+        /* singular name   */ 0xb9f3,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -578,10 +578,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Large Slab",
-        /* plural name     */ "",
+        /* singular name   */ 0x6cdf,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -598,10 +598,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Small Slab",
-        /* plural name     */ "",
+        /* singular name   */ 0x155f,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -618,10 +618,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Large cones",
-        /* plural name     */ "",
+        /* singular name   */ 0xa325,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -638,10 +638,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "Small cones",
-        /* plural name     */ "",
+        /* singular name   */ 0x3fd7,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -658,10 +658,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(a22e),
-        /* plural name     */ _(02e7),
+        /* singular name   */ 0xa22e,
+        /* plural name     */ 0x02e7,
         /* description */
-        _(4d4a)
+        0x4d4a
         /* tutorial description (optional) */
     );
 
@@ -678,10 +678,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ 6,
         /* gender          */ 'N',
-        /* singular name   */ _(be71),
-        /* plural name     */ _(b393),
+        /* singular name   */ 0xbe71,
+        /* plural name     */ 0xb393,
         /* description */
-        _(2627)
+        0x2627
         /* tutorial description (optional) */
     );
 
@@ -698,10 +698,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(bc7b),
-        /* plural name     */ _(c323),
+        /* singular name   */ 0xbc7b,
+        /* plural name     */ 0xc323,
         /* description */
-        _(29b9)
+        0x29b9
         /* tutorial description (optional) */
     );
 
@@ -719,12 +719,12 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(eebb),
-        /* plural name     */ _(27ca),
+        /* singular name   */ 0xeebb,
+        /* plural name     */ 0x27ca,
         /* description */
-        _(5250),
+        0x5250,
         /* tutorial description (optional) */
-        _(381d));
+        0x381d);
 
     UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | UPGRADABLE | CONSTRUCTOR_UNIT | ELECTRONIC_UNIT | SELECTABLE |
@@ -740,12 +740,12 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(ca88),
-        /* plural name     */ _(43e4),
+        /* singular name   */ 0xca88,
+        /* plural name     */ 0x43e4,
         /* description */
-        _(e9d2),
+        0xe9d2,
         /* tutorial description (optional) */
-        _(70ae));
+        0x70ae);
 
     UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ BUILDING | STATIONARY | REQUIRES_SLAB,
@@ -760,10 +760,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "",
-        /* plural name     */ "",
+        /* singular name   */ 0,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -781,10 +781,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(751e),
-        /* plural name     */ _(331b),
+        /* singular name   */ 0x751e,
+        /* plural name     */ 0x331b,
         /* description */
-        _(784f)
+        0x784f
         /* tutorial description (optional) */
     );
 
@@ -801,10 +801,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(97e9),
-        /* plural name     */ _(c2e2),
+        /* singular name   */ 0x97e9,
+        /* plural name     */ 0xc2e2,
         /* description */
-        _(73ae)
+        0x73ae
         /* tutorial description (optional) */
     );
 
@@ -821,10 +821,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(e531),
-        /* plural name     */ _(e103),
+        /* singular name   */ 0xe531,
+        /* plural name     */ 0xe103,
         /* description */
-        _(fa10)
+        0xfa10
         /* tutorial description (optional) */
     );
 
@@ -841,10 +841,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(5972),
-        /* plural name     */ _(4b34),
+        /* singular name   */ 0x5972,
+        /* plural name     */ 0x4b34,
         /* description */
-        _(6182)
+        0x6182
         /* tutorial description (optional) */
     );
 
@@ -861,10 +861,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(79b5),
-        /* plural name     */ _(6006),
+        /* singular name   */ 0x79b5,
+        /* plural name     */ 0x6006,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -881,10 +881,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(30c9),
-        /* plural name     */ _(aaad),
+        /* singular name   */ 0x30c9,
+        /* plural name     */ 0xaaad,
         /* description */
-        _(c11b)
+        0xc11b
         /* tutorial description (optional) */
     );
 
@@ -901,10 +901,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(9a30),
-        /* plural name     */ _(cbf4),
+        /* singular name   */ 0x9a30,
+        /* plural name     */ 0xcbf4,
         /* description */
-        _(75fb)
+        0x75fb
         /* tutorial description (optional) */
     );
 
@@ -922,12 +922,12 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(e1c0),
-        /* plural name     */ _(5cd9),
+        /* singular name   */ 0xe1c0,
+        /* plural name     */ 0x5cd9,
         /* description */
-        _(6fae),
+        0x6fae,
         /* tutorial description (optional) */
-        _(0fc3));
+        0x0fc3);
 
     UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ STATIONARY | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE | STANDALONE |
@@ -943,10 +943,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(4cb4),
-        /* plural name     */ _(3764),
+        /* singular name   */ 0x4cb4,
+        /* plural name     */ 0x3764,
         /* description */
-        _(5282)
+        0x5282
         /* tutorial description (optional) */
     );
 
@@ -964,10 +964,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(6689),
-        /* plural name     */ _(64b7),
+        /* singular name   */ 0x6689,
+        /* plural name     */ 0x64b7,
         /* description */
-        _(96b3)
+        0x96b3
         /* tutorial description (optional) */
     );
 
@@ -985,10 +985,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(f5c8),
-        /* plural name     */ _(24cb),
+        /* singular name   */ 0xf5c8,
+        /* plural name     */ 0x24cb,
         /* description */
-        _(d8d2)
+        0xd8d2
         /* tutorial description (optional) */
     );
 
@@ -1005,10 +1005,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(65a8),
-        /* plural name     */ _(703f),
+        /* singular name   */ 0x65a8,
+        /* plural name     */ 0x703f,
         /* description */
-        _(c75e)
+        0xc75e
         /* tutorial description (optional) */
     );
 
@@ -1025,10 +1025,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(3892),
-        /* plural name     */ _(d982),
+        /* singular name   */ 0x3892,
+        /* plural name     */ 0xd982,
         /* description */
-        _(0886)
+        0x0886
         /* tutorial description (optional) */
     );
 
@@ -1045,12 +1045,12 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ _(72a5),
-        /* plural name     */ _(b41b),
+        /* singular name   */ 0x72a5,
+        /* plural name     */ 0xb41b,
         /* description */
-        _(0777),
+        0x0777,
         /* tutorial description (optional) */
-        _(5a0e));
+        0x5a0e);
 
     UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ GROUND_COVER | STATIONARY | UPGRADABLE | SELECTABLE | SENTRY_UNIT,
@@ -1065,10 +1065,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(a2c3),
-        /* plural name     */ _(ee79),
+        /* singular name   */ 0xa2c3,
+        /* plural name     */ 0xee79,
         /* description */
-        _(3b31)
+        0x3b31
         /* tutorial description (optional) */
     );
 
@@ -1085,10 +1085,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(a309),
-        /* plural name     */ _(e7f8),
+        /* singular name   */ 0xa309,
+        /* plural name     */ 0xe7f8,
         /* description */
-        _(470d)
+        0x470d
         /* tutorial description (optional) */
     );
 
@@ -1105,10 +1105,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ 255,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "explosion",
-        /* plural name     */ "",
+        /* singular name   */ 0x4e33,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -1125,10 +1125,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ 255,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "explosion",
-        /* plural name     */ "",
+        /* singular name   */ 0x4e33,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -1145,10 +1145,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ 255,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "explosion",
-        /* plural name     */ "",
+        /* singular name   */ 0x4e33,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -1165,10 +1165,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ 255,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "explosion",
-        /* plural name     */ "",
+        /* singular name   */ 0x4e33,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -1185,10 +1185,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ 255,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "explosion",
-        /* plural name     */ "",
+        /* singular name   */ 0x4e33,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -1205,10 +1205,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(4ef8),
-        /* plural name     */ _(603b),
+        /* singular name   */ 0x4ef8,
+        /* plural name     */ 0x603b,
         /* description */
-        _(b66a)
+        0xb66a
         /* tutorial description (optional) */
     );
 
@@ -1226,12 +1226,12 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ _(7a39),
-        /* plural name     */ _(3b10),
+        /* singular name   */ 0x7a39,
+        /* plural name     */ 0x3b10,
         /* description */
-        _(d28e),
+        0xd28e,
         /* tutorial description (optional) */
-        _(aafe));
+        0xaafe);
 
     UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT |
@@ -1247,12 +1247,12 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(8a1d),
-        /* plural name     */ _(95a3),
+        /* singular name   */ 0x8a1d,
+        /* plural name     */ 0x95a3,
         /* description */
-        _(b2bb),
+        0xb2bb,
         /* tutorial description (optional) */
-        _(1ccb));
+        0x1ccb);
 
     UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE |
@@ -1268,12 +1268,12 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(c0b2),
-        /* plural name     */ _(ca60),
+        /* singular name   */ 0xc0b2,
+        /* plural name     */ 0xca60,
         /* description */
-        _(d58b),
+        0xd58b,
         /* tutorial description (optional) */
-        _(809e));
+        0x809e);
 
     UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE |
@@ -1289,10 +1289,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(baf1),
-        /* plural name     */ _(301e),
+        /* singular name   */ 0xbaf1,
+        /* plural name     */ 0x301e,
         /* description */
-        _(3a41)
+        0x3a41
         /* tutorial description (optional) */
     );
 
@@ -1310,10 +1310,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(dcf4),
-        /* plural name     */ _(a685),
+        /* singular name   */ 0xdcf4,
+        /* plural name     */ 0xa685,
         /* description */
-        _(03cb)
+        0x03cb
         /* tutorial description (optional) */
     );
 
@@ -1331,10 +1331,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(3fa5),
-        /* plural name     */ _(c263),
+        /* singular name   */ 0x3fa5,
+        /* plural name     */ 0xc263,
         /* description */
-        _(0aa6)
+        0x0aa6
         /* tutorial description (optional) */
     );
 
@@ -1352,10 +1352,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(b6ef),
-        /* plural name     */ _(a3da),
+        /* singular name   */ 0xb6ef,
+        /* plural name     */ 0xa3da,
         /* description */
-        _(051d)
+        0x051d
         /* tutorial description (optional) */
     );
 
@@ -1372,10 +1372,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'M',
-        /* singular name   */ _(c838),
-        /* plural name     */ _(d26f),
+        /* singular name   */ 0xc838,
+        /* plural name     */ 0xd26f,
         /* description */
-        _(45c2)
+        0x45c2
         /* tutorial description (optional) */
     );
 
@@ -1393,12 +1393,12 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(5bc4),
-        /* plural name     */ _(8def),
+        /* singular name   */ 0x5bc4,
+        /* plural name     */ 0x8def,
         /* description */
-        _(f3a3),
+        0xf3a3,
         /* tutorial description (optional) */
-        _(d2c2));
+        0xd2c2);
 
     UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT |
@@ -1414,10 +1414,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(71d4),
-        /* plural name     */ _(e812),
+        /* singular name   */ 0x71d4,
+        /* plural name     */ 0xe812,
         /* description */
-        _(2643)
+        0x2643
         /* tutorial description (optional) */
     );
 
@@ -1434,10 +1434,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ _(9dff),
-        /* plural name     */ _(c597),
+        /* singular name   */ 0x9dff,
+        /* plural name     */ 0xc597,
         /* description */
-        _(d932)
+        0xd932
         /* tutorial description (optional) */
     );
 
@@ -1454,10 +1454,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ GOLD,
         /* gender          */ 'N',
-        /* singular name   */ _(e4c1),
-        /* plural name     */ _(23bb),
+        /* singular name   */ 0xe4c1,
+        /* plural name     */ 0x23bb,
         /* description */
-        _(65cf)
+        0x65cf
         /* tutorial description (optional) */
     );
 
@@ -1475,12 +1475,12 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ _(d933),
-        /* plural name     */ _(373a),
+        /* singular name   */ 0xd933,
+        /* plural name     */ 0x373a,
         /* description */
-        _(52b5),
+        0x52b5,
         /* tutorial description (optional) */
-        _(3fec));
+        0x3fec);
 
     UnitsManager_AbstractUnits.emplace_back(
         /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
@@ -1495,10 +1495,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ _(fac3),
-        /* plural name     */ _(5be1),
+        /* singular name   */ 0xfac3,
+        /* plural name     */ 0x5be1,
         /* description */
-        _(3876)
+        0x3876
         /* tutorial description (optional) */
     );
 
@@ -1515,10 +1515,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ _(f152),
-        /* plural name     */ _(156b),
+        /* singular name   */ 0xf152,
+        /* plural name     */ 0x156b,
         /* description */
-        _(8fdf)
+        0x8fdf
         /* tutorial description (optional) */
     );
 
@@ -1535,10 +1535,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ FUEL,
         /* gender          */ 'N',
-        /* singular name   */ _(3753),
-        /* plural name     */ _(7dd4),
+        /* singular name   */ 0x3753,
+        /* plural name     */ 0x7dd4,
         /* description */
-        _(f5be)
+        0xf5be
         /* tutorial description (optional) */
     );
 
@@ -1556,10 +1556,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ 4,
         /* gender          */ 'N',
-        /* singular name   */ _(66e9),
-        /* plural name     */ _(93e1),
+        /* singular name   */ 0x66e9,
+        /* plural name     */ 0x93e1,
         /* description */
-        _(a28a)
+        0xa28a
         /* tutorial description (optional) */
     );
 
@@ -1576,10 +1576,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_COAST,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(38df),
-        /* plural name     */ _(6b15),
+        /* singular name   */ 0x38df,
+        /* plural name     */ 0x6b15,
         /* description */
-        _(cc81)
+        0xcc81
         /* tutorial description (optional) */
     );
 
@@ -1596,10 +1596,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_COAST,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(ad96),
-        /* plural name     */ _(461c),
+        /* singular name   */ 0xad96,
+        /* plural name     */ 0x461c,
         /* description */
-        _(8061)
+        0x8061
         /* tutorial description (optional) */
     );
 
@@ -1617,10 +1617,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(4cc2),
-        /* plural name     */ _(363b),
+        /* singular name   */ 0x4cc2,
+        /* plural name     */ 0x363b,
         /* description */
-        _(365d)
+        0x365d
         /* tutorial description (optional) */
     );
 
@@ -1638,10 +1638,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(0f0c),
-        /* plural name     */ _(eb92),
+        /* singular name   */ 0x0f0c,
+        /* plural name     */ 0xeb92,
         /* description */
-        _(916e)
+        0x916e
         /* tutorial description (optional) */
     );
 
@@ -1659,10 +1659,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(4ae7),
-        /* plural name     */ _(9cbf),
+        /* singular name   */ 0x4ae7,
+        /* plural name     */ 0x9cbf,
         /* description */
-        _(fe06)
+        0xfe06
         /* tutorial description (optional) */
     );
 
@@ -1680,10 +1680,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(5662),
-        /* plural name     */ _(358f),
+        /* singular name   */ 0x5662,
+        /* plural name     */ 0x358f,
         /* description */
-        _(06b2)
+        0x06b2
         /* tutorial description (optional) */
     );
 
@@ -1700,10 +1700,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ 4,
         /* gender          */ 'N',
-        /* singular name   */ _(2b1a),
-        /* plural name     */ _(fb02),
+        /* singular name   */ 0x2b1a,
+        /* plural name     */ 0xfb02,
         /* description */
-        _(f368)
+        0xf368
         /* tutorial description (optional) */
     );
 
@@ -1721,10 +1721,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(ee2f),
-        /* plural name     */ _(76ab),
+        /* singular name   */ 0xee2f,
+        /* plural name     */ 0x76ab,
         /* description */
-        _(ac8d)
+        0xac8d
         /* tutorial description (optional) */
     );
 
@@ -1741,10 +1741,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ _(efbe),
-        /* plural name     */ _(f511),
+        /* singular name   */ 0xefbe,
+        /* plural name     */ 0xf511,
         /* description */
-        _(24e7)
+        0x24e7
         /* tutorial description (optional) */
     );
 
@@ -1761,10 +1761,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
         /* cargo type      */ MATERIALS,
         /* gender          */ 'N',
-        /* singular name   */ _(a04b),
-        /* plural name     */ _(48bb),
+        /* singular name   */ 0xa04b,
+        /* plural name     */ 0x48bb,
         /* description */
-        _(2a9f)
+        0x2a9f
         /* tutorial description (optional) */
     );
 
@@ -1782,10 +1782,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST | SURFACE_TYPE_AIR,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(fe5b),
-        /* plural name     */ _(c8fd),
+        /* singular name   */ 0xfe5b,
+        /* plural name     */ 0xc8fd,
         /* description */
-        _(71d6)
+        0x71d6
         /* tutorial description (optional) */
     );
 
@@ -1803,10 +1803,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST | SURFACE_TYPE_AIR,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(62eb),
-        /* plural name     */ _(a8d9),
+        /* singular name   */ 0x62eb,
+        /* plural name     */ 0xa8d9,
         /* description */
-        _(ca13)
+        0xca13
         /* tutorial description (optional) */
     );
 
@@ -1823,10 +1823,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST | SURFACE_TYPE_AIR,
         /* cargo type      */ 4,
         /* gender          */ 'N',
-        /* singular name   */ _(4195),
-        /* plural name     */ _(883c),
+        /* singular name   */ 0x4195,
+        /* plural name     */ 0x883c,
         /* description */
-        _(60d7)
+        0x60d7
         /* tutorial description (optional) */
     );
 
@@ -1844,10 +1844,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST | SURFACE_TYPE_AIR,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ _(d91c),
-        /* plural name     */ _(4044),
+        /* singular name   */ 0xd91c,
+        /* plural name     */ 0x4044,
         /* description */
-        _(9b5d)
+        0x9b5d
         /* tutorial description (optional) */
     );
 
@@ -1865,10 +1865,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_WATER,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(1801),
-        /* plural name     */ _(48c0),
+        /* singular name   */ 0x1801,
+        /* plural name     */ 0x48c0,
         /* description */
-        _(9f7c)
+        0x9f7c
         /* tutorial description (optional) */
     );
 
@@ -1886,10 +1886,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(b952),
-        /* plural name     */ _(1cff),
+        /* singular name   */ 0xb952,
+        /* plural name     */ 0x1cff,
         /* description */
-        _(91b3)
+        0x91b3
         /* tutorial description (optional) */
     );
 
@@ -1907,10 +1907,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(0ca9),
-        /* plural name     */ _(bde7),
+        /* singular name   */ 0x0ca9,
+        /* plural name     */ 0xbde7,
         /* description */
-        _(0a15)
+        0x0a15
         /* tutorial description (optional) */
     );
 
@@ -1928,10 +1928,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST | SURFACE_TYPE_AIR,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'M',
-        /* singular name   */ _(1d38),
-        /* plural name     */ _(a44c),
+        /* singular name   */ 0x1d38,
+        /* plural name     */ 0xa44c,
         /* description */
-        _(0f27)
+        0x0f27
         /* tutorial description (optional) */
     );
 
@@ -1948,10 +1948,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ 255,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "missile",
-        /* plural name     */ "",
+        /* singular name   */ 0x3fa1,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -1968,10 +1968,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ 255,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "torpedo",
-        /* plural name     */ "",
+        /* singular name   */ 0x6e71,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -1988,10 +1988,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ 255,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "alien missile",
-        /* plural name     */ "",
+        /* singular name   */ 0xa415,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -2008,10 +2008,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ 255,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "tank plasma ball",
-        /* plural name     */ "",
+        /* singular name   */ 0x5e53,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -2028,10 +2028,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ 255,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "artillery plasma ball",
-        /* plural name     */ "",
+        /* singular name   */ 0xb88e,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -2048,10 +2048,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ 255,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "smoke trail",
-        /* plural name     */ "",
+        /* singular name   */ 0xcd46,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -2068,10 +2068,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ 255,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "bubble trail",
-        /* plural name     */ "",
+        /* singular name   */ 0xc498,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -2088,10 +2088,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "harvester",
-        /* plural name     */ "",
+        /* singular name   */ 0x154f,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 
@@ -2108,10 +2108,10 @@ void UnitsManager_InitAbstractUnits() {
         /* land type       */ SURFACE_TYPE_LAND,
         /* cargo type      */ NO_CARGO,
         /* gender          */ 'N',
-        /* singular name   */ "dead waldo",
-        /* plural name     */ "",
+        /* singular name   */ 0xf2b2,
+        /* plural name     */ 0,
         /* description */
-        ""
+        0
         /* tutorial description (optional) */
     );
 }
@@ -2366,19 +2366,20 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
     } else if (unit_count == 1) {
         SmartString string;
 
-        MessageManager_DrawMessage(string
-                                       .Sprintf(80, _(8967), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
-                                                mark_level, material_cost)
-                                       .GetCStr(),
-                                   0, upgraded_unit, Point(upgraded_unit->grid_x, upgraded_unit->grid_y));
+        MessageManager_DrawMessage(
+            string
+                .Sprintf(80, _(8967), UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), mark_level,
+                         material_cost)
+                .GetCStr(),
+            0, upgraded_unit, Point(upgraded_unit->grid_x, upgraded_unit->grid_y));
 
     } else {
         SmartString string;
 
         MessageManager_DrawMessage(
             string
-                .Sprintf(80, _(2693), unit_count, UnitsManager_BaseUnits[unit->GetUnitType()].plural_name, mark_level,
-                         material_cost)
+                .Sprintf(80, _(2693), unit_count, UnitsManager_BaseUnits[unit->GetUnitType()].GetPluralName(),
+                         mark_level, material_cost)
                 .GetCStr(),
             0, 0);
     }
@@ -2780,7 +2781,7 @@ void UnitsManager_Popup_OnClick_PowerOn(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(true);
     UnitsManager_SetNewOrder(unit, ORDER_POWER_ON, ORDER_STATE_INIT);
 
-    sprintf(message, _(8576), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, _(b8d3));
+    sprintf(message, _(8576), UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), _(b8d3));
 
     MessageManager_DrawMessage(message, 0, 0);
 }
@@ -2791,7 +2792,7 @@ void UnitsManager_Popup_OnClick_PowerOff(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(true);
     UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
-    sprintf(message, _(d599), UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, _(b4dc));
+    sprintf(message, _(d599), UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), _(b4dc));
 
     MessageManager_DrawMessage(message, 0, 0);
 }
@@ -3368,7 +3369,7 @@ void UnitsManager_StartBuild(UnitInfo* unit) {
         unit->GetTurnsToBuild(unit_type, build_speed_multiplier, &turns_to_build_unit);
 
         string.Sprintf(250, UnitsManager_BuildTimeEstimates[UnitsManager_BaseUnits[unit_type].gender],
-                       UnitsManager_BaseUnits[unit_type].singular_name,
+                       UnitsManager_BaseUnits[unit_type].GetSingularName(),
                        UnitsManager_TeamInfo[GameManager_PlayerTeam].unit_counters[unit_type], turns_to_build_unit);
 
         MessageManager_DrawMessage(string.GetCStr(), 0, unit, Point(unit->grid_x, unit->grid_y));
@@ -3748,8 +3749,9 @@ void UnitsManager_ProcessOrders() {
                 }
 
             } else {
-                AILOG(log, "{} at [{},{}] cannot fire.", UnitsManager_BaseUnits[(*unit_it).GetUnitType()].singular_name,
-                      (*unit_it).grid_x + 1, (*unit_it).grid_y + 1);
+                AILOG(log, "{} at [{},{}] cannot fire.",
+                      UnitsManager_BaseUnits[(*unit_it).GetUnitType()].GetSingularName(), (*unit_it).grid_x + 1,
+                      (*unit_it).grid_y + 1);
 
                 (*unit_it).UpdatePinCount((*unit_it).target_grid_x, (*unit_it).target_grid_x, -1);
                 (*unit_it).RestoreOrders();
@@ -3795,14 +3797,14 @@ void UnitsManager_SetNewOrderInt(UnitInfo* unit, const UnitOrderType order, cons
 
         if (unit->GetOrder() == ORDER_AWAIT_SCALING) {
             AILOG(log, "New order ({}) issued for {} while scaling.", UnitsManager_Orders[order],
-                  UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+                  UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
 
             UnitsManager_NewOrderWhileScaling(unit);
         }
 
         if (unit->GetOrderState() == ORDER_STATE_NEW_ORDER) {
             AILOG(log, "New order ({}) issued for {} while waiting for path.", UnitsManager_Orders[order],
-                  UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+                  UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
 
             unit->SetOrder(ORDER_AWAIT);
             unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
@@ -4036,8 +4038,8 @@ void UnitsManager_UpdateConnectors(UnitInfo* unit) {
 void UnitsManager_DestroyUnit(UnitInfo* unit) {
     SmartPointer<UnitInfo> unit_to_destroy(unit);
 
-    AILOG(log, "{} at [{},{}] destroyed.", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, unit->grid_x + 1,
-          unit->grid_y + 1);
+    AILOG(log, "{} at [{},{}] destroyed.", UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(),
+          unit->grid_x + 1, unit->grid_y + 1);
 
     PathsManager_RemoveRequest(unit);
 
@@ -5228,7 +5230,7 @@ void UnitsManager_Loading(UnitInfo* unit) {
         if (GameManager_SelectedUnit == unit) {
             char message[400];
 
-            sprintf(message, _(c15c), base_unit->singular_name, parent->unit_id);
+            sprintf(message, _(c15c), base_unit->GetSingularName(), parent->unit_id);
 
             MessageManager_DrawMessage(message, 0, 0);
         }
@@ -5251,7 +5253,7 @@ void UnitsManager_Unloading(UnitInfo* unit) {
         if (GameManager_SelectedUnit == unit) {
             char message[400];
 
-            sprintf(message, _(60f3), base_unit->singular_name, parent->unit_id);
+            sprintf(message, _(60f3), base_unit->GetSingularName(), parent->unit_id);
 
             MessageManager_DrawMessage(message, 0, 0);
         }
@@ -6626,8 +6628,8 @@ bool UnitsManager_CheckReaction(UnitInfo* unit1, UnitInfo* unit2) {
             SmartString message;
 
             message.Sprintf(150, UnitsManager_ReactionsToEnemy[base_unit->gender],
-                            UnitsManager_BaseUnits[unit1->GetUnitType()].singular_name, unit1->grid_x + 1,
-                            unit1->grid_y + 1, base_unit->singular_name, unit2->grid_x + 1, unit2->grid_y + 1);
+                            UnitsManager_BaseUnits[unit1->GetUnitType()].GetSingularName(), unit1->grid_x + 1,
+                            unit1->grid_y + 1, base_unit->GetSingularName(), unit2->grid_x + 1, unit2->grid_y + 1);
 
             MessageManager_DrawMessage(message.GetCStr(), 0, unit1, position);
         }

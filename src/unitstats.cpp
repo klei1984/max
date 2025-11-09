@@ -514,7 +514,7 @@ UnitStatsMenu::UnitStatsMenu(UnitInfo* unit_)
     unit->GetDisplayName(text, sizeof(text));
 
     Text_TextBox(window.buffer, window.width, text, 336, 60, 287, 11, 0xA2, true);
-    Text_TextBox(window.buffer, window.width, base_unit->description, 345, 90, 270, 117, 0xA2, false, false);
+    Text_TextBox(window.buffer, window.width, base_unit->GetDescription(), 345, 90, 270, 117, 0xA2, false, false);
 
     Text_SetFont(GNW_TEXT_FONT_5);
     Text_TextBox(window.buffer, window.width, _(94b7), 327, 7, 158, 18, COLOR_GREEN, true);

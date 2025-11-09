@@ -158,7 +158,7 @@ TaskManager::~TaskManager() {}
 bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t flags) {
     bool result;
 
-    AILOG(log, "Task: should build {}?", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Task: should build {}?", UnitsManager_BaseUnits[unit_type].GetSingularName());
 
     int32_t available_count = 0;
     int32_t requested_count = 0;
@@ -211,7 +211,7 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t fla
 
                 } else if (TaskManager_NeedToReserveRawMaterials(team)) {
                     AILOG_LOG(log, "No, existing {} have a materials shortage",
-                              UnitsManager_BaseUnits[unit_type].plural_name);
+                              UnitsManager_BaseUnits[unit_type].GetPluralName());
 
                     result = false;
 
@@ -339,7 +339,7 @@ void TaskManager::ManufactureUnits(ResourceID unit_type, uint16_t team, int32_t 
     uint16_t task_flags = task->GetFlags();
     uint16_t task_team = task->GetTeam();
 
-    AILOG(log, "Task: Request {}.", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Task: Request {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
 
     if (Task_EstimateTurnsTillMissionEnd() >=
         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[task_team], unit_type)->GetAttribute(ATTRIB_TURNS)) {

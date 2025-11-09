@@ -148,7 +148,7 @@ bool TaskEscort::Task_vfunc1(UnitInfo& unit) { return (!target || target->hits =
 
 char* TaskEscort::WriteStatusLog(char* buffer) const {
     if (target) {
-        sprintf(buffer, "Escort %s at [%i,%i]", UnitsManager_BaseUnits[target->GetUnitType()].singular_name,
+        sprintf(buffer, "Escort %s at [%i,%i]", UnitsManager_BaseUnits[target->GetUnitType()].GetSingularName(),
                 target->grid_x + 1, target->grid_y + 1);
 
     } else {

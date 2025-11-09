@@ -47,8 +47,8 @@ static_assert(sizeof(struct BaseUnitDataFile) == 24, "The structure needs to be 
 struct AbstractUnit {
     AbstractUnit(uint32_t flags, ResourceID sprite, ResourceID shadows, ResourceID data, ResourceID flics,
                  ResourceID portrait, ResourceID icon, ResourceID armory_portrait, ResourceID field_18,
-                 uint8_t cargo_type, uint8_t land_type, char new_gender, const char* singular_name,
-                 const char* plural_name, const char* description, const char* tutorial = "");
+                 uint8_t cargo_type, uint8_t land_type, char new_gender, uint32_t singular_name, uint32_t plural_name,
+                 uint32_t description, uint32_t tutorial = 0);
 
     uint32_t flags;
 
@@ -66,10 +66,10 @@ struct AbstractUnit {
     uint8_t cargo_type;
     uint8_t gender;
 
-    const char* singular_name;
-    const char* plural_name;
-    const char* description;
-    const char* tutorial;
+    uint32_t singular_name;
+    uint32_t plural_name;
+    uint32_t description;
+    uint32_t tutorial;
 
     ResourceID sprite;
     ResourceID shadows;
@@ -78,6 +78,11 @@ struct AbstractUnit {
 struct BaseUnit {
     BaseUnit();
     void Init(AbstractUnit* unit);
+
+    const char* GetSingularName() const;
+    const char* GetPluralName() const;
+    const char* GetDescription() const;
+    const char* GetTutorial() const;
 
     uint32_t flags;
     ResourceID data;
@@ -90,13 +95,15 @@ struct BaseUnit {
     uint8_t land_type;
     uint8_t cargo_type;
     uint8_t gender;
-    const char* singular_name;
-    const char* plural_name;
-    const char* description;
-    const char* tutorial;
     uint8_t* sprite;
     uint8_t* shadows;
     char* field_47;
+
+private:
+    uint32_t singular_name;
+    uint32_t plural_name;
+    uint32_t description;
+    uint32_t tutorial;
 };
 
 class TeamUnits {

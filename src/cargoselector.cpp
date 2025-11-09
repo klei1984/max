@@ -78,7 +78,7 @@ void CargoSelector::Draw() {
         ReportStats_DrawListItemIcon(window_info.buffer, window_info.width, unit_type, GameManager_PlayerTeam, 16,
                                      32 * i + 16);
 
-        strcpy(text, UnitsManager_BaseUnits[unit_type].singular_name);
+        strcpy(text, UnitsManager_BaseUnits[unit_type].GetSingularName());
 
         index = 1;
 

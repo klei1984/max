@@ -312,14 +312,14 @@ void ProductionManager::ComposeIndustryMessage(UnitInfo* const unit, const char*
         units.PushBack(&unit_type);
 
         if (selected_unit == unit) {
-            sprintf(text, format1, UnitsManager_BaseUnits[unit->GetUnitType()].singular_name, material);
+            sprintf(text, format1, UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), material);
 
         } else {
             if (buffer[0] == '\0') {
                 strcpy(buffer, _(b441));
             }
 
-            sprintf(text, format2, material, UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+            sprintf(text, format2, material, UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
         }
 
         strcat(buffer, text);
@@ -335,7 +335,7 @@ bool ProductionManager::PowerOn(ResourceID unit_type) {
 
             units.PushBack(&unit_type);
 
-            sprintf(text, _(0aea), UnitsManager_BaseUnits[unit_type].singular_name, _(ff10));
+            sprintf(text, _(0aea), UnitsManager_BaseUnits[unit_type].GetSingularName(), _(ff10));
             strcat(buffer, text);
         }
 

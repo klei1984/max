@@ -139,8 +139,8 @@ void TaskReload::CreateUnit() {
 }
 
 void TaskReload::IssueOrder() {
-    AILOG(log, "Reloading {} from {}.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name,
-          UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
+    AILOG(log, "Reloading {} from {}.", UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName(),
+          UnitsManager_BaseUnits[operator_unit->GetUnitType()].GetSingularName());
 
     operator_unit->SetParent(&*target_unit);
     UnitsManager_SetNewOrder(&*operator_unit, ORDER_RELOAD, ORDER_STATE_INIT);

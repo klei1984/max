@@ -538,8 +538,8 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
     if (button_description_rest_state) {
         Text_SetFont(GNW_TEXT_FONT_5);
 
-        Text_TextBox(window.buffer, window.width, base_unit->description, 16, 17, 290, 230, GNW_TEXT_OUTLINE | 0xA2,
-                     false, false);
+        Text_TextBox(window.buffer, window.width, base_unit->GetDescription(), 16, 17, 290, 230,
+                     GNW_TEXT_OUTLINE | 0xA2, false, false);
     }
 
     turns = GetTurnsToBuild(unit_type);
@@ -941,7 +941,8 @@ void MobileBuildMenu::Build() {
 
                     unit->GetTurnsToBuild(unit_type, build_rate, &turns_to_build);
 
-                    string.Sprintf(250, BuildMenu_EventStrings_Available1[base_unit->gender], base_unit->singular_name,
+                    string.Sprintf(250, BuildMenu_EventStrings_Available1[base_unit->gender],
+                                   base_unit->GetSingularName(),
                                    UnitsManager_TeamInfo[unit->team].unit_counters[unit_type], turns_to_build);
 
                     if (ResourceManager_GetMissionManager()->GetMission()->IdentifyMission(
@@ -961,7 +962,7 @@ void MobileBuildMenu::Build() {
 
             string.Sprintf(150,
                            BuildMenu_EventStrings_InvalidSquare[UnitsManager_BaseUnits[unit->GetUnitType()].gender],
-                           UnitsManager_BaseUnits[unit->GetUnitType()].singular_name);
+                           UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
 
             MessageManager_DrawMessage(string.GetCStr(), 1, 0);
         }
@@ -1193,7 +1194,7 @@ void FactoryBuildMenu::Build() {
 
         unit->SetBuildRate(build_rate);
 
-        string.Sprintf(250, BuildMenu_EventStrings_Available2[base_unit->gender], base_unit->singular_name,
+        string.Sprintf(250, BuildMenu_EventStrings_Available2[base_unit->gender], base_unit->GetSingularName(),
                        UnitsManager_TeamInfo[unit->team].unit_counters[unit_type],
                        (unit->build_time + build_rate - 1) / build_rate);
 

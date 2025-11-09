@@ -93,7 +93,7 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
         list = &UnitsManager_MobileLandSeaUnits;
     }
 
-    AILOG(log, "Obtain Unit: Find {} ", UnitsManager_BaseUnits[unit_type].singular_name);
+    AILOG(log, "Obtain Unit: Find {} ", UnitsManager_BaseUnits[unit_type].GetSingularName());
 
     for (SmartList<UnitInfo>::Iterator unit = list->Begin(); unit != list->End(); ++unit) {
         if ((*unit).GetUnitType() == unit_type) {
@@ -125,7 +125,7 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
     if (selected_unit) {
         if (!is_unit_available) {
             AILOG_LOG(log, "{} at [{},{}] has {} turns left to build",
-                      UnitsManager_BaseUnits[selected_unit->GetUnitType()].singular_name, selected_unit->grid_x + 1,
+                      UnitsManager_BaseUnits[selected_unit->GetUnitType()].GetSingularName(), selected_unit->grid_x + 1,
                       selected_unit->grid_y + 1, selected_unit->build_time);
 
             selected_unit = nullptr;
@@ -161,7 +161,7 @@ char* TaskObtainUnits::WriteStatusLog(char* buffer) const {
     }
 
     for (uint32_t i = 0; i < units->GetCount() && i < 3; ++i) {
-        strcat(buffer, UnitsManager_BaseUnits[*units[i]].singular_name);
+        strcat(buffer, UnitsManager_BaseUnits[*units[i]].GetSingularName());
         if ((i + 1) < units->GetCount() && i < 2) {
             strcat(buffer, ", ");
         }
@@ -193,7 +193,7 @@ void TaskObtainUnits::AddUnit(UnitInfo& unit) {
 
     int32_t index = units->Find(&unit_type);
 
-    AILOG(log, "Obtain Units: Add {} {}.", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name, unit.unit_id);
+    AILOG(log, "Obtain Units: Add {} {}.", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName(), unit.unit_id);
 
     if (CountInstancesOfUnitType(unit.GetUnitType())) {
         units->Remove(index);

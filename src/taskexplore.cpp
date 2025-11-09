@@ -48,7 +48,7 @@ bool TaskExplore::IsUnitUsable(UnitInfo& unit) {
     if (obtain_requests[unit.GetUnitType()]) {
         int32_t unit_count = 0;
 
-        AILOG(log, "Can explore task use {}?", UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+        AILOG(log, "Can explore task use {}?", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
 
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
             if ((*it).GetUnitType() == unit.GetUnitType()) {
@@ -56,7 +56,7 @@ bool TaskExplore::IsUnitUsable(UnitInfo& unit) {
             }
         }
 
-        AILOG_LOG(log, "Task has {} {}", unit_count, UnitsManager_BaseUnits[unit.GetUnitType()].plural_name);
+        AILOG_LOG(log, "Task has {} {}", unit_count, UnitsManager_BaseUnits[unit.GetUnitType()].GetPluralName());
 
         if (unit.GetUnitType() == SCOUT || unit.GetUnitType() == FASTBOAT) {
             result = unit_count < 3;

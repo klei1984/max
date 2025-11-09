@@ -70,7 +70,7 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
     bool result;
 
     if (unit == unit_ && unit->IsReadyForOrders(this) && GameManager_IsActiveTurn(team) && unit->speed > 0) {
-        AILOG(log, "Auto survey: Move {} at [{},{}]", UnitsManager_BaseUnits[unit->GetUnitType()].singular_name,
+        AILOG(log, "Auto survey: Move {} at [{},{}]", UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(),
               unit->grid_x + 1, unit->grid_y + 1);
 
         uint16_t hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;

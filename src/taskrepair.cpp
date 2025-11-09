@@ -45,7 +45,7 @@ void TaskRepair::ChooseOperator() {
     if (target_unit != nullptr) {
         operator_unit = nullptr;
 
-        AILOG(log, "Choose unit to repair {}.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name);
+        AILOG(log, "Choose unit to repair {}.", UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName());
 
         unit = SelectRepairShop();
 
@@ -69,7 +69,7 @@ void TaskRepair::ChooseOperator() {
         }
 
         if (operator_unit != nullptr) {
-            AILOG_LOG(log, "Found {}.", UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
+            AILOG_LOG(log, "Found {}.", UnitsManager_BaseUnits[operator_unit->GetUnitType()].GetSingularName());
 
             operator_unit->AddTask(this);
         }
@@ -82,7 +82,7 @@ void TaskRepair::DoRepairs() {
         if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
             if (GameManager_IsActiveTurn(team)) {
                 AILOG(log, "Repair/reload {}: perform repair.",
-                      UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name);
+                      UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName());
 
                 if (operator_unit->flags & STATIONARY) {
                     Cargo materials;
@@ -97,7 +97,7 @@ void TaskRepair::DoRepairs() {
 
                     } else {
                         AILOG_LOG(log, "{} has no material.",
-                                  UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
+                                  UnitsManager_BaseUnits[operator_unit->GetUnitType()].GetSingularName());
                     }
 
                 } else if (operator_unit->storage > 0) {
@@ -232,7 +232,7 @@ bool TaskRepair::Task_vfunc1(UnitInfo& unit) { return target_unit != unit; }
 char* TaskRepair::WriteStatusLog(char* buffer) const {
     if (target_unit != nullptr) {
         strcpy(buffer, "Repair ");
-        strcat(buffer, UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name);
+        strcat(buffer, UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName());
 
     } else {
         strcpy(buffer, "Finished repair task.");
@@ -270,7 +270,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
     bool result;
 
     if (target_unit == unit && target_unit->GetTask() == this) {
-        AILOG(log, "Repair/reload {} move unit.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name);
+        AILOG(log, "Repair/reload {} move unit.", UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName());
 
         if (IsInPerfectCondition()) {
             SmartPointer<Task> task;
@@ -314,8 +314,8 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                 if (target_unit->GetOrderState() == ORDER_STATE_STORE) {
                     if (GameManager_IsActiveTurn(team)) {
                         AILOG_LOG(log, "{} is inside {}.",
-                                  UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name,
-                                  UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
+                                  UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName(),
+                                  UnitsManager_BaseUnits[operator_unit->GetUnitType()].GetSingularName());
 
                         DoRepairs();
                     }
@@ -327,7 +327,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                         operator_unit->GetTask() != this) {
                         if (Task_IsAdjacent(&*operator_unit, target_unit->grid_x, target_unit->grid_y)) {
                             AILOG_LOG(log, "Adjacent to {}.",
-                                      UnitsManager_BaseUnits[operator_unit->GetUnitType()].singular_name);
+                                      UnitsManager_BaseUnits[operator_unit->GetUnitType()].GetSingularName());
 
                             if (GameManager_PlayMode != PLAY_MODE_UNKNOWN && GameManager_IsActiveTurn(team)) {
                                 if (operator_unit->flags & STATIONARY) {
@@ -429,8 +429,8 @@ void TaskRepair::RemoveSelf() {
 }
 
 void TaskRepair::RemoveUnit(UnitInfo& unit) {
-    AILOG(log, "Repair {}: remove {}.", UnitsManager_BaseUnits[target_unit->GetUnitType()].singular_name,
-          UnitsManager_BaseUnits[unit.GetUnitType()].singular_name);
+    AILOG(log, "Repair {}: remove {}.", UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName(),
+          UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
 
     if (target_unit == unit) {
         SmartPointer<Task> task(this);
