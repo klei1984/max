@@ -55,18 +55,18 @@ XOSHIRO_VERSION=$(sed -nr 's/set\(XOSHIRO_VERSION ([0-9]+\.[0-9]+)\)/\1/p' $maxp
 XOSHIRO_FILE=$(eval echo $(sed -nr 's/set\(XOSHIRO_FILE (.*)\)/\1/p' $maxport_configfile))
 XOSHIRO_URI=$(eval echo $(sed -nr 's/set\(XOSHIRO_URI (.*)\)/\1/p' $maxport_configfile))
 
-wget --no-clobber --quiet --output-document="dependencies/$FREETYPE_FILE" "$FREETYPE_URI" | true
-wget --no-clobber --quiet --output-document="dependencies/$MINIAUDIO_FILE" "$MINIAUDIO_URI" | true
-wget --no-clobber --quiet --output-document="dependencies/$SDL2_FILE" "$SDL2_URI" | true
-wget --no-clobber --quiet --output-document="dependencies/$ENET_FILE" "$ENET_URI" | true
-wget --no-clobber --quiet --output-document="dependencies/$MINIUPNP_FILE" "$MINIUPNP_URI" | true
-wget --no-clobber --quiet --output-document="dependencies/$GTEST_FILE" "$GTEST_URI" | true
-wget --no-clobber --quiet --output-document="dependencies/$SHA2_FILE" "$SHA2_URI" | true
-wget --no-clobber --quiet --output-document="dependencies/$JSON_FILE" "$JSON_URI" | true
-wget --no-clobber --quiet --output-document="dependencies/$JSONSCHEMA_FILE" "$JSONSCHEMA_URI" | true
-wget --no-clobber --quiet --output-document="dependencies/$UTF8PROC_FILE" "$UTF8PROC_URI" | true
-wget --no-clobber --quiet --output-document="dependencies/$LUA_FILE" "$LUA_URI" | true
-wget --no-clobber --quiet --output-document="dependencies/$XOSHIRO_FILE" "$XOSHIRO_URI" | true
+[ -f "dependencies/$FREETYPE_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$FREETYPE_FILE" "$FREETYPE_URI" | true
+[ -f "dependencies/$MINIAUDIO_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$MINIAUDIO_FILE" "$MINIAUDIO_URI" | true
+[ -f "dependencies/$SDL2_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$SDL2_FILE" "$SDL2_URI" | true
+[ -f "dependencies/$ENET_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$ENET_FILE" "$ENET_URI" | true
+[ -f "dependencies/$MINIUPNP_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$MINIUPNP_FILE" "$MINIUPNP_URI" | true
+[ -f "dependencies/$GTEST_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$GTEST_FILE" "$GTEST_URI" | true
+[ -f "dependencies/$SHA2_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$SHA2_FILE" "$SHA2_URI" | true
+[ -f "dependencies/$JSON_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$JSON_FILE" "$JSON_URI" | true
+[ -f "dependencies/$JSONSCHEMA_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$JSONSCHEMA_FILE" "$JSONSCHEMA_URI" | true
+[ -f "dependencies/$UTF8PROC_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$UTF8PROC_FILE" "$UTF8PROC_URI" | true
+[ -f "dependencies/$LUA_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$LUA_FILE" "$LUA_URI" | true
+[ -f "dependencies/$XOSHIRO_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$XOSHIRO_FILE" "$XOSHIRO_URI" | true
 
 if [ -x dos2unix ] && [ -x md5sum ]; then
   dos2unix --quiet "dependencies/dependencies.md5"
