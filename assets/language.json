@@ -610,28 +610,28 @@
 			"ru-RU": "%s %i будет доступен через %i ходов."
 		},
 		"c4e7": {
-			"en-US": "%s %i will be available in %i turns.",
-			"fr-FR": "%s %i sera(ont) disponible(s) dans %i tour(s).",
-			"de-DE": "%s %i wird nach %i Runden verfügbar sein.",
-			"it-IT": "%s %i sarà disponibile tra %i turno/i.",
-			"es-ES": "%s %i estará disponible en %i turnos.",
-			"ru-RU": "%s %i будет доступен через %i ходов."
+			"en-US": "%s %u will be available in %i turns.",
+			"fr-FR": "%s %u sera(ont) disponible(s) dans %i tour(s).",
+			"de-DE": "%s %u wird nach %i Runden verfügbar sein.",
+			"it-IT": "%s %u sarà disponibile tra %i turno/i.",
+			"es-ES": "%s %u estará disponible en %i turnos.",
+			"ru-RU": "%s %u будет доступен через %i ходов."
 		},
 		"803c": {
-			"en-US": "%s %i will be available in %i turns.",
-			"fr-FR": "%s %i sera disponible dans %i tour(s).",
-			"de-DE": "%s %i wird nach %i Runden verfügbar sein.",
-			"it-IT": "%s %i sarà disponibile tra %i turno/i.",
-			"es-ES": "%s %i estará disponible en %i turnos.",
-			"ru-RU": "%s %i будет доступен через %i ходов."
+			"en-US": "%s %u will be available in %i turns.",
+			"fr-FR": "%s %u sera disponible dans %i tour(s).",
+			"de-DE": "%s %u wird nach %i Runden verfügbar sein.",
+			"it-IT": "%s %u sarà disponibile tra %i turno/i.",
+			"es-ES": "%s %u estará disponible en %i turnos.",
+			"ru-RU": "%s %u будет доступен через %i ходов."
 		},
 		"3346": {
-			"en-US": "%s %i will be available in %i turns.",
-			"fr-FR": "%s %i sera disponible dans %i tour(s).",
-			"de-DE": "%s %i wird nach %i Runden verfügbar sein.",
-			"it-IT": "%s %i sarà disponibile tra %i turno/i.",
-			"es-ES": "%s %i estare disponible en %i turnos.",
-			"ru-RU": "%s %i будет доступен через %i ходов."
+			"en-US": "%s %u will be available in %i turns.",
+			"fr-FR": "%s %u sera disponible dans %i tour(s).",
+			"de-DE": "%s %u wird nach %i Runden verfügbar sein.",
+			"it-IT": "%s %u sarà disponibile tra %i turno/i.",
+			"es-ES": "%s %u estare disponible en %i turnos.",
+			"ru-RU": "%s %u будет доступен через %i ходов."
 		},
 		"f6f4": {
 			"en-US": "Send",
@@ -8490,28 +8490,28 @@
 			"ru-RU": "%s на [%i,%i] засек врага %s на [%i,%i]."
 		},
 		"360a": {
-			"en-US": "%s %i will be available in %i turns.",
-			"fr-FR": "%s %i sera(ont) disponible(s) dans %i tour(s).",
-			"de-DE": "%s %i wird nach %i Runden verfügbar sein.",
-			"it-IT": "%s %i sarà disponibile tra %i turno/i.",
-			"es-ES": "%s %i estará disponible en %i turnos.",
-			"ru-RU": "%s %i будет доступен через %i ходов."
+			"en-US": "%s %u will be available in %i turns.",
+			"fr-FR": "%s %u sera(ont) disponible(s) dans %i tour(s).",
+			"de-DE": "%s %u wird nach %i Runden verfügbar sein.",
+			"it-IT": "%s %u sarà disponibile tra %i turno/i.",
+			"es-ES": "%s %u estará disponible en %i turnos.",
+			"ru-RU": "%s %u будет доступен через %i ходов."
 		},
 		"16f4": {
-			"en-US": "%s %i will be available in %i turns.",
-			"fr-FR": "%s %i sera disponible dans %i tour(s).",
-			"de-DE": "%s %i wird nach %i Runden verfügbar sein.",
-			"it-IT": "%s %i sarà disponibile tra %i turno/i.",
-			"es-ES": "%s %i estará disponible en %i turnos.",
-			"ru-RU": "%s %i будет доступен через %i ходов."
+			"en-US": "%s %u will be available in %i turns.",
+			"fr-FR": "%s %u sera disponible dans %i tour(s).",
+			"de-DE": "%s %u wird nach %i Runden verfügbar sein.",
+			"it-IT": "%s %u sarà disponibile tra %i turno/i.",
+			"es-ES": "%s %u estará disponible en %i turnos.",
+			"ru-RU": "%s %u будет доступен через %i ходов."
 		},
 		"7101": {
-			"en-US": "%s %i will be available in %i turns.",
-			"fr-FR": "%s %i sera disponible dans %i tour(s).",
-			"de-DE": "%s %i wird nach %i Runden verfügbar sein.",
-			"it-IT": "%s %i sarà disponibile tra %i turno/i.",
-			"es-ES": "%s %i estare disponible en %i turnos.",
-			"ru-RU": "%s %i будет доступен через %i ходов."
+			"en-US": "%s %u will be available in %i turns.",
+			"fr-FR": "%s %u sera disponible dans %i tour(s).",
+			"de-DE": "%s %u wird nach %i Runden verfügbar sein.",
+			"it-IT": "%s %u sarà disponibile tra %i turno/i.",
+			"es-ES": "%s %u estare disponible en %i turnos.",
+			"ru-RU": "%s %u будет доступен через %i ходов."
 		},
 		"c366": {
 			"en-US": "Done",
