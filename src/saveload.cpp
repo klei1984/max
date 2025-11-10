@@ -772,11 +772,12 @@ bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission
         file.Read(team_info->stats_units_built);
         file.Read(team_info->casualties);
 
-        int16_t stats_gold_spent_on_upgrades;
+        int16_t stats_gold_spent_on_upgrades_v70;
 
-        file.Read(stats_gold_spent_on_upgrades);
+        file.Read(stats_gold_spent_on_upgrades_v70);
 
-        team_info->stats_gold_spent_on_upgrades = stats_gold_spent_on_upgrades;
+        team_info->stats_gold_spent_on_upgrades =
+            static_cast<uint32_t>(std::max(0, static_cast<int32_t>(stats_gold_spent_on_upgrades_v70)));
     }
 
     file.Read(GameManager_ActiveTurnTeam);

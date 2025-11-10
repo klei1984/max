@@ -1518,7 +1518,7 @@ bool GameManager_CargoSelection(uint16_t team) {
 }
 
 bool GameManager_PlayerMissionSetup(uint16_t team) {
-    int32_t team_gold;
+    uint32_t team_gold;
     auto mission_supplies = &UnitsManager_TeamMissionSupplies[team];
 
     GameManager_GameState = GAME_STATE_7_SITE_SELECT;

@@ -41,7 +41,7 @@ enum {
 };
 
 class UpgradeControl {
-    int32_t* team_gold;
+    uint32_t* team_gold;
     uint16_t uly;
     Button* upgrade_right;
     Button* upgrade_left;
@@ -62,7 +62,7 @@ class UpgradeControl {
 
 public:
     UpgradeControl(WinID window_id, int32_t ulx, int32_t uly, int32_t button_right_r_value, int32_t button_left_r_value,
-                   int32_t* team_gold);
+                   uint32_t* team_gold);
     ~UpgradeControl();
 
     void Init(int32_t id, int32_t base_value_team, int32_t base_value_control, uint16_t* actual_value_control,

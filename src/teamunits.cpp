@@ -170,7 +170,16 @@ void TeamUnits::Init() {
 }
 
 void TeamUnits::FileLoad(SmartFileReader& file) {
-    file.Read(gold);
+    if (file.GetFormat() == SmartFileFormat::V70) {
+        uint16_t gold_v70;
+
+        file.Read(gold_v70);
+
+        gold = static_cast<uint32_t>(gold_v70);
+
+    } else {
+        file.Read(gold);
+    }
 
     for (uint32_t unit_id = 0; unit_id < UNIT_END; ++unit_id) {
         base_values[unit_id] = dynamic_cast<UnitValues*>(file.ReadObject());
@@ -221,9 +230,9 @@ void TeamUnits::ReadComplexPacket(NetPacket& packet) {
     GetComplex(complex_id)->ReadPacket(packet);
 }
 
-int32_t TeamUnits::GetGold() { return gold; }
+uint32_t TeamUnits::GetGold() { return gold; }
 
-void TeamUnits::SetGold(int32_t value) { gold = value; }
+void TeamUnits::SetGold(uint32_t value) { gold = value; }
 
 Complex* TeamUnits::CreateComplex() {
     uint16_t complex_id;

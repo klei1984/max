@@ -3471,7 +3471,7 @@ void UnitInfo::UpdateProduction() {
 
     if (unit_type == COMMTWR && orders == ORDER_POWER_ON) {
         TeamUnits* team_units = UnitsManager_TeamInfo[team].team_units;
-        int32_t gold_reserves = team_units->GetGold();
+        uint32_t gold_reserves = team_units->GetGold();
 
         team_units->SetGold(Cargo_GetGoldConsumptionRate(unit_type) + gold_reserves);
 

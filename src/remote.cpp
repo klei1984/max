@@ -1723,7 +1723,7 @@ void Remote_SendNetPacket_09(int32_t team) {
 
 void Remote_ReceiveNetPacket_09(NetPacket& packet) {
     uint16_t entity_id;
-    int32_t gold;
+    uint32_t gold;
     SmartString team_name;
 
     packet >> entity_id;

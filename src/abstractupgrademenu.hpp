@@ -33,8 +33,8 @@ protected:
     WindowInfo window1;
     WindowInfo window2;
     uint16_t team;
-    int32_t start_gold;
-    int32_t team_gold;
+    uint32_t start_gold;
+    uint32_t team_gold;
     uint16_t upgrade_control_count;
     uint16_t upgrade_control_next_uly;
     ResourceID interface_icon_full;

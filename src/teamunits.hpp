@@ -107,7 +107,7 @@ private:
 };
 
 class TeamUnits {
-    uint16_t gold;
+    uint32_t gold;
     SmartPointer<UnitValues> base_values[UNIT_END];
     SmartPointer<UnitValues> current_values[UNIT_END];
     SmartList<Complex> complexes;
@@ -124,8 +124,8 @@ public:
     void WriteComplexPacket(uint16_t complex_id, NetPacket& packet);
     void ReadComplexPacket(NetPacket& packet);
 
-    int32_t GetGold();
-    void SetGold(int32_t value);
+    uint32_t GetGold();
+    void SetGold(uint32_t value);
 
     Complex* CreateComplex();
     SmartList<Complex>& GetComplexes();
