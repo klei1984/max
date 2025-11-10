@@ -264,7 +264,7 @@ void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_pl
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             CTInfo* team_info;
-            int32_t casualties;
+            uint32_t casualties;
 
             ulx += 110;
             ++visible_team;
@@ -279,7 +279,7 @@ void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_pl
                 }
             }
 
-            Text_TypeWriter_TextBox(window, SmartString().Sprintf(12, "%i", casualties).GetCStr(), ulx, 246, lrx - ulx,
+            Text_TypeWriter_TextBox(window, SmartString().Sprintf(12, "%u", casualties).GetCStr(), ulx, 246, lrx - ulx,
                                     2);
         }
     }
@@ -309,7 +309,7 @@ void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_pl
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
             CTInfo* team_info;
-            int32_t casualties;
+            uint32_t casualties;
 
             ulx += 110;
             ++visible_team;
@@ -324,7 +324,7 @@ void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_pl
                 }
             }
 
-            Text_TypeWriter_TextBox(window, SmartString().Sprintf(12, "%i", casualties).GetCStr(), ulx, 294, lrx - ulx,
+            Text_TypeWriter_TextBox(window, SmartString().Sprintf(12, "%u", casualties).GetCStr(), ulx, 294, lrx - ulx,
                                     2);
         }
     }

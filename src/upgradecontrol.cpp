@@ -167,7 +167,7 @@ void UpgradeControl::Decrease() {
 void UpgradeControl::UpdateControlState() {
     if (team_base_value) {
         if (id == UPGRADE_CONTROL_9) {
-            if (CalculateCost() <= *team_gold && *control_actual_value > 1) {
+            if (static_cast<uint32_t>(CalculateCost()) <= *team_gold && *control_actual_value > 1) {
                 upgrade_left->Enable();
             } else {
                 upgrade_left->Disable();
@@ -182,7 +182,7 @@ void UpgradeControl::UpdateControlState() {
         } else {
             int32_t cost = CalculateCost();
 
-            if (cost <= *team_gold && cost < UPGRADECONTROL_UPGRADE_COST_LIMIT) {
+            if (cost >= 0 && static_cast<uint32_t>(cost) <= *team_gold && cost < UPGRADECONTROL_UPGRADE_COST_LIMIT) {
                 upgrade_right->Enable();
 
                 if (id == UPGRADE_CONTROL_6 || id == UPGRADE_CONTROL_8) {

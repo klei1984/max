@@ -328,19 +328,19 @@ void ReportStats_DrawListItem(uint8_t* buffer, int32_t width, ResourceID unit_ty
                  color, false);
 }
 
-void ReportStats_DrawNumber(uint8_t* buffer, int32_t number, int32_t width, int32_t full, int32_t color) {
-    constexpr int32_t kilo{1000L};
-    constexpr int32_t mega{1000000L};
-    char text_buffer[10];
+void ReportStats_DrawNumber(uint8_t* buffer, int64_t number, int32_t width, int32_t full, int32_t color) {
+    constexpr int64_t kilo{1000LL};
+    constexpr int64_t mega{1000000LL};
+    char text_buffer[20];
 
     if (number > mega) {
-        snprintf(text_buffer, sizeof(text_buffer), "%.1fM", static_cast<float>(number) / mega);
+        snprintf(text_buffer, sizeof(text_buffer), "%.1fM", static_cast<double>(number) / mega);
 
     } else if (number > kilo) {
-        snprintf(text_buffer, sizeof(text_buffer), "%.1fk", static_cast<float>(number) / kilo);
+        snprintf(text_buffer, sizeof(text_buffer), "%.1fk", static_cast<double>(number) / kilo);
 
     } else {
-        snprintf(text_buffer, sizeof(text_buffer), "%i", number);
+        snprintf(text_buffer, sizeof(text_buffer), "%lld", static_cast<long long>(number));
     }
 
     ReportStats_DrawText(buffer, text_buffer, width, full, color);

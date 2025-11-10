@@ -358,9 +358,9 @@ void CargoMenu::DrawUnitInfo(ResourceID unit_type) {
     Text_SetFont(GNW_TEXT_FONT_5);
 
     if (unit_type != INVALID_ID) {
-        if ((unit_types1->Find(&unit_type) != -1) &&
-            (Cargo_GetRawConsumptionRate(LANDPLT, 1) * unitvalues_actual[unit_type]->GetAttribute(ATTRIB_TURNS)) <=
-                team_gold) {
+        int32_t cost =
+            Cargo_GetRawConsumptionRate(LANDPLT, 1) * unitvalues_actual[unit_type]->GetAttribute(ATTRIB_TURNS);
+        if ((unit_types1->Find(&unit_type) != -1) && cost >= 0 && static_cast<uint32_t>(cost) <= team_gold) {
             button_buy->Enable();
         } else {
             button_buy->Disable();
@@ -547,11 +547,11 @@ void CargoMenu::BuyUnit() {
     if (unit_types1->Find(&last) != -1) {
         cost = Cargo_GetRawConsumptionRate(LANDPLT, 1) * unitvalues_actual[last]->GetAttribute(ATTRIB_TURNS);
 
-        if (team_gold >= cost) {
+        if (cost >= 0 && team_gold >= static_cast<uint32_t>(cost)) {
             cargo_selector->PushBack(last);
             team_gold -= cost;
 
-            if (team_gold < cost) {
+            if (cost >= 0 && team_gold < static_cast<uint32_t>(cost)) {
                 button_buy->Disable();
             }
 
@@ -573,9 +573,8 @@ void CargoMenu::DeleteUnit() {
 
         last = type_selector->GetLast();
 
-        if ((unit_types1->Find(&last) != -1) &&
-            (Cargo_GetRawConsumptionRate(LANDPLT, 1) * unitvalues_actual[last]->GetAttribute(ATTRIB_TURNS) <=
-             team_gold)) {
+        int32_t cost = Cargo_GetRawConsumptionRate(LANDPLT, 1) * unitvalues_actual[last]->GetAttribute(ATTRIB_TURNS);
+        if ((unit_types1->Find(&last) != -1) && cost >= 0 && static_cast<uint32_t>(cost) <= team_gold) {
             button_buy->Enable();
         }
 

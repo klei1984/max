@@ -770,7 +770,16 @@ bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission
         file.Read(team_info->stats_mines_built);
         file.Read(team_info->stats_buildings_built);
         file.Read(team_info->stats_units_built);
-        file.Read(team_info->casualties);
+
+        {
+            uint16_t casualties_v70[UNIT_END];
+
+            file.Read(casualties_v70);
+
+            for (int32_t i = 0; i < UNIT_END; ++i) {
+                team_info->casualties[i] = casualties_v70[i];
+            }
+        }
 
         int16_t stats_gold_spent_on_upgrades_v70;
 

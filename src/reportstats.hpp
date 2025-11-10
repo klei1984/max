@@ -33,7 +33,7 @@ void ReportStats_DrawListItemIcon(uint8_t* buffer, int32_t width, ResourceID uni
 void ReportStats_DrawListItem(uint8_t* buffer, int32_t width, ResourceID unit_type, int32_t ulx, int32_t uly,
                               int32_t full, int32_t color);
 
-void ReportStats_DrawNumber(uint8_t* buffer, int32_t number, int32_t width, int32_t full, int32_t color);
+void ReportStats_DrawNumber(uint8_t* buffer, int64_t number, int32_t width, int32_t full, int32_t color);
 
 void ReportStats_DrawText(uint8_t* buffer, char* text, int32_t width, int32_t full, int32_t color);
 

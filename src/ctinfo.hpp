@@ -137,7 +137,7 @@ struct CTInfo {
     int16_t stats_units_built;
     uint32_t stats_gold_spent_on_upgrades;
     int16_t score_graph[50];
-    uint16_t casualties[UNIT_END];
+    uint32_t casualties[UNIT_END];
     int8_t* heat_map_complete;
     int8_t* heat_map_stealth_sea;
     int8_t* heat_map_stealth_land;
