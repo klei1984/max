@@ -1867,6 +1867,7 @@ void Remote_SendNetPacket_12(int32_t team) {
     packet << static_cast<uint8_t>(REMOTE_PACKET_12);
     packet << static_cast<uint16_t>(team);
 
+    packet << supplies->start_gold;
     packet << supplies->team_gold;
     packet << unit_count;
     packet << UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades;
@@ -1893,6 +1894,7 @@ void Remote_ReceiveNetPacket_12(NetPacket& packet) {
 
     uint16_t unit_count;
 
+    packet >> supplies->start_gold;
     packet >> supplies->team_gold;
     packet >> unit_count;
     packet >> UnitsManager_TeamInfo[entity_id].stats_gold_spent_on_upgrades;

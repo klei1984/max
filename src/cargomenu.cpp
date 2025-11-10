@@ -42,12 +42,6 @@ CargoMenu::CargoMenu(uint16_t team) : AbstractUpgradeMenu(team, CARGOPIC) {
     auto clans = ResourceManager_GetClans();
     const auto clan_id = ResourceManager_GetClanID(static_cast<TeamClanType>(UnitsManager_TeamInfo[team].team_clan));
 
-    start_gold = ini_get_setting(INI_START_GOLD);
-
-    if (clans) {
-        start_gold += clans->GetCredits(clan_id);
-    }
-
     interface_icon_full = I_GOLD;
     interface_icon_empty = I_GOLDE;
 
@@ -55,6 +49,8 @@ CargoMenu::CargoMenu(uint16_t team) : AbstractUpgradeMenu(team, CARGOPIC) {
     cargos = UnitsManager_TeamMissionSupplies[team].cargos;
 
     if (unit_types2->GetCount()) {
+        // Restore previous session's gold amounts on re-entering cargo menu
+        start_gold = UnitsManager_TeamMissionSupplies[team].start_gold;
         team_gold = UnitsManager_TeamMissionSupplies[team].team_gold;
         unit_count = UnitsManager_TeamMissionSupplies[team].units.GetCount();
 
@@ -63,6 +59,14 @@ CargoMenu::CargoMenu(uint16_t team) : AbstractUpgradeMenu(team, CARGOPIC) {
         }
 
     } else {
+        // Initialize gold amounts only at first entry
+        start_gold = ini_get_setting(INI_START_GOLD);
+
+        if (clans) {
+            start_gold += clans->GetCredits(clan_id);
+        }
+
+        UnitsManager_TeamMissionSupplies[team].start_gold = start_gold;
         UnitsManager_TeamMissionSupplies[team].team_gold = start_gold;
         UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades = 0;
 
@@ -422,6 +426,7 @@ void CargoMenu::AbstractUpgradeMenu_vfunc7() {
 
     AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc7();
 
+    UnitsManager_TeamMissionSupplies[team].start_gold = start_gold;
     UnitsManager_TeamMissionSupplies[team].team_gold = team_gold;
 
     for (uint32_t i = unit_count; i < unit_types2->GetCount(); ++i) {

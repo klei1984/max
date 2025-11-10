@@ -32,6 +32,7 @@ public:
 
     Point starting_position;
     uint16_t team_gold;
+    uint16_t start_gold;
     uint8_t proximity_alert_ack;
 
     TeamMissionSupplies();
