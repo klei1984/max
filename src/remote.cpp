@@ -170,8 +170,6 @@ static void Remote_ReceiveNetPacket_16(NetPacket& packet);
 static void Remote_ReceiveNetPacket_17(NetPacket& packet);
 static void Remote_ReceiveNetPacket_18(NetPacket& packet);
 static void Remote_ReceiveNetPacket_20(NetPacket& packet);
-static void Remote_ReceiveNetPacket_21(NetPacket& packet);
-static void Remote_ReceiveNetPacket_22(NetPacket& packet);
 static void Remote_ReceiveNetPacket_23(NetPacket& packet);
 static void Remote_ReceiveNetPacket_24(NetPacket& packet);
 static void Remote_ReceiveNetPacket_26(NetPacket& packet);
@@ -412,11 +410,11 @@ void Remote_OrderProcessor4_Write(UnitInfo* unit, NetPacket& packet) {
     packet << unit->build_time;
     packet << static_cast<uint16_t>(unit->GetBuildRate());
 
-    uint16_t unit_count = build_queue.GetCount();
+    uint32_t unit_count = build_queue.GetCount();
 
     packet << unit_count;
 
-    for (int32_t i = 0; i < unit_count; ++i) {
+    for (uint32_t i = 0; i < unit_count; ++i) {
         packet << *build_queue[i];
     }
 }
@@ -425,7 +423,7 @@ void Remote_OrderProcessor4_Read(UnitInfo* unit, NetPacket& packet) {
     SmartObjectArray<ResourceID> build_queue = unit->GetBuildList();
     bool repeat_build;
     uint16_t build_rate;
-    uint16_t unit_count;
+    uint32_t unit_count;
     ResourceID unit_type;
 
     Remote_OrderProcessor3_Read(unit, packet);
@@ -439,7 +437,7 @@ void Remote_OrderProcessor4_Read(UnitInfo* unit, NetPacket& packet) {
 
     build_queue.Clear();
 
-    for (int32_t i = 0; i < unit_count; ++i) {
+    for (uint32_t i = 0; i < unit_count; ++i) {
         packet >> unit_type;
         build_queue.PushBack(&unit_type);
     }
@@ -914,14 +912,6 @@ void Remote_ProcessNetPackets() {
 
                 case REMOTE_PACKET_20: {
                     Remote_ReceiveNetPacket_20(packet);
-                } break;
-
-                case REMOTE_PACKET_21: {
-                    Remote_ReceiveNetPacket_21(packet);
-                } break;
-
-                case REMOTE_PACKET_22: {
-                    Remote_ReceiveNetPacket_22(packet);
                 } break;
 
                 case REMOTE_PACKET_23: {
@@ -1733,7 +1723,7 @@ void Remote_SendNetPacket_09(int32_t team) {
 
 void Remote_ReceiveNetPacket_09(NetPacket& packet) {
     uint16_t entity_id;
-    uint16_t gold;
+    int32_t gold;
     SmartString team_name;
 
     packet >> entity_id;
@@ -1862,7 +1852,7 @@ void Remote_ReceiveNetPacket_11(NetPacket& packet) {
 void Remote_SendNetPacket_12(int32_t team) {
     TeamMissionSupplies* supplies = &UnitsManager_TeamMissionSupplies[team];
     NetPacket packet;
-    uint16_t unit_count = supplies->units.GetCount();
+    uint32_t unit_count = supplies->units.GetCount();
 
     packet << static_cast<uint8_t>(REMOTE_PACKET_12);
     packet << static_cast<uint16_t>(team);
@@ -1874,7 +1864,7 @@ void Remote_SendNetPacket_12(int32_t team) {
     packet << supplies->starting_position;
     packet << supplies->proximity_alert_ack;
 
-    for (int32_t i = 0; i < unit_count; ++i) {
+    for (uint32_t i = 0; i < unit_count; ++i) {
         packet << *supplies->units[i];
         packet << *supplies->cargos[i];
     }
@@ -1892,7 +1882,7 @@ void Remote_ReceiveNetPacket_12(NetPacket& packet) {
     supplies->units.Clear();
     supplies->cargos.Clear();
 
-    uint16_t unit_count;
+    uint32_t unit_count;
 
     packet >> supplies->start_gold;
     packet >> supplies->team_gold;
@@ -1901,7 +1891,7 @@ void Remote_ReceiveNetPacket_12(NetPacket& packet) {
     packet >> supplies->starting_position;
     packet >> supplies->proximity_alert_ack;
 
-    for (int32_t i = 0; i < unit_count; ++i) {
+    for (uint32_t i = 0; i < unit_count; ++i) {
         ResourceID unit_type;
         uint16_t cargo;
 
@@ -2393,38 +2383,6 @@ void Remote_ReceiveNetPacket_20(NetPacket& packet) {
     }
 }
 
-void Remote_ReceiveNetPacket_21(NetPacket& packet) {
-    uint16_t entity_id;
-    uint16_t complex_id;
-    uint16_t material;
-    uint16_t fuel;
-    uint16_t gold;
-
-    packet >> entity_id;
-
-    packet >> complex_id;
-    packet >> material;
-    packet >> fuel;
-    packet >> gold;
-
-    UnitsManager_TeamInfo[entity_id].team_units->GetComplex(complex_id)->Transfer(material, fuel, gold);
-}
-
-void Remote_ReceiveNetPacket_22(NetPacket& packet) {
-    uint16_t entity_id;
-
-    packet >> entity_id;
-
-    UnitInfo* unit = Hash_UnitHash[entity_id];
-
-    if (unit) {
-        unit->ReadPacket(packet);
-
-    } else {
-        Remote_NetErrorUnknownUnit(entity_id);
-    }
-}
-
 void Remote_CreateNetPacket_23(UnitInfo* unit, NetPacket& packet) {
     Remote_OrderProcessor5_Write(unit, packet);
 
@@ -2632,7 +2590,7 @@ void Remote_ReceiveNetPacket_30(NetPacket& packet) {
     if (Remote_GameState == 1) {
         uint16_t player_node;
         uint16_t host_node;
-        uint16_t node_count;
+        uint32_t node_count;
 
         packet >> player_node;
         Remote_NetworkMenu->player_node = player_node;
@@ -2645,7 +2603,7 @@ void Remote_ReceiveNetPacket_30(NetPacket& packet) {
 
         packet >> node_count;
 
-        for (int32_t i = 0; i < node_count; ++i) {
+        for (uint32_t i = 0; i < node_count; ++i) {
             NetNode peer_node;
 
             packet >> peer_node;
