@@ -2342,7 +2342,7 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
     if (Builder_IsBuildable(unit_type)) {
         if (Task_EstimateTurnsTillMissionEnd() >=
             UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
-            uint16_t unit_counters[UNIT_END];
+            uint32_t unit_counters[UNIT_END];
 
             memset(&unit_counters, 0, sizeof(unit_counters));
 
@@ -2353,8 +2353,8 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
             }
 
             const auto builder_type = Builder_GetBuilderType(unit_type);
-            int32_t builder_count = 0;
-            int32_t unit_count = 0;
+            int64_t builder_count = 0;
+            int64_t unit_count = 0;
 
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {

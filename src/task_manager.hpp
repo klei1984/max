@@ -54,7 +54,6 @@ public:
     void AppendUnit(UnitInfo& unit);
     void CreateBuilding(ResourceID unit_type, uint16_t team, Point site, Task* task);
     void CreateUnit(ResourceID unit_type, uint16_t team, Point site, Task* task);
-    void ManufactureUnits(ResourceID unit_type, uint16_t team, int32_t requested_amount, Task* task, Point site);
     void AppendTask(Task& task);
     void AppendReminder(Reminder* reminder, bool priority = false);
     bool ExecuteReminders();

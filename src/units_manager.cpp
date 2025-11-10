@@ -4147,10 +4147,6 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t te
         unit->unit_id = team_info->unit_counters[unit_type];
 
         ++team_info->unit_counters[unit_type];
-
-        if (team_info->unit_counters[unit_type] == 0) {
-            ++team_info->unit_counters[unit_type];
-        }
     }
 
     if (GameManager_GameState != GAME_STATE_12 && !GameManager_QuickBuildMenuActive && !is_existing_unit) {

@@ -711,9 +711,9 @@ static void GameManager_DrawDisabledUnitStatusMessage(UnitInfo* unit);
 static void GameManager_PlayUnitStatusVoice(UnitInfo* unit);
 static void GameManager_DrawUnitStatusMessage(UnitInfo* unit);
 static void GameManager_MenuDeinitDisplayControls();
-static void GameManager_SpawnNewUnits(uint16_t team, SmartList<UnitInfo>* units, uint16_t* counts);
+static void GameManager_SpawnNewUnits(uint16_t team, SmartList<UnitInfo>* units, uint32_t* counts);
 static char* GameManager_PrependMessageChunk(const char* chunk, char* message);
-static void GameManager_ReportNewUnitsMessage(uint16_t* counts);
+static void GameManager_ReportNewUnitsMessage(uint32_t* counts);
 static void GameManager_DrawProximityZones();
 static int32_t GameManager_UpdateProximityState(uint16_t team);
 static UnitInfo* GameManager_GetFirstRelevantUnit(uint16_t team);
@@ -8178,7 +8178,7 @@ void GameManager_MenuDeinitDisplayControls() {
     }
 }
 
-void GameManager_SpawnNewUnits(uint16_t team, SmartList<UnitInfo>* units, uint16_t* counts) {
+void GameManager_SpawnNewUnits(uint16_t team, SmartList<UnitInfo>* units, uint32_t* counts) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).team == team && (*it).build_time && (*it).GetOrder() != ORDER_HALT_BUILDING &&
             (*it).GetOrder() != ORDER_HALT_BUILDING_2) {
@@ -8205,19 +8205,16 @@ char* GameManager_PrependMessageChunk(const char* chunk, char* message) {
     return message;
 }
 
-void GameManager_ReportNewUnitsMessage(uint16_t* counts) {
+void GameManager_ReportNewUnitsMessage(uint32_t* counts) {
     const char* const GameManager_EventStrings_NewSingular[] = {_(c64e), _(8d3e), _(9df3)};
     const char* const GameManager_EventStrings_NewPlural[] = {_(5e9c), _(6fe5), _(2488)};
-    int32_t unit_count;
-    int32_t different_type_count;
-    bool flag;
+    uint32_t unit_count = 0;
+    uint32_t different_type_count = 0;
+    bool flag = false;
     char message[3000];
     char chunk[400];
 
-    unit_count = 0;
-    different_type_count = 0;
     message[0] = '\0';
-    flag = false;
 
     for (int32_t unit_type = UNIT_END - 1; unit_type >= 0; --unit_type) {
         if (counts[unit_type]) {
@@ -8284,7 +8281,7 @@ void GameManager_ReportNewUnitsMessage(uint16_t* counts) {
 }
 
 void GameManager_ProgressBuildState(uint16_t team) {
-    uint16_t unit_counters[UNIT_END];
+    uint32_t unit_counters[UNIT_END];
 
     ResearchMenu_NewTurn(team);
 

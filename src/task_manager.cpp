@@ -334,59 +334,6 @@ void TaskManager::CreateUnit(ResourceID unit_type, uint16_t team, Point site, Ta
     }
 }
 
-void TaskManager::ManufactureUnits(ResourceID unit_type, uint16_t team, int32_t requested_amount, Task* task,
-                                   Point site) {
-    uint16_t task_flags = task->GetFlags();
-    uint16_t task_team = task->GetTeam();
-
-    AILOG(log, "Task: Request {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
-
-    if (Task_EstimateTurnsTillMissionEnd() >=
-        UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[task_team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
-        uint16_t unit_counters[UNIT_END];
-        const auto builder_type = Builder_GetBuilderType(unit_type);
-        int32_t builder_count;
-        int32_t buildable_count;
-        int32_t unit_count;
-
-        memset(unit_counters, 0, sizeof(unit_counters));
-
-        for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
-            if ((*it).GetTeam() == task->GetTeam() && (*it).GetType() == TaskType_TaskCreateUnit) {
-                if ((*it).DeterminePriority(task_flags + 250) <= 0) {
-                    ++unit_counters[dynamic_cast<TaskCreateUnit*>(&*it)->GetUnitType()];
-                }
-            }
-        }
-
-        builder_count = 0;
-        unit_count = 0;
-
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
-            if ((*it).team == task_team && (*it).GetUnitType() == builder_type) {
-                ++builder_count;
-            }
-        }
-
-        for (const auto unit : Builder_GetBuildableUnits(builder_type)) {
-            unit_count += unit_counters[unit];
-        }
-
-        buildable_count = (builder_count * 2 + 1) - unit_count;
-
-        if (buildable_count > requested_amount) {
-            buildable_count = requested_amount;
-        }
-
-        for (int32_t i = 0; i < buildable_count; ++i) {
-            SmartPointer<TaskCreateUnit> create_unit_task(new (std::nothrow) TaskCreateUnit(unit_type, task, site));
-
-            AppendTask(*create_unit_task);
-        }
-    }
-}
-
 void TaskManager::AppendTask(Task& task) {
     AILOG(log, "Task Manager: append task '{}'.", TaskManager_GetTaskName(&task));
 

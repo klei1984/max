@@ -22,7 +22,9 @@
 #include "taskobtainunits.hpp"
 
 #include "ailog.hpp"
+#include "builder.hpp"
 #include "task_manager.hpp"
+#include "taskcreateunit.hpp"
 #include "units_manager.hpp"
 
 TaskObtainUnits::TaskObtainUnits(Task* task, Point point)
@@ -265,7 +267,7 @@ void TaskObtainUnits::EndTurn() {
             } else if (!IsUnitTypeRequested[*units[i]]) {
                 IsUnitTypeRequested[*units[i]] = true;
 
-                TaskManager.ManufactureUnits(*units[i], team, CountInstancesOfUnitType(*units[i]), this, point);
+                RequestUnits(*units[i], team, CountInstancesOfUnitType(*units[i]), point);
             }
         }
 
@@ -279,6 +281,56 @@ void TaskObtainUnits::EndTurn() {
 
         parent = nullptr;
         TaskManager.RemoveTask(*this);
+    }
+}
+
+void TaskObtainUnits::RequestUnits(ResourceID unit_type, uint16_t team, int32_t requested_amount, Point site) {
+    uint16_t task_flags = this->GetFlags();
+    uint16_t task_team = this->GetTeam();
+    auto& tasks = TaskManager.GetTaskList();
+
+    AILOG(log, "Task: Request {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
+
+    if (Task_EstimateTurnsTillMissionEnd() >=
+        UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[task_team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
+        uint32_t unit_counters[UNIT_END];
+        const auto builder_type = Builder_GetBuilderType(unit_type);
+        int64_t builder_count = 0;
+        int64_t buildable_count;
+        uint32_t unit_count = 0;
+
+        memset(unit_counters, 0, sizeof(unit_counters));
+
+        for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+            if ((*it).GetTeam() == this->GetTeam() && (*it).GetType() == TaskType_TaskCreateUnit) {
+                if ((*it).DeterminePriority(task_flags + 250) <= 0) {
+                    ++unit_counters[dynamic_cast<TaskCreateUnit*>(it.Get())->GetUnitType()];
+                }
+            }
+        }
+
+        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+             it != UnitsManager_StationaryUnits.End(); ++it) {
+            if ((*it).team == task_team && (*it).GetUnitType() == builder_type) {
+                ++builder_count;
+            }
+        }
+
+        for (const auto unit : Builder_GetBuildableUnits(builder_type)) {
+            unit_count += unit_counters[unit];
+        }
+
+        buildable_count = (builder_count * 2 + 1) - unit_count;
+
+        if (buildable_count > requested_amount) {
+            buildable_count = requested_amount;
+        }
+
+        for (int64_t i = 0; i < buildable_count; ++i) {
+            SmartPointer<TaskCreateUnit> create_unit_task(new (std::nothrow) TaskCreateUnit(unit_type, this, site));
+
+            TaskManager.AppendTask(*create_unit_task);
+        }
     }
 }
 

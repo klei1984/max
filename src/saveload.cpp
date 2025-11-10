@@ -731,6 +731,7 @@ bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         CTInfo* team_info;
+        uint8_t unit_counters_v70[UNIT_END];
 
         team_info = &UnitsManager_TeamInfo[team];
 
@@ -741,7 +742,13 @@ bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission
         file.Read(team_info->research_topics);
         file.Read(team_info->team_points);
         file.Read(team_info->number_of_objects_created);
-        file.Read(team_info->unit_counters);
+
+        file.Read(unit_counters_v70);
+
+        for (int32_t i = 0; i < UNIT_END; ++i) {
+            team_info->unit_counters[i] = static_cast<uint32_t>(unit_counters_v70[i]);
+        }
+
         file.Read(team_info->screen_locations);
         file.Read(team_info->score_graph, sizeof(team_info->score_graph));
         file.Read(selected_unit_ids[team]);

@@ -31,6 +31,7 @@ class TaskObtainUnits : public Task {
     bool reinit;
 
     bool IsValidCandidate(UnitInfo* unit, bool mode);
+    void RequestUnits(ResourceID unit_type, uint16_t team, int32_t requested_amount, Point site);
 
 public:
     TaskObtainUnits(Task* task, Point point);
