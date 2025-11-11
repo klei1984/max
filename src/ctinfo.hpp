@@ -110,7 +110,7 @@ struct CTInfo {
     ResearchTopic research_topics[RESEARCH_TOPIC_COUNT];
     uint32_t team_points;
     uint16_t number_of_objects_created;
-    ScreenLocation screen_locations[6];
+    ScreenLocation screen_locations[4];
     TeamUnits* team_units;
     SmartPointer<UnitInfo> selected_unit;
     uint16_t zoom_level;

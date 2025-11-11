@@ -749,7 +749,14 @@ bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission
             team_info->unit_counters[i] = static_cast<uint32_t>(unit_counters_v70[i]);
         }
 
-        file.Read(team_info->screen_locations);
+        ScreenLocation screen_locations_v70[6];
+
+        file.Read(screen_locations_v70);
+
+        for (int32_t i = 0; i < 4; ++i) {
+            team_info->screen_locations[i] = screen_locations_v70[i];
+        }
+
         file.Read(team_info->score_graph, sizeof(team_info->score_graph));
         file.Read(selected_unit_ids[team]);
         file.Read(team_info->zoom_level);
