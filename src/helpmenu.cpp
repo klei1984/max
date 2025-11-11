@@ -293,7 +293,7 @@ bool HelpMenu::Run(int32_t mode) {
             } else if (Remote_GameState) {
                 Remote_UiProcessNetPackets();
 
-                if (Remote_GameState == 2) {
+                if (Remote_GameState == 2 && GameManager_GameState != GAME_STATE_7_SITE_SELECT) {
                     event_click_cancel = true;
                 }
 
@@ -349,7 +349,8 @@ void HelpMenu_Menu(const std::string& section, const int32_t window_index, const
                     GameManager_ProcessState(false, false);
                 } else if (Remote_GameState) {
                     Remote_UiProcessNetPackets();
-                    if (Remote_GameState == 2) {
+
+                    if (Remote_GameState == 2 && GameManager_GameState != GAME_STATE_7_SITE_SELECT) {
                         break;
                     }
 
