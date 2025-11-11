@@ -304,7 +304,7 @@ void TaskObtainUnits::RequestUnits(ResourceID unit_type, uint16_t team, int32_t 
         for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
             if ((*it).GetTeam() == this->GetTeam() && (*it).GetType() == TaskType_TaskCreateUnit) {
                 if ((*it).DeterminePriority(task_flags + 250) <= 0) {
-                    ++unit_counters[dynamic_cast<TaskCreateUnit*>(it.Get())->GetUnitType()];
+                    ++unit_counters[dynamic_cast<TaskCreateUnit*>(it->Get())->GetUnitType()];
                 }
             }
         }
