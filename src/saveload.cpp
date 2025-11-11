@@ -506,7 +506,6 @@ bool SaveLoad_Save(const std::filesystem::path& filepath, const char* const save
                 const CTInfo* const team_info = &UnitsManager_TeamInfo[team];
                 uint16_t unit_id;
 
-                file.Write(team_info->markers);
                 file.Write(team_info->team_type);
                 file.Write(team_info->finished_turn);
                 file.Write(team_info->team_clan);
@@ -732,10 +731,11 @@ bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         CTInfo* team_info;
         uint8_t unit_counters_v70[UNIT_END];
+        Point markers_v70[10];
 
         team_info = &UnitsManager_TeamInfo[team];
 
-        file.Read(team_info->markers);
+        file.Read(markers_v70);
         file.Read(team_info->team_type);
         file.Read(team_info->finished_turn);
         file.Read(team_info->team_clan);
@@ -1035,11 +1035,8 @@ bool SaveLoad_LoadFormatV71(SmartFileReader& file, const MissionCategory mission
     ResourceManager_InitTeamInfo();
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
-        CTInfo* team_info;
+        CTInfo* team_info = &UnitsManager_TeamInfo[team];
 
-        team_info = &UnitsManager_TeamInfo[team];
-
-        file.Read(team_info->markers);
         file.Read(team_info->team_type);
         file.Read(team_info->finished_turn);
         file.Read(team_info->team_clan);

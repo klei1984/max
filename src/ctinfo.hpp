@@ -40,10 +40,6 @@ struct CTInfo {
     CTInfo() : heat_map_complete(nullptr), heat_map_stealth_sea(nullptr), heat_map_stealth_land(nullptr) { Reset(); }
 
     void Reset() noexcept {
-        for (auto& marker : markers) {
-            marker = {-1, -1};
-        }
-
         team_type = TEAM_TYPE_NONE;
         finished_turn = false;
 
@@ -107,7 +103,6 @@ struct CTInfo {
         heat_map_stealth_land = nullptr;
     }
 
-    Point markers[10];
     uint8_t team_type;
     bool finished_turn;
     uint32_t unit_counters[UNIT_END];

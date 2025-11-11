@@ -1706,8 +1706,6 @@ void Remote_SendNetPacket_09(int32_t team) {
 
     packet << UnitsManager_TeamInfo[team].team_units->GetGold();
     packet << UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades;
-
-    packet << UnitsManager_TeamInfo[team].markers;
     packet << UnitsManager_TeamInfo[team].research_topics;
 
     char team_name[30];
@@ -1727,14 +1725,12 @@ void Remote_ReceiveNetPacket_09(NetPacket& packet) {
     SmartString team_name;
 
     packet >> entity_id;
-
     packet >> gold;
+
     UnitsManager_TeamInfo[entity_id].team_units->SetGold(gold);
 
     packet >> UnitsManager_TeamInfo[entity_id].stats_gold_spent_on_upgrades;
-    packet >> UnitsManager_TeamInfo[entity_id].markers;
     packet >> UnitsManager_TeamInfo[entity_id].research_topics;
-
     packet >> team_name;
 
     ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + entity_id), team_name.GetCStr());
