@@ -100,25 +100,30 @@ void GameSetupMenu::Init(int32_t palette_from_image) {
     WindowManager_LoadBigImage(MAINPIC, window, window->width, palette_from_image, false, -1, -1, true);
 
     switch (m_mission_category) {
-        case MISSION_CATEGORY_TRAINING:
+        case MISSION_CATEGORY_TRAINING: {
             draw_menu_title(window, _(9b46));
-            break;
+        } break;
 
-        case MISSION_CATEGORY_SCENARIO:
+        case MISSION_CATEGORY_SCENARIO: {
             draw_menu_title(window, _(5d49));
-            break;
+        } break;
 
-        case MISSION_CATEGORY_CAMPAIGN:
+        case MISSION_CATEGORY_CAMPAIGN: {
             draw_menu_title(window, _(385b));
-            break;
+        } break;
 
-        case MISSION_CATEGORY_MULTI_PLAYER_SCENARIO:
-            draw_menu_title(window, _(f27a));
-            break;
+        case MISSION_CATEGORY_MULTI_PLAYER_SCENARIO: {
+            if (m_is_single_player) {
+                draw_menu_title(window, _(884f));
 
-        default:
+            } else {
+                draw_menu_title(window, _(f27a));
+            }
+        } break;
+
+        default: {
             draw_menu_title(window, _(f27a));
-            break;
+        } break;
     }
 
     for (int32_t i = 0; i < GAME_SETUP_MENU_ITEM_COUNT; ++i) {
@@ -465,3 +470,7 @@ MissionCategory GameSetupMenu::GetMissionCategory() const { return m_mission_cat
 void GameSetupMenu::SetMissionCategory(const MissionCategory mission_category) {
     m_mission_category = mission_category;
 }
+
+void GameSetupMenu::SetSinglePlayerMode(const bool is_single_player) { m_is_single_player = is_single_player; }
+
+bool GameSetupMenu::IsSinglePlayerMode() const { return m_is_single_player; }

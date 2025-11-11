@@ -78,6 +78,8 @@ class GameSetupMenu {
         MENU_CONTROL_DEF(361, 438, 0, 0, MNUBTN6U, _(f0a3), GNW_KB_KEY_RETURN, &GameSetupMenu::EventStart, NDONE0),
     };
 
+    bool m_is_single_player;
+
     void ButtonInit(int32_t index);
     void DrawMissionList();
     void LoadMissionDescription();
@@ -115,6 +117,8 @@ public:
     void EventStart();
     MissionCategory GetMissionCategory() const;
     void SetMissionCategory(const MissionCategory mission_category);
+    void SetSinglePlayerMode(const bool is_single_player);
+    bool IsSinglePlayerMode() const;
 };
 
 #endif /* GAMESETUPMENU_HPP */

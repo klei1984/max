@@ -1945,6 +1945,7 @@ int32_t GameSetupMenu_Menu(const MissionCategory mission_category, bool flag1, c
 
     palette_from_image = false;
     game_setup_menu.SetMissionCategory(mission_category);
+    game_setup_menu.SetSinglePlayerMode(is_single_player);
 
     if (mission_category == MISSION_CATEGORY_CAMPAIGN) {
         int32_t mission_count = ResourceManager_GetMissionManager()->GetMissions(MISSION_CATEGORY_CAMPAIGN).size();

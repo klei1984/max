@@ -465,7 +465,7 @@ void NetworkMenu::EventLoadButton() {
 void NetworkMenu::EventScenarioButton() {
     DeleteButtons();
 
-    if (GameSetupMenu_Menu(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, false)) {
+    if (GameSetupMenu_Menu(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, false, false)) {
         const auto team_index = player_team;
         const auto save_slot = ini_get_setting(INI_GAME_FILE_NUMBER);
         SaveFileInfo save_file_info;
