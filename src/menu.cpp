@@ -1725,11 +1725,13 @@ void DialogMenu_Menu(const char* label) {
 }
 
 void PauseMenu_Menu() {
-    if (Remote_IsNetworkGame) {
-        Remote_SendNetPacket_Signal(REMOTE_PACKET_39, GameManager_PlayerTeam, 0);
-    }
+    if (GameManager_GameState != GAME_STATE_3_MAIN_MENU && GameManager_GameState != GAME_STATE_6_GAME_SETUP) {
+        if (Remote_IsNetworkGame) {
+            Remote_SendNetPacket_Signal(REMOTE_PACKET_39, GameManager_PlayerTeam, 0);
+        }
 
-    DialogMenu_Menu(_(f9bb));
+        DialogMenu_Menu(_(f9bb));
+    }
 }
 
 int32_t menu_planet_select_menu_loop() {
