@@ -562,7 +562,9 @@ void NetworkMenu::EventCancel() {
     key = GNW_KB_KEY_ESCAPE;
 }
 
-void NetworkMenu::EventHelp() { HelpMenu_Menu("MULTI_PLAYER_SETUP", WINDOW_MAIN_WINDOW); }
+void NetworkMenu::EventHelp() {
+    HelpMenu_Menu(is_host_mode ? "MULTI_PLAYER_SETUP" : "MULTI_PLAYER_SETUP_CLIENT", WINDOW_MAIN_WINDOW);
+}
 
 void NetworkMenu::EventReady() {
     client_state = 2;

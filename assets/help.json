@@ -961,6 +961,280 @@
 				}
 			}
 		},
+		"MULTI_PLAYER_SETUP_CLIENT": {
+			"NAME_LABEL": {
+				"coordinates": {
+					"ux": 36,
+					"uy": 45,
+					"lx": 136,
+					"ly": 62
+				},
+				"text": {
+					"en-US": "The window below displays the name for the current player.",
+					"fr-FR": "La fenêtre ci-dessous affiche le nom du joueur actuel.",
+					"de-DE": "Das Fenster unten zeigt den Namen des aktuellen Spielers an.",
+					"it-IT": "La finestra sottostante visualizza il nome del giocatore attivo.",
+					"es-ES": "La ventana de debajo muestra el nombre del jugador actual.",
+					"ru-RU": "Показывает имя игрока ."
+				}
+			},
+			"NAME_FIELD": {
+				"coordinates": {
+					"ux": 36,
+					"uy": 68,
+					"lx": 190,
+					"ly": 86
+				},
+				"text": {
+					"en-US": "Click in this window to enter your name.",
+					"fr-FR": "Cliquer dans cette fenêtre pour entrer votre nom",
+					"de-DE": "Klicken Sie in dieses Feld, um Ihren Namen einzugeben.",
+					"it-IT": "Clicca in questa finestra per inserire il tuo nome.",
+					"es-ES": "Haz clic en esta ventana para introducir tu nombre.",
+					"ru-RU": "Нажмите сюда чтобы ввести ваше имя ."
+				}
+			},
+			"CLAN_BUTTON": {
+				"coordinates": {
+					"ux": 212,
+					"uy": 26,
+					"lx": 292,
+					"ly": 104
+				},
+				"text": {
+					"en-US": "Clicking the clan button opens the Clan Menu, and allows you to review the various clans and select one to fight for.",
+					"fr-FR": "En cliquant sur le bouton clan, vous ouvrez le Menu Clan qui vous permet de passer en revue les divers clans et d'en choisir un pour combattre.",
+					"de-DE": "Wenn Sie auf den Clan-Button klicken, öffnet sich das Clan-Menü und ermöglicht Ihnen, die verschiedenen Clans zu betrachten und einen auszuwählen, für den Sie kämpfen möchten.",
+					"it-IT": "Cliccando sul bottone Clan si apre il Menu Clan, che ti permette di esaminarecosì i vari clan e selezionarne uno per cui lottare",
+					"es-ES": "Al hacer clic en el botón del clan se abre el menú \"Clan\", que permite revisar los distintos clanes y seleccionar uno para luchar en él.",
+					"ru-RU": "Нажатие на эту кнопку откроет меню выбора клана из которого вы можете выбрать свой клан"
+				}
+			},
+			"JAR_NAME_1": {
+				"coordinates": {
+					"ux": 54,
+					"uy": 127,
+					"lx": 154,
+					"ly": 144
+				},
+				"text": {
+					"en-US": "This window displays the name of Player One.",
+					"fr-FR": "Cette fenêtre affiche le nom du Joueur Un.",
+					"de-DE": "Dieses Fenster zeigt den Namen von Spieler Eins.",
+					"it-IT": "Questa finestra visualizza il nome del Primo Giocatore.",
+					"es-ES": "Esta ventana muestra el nombre del Jugador uno.",
+					"ru-RU": "Здесь выводится имя первого игрока ."
+				}
+			},
+			"JAR_1": {
+				"coordinates": {
+					"ux": 70,
+					"uy": 152,
+					"lx": 137,
+					"ly": 236
+				},
+				"text": {
+					"en-US": "Each jar represents an available slot for each Mech Commander joining the game. As each player connects, their brains will appear in one of the jars.",
+					"fr-FR": "Chaque jarre représente un emplacement disponible pour chaque Commandant Mech qui se connecte au jeu. Quand un joueur se connecte, son cerveau apparaît dans une des jarres.",
+					"de-DE": "Jeder Krug ist eine verfügbare Stelle für jeden Mech Kommandant, der sich dem Spiel anschließt. Sobald ein Spieler die Verbindung zum Spiel hat, erscheint sein Gehirn in einem der Krüge.",
+					"it-IT": "Ogni vaso rappresenta uno slot disponibile per ogni Comandante Mech che si unisce al gioco. Quando un giocatore si collega, il suo cervello compare in uno dei vasi.",
+					"es-ES": "Cada frasco representa un espacio vacío para cada Comandante Mech que se una al juego. Cada vez que se conecte un jugador, su cerebro aparecerá en uno de los frascos.",
+					"ru-RU": "Это слот показывает игрока который будет играть в многоигроковую игру ."
+				}
+			},
+			"JAR_NAME_2": {
+				"coordinates": {
+					"ux": 185,
+					"uy": 127,
+					"lx": 286,
+					"ly": 144
+				},
+				"text": {
+					"en-US": "This window displays the name of Player Two.",
+					"fr-FR": "Cette fenêtre affiche le nom du Joueur Deux.",
+					"de-DE": "Dieses Fenster zeigt den Namen von Spieler Zwei.",
+					"it-IT": "Questa finestra visualizza il nome del Secondo Giocatore.",
+					"es-ES": "Esta ventana muestra el nombre del Jugador dos.",
+					"ru-RU": "Здесь выводится имя второго игрока ."
+				}
+			},
+			"JAR_2": {
+				"coordinates": {
+					"ux": 202,
+					"uy": 152,
+					"lx": 269,
+					"ly": 236
+				},
+				"text": {
+					"en-US": "Each jar represents an available slot for each Mech Commander joining the game. As each player connects, their brains will appear in one of the jars.",
+					"fr-FR": "Chaque jarre représente un emplacement disponible pour chaque Commandant Mech qui se connecte au jeu. Quand un joueur se connecte, son cerveau apparaît dans une des jarres.",
+					"de-DE": "Jeder Krug ist eine verfügbare Stelle für jeden Mech Kommandant, der sich dem Spiel anschließt. Sobald ein Spieler die Verbindung zum Spiel hat, erscheint sein Gehirn in einem der Krüge.",
+					"it-IT": "Ogni vaso rappresenta uno slot disponibile per ogni Comandante Mech che si unisce al gioco. Quando un giocatore si collega, il suo cervello compare in uno dei vasi.",
+					"es-ES": "Cada frasco representa un espacio vacío para cada Comandante Mech que se una al juego. Cada vez que se conecte un jugador, su cerebro aparecerá en uno de los frascos.",
+					"ru-RU": "Это слот показывает игрока который будет играть в многоигроковую игру ."
+				}
+			},
+			"JAR_NAME_3": {
+				"coordinates": {
+					"ux": 54,
+					"uy": 245,
+					"lx": 154,
+					"ly": 264
+				},
+				"text": {
+					"en-US": "This window displays the name of Player Three.",
+					"fr-FR": "Cette fenêtre affiche le nom du Joueur Trois.",
+					"de-DE": "Dieses Fenster zeigt den Namen von Spieler Drei.",
+					"it-IT": "Questa finestra visualizza il nome del Terzo Giocatore.",
+					"es-ES": "Esta ventana muestra el nombre del Jugador tres.",
+					"ru-RU": "Здесь выводится имя третьего игрока ."
+				}
+			},
+			"JAR_3": {
+				"coordinates": {
+					"ux": 70,
+					"uy": 270,
+					"lx": 137,
+					"ly": 354
+				},
+				"text": {
+					"en-US": "Each jar represents an available slot for each Mech Commander joining the game. As each player connects, their brains will appear in one of the jars.",
+					"fr-FR": "Chaque jarre représente un emplacement disponible pour chaque Commandant Mech qui se connecte au jeu. Quand un joueur se connecte, son cerveau apparaît dans une des jarres.",
+					"de-DE": "Jeder Krug ist eine verfügbare Stelle für jeden Mech Kommandant, der sich dem Spiel anschließt. Sobald ein Spieler die Verbindung zum Spiel hat, erscheint sein Gehirn in einem der Krüge.",
+					"it-IT": "Ogni vaso rappresenta uno slot disponibile per ogni Comandante Mech che si unisce al gioco. Quando un giocatore si collega, il suo cervello compare in uno dei vasi.",
+					"es-ES": "Cada frasco representa un espacio vacío para cada Comandante Mech que se una al juego. Cada vez que se conecte un jugador, su cerebro aparecerá en uno de los frascos.",
+					"ru-RU": "Это слот показывает игрока который будет играть в многоигроковую игру ."
+				}
+			},
+			"JAR_NAME_4": {
+				"coordinates": {
+					"ux": 185,
+					"uy": 244,
+					"lx": 287,
+					"ly": 262
+				},
+				"text": {
+					"en-US": "This window displays the name of Player Four.",
+					"fr-FR": "Cette fenêtre affiche le nom du Joueur Quatre.",
+					"de-DE": "Dieses Fenster zeigt den Namen von Spieler Vier an.",
+					"it-IT": "Questa finestra visualizza il nome del Quarto Giocatore.",
+					"es-ES": "Esta ventana muestra el nombre del Jugador cuatro.",
+					"ru-RU": "Здесь выводится имя четвертого игрока ."
+				}
+			},
+			"JAR_4": {
+				"coordinates": {
+					"ux": 201,
+					"uy": 270,
+					"lx": 270,
+					"ly": 357
+				},
+				"text": {
+					"en-US": "Each jar represents an available slot for each Mech Commander joining the game. As each player connects, their brains will appear in one of the jars.",
+					"fr-FR": "Chaque jarre représente un emplacement disponible pour chaque Commandant Mech qui se connecte au jeu. Quand un joueur se connecte, son cerveau apparaît dans une des jarres.",
+					"de-DE": "Jeder Krug ist eine verfügbare Stelle für jeden Mech Kommandant, der sich dem Spiel anschließt. Sobald ein Spieler die Verbindung zum Spiel hat, erscheint sein Gehirn in einem der Krüge.",
+					"it-IT": "Ogni vaso rappresenta uno slot disponibile per ogni Comandante Mech che si unisce al gioco. Quando un giocatore si collega, il suo cervello compare in uno dei vasi.",
+					"es-ES": "Cada frasco representa un espacio vacío para cada Comandante Mech que se una al juego. Cada vez que se conecte un jugador, su cerebro aparecerá en uno de los frascos.",
+					"ru-RU": "Это слот показывает игрока который будет играть в многоигроковую игру ."
+				}
+			},
+			"TEXT_WINDOW": {
+				"coordinates": {
+					"ux": 348,
+					"uy": 14,
+					"lx": 580,
+					"ly": 196
+				},
+				"text": {
+					"en-US": "This window displays the current options for the game that's starting up.",
+					"fr-FR": "Cette fenêtre affiche les options actuelles pour le jeu en cours de lancement.",
+					"de-DE": "Dieses Fenster zeigt die gegenwärtigen Optionen für das kommende Spiel.",
+					"it-IT": "Questa finestra visualizza le opzioni possibili per la partita che sta per iniziare.",
+					"es-ES": "Esta ventana muestra las opciones actuales para el juego que está comenzando.",
+					"ru-RU": "Это окно отображает настройки игры в которую вы будете играть."
+				}
+			},
+			"MAP_PICT": {
+				"coordinates": {
+					"ux": 348,
+					"uy": 219,
+					"lx": 475,
+					"ly": 349
+				},
+				"text": {
+					"en-US": "The Map window displays the planet that will be used in this game.",
+					"fr-FR": "La Carte affiche la planète qui sera utilisée dans ce jeu.",
+					"de-DE": "Die Karte zeigt den Planeten, der in diesem Spiel benutzt wird.",
+					"it-IT": "La finestra della Mappa visualizza il pianeta che verrà utilizzato in questo gioco.",
+					"es-ES": "La ventana \"Mapa\" muestra el planeta que se va a usar en este juego.",
+					"ru-RU": "В этом окне вы можете увидеть планету на которой будут происходить боевые действия ."
+				}
+			},
+			"CHAT_BAR_ONE": {
+				"coordinates": {
+					"ux": 20,
+					"uy": 371,
+					"lx": 620,
+					"ly": 396
+				},
+				"text": {
+					"en-US": "This \"Chat Window\" will send messages to the other connected players.",
+					"fr-FR": "Cette \"Fenêtre de dialogue\" enverra des messages aux autres joueurs connectés.",
+					"de-DE": "Dieses \"Dialog-Fenster\" sendet Nachrichten zu anderen angeschlossenen Spielern.",
+					"it-IT": "La \"Finestra Conversazione\" invierà messaggi agli altri giocatori collegati.",
+					"es-ES": "Esta \"Ventana de charla\" envía mensajes a los otros jugadores conectados.",
+					"ru-RU": "Здесь Вы можете посылать сообщения другим игрокам ."
+				}
+			},
+			"CHAT_BAR_TWO": {
+				"coordinates": {
+					"ux": 20,
+					"uy": 402,
+					"lx": 620,
+					"ly": 427
+				},
+				"text": {
+					"en-US": "This window will display messages from other players.",
+					"fr-FR": "Cette fenêtre affichera les messages envoyés par les autres joueurs.",
+					"de-DE": "Dieses Fenster zeigt Nachrichten von anderen Spielern.",
+					"it-IT": "Questa finestra visualizzerà i messaggi degli altri giocatori.",
+					"es-ES": "Esta ventana presenta los mensajes de otros jugadores.",
+					"ru-RU": "В этом окне выводятся сообщения от других игроков ."
+				}
+			},
+			"CANCEL_BUTTON": {
+				"coordinates": {
+					"ux": 356,
+					"uy": 438,
+					"lx": 455,
+					"ly": 472
+				},
+				"text": {
+					"en-US": "Clicking \"Cancel\" exits the Multiplayer Setup Menu and returns you to the Multi-Player Menu.",
+					"fr-FR": "En cliquant sur \"Annuler\", vous sortez du Menu Configuration de MultiJoueurs et vous revenez au Menu Principal.",
+					"de-DE": "Klicken Sie auf \"Abbruch\", um das Menü Einstellungen Multi-Player zu verlassen und zum Hauptmenü zurückzukehren.",
+					"it-IT": "Clicca su \"Annulla\" per uscire dal Menu di settaggio Multi-Player e tornare al Menu Principale.",
+					"es-ES": "Al hacer clic en \"Cancelar\" se sale del menú \"Configuración de multijugadores\" y se vuelve al menú \"Multijugadores\".",
+					"ru-RU": "Нажатие этой кнопки отменяет все изменения которые вы сделали на этом экране и возвращает вас на экран назад"
+				}
+			},
+			"QUESTION": {
+				"coordinates": {
+					"ux": 466,
+					"uy": 439,
+					"lx": 503,
+					"ly": 473
+				},
+				"text": {
+					"en-US": "",
+					"fr-FR": "",
+					"de-DE": "",
+					"it-IT": "",
+					"es-ES": "",
+					"ru-RU": ""
+				}
+			}
+		},
 		"STATS_SETUP": {
 			"UNIT_PICTURE": {
 				"coordinates": {
