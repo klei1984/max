@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 176 / 251 (70.1%) original M.A.X. defects in M.A.X. Port.
+Fixed 191 / 252 (75.7%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -103,11 +103,11 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 26. **[Fixed]** The sound manager implements a method (cseg01:000DE1AE) to read meta data from audio files. If the audio file is not a RIFF WAVE file the method leaks its locally opened file handle. As all audio files in M.A.X. are RIFF WAVE format this is a latent defect only.
 
-27. Unit names are typically constructed as follows Mark [version number] Type [Count]. The unit counter is stored by the game on a byte. In long games it is easy to have 300+ roads in which case the counter overflows. To fix this limitation the save file format version needs to be updated.
+27. **[Fixed]** Unit names are typically constructed as follows Mark [version number] Type [Count]. The unit counter is stored by the game on a byte. In long games it is easy to have 300+ roads in which case the counter overflows. To fix this limitation the save file format version needs to be updated.
 
-28. The game stores gold reserves for upgrades as a signed 16 bit word. Having a gold reserve of 32767+ does not crash the game, but it becomes impossible to purchase upgrades and it is also impossible to recover from this state via normal means. To fix this limitation the save file format version needs to be updated.
+28. **[Fixed]** The game stores gold reserves for upgrades as a signed 16 bit word. Having a gold reserve of 32767+ does not crash the game, but it becomes impossible to purchase upgrades and it is also impossible to recover from this state via normal means. To fix this limitation the save file format version needs to be updated.
 
-29. The game tracks team casualties. These counters are stored as 8 bit words and could overflow in very long games. Interestingly fighters and infiltrators have the highest death rates. To fix this limitation the save file format version needs to be updated.
+29. **[Fixed]** The game tracks team casualties. These counters are stored as 16 bit words and could overflow in very long games. To fix this limitation the save file format version needs to be updated.
 
 30. **[Fixed]** The game implements lookup tables that map unit operating states to unit type and state specific sound effects. The size of lookup tables are dynamic. The first byte in the table defines the number of entries that follows. The default or common table, called UnitInfo_SfxDefaultUnit by the reimplementation, defines that the table has 20 entries even though there are only 18 entries provided in the table. There are 18 state specific sound effect types in total so it makes no sense to have tables bigger than that size. The sound manager searches in these tables and the method responsible to play sound effects (cseg01:000DD5C0) implements a for-loop to find the sound effect type specific sound effect in the lookup tables stopping the search as soon as a match is found. Due to this implementation it is guaranteed that a match will be found before the loop would do out of bounds access that may or may not lead to actual memory corruption or other issues. Proposed defect fix, use a standard vector instead of memory mapped rodata.
 
@@ -141,28 +141,28 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 40. **[Fixed]** The function (cseg01:000CB020) which builds network packet 41 (path blocked) forgets to set the packet header's *data_size* field so random garbage in random size is sent over the network. Typically a single byte of data is sent as the most common packet on the network has one data byte.
 
-41. On the Network Game lobby screen clients cannot see the maps, load, scenarios and options buttons as these are only available for the host. The in-game help mouse spot areas for these buttons are not deactivated for clients.
+41. **[Fixed]** On the Network Game lobby screen clients cannot see the maps, load, scenarios and options buttons as these are only available for the host. The in-game help mouse spot areas for these buttons are not deactivated for clients. The proposed defect fix is to duplicate relevant help entires and define a new context for the client mode menu.
 
 42. Saving a game in multiplayer game modes via network packet 16 does not verify whether peers are already desynchronized. The game also does not check for desynchronization when a previously saved multiplayer game is loaded. This leads to situations where previously saved games are basically corrupted already at the time of loading.
 
-43. The help button and the help feature in general does not work on the IPX multiplayer initial cargo setup screen.
+43. **[Fixed]** The help button and the help feature in general does not work on the IPX multiplayer initial cargo setup screen. The problem is that the help menu system and its dialog window input handler both exit the help menu system as soon as network play mode is detected in a given operating state which does not consider that it should be fine to remain in the help system while the game is inside the initial cargo setup screen. The proposed defect fix is to consider the corner case in the conditional exit path.
 
-44. When initial upgrades are made during mission loadout and the player proceeds to the landing zone selection screen then goes back to the purchase menu by pushing the cancel button the upgrades can be cancelled to get back the upgrade costs, but the game keeps the upgrades still. This can be used as an exploit in both single and multiplayer games where the purchase menu is available.
+44. **[Fixed]** When initial upgrades are made during mission loadout and the player proceeds to the landing zone selection screen then goes back to the purchase menu by pushing the cancel button the upgrades can be cancelled to get back the upgrade costs, but the game keeps the upgrades still. This can be used as an exploit in both single and multiplayer games where the purchase menu is available.
     <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_44.mp4" type="video/mp4">
     </video>
     In multiplayer the purchased unit count must remain below 134 otherwise buffer overflows or other wicked stuff could happen.
 
-45. The TeamInfo class still allocates space for the map markers feature (40 bytes) which was removed by the original developers before release. To fix this technical debt the save file format version needs to be updated.
+45. **[Fixed]** The TeamInfo class still allocates space for the map markers feature (40 bytes) which was removed by the original developers before release. To fix this technical debt the save file format version needs to be updated.
 
-46. The TeamInfo class allocates 6 slots for screen locations while only 4 locations can be saved and restored by the game logic. To fix this technical debt the save file format version needs to be updated.
+46. **[Fixed]** The TeamInfo class allocates 6 slots for screen locations while only 4 locations can be saved and restored by the game logic. To fix this technical debt the save file format version needs to be updated.
 
 47. The save file format header allocates 5 team instances for team type and team clan parameters but only 4 team instances are filled up with valid data. To fix this technical debt the save file format version needs to be updated.
 
 48. **[Fixed]** There is a typo in the description of Valentine's Planet. `Two to four can be easily accomodated.` -> `accommodated.`
 
-49. The resource levels panel of the game options menu allows to configure the amount of alien derelicts. The built-in help entry for the panel does not explain the meaning of alien derelicts indicating that the English help is older than the concept of alien derelicts. Additionally the "Alien Derelicts" caption is the only one without a colon within the panel.
+49. **[Fixed]** The resource levels panel of the game options menu allows to configure the amount of alien derelicts. The built-in help entry for the panel does not explain the meaning of alien derelicts indicating that the English help is older than the concept of alien derelicts. Additionally the "Alien Derelicts" caption is the only one without a colon within the panel. Proposed defect fix is to use the readme.txt descriptions from retail patch v1.04 of alien units by the in-game help system. Note that the Italian variant is the most detailed description.
 
 50. **[Fixed]** The built-in help menu's popup window supports rendering multiple pages of text. If more than one page is needed to display the help entry arrow buttons are added to the window. The up arrow registers an sfx, the down arrow does not (cseg01:000A53E9). Interestingly neither is played by the game for some reason.
 
@@ -172,13 +172,13 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 53. If a multiplayer game desyncs on the beginning of the first round before a new autosave is made, thus no autosave exists for the given game session, the game still asks whether players, any of them, wants to reload the last save.
 
-54. The main menu setup and in-game preferences menu is implemented in one class. The game pause menu is not deactivated in the main menu by the setup window variant where it makes no sense to be active.
+54. **[Fixed]** The main menu setup and in-game preferences menu is implemented in one class. The game pause menu is not deactivated in the main menu by the setup window variant where it makes no sense to be active.
 
-55. The game pause menu is not deactivated in the popup help menus from within the main menu.
+55. **[Fixed]** The game pause menu is not deactivated in the popup help menus from within the main menu.
 
-56. Single player custom games test for at least two active players of any kind (computer and human) to be able to start a game. Hot seat games test for at least two human players to be selected. This means that it is possible to start a single player custom game without a human player. It is unclear whether this is a feature or a defect.
+56. **[Fixed]** Single player custom games test for at least two active players of any kind (computer and human) to be able to start a game. Hot seat games test for at least two human players to be selected. This means that it is possible to start a single player custom game without a human player. It is unclear whether this is a feature or a defect. Proposed resolution: there are end users that enjoy watching computers fight each other as spectators. So this will be handled as a feature not as a defect.
 
-57. The custom scenarios menu title is "Multiplayer Scenarios" even in single player mode.
+57. **[Fixed]** The custom scenarios menu title is "Multiplayer Scenarios" even in single player mode.
 
 58. If a high-tech unit is captured, and then it gets upgraded in the depot, the unit would lose any of its superior unit values. For example if an enemy tank had 34 attack power and the player's own latest tank upgrades would only grant 20 attack power to an upgraded tank then the captured tank would lose the 34 attack power and would get the inferior 20 "as an upgrade". This behavior was considered to be a defect in M.A.X. 2 back in March, 1998.
 
@@ -234,7 +234,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
     </video>
     This makes the text background brighter now, but more importantly more detail is visible. Maybe in the future the blue color temperature could be made darker to match the original aesthetic keeping the higher level of detail.
 
-71. There is a typo in the briefing text of stand alone mission 20 (DESCR20.SCE). `Can you affort to shut down` -> `afford`.
+71. **[Fixed]** There is a typo in the briefing text of stand alone mission 20 (DESCR20.SCE). `Can you affort to shut down` -> `afford`.
 
 72. **[Fixed]** There is a function (cseg01:0008E881) to wrap up games and display the mission's end briefing. The function takes an ordered array with the places of teams and builds another local array later on with very similar content. In the beginning of the function the local yet to be initialized array is used to test which is the winner team in case of custom games. This early test determines whether the music track for victory or defeat is played and whether the announcer says "Mission Successful!". The early check was introduced late in original development after campaign missions were added and most probably a developer moved the new code to the front of the function which now uses the uninitialized local array. The proposed defect fix is to also move the code snippet that initializes the local array to the front.
 
@@ -914,3 +914,5 @@ The video clip demonstrates that the enemy mining station disappears when the fr
 <br>
 
 251. **[Fixed]** There is a function (cseg01:000144DB) to destroy the following ground cover units when a unit in the same grid cell that the ground cover unit occupies is destroyed: bridge, water platform, road, landing pad. For example if a fighter is landed on a landing pad which is built on a road, which is built on a water platform and the fighter is blown to pieces by the enemy, then the landing pad, the road and the water platform will be destroyed as well. But there is a use case which the algorithms do not consider. In case a road is self destructed or the empty road is destroyed by a (friendly) shot, than the game blows up the road and the given function destroys it first as a ground cover and then the caller destroys the road as the unit which was blown up effectively performing all operations related to removing a unit twice. This corrupts normal heat maps. A heat map tracks how many team units have scan coverage for a particular grid cell. If the number underflows below zero due to the double remove event users of the affected heat map will potentially misbehave as several events are connected to changing a grid cell's heat map cell value from 0 to 1 (gained scan coverage) or from 1 to 0 (lost scan coverage). The proposed defect fix is to pass the relevant function not only the grid cell position of the unit that explodes, from where the ground cover units need to be removed, but the exploding unit's object pointer itself so that it could be filtered out if it is actually a ground cover unit. This prevents the double removal.
+
+252. **[Fixed]** There is a typo in the unit description of Repair Unit. `The most extensive` -> `The more extensive`.
