@@ -161,7 +161,7 @@ AllocMenu::AllocMenu(UnitInfo* unit) : Window(ALLOCFRM, GameManager_GetDialogWin
 
     complex = unit->GetComplex();
 
-    Color_GenerateIntensityTable1(0, 0, 63, 1, 2, color_index_map);
+    Color_GenerateIntensityTable1(0, 0, 25, 1, 1, color_index_map);
 
     cargo_bars_buffer = new (std::nothrow) uint8_t[4 * sizeof(uint16_t) + 240 * 344];
 
