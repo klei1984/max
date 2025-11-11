@@ -758,11 +758,11 @@ void GameManager_TeamTurnTurnBased(int32_t& game_state) {
 
     enable_autosave = true;
 
-    for (uint8_t team = (game_state == GAME_STATE_10) ? GameManager_ActiveTurnTeam : PLAYER_TEAM_RED;
+    for (uint8_t team = (game_state == GAME_STATE_10_LOAD_GAME) ? GameManager_ActiveTurnTeam : PLAYER_TEAM_RED;
          team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
             UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
-            if (game_state != GAME_STATE_10) {
+            if (game_state != GAME_STATE_10_LOAD_GAME) {
                 GameManager_ManageEconomy(team);
             }
 
@@ -776,8 +776,8 @@ void GameManager_TeamTurnTurnBased(int32_t& game_state) {
 
             GameManager_UpdateGui(team, game_state, enable_autosave);
 
-            if (GameManager_GameState == GAME_STATE_10) {
-                game_state = GAME_STATE_10;
+            if (GameManager_GameState == GAME_STATE_10_LOAD_GAME) {
+                game_state = GAME_STATE_10_LOAD_GAME;
                 GameManager_GameState = GAME_STATE_8_IN_GAME;
                 break;
             }
@@ -808,7 +808,7 @@ void GameManager_TeamTurnConcurrent(int32_t& game_state) {
     }
 
     for (uint8_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        if (game_state != GAME_STATE_10 && GameManager_PlayerTeam != team &&
+        if (game_state != GAME_STATE_10_LOAD_GAME && GameManager_PlayerTeam != team &&
             (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER ||
              UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE)) {
             GameManager_ActiveTurnTeam = team;
@@ -867,8 +867,8 @@ void GameManager_TeamTurnConcurrent(int32_t& game_state) {
 
     GameManager_GuiSwitchTeam(GameManager_PlayerTeam);
 
-    if (GameManager_GameState == GAME_STATE_10) {
-        game_state = GAME_STATE_10;
+    if (GameManager_GameState == GAME_STATE_10_LOAD_GAME) {
+        game_state = GAME_STATE_10_LOAD_GAME;
         GameManager_GameState = GAME_STATE_8_IN_GAME;
 
     } else if (GameManager_GameState == GAME_STATE_9_END_TURN) {
@@ -939,7 +939,7 @@ void GameManager_GameLoop(int32_t game_state) {
 
     const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
 
-    if (game_state == GAME_STATE_10 && mission_category == MISSION_CATEGORY_DEMO) {
+    if (game_state == GAME_STATE_10_LOAD_GAME && mission_category == MISSION_CATEGORY_DEMO) {
         GameManager_DemoMode = true;
 
     } else {
@@ -1403,8 +1403,9 @@ void GameManager_RenderMap() {
 
     if (GameManager_RenderFlag1) {
         if (GameManager_RenderMinimapDisplay) {
-            if (GameManager_GameState == GAME_STATE_7_SITE_SELECT || GameManager_GameState == GAME_STATE_12 ||
-                GameManager_GameState == GAME_STATE_13) {
+            if (GameManager_GameState == GAME_STATE_7_SITE_SELECT ||
+                GameManager_GameState == GAME_STATE_12_DEPLOYING_UNITS ||
+                GameManager_GameState == GAME_STATE_13_SITE_SELECTED) {
                 GameManager_RenderMinimapDisplay = false;
 
             } else {
@@ -1463,7 +1464,7 @@ void GameManager_RenderMap() {
 
         DrawMap_RenderMapTiles(&drawmap, GameManager_DisplayButtonGrid);
 
-        if (GameManager_HumanPlayerCount && GameManager_GameState == GAME_STATE_11 &&
+        if (GameManager_HumanPlayerCount && GameManager_GameState == GAME_STATE_11_TURN_ACTIVE &&
             GameManager_ActiveTurnTeam != GameManager_PlayerTeam) {
             DrawMap_RedrawDirtyZones();
 
@@ -1638,8 +1639,8 @@ bool GameManager_SelectSite(uint16_t team) {
             }
         }
 
-        if (GameManager_GameState == GAME_STATE_14 || GameManager_GameState == GAME_STATE_3_MAIN_MENU ||
-            GameManager_GameState == GAME_STATE_15_FATAL_ERROR) {
+        if (GameManager_GameState == GAME_STATE_14_EXIT_SITE_SELECT ||
+            GameManager_GameState == GAME_STATE_3_MAIN_MENU || GameManager_GameState == GAME_STATE_15_FATAL_ERROR) {
             proximity_alert_ack = 6;
             break;
         }
@@ -2141,7 +2142,7 @@ void GameManager_GameSetup(int32_t game_state) {
     GameManager_InitUnitsAndGameState();
 
     if (Remote_IsNetworkGame) {
-        if (game_state == GAME_STATE_6) {
+        if (game_state == GAME_STATE_6_GAME_SETUP) {
             Remote_SendNetPacket_Signal(REMOTE_PACKET_26, GameManager_PlayerTeam,
                                         UnitsManager_TeamInfo[GameManager_PlayerTeam].team_clan);
             ResourceManager_InitClanUnitValues(GameManager_PlayerTeam);
@@ -2154,7 +2155,7 @@ void GameManager_GameSetup(int32_t game_state) {
 
     PathsManager_Clear();
 
-    if (game_state == GAME_STATE_6) {
+    if (game_state == GAME_STATE_6_GAME_SETUP) {
         const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
 
         GameManager_GameState = GAME_STATE_7_SITE_SELECT;
@@ -2184,7 +2185,7 @@ void GameManager_GameSetup(int32_t game_state) {
             }
         }
 
-        GameManager_GameState = GAME_STATE_11;
+        GameManager_GameState = GAME_STATE_11_TURN_ACTIVE;
         GameManager_LandingSequence.OpenPanel();
 
         zoom_level = 4;
@@ -2211,7 +2212,7 @@ void GameManager_GameSetup(int32_t game_state) {
         const auto mission_category = mission->GetCategory();
         const auto filepath = mission->GetMission();
 
-        GameManager_GameState = GAME_STATE_10;
+        GameManager_GameState = GAME_STATE_10_LOAD_GAME;
 
         if (mission_category != MISSION_CATEGORY_CAMPAIGN) {
             SaveLoadMenu_SaveSlot = ini_get_setting(INI_GAME_FILE_NUMBER);
@@ -2226,7 +2227,7 @@ void GameManager_GameSetup(int32_t game_state) {
             return;
         }
 
-        GameManager_GameState = GAME_STATE_11;
+        GameManager_GameState = GAME_STATE_11_TURN_ACTIVE;
 
         GameManager_LandingSequence.OpenPanel();
         GameManager_UpdateHumanPlayerCount();
@@ -2687,7 +2688,7 @@ void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosa
 
     GameManager_EnableMainMenu(nullptr);
 
-    if (game_state == GAME_STATE_10) {
+    if (game_state == GAME_STATE_10_LOAD_GAME) {
         ini_timer_setting = ini_get_setting(INI_TIMER);
         GameManager_GameState = SaveLoadMenu_GameState;
 
@@ -2695,7 +2696,7 @@ void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosa
 
     } else {
         ini_timer_setting = ini_get_setting(INI_TIMER);
-        GameManager_GameState = GAME_STATE_11;
+        GameManager_GameState = GAME_STATE_11_TURN_ACTIVE;
     }
 
     if (ini_timer_setting == 0 && UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type == TEAM_TYPE_COMPUTER) {
@@ -2722,7 +2723,7 @@ void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosa
                 Access_UpdateMinimapFogOfWar(team, GameManager_AllVisible);
             }
 
-            if (game_state != GAME_STATE_10) {
+            if (game_state != GAME_STATE_10_LOAD_GAME) {
                 GameManager_ProgressBuildState(team);
 
                 if (GameManager_SelectedUnit != nullptr) {
@@ -2735,7 +2736,7 @@ void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosa
         } break;
 
         case TEAM_TYPE_COMPUTER: {
-            if (game_state != GAME_STATE_10) {
+            if (game_state != GAME_STATE_10_LOAD_GAME) {
                 GameManager_ProgressBuildState(team);
 
                 ini_timer_setting = ini_get_setting(INI_ENDTURN);
@@ -2751,7 +2752,7 @@ void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosa
         } break;
 
         case TEAM_TYPE_REMOTE: {
-            if (game_state != GAME_STATE_10) {
+            if (game_state != GAME_STATE_10_LOAD_GAME) {
                 GameManager_ProgressBuildState(team);
             }
         } break;
@@ -2761,7 +2762,7 @@ void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosa
 
     GameManager_UpdateTurnTimer(true, ini_timer_setting);
 
-    if (game_state == GAME_STATE_10 && mission_category == MISSION_CATEGORY_TRAINING &&
+    if (game_state == GAME_STATE_10_LOAD_GAME && mission_category == MISSION_CATEGORY_TRAINING &&
         GameManager_SelectedUnit != nullptr) {
         GameManager_DrawUnitStatusMessage(&*GameManager_SelectedUnit);
     }
@@ -3582,7 +3583,7 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
         MessageManager_ClearMessageBox();
 
         GameManager_PlayFlic = false;
-        GameManager_GameState = GAME_STATE_10;
+        GameManager_GameState = GAME_STATE_10_LOAD_GAME;
 
         UnitsManager_GroundCoverUnits.Clear();
         UnitsManager_MobileLandSeaUnits.Clear();
@@ -5179,7 +5180,7 @@ void GameManager_ProcessTeamMissionSupplyUnits(uint16_t team) {
     int16_t grid_x;
     int16_t grid_y;
 
-    GameManager_GameState = GAME_STATE_12;
+    GameManager_GameState = GAME_STATE_12_DEPLOYING_UNITS;
 
     UnitsManager_TeamInfo[team].team_units->SetGold(supplies->team_gold);
     UnitsManager_TeamInfo[team].stats_units_built += units.GetCount();
@@ -5345,13 +5346,13 @@ bool GameManager_ProcessTick(bool render_screen) {
         TickTimer_SetLastTimeStamp(time_stamp);
         TickTimer_RequestTimeLimitUpdate();
 
-        if (GameManager_GameState != GAME_STATE_11) {
+        if (GameManager_GameState != GAME_STATE_11_TURN_ACTIVE) {
             UnitsManager_ProcessOrders();
         }
 
         GameManager_RenderMap();
 
-        if (GameManager_GameState != GAME_STATE_11 && !UnitsManager_OrdersPending) {
+        if (GameManager_GameState != GAME_STATE_11_TURN_ACTIVE && !UnitsManager_OrdersPending) {
             TickTimer_UpdateTimeLimit();
 
             if (GameManager_UpdateFlag) {
@@ -5593,7 +5594,7 @@ void GameManager_ProcessKey() {
 
                 UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].zoom_level = 64;
 
-                GameManager_GameState = GAME_STATE_13;
+                GameManager_GameState = GAME_STATE_13_SITE_SELECTED;
 
             } else if (GameManager_DemoMode) {
                 GameManager_GameState = GAME_STATE_3_MAIN_MENU;
@@ -5614,7 +5615,7 @@ void GameManager_ProcessKey() {
 
         case GNW_KB_KEY_ESCAPE: {
             if (GameManager_GameState == GAME_STATE_7_SITE_SELECT) {
-                GameManager_GameState = GAME_STATE_14;
+                GameManager_GameState = GAME_STATE_14_EXIT_SITE_SELECT;
 
             } else if (GameManager_QuickBuildMenuActive) {
 #if !defined(NDEBUG)
@@ -6861,7 +6862,7 @@ void GameManager_ProcessInput() {
                             UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].zoom_level = 64;
 
                             if (Cursor_GetCursor() == CURSOR_UNIT_GO) {
-                                GameManager_GameState = GAME_STATE_13;
+                                GameManager_GameState = GAME_STATE_13_SITE_SELECTED;
                                 SoundManager_PlaySfx(NDONE0);
 
                             } else {

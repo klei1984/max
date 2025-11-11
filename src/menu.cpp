@@ -1262,7 +1262,7 @@ int32_t play_attract_demo(const int32_t save_slot) {
             ini_config.GetStringValue(INI_BLUE_TEAM_NAME, backup_blue_team_name, 30);
             ini_config.GetStringValue(INI_GRAY_TEAM_NAME, backup_gray_team_name, 30);
 
-            GameManager_GameLoop(GAME_STATE_10);
+            GameManager_GameLoop(GAME_STATE_10_LOAD_GAME);
 
             ini_set_setting(INI_OPPONENT, backup_opponent);
             ini_set_setting(INI_TIMER, backup_timer);
@@ -2060,14 +2060,14 @@ int32_t GameSetupMenu_Menu(const MissionCategory mission_category, bool flag1, c
                     }
 
                     if (menu_choose_player_menu_loop(is_single_player)) {
-                        GameManager_GameLoop(GAME_STATE_10);
+                        GameManager_GameLoop(GAME_STATE_10_LOAD_GAME);
                         palette_from_image = true;
                     } else {
                         palette_from_image = false;
                     }
 
                 } else {
-                    GameManager_GameLoop(GAME_STATE_10);
+                    GameManager_GameLoop(GAME_STATE_10_LOAD_GAME);
                     palette_from_image = true;
                 }
 
@@ -2135,7 +2135,7 @@ int32_t menu_custom_game_menu(const bool is_single_player) {
     WindowManager_ClearWindow();
     mouse_show();
 
-    GameManager_GameLoop(GAME_STATE_6);
+    GameManager_GameLoop(GAME_STATE_6_GAME_SETUP);
 
     return 1;
 }
@@ -2380,7 +2380,7 @@ int32_t menu_multiplayer_menu_loop() {
 
                     if (save_slot) {
                         ini_set_setting(INI_GAME_FILE_NUMBER, save_slot);
-                        GameManager_GameLoop(GAME_STATE_10);
+                        GameManager_GameLoop(GAME_STATE_10_LOAD_GAME);
 
                         key = 9000;
                     }
@@ -2580,7 +2580,7 @@ void main_menu() {
                         if (save_slot) {
                             ini_set_setting(INI_GAME_FILE_NUMBER, save_slot);
 
-                            GameManager_GameLoop(GAME_STATE_10);
+                            GameManager_GameLoop(GAME_STATE_10_LOAD_GAME);
 
                             menu_portrait_id = INVALID_ID;
                         }

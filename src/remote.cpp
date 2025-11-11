@@ -1198,8 +1198,8 @@ void Remote_Synchronize(bool async_mode) {
     Remote_ProcessNetPackets();
 
     if (GameManager_GameState == GAME_STATE_3_MAIN_MENU || GameManager_GameState == GAME_STATE_7_SITE_SELECT ||
-        GameManager_GameState == GAME_STATE_10 || GameManager_GameState == GAME_STATE_12 ||
-        GameManager_GameState == GAME_STATE_13) {
+        GameManager_GameState == GAME_STATE_10_LOAD_GAME || GameManager_GameState == GAME_STATE_12_DEPLOYING_UNITS ||
+        GameManager_GameState == GAME_STATE_13_SITE_SELECTED) {
         Remote_TimeoutTimeStamp = timer_get();
         Remote_SendSynchFrame = true;
 
@@ -1380,7 +1380,7 @@ int32_t Remote_SiteSelectMenu() {
 
             switch (key_press) {
                 case GNW_KB_KEY_ESCAPE: {
-                    GameManager_GameState = GAME_STATE_14;
+                    GameManager_GameState = GAME_STATE_14_EXIT_SITE_SELECT;
 
                     Remote_SendNetPacket_Signal(REMOTE_PACKET_42, GameManager_PlayerTeam, false);
 

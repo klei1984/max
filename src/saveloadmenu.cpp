@@ -465,7 +465,7 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
                         int32_t game_state;
 
                         game_state = GameManager_GameState;
-                        GameManager_GameState = GAME_STATE_10;
+                        GameManager_GameState = GAME_STATE_10_LOAD_GAME;
                         MessageManager_DrawMessage(_(1fc6), 2, 1, true);
                         GameManager_GameState = game_state;
                     } else if (save_slot_index != -1 && slots[save_slot_index].in_use) {
@@ -557,8 +557,9 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
         if (Remote_IsNetworkGame) {
             GameManager_ProcessState(false);
 
-        } else if (GameManager_GameState != GAME_STATE_3_MAIN_MENU && GameManager_GameState != GAME_STATE_6 &&
-                   GameManager_GameState != GAME_STATE_10) {
+        } else if (GameManager_GameState != GAME_STATE_3_MAIN_MENU &&
+                   GameManager_GameState != GAME_STATE_6_GAME_SETUP &&
+                   GameManager_GameState != GAME_STATE_10_LOAD_GAME) {
             GameManager_DrawTurnTimer(GameManager_TurnTimerValue, true);
         }
 

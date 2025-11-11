@@ -320,7 +320,7 @@ void NetworkMenu::Init() {
     text_edit3 = nullptr;
 
     if (is_host_mode) {
-        ReadIniSettings(GAME_STATE_6);
+        ReadIniSettings(GAME_STATE_6_GAME_SETUP);
 
         for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
             default_team_names[i][0] = '\0';
@@ -419,7 +419,7 @@ void NetworkMenu::EventMapButton() {
         strcpy(world_name, menu_planet_names[ini_world_index]);
         ini_setting_victory_type = ini_get_setting(INI_VICTORY_TYPE);
         ini_setting_victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
-        ReadIniSettings(GAME_STATE_6);
+        ReadIniSettings(GAME_STATE_6_GAME_SETUP);
         ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_MULTI, "MISSION_CATEGORY_MULTI");
         UpdateSaveSettings(nullptr);
         SetClans(ini_get_setting(INI_PLAYER_CLAN));
@@ -446,7 +446,7 @@ void NetworkMenu::EventLoadButton() {
                 team_clans[i] = save_file_info.team_clan[i];
             }
 
-            ReadIniSettings(GAME_STATE_10);
+            ReadIniSettings(GAME_STATE_10_LOAD_GAME);
             UpdateSaveSettings(&save_file_info);
 
             Reinit(true);
@@ -483,7 +483,7 @@ void NetworkMenu::EventScenarioButton() {
                 team_clans[i] = save_file_info.team_clan[i];
             }
 
-            ReadIniSettings(GAME_STATE_10);
+            ReadIniSettings(GAME_STATE_10_LOAD_GAME);
             UpdateSaveSettings(&save_file_info);
 
             Reinit(true);
@@ -547,7 +547,7 @@ void NetworkMenu::EventChat() {
 
 void NetworkMenu::EventOptions() {
     DeleteButtons();
-    menu_options_menu_loop(GameManager_GameState == GAME_STATE_6 ? 3 : 4);
+    menu_options_menu_loop(GameManager_GameState == GAME_STATE_6_GAME_SETUP ? 3 : 4);
     ReadIniSettings(GameManager_GameState);
     Remote_SendNetPacket_37();
     Reinit(false);
@@ -662,7 +662,7 @@ void NetworkMenu::ReadIniSettings(int32_t game_state) {
     ini_alien_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
     ini_world_index = ini_get_setting(INI_WORLD);
 
-    if (GameManager_GameState == GAME_STATE_6) {
+    if (GameManager_GameState == GAME_STATE_6_GAME_SETUP) {
         strcpy(world_name, menu_planet_names[ini_world_index]);
     }
 }
