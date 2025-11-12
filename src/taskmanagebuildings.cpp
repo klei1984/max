@@ -769,14 +769,13 @@ bool TaskManageBuildings::IsSafeSite(uint16_t** construction_map, Point site, Re
                         return false;
                     }
 
-                    if (!marker_index || markers[marker_index - 1] != marker) {
+                    if ((!marker_index || markers[marker_index - 1] != marker) &&
+                        marker_index < static_cast<int32_t>(std::size(markers))) {
                         markers[marker_index] = marker;
                         ++marker_index;
                     }
                 }
             }
-
-            SDL_assert(marker_index <= static_cast<int32_t>(sizeof(markers) / sizeof(markers[0])));
 
             if (marker_index > 1 && markers[0] == markers[marker_index - 1]) {
                 --marker_index;
