@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 191 / 252 (75.7%) original M.A.X. defects in M.A.X. Port.
+Fixed 194 / 252 (76.9%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -226,13 +226,13 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
     </video>
     Is it intentional to allow ships to coast type cells in case there is a bridge at the same cell?
 
-70. The allocation menu uses a function (cseg01:0008A5FB) to change color temperature of highlighted text background. When the algorithm finds a better color match in the system color palette based on color distance the worse distance is saved instead of the better one.
+70. **[Fixed]** The allocation menu uses a function (cseg01:0008A5FB) to change color temperature of highlighted text background. When the algorithm finds a better color match in the system color palette based on color distance the worse distance is saved instead of the better one.
     <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_70.mp4" type="video/mp4">
     <track label="English" kind="subtitles" srclang="en" src="{{ site.baseurl }}/assets/clips/defect_70.vtt" default>
     </video>
-    This makes the text background brighter now, but more importantly more detail is visible. Maybe in the future the blue color temperature could be made darker to match the original aesthetic keeping the higher level of detail.
+    This defect fix makes the text background brighter. To match the original blue color temperature the color blending table generator parameters had to be adapted.
 
 71. **[Fixed]** There is a typo in the briefing text of stand alone mission 20 (DESCR20.SCE). `Can you affort to shut down` -> `afford`.
 
@@ -242,7 +242,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 74. **[Fixed]** The function (cseg01:0009D3A7) that spawns all derelict alien units on the map uses rand() which generates pseudo random numbers. There is a code snippet that seeks a pseudo randomly selected alien unit that fits within a predetermined value budget. When such a unit is found the function deploys another pseudo randomly selected alien unit instead of reusing the unit type that was tested to actually fit into the budget. The code clearly wanted to select a unit within budget so spawning another one which may not fit must be a defect.
 
-75. The functions (cseg01:0009CAE7, cseg01:0009C6F6) responsible for resource distribution on maps do not check whether the calculated grid coordinates are within map boundaries. In corner cases this could lead to heap memory corruption under DOS or in worst case could cause segmentation faults on modern operating systems (ResourceManager_CargoMap[]).
+75. **[Fixed]** The functions (cseg01:0009CAE7, cseg01:0009C6F6) responsible for resource distribution on maps do not check whether the calculated grid coordinates are within map boundaries. In corner cases this could lead to heap memory corruption under DOS or in worst case could cause segmentation faults on modern operating systems (ResourceManager_CargoMap[]).
 
 76. **[Fixed]** Dot is missing from end of sentence `%i %s upgraded to mark %s for %i raw material` in Upgrade All event handler function (cseg01:000F80FD). There are three possible messages: no upgrade, single unit upgrade, more then one unit upgrade. The messages are ended with dots for the first two, only the third one is inconsistent.
 
@@ -312,12 +312,12 @@ On modern operating systems the deallocated heap memory could be reallocated by 
 
 79. **[Fixed]** The function (cseg01:0009C6F6) responsible for resource distribution on maps uses an uninitialized variable by mistake. Fixing this issue potentially alters the original resource distribution probabilities.
 
-80. Units that can pass land as well as water do not update the sprite base frame index after they are picked up from water by air transport and dropped down onto land.
+80. **[Fixed]** Amphibious units that can pass land as well as water do not update the sprite base frame index after they are picked up from water by air transport and dropped down onto land. When an engineer builds a water platform or bridge and finishes the operation the same issue happens and the engineer does not switch to the water specific sprite base frame index in case it moves to a water tile. When a constructor or an engineer builds a stationary unit and finishes the operation the same issue happens and the builders do not switch to the water specific sprite base frame indices in case they move to a water tile.
 <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_80.mp4" type="video/mp4">
     </video>
-    The transporter's activate event should check the destination cell type.
+    The proposed defect fix is that the transporter's activate event handler (cseg01:000FFC49) shall check the destination cell type; the builder units' leave build site event handlers (cseg01:000F1740, cseg01:000FF933) shall check the destination cell type; the air transporter's unload event handler (cseg01:000FE900) shall check the destination cell type.
 
 81. **[Fixed]** The algorithm (cseg01:00076144) that draws attack and scan ranges on screen misbehaves at extreme ranges combined with high level of zoom.
 <br>
@@ -334,7 +334,7 @@ On modern operating systems the deallocated heap memory could be reallocated by 
 
 83. **[Fixed]** The function (cseg01:000CE775) responsible for the reports menu's mouse left click event handling tests against incorrect window boundaries. The active draw area is 459 x 448 pixels. The on click event handler checks for 459 x 459 pixels by calling Image::GetWidth() for both x and y axis dimensions. this must be a simple copy paste error.
 
-84. The reports menu constructor (cseg01:000CC8D0) calls GNW win_draw() twice right after each other. First a call is enabled by the class specific draw function via function parameter, then right after the draw function there is another call.
+84. **[Fixed]** The reports menu constructor (cseg01:000CC8D0) calls GNW win_draw() twice right after each other. First a call is enabled by the class specific draw function via function parameter, then right after the draw function there is another call.
 
 85. Enemy land units do not sink or get destroyed after a water platform or similar is demolished beneath them. The units can also move from a water cell back to a land cell if it is next to them. Land mines do not get destroyed if the structure below them gets demolished. Sea mine layers can detect floating land mines too. Building a landing pad above a road above a water platform makes the road disappear. Further investigation is required whether the road unit gets "properly" destroyed or is it leaking memory. Destroying a landing pad above a water platform while an aircraft is landed there leaves the aircraft on the ground in awaiting state. The aircraft is targetable in this state by land units. The aircraft can take off into air from the water mass.
 <br>
