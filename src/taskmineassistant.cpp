@@ -36,7 +36,7 @@ char* TaskMineAssistant::WriteStatusLog(char* buffer) const {
 
 uint8_t TaskMineAssistant::GetType() const {
     /// \todo Is this a defect? Could something be broken by fixing this?
-    return TaskType_TaskFrontierAssistant;
+    return TaskType_TaskMineAssisstant;
 }
 
 void TaskMineAssistant::BeginTurn() { AiPlayer_Teams[team].PlanMinefields(); }

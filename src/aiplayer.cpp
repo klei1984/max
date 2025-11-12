@@ -393,7 +393,7 @@ void AiPlayer::UpdateAccessMap(Point point1, Point point2, uint8_t** access_map)
             }
 
             if (surface_type == Access_GetSurfaceType(site.x, site.y)) {
-                info_map[site.x][site.y] |= INFO_MAP_UNKNOWN;
+                info_map[site.x][site.y] |= INFO_MAP_FRONTIER;
             }
         }
 
@@ -419,7 +419,7 @@ void AiPlayer::UpdateAccessMap(Point point1, Point point2, uint8_t** access_map)
             }
 
             if (surface_type == Access_GetSurfaceType(site.x, site.y)) {
-                info_map[site.x][site.y] |= INFO_MAP_UNKNOWN;
+                info_map[site.x][site.y] |= INFO_MAP_FRONTIER;
             }
         }
     }
@@ -2707,7 +2707,7 @@ void AiPlayer::GuessEnemyAttackDirections() {
 
         for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
             for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
-                info_map[site.x][site.y] &= ~INFO_MAP_UNKNOWN;
+                info_map[site.x][site.y] &= ~INFO_MAP_FRONTIER;
             }
         }
 
@@ -2740,7 +2740,7 @@ void AiPlayer::GuessEnemyAttackDirections() {
             } while (walker.FindNext());
         }
 
-        for (int32_t team = PLAYER_TEAM_MAX; team < PLAYER_TEAM_MAX - 1; ++team) {
+        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (team != player_team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                 for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
                     for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
