@@ -4067,7 +4067,7 @@ void UnitInfo::SpawnNewUnit() {
                     state = ORDER_STATE_EXECUTING_ORDER;
                 }
 
-                DrawSpriteFrame(angle);
+                UnitsManager_SetUnitSpriteFrameAfterTransport(this, grid_x, grid_y);
 
                 if (GetTask()) {
                     GetTask()->AddUnit(*utility_unit);

@@ -5139,12 +5139,15 @@ void UnitsManager_CheckIfUnitDestroyed(UnitInfo* unit) {
 
 void UnitsManager_ActivateEngineer(UnitInfo* unit) {
     Access_DestroyUtilities(unit->grid_x, unit->grid_y, false, false, false, false);
+
     unit->SetPriorOrder(ORDER_AWAIT);
     unit->SetPriorOrderState(ORDER_STATE_EXECUTING_ORDER);
     unit->SetOrder(ORDER_MOVE);
     unit->SetOrderState(ORDER_STATE_INIT);
     unit->GetParent()->SetParent(unit);
     unit->SetParent(nullptr);
+
+    UnitsManager_SetUnitSpriteFrameAfterTransport(unit, unit->grid_x, unit->grid_y);
 }
 
 void UnitsManager_DeployMasterBuilderInit(UnitInfo* unit) {
@@ -5714,14 +5717,45 @@ void UnitsManager_BuildNext(UnitInfo* unit) {
     }
 }
 
+void UnitsManager_SetUnitSpriteFrameAfterTransport(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
+    if ((unit->flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
+        const auto surface_type = Access_GetModifiedSurfaceType(grid_x, grid_y);
+
+        if (unit->GetUnitType() == CLNTRANS) {
+            if (surface_type == SURFACE_TYPE_WATER) {
+                unit->image_base = 0;
+
+            } else {
+                unit->image_base = 8;
+            }
+
+        } else {
+            if (surface_type == SURFACE_TYPE_WATER) {
+                unit->image_base = 8;
+
+            } else {
+                unit->image_base = 0;
+            }
+
+            unit->firing_image_base = unit->image_base + 16;
+        }
+
+        unit->DrawSpriteFrame(unit->image_base + unit->angle);
+
+    } else if (unit->GetUnitType() == COMMANDO) {
+        unit->image_base = 0;
+        unit->DrawSpriteFrame(unit->image_base + unit->angle);
+    }
+}
+
 void UnitsManager_ActivateUnit(UnitInfo* unit) {
-    SmartPointer<UnitInfo> parent(unit->GetParent());
+    SmartPointer<UnitInfo> client(unit->GetParent());
 
-    SDL_assert(&*parent);
+    SDL_assert(client.Get());
 
-    if (((parent->flags & MOBILE_AIR_UNIT) && parent->speed > 0) ||
+    if (((client->flags & MOBILE_AIR_UNIT) && client->speed > 0) ||
         (!Paths_IsOccupied(unit->target_grid_x, unit->target_grid_y, 0, unit->team) &&
-         !(parent->flags & MOBILE_AIR_UNIT))) {
+         !(client->flags & MOBILE_AIR_UNIT))) {
         SDL_assert(unit->storage > 0);
 
         --unit->storage;
@@ -5740,42 +5774,29 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
             unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
         }
 
-        if (GameManager_SelectedUnit == parent) {
+        if (GameManager_SelectedUnit == client) {
             DrawMap_RenderBuildMarker();
         }
 
-        if (parent->flags & MOBILE_AIR_UNIT) {
-            parent->SetParent(nullptr);
-            parent->target_grid_x = unit->target_grid_x;
-            parent->target_grid_y = unit->target_grid_y;
-            parent->SetOrder(ORDER_MOVE);
-            parent->SetOrderState(ORDER_STATE_INIT);
+        if (client->flags & MOBILE_AIR_UNIT) {
+            client->SetParent(nullptr);
+            client->target_grid_x = unit->target_grid_x;
+            client->target_grid_y = unit->target_grid_y;
+            client->SetOrder(ORDER_MOVE);
+            client->SetOrderState(ORDER_STATE_INIT);
 
-            Access_UpdateMapStatus(&*parent, true);
-            UnitsManager_ScaleUnit(&*parent, ORDER_STATE_EXPAND);
+            Access_UpdateMapStatus(client.Get(), true);
+            UnitsManager_ScaleUnit(client.Get(), ORDER_STATE_EXPAND);
 
         } else {
-            UnitsManager_UpdateMapHash(&*parent, unit->target_grid_x, unit->target_grid_y);
+            UnitsManager_UpdateMapHash(client.Get(), unit->target_grid_x, unit->target_grid_y);
 
-            parent->SetOrder(ORDER_AWAIT);
-            parent->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
+            client->SetOrder(ORDER_AWAIT);
+            client->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
 
-            if (parent->GetUnitType() == COMMANDO || parent->GetUnitType() == INFANTRY ||
-                parent->GetUnitType() == CLNTRANS) {
-                if (parent->GetUnitType() == COMMANDO) {
-                    parent->image_base = 0;
+            UnitsManager_SetUnitSpriteFrameAfterTransport(client.Get(), unit->target_grid_x, unit->target_grid_y);
 
-                } else if (parent->GetUnitType() == INFANTRY) {
-                    parent->image_base = 0;
-
-                } else {
-                    parent->image_base = 8;
-                }
-
-                parent->DrawSpriteFrame(parent->image_base + parent->angle);
-            }
-
-            if ((parent->flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == MOBILE_SEA_UNIT) {
+            if ((client->flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == MOBILE_SEA_UNIT) {
                 UnitInfo* bridge_unit = Access_GetUnit1(unit->target_grid_x, unit->target_grid_y);
 
                 if (bridge_unit) {
@@ -5783,15 +5804,15 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
                 }
             }
 
-            parent->InitStealthStatus();
+            client->InitStealthStatus();
 
-            Access_UpdateMapStatus(&*parent, true);
+            Access_UpdateMapStatus(client.Get(), true);
 
-            UnitsManager_ScaleUnit(&*parent, ORDER_STATE_EXPAND);
+            UnitsManager_ScaleUnit(client.Get(), ORDER_STATE_EXPAND);
         }
 
-        if (GameManager_SelectedUnit == parent) {
-            GameManager_MenuUnitSelect(&*parent);
+        if (GameManager_SelectedUnit == client) {
+            GameManager_MenuUnitSelect(client.Get());
 
             if (GameManager_DisplayButtonRange || GameManager_DisplayButtonScan) {
                 GameManager_UpdateDrawBounds();
@@ -5800,7 +5821,7 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
 
         if (unit->GetTask() &&
             (unit->GetUnitType() == AIRTRANS || unit->GetUnitType() == SEATRANS || unit->GetUnitType() == CLNTRANS)) {
-            unit->GetTask()->EventUnitUnloaded(*unit, *parent);
+            unit->GetTask()->EventUnitUnloaded(*unit, *client);
         }
 
         unit->RefreshScreen();
@@ -5937,6 +5958,8 @@ void UnitsManager_ProgressUnloading(UnitInfo* unit) {
         UnitsManager_UpdateMapHash(client.Get(), unit->grid_x, unit->grid_y);
 
         client->RestoreOrders();
+
+        UnitsManager_SetUnitSpriteFrameAfterTransport(client.Get(), unit->grid_x, unit->grid_y);
 
         Access_UpdateMapStatus(client.Get(), true);
 

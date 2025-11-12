@@ -96,6 +96,7 @@ void UnitsManager_AddToDelayedReactionList(UnitInfo* unit);
 void UnitsManager_DrawBustedCommando(UnitInfo* unit);
 void UnitsManager_TestBustedCommando(UnitInfo* unit);
 void UnitsManager_ScaleUnit(UnitInfo* unit, const UnitOrderStateType state);
+void UnitsManager_SetUnitSpriteFrameAfterTransport(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
 int32_t UnitsManager_GetAttackDamage(UnitInfo* attacker, UnitInfo* target, int32_t attack_potential);
 bool UnitsManager_IsAccessible(uint16_t team, ResourceID unit_type, int32_t grid_x, int32_t grid_y);
 bool UnitsManager_IssueBuildOrder(UnitInfo* unit, int16_t* grid_x, int16_t* grid_y, ResourceID unit_type);
