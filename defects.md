@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 194 / 252 (76.9%) original M.A.X. defects in M.A.X. Port.
+Fixed 198 / 252 (78.5%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -349,11 +349,11 @@ On modern operating systems the deallocated heap memory could be reallocated by 
     <source src="{{ site.baseurl }}/assets/clips/defect_86.mp4" type="video/mp4">
     </video>
 
-87. Both the TaskMineAssisstant and TaskFrontierAssistant classes have the same type id. It is not known yet whether this is a copy paste error or done on purpose in which case it would be an unnecessary design decision not a defect. There are other tasks with equal type identifiers too.
+87. **[Fixed]** Both the TaskMineAssisstant and TaskFrontierAssistant classes have the same type id. TaskFrontierAssistant is not used by the game. The proposed defect fix is to give TaskFrontierAssistant a unique task type id.
 
 88. **[Fixed]** The TaskRemoveRubble task implements a function (cseg01:0003A57F) to dump cargo to the closest complex. This task is used by computer players. The algorithm first searches for a building A that could store some of the raw materials that the bulldozer or mine layer or similar holds, then searches for the closest building B within the same complex of the previously found building A and orders the bulldozer to move to **building A** instead of the closest building within the complex which would be building B. It is another topic why Supply Trucks with free capacity are not even considered by the AI or that it is not even checked how much raw materials can be stored within the selected complex.
 
-89. Both the TaskConnectionAssistant and TaskPowerAssistant classes have the same type id. It is not known yet whether this is a copy paste error or done on purpose in which case it would be an unnecessary design decision not a defect. There are other tasks with equal type identifiers too.
+89. **[Fixed]** Both the TaskConnectionAssistant and TaskPowerAssistant classes have the same type id. It is a copy paste error, these task type ids are not tested by the game. The proposed defect fix is to give TaskPowerAssistant a unique task type id.
 
 90. **[Fixed]** The TaskCreateUnit task implements a function (cseg01:00038CC9) that tries to optimize resource consumption so that demanded units could be created (faster). If necessary the algorithm tries to increase fuel reserves by shutting down inessential infrastructure, namely Eco-Spheres and Gold Refineries. There is a copy paste error when counting the inessential building types so Eco-Spheres are tested twice, counted once, and Gold Refineries do not add to the count. Due to this defect basically Gold Refineries are not considered at all by the algorithm. The proposed defect fix is to consider Gold Refineries as inessential infrastructure in the given context. This change assumes that the original developers did not intentionally change the second condition and left in the dead code snippets for fast reiterations later.
 
@@ -367,7 +367,7 @@ On modern operating systems the deallocated heap memory could be reallocated by 
 
 95. **[Fixed]** The TaskManageBuildings class implements a method (cseg01:0003177D) which marks path ways around buildings. The function also attempts to mark the path ways around buildings that are scheduled to be built, but the tasks list iterator variable is used in two loops and the second loop does not reinitialize the iterator to the beginning of the list effectively skipping the entire list of planned buildings.
 
-96. The TaskManageBuildings class implements a method (cseg01:0003285C) which determines whether a site is reasonably safe for construction purposes. There is a minor risk that `++marker_index` might lead to out of bounds access that could smash the stack and depending on the calling convention of the ABI this could lead to code runaway.
+96. **[Fixed]** The TaskManageBuildings class implements a method (cseg01:0003285C) which determines whether a site is reasonably safe for construction purposes. There is a minor risk that `++marker_index` might lead to out of bounds access that could smash the stack and depending on the calling convention of the ABI this could lead to code runaway. The proposed defect fix is to filter out the error case.
 
 97. **[Fixed]** The TaskManageBuildings class implements a method (cseg01:00033E27) to get the amount of units of a particular type a team has and plans to build. The method returns the count on 8 bits. Over long game sessions it is possible to have more than 255 units of the same type in which case the result gets truncated that could lead to unintended AI behaviors in corner cases.
 
