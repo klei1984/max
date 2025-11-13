@@ -70,8 +70,6 @@ public:
     SmartList<Task>& GetTaskList();
 };
 
-const char* TaskManager_GetTaskName(Task* task);
-
 extern class TaskManager TaskManager;
 
 #endif /* TASK_MANAGER_HPP */

@@ -59,6 +59,7 @@ enum : uint8_t {
     TaskType_TaskRadarAssistant = 28,
     TaskType_TaskFrontierAssistant = 29,
     TaskType_TaskPowerAssistant = 30,
+
     TaskType_TaskReload = 33,
     TaskType_TaskRemoveMines = 34,
     TaskType_TaskRemoveRubble = 35,
@@ -80,6 +81,7 @@ enum : uint8_t {
 class Complex;
 class UnitInfo;
 
+const char* Task_GetName(Task* task);
 void Task_UpgradeStationaryUnit(UnitInfo* unit);
 void Task_RemindMoveFinished(UnitInfo* unit, bool priority = false);
 bool Task_IsReadyToTakeOrders(UnitInfo* unit);

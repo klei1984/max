@@ -40,56 +40,6 @@
 
 class TaskManager TaskManager;
 
-static const char* const TaskManager_TaskNames[] = {"Activate",
-                                                    "AssistMove",
-                                                    "Attack",
-                                                    "AttackReserve",
-                                                    "AutoSurvey",
-                                                    "Unknown",
-                                                    "CheckAssaults",
-                                                    "ClearZone",
-                                                    "CreateUnit",
-                                                    "CreateBuilding",
-                                                    "Escort",
-                                                    "Explore",
-                                                    "DefenseAssistant",
-                                                    "DefenseReserve",
-                                                    "Dump",
-                                                    "FindMines",
-                                                    "FindPath",
-                                                    "FrontalAttack",
-                                                    "GetMaterials",
-                                                    "HabitatAssistant",
-                                                    "KillUnit",
-                                                    "ManageBuildings",
-                                                    "FrontierAssistant",
-                                                    "Move",
-                                                    "MoveHome",
-                                                    "ObtainUnits",
-                                                    "PlaceMines",
-                                                    "ConnectionAssistant",
-                                                    "RadarAssistant",
-                                                    "Unknown",
-                                                    "Unknown",
-                                                    "Unknown",
-                                                    "Unknown",
-                                                    "Reload",
-                                                    "RemoveMines",
-                                                    "RemoveRubble",
-                                                    "Rendezvous",
-                                                    "Repair",
-                                                    "Retreat",
-                                                    "SearchDestination",
-                                                    "Scavenge",
-                                                    "Unknown",
-                                                    "SupportAttack",
-                                                    "Survey",
-                                                    "Unknown",
-                                                    "Transport",
-                                                    "UpdateTerrain",
-                                                    "Upgrade",
-                                                    "WaitToAttack"};
-
 int32_t TaskManager_GetDistance(int32_t distance_x, int32_t distance_y) {
     int32_t result;
 
@@ -333,7 +283,7 @@ void TaskManager::CreateUnit(ResourceID unit_type, uint16_t team, Point site, Ta
 }
 
 void TaskManager::AppendTask(Task& task) {
-    AILOG(log, "Task Manager: append task '{}'.", TaskManager_GetTaskName(&task));
+    AILOG(log, "Task Manager: append task '{}'.", Task_GetName(&task));
 
     tasks.PushBack(task);
 
@@ -663,7 +613,7 @@ void TaskManager::RemoveTask(Task& task) {
         unit_requests.Remove(*dynamic_cast<TaskObtainUnits*>(&task));
     }
 
-    AILOG(log, "Task Manager: remove task '{}'.", TaskManager_GetTaskName(&task));
+    AILOG(log, "Task Manager: remove task '{}'.", Task_GetName(&task));
 
     tasks.Remove(task);
 }
@@ -683,5 +633,3 @@ void TaskManager::AddSpottedUnit(UnitInfo* unit) {
 uint32_t TaskManager::GetRemindersCount() const { return normal_reminders.GetCount() + priority_reminders.GetCount(); }
 
 SmartList<Task>& TaskManager::GetTaskList() { return tasks; }
-
-const char* TaskManager_GetTaskName(Task* task) { return task ? TaskManager_TaskNames[task->GetType()] : ""; }

@@ -37,7 +37,59 @@
 uint16_t Task::task_id = 0;
 uint16_t Task::task_count = 0;
 
+static const char* const Task_TaskNames[] = {"Activate",
+                                             "AssistMove",
+                                             "Attack",
+                                             "AttackReserve",
+                                             "AutoSurvey",
+                                             "Unknown",
+                                             "CheckAssaults",
+                                             "ClearZone",
+                                             "CreateUnit",
+                                             "CreateBuilding",
+                                             "Escort",
+                                             "Explore",
+                                             "DefenseAssistant",
+                                             "DefenseReserve",
+                                             "Dump",
+                                             "FindMines",
+                                             "FindPath",
+                                             "FrontalAttack",
+                                             "GetMaterials",
+                                             "HabitatAssistant",
+                                             "KillUnit",
+                                             "ManageBuildings",
+                                             "MineAssisstant",
+                                             "Move",
+                                             "MoveHome",
+                                             "ObtainUnits",
+                                             "PlaceMines",
+                                             "ConnectionAssistant",
+                                             "RadarAssistant",
+                                             "FrontierAssistant",
+                                             "PowerAssistant",
+                                             "Unknown",
+                                             "Unknown",
+                                             "Reload",
+                                             "RemoveMines",
+                                             "RemoveRubble",
+                                             "Rendezvous",
+                                             "Repair",
+                                             "Retreat",
+                                             "SearchDestination",
+                                             "Scavenge",
+                                             "Unknown",
+                                             "SupportAttack",
+                                             "Survey",
+                                             "Unknown",
+                                             "Transport",
+                                             "UpdateTerrain",
+                                             "Upgrade",
+                                             "WaitToAttack"};
+
 static SmartList<UnitInfo>* Task_GetUnitList(ResourceID unit_type);
+
+const char* Task_GetName(Task* task) { return task ? Task_TaskNames[task->GetType()] : ""; }
 
 void Task_UpgradeStationaryUnit(UnitInfo* unit) {
     Complex* complex = unit->GetComplex();
