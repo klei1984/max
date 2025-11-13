@@ -4398,7 +4398,7 @@ void UnitInfo::FindTarget(int32_t grid_x, int32_t grid_y, SmartList<UnitInfo>* u
         if (((*it).flags & SELECTABLE) && Access_IsWithinAttackRange(&*it, grid_x, grid_y, attack_radius) &&
             Access_IsValidAttackTarget(this, &*it, Point(grid_x, grid_y))) {
             if (((*it).unit_type != BRIDGE && (*it).unit_type != WTRPLTFM) || !Access_IsUnitBusyAtLocation(&*it)) {
-                (*it).AttackUnit(this, TaskManager_GetDistance((*it).grid_x - grid_x, (*it).grid_y - grid_y),
+                (*it).AttackUnit(this, Access_GetApproximateDistance((*it).grid_x - grid_x, (*it).grid_y - grid_y),
                                  UnitsManager_GetTargetAngle((*it).grid_x - grid_x, (*it).grid_y - grid_y));
             }
         }

@@ -26,6 +26,7 @@
 #include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "builder.hpp"
+#include "game_manager.hpp"
 #include "inifile.hpp"
 #include "missionmanager.hpp"
 #include "reminders.hpp"
@@ -39,65 +40,6 @@
 #include "units_manager.hpp"
 
 class TaskManager TaskManager;
-
-int32_t TaskManager_GetDistance(int32_t distance_x, int32_t distance_y) {
-    int32_t result;
-
-    distance_x = labs(distance_x);
-    distance_y = labs(distance_y);
-
-    if (distance_x >= distance_y) {
-        result = 2 * distance_x + distance_y;
-    } else {
-        result = 2 * distance_y + distance_x;
-    }
-
-    return result;
-}
-
-int32_t TaskManager_GetDistance(Point point1, Point point2) {
-    return TaskManager_GetDistance(point1.x - point2.x, point1.y - point2.y);
-}
-
-int32_t TaskManager_GetDistance(UnitInfo* unit1, UnitInfo* unit2) {
-    return TaskManager_GetDistance(unit1->grid_x - unit2->grid_x, unit1->grid_y - unit2->grid_y);
-}
-
-bool TaskManager_NeedToReserveRawMaterials(uint16_t team) {
-    int32_t raw_materials = -10;
-
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == team && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
-            raw_materials += (*it).storage;
-
-            if ((*it).GetUnitType() == ENGINEER) {
-                raw_materials += -15;
-            }
-
-            if ((*it).GetUnitType() == CONSTRCT) {
-                raw_materials += -30;
-            }
-        }
-    }
-
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team) {
-            raw_materials -= Cargo_GetRawConsumptionRate((*it).GetUnitType(), 1);
-
-            if (UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
-                raw_materials += (*it).storage;
-
-                if ((*it).storage == (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
-                    return false;
-                }
-            }
-        }
-    }
-
-    return raw_materials < 0;
-}
 
 TaskManager::TaskManager() : reminder_counter(0) {}
 
@@ -247,7 +189,7 @@ void TaskManager::EnumeratePotentialAttackTargets(UnitInfo* unit) {
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
                 if ((*it).team != unit->team && (*it).IsVisibleToTeam(unit->team) &&
                     UnitsManager_TeamInfo[(*it).team].team_type == TEAM_TYPE_COMPUTER &&
-                    Access_GetDistance(&*it, unit) <= range) {
+                    Access_GetSquaredDistance(&*it, unit) <= range) {
                     units.PushBack(*it);
                 }
             }
@@ -258,7 +200,7 @@ void TaskManager::EnumeratePotentialAttackTargets(UnitInfo* unit) {
                  it != UnitsManager_MobileAirUnits.End(); ++it) {
                 if ((*it).team != unit->team && (*it).IsVisibleToTeam(unit->team) &&
                     UnitsManager_TeamInfo[(*it).team].team_type == TEAM_TYPE_COMPUTER &&
-                    Access_GetDistance(&*it, unit) <= range) {
+                    Access_GetSquaredDistance(&*it, unit) <= range) {
                     units.PushBack(*it);
                 }
             }

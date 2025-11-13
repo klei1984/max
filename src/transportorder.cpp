@@ -81,13 +81,13 @@ Point TransportOrder::MatchClosestPosition(Point end_position, Point start_posit
     }
 
     closest_position = path_position;
-    minimum_distance = TaskManager_GetDistance(closest_position, end_position);
+    minimum_distance = Access_GetApproximateDistance(closest_position, end_position);
 
     for (; index < steps->GetCount(); ++index) {
         path_position.x += steps[index]->x;
         path_position.y += steps[index]->y;
 
-        distance = TaskManager_GetDistance(path_position, end_position);
+        distance = Access_GetApproximateDistance(path_position, end_position);
 
         if (distance < minimum_distance) {
             minimum_distance = distance;

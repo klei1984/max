@@ -23,16 +23,8 @@
 #define TASK_MANAGER_HPP
 
 #include "reminders.hpp"
-#include "smartlist.hpp"
-#include "task.hpp"
 #include "taskobtainunits.hpp"
 #include "unitinfo.hpp"
-
-int32_t TaskManager_GetDistance(int32_t distance_x, int32_t distance_y);
-int32_t TaskManager_GetDistance(Point point1, Point point2);
-int32_t TaskManager_GetDistance(UnitInfo* unit1, UnitInfo* unit2);
-
-bool TaskManager_NeedToReserveRawMaterials(uint16_t team);
 
 class TaskManager {
     SmartList<Task> tasks;

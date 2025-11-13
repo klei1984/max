@@ -25,6 +25,7 @@
 #include "aiattack.hpp"
 #include "ailog.hpp"
 #include "aiplayer.hpp"
+#include "game_manager.hpp"
 #include "task_manager.hpp"
 #include "taskattack.hpp"
 #include "taskmove.hpp"
@@ -339,7 +340,7 @@ UnitInfo* TaskKillUnit::FindClosestCombatUnit(SmartList<UnitInfo>* units_, UnitI
                 if (is_found) {
                     if (IsUnitUsable(*it)) {
                         if (!map || map->Search(Point((*it).grid_x, (*it).grid_y))) {
-                            int32_t distance_ = Access_GetDistance(&*it, spotted_unit->GetLastPosition());
+                            int32_t distance_ = Access_GetSquaredDistance(&*it, spotted_unit->GetLastPosition());
 
                             if (!unit || *distance > distance_) {
                                 unit = &*it;

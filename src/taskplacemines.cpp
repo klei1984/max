@@ -190,7 +190,7 @@ bool TaskPlaceMines::Execute(UnitInfo& unit) {
                         for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                             if ((info_map[x][y] & 2) && !(info_map[x][y] & 8) &&
                                 Access_GetSurfaceType(x, y) == surface_type) {
-                                distance = TaskManager_GetDistance(unit.grid_x - x, unit.grid_y - y);
+                                distance = Access_GetApproximateDistance(unit.grid_x - x, unit.grid_y - y);
 
                                 if (!is_found || distance < minimum_distance) {
                                     position.x = x;

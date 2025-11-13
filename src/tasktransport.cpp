@@ -77,8 +77,8 @@ bool TaskTransport::WillTransportNewClient(TaskMove* task) {
                         Point position(unit_transporter->grid_x, unit_transporter->grid_y);
                         UnitInfo* passenger = task->GetPassenger();
 
-                        distance = TaskManager_GetDistance(unit_transporter->grid_x - passenger->grid_x,
-                                                           unit_transporter->grid_y - passenger->grid_y);
+                        distance = Access_GetApproximateDistance(unit_transporter->grid_x - passenger->grid_x,
+                                                                 unit_transporter->grid_y - passenger->grid_y);
 
                         if (move_tasks.GetCount()) {
                             int32_t distance2;
@@ -87,8 +87,9 @@ bool TaskTransport::WillTransportNewClient(TaskMove* task) {
                                 if ((*it).GetPassenger()) {
                                     passenger = (*it).GetPassenger();
 
-                                    distance2 = TaskManager_GetDistance(unit_transporter->grid_x - passenger->grid_x,
-                                                                        unit_transporter->grid_y - passenger->grid_y);
+                                    distance2 =
+                                        Access_GetApproximateDistance(unit_transporter->grid_x - passenger->grid_x,
+                                                                      unit_transporter->grid_y - passenger->grid_y);
 
                                     if (distance2 < distance) {
                                         return false;
@@ -107,7 +108,7 @@ bool TaskTransport::WillTransportNewClient(TaskMove* task) {
 
                             for (SmartList<TaskMove>::Iterator it = moves.Begin(); it != moves.End(); ++it) {
                                 if ((*it).GetPassenger()) {
-                                    distance2 = TaskManager_GetDistance(position, (*it).GetDestination());
+                                    distance2 = Access_GetApproximateDistance(position, (*it).GetDestination());
 
                                     if (distance2 < distance) {
                                         AILOG_LOG(log, "FALSE");
@@ -177,7 +178,7 @@ bool TaskTransport::ChooseNewTask() {
                 for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
                     if ((*it).GetPassenger() && (*it).GetPassenger()->GetOrder() != ORDER_IDLE &&
                         (*it).GetTransporterType() != INVALID_ID) {
-                        distance = Access_GetDistance((*it).GetPassenger(), position);
+                        distance = Access_GetSquaredDistance((*it).GetPassenger(), position);
 
                         if (!task_move || distance < minimum_distance) {
                             minimum_distance = distance;
@@ -201,7 +202,7 @@ bool TaskTransport::ChooseNewTask() {
                             TaskMove* move = dynamic_cast<TaskMove*>((*it).GetTask());
 
                             if ((*it).speed == 0 || move->GetTransporterType() != INVALID_ID) {
-                                distance = Access_GetDistance(&*it, position);
+                                distance = Access_GetSquaredDistance(&*it, position);
 
                                 if (!task_move || distance < minimum_distance) {
                                     if (TaskTransport_Search(&*unit_transporter, &*it, &map)) {
@@ -225,7 +226,7 @@ bool TaskTransport::ChooseNewTask() {
 
             for (SmartList<TaskMove>::Iterator it = moves.Begin(); it != moves.End(); ++it) {
                 if ((*it).GetPassenger()) {
-                    distance = Access_GetDistance(position, (*it).GetDestination());
+                    distance = Access_GetSquaredDistance(position, (*it).GetDestination());
 
                     if (!task_move || distance < minimum_distance) {
                         minimum_distance = distance;
@@ -500,7 +501,7 @@ bool TaskTransport::Execute(UnitInfo& unit) {
                     const Point destination = task_move->GetDestination();
 
                     if (destination.x >= 0 && destination.y >= 0) {
-                        if (Access_GetDistance(unit_transporter.Get(), destination) <= distance) {
+                        if (Access_GetSquaredDistance(unit_transporter.Get(), destination) <= distance) {
                             UnloadUnit(task_move->GetPassenger());
 
                         } else {
@@ -529,7 +530,7 @@ bool TaskTransport::Execute(UnitInfo& unit) {
                 Point line_distance;
 
                 if (Task_IsReadyToTakeOrders(&*passenger)) {
-                    if (TaskManager_GetDistance(&*unit_transporter, &*passenger) > distance) {
+                    if (Access_GetApproximateDistance(&*unit_transporter, &*passenger) > distance) {
                         if (unit_transporter->GetUnitType() == AIRTRANS ||
                             unit_transporter->GetUnitType() == CLNTRANS) {
                             position.x = passenger->grid_x;
@@ -751,7 +752,7 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
               UnitsManager_BaseUnits[unit_transporter->GetUnitType()].GetSingularName());
 
         if (Task_IsReadyToTakeOrders(unit) && GameManager_IsActiveTurn(team)) {
-            int32_t distance = TaskManager_GetDistance(unit, &*unit_transporter);
+            int32_t distance = Access_GetApproximateDistance(unit, &*unit_transporter);
 
             if (unit_transporter->GetUnitType() == AIRTRANS && distance > 0) {
                 AILOG_LOG(log, "Too far away.");

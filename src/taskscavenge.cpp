@@ -102,7 +102,7 @@ bool TaskScavenge::Execute(UnitInfo& unit) {
             if ((*it).IsVisibleToTeam(team) && ((*it).GetUnitType() == SMLRUBLE || (*it).GetUnitType() == LRGRUBLE)) {
                 Point position((*it).grid_x, (*it).grid_y);
 
-                distance = Access_GetDistance(&unit, &*it);
+                distance = Access_GetSquaredDistance(&unit, &*it);
 
                 if ((!target || distance < minimum_distance) &&
                     !Ai_IsDangerousLocation(&unit, position, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true) &&

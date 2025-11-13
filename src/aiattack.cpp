@@ -24,6 +24,7 @@
 #include "access.hpp"
 #include "ai.hpp"
 #include "aiplayer.hpp"
+#include "game_manager.hpp"
 #include "inifile.hpp"
 #include "randomizer.hpp"
 #include "task_manager.hpp"
@@ -144,7 +145,7 @@ bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site
                 }
 
                 if (damage_potential <= *projected_damage) {
-                    distance = TaskManager_GetDistance(position.x - unit1->grid_x, position.y - unit1->grid_y);
+                    distance = Access_GetApproximateDistance(position.x - unit1->grid_x, position.y - unit1->grid_y);
 
                     if (damage_potential < *projected_damage || distance < minimum_distance) {
                         if (!info_map || !(info_map[position.x][position.y] & INFO_MAP_CLEAR_OUT_ZONE)) {
@@ -194,8 +195,8 @@ bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, i
 
     *projected_damage = INT16_MAX;
 
-    distance2 = Access_GetDistance(unit, target);
-    distance3 = Access_GetDistance(unit, target);
+    distance2 = Access_GetSquaredDistance(unit, target);
+    distance3 = Access_GetSquaredDistance(unit, target);
 
     damage = 0;
 
@@ -218,7 +219,7 @@ bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, i
             damage = damage_potential_map[walker.GetGridX()][walker.GetGridY()];
 
             if (damage <= *projected_damage || distance2 > distance1) {
-                distance3 = Access_GetDistance(unit, *walker.GetCurrentLocation());
+                distance3 = Access_GetSquaredDistance(unit, *walker.GetCurrentLocation());
 
                 if (damage > *projected_damage) {
                     is_better = distance3 <= distance1;
@@ -357,8 +358,8 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
                     distance = distance * distance;
 
                     do {
-                        if (Access_GetDistance(attacker, *walker.GetCurrentLocation()) <= distance) {
-                            distance2 = Access_GetDistance(target, *walker.GetCurrentLocation());
+                        if (Access_GetSquaredDistance(attacker, *walker.GetCurrentLocation()) <= distance) {
+                            distance2 = Access_GetSquaredDistance(target, *walker.GetCurrentLocation());
 
                             if (!is_found || distance2 < minimal_distance) {
                                 is_found = true;
@@ -579,7 +580,7 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
             target_unit->GetOrderState() != ORDER_STATE_DESTROY && target_unit->hits > 0 &&
             target_unit->GetOrder() != ORDER_EXPLODE) {
             unit_position = (*it).GetLastPosition();
-            distance = Access_GetDistance(unit, unit_position);
+            distance = Access_GetSquaredDistance(unit, unit_position);
 
             if (distance <= range) {
                 if (target_unit->IsVisibleToTeam(unit->team) || distance <= scan) {
@@ -855,7 +856,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
 
                 if (spotted_unit) {
                     UnitInfo* target = spotted_unit->GetUnit();
-                    int32_t distance = Access_GetDistance(unit, target);
+                    int32_t distance = Access_GetSquaredDistance(unit, target);
 
                     if (target->IsVisibleToTeam(unit->team)) {
                         unit_range = std::min(unit_range, unit_values->GetAttribute(ATTRIB_SCAN));
@@ -915,7 +916,8 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                         unit->shots = unit_shots;
 
                         if (is_site_found) {
-                            distance = (TaskManager_GetDistance(unit->grid_x - site.x, unit->grid_y - site.y) + 1) / 2;
+                            distance =
+                                (Access_GetApproximateDistance(unit->grid_x - site.x, unit->grid_y - site.y) + 1) / 2;
 
                             if (distance > 0 && caution_level < CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE) {
                                 caution_level = CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE;
@@ -1095,7 +1097,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_flags) {
             if (attack_task) {
                 if (!is_execution_phase || attack_task->IsExecutionPhase()) {
                     if (attack_task->DeterminePriority(task_flags) <= 0) {
-                        distance = Access_GetDistance(unit, &*it);
+                        distance = Access_GetSquaredDistance(unit, &*it);
 
                         if (!leader || distance < minimum_distance ||
                             (!is_execution_phase && attack_task->IsExecutionPhase())) {
@@ -1117,7 +1119,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_flags) {
             if (attack_task) {
                 if (!is_execution_phase || attack_task->IsExecutionPhase()) {
                     if (attack_task->DeterminePriority(task_flags) <= 0) {
-                        distance = Access_GetDistance(unit, &*it);
+                        distance = Access_GetSquaredDistance(unit, &*it);
 
                         if (!leader || distance < minimum_distance ||
                             (!is_execution_phase && attack_task->IsExecutionPhase())) {
@@ -1149,7 +1151,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_flags) {
         TransporterMap map(unit, 0x02, CAUTION_LEVEL_NONE, transporter_type);
         int16_t** damage_potential_map =
             AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true);
-        int32_t range = TaskManager_GetDistance(&*leader, unit) / 2;
+        int32_t range = Access_GetApproximateDistance(&*leader, unit) / 2;
 
         target_location = unit_position;
 
@@ -1165,8 +1167,8 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_flags) {
                         unit_position.y < ResourceManager_MapSize.y) {
                         if (!damage_potential_map ||
                             damage_potential_map[unit_position.x][unit_position.y] < unit->hits) {
-                            distance = TaskManager_GetDistance(unit_position.x - leader->grid_x,
-                                                               unit_position.y - leader->grid_y) /
+                            distance = Access_GetApproximateDistance(unit_position.x - leader->grid_x,
+                                                                     unit_position.y - leader->grid_y) /
                                        2;
 
                             if (distance < range && (!info_map || !(info_map[unit_position.x][unit_position.y] &

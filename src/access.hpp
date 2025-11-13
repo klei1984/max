@@ -22,15 +22,9 @@
 #ifndef ACCESS_HPP
 #define ACCESS_HPP
 
-#include "game_manager.hpp"
+#include <cstdint>
 
-enum {
-    SURFACE_TYPE_NONE = 0x0,
-    SURFACE_TYPE_LAND = 0x1,
-    SURFACE_TYPE_WATER = 0x2,
-    SURFACE_TYPE_COAST = 0x4,
-    SURFACE_TYPE_AIR = 0x8,
-};
+#include "unitinfo.hpp"
 
 bool Access_SetUnitDestination(int32_t grid_x, int32_t grid_y, int32_t target_grid_x, int32_t target_grid_y, bool mode);
 uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x, int32_t grid_y, uint32_t flags);
@@ -40,10 +34,13 @@ void Access_InitUnitStealthStatus(SmartList<UnitInfo>& units);
 void Access_InitStealthMaps();
 bool Access_IsSurveyorOverlayActive(UnitInfo* unit);
 bool Access_IsWithinScanRange(UnitInfo* unit, int32_t grid_x, int32_t grid_y, int32_t scan_range);
-int32_t Access_GetDistance(int32_t grid_x, int32_t grid_y);
-int32_t Access_GetDistance(Point position1, Point position2);
-int32_t Access_GetDistance(UnitInfo* unit, Point position);
-int32_t Access_GetDistance(UnitInfo* unit1, UnitInfo* unit2);
+int32_t Access_GetSquaredDistance(int32_t grid_x, int32_t grid_y);
+int32_t Access_GetSquaredDistance(Point position1, Point position2);
+int32_t Access_GetSquaredDistance(UnitInfo* unit, Point position);
+int32_t Access_GetSquaredDistance(UnitInfo* unit1, UnitInfo* unit2);
+int32_t Access_GetApproximateDistance(int32_t distance_x, int32_t distance_y);
+int32_t Access_GetApproximateDistance(Point point1, Point point2);
+int32_t Access_GetApproximateDistance(UnitInfo* unit1, UnitInfo* unit2);
 bool Access_IsWithinAttackRange(UnitInfo* unit, int32_t grid_x, int32_t grid_y, int32_t attack_range);
 bool Access_FindReachableSpot(ResourceID unit_type, UnitInfo* unit, int16_t* grid_x, int16_t* grid_y, int32_t range,
                               int32_t exclusion_zone, int32_t mode);

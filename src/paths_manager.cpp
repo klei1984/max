@@ -260,11 +260,12 @@ void PathsManager::EvaluateTiles() {
                     backward_searcher = nullptr;
 
                     if (ground_path) {
-                        AILOG_LOG(
-                            log, "Found path ({}/{} msecs), {} steps, air distance {}.",
-                            timer_elapsed_time(elapsed_time), timer_elapsed_time(time_stamp),
-                            ground_path->GetSteps()->GetCount(),
-                            TaskManager_GetDistance(request->GetDestination(), Point(unit->grid_x, unit->grid_y)) / 2);
+                        AILOG_LOG(log, "Found path ({}/{} msecs), {} steps, air distance {}.",
+                                  timer_elapsed_time(elapsed_time), timer_elapsed_time(time_stamp),
+                                  ground_path->GetSteps()->GetCount(),
+                                  Access_GetApproximateDistance(request->GetDestination(),
+                                                                Point(unit->grid_x, unit->grid_y)) /
+                                      2);
 
                     } else {
                         AILOG_LOG(log, "No path, error in transcription.");
@@ -523,7 +524,7 @@ void PathsManager::ProcessRequest() {
                 CompleteRequest(nullptr);
 
             } else {
-                if (Access_GetDistance(position, destination) > 2) {
+                if (Access_GetSquaredDistance(position, destination) > 2) {
                     if (Init(&*unit)) {
                         bool mode;
 

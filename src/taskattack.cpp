@@ -299,7 +299,7 @@ bool TaskAttack::ExchangeOperator(UnitInfo& unit) {
     if (recon_unit && kill_unit_task) {
         Point position = kill_unit_task->DeterminePosition();
 
-        if (Access_GetDistance(&unit, position) < Access_GetDistance(&*recon_unit, position) &&
+        if (Access_GetSquaredDistance(&unit, position) < Access_GetSquaredDistance(&*recon_unit, position) &&
             IsReconUnitUsable(&unit)) {
             SmartPointer<UnitInfo> copy(recon_unit);
 
@@ -459,7 +459,7 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
                                      unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED);
                 int32_t projected_damage;
 
-                if (Access_GetDistance(unit, position) <= unit_range * unit_range) {
+                if (Access_GetSquaredDistance(unit, position) <= unit_range * unit_range) {
                     unit_range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
                 }
 
@@ -508,7 +508,7 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
                                   UnitsManager_BaseUnits[leader->GetUnitType()].GetSingularName(), leader->grid_x + 1,
                                   leader->grid_y + 1);
 
-                        if (TaskManager_GetDistance(&*leader, unit) / 2 >
+                        if (Access_GetApproximateDistance(&*leader, unit) / 2 >
                             unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED)) {
                             if (MoveUnit(task, unit, GetLeaderDestination(), caution_level)) {
                                 result = true;
@@ -587,13 +587,13 @@ UnitInfo* TaskAttack::DetermineLeader() {
         leader_task = this;
 
         if (recon_unit) {
-            minimum_distance = Access_GetDistance(&*recon_unit, position);
+            minimum_distance = Access_GetSquaredDistance(&*recon_unit, position);
         }
 
         for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
             for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End(); ++it2) {
                 if (IsViableLeader(&*it2)) {
-                    distance = Access_GetDistance(&*it2, position);
+                    distance = Access_GetSquaredDistance(&*it2, position);
 
                     if (!recon_unit || distance < minimum_distance) {
                         leader = &*it2;
@@ -609,7 +609,7 @@ UnitInfo* TaskAttack::DetermineLeader() {
                  ++it) {
                 for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End();
                      ++it2) {
-                    distance = Access_GetDistance(&*it2, position);
+                    distance = Access_GetSquaredDistance(&*it2, position);
 
                     if (!leader || distance < minimum_distance) {
                         leader = &*it2;
@@ -919,7 +919,7 @@ bool TaskAttack::IsWithinAttackRange(UnitInfo* unit, Point unit_position) {
 
         distance = distance * distance;
 
-        result = Access_GetDistance(unit, unit_position) <= distance;
+        result = Access_GetSquaredDistance(unit, unit_position) <= distance;
 
     } else {
         result = false;
@@ -1171,7 +1171,7 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
                         heat_map = UnitsManager_TeamInfo[unit_team].heat_map_complete;
                     }
 
-                    minimum_distance = TaskManager_GetDistance(target_position, site) / 2;
+                    minimum_distance = Access_GetApproximateDistance(target_position, site) / 2;
 
                     unit_hits = unit->hits;
 
@@ -1191,10 +1191,10 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
                                     damage_potential_map[position.x][position.y] < unit_hits &&
                                     (!is_there_time_to_prepare || !heat_map ||
                                      heat_map[ResourceManager_MapSize.x * position.y + position.x] == 0)) {
-                                    distance =
-                                        (TaskManager_GetDistance(position, site) / 2) +
-                                        (TaskManager_GetDistance(unit->grid_x - position.x, unit->grid_y - position.y) /
-                                         4);
+                                    distance = (Access_GetApproximateDistance(position, site) / 2) +
+                                               (Access_GetApproximateDistance(unit->grid_x - position.x,
+                                                                              unit->grid_y - position.y) /
+                                                4);
 
                                     if (distance < minimum_distance &&
                                         !(info_map[position.x][position.y] & INFO_MAP_CLEAR_OUT_ZONE) &&
@@ -1342,7 +1342,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
 
     continent->GetBounds(bounds);
 
-    minimum_distance = TaskManager_GetDistance(best_site, target_position) / 2;
+    minimum_distance = Access_GetApproximateDistance(best_site, target_position) / 2;
 
     for (int32_t i = 1; i < minimum_distance; ++i) {
         site.x = target_position.x - i;
@@ -1353,8 +1353,8 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
                 site += Paths_8DirPointsArray[direction];
 
                 if (Access_IsInsideBounds(&bounds, &site) && map.GetMapColumn(site.x)[site.y] == 3) {
-                    distance = (TaskManager_GetDistance(site, target_position) / 2) +
-                               (TaskManager_GetDistance(site, unit_position) / 6);
+                    distance = (Access_GetApproximateDistance(site, target_position) / 2) +
+                               (Access_GetApproximateDistance(site, unit_position) / 6);
 
                     if (distance < minimum_distance &&
                         (!access_flags || Access_GetModifiedSurfaceType(site.x, site.y) != SURFACE_TYPE_WATER) &&
@@ -1590,7 +1590,7 @@ bool TaskAttack::IsViableLeader(UnitInfo* unit) {
                     UnitInfo* target = kill_unit_task->GetUnitSpotted();
                     int32_t unit_scan = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
 
-                    result = Access_GetDistance(unit, target) <= unit_scan * unit_scan;
+                    result = Access_GetSquaredDistance(unit, target) <= unit_scan * unit_scan;
 
                 } else {
                     result = true;
@@ -1668,7 +1668,7 @@ void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
     Point best_site(site);
     int32_t unit_angle = UnitsManager_GetTargetAngle(destination.x - site.x, destination.y - site.y);
     int32_t distance;
-    int32_t minimum_distance = 50 * TaskManager_GetDistance(destination, best_site);
+    int32_t minimum_distance = 50 * Access_GetApproximateDistance(destination, best_site);
     int32_t direction1;
     int32_t direction2;
     int32_t limit;
@@ -1705,8 +1705,8 @@ void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
                 if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
                     position.y < ResourceManager_MapSize.y && access_map.GetMapColumn(position.x)[position.y] > 0 &&
                     (!info_map || !(info_map[position.x][position.y] & INFO_MAP_CLEAR_OUT_ZONE))) {
-                    distance =
-                        50 * TaskManager_GetDistance(position, destination) + TaskManager_GetDistance(position, site);
+                    distance = 50 * Access_GetApproximateDistance(position, destination) +
+                               Access_GetApproximateDistance(position, site);
 
                     if (distance < minimum_distance) {
                         minimum_distance = distance;
@@ -1756,7 +1756,7 @@ bool TaskAttack::IsAnyTargetInRange() {
 
             for (SmartList<TaskKillUnit>::Iterator it3 = secondary_targets.Begin(); it3 != secondary_targets.End();
                  ++it3) {
-                if (Access_GetDistance(&*it2, (*it3).GetUnitSpotted()) <= unit_range) {
+                if (Access_GetSquaredDistance(&*it2, (*it3).GetUnitSpotted()) <= unit_range) {
                     return true;
                 }
             }
@@ -1875,7 +1875,7 @@ void TaskAttack::EvaluateAttackReadiness() {
                      ++it2) {
                     int32_t unit_range = (*it2).GetAttackRange();
 
-                    if (Access_GetDistance(&*it2, position) <= unit_range * unit_range) {
+                    if (Access_GetSquaredDistance(&*it2, position) <= unit_range * unit_range) {
                         AILOG_LOG(log, "{} at [{},{}] is in assault range, shifting to attack mode.",
                                   UnitsManager_BaseUnits[(*it2).GetUnitType()].GetSingularName(), (*it2).grid_x + 1,
                                   (*it2).grid_y + 1);
@@ -1930,7 +1930,7 @@ bool TaskAttack::IsDefenderDangerous(SpottedUnit* spotted_unit) {
 
         for (SmartList<TaskKillUnit>::Iterator it = primary_targets.Begin(); it != primary_targets.End(); ++it) {
             if ((*it).GetUnitSpotted()) {
-                if (Access_GetDistance((*it).GetUnitSpotted(), position) <= unit_range) {
+                if (Access_GetSquaredDistance((*it).GetUnitSpotted(), position) <= unit_range) {
                     return true;
                 }
             }

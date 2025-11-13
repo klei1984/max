@@ -59,6 +59,14 @@ enum : uint32_t {
 
 enum : uint8_t { NO_CARGO = 0x0, MATERIALS = 0x1, FUEL = 0x2, GOLD = 0x3 };
 
+enum : uint8_t {
+    SURFACE_TYPE_NONE = 0x0,
+    SURFACE_TYPE_LAND = 0x1,
+    SURFACE_TYPE_WATER = 0x2,
+    SURFACE_TYPE_COAST = 0x4,
+    SURFACE_TYPE_AIR = 0x8
+};
+
 enum UnitOrderType : uint8_t {
     ORDER_AWAIT = 0x0,
     ORDER_TRANSFORM = 0x1,

@@ -135,7 +135,7 @@ void TaskSearchDestination::SearchNextCircle() {
             point3.y = point3.y * 2 - position.y;
         }
 
-        radius = TaskManager_GetDistance(position, point2) / 2;
+        radius = Access_GetApproximateDistance(position, point2) / 2;
 
         AILOG_LOG(log, "Radius {}", radius);
 
@@ -200,7 +200,7 @@ bool TaskSearchDestination::Search() {
             site += Paths_8DirPointsArray[directions[index]];
 
             if (direction++ < 8) {
-                if (TaskManager_GetDistance(site, position) / 2 == radius) {
+                if (Access_GetApproximateDistance(site, position) / 2 == radius) {
                     break;
                 }
 
@@ -285,7 +285,7 @@ void TaskSearchDestination::SearchTrySite() {
         if ((*it).team == team && (*it).hits > 0 && (*it).GetUnitType() == unit->GetUnitType() && unit != (*it) &&
             ((*it).GetOrder() == ORDER_AWAIT || (*it).GetOrder() == ORDER_SENTRY || (*it).GetOrder() == ORDER_MOVE ||
              (*it).GetOrder() == ORDER_MOVE_TO_UNIT) &&
-            Access_GetDistance(&*unit, best_site) > Access_GetDistance(&*it, best_site)) {
+            Access_GetSquaredDistance(&*unit, best_site) > Access_GetSquaredDistance(&*it, best_site)) {
             bool flag = false;
 
             if ((*it).GetTask()) {

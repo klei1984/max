@@ -30,6 +30,7 @@
 #include "buildmenu.hpp"
 #include "cargo.hpp"
 #include "continent.hpp"
+#include "game_manager.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
 #include "remote.hpp"
@@ -682,7 +683,7 @@ bool TaskCreateBuilding::ExchangeOperator(UnitInfo& unit_) {
 
     if (builder && builder->GetUnitType() == unit_.GetUnitType()) {
         if (op_state < CREATE_BUILDING_STATE_BUILDING) {
-            if (Access_GetDistance(&*builder, site) > Access_GetDistance(&unit_, site)) {
+            if (Access_GetSquaredDistance(&*builder, site) > Access_GetSquaredDistance(&unit_, site)) {
                 AILOG(log, "Task Create Building: Exchange unit.");
 
                 TaskManager.RemindAvailable(&*builder);

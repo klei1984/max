@@ -24,6 +24,7 @@
 #include "access.hpp"
 #include "ailog.hpp"
 #include "aiplayer.hpp"
+#include "game_manager.hpp"
 #include "task_manager.hpp"
 #include "units_manager.hpp"
 

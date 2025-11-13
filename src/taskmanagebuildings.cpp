@@ -608,7 +608,7 @@ int32_t TaskManageBuildings::EvaluateSiteValue(uint16_t** construction_map, Poin
     } else {
         int32_t marker;
 
-        cargo_total = -TaskManager_GetDistance(site, building_site);
+        cargo_total = -Access_GetApproximateDistance(site, building_site);
         marker = construction_map[site.x][site.y];
 
         switch (marker) {
@@ -1915,11 +1915,11 @@ int32_t TaskManageBuildings::GetConnectionDistance(uint8_t** access_map, Point& 
         if (access_map[site3.x][site3.y] > MARKER_EMPTY_SQUARE || TaskManageBuildings_IsSiteValuable(site3, team_) ||
             Access_GetModifiedSurfaceType(site3.x, site3.y) == SURFACE_TYPE_AIR) {
             if (access_map[site3.x][site3.y] == MARKER_CONNECTED_SQUARE) {
-                return TaskManager_GetDistance(site3, site1);
+                return Access_GetApproximateDistance(site3, site1);
 
             } else if (access_map[site3.x][site3.y] == MARKER_CONNECTED_CONSTRUCTION &&
                        value == MARKER_CONSTRUCTION_SQUARE) {
-                return TaskManager_GetDistance(site3, site1);
+                return Access_GetApproximateDistance(site3, site1);
 
             } else {
                 return 1000;
@@ -1938,7 +1938,7 @@ int32_t TaskManageBuildings::GetConnectionDistance(uint8_t** access_map, Point& 
         if (Access_IsInsideBounds(&bounds, &site4) &&
             (access_map[site4.x][site4.y] == MARKER_CONNECTED_SQUARE ||
              (access_map[site4.x][site4.y] == MARKER_CONNECTED_CONSTRUCTION && value == MARKER_CONSTRUCTION_SQUARE))) {
-            return TaskManager_GetDistance(site3, site1) + 2;
+            return Access_GetApproximateDistance(site3, site1) + 2;
         }
 
         site4.x = site3.x - labs(site2.y);
@@ -1947,7 +1947,7 @@ int32_t TaskManageBuildings::GetConnectionDistance(uint8_t** access_map, Point& 
         if (Access_IsInsideBounds(&bounds, &site4) &&
             (access_map[site4.x][site4.y] == MARKER_CONNECTED_SQUARE ||
              (access_map[site4.x][site4.y] == MARKER_CONNECTED_CONSTRUCTION && value == MARKER_CONSTRUCTION_SQUARE))) {
-            return TaskManager_GetDistance(site3, site1) + 2;
+            return Access_GetApproximateDistance(site3, site1) + 2;
         }
     }
 }
@@ -2618,7 +2618,8 @@ bool TaskManageBuildings::FindSiteForRadar(TaskCreateBuilding* task, Point& site
                 if (access_map.GetMapColumn(location.x)[location.y]) {
                     access_map_value = 255 - access_map.GetMapColumn(location.x)[location.y];
 
-                    access_map_value = (access_map_value << 16) + TaskManager_GetDistance(location, building_site);
+                    access_map_value =
+                        (access_map_value << 16) + Access_GetApproximateDistance(location, building_site);
 
                     if (!is_found || access_map_value < best_access_map_value) {
                         is_found = true;
@@ -2680,7 +2681,7 @@ bool TaskManageBuildings::FindDefenseSite(ResourceID unit_type, TaskCreateBuildi
                 access_map_value = access_map.GetMapColumn(location.x)[location.y];
 
                 if (access_map_value >= best_access_map_value && construction_map[location.x][location.y] < AREA_FREE) {
-                    distance = TaskManager_GetDistance(location, target_location);
+                    distance = Access_GetApproximateDistance(location, target_location);
 
                     if (!is_site_found || access_map_value > best_access_map_value || distance < minimum_distance) {
                         if (IsSafeSite(construction_map, location, unit_type)) {

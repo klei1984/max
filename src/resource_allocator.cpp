@@ -21,10 +21,10 @@
 
 #include "resource_allocator.hpp"
 
+#include "access.hpp"
 #include "inifile.hpp"
 #include "randomizer.hpp"
 #include "resource_manager.hpp"
-#include "task_manager.hpp"
 
 int32_t ResourceRange::GetValue() const {
     return ((Randomizer_Generate(max - min + 1) + min) + (Randomizer_Generate(max - min + 1) + min) + 1) / 2;
@@ -202,7 +202,7 @@ void ResourceAllocator::Optimize(Point point, int32_t resource_level, int32_t re
     for (grid_x = bounds.lrx; grid_x < bounds.ulx; grid_x += 2) {
         for (grid_y = bounds.lry; grid_y < bounds.uly; grid_y += 2) {
             distance_factor =
-                ((TaskManager_GetDistance(point.x - grid_x, point.y - grid_y) * 10) / concentrate_diffusion) + 10;
+                ((Access_GetApproximateDistance(point.x - grid_x, point.y - grid_y) * 10) / concentrate_diffusion) + 10;
             material_value = resource_level / (distance_factor * distance_factor);
 
             if (material_value > (ResourceManager_CargoMap[grid_y * ResourceManager_MapSize.x + grid_x] & 0x1F)) {

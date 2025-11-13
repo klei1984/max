@@ -187,7 +187,7 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
                         ResourceManager_CargoMap[ResourceManager_MapSize.x * position.y + position.x];
 
                     if ((cargo_at_site & hash_team_id) && (cargo_at_site & 0x1F)) {
-                        distance = Access_GetDistance(&*unit, position);
+                        distance = Access_GetSquaredDistance(&*unit, position);
 
                         if (!location_found || minimum_distance > distance) {
                             for (int32_t index_x = position.x - 1; index_x <= position.x + 1; ++index_x) {

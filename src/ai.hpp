@@ -57,5 +57,6 @@ void Ai_CheckMines(UnitInfo* unit);
 void Ai_CheckReactions();
 AiReactionStateType Ai_GetReactionState();
 void Ai_SetReactionState(const AiReactionStateType state);
+bool TaskManager_NeedToReserveRawMaterials(uint16_t team);
 
 #endif /* AI_HPP */

@@ -23,6 +23,7 @@
 
 #include "access.hpp"
 #include "allocmenu.hpp"
+#include "game_manager.hpp"
 #include "message_manager.hpp"
 #include "remote.hpp"
 #include "units_manager.hpp"

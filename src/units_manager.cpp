@@ -29,6 +29,8 @@
 #include "buildmenu.hpp"
 #include "cursor.hpp"
 #include "drawmap.hpp"
+#include "enums.hpp"
+#include "game_manager.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
 #include "message_manager.hpp"
@@ -5409,7 +5411,7 @@ bool UnitsManager_PursueEnemy(UnitInfo* unit) {
                 (enemy_unit->IsVisibleToTeam(unit->team) || !enemy_unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED))) {
                 if ((UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER ||
                      !enemy_unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED)) &&
-                    Access_GetDistance(unit, position) > unit_range * unit_range) {
+                    Access_GetSquaredDistance(unit, position) > unit_range * unit_range) {
                     enemy_unit = nullptr;
 
                 } else if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_ELIMINATED) {
@@ -5423,7 +5425,7 @@ bool UnitsManager_PursueEnemy(UnitInfo* unit) {
         }
 
         if (enemy_unit) {
-            if (Access_GetDistance(unit, position) > unit_range * unit_range &&
+            if (Access_GetSquaredDistance(unit, position) > unit_range * unit_range &&
                 (!unit->path || unit->target_grid_x != enemy_unit->grid_x ||
                  unit->target_grid_y != enemy_unit->grid_y) &&
                 ((enemy_unit->GetOrder() != ORDER_MOVE && enemy_unit->GetOrder() != ORDER_MOVE_TO_UNIT &&
@@ -6591,7 +6593,7 @@ bool UnitsManager_ShouldAttack(UnitInfo* unit1, UnitInfo* unit2) {
 
                     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-                        if ((*it).team == unit1_team && Access_GetDistance(unit2, &*it) <= unit2_distance &&
+                        if ((*it).team == unit1_team && Access_GetSquaredDistance(unit2, &*it) <= unit2_distance &&
                             Access_IsValidAttackTarget(unit2, &*it)) {
                             return true;
                         }
@@ -6599,7 +6601,7 @@ bool UnitsManager_ShouldAttack(UnitInfo* unit1, UnitInfo* unit2) {
 
                     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
                          it != UnitsManager_MobileAirUnits.End(); ++it) {
-                        if ((*it).team == unit1_team && Access_GetDistance(unit2, &*it) <= unit2_distance &&
+                        if ((*it).team == unit1_team && Access_GetSquaredDistance(unit2, &*it) <= unit2_distance &&
                             Access_IsValidAttackTarget(unit2, &*it)) {
                             return true;
                         }
@@ -6607,7 +6609,7 @@ bool UnitsManager_ShouldAttack(UnitInfo* unit1, UnitInfo* unit2) {
 
                     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                          it != UnitsManager_StationaryUnits.End(); ++it) {
-                        if ((*it).team == unit1_team && Access_GetDistance(unit2, &*it) <= unit2_distance &&
+                        if ((*it).team == unit1_team && Access_GetSquaredDistance(unit2, &*it) <= unit2_distance &&
                             Access_IsValidAttackTarget(unit2, &*it)) {
                             return true;
                         }

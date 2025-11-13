@@ -204,7 +204,7 @@ uint32_t TerrainDistanceField::ComputeDistanceToNearestTraversable(std::vector<u
 
                             // Check if position is traversable (then calculate range to location)
                             if (range_field[field_offset] & TRAVERSABLE_BIT) {
-                                const uint32_t distance = Access_GetDistance(position, location);
+                                const uint32_t distance = Access_GetSquaredDistance(position, location);
 
                                 if (distance < shortest_distance) {
                                     shortest_distance = distance;
@@ -280,7 +280,7 @@ void TerrainDistanceField::AddAnchorAndPropagate(std::vector<uint32_t>& range_fi
                             if (position.x >= 0 && position.x < m_dimensions.x && position.y >= 0 &&
                                 position.y < m_dimensions.y) {
                                 const int32_t field_offset = position.x + position.y * m_dimensions.x;
-                                const uint32_t distance = Access_GetDistance(position, location);
+                                const uint32_t distance = Access_GetSquaredDistance(position, location);
 
                                 // If this cell's stored range is longer than range to the newly marked traversable cell
                                 if ((range_field[field_offset] & DISTANCE_UNEVALUATED) > distance) {
@@ -356,7 +356,7 @@ void TerrainDistanceField::RemoveAnchorAndInvalidate(std::vector<uint32_t>& rang
                             if (position.x >= 0 && position.x < m_dimensions.x && position.y >= 0 &&
                                 position.y < m_dimensions.y) {
                                 const int32_t field_offset = position.x + position.y * m_dimensions.x;
-                                const uint32_t distance = Access_GetDistance(position, location);
+                                const uint32_t distance = Access_GetSquaredDistance(position, location);
 
                                 // If cell's range exactly matches range to the modified terrain at 'location'
                                 if ((range_field[field_offset] & DISTANCE_UNEVALUATED) == distance) {

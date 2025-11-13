@@ -21,6 +21,7 @@
 
 #include "taskobtainunits.hpp"
 
+#include "access.hpp"
 #include "ailog.hpp"
 #include "builder.hpp"
 #include "task_manager.hpp"
@@ -102,7 +103,7 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
             if ((*unit).GetOrder() == ORDER_BUILD &&
                 ((*unit).flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT))) {
                 speed = (*unit).build_time * (*unit).GetBaseValues()->GetAttribute(ATTRIB_SPEED) +
-                        TaskManager_GetDistance(point.x - (*unit).grid_x, point.y - (*unit).grid_y);
+                        Access_GetApproximateDistance(point.x - (*unit).grid_x, point.y - (*unit).grid_y);
 
                 if (selected_unit == nullptr || (best_speed > speed)) {
                     is_unit_available = false;
@@ -112,7 +113,7 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
 
             } else {
                 if (IsValidCandidate(unit->Get(), mode)) {
-                    speed = TaskManager_GetDistance(point.x - (*unit).grid_x, point.y - (*unit).grid_y);
+                    speed = Access_GetApproximateDistance(point.x - (*unit).grid_x, point.y - (*unit).grid_y);
 
                     if (selected_unit == nullptr || (best_speed > speed)) {
                         is_unit_available = true;

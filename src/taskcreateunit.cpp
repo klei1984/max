@@ -21,6 +21,7 @@
 
 #include "taskcreateunit.hpp"
 
+#include "ai.hpp"
 #include "ailog.hpp"
 #include "builder.hpp"
 #include "buildmenu.hpp"

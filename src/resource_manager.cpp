@@ -32,6 +32,7 @@
 #include "attributes.hpp"
 #include "cursor.hpp"
 #include "drawloadbar.hpp"
+#include "enums.hpp"
 #include "game_manager.hpp"
 #include "gfx.hpp"
 #include "hash.hpp"

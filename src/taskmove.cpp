@@ -28,6 +28,7 @@
 #include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "builder.hpp"
+#include "game_manager.hpp"
 #include "hash.hpp"
 #include "resource_manager.hpp"
 #include "task_manager.hpp"
@@ -465,7 +466,7 @@ void TaskMove::Search(bool mode) {
 
         path_result = TASKMOVE_RESULT_SUCCESS;
 
-        distance = TaskManager_GetDistance(line_distance.x, line_distance.y) / 2;
+        distance = Access_GetApproximateDistance(line_distance.x, line_distance.y) / 2;
 
         request->SetMinimumDistance(minimum_distance);
 
@@ -557,8 +558,8 @@ void TaskMove::FullPathResultCallback(Task* task, PathRequest* path_request, Poi
         move->passenger_destination = move->destination_waypoint;
 
         if (result == 0 && path_request->GetCautionLevel() == CAUTION_LEVEL_AVOID_ALL_DAMAGE) {
-            if ((TaskManager_GetDistance(move->passenger->grid_x - move->destination_waypoint.x,
-                                         move->passenger->grid_y - move->destination_waypoint.y) /
+            if ((Access_GetApproximateDistance(move->passenger->grid_x - move->destination_waypoint.x,
+                                               move->passenger->grid_y - move->destination_waypoint.y) /
                  2) > move->passenger->GetBaseValues()->GetAttribute(ATTRIB_SPEED)) {
                 AiPlayer_Teams[move->team].AddTransportOrder(
                     new (std::nothrow) TransportOrder(&*move->passenger, move->transporter_unit_type, path));
@@ -1084,7 +1085,7 @@ bool TaskMove::IsPathClear() {
 
     AILOG(log, "Check if path is clear.");
 
-    if (Access_GetDistance(&*passenger, *planned_path[0]) > 2) {
+    if (Access_GetSquaredDistance(&*passenger, *planned_path[0]) > 2) {
         AILOG_LOG(log, "[{},{}] is too far away.", planned_path[0]->x + 1, planned_path[0]->y + 1);
 
         result = false;
@@ -1150,7 +1151,7 @@ void TaskMove::FindCurrentLocation() {
         uint32_t minimum_distance_step_index = 0;
         int32_t unit_hits;
 
-        minimum_distance = TaskManager_GetDistance(position, *planned_path[0]) / 2;
+        minimum_distance = Access_GetApproximateDistance(position, *planned_path[0]) / 2;
 
         if (caution_level > CAUTION_LEVEL_NONE) {
             damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, true);
@@ -1172,7 +1173,7 @@ void TaskMove::FindCurrentLocation() {
                 return;
             }
 
-            distance = TaskManager_GetDistance(position, path_step) / 2;
+            distance = Access_GetApproximateDistance(position, path_step) / 2;
 
             if (distance <= minimum_distance) {
                 minimum_distance = distance;
@@ -1355,8 +1356,8 @@ void TaskMove::FindTransport(ResourceID unit_type) {
             TaskTransport* task = dynamic_cast<TaskTransport*>(&*it);
 
             if (task->GetTransporterType() == unit_type) {
-                distance =
-                    TaskManager_GetDistance(task->DeterminePosition(), Point(passenger->grid_x, passenger->grid_y));
+                distance = Access_GetApproximateDistance(task->DeterminePosition(),
+                                                         Point(passenger->grid_x, passenger->grid_y));
 
                 if (!transport || distance < minimum_distance) {
                     if (task->WillTransportNewClient(this)) {

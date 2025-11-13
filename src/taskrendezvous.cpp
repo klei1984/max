@@ -51,7 +51,7 @@ bool TaskRendezvous_SearchMap(UnitInfo* unit1, UnitInfo* unit2, Point* site, cha
         for (int32_t i = 0; i < range; ++i) {
             position2 += Paths_8DirPointsArray[direction];
 
-            distance = TaskManager_GetDistance(position1, position2);
+            distance = Access_GetApproximateDistance(position1, position2);
 
             if (!result || distance < minimum_distance) {
                 if (Access_IsAccessible(unit1->GetUnitType(), unit1->team, position2.x, position2.y, mode)) {

@@ -70,7 +70,7 @@ bool TaskEscort::IssueOrders(UnitInfo* unit) {
         if (damage_potential_map) {
             TransporterMap transporter_map(unit, 0x01, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, escort_type);
             int32_t distance;
-            int32_t minimum_distance = TaskManager_GetDistance(unit_location, target_location) / 2;
+            int32_t minimum_distance = Access_GetApproximateDistance(unit_location, target_location) / 2;
             int32_t unit_hits = unit->hits;
 
             for (int32_t range = 1; range < minimum_distance; ++range) {
@@ -84,8 +84,9 @@ bool TaskEscort::IssueOrders(UnitInfo* unit) {
                         if (Access_IsInsideBounds(&bounds, &position) &&
                             damage_potential_map[position.x][position.y] < unit_hits) {
                             distance =
-                                (TaskManager_GetDistance(unit->grid_x - position.x, unit->grid_y - position.y) / 4) +
-                                TaskManager_GetDistance(position, target_location) / 2;
+                                (Access_GetApproximateDistance(unit->grid_x - position.x, unit->grid_y - position.y) /
+                                 4) +
+                                Access_GetApproximateDistance(position, target_location) / 2;
 
                             if (distance < minimum_distance &&
                                 !(info_map[position.x][position.y] & INFO_MAP_CLEAR_OUT_ZONE) &&

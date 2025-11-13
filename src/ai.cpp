@@ -26,6 +26,7 @@
 #include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "buildmenu.hpp"
+#include "game_manager.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
 #include "production_manager.hpp"
@@ -426,4 +427,40 @@ void Ai_CheckReactions() {
             TaskManager.ExecuteReminders();
         }
     }
+}
+
+bool TaskManager_NeedToReserveRawMaterials(uint16_t team) {
+    int32_t raw_materials = -10;
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
+         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+        if ((*it).team == team && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
+            raw_materials += (*it).storage;
+
+            if ((*it).GetUnitType() == ENGINEER) {
+                raw_materials += -15;
+            }
+
+            if ((*it).GetUnitType() == CONSTRCT) {
+                raw_materials += -30;
+            }
+        }
+    }
+
+    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+         it != UnitsManager_StationaryUnits.End(); ++it) {
+        if ((*it).team == team) {
+            raw_materials -= Cargo_GetRawConsumptionRate((*it).GetUnitType(), 1);
+
+            if (UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
+                raw_materials += (*it).storage;
+
+                if ((*it).storage == (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return raw_materials < 0;
 }

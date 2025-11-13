@@ -26,6 +26,7 @@
 #include "ai.hpp"
 #include "ailog.hpp"
 #include "buildmenu.hpp"
+#include "game_manager.hpp"
 #include "hash.hpp"
 #include "inifile.hpp"
 #include "paths_manager.hpp"
@@ -353,28 +354,51 @@ bool Access_IsWithinScanRange(UnitInfo* unit, int32_t grid_x, int32_t grid_y, in
     return grid_area <= scan_area;
 }
 
-int32_t Access_GetDistance(int32_t grid_x, int32_t grid_y) { return grid_x * grid_x + grid_y * grid_y; }
+int32_t Access_GetSquaredDistance(int32_t grid_x, int32_t grid_y) { return grid_x * grid_x + grid_y * grid_y; }
 
-int32_t Access_GetDistance(Point position1, Point position2) {
+int32_t Access_GetSquaredDistance(Point position1, Point position2) {
     position1 -= position2;
 
     return position1.x * position1.x + position1.y * position1.y;
 }
 
-int32_t Access_GetDistance(UnitInfo* unit, Point position) {
+int32_t Access_GetSquaredDistance(UnitInfo* unit, Point position) {
     position.x -= unit->grid_x;
     position.y -= unit->grid_y;
 
     return position.x * position.x + position.y * position.y;
 }
 
-int32_t Access_GetDistance(UnitInfo* unit1, UnitInfo* unit2) {
+int32_t Access_GetSquaredDistance(UnitInfo* unit1, UnitInfo* unit2) {
     Point distance;
 
     distance.x = unit1->grid_x - unit2->grid_x;
     distance.y = unit1->grid_y - unit2->grid_y;
 
     return distance.x * distance.x + distance.y * distance.y;
+}
+
+int32_t Access_GetApproximateDistance(int32_t distance_x, int32_t distance_y) {
+    int32_t result;
+
+    distance_x = labs(distance_x);
+    distance_y = labs(distance_y);
+
+    if (distance_x >= distance_y) {
+        result = 2 * distance_x + distance_y;
+    } else {
+        result = 2 * distance_y + distance_x;
+    }
+
+    return result;
+}
+
+int32_t Access_GetApproximateDistance(Point point1, Point point2) {
+    return Access_GetApproximateDistance(point1.x - point2.x, point1.y - point2.y);
+}
+
+int32_t Access_GetApproximateDistance(UnitInfo* unit1, UnitInfo* unit2) {
+    return Access_GetApproximateDistance(unit1->grid_x - unit2->grid_x, unit1->grid_y - unit2->grid_y);
 }
 
 bool Access_IsWithinAttackRange(UnitInfo* unit, int32_t grid_x, int32_t grid_y, int32_t attack_range) {

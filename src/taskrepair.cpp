@@ -56,8 +56,8 @@ void TaskRepair::ChooseOperator() {
                 int32_t distance1;
                 int32_t distance2;
 
-                distance1 = TaskManager_GetDistance(&*unit, &*target_unit);
-                distance2 = TaskManager_GetDistance(&*operator_unit, &*target_unit);
+                distance1 = Access_GetApproximateDistance(&*unit, &*target_unit);
+                distance2 = Access_GetApproximateDistance(&*operator_unit, &*target_unit);
 
                 if (distance2 / 2 > distance1) {
                     operator_unit = unit;
@@ -131,7 +131,7 @@ UnitInfo* TaskRepair::SelectRepairShop() {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
             if ((*it).team == team && (*it).GetUnitType() == repair_shop) {
-                distance = TaskManager_GetDistance(&*it, &*target_unit);
+                distance = Access_GetApproximateDistance(&*it, &*target_unit);
 
                 if (result == nullptr || distance < minimum_distance) {
                     result = &*it;
@@ -458,7 +458,7 @@ void TaskRepair::SelectOperator() {
                 ((*it).GetOrder() == ORDER_AWAIT || ((*it).GetOrder() == ORDER_MOVE && (*it).speed == 0)) &&
                 target_unit != (*it)) {
                 if ((*it).GetTask() == nullptr || (*it).GetTask()->DeterminePriority(flags) > 0) {
-                    distance = TaskManager_GetDistance(&*it, &*target_unit);
+                    distance = Access_GetApproximateDistance(&*it, &*target_unit);
 
                     if (unit == nullptr || distance < minimum_distance) {
                         unit = &*it;

@@ -23,6 +23,7 @@
 
 #include "access.hpp"
 #include "ailog.hpp"
+#include "game_manager.hpp"
 #include "remote.hpp"
 #include "sound_manager.hpp"
 #include "units_manager.hpp"
@@ -122,7 +123,7 @@ void PathRequest::AssignGroundPath(UnitInfo* unit, GroundPath* path) {
 
     range = range * range;
 
-    for (index = 0; index < steps.GetCount() && Access_GetDistance(position, destination) > range; ++index) {
+    for (index = 0; index < steps.GetCount() && Access_GetSquaredDistance(position, destination) > range; ++index) {
         position.x += steps[index]->x;
         position.y += steps[index]->y;
 
@@ -162,7 +163,7 @@ void PathRequest::Finish(GroundPath* path) {
 
                 range = range * range;
 
-                if (Access_GetDistance(&*client, Point(client->target_grid_x, client->target_grid_y)) <= range) {
+                if (Access_GetSquaredDistance(&*client, Point(client->target_grid_x, client->target_grid_y)) <= range) {
                     UnitsManager_SetNewOrder(&*client, ORDER_MOVE_TO_ATTACK, ORDER_STATE_EXECUTING_ORDER);
                     client->RefreshScreen();
                     Access_ProcessNewGroupOrder(&*client);

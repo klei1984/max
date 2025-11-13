@@ -77,7 +77,7 @@ void TaskFrontalAttack::IssueOrders() {
         if (GameManager_IsActiveTurn(team)) {
             for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
                 if (Task_IsReadyToTakeOrders(&*it)) {
-                    if ((*it).speed == 0 || Access_GetDistance(&*it, spotted_unit->GetLastPosition()) <=
+                    if ((*it).speed == 0 || Access_GetSquaredDistance(&*it, spotted_unit->GetLastPosition()) <=
                                                 (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE) *
                                                     (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE)) {
                         if (!AiAttack_EvaluateAttack(&*it)) {
@@ -110,7 +110,7 @@ void TaskFrontalAttack::IssueOrders() {
 
             for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
                 if ((*it).GetOrder() == ORDER_MOVE_TO_ATTACK ||
-                    Access_GetDistance(&*it, spotted_unit->GetLastPosition()) <=
+                    Access_GetSquaredDistance(&*it, spotted_unit->GetLastPosition()) <=
                         (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE) *
                             (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE)) {
                     has_attack_target = true;
@@ -124,7 +124,7 @@ void TaskFrontalAttack::IssueOrders() {
                         (UnitsManager_TeamInfo[team].heat_map_complete &&
                          UnitsManager_TeamInfo[team].heat_map_complete[target->grid_y * ResourceManager_MapSize.x +
                                                                        target->grid_x] != 1) ||
-                        Access_GetDistance(&*it, target) >
+                        Access_GetSquaredDistance(&*it, target) >
                             unit_values->GetAttribute(ATTRIB_SCAN) * unit_values->GetAttribute(ATTRIB_SCAN)) {
                         unit_value = ((unit_values->GetAttribute(ATTRIB_ARMOR) * 4 + (*it).hits) * 12) /
                                      unit_values->GetAttribute(ATTRIB_TURNS);

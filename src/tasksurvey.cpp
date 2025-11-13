@@ -81,7 +81,7 @@ bool TaskSurvey::Execute(UnitInfo& unit) {
                     cargo_at_site = ResourceManager_CargoMap[ResourceManager_MapSize.x * site.y + site.x];
 
                     if ((cargo_at_site & hash_team_id) && (cargo_at_site & 0x1F)) {
-                        distance = Access_GetDistance(&unit, site);
+                        distance = Access_GetSquaredDistance(&unit, site);
 
                         if (!location_found || distance < minimum_distance) {
                             if (damage_potential_map[site.x][site.y] <= 0) {

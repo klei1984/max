@@ -4708,7 +4708,7 @@ void GameManager_FindSpot(Point* point) {
 
                     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-                            if (Access_GetDistance(
+                            if (Access_GetSquaredDistance(
                                     UnitsManager_TeamMissionSupplies[team].starting_position.x - point->x,
                                     UnitsManager_TeamMissionSupplies[team].starting_position.y - point->y) < 256) {
                                 is_found = false;

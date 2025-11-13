@@ -204,7 +204,7 @@ bool TaskAssistMove::Execute(UnitInfo& transporter) {
                     if ((*it).GetTask() && (*it).GetTask()->GetType() == TaskType_TaskMove &&
                         Task_IsReadyToTakeOrders(it->Get())) {
                         if (dynamic_cast<TaskMove*>((*it).GetTask())->IsReadyForTransport() || (*it).speed == 0) {
-                            distance = Access_GetDistance(it->Get(), &transporter);
+                            distance = Access_GetSquaredDistance(it->Get(), &transporter);
 
                             if (client_unit == nullptr || distance < minimum_distance) {
                                 if (TaskTransport_Search(&transporter, it->Get(), &map)) {
@@ -219,7 +219,7 @@ bool TaskAssistMove::Execute(UnitInfo& transporter) {
                 }
             }
 
-            if (client_unit && Access_GetDistance(&transporter, client_position) <=
+            if (client_unit && Access_GetSquaredDistance(&transporter, client_position) <=
                                    ((transporter.GetUnitType() == AIRTRANS) ? 0 : 3)) {
                 RequestTransport(&transporter, client_unit);
 
@@ -243,7 +243,7 @@ bool TaskAssistMove::Execute(UnitInfo& transporter) {
 
                     client_destination = dynamic_cast<TaskMove*>((*it).GetTask())->GetDestination();
 
-                    distance = Access_GetDistance(&transporter, client_destination);
+                    distance = Access_GetSquaredDistance(&transporter, client_destination);
 
                     if (client_destination.x >= 0 && (client_unit == nullptr || distance < minimum_distance)) {
                         client_unit = it->Get();
@@ -257,7 +257,7 @@ bool TaskAssistMove::Execute(UnitInfo& transporter) {
         if (client_unit) {
             distance = (transporter.GetUnitType() == AIRTRANS) ? 0 : 3;
 
-            if (Access_GetDistance(&transporter, client_position) <= distance) {
+            if (Access_GetSquaredDistance(&transporter, client_position) <= distance) {
                 CompleteTransport(&transporter, client_unit, client_position);
 
             } else {

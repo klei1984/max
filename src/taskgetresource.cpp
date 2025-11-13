@@ -21,6 +21,7 @@
 
 #include "taskgetresource.hpp"
 
+#include "access.hpp"
 #include "game_manager.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"
@@ -42,8 +43,8 @@ void TaskGetResource::ChooseSource() {
                 supplier = unit;
 
             } else {
-                int32_t distance1 = TaskManager_GetDistance(&*unit, &*requestor);
-                int32_t distance2 = TaskManager_GetDistance(&*supplier, &*requestor);
+                int32_t distance1 = Access_GetApproximateDistance(&*unit, &*requestor);
+                int32_t distance2 = Access_GetApproximateDistance(&*supplier, &*requestor);
 
                 if (distance2 / 2 > distance1) {
                     supplier = unit;
@@ -78,7 +79,7 @@ UnitInfo* TaskGetResource::FindClosestBuilding(Complex* complex) {
     for (SmartList<UnitInfo>::Iterator unit = UnitsManager_StationaryUnits.Begin();
          unit != UnitsManager_StationaryUnits.End(); ++unit) {
         if ((*unit).GetComplex() == complex) {
-            distance = TaskManager_GetDistance(&(*unit), &*requestor);
+            distance = Access_GetApproximateDistance(&(*unit), &*requestor);
 
             if (best_building == nullptr || (minimum_distance > distance)) {
                 best_building = &*unit;

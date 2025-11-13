@@ -21,6 +21,7 @@
 
 #include "taskgetmaterials.hpp"
 
+#include "access.hpp"
 #include "ailog.hpp"
 #include "game_manager.hpp"
 #include "task_manager.hpp"
@@ -184,7 +185,7 @@ UnitInfo* TaskGetMaterials::FindBuilding() {
             UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
             UnitInfo* candidate_building = FindClosestBuilding((*it).GetComplex());
 
-            const int32_t distance = TaskManager_GetDistance(candidate_building, it->Get());
+            const int32_t distance = Access_GetApproximateDistance(candidate_building, it->Get());
 
             if (!building || distance < minimum_distance) {
                 minimum_distance = distance;
@@ -230,7 +231,7 @@ void TaskGetMaterials::FindTruck() {
             }
 
             if (candidate_found) {
-                const int32_t distance = TaskManager_GetDistance(it->Get(), requestor.Get());
+                const int32_t distance = Access_GetApproximateDistance(it->Get(), requestor.Get());
 
                 if (!truck || distance < minimum_distance) {
                     minimum_distance = distance;

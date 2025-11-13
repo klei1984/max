@@ -21,6 +21,7 @@
 
 #include "taskmovehome.hpp"
 
+#include "access.hpp"
 #include "accessmap.hpp"
 #include "aiplayer.hpp"
 #include "paths_manager.hpp"
@@ -170,7 +171,7 @@ bool TaskMoveHome::Execute(UnitInfo& unit_) {
 
                     if (safety >= maximum_safety && map2.GetMapColumn(site.x)[site.y] > 0) {
                         if (!(info_map[site.x][site.y] & INFO_MAP_CLEAR_OUT_ZONE)) {
-                            distance = TaskManager_GetDistance(unit->grid_x - site.x, unit->grid_y - site.y);
+                            distance = Access_GetApproximateDistance(unit->grid_x - site.x, unit->grid_y - site.y);
 
                             if (safety > maximum_safety || distance < minimum_distance) {
                                 minimum_distance = distance;

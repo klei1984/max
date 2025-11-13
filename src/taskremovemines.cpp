@@ -22,6 +22,7 @@
 #include "taskremovemines.hpp"
 
 #include "access.hpp"
+#include "game_manager.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"
 #include "units_manager.hpp"

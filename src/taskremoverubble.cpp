@@ -24,6 +24,7 @@
 #include "access.hpp"
 #include "ai.hpp"
 #include "ailog.hpp"
+#include "game_manager.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"
 #include "taskrendezvous.hpp"
@@ -217,7 +218,7 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
                             return result;
 
                         } else {
-                            distance = TaskManager_GetDistance(building->Get(), unit_);
+                            distance = Access_GetApproximateDistance(building->Get(), unit_);
 
                             if (!best_unit || distance < minimum_distance) {
                                 minimum_distance = distance;

@@ -27,6 +27,7 @@
 #include "builder.hpp"
 #include "circumferencewalker.hpp"
 #include "continent.hpp"
+#include "game_manager.hpp"
 #include "inifile.hpp"
 #include "message_manager.hpp"
 #include "randomizer.hpp"
@@ -281,7 +282,7 @@ void AiPlayer::DetermineTargetLocation(Point position) {
             UnitInfo* unit = (*it).GetUnit();
 
             if (!target || unit->GetUnitType() == MININGST || target->GetUnit()->GetUnitType() != MININGST) {
-                distance = TaskManager_GetDistance(position, (*it).GetLastPosition());
+                distance = Access_GetApproximateDistance(position, (*it).GetLastPosition());
 
                 if (!target || (unit->GetUnitType() == MININGST && target->GetUnit()->GetUnitType() != MININGST) ||
                     distance < minimum_distance) {
@@ -354,7 +355,7 @@ bool AiPlayer::IsPotentialSpotter(uint16_t team, UnitInfo* unit) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && Access_GetDistance(unit, &*it) <= distance) {
+        if ((*it).team == team && Access_GetSquaredDistance(unit, &*it) <= distance) {
             return true;
         }
     }
@@ -4095,7 +4096,7 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
                     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                          it != UnitsManager_StationaryUnits.End(); ++it) {
                         if ((*it).team == unit->team && IsKeyFacility((*it).GetUnitType()) &&
-                            TaskManager_GetDistance(unit, &*it) < 30) {
+                            Access_GetApproximateDistance(unit, &*it) < 30) {
                             spotted_unit2 = new (std::nothrow) SpottedUnit(&*it, player_team);
 
                             spotted_unit2->SetPosition(Point(unit->grid_x, unit->grid_y));
@@ -4117,7 +4118,7 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
                     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
                         if ((*it).team == unit->team && (*it).GetUnitType() == CONSTRCT &&
-                            TaskManager_GetDistance(unit, &*it) < 30) {
+                            Access_GetApproximateDistance(unit, &*it) < 30) {
                             spotted_unit2 = new (std::nothrow) SpottedUnit(&*it, player_team);
 
                             spotted_unit2->SetPosition(Point(unit->grid_x, unit->grid_y));
@@ -4140,7 +4141,7 @@ bool AiPlayer::MatchPath(TaskPathRequest* request) {
     Point position(unit->grid_x, unit->grid_y);
     int32_t minimum_distance = request->GetMinimumDistance();
     Point site = request->GetDestination();
-    int32_t distance = TaskManager_GetDistance(position, site) / 2;
+    int32_t distance = Access_GetApproximateDistance(position, site) / 2;
     bool result;
 
     distance -= minimum_distance;
@@ -4159,9 +4160,9 @@ bool AiPlayer::MatchPath(TaskPathRequest* request) {
                 int32_t distance2;
 
                 source = (*it).MatchStartPosition(position);
-                distance1 = TaskManager_GetDistance(position, source) / 2;
+                distance1 = Access_GetApproximateDistance(position, source) / 2;
                 destination = (*it).MatchClosestPosition(site, source);
-                distance2 = TaskManager_GetDistance(site, destination) / 2;
+                distance2 = Access_GetApproximateDistance(site, destination) / 2;
                 distance2 -= minimum_distance;
 
                 if (distance2 < 0) {
@@ -4481,7 +4482,7 @@ bool AiPlayer::SelectStrategy() {
         for (uint32_t i = 0; i < continents.GetCount(); ++i) {
             Point continent_center = continents[i].GetCenter();
 
-            distance = TaskManager_GetDistance(map_center, continent_center);
+            distance = Access_GetApproximateDistance(map_center, continent_center);
 
             if (distance > maximum_distance) {
                 maximum_distance = distance;
@@ -4491,7 +4492,7 @@ bool AiPlayer::SelectStrategy() {
         for (int64_t i = static_cast<int64_t>(continents.GetCount()) - 1; i >= 0; --i) {
             Point continent_center = continents[i].GetCenter();
 
-            distance = TaskManager_GetDistance(map_center, continent_center);
+            distance = Access_GetApproximateDistance(map_center, continent_center);
 
             if (distance < maximum_distance / 2) {
                 continents.Erase(i);
@@ -4506,7 +4507,7 @@ bool AiPlayer::SelectStrategy() {
         for (uint32_t i = 0; i < continents.GetCount(); ++i) {
             Point continent_center = continents[i].GetCenter();
 
-            distance = TaskManager_GetDistance(map_center, continent_center);
+            distance = Access_GetApproximateDistance(map_center, continent_center);
 
             if (distance < minimum_distance) {
                 minimum_distance = distance;
@@ -4516,7 +4517,7 @@ bool AiPlayer::SelectStrategy() {
         for (int64_t i = static_cast<int64_t>(continents.GetCount()) - 1; i >= 0; --i) {
             Point continent_center = continents[i].GetCenter();
 
-            distance = TaskManager_GetDistance(map_center, continent_center);
+            distance = Access_GetApproximateDistance(map_center, continent_center);
 
             if (distance > minimum_distance * 2) {
                 continents.Erase(i);
@@ -4722,7 +4723,7 @@ int32_t AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* ene
         range = std::min(range, unit_values->GetAttribute(ATTRIB_SCAN));
     }
 
-    distance = Access_GetDistance(friendly_unit, enemy_unit);
+    distance = Access_GetSquaredDistance(friendly_unit, enemy_unit);
     shots = 0;
 
     if (AiPlayer_TerrainDistanceField->GetMinimumRange(
