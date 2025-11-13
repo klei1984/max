@@ -21,6 +21,7 @@
 
 #include "taskwaittoattack.hpp"
 
+#include "ai.hpp"
 #include "aiattack.hpp"
 #include "task_manager.hpp"
 #include "units_manager.hpp"
@@ -72,7 +73,7 @@ void TaskWaitToAttack::RemoveSelf() {
 
 bool TaskWaitToAttack::CheckReactions() {
     if (attacker && !attacker->delayed_reaction && UnitsManager_PendingAttacks.GetCount() == 0 &&
-        TaskManager_word_1731C0 != 2) {
+        Ai_GetReactionState() != AI_REACTION_STATE_ANIMATIONS_ACTIVE) {
         AiAttack_EvaluateAttack(&*attacker);
 
         attacker->RemoveTask(this);

@@ -36,10 +36,16 @@
 
 #define AI_SAFE_ENEMY_DISTANCE 400
 
+static AiReactionStateType Ai_AiReactionState = AI_REACTION_STATE_IDLE;
+
 static bool Ai_IsValidStartingPosition(Rect* bounds);
 static bool Ai_IsSafeStartingPosition(int32_t grid_x, int32_t grid_y, uint16_t team);
 static bool Ai_AreThereParticles();
 static bool Ai_AreThereMovingUnits();
+
+AiReactionStateType Ai_GetReactionState() { return Ai_AiReactionState; }
+
+void Ai_SetReactionState(const AiReactionStateType state) { Ai_AiReactionState = state; }
 
 int32_t Ai_GetNormalRateBuildCost(ResourceID unit_type, uint16_t team) {
     int32_t turns = BuildMenu_GetTurnsToBuild(unit_type, team);
@@ -398,19 +404,19 @@ bool Ai_AreThereMovingUnits() {
 void Ai_CheckReactions() {
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
         if (Ai_AreThereParticles()) {
-            TaskManager_word_1731C0 = 2;
+            Ai_AiReactionState = AI_REACTION_STATE_ANIMATIONS_ACTIVE;
 
-        } else if (TaskManager_word_1731C0 == 2) {
-            TaskManager_word_1731C0 = 1;
+        } else if (Ai_AiReactionState == AI_REACTION_STATE_ANIMATIONS_ACTIVE) {
+            Ai_AiReactionState = AI_REACTION_STATE_PROCESSING;
 
             TaskManager.CheckComputerReactions();
 
         } else {
             if (Ai_AreThereMovingUnits()) {
-                TaskManager_word_1731C0 = 1;
+                Ai_AiReactionState = AI_REACTION_STATE_PROCESSING;
 
-            } else if (TaskManager_word_1731C0 != 0) {
-                TaskManager_word_1731C0 = 0;
+            } else if (Ai_AiReactionState != AI_REACTION_STATE_IDLE) {
+                Ai_AiReactionState = AI_REACTION_STATE_IDLE;
 
                 TaskManager.CheckComputerReactions();
 

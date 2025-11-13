@@ -24,6 +24,12 @@
 
 #include "unitinfo.hpp"
 
+enum AiReactionStateType : uint8_t {
+    AI_REACTION_STATE_IDLE = 0,              // Ready to process reactions
+    AI_REACTION_STATE_PROCESSING = 1,        // Waiting for movements/processing
+    AI_REACTION_STATE_ANIMATIONS_ACTIVE = 2  // Particles/attacks in progress
+};
+
 int32_t Ai_GetNormalRateBuildCost(ResourceID unit_type, uint16_t team);
 bool Ai_SetupStrategy(uint16_t team);
 void Ai_SetInfoMapPoint(Point point, uint16_t team);
@@ -49,5 +55,7 @@ void Ai_EvaluateAttackTargets(UnitInfo* unit);
 void Ai_CheckComputerReactions();
 void Ai_CheckMines(UnitInfo* unit);
 void Ai_CheckReactions();
+AiReactionStateType Ai_GetReactionState();
+void Ai_SetReactionState(const AiReactionStateType state);
 
 #endif /* AI_HPP */

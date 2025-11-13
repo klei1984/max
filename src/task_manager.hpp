@@ -73,6 +73,5 @@ public:
 const char* TaskManager_GetTaskName(Task* task);
 
 extern class TaskManager TaskManager;
-extern uint16_t TaskManager_word_1731C0;
 
 #endif /* TASK_MANAGER_HPP */

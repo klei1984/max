@@ -426,7 +426,7 @@ void AiPlayer::UpdateAccessMap(Point point1, Point point2, uint8_t** access_map)
 }
 
 bool AiPlayer::CheckAttacks() {
-    if (TaskManager_word_1731C0 != 2) {
+    if (Ai_GetReactionState() != AI_REACTION_STATE_ANIMATIONS_ACTIVE) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
             if ((*it).team == player_team && AiAttack_EvaluateAttack(&*it)) {
@@ -460,7 +460,9 @@ void AiPlayer::RegisterReadyAndAbleUnits(SmartList<UnitInfo>* units) {
     }
 }
 
-bool AiPlayer::AreActionsPending() { return TaskManager_word_1731C0 == 2 || TaskManager.GetRemindersCount() > 0; }
+bool AiPlayer::AreActionsPending() {
+    return Ai_GetReactionState() == AI_REACTION_STATE_ANIMATIONS_ACTIVE || TaskManager.GetRemindersCount() > 0;
+}
 
 bool AiPlayer::IsDemoMode() {
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {

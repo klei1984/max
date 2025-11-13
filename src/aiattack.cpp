@@ -319,7 +319,7 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
     bool result;
 
     if (GameManager_IsActiveTurn(attacker->team)) {
-        if (attacker->delayed_reaction || TaskManager_word_1731C0 == 2) {
+        if (attacker->delayed_reaction || Ai_GetReactionState() == AI_REACTION_STATE_ANIMATIONS_ACTIVE) {
             SmartPointer<Task> wait_to_attack_task(new (std::nothrow) TaskWaitToAttack(attacker));
 
             TaskManager.AppendTask(*wait_to_attack_task);
@@ -383,9 +383,9 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
 
             if (attacker->shots > 0 || attacker->GetUnitType() != COMMANDO) {
                 if (attacker->GetUnitType() == COMMANDO && attack_range == 1) {
-                    TaskManager_word_1731C0 = 2;
-                    attacker->SetParent(target);
+                    Ai_SetReactionState(AI_REACTION_STATE_ANIMATIONS_ACTIVE);
 
+                    attacker->SetParent(target);
                     attacker->target_grid_x = Randomizer_Generate(101);
 
                     if (target->GetOrder() == ORDER_DISABLE ||
@@ -402,7 +402,7 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
 
                 } else {
                     if (attacker->shots > 0) {
-                        TaskManager_word_1731C0 = 2;
+                        Ai_SetReactionState(AI_REACTION_STATE_ANIMATIONS_ACTIVE);
                     }
 
                     attacker->SetEnemy(target);
@@ -704,12 +704,12 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
         if (unit->ammo || GameManager_IsActiveTurn(unit->team)) {
             if (unit->shots > 0 || !unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
-                if (unit->delayed_reaction || TaskManager_word_1731C0 == 2) {
+                if (unit->delayed_reaction || Ai_GetReactionState() == AI_REACTION_STATE_ANIMATIONS_ACTIVE) {
                     SmartPointer<Task> wait_to_attack_task(new (std::nothrow) TaskWaitToAttack(unit));
 
                     TaskManager.AppendTask(*wait_to_attack_task);
 
-                    result = TaskManager_word_1731C0 == 2;
+                    result = Ai_GetReactionState() == AI_REACTION_STATE_ANIMATIONS_ACTIVE;
 
                 } else {
                     if (unit->GetOrder() == ORDER_MOVE_TO_ATTACK &&

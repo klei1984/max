@@ -40,8 +40,6 @@
 
 class TaskManager TaskManager;
 
-uint16_t TaskManager_word_1731C0;
-
 static const char* const TaskManager_TaskNames[] = {"Activate",
                                                     "AssistMove",
                                                     "Attack",
@@ -262,7 +260,7 @@ void TaskManager::CheckComputerReactions() {
                 }
             }
 
-            if (TaskManager_word_1731C0 == 0) {
+            if (Ai_GetReactionState() == AI_REACTION_STATE_IDLE) {
                 for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
                     if (GameManager_IsActiveTurn((*it).team) && (*it).hits > 0 && (*it).speed > 0 &&
                         Task_IsReadyToTakeOrders(&*it) &&
@@ -277,7 +275,7 @@ void TaskManager::CheckComputerReactions() {
                         units.Remove(*it);
 
                         if (!TickTimer_HaveTimeToThink()) {
-                            TaskManager_word_1731C0 = 1;
+                            Ai_SetReactionState(AI_REACTION_STATE_PROCESSING);
 
                             return;
                         }
