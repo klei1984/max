@@ -63,7 +63,7 @@ void TaskClearZone::PathFindResultCallback(Task* task, PathRequest* request, Poi
             clear_zone->moving_unit->RemoveTask(clear_zone);
 
             if (!clear_zone->moving_unit->GetTask()) {
-                TaskManager.RemindAvailable(&*clear_zone->moving_unit);
+                TaskManager.ClearUnitTasksAndRemindAvailable(&*clear_zone->moving_unit);
             }
         }
 
@@ -83,7 +83,7 @@ void TaskClearZone::PathFindCancelCallback(Task* task, PathRequest* request) {
         clear_zone->moving_unit->RemoveTask(clear_zone);
 
         if (!clear_zone->moving_unit->GetTask()) {
-            TaskManager.RemindAvailable(&*clear_zone->moving_unit);
+            TaskManager.ClearUnitTasksAndRemindAvailable(&*clear_zone->moving_unit);
         }
 
         clear_zone->moving_unit = nullptr;
@@ -166,7 +166,7 @@ void TaskClearZone::EndTurn() {
                         moving_unit->RemoveTask(this);
 
                         if (!moving_unit->GetTask()) {
-                            TaskManager.RemindAvailable(&*moving_unit);
+                            TaskManager.ClearUnitTasksAndRemindAvailable(&*moving_unit);
                         }
 
                         moving_unit = nullptr;

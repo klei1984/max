@@ -34,8 +34,8 @@
 #include "units_manager.hpp"
 #include "zonewalker.hpp"
 
-uint16_t Task::task_id = 0;
-uint16_t Task::task_count = 0;
+uint32_t Task::task_id = 0;
+uint32_t Task::task_count = 0;
 
 static const char* const Task_TaskNames[] = {"Activate",
                                              "AssistMove",
@@ -380,7 +380,7 @@ Task::Task(uint16_t team, Task* parent, uint16_t flags)
       team(team),
       parent(parent),
       flags(flags),
-      need_init(true),
+      needs_processing(true),
       scheduled_for_turn_start(false),
       scheduled_for_turn_end(false) {
     ++task_count;
@@ -391,7 +391,7 @@ Task::Task(const Task& other)
       team(other.team),
       parent(other.parent),
       flags(other.flags),
-      need_init(other.need_init),
+      needs_processing(other.needs_processing),
       scheduled_for_turn_start(other.scheduled_for_turn_start),
       scheduled_for_turn_end(other.scheduled_for_turn_end) {
     ++task_count;
@@ -411,9 +411,9 @@ void Task::RemindTurnStart(bool priority) {
     }
 }
 
-bool Task::IsInitNeeded() const { return need_init; }
+bool Task::IsProcessingNeeded() const { return needs_processing; }
 
-void Task::ChangeInitNeededFlag(bool value) { need_init = value; }
+void Task::SetProcessingNeeded(bool value) { needs_processing = value; }
 
 bool Task::IsScheduledForTurnStart() const { return scheduled_for_turn_start; }
 
@@ -509,8 +509,8 @@ bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int32_t caution_level) 
 bool Task_RetreatFromDanger(Task* task, UnitInfo* unit, int32_t caution_level) {
     bool result;
 
-    if (task->IsInitNeeded() && Task_RetreatIfNecessary(task, unit, caution_level)) {
-        task->ChangeInitNeededFlag(false);
+    if (task->IsProcessingNeeded() && Task_RetreatIfNecessary(task, unit, caution_level)) {
+        task->SetProcessingNeeded(false);
 
         result = true;
 
@@ -650,4 +650,4 @@ void Task::EventUnitUnloaded(UnitInfo& unit1, UnitInfo& unit2) {}
 
 void Task::EventZoneCleared(Zone* zone, bool status) {}
 
-uint16_t Task::GetId() const { return id; }
+uint32_t Task::GetId() const { return id; }

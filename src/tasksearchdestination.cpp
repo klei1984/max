@@ -310,7 +310,7 @@ void TaskSearchDestination::SearchTrySite() {
                 unit->AddTask(this);
                 backup->RemoveTask(this, false);
 
-                TaskManager.RemindAvailable(&*backup);
+                TaskManager.ClearUnitTasksAndRemindAvailable(&*backup);
             }
         }
     }

@@ -248,7 +248,7 @@ bool TaskTransport::ChooseNewTask() {
         } else {
             SmartPointer<Task> task(this);
 
-            TaskManager.RemindAvailable(&*unit_transporter);
+            TaskManager.ClearUnitTasksAndRemindAvailable(&*unit_transporter);
 
             unit_transporter = nullptr;
 
@@ -585,7 +585,7 @@ void TaskTransport::RemoveSelf() {
     move_tasks.Clear();
 
     if (unit_transporter) {
-        TaskManager.RemindAvailable(&*unit_transporter);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&*unit_transporter);
     }
 
     if (task_obtain_units) {

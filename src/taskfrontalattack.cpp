@@ -378,13 +378,13 @@ void TaskFrontalAttack::RemoveSelf() {
     spotted_unit = nullptr;
 
     for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
-        TaskManager.RemindAvailable(&*it);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
     }
 
     units1.Clear();
 
     for (SmartList<UnitInfo>::Iterator it = units2.Begin(); it != units2.End(); ++it) {
-        TaskManager.RemindAvailable(&*it);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
     }
 
     units2.Clear();

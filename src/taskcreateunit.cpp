@@ -87,7 +87,7 @@ void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
         }
 
     } else if (op_state == CREATE_UNIT_STATE_FINISHED && (unit_.flags & STATIONARY)) {
-        TaskManager.RemindAvailable(&unit_);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&unit_);
 
     } else if (op_state != CREATE_UNIT_STATE_FINISHED && unit_type == unit_.GetUnitType()) {
         op_state = CREATE_UNIT_STATE_FINISHED;
@@ -111,10 +111,10 @@ void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
             } break;
         }
 
-        TaskManager.RemindAvailable(&unit_);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&unit_);
 
         if (builder) {
-            TaskManager.RemindAvailable(&*builder);
+            TaskManager.ClearUnitTasksAndRemindAvailable(&*builder);
         }
 
         parent = nullptr;
@@ -359,7 +359,7 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
                 op_state = CREATE_UNIT_STATE_FINISHED;
 
                 if (builder) {
-                    TaskManager.RemindAvailable(&*builder);
+                    TaskManager.ClearUnitTasksAndRemindAvailable(&*builder);
                 }
 
                 builder = nullptr;

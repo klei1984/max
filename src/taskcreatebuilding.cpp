@@ -332,7 +332,7 @@ void TaskCreateBuilding::Finish() {
         builder->RemoveTask(this);
 
         if (!builder->GetTask()) {
-            TaskManager.RemindAvailable(&*builder);
+            TaskManager.ClearUnitTasksAndRemindAvailable(&*builder);
         }
     }
 
@@ -539,7 +539,7 @@ void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
                 }
 
             } else {
-                TaskManager.RemindAvailable(&unit);
+                TaskManager.ClearUnitTasksAndRemindAvailable(&unit);
             }
 
             if (manager.Get() != parent.Get()) {
@@ -627,11 +627,11 @@ void TaskCreateBuilding::EndTurn() {
             } break;
 
             case CREATE_BUILDING_STATE_SITE_BLOCKED: {
-                if (IsInitNeeded()) {
+                if (IsProcessingNeeded()) {
                     AILOG(log, "Task Create {} at [{},{}]: site blocked",
                           UnitsManager_BaseUnits[unit_type].GetSingularName(), site.x + 1, site.y + 1);
 
-                    ChangeInitNeededFlag(false);
+                    SetProcessingNeeded(false);
 
                     FindBuildSite();
                 }
@@ -686,7 +686,7 @@ bool TaskCreateBuilding::ExchangeOperator(UnitInfo& unit_) {
             if (Access_GetSquaredDistance(&*builder, site) > Access_GetSquaredDistance(&unit_, site)) {
                 AILOG(log, "Task Create Building: Exchange unit.");
 
-                TaskManager.RemindAvailable(&*builder);
+                TaskManager.ClearUnitTasksAndRemindAvailable(&*builder);
 
                 if (!builder) {
                     AddUnit(unit_);

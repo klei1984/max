@@ -164,7 +164,7 @@ void TaskRemoveRubble::RemoveTask() {
     SmartPointer<Task> task(this);
 
     if (unit) {
-        TaskManager.RemindAvailable(&*unit);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&*unit);
         unit = nullptr;
     }
 

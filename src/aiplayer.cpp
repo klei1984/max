@@ -456,7 +456,7 @@ bool AiPlayer::CheckAttacks() {
 void AiPlayer::RegisterReadyAndAbleUnits(SmartList<UnitInfo>* units) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).team == player_team && Task_IsReadyToTakeOrders(&*it) && (*it).speed > 0) {
-            TaskManager.AppendUnit(*it);
+            TaskManager.EnqueueUnitForReactionCheck(*it);
         }
     }
 }
@@ -482,7 +482,7 @@ void AiPlayer::RegisterIdleUnits() {
         if ((*it).team == player_team && !(*it).GetTask()) {
             if ((*it).ammo > 0 || (*it).GetUnitType() == LIGHTPLT || (*it).GetUnitType() == LANDPLT ||
                 (*it).GetUnitType() == SHIPYARD || (*it).GetUnitType() == AIRPLT || (*it).GetUnitType() == TRAINHAL) {
-                TaskManager.RemindAvailable(&*it);
+                TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
             }
         }
     }
@@ -490,14 +490,14 @@ void AiPlayer::RegisterIdleUnits() {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
         if ((*it).team == player_team && !(*it).GetTask()) {
-            TaskManager.RemindAvailable(&*it);
+            TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
         }
     }
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
          it != UnitsManager_MobileAirUnits.End(); ++it) {
         if ((*it).team == player_team && !(*it).GetTask()) {
-            TaskManager.RemindAvailable(&*it);
+            TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
         }
     }
 }
@@ -2957,7 +2957,7 @@ bool AiPlayer::CheckEndTurn() {
     if (!need_init) {
         if (!tasks_pending) {
             if (!field_16) {
-                TaskManager.ChangeFlagsSet(player_team);
+                TaskManager.MarkTasksForProcessing(player_team);
             }
 
             ++field_16;

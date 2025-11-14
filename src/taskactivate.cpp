@@ -242,7 +242,7 @@ bool TaskActivate::Execute(UnitInfo& unit) {
                 }
 
                 if (!unit_to_activate->GetTask()) {
-                    TaskManager.RemindAvailable(unit_to_activate.Get());
+                    TaskManager.ClearUnitTasksAndRemindAvailable(unit_to_activate.Get());
                 }
 
                 unit_to_activate = nullptr;

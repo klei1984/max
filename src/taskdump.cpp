@@ -178,7 +178,7 @@ void TaskDump::Begin() {
 
 void TaskDump::RemoveSelf() {
     if (transporter_unit != nullptr) {
-        TaskManager.RemindAvailable(&*transporter_unit);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&*transporter_unit);
     }
 
     transporter_unit = nullptr;

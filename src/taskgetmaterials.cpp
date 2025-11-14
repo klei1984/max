@@ -215,7 +215,7 @@ void TaskGetMaterials::FindTruck() {
                 if ((*it).GetTask()->DeterminePriority(flags) <= 0) {
                     if ((*it).GetTask()->DeterminePriority(flags) == 0 &&
                         (*it).GetTask()->GetType() == TaskType_TaskGetMaterials &&
-                        (*it).GetTask()->GetId() > this->id) {
+                        (*it).GetTask()->GetId() > this->GetId()) {
                         candidate_found = true;
 
                     } else {

@@ -39,7 +39,7 @@ TaskCreate::~TaskCreate() {}
 
 void TaskCreate::RemoveSelf() {
     if (builder) {
-        TaskManager.RemindAvailable(&*builder);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&*builder);
     }
 
     builder = nullptr;

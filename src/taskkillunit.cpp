@@ -166,7 +166,7 @@ bool TaskKillUnit::GetNewUnits() {
 
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
             if (!weight_table.GetWeight((*it).GetUnitType())) {
-                TaskManager.RemindAvailable(&*it);
+                TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
             }
         }
 
@@ -376,7 +376,7 @@ bool TaskKillUnit::GiveOrdersToUnit(UnitInfo* unit) {
             }
 
             managed_unit = unit;
-            TaskManager.RemindAvailable(unit);
+            TaskManager.ClearUnitTasksAndRemindAvailable(unit);
 
             result = false;
         }
@@ -484,7 +484,7 @@ void TaskKillUnit::AddUnit(UnitInfo& unit) {
     } else {
         AILOG_LOG(log, "unit refused.");
 
-        TaskManager.RemindAvailable(&unit);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&unit);
     }
 }
 
@@ -583,7 +583,7 @@ void TaskKillUnit::RemoveSelf() {
         }
 
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-            TaskManager.RemindAvailable(&*it);
+            TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
         }
 
         managed_unit = nullptr;
@@ -620,7 +620,7 @@ void TaskKillUnit::RemoveUnit(UnitInfo& unit) {
 void TaskKillUnit::EventUnitDestroyed(UnitInfo& unit) {
     if (GetUnitSpotted() == &unit) {
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-            TaskManager.RemindAvailable(&*it, true);
+            TaskManager.ClearUnitTasksAndRemindAvailable(&*it, true);
         }
 
         units.Clear();

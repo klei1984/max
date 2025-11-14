@@ -38,8 +38,8 @@ void TaskCheckAssaults::CheckAssaults() {
     AILOG(log, "Task check assaults");
     uint16_t unit_count = 0;
 
-    if (unit_iterator == UnitsManager_MobileAirUnits.End() && IsInitNeeded()) {
-        ChangeInitNeededFlag(false);
+    if (unit_iterator == UnitsManager_MobileAirUnits.End() && IsProcessingNeeded()) {
+        SetProcessingNeeded(false);
 
         unit_iterator = UnitsManager_MobileLandSeaUnits.Begin();
 

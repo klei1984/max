@@ -68,7 +68,7 @@ void TaskSupportAttack::ObtainUnits(uint32_t unit_flags_) {
             }
 
         } else {
-            TaskManager.RemindAvailable(&*it);
+            TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
         }
     }
 
@@ -119,7 +119,7 @@ bool TaskSupportAttack::IssueOrders(UnitInfo* unit) {
         } else {
             AILOG_LOG(log, "Removing unit, low on ammunition.");
 
-            TaskManager.RemindAvailable(unit);
+            TaskManager.ClearUnitTasksAndRemindAvailable(unit);
 
             result = false;
         }
@@ -193,7 +193,7 @@ void TaskSupportAttack::AddUnit(UnitInfo& unit) {
         }
 
     } else {
-        TaskManager.RemindAvailable(&unit);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&unit);
     }
 }
 
@@ -246,7 +246,7 @@ void TaskSupportAttack::RemoveSelf() {
     parent = nullptr;
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        TaskManager.RemindAvailable(&*it);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
     }
 
     units.Clear();

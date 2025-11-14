@@ -96,16 +96,16 @@ int32_t Task_EstimateTurnsTillMissionEnd();
 int32_t Task_GetReadyUnitsCount(uint16_t team, ResourceID unit_type);
 
 class Task : public SmartObject {
-    static uint16_t task_id;
-    static uint16_t task_count;
+    static uint32_t task_count;
+    static uint32_t task_id;
 
-    bool need_init;
+    bool needs_processing;
     bool scheduled_for_turn_start;
     bool scheduled_for_turn_end;
 
 protected:
+    uint32_t id;
     uint16_t team;
-    uint16_t id;
     uint16_t flags;
 
     SmartPointer<Task> parent;
@@ -119,8 +119,8 @@ public:
 
     void RemindTurnStart(bool priority = false);
 
-    bool IsInitNeeded() const;
-    void ChangeInitNeededFlag(bool value);
+    bool IsProcessingNeeded() const;
+    void SetProcessingNeeded(bool value);
 
     bool IsScheduledForTurnStart() const;
     void ChangeIsScheduledForTurnStart(bool value);
@@ -129,7 +129,7 @@ public:
     void ChangeIsScheduledForTurnEnd(bool value);
 
     uint16_t GetTeam() const;
-    uint16_t GetId() const;
+    uint32_t GetId() const;
 
     Task* GetParent();
     void SetParent(Task* task);

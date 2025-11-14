@@ -31,8 +31,8 @@
 void TaskAbstractSearch::FindDestination(UnitInfo& unit, int32_t radius) {
     AILOG(log, "Abstract Search: Find Destination");
 
-    if (!Task_RetreatFromDanger(this, &unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE) && IsInitNeeded() && unit.speed) {
-        ChangeInitNeededFlag(false);
+    if (!Task_RetreatFromDanger(this, &unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE) && IsProcessingNeeded() && unit.speed) {
+        SetProcessingNeeded(false);
 
         SmartPointer<Task> search_destination_task = new (std::nothrow) TaskSearchDestination(this, &unit, radius);
 
@@ -109,7 +109,7 @@ void TaskAbstractSearch::EndTurn() {
 
 void TaskAbstractSearch::RemoveSelf() {
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        TaskManager.RemindAvailable(&*it);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
     }
 
     units.Clear();
@@ -126,6 +126,6 @@ void TaskAbstractSearch::RemoveUnit(UnitInfo& unit) {
 
 void TaskAbstractSearch::TaskAbstractSearch_vfunc28(UnitInfo& unit) {
     if (units.GetCount() > 0 || requestors > 0) {
-        TaskManager.RemindAvailable(&unit);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&unit);
     }
 }

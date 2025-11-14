@@ -124,7 +124,7 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t fla
     return result;
 }
 
-bool TaskManager::CheckTasksThinking(uint16_t team) {
+bool TaskManager::AreTasksThinking(uint16_t team) {
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team && (*it).IsThinking()) {
             char text[200];
@@ -153,7 +153,7 @@ void TaskManager::CheckComputerReactions() {
             }
 
             if (Ai_GetReactionState() == AI_REACTION_STATE_IDLE) {
-                for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+                for (SmartList<UnitInfo>::Iterator it = units_to_check.Begin(); it != units_to_check.End(); ++it) {
                     if (GameManager_IsActiveTurn((*it).team) && (*it).hits > 0 && (*it).speed > 0 &&
                         Task_IsReadyToTakeOrders(&*it) &&
                         UnitsManager_TeamInfo[(*it).team].team_type == TEAM_TYPE_COMPUTER) {
@@ -164,7 +164,7 @@ void TaskManager::CheckComputerReactions() {
                             Task_RetreatIfNecessary(nullptr, &*it, Ai_DetermineCautionLevel(&*it));
                         }
 
-                        units.Remove(*it);
+                        units_to_check.Remove(*it);
 
                         if (!TickTimer_HaveTimeToThink()) {
                             Ai_SetReactionState(AI_REACTION_STATE_PROCESSING);
@@ -178,7 +178,7 @@ void TaskManager::CheckComputerReactions() {
     }
 }
 
-void TaskManager::EnumeratePotentialAttackTargets(UnitInfo* unit) {
+void TaskManager::CollectPotentialAttackTargets(UnitInfo* unit) {
     if (unit->ammo) {
         int32_t range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
@@ -190,7 +190,7 @@ void TaskManager::EnumeratePotentialAttackTargets(UnitInfo* unit) {
                 if ((*it).team != unit->team && (*it).IsVisibleToTeam(unit->team) &&
                     UnitsManager_TeamInfo[(*it).team].team_type == TEAM_TYPE_COMPUTER &&
                     Access_GetSquaredDistance(&*it, unit) <= range) {
-                    units.PushBack(*it);
+                    units_to_check.PushBack(*it);
                 }
             }
         }
@@ -201,14 +201,14 @@ void TaskManager::EnumeratePotentialAttackTargets(UnitInfo* unit) {
                 if ((*it).team != unit->team && (*it).IsVisibleToTeam(unit->team) &&
                     UnitsManager_TeamInfo[(*it).team].team_type == TEAM_TYPE_COMPUTER &&
                     Access_GetSquaredDistance(&*it, unit) <= range) {
-                    units.PushBack(*it);
+                    units_to_check.PushBack(*it);
                 }
             }
         }
     }
 }
 
-void TaskManager::AppendUnit(UnitInfo& unit) { units.PushBack(unit); }
+void TaskManager::EnqueueUnitForReactionCheck(UnitInfo& unit) { units_to_check.PushBack(unit); }
 
 void TaskManager::CreateBuilding(ResourceID unit_type, uint16_t team, Point site, Task* task) {
     if (IsUnitNeeded(unit_type, team, task->GetFlags())) {
@@ -303,7 +303,7 @@ void TaskManager::BeginTurn(uint16_t team) {
 
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team && (*it).GetType() != TaskType_TaskTransport) {
-            (*it).ChangeInitNeededFlag(true);
+            (*it).SetProcessingNeeded(true);
         }
     }
 
@@ -346,12 +346,12 @@ void TaskManager::EndTurn(uint16_t team) {
     }
 }
 
-void TaskManager::ChangeFlagsSet(uint16_t team) {
-    AILOG(log, "Task Manager: change flags set");
+void TaskManager::MarkTasksForProcessing(uint16_t team) {
+    AILOG(log, "Task Manager: request task processing.");
 
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team) {
-            (*it).ChangeInitNeededFlag(true);
+            (*it).SetProcessingNeeded(true);
         }
     }
 }
@@ -365,10 +365,12 @@ void TaskManager::Clear() {
     unit_requests.Clear();
     normal_reminders.Clear();
     priority_reminders.Clear();
-    units.Clear();
+    units_to_check.Clear();
+
+    reminder_counter = 0;
 }
 
-void TaskManager::RemindAvailable(UnitInfo* unit, bool priority) {
+void TaskManager::ClearUnitTasksAndRemindAvailable(UnitInfo* unit, bool priority) {
     SmartPointer<UnitInfo> backup(unit);
     char unit_name[200];
 

@@ -239,7 +239,7 @@ bool TaskPlaceMines::Execute(UnitInfo& unit) {
 
 void TaskPlaceMines::RemoveSelf() {
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        TaskManager.RemindAvailable(&*it);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
     }
 
     units.Clear();

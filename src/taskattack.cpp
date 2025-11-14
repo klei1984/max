@@ -206,7 +206,7 @@ void TaskAttack::AddUnit(UnitInfo& unit) {
         recon_unit->attack_site.y = 0;
 
     } else {
-        TaskManager.RemindAvailable(&unit);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&unit);
     }
 }
 
@@ -318,7 +318,7 @@ bool TaskAttack::ExchangeOperator(UnitInfo& unit) {
 
             Task_RemindMoveFinished(&unit);
 
-            TaskManager.RemindAvailable(&*copy);
+            TaskManager.ClearUnitTasksAndRemindAvailable(&*copy);
 
             result = true;
 
@@ -376,7 +376,7 @@ void TaskAttack::RemoveSelf() {
 
     if (leader) {
         leader->RemoveDelayedTask(this);
-        TaskManager.RemindAvailable(&*leader);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&*leader);
     }
 
     for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
@@ -485,7 +485,7 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
                     AILOG_LOG(log, "Attack with {} impossible.",
                               UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
 
-                    TaskManager.RemindAvailable(unit);
+                    TaskManager.ClearUnitTasksAndRemindAvailable(unit);
 
                     return false;
                 }
@@ -784,7 +784,7 @@ void TaskAttack::Finish() {
     }
 
     if (recon_unit) {
-        TaskManager.RemindAvailable(&*recon_unit);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&*recon_unit);
     }
 
     for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
@@ -808,7 +808,7 @@ bool TaskAttack::RequestReconUnit(ResourceID unit_type, int32_t safe_distance) {
                 return true;
             }
 
-            TaskManager.RemindAvailable(&*recon_unit);
+            TaskManager.ClearUnitTasksAndRemindAvailable(&*recon_unit);
 
             recon_unit = nullptr;
         }
@@ -864,7 +864,7 @@ bool TaskAttack::FindReconUnit(ResourceID unit_type, int32_t safe_distance) {
 
         if (new_recon_unit) {
             if (recon_unit) {
-                TaskManager.RemindAvailable(&*recon_unit);
+                TaskManager.ClearUnitTasksAndRemindAvailable(&*recon_unit);
             }
 
             new_recon_unit->RemoveTasks();

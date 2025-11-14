@@ -101,7 +101,7 @@ void TaskGetResource::ReleaseSource() {
         unit->RemoveTask(this);
 
         if (!unit->GetTask()) {
-            TaskManager.RemindAvailable(&*unit);
+            TaskManager.ClearUnitTasksAndRemindAvailable(&*unit);
         }
     }
 }

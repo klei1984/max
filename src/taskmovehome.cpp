@@ -205,7 +205,7 @@ bool TaskMoveHome::Execute(UnitInfo& unit_) {
 
 void TaskMoveHome::RemoveSelf() {
     if (unit) {
-        TaskManager.RemindAvailable(&*unit);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&*unit);
 
         unit = nullptr;
         parent = nullptr;

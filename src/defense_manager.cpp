@@ -40,7 +40,7 @@ DefenseManager::~DefenseManager() {}
 
 void DefenseManager::ClearUnitsList() {
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        TaskManager.RemindAvailable(&*it);
+        TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
     }
 
     units.Clear();

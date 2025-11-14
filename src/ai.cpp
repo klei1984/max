@@ -176,7 +176,7 @@ void Ai_FileSave(SmartFileWriter& file) {
     }
 }
 
-void Ai_AddUnitToTrackerList(UnitInfo* unit) { TaskManager.AppendUnit(*unit); }
+void Ai_AddUnitToTrackerList(UnitInfo* unit) { TaskManager.EnqueueUnitForReactionCheck(*unit); }
 
 void Ai_EnableAutoSurvey(UnitInfo* unit) {
     SmartPointer<Task> task(new (std::nothrow) TaskAutoSurvey(unit));
@@ -356,7 +356,7 @@ bool Ai_IsTargetTeam(UnitInfo* unit, UnitInfo* target) {
     return teams[target->team];
 }
 
-void Ai_EvaluateAttackTargets(UnitInfo* unit) { TaskManager.EnumeratePotentialAttackTargets(unit); }
+void Ai_EvaluateAttackTargets(UnitInfo* unit) { TaskManager.CollectPotentialAttackTargets(unit); }
 
 void Ai_CheckComputerReactions() { TaskManager.CheckComputerReactions(); }
 
