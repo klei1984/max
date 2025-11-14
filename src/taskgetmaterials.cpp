@@ -25,6 +25,7 @@
 
 #include "access.hpp"
 #include "ailog.hpp"
+#include "complex.hpp"
 #include "game_manager.hpp"
 #include "task_manager.hpp"
 #include "units_manager.hpp"

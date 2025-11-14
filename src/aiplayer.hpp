@@ -201,6 +201,7 @@ public:
     void ChooseUpgrade(SmartObjectArray<BuildOrder> build_orders1, SmartObjectArray<BuildOrder> build_orders2);
 };
 
+void AiPlayer_UpgradeStationaryUnit(UnitInfo* unit);
 int32_t AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int32_t caution_level);
 int32_t AiPlayer_GetProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_unit, int32_t caution_level);
 

@@ -22,6 +22,7 @@
 #ifndef TASKGETRESOURCE_HPP
 #define TASKGETRESOURCE_HPP
 
+#include "complex.hpp"
 #include "task.hpp"
 
 class TaskGetResource : public Task {

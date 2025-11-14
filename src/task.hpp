@@ -145,11 +145,9 @@ enum : uint16_t {
     TASK_PRIORITY_MOVE = 0x2900,         // Direct unit movement and obtain units
 };
 
-class Complex;
 class UnitInfo;
 
 std::string_view Task_GetName(Task* task);
-void Task_UpgradeStationaryUnit(UnitInfo* unit);
 void Task_RemindMoveFinished(UnitInfo* unit, bool priority = false);
 bool Task_IsReadyToTakeOrders(UnitInfo* unit);
 void Task_RemoveMovementTasks(UnitInfo* unit);

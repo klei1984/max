@@ -95,30 +95,6 @@ std::string_view Task_GetName(Task* task) {
     return task ? std::string_view(Task_TaskNames[task->GetType()]) : std::string_view("");
 }
 
-void Task_UpgradeStationaryUnit(UnitInfo* unit) {
-    Complex* complex = unit->GetComplex();
-
-    if (complex) {
-        Cargo materials;
-        Cargo capacity;
-
-        complex->GetCargoInfo(materials, capacity);
-
-        if (materials.raw >= ((capacity.raw * 3) / 4)) {
-            for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
-                 it != it_end; ++it) {
-                if ((*it).GetComplex() == complex && (*it).GetUnitType() == ADUMP) {
-                    if (Task_IsReadyToTakeOrders(it->Get())) {
-                        (*it).SetParent(unit);
-                        UnitsManager_SetNewOrder(it->Get(), ORDER_UPGRADE, ORDER_STATE_INIT);
-                        break;
-                    }
-                }
-            }
-        }
-    }
-}
-
 void Task_RemindMoveFinished(UnitInfo* unit, bool priority) {
     if (unit && (unit->GetAiStateBits() & UnitInfo::AI_STATE_MOVE_FINISHED_REMINDER) == 0) {
         TaskManager.AppendReminder(new (std::nothrow) RemindMoveFinished(*unit), priority);

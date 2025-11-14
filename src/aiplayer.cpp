@@ -26,6 +26,7 @@
 #include "aiattack.hpp"
 #include "builder.hpp"
 #include "circumferencewalker.hpp"
+#include "complex.hpp"
 #include "continent.hpp"
 #include "game_manager.hpp"
 #include "inifile.hpp"
@@ -34,6 +35,7 @@
 #include "remote.hpp"
 #include "researchmenu.hpp"
 #include "resource_manager.hpp"
+#include "task.hpp"
 #include "task_manager.hpp"
 #include "taskassistmove.hpp"
 #include "taskattack.hpp"
@@ -2665,7 +2667,7 @@ void AiPlayer::BeginTurn() {
                         (*it).GetUnitType() == ARTYTRRT || (*it).GetUnitType() == ANTIMSSL ||
                         (*it).GetUnitType() == ANTIAIR) {
                         if (ShouldUpgradeUnit(it->Get())) {
-                            Task_UpgradeStationaryUnit(it->Get());
+                            AiPlayer_UpgradeStationaryUnit(it->Get());
                         }
                     }
                 }
@@ -4709,6 +4711,30 @@ void AiPlayer::ChooseUpgrade(SmartObjectArray<BuildOrder> build_orders1, SmartOb
             upgrade_cost = new_upgrade_cost;
 
             factor = 1;
+        }
+    }
+}
+
+void AiPlayer_UpgradeStationaryUnit(UnitInfo* unit) {
+    Complex* complex = unit->GetComplex();
+
+    if (complex) {
+        Cargo materials;
+        Cargo capacity;
+
+        complex->GetCargoInfo(materials, capacity);
+
+        if (materials.raw >= ((capacity.raw * 3) / 4)) {
+            for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                 it != it_end; ++it) {
+                if ((*it).GetComplex() == complex && (*it).GetUnitType() == ADUMP) {
+                    if (Task_IsReadyToTakeOrders(it->Get())) {
+                        (*it).SetParent(unit);
+                        UnitsManager_SetNewOrder(it->Get(), ORDER_UPGRADE, ORDER_STATE_INIT);
+                        break;
+                    }
+                }
+            }
         }
     }
 }
