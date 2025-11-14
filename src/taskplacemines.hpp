@@ -36,7 +36,7 @@ public:
     ~TaskPlaceMines();
 
     bool IsUnitUsable(UnitInfo& unit);
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     Rect* GetBounds(Rect* bounds);
     uint8_t GetType() const;
     bool IsNeeded();

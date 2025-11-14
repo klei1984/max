@@ -115,7 +115,7 @@ void TaskDump::Search() {
         if (Access_IsInsideBounds(&bounds, &destination)) {
             keep_searching = true;
 
-            if (Access_IsAccessible(passenger->GetUnitType(), team, destination.x, destination.y,
+            if (Access_IsAccessible(passenger->GetUnitType(), m_team, destination.x, destination.y,
                                     AccessModifier_EnemySameClassBlocks)) {
                 if (!Ai_IsDangerousLocation(&*passenger, destination, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
                     TaskPathRequest* request = new (std::nothrow)
@@ -141,23 +141,19 @@ void TaskDump::RemoveTask() {
     transporter_unit->RemoveTask(this);
     transporter_unit = nullptr;
     task_move = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
     TaskManager.RemoveTask(*this);
 }
 
-char* TaskDump::WriteStatusLog(char* buffer) const {
+std::string TaskDump::WriteStatusLog() const {
     if (task_move == nullptr) {
-        strcpy(buffer, "Dump unit task, null move.");
-
+        return "Dump unit task, null move.";
     } else if (task_move->GetPassenger()) {
-        strcpy(buffer, "Find a place to unload ");
-        strcat(buffer, UnitsManager_BaseUnits[task_move->GetPassenger()->GetUnitType()].GetSingularName());
-
+        return std::string("Find a place to unload ") +
+               UnitsManager_BaseUnits[task_move->GetPassenger()->GetUnitType()].GetSingularName();
     } else {
-        strcpy(buffer, "Dump unit task, null unit.");
+        return "Dump unit task, null unit.";
     }
-
-    return buffer;
 }
 
 uint8_t TaskDump::GetType() const { return TaskType_TaskDump; }
@@ -183,7 +179,7 @@ void TaskDump::RemoveSelf() {
 
     transporter_unit = nullptr;
     task_move = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
     TaskManager.RemoveTask(*this);
 }
 

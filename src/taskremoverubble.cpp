@@ -21,6 +21,8 @@
 
 #include "taskremoverubble.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "ai.hpp"
 #include "ailog.hpp"
@@ -37,15 +39,12 @@ TaskRemoveRubble::TaskRemoveRubble(Task* task, UnitInfo* unit_, uint16_t priorit
 
 TaskRemoveRubble::~TaskRemoveRubble() {}
 
-char* TaskRemoveRubble::WriteStatusLog(char* buffer) const {
+std::string TaskRemoveRubble::WriteStatusLog() const {
     if (!target) {
-        strcpy(buffer, "Completed rubble removal");
-
+        return "Completed rubble removal";
     } else {
-        sprintf(buffer, "Remove rubble from [%i,%i]", target->grid_x + 1, target->grid_y + 1);
+        return std::format("Remove rubble from [{},{}]", target->grid_x + 1, target->grid_y + 1);
     }
-
-    return buffer;
 }
 
 Rect* TaskRemoveRubble::GetBounds(Rect* bounds) {
@@ -100,7 +99,7 @@ bool TaskRemoveRubble::Execute(UnitInfo& unit_) {
 
             if (unit_.GetBaseValues()->GetAttribute(ATTRIB_STORAGE) != unit_.storage) {
                 if (unit_.grid_x == target->grid_x && unit_.grid_y == target->grid_y) {
-                    if (GameManager_IsActiveTurn(team)) {
+                    if (GameManager_IsActiveTurn(m_team)) {
                         unit_.SetParent(&*target);
 
                         unit_.build_time = (target->flags & BUILDING) ? 4 : 1;
@@ -146,7 +145,7 @@ bool TaskRemoveRubble::Execute(UnitInfo& unit_) {
 }
 
 void TaskRemoveRubble::RemoveSelf() {
-    parent = nullptr;
+    m_parent = nullptr;
 
     RemoveTask();
 }
@@ -169,12 +168,12 @@ void TaskRemoveRubble::RemoveTask() {
         unit = nullptr;
     }
 
-    if (parent) {
-        parent->ChildComplete(this);
+    if (m_parent) {
+        m_parent->ChildComplete(this);
     }
 
     target = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }
@@ -197,7 +196,7 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
-            if ((*it).team == team && (*it).storage < (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE) &&
+            if ((*it).team == m_team && (*it).storage < (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE) &&
                 (*it).hits > 0 && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
                 Complex* complex = (*it).GetComplex();
 
@@ -205,7 +204,7 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
                      building != UnitsManager_StationaryUnits.End(); ++building) {
                     if ((*building).GetComplex() == complex) {
                         if (Task_IsAdjacent(building->Get(), unit_->grid_x, unit_->grid_y)) {
-                            if (GameManager_IsActiveTurn(team)) {
+                            if (GameManager_IsActiveTurn(m_team)) {
                                 unit_->target_grid_x =
                                     std::min(static_cast<int32_t>(unit_->storage),
                                              (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - (*it).storage);

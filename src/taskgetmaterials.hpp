@@ -32,7 +32,7 @@ public:
     ~TaskGetMaterials();
 
     uint16_t GetPriority() const;
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     void EndTurn();
     void EventCargoTransfer(UnitInfo& unit);

@@ -29,7 +29,7 @@ public:
     TaskRemoveMines(Task* task, UnitInfo* unit);
     ~TaskRemoveMines();
 
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     bool Execute(UnitInfo& unit);
     void ObtainUnit();

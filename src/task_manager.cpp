@@ -128,9 +128,7 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t tas
 bool TaskManager::AreTasksThinking(uint16_t team) {
     for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetTeam() == team && (*it).IsThinking()) {
-            char text[200];
-
-            AILOG(log, "Task thinking: {}", (*it).WriteStatusLog(text));
+            AILOG(log, "Task thinking: {}", (*it).WriteStatusLog());
 
             return true;
         }

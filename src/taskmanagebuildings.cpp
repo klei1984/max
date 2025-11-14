@@ -158,7 +158,7 @@ void TaskManageBuildings::DeleteMap(uint16_t** construction_map) {
 }
 
 void TaskManageBuildings::MarkMiningAreas(uint16_t** construction_map) {
-    uint16_t hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;
+    uint16_t hash_team_id = UnitsManager_TeamInfo[m_team].team_units->hash_team_id;
     bool mining_station_found = false;
 
     AILOG(log, "Mark mining areas.");
@@ -260,7 +260,7 @@ void TaskManageBuildings::ClearBuildingAreas(uint16_t** construction_map, TaskCr
     AILOG(log, "Clear building areas.");
 
     int16_t** damage_potential_map =
-        AiPlayer_Teams[team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
+        AiPlayer_Teams[m_team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
 
     if (damage_potential_map) {
         for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
@@ -272,25 +272,25 @@ void TaskManageBuildings::ClearBuildingAreas(uint16_t** construction_map, TaskCr
         }
     }
 
-    if (!TaskManageBuildings_IsUnitAvailable(team, &UnitsManager_MobileLandSeaUnits, MINELAYR)) {
+    if (!TaskManageBuildings_IsUnitAvailable(m_team, &UnitsManager_MobileLandSeaUnits, MINELAYR)) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
              it != UnitsManager_GroundCoverUnits.End(); ++it) {
-            if ((*it).team == team && (*it).GetUnitType() == LANDMINE) {
+            if ((*it).team == m_team && (*it).GetUnitType() == LANDMINE) {
                 construction_map[(*it).grid_x][(*it).grid_y] = AREA_OBSTRUCTED;
             }
         }
     }
 
-    if (!TaskManageBuildings_IsUnitAvailable(team, &UnitsManager_MobileLandSeaUnits, SEAMNLYR)) {
+    if (!TaskManageBuildings_IsUnitAvailable(m_team, &UnitsManager_MobileLandSeaUnits, SEAMNLYR)) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
              it != UnitsManager_GroundCoverUnits.End(); ++it) {
-            if ((*it).team == team && (*it).GetUnitType() == SEAMINE) {
+            if ((*it).team == m_team && (*it).GetUnitType() == SEAMINE) {
                 construction_map[(*it).grid_x][(*it).grid_y] = AREA_OBSTRUCTED;
             }
         }
     }
 
-    if (!TaskManageBuildings_IsUnitAvailable(team, &UnitsManager_MobileLandSeaUnits, BULLDOZR)) {
+    if (!TaskManageBuildings_IsUnitAvailable(m_team, &UnitsManager_MobileLandSeaUnits, BULLDOZR)) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
              it != UnitsManager_GroundCoverUnits.End(); ++it) {
             if ((*it).GetUnitType() == LRGRUBLE || (*it).GetUnitType() == SMLRUBLE) {
@@ -305,7 +305,7 @@ void TaskManageBuildings::ClearBuildingAreas(uint16_t** construction_map, TaskCr
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && (*it).GetUnitType() != CNCT_4W) {
+        if ((*it).team == m_team && (*it).GetUnitType() != CNCT_4W) {
             Rect bounds;
 
             (*it).GetBounds(&bounds);
@@ -454,7 +454,7 @@ void TaskManageBuildings::ClearPlannedBuildings(uint16_t** construction_map, Tas
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team &&
+        if ((*it).team == m_team &&
             ((*it).GetUnitType() == BARRACKS || (*it).GetUnitType() == DEPOT || (*it).GetUnitType() == DOCK ||
              (*it).GetUnitType() == TRAINHAL || (*it).GetUnitType() == LIGHTPLT || (*it).GetUnitType() == LANDPLT ||
              (*it).GetUnitType() == SHIPYARD)) {
@@ -590,7 +590,7 @@ int32_t TaskManageBuildings::EvaluateSiteValue(uint16_t** construction_map, Poin
         int16_t gold;
         int16_t fuel;
 
-        Survey_GetTotalResourcesInArea(site.x, site.y, 1, &raw, &gold, &fuel, false, team);
+        Survey_GetTotalResourcesInArea(site.x, site.y, 1, &raw, &gold, &fuel, false, m_team);
 
         cargo_total = raw + gold + fuel;
 
@@ -637,7 +637,7 @@ bool TaskManageBuildings::IsFavorableMiningSite(Point site) {
     int16_t fuel;
     bool result;
 
-    Survey_GetTotalResourcesInArea(site.x, site.y, 1, &raw, &gold, &fuel, false, team);
+    Survey_GetTotalResourcesInArea(site.x, site.y, 1, &raw, &gold, &fuel, false, m_team);
 
     if (raw + gold + fuel >= 10) {
         if (cargo_demand.raw < 0 || cargo_demand.gold < 0 || cargo_demand.fuel < 0) {
@@ -1045,7 +1045,7 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                 }
 
                 if (unit_count_airplant > 0) {
-                    if (CreateBuildings((AiPlayer_Teams[team].GetField5() * total_unit_count) / 10, GREENHSE,
+                    if (CreateBuildings((AiPlayer_Teams[m_team].GetField5() * total_unit_count) / 10, GREENHSE,
                                         TASK_PRIORITY_BUILDING_GREENHOUSE)) {
                         return true;
                     }
@@ -1055,8 +1055,8 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                         return true;
                     }
 
-                    if (IsSupremeTeam(team) && CreateBuildings(GetHighestGreenHouseCount(team) + 1, GREENHSE,
-                                                               TASK_PRIORITY_BUILDING_GREENHOUSE)) {
+                    if (IsSupremeTeam(m_team) && CreateBuildings(GetHighestGreenHouseCount(m_team) + 1, GREENHSE,
+                                                                 TASK_PRIORITY_BUILDING_GREENHOUSE)) {
                         return true;
                     }
                 }
@@ -1064,7 +1064,7 @@ bool TaskManageBuildings::PlanNextBuildJob() {
 
             total_unit_count /= 3;
 
-            switch (AiPlayer_Teams[team].GetStrategy()) {
+            switch (AiPlayer_Teams[m_team].GetStrategy()) {
                 case AI_STRATEGY_DEFENSIVE: {
                     if (CreateBuildings(total_unit_count, LIGHTPLT, TASK_PRIORITY_FOLLOW_DEFENSE)) {
                         return true;
@@ -1157,26 +1157,26 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                 result = true;
 
             } else {
-                int32_t unit_count = Access_GetRepairShopClientCount(team, DEPOT);
+                int32_t unit_count = Access_GetRepairShopClientCount(m_team, DEPOT);
                 int32_t shop_capacity =
-                    UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(DEPOT)->GetAttribute(ATTRIB_STORAGE);
+                    UnitsManager_TeamInfo[m_team].team_units->GetBaseUnitValues(DEPOT)->GetAttribute(ATTRIB_STORAGE);
 
                 if (GetUnitCount(DEPOT, TASK_PRIORITY_BUILDING_REPAIR_SHOP) < (unit_count / (shop_capacity * 2)) &&
                     CreateBuilding(DEPOT, this, TASK_PRIORITY_BUILDING_REPAIR_SHOP)) {
                     result = true;
 
                 } else {
-                    unit_count = Access_GetRepairShopClientCount(team, HANGAR);
-                    shop_capacity =
-                        UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(HANGAR)->GetAttribute(ATTRIB_STORAGE);
+                    unit_count = Access_GetRepairShopClientCount(m_team, HANGAR);
+                    shop_capacity = UnitsManager_TeamInfo[m_team].team_units->GetBaseUnitValues(HANGAR)->GetAttribute(
+                        ATTRIB_STORAGE);
 
                     if (GetUnitCount(HANGAR, TASK_PRIORITY_BUILDING_REPAIR_SHOP) < (unit_count / (shop_capacity * 2)) &&
                         CreateBuilding(HANGAR, this, TASK_PRIORITY_BUILDING_REPAIR_SHOP)) {
                         result = true;
 
                     } else {
-                        unit_count = Access_GetRepairShopClientCount(team, DOCK);
-                        shop_capacity = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(DOCK)->GetAttribute(
+                        unit_count = Access_GetRepairShopClientCount(m_team, DOCK);
+                        shop_capacity = UnitsManager_TeamInfo[m_team].team_units->GetBaseUnitValues(DOCK)->GetAttribute(
                             ATTRIB_STORAGE);
 
                         if (GetUnitCount(DOCK, TASK_PRIORITY_BUILDING_REPAIR_SHOP) <
@@ -1185,9 +1185,9 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                             result = true;
 
                         } else {
-                            unit_count = Access_GetRepairShopClientCount(team, BARRACKS);
+                            unit_count = Access_GetRepairShopClientCount(m_team, BARRACKS);
                             shop_capacity =
-                                UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(BARRACKS)->GetAttribute(
+                                UnitsManager_TeamInfo[m_team].team_units->GetBaseUnitValues(BARRACKS)->GetAttribute(
                                     ATTRIB_STORAGE);
 
                             if (GetUnitCount(BARRACKS, TASK_PRIORITY_MANAGE_BUILDINGS) <
@@ -1235,7 +1235,7 @@ void TaskManageBuildings::UpdateMiningNeeds() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == team && ((*it).GetUnitType() == ENGINEER || (*it).GetUnitType() == CONSTRCT)) {
+        if ((*it).team == m_team && ((*it).GetUnitType() == ENGINEER || (*it).GetUnitType() == CONSTRCT)) {
             cargo_demand.raw += (*it).storage;
 
             if ((*it).GetUnitType() == ENGINEER) {
@@ -1256,7 +1256,7 @@ void TaskManageBuildings::UpdateMiningNeeds() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team) {
+        if ((*it).team == m_team) {
             cargo_demand.raw -= Cargo_GetRawConsumptionRate((*it).GetUnitType(), 1);
             cargo_demand.fuel -= Cargo_GetFuelConsumptionRate((*it).GetUnitType());
             cargo_demand.gold -= Cargo_GetGoldConsumptionRate((*it).GetUnitType());
@@ -1291,7 +1291,7 @@ void TaskManageBuildings::UpdateMiningNeeds() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).GetUnitType() == MININGST && (*it).team == team) {
+        if ((*it).GetUnitType() == MININGST && (*it).team == m_team) {
             int16_t capacity_limit = 16;
 
             UpdateCargoDemand(&capacity_limit, &cargo_demand.fuel, (*it).fuel_mining_max);
@@ -1313,7 +1313,7 @@ void TaskManageBuildings::UpdateMiningNeeds() {
 
             (*it).GetBounds(&bounds);
 
-            Survey_GetTotalResourcesInArea(bounds.ulx, bounds.uly, 1, &raw, &gold, &fuel, false, team);
+            Survey_GetTotalResourcesInArea(bounds.ulx, bounds.uly, 1, &raw, &gold, &fuel, false, m_team);
 
             UpdateCargoDemand(&capacity_limit, &cargo_demand.fuel, fuel);
             UpdateCargoDemand(&capacity_limit, &cargo_demand.raw, raw);
@@ -1393,7 +1393,7 @@ bool TaskManageBuildings::CheckNeeds() {
             uint16_t task_priority;
 
             for (it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
-                if ((*it).team == team && (*it).GetUnitType() == MININGST) {
+                if ((*it).team == m_team && (*it).GetUnitType() == MININGST) {
                     break;
                 }
             }
@@ -1479,7 +1479,7 @@ void TaskManageBuildings::ClearAreasNearBuildings(uint8_t** access_map, int32_t 
 
 void TaskManageBuildings::EvaluateDangers(uint8_t** access_map) {
     int16_t** damage_potential_map =
-        AiPlayer_Teams[team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
+        AiPlayer_Teams[m_team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
 
     if (damage_potential_map) {
         for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
@@ -1576,7 +1576,7 @@ void TaskManageBuildings::ClearDefenseSites(uint8_t** access_map, ResourceID uni
     for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetUnitType() == unit_type && (&*it) != task && (*it).ComparePriority(task_priority) <= 0) {
             int32_t unit_range =
-                UnitsManager_TeamInfo[team].team_units->GetCurrentUnitValues(unit_type)->GetAttribute(ATTRIB_RANGE);
+                UnitsManager_TeamInfo[m_team].team_units->GetCurrentUnitValues(unit_type)->GetAttribute(ATTRIB_RANGE);
 
             position = (*it).DeterminePosition();
 
@@ -1610,7 +1610,7 @@ bool TaskManageBuildings::IsSiteWithinRadarRange(Point site, int32_t unit_range,
     for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((*it).GetUnitType() == RADAR && (&*it) != task) {
             int32_t distance =
-                UnitsManager_TeamInfo[team].team_units->GetCurrentUnitValues(RADAR)->GetAttribute(ATTRIB_SCAN) -
+                UnitsManager_TeamInfo[m_team].team_units->GetCurrentUnitValues(RADAR)->GetAttribute(ATTRIB_SCAN) -
                 unit_range;
 
             position = (*it).DeterminePosition();
@@ -1627,7 +1627,8 @@ bool TaskManageBuildings::IsSiteWithinRadarRange(Point site, int32_t unit_range,
 }
 
 void TaskManageBuildings::UpdateAccessMap(uint8_t** access_map, TaskCreateBuilding* task) {
-    int32_t unit_scan = UnitsManager_TeamInfo[team].team_units->GetCurrentUnitValues(RADAR)->GetAttribute(ATTRIB_SCAN);
+    int32_t unit_scan =
+        UnitsManager_TeamInfo[m_team].team_units->GetCurrentUnitValues(RADAR)->GetAttribute(ATTRIB_SCAN);
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if ((*it).GetUnitType() == RADAR) {
@@ -1653,7 +1654,8 @@ void TaskManageBuildings::UpdateAccessMap(uint8_t** access_map, TaskCreateBuildi
 }
 
 bool TaskManageBuildings::EvaluateNeedForRadar(uint8_t** access_map, TaskCreateBuilding* task) {
-    int32_t unit_scan = UnitsManager_TeamInfo[team].team_units->GetCurrentUnitValues(RADAR)->GetAttribute(ATTRIB_SCAN);
+    int32_t unit_scan =
+        UnitsManager_TeamInfo[m_team].team_units->GetCurrentUnitValues(RADAR)->GetAttribute(ATTRIB_SCAN);
     bool is_radar_needed = false;
     bool result;
 
@@ -1667,7 +1669,7 @@ bool TaskManageBuildings::EvaluateNeedForRadar(uint8_t** access_map, TaskCreateB
                 is_radar_needed = true;
 
                 do {
-                    if (!TaskManageBuildings_IsSiteValuable(*walker.GetCurrentLocation(), team) &&
+                    if (!TaskManageBuildings_IsSiteValuable(*walker.GetCurrentLocation(), m_team) &&
                         Access_GetModifiedSurfaceType(walker.GetGridX(), walker.GetGridY()) != SURFACE_TYPE_AIR) {
                         ++access_map[walker.GetGridX()][walker.GetGridY()];
                     }
@@ -1681,7 +1683,7 @@ bool TaskManageBuildings::EvaluateNeedForRadar(uint8_t** access_map, TaskCreateB
         if ((*it).Task_vfunc28()) {
             Point position((*it).DeterminePosition());
             SmartPointer<UnitValues> unit_values(
-                UnitsManager_TeamInfo[team].team_units->GetCurrentUnitValues((*it).GetUnitType()));
+                UnitsManager_TeamInfo[m_team].team_units->GetCurrentUnitValues((*it).GetUnitType()));
 
             if (unit_values->GetAttribute(ATTRIB_ATTACK) > 0 &&
                 !IsSiteWithinRadarRange(position, unit_values->GetAttribute(ATTRIB_RANGE), task)) {
@@ -1690,7 +1692,7 @@ bool TaskManageBuildings::EvaluateNeedForRadar(uint8_t** access_map, TaskCreateB
                 is_radar_needed = true;
 
                 do {
-                    if (!TaskManageBuildings_IsSiteValuable(*walker.GetCurrentLocation(), team) &&
+                    if (!TaskManageBuildings_IsSiteValuable(*walker.GetCurrentLocation(), m_team) &&
                         Access_GetModifiedSurfaceType(walker.GetGridX(), walker.GetGridY()) != SURFACE_TYPE_AIR) {
                         ++access_map[walker.GetGridX()][walker.GetGridY()];
                     }
@@ -1986,16 +1988,16 @@ bool TaskManageBuildings::ConnectBuilding(uint8_t** access_map, Point site, int3
 
     do {
         site1 = site;
-        distance1 = GetConnectionDistance(access_map, site1, Point(-1, 0), team, value);
+        distance1 = GetConnectionDistance(access_map, site1, Point(-1, 0), m_team, value);
 
         site2 = site;
-        distance2 = GetConnectionDistance(access_map, site2, Point(1, 0), team, value);
+        distance2 = GetConnectionDistance(access_map, site2, Point(1, 0), m_team, value);
 
         site3 = site;
-        distance3 = GetConnectionDistance(access_map, site3, Point(0, -1), team, value);
+        distance3 = GetConnectionDistance(access_map, site3, Point(0, -1), m_team, value);
 
         site4 = site;
-        distance4 = GetConnectionDistance(access_map, site4, Point(0, 1), team, value);
+        distance4 = GetConnectionDistance(access_map, site4, Point(0, 1), m_team, value);
 
         minimum_distance = ResourceManager_MapSize.x;
 
@@ -2145,11 +2147,7 @@ bool TaskManageBuildings::FindMarkedSite(uint8_t** access_map, Rect* bounds) {
     return false;
 }
 
-char* TaskManageBuildings::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Manage buildings.");
-
-    return buffer;
-}
+std::string TaskManageBuildings::WriteStatusLog() const { return "Manage buildings."; }
 
 uint8_t TaskManageBuildings::GetType() const { return TaskType_TaskManageBuildings; }
 
@@ -2239,9 +2237,7 @@ void TaskManageBuildings::BeginTurn() {
 
 void TaskManageBuildings::ChildComplete(Task* task) {
     if (task->GetType() == TaskType_TaskCreateBuilding) {
-        char text[100];
-
-        AILOG(log, "Manage Buildings: Remove project {}", task->WriteStatusLog(text));
+        AILOG(log, "Manage Buildings: Remove project {}", task->WriteStatusLog());
 
         tasks.Remove(*dynamic_cast<TaskCreateBuilding*>(task));
     }
@@ -2282,7 +2278,7 @@ void TaskManageBuildings::EndTurn() {
         }
     }
 
-    const auto team_units = UnitsManager_TeamInfo[team].team_units;
+    const auto team_units = UnitsManager_TeamInfo[m_team].team_units;
     const auto adump_capacity = team_units->GetBaseUnitValues(ADUMP)->GetAttribute(ATTRIB_STORAGE);
 
     for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
@@ -2294,7 +2290,7 @@ void TaskManageBuildings::EndTurn() {
 
             (*it).GetBounds(&bounds);
 
-            Survey_GetTotalResourcesInArea(bounds.ulx, bounds.uly, 1, &raw, &gold, &fuel, false, team);
+            Survey_GetTotalResourcesInArea(bounds.ulx, bounds.uly, 1, &raw, &gold, &fuel, false, m_team);
 
             raw_mining_max += raw;
             fuel_mining_max += fuel;
@@ -2340,7 +2336,7 @@ void TaskManageBuildings::RemoveSelf() {
     units.Clear();
     tasks.Clear();
 
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }
@@ -2357,7 +2353,7 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
 
     if (Builder_IsBuildable(unit_type)) {
         if (Task_EstimateTurnsTillMissionEnd() >=
-            UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
+            UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[m_team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
             uint32_t unit_counters[UNIT_END];
 
             memset(&unit_counters, 0, sizeof(unit_counters));
@@ -2374,7 +2370,7 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
 
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-                if ((*it).team == team && (*it).GetUnitType() == builder_type) {
+                if ((*it).team == m_team && (*it).GetUnitType() == builder_type) {
                     ++builder_count;
                 }
             }
@@ -2562,7 +2558,7 @@ bool TaskManageBuildings::CheckPower() {
         }
     }
 
-    int32_t turns_to_build = BuildMenu_GetTurnsToBuild(POWERSTN, team);
+    int32_t turns_to_build = BuildMenu_GetTurnsToBuild(POWERSTN, m_team);
 
     total_power_generation = power_generation;
 
@@ -2672,7 +2668,7 @@ bool TaskManageBuildings::FindDefenseSite(ResourceID unit_type, TaskCreateBuildi
         bool is_site_found = false;
         Point location;
         AccessMap access_map;
-        Point target_location = AiPlayer_Teams[team].GetTargetLocation();
+        Point target_location = AiPlayer_Teams[m_team].GetTargetLocation();
         int32_t access_map_value;
         int32_t best_access_map_value = 1;
         int32_t distance;

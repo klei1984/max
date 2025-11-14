@@ -44,11 +44,7 @@ TaskSurvey::TaskSurvey(uint16_t team_, Point point_)
 
 TaskSurvey::~TaskSurvey() {}
 
-char* TaskSurvey::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Survey");
-
-    return buffer;
-}
+std::string TaskSurvey::WriteStatusLog() const { return "Survey"; }
 
 uint8_t TaskSurvey::GetType() const { return TaskType_TaskSurvey; }
 
@@ -62,7 +58,7 @@ bool TaskSurvey::Execute(UnitInfo& unit) {
             bool location_found = false;
             Point best_site;
             Point site;
-            uint16_t hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;
+            uint16_t hash_team_id = UnitsManager_TeamInfo[m_team].team_units->hash_team_id;
             int16_t** damage_potential_map = nullptr;
             uint16_t cargo_at_site;
             Rect bounds;
@@ -75,7 +71,7 @@ bool TaskSurvey::Execute(UnitInfo& unit) {
             bounds.lry = std::min(ResourceManager_MapSize.y - 1, unit.grid_y + 6);
 
             damage_potential_map =
-                AiPlayer_Teams[team].GetDamagePotentialMap(&unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
+                AiPlayer_Teams[m_team].GetDamagePotentialMap(&unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
 
             for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
                 for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
@@ -86,7 +82,7 @@ bool TaskSurvey::Execute(UnitInfo& unit) {
 
                         if (!location_found || distance < minimum_distance) {
                             if (damage_potential_map[site.x][site.y] <= 0) {
-                                if (Access_IsAccessible(SURVEYOR, team, site.x, site.y,
+                                if (Access_IsAccessible(SURVEYOR, m_team, site.x, site.y,
                                                         AccessModifier_EnemySameClassBlocks)) {
                                     for (int32_t index_x = site.x - 1; index_x <= site.x + 1; ++index_x) {
                                         for (int32_t index_y = site.y - 1; index_y <= site.y + 1; ++index_y) {
@@ -135,7 +131,7 @@ bool TaskSurvey::Execute(UnitInfo& unit) {
 
 bool TaskSurvey::IsVisited(UnitInfo& unit, Point point) {
     return ResourceManager_CargoMap[ResourceManager_MapSize.x * point.y + point.x] &
-           UnitsManager_TeamInfo[team].team_units->hash_team_id;
+           UnitsManager_TeamInfo[m_team].team_units->hash_team_id;
 }
 
 void TaskSurvey::ObtainUnit() {

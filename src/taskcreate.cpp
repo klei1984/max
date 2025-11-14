@@ -43,7 +43,7 @@ void TaskCreate::RemoveSelf() {
     }
 
     builder = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }

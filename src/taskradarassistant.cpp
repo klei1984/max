@@ -31,11 +31,7 @@ TaskRadarAssistant::TaskRadarAssistant(TaskManageBuildings* manager_)
 
 TaskRadarAssistant::~TaskRadarAssistant() {}
 
-char* TaskRadarAssistant::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Radar assistant");
-
-    return buffer;
-}
+std::string TaskRadarAssistant::WriteStatusLog() const { return "Radar assistant"; }
 
 uint8_t TaskRadarAssistant::GetType() const { return TaskType_TaskRadarAssistant; }
 
@@ -43,7 +39,7 @@ void TaskRadarAssistant::BeginTurn() {
     Point site;
 
     if (Task_EstimateTurnsTillMissionEnd() >=
-        UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], RADAR)->GetAttribute(ATTRIB_TURNS)) {
+        UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[m_team], RADAR)->GetAttribute(ATTRIB_TURNS)) {
         if (manager->FindSiteForRadar(nullptr, site)) {
             SmartPointer<TaskCreateBuilding> create_building_task(
                 new (std::nothrow) TaskCreateBuilding(this, TASK_PRIORITY_BUILDING_RADAR, RADAR, site, &*manager));
@@ -55,7 +51,7 @@ void TaskRadarAssistant::BeginTurn() {
 
 void TaskRadarAssistant::RemoveSelf() {
     manager = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }

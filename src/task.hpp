@@ -22,6 +22,9 @@
 #ifndef TASKS_HPP
 #define TASKS_HPP
 
+#include <string>
+#include <string_view>
+
 #include "resource_manager.hpp"
 #include "smartobjectarray.hpp"
 #include "smartpointer.hpp"
@@ -145,7 +148,7 @@ enum : uint16_t {
 class Complex;
 class UnitInfo;
 
-const char* Task_GetName(Task* task);
+std::string_view Task_GetName(Task* task);
 void Task_UpgradeStationaryUnit(UnitInfo* unit);
 void Task_RemindMoveFinished(UnitInfo* unit, bool priority = false);
 bool Task_IsReadyToTakeOrders(UnitInfo* unit);
@@ -180,15 +183,15 @@ class Task : public SmartObject {
     static uint32_t task_count;
     static uint32_t task_id;
 
-    bool needs_processing;
-    bool scheduled_for_turn_start;
-    bool scheduled_for_turn_end;
+    bool m_needs_processing;
+    bool m_scheduled_for_turn_start;
+    bool m_scheduled_for_turn_end;
 
 protected:
-    uint32_t id;
-    uint16_t team;
-    uint16_t base_priority;
-    SmartPointer<Task> parent;
+    uint32_t m_id;
+    uint16_t m_team;
+    uint16_t m_base_priority;
+    SmartPointer<Task> m_parent;
 
 public:
     /**
@@ -361,15 +364,14 @@ public:
     virtual uint16_t GetPriority() const;
 
     /**
-     * \brief Writes a human-readable status description to a buffer.
+     * \brief Writes a brief status description of the task.
      *
      * Used for debugging and logging the current state of the task.
      *
-     * \param buffer Character buffer to write the status string into.
-     * \return Pointer to the end of the written string (for potential chaining).
+     * \return String containing the status description.
      * \note Pure virtual - must be implemented by derived classes.
      */
-    virtual char* WriteStatusLog(char* buffer) const = 0;
+    virtual std::string WriteStatusLog() const = 0;
 
     /**
      * \brief Gets the bounding rectangle that encompasses this task's area of operation.

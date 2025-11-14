@@ -36,11 +36,7 @@ TaskRetreat::~TaskRetreat() {}
 
 bool TaskRetreat::IsUnitTransferable(UnitInfo& unit) { return unit_to_retreat != unit; }
 
-char* TaskRetreat::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Retreat from danger");
-
-    return buffer;
-}
+std::string TaskRetreat::WriteStatusLog() const { return "Retreat from danger"; }
 
 uint8_t TaskRetreat::GetType() const { return TaskType_TaskRetreat; }
 
@@ -69,7 +65,7 @@ void TaskRetreat::EndTurn() {
     if (unit_to_retreat != nullptr && unit_to_retreat->IsReadyForOrders(this)) {
         Point site(unit_to_retreat->grid_x, unit_to_retreat->grid_y);
 
-        if (AiPlayer_Teams[team].GetDamagePotential(&*unit_to_retreat, site, caution_level, false)) {
+        if (AiPlayer_Teams[m_team].GetDamagePotential(&*unit_to_retreat, site, caution_level, false)) {
             Search();
 
         } else {
@@ -82,7 +78,7 @@ void TaskRetreat::RemoveSelf() {
     if (unit_to_retreat != nullptr) {
         unit_to_retreat->RemoveTask(this);
         unit_to_retreat = nullptr;
-        parent = nullptr;
+        m_parent = nullptr;
 
         TaskManager.RemoveTask(*this);
     }
@@ -92,7 +88,7 @@ void TaskRetreat::RemoveTask() {
     if (unit_to_retreat != nullptr) {
         unit_to_retreat->RemoveTask(this, false);
         unit_to_retreat = nullptr;
-        parent = nullptr;
+        m_parent = nullptr;
 
         TaskManager.RemoveTask(*this);
     }
@@ -104,7 +100,7 @@ void TaskRetreat::Search() {
     int32_t unit_hits;
     int32_t index;
 
-    damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*unit_to_retreat, caution_level, false);
+    damage_potential_map = AiPlayer_Teams[m_team].GetDamagePotentialMap(&*unit_to_retreat, caution_level, false);
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
@@ -154,7 +150,7 @@ void TaskRetreat::Search() {
                 field_34 = 1;
 
                 if (damage_potential_map[position.x][position.y] < unit_hits) {
-                    if (Access_IsAccessible(unit_to_retreat->GetUnitType(), team, position.x, position.y,
+                    if (Access_IsAccessible(unit_to_retreat->GetUnitType(), m_team, position.x, position.y,
                                             AccessModifier_SameClassBlocks)) {
                         if (transporter_map.Search(position)) {
                             SmartPointer<TaskMove> task_move(new (std::nothrow) TaskMove(

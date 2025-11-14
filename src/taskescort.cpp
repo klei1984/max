@@ -21,6 +21,8 @@
 
 #include "taskescort.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "aiattack.hpp"
 #include "aiplayer.hpp"
@@ -42,28 +44,28 @@ bool TaskEscort::IssueOrders(UnitInfo* unit) {
         Point target_location(target->grid_x, target->grid_y);
         Point unit_location(unit->grid_x, unit->grid_y);
         Point position;
-        auto info_map = AiPlayer_Teams[team].GetInfoMap();
+        auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
         int16_t** damage_potential_map =
-            AiPlayer_Teams[team].GetDamagePotentialMap(unit, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, false);
+            AiPlayer_Teams[m_team].GetDamagePotentialMap(unit, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, false);
         Rect bounds;
         ResourceID escort_type = INVALID_ID;
 
         rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
-        if (Task_GetReadyUnitsCount(team, AIRTRANS) > 0) {
+        if (Task_GetReadyUnitsCount(m_team, AIRTRANS) > 0) {
             escort_type = AIRTRANS;
 
-        } else if (Task_GetReadyUnitsCount(team, SEATRANS) > 0) {
+        } else if (Task_GetReadyUnitsCount(m_team, SEATRANS) > 0) {
             escort_type = SEATRANS;
 
         } else if ((unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY) &&
-                   Task_GetReadyUnitsCount(team, CLNTRANS) > 0) {
+                   Task_GetReadyUnitsCount(m_team, CLNTRANS) > 0) {
             escort_type = CLNTRANS;
 
-        } else if (Task_GetReadyUnitsCount(team, AIRPLT) > 0) {
+        } else if (Task_GetReadyUnitsCount(m_team, AIRPLT) > 0) {
             escort_type = AIRTRANS;
 
-        } else if (Task_GetReadyUnitsCount(team, SHIPYARD) > 0) {
+        } else if (Task_GetReadyUnitsCount(m_team, SHIPYARD) > 0) {
             escort_type = SEATRANS;
         }
 
@@ -91,7 +93,7 @@ bool TaskEscort::IssueOrders(UnitInfo* unit) {
                             if (distance < minimum_distance &&
                                 !(info_map[position.x][position.y] & INFO_MAP_CLEAR_OUT_ZONE) &&
                                 transporter_map.Search(position) &&
-                                Access_IsAccessible(unit->GetUnitType(), team, position.x, position.y,
+                                Access_IsAccessible(unit->GetUnitType(), m_team, position.x, position.y,
                                                     AccessModifier_SameClassBlocks)) {
                                 unit_location = position;
                                 minimum_distance = distance;
@@ -147,16 +149,13 @@ TaskEscort::~TaskEscort() {}
 
 bool TaskEscort::IsUnitTransferable(UnitInfo& unit) { return (!target || target->hits == 0 || escort != unit); }
 
-char* TaskEscort::WriteStatusLog(char* buffer) const {
+std::string TaskEscort::WriteStatusLog() const {
     if (target) {
-        sprintf(buffer, "Escort %s at [%i,%i]", UnitsManager_BaseUnits[target->GetUnitType()].GetSingularName(),
-                target->grid_x + 1, target->grid_y + 1);
-
+        return std::format("Escort {} at [{},{}]", UnitsManager_BaseUnits[target->GetUnitType()].GetSingularName(),
+                           target->grid_x + 1, target->grid_y + 1);
     } else {
-        strcpy(buffer, "Completed escort task");
+        return "Completed escort task";
     }
-
-    return buffer;
 }
 
 uint8_t TaskEscort::GetType() const { return TaskType_TaskEscort; }
@@ -177,7 +176,7 @@ void TaskEscort::Init() {
 
 void TaskEscort::EndTurn() {
     if (target) {
-        if (target->hits > 0 && target->team == team) {
+        if (target->hits > 0 && target->team == m_team) {
             if (escort) {
                 if (escort->IsReadyForOrders(this)) {
                     if (escort->ammo < escort->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {
@@ -209,11 +208,11 @@ void TaskEscort::EndTurn() {
                         bool teams[PLAYER_TEAM_MAX];
                         SmartList<UnitInfo>::Iterator it;
 
-                        AiAttack_GetTargetTeams(team, teams);
+                        AiAttack_GetTargetTeams(m_team, teams);
 
                         for (it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End();
                              ++it) {
-                            if ((*it).team != team && teams[(*it).team] && (*it).GetUnitType() == AIRPLT) {
+                            if ((*it).team != m_team && teams[(*it).team] && (*it).GetUnitType() == AIRPLT) {
                                 break;
                             }
                         }
@@ -221,7 +220,7 @@ void TaskEscort::EndTurn() {
                         if (it == UnitsManager_StationaryUnits.End()) {
                             for (it = UnitsManager_MobileAirUnits.Begin(); it != UnitsManager_MobileAirUnits.End();
                                  ++it) {
-                                if ((*it).team != team && teams[(*it).team]) {
+                                if ((*it).team != m_team && teams[(*it).team]) {
                                     break;
                                 }
                             }

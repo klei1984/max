@@ -21,6 +21,8 @@
 
 #include "taskremovemines.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "game_manager.hpp"
 #include "task_manager.hpp"
@@ -32,15 +34,12 @@ TaskRemoveMines::TaskRemoveMines(Task* task, UnitInfo* unit_)
 
 TaskRemoveMines::~TaskRemoveMines() {}
 
-char* TaskRemoveMines::WriteStatusLog(char* buffer) const {
+std::string TaskRemoveMines::WriteStatusLog() const {
     if (target) {
-        sprintf(buffer, "Remove mine from [%i,%i]", target->grid_x + 1, target->grid_y + 1);
-
+        return std::format("Remove mine from [{},{}]", target->grid_x + 1, target->grid_y + 1);
     } else {
-        strcpy(buffer, "Completed mine removal");
+        return "Completed mine removal";
     }
-
-    return buffer;
 }
 
 uint8_t TaskRemoveMines::GetType() const { return TaskType_TaskRemoveMines; }
@@ -60,7 +59,7 @@ bool TaskRemoveMines::Execute(UnitInfo& unit_) {
                     result = DumpMaterials(&unit_);
 
                 } else if (target->grid_x == unit_.grid_x && target->grid_y == unit_.grid_y) {
-                    if (GameManager_IsActiveTurn(team)) {
+                    if (GameManager_IsActiveTurn(m_team)) {
                         UnitsManager_SetNewOrder(&unit_, ORDER_LAY_MINE, ORDER_STATE_REMOVING_MINES);
                         target = nullptr;
                     }

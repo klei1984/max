@@ -31,7 +31,7 @@ public:
     TaskWaitToAttack(UnitInfo* unit);
     ~TaskWaitToAttack();
 
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     bool IsThinking();
     void Init();

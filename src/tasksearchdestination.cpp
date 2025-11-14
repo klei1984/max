@@ -21,6 +21,8 @@
 
 #include "tasksearchdestination.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "ai.hpp"
 #include "ailog.hpp"
@@ -52,10 +54,8 @@ TaskSearchDestination::TaskSearchDestination(Task* task, UnitInfo* unit_, int32_
 
 TaskSearchDestination::~TaskSearchDestination() {}
 
-char* TaskSearchDestination::WriteStatusLog(char* buffer) const {
-    sprintf(buffer, "Find search square (radius %i)", radius);
-
-    return buffer;
+std::string TaskSearchDestination::WriteStatusLog() const {
+    return std::format("Find search square (radius {})", radius);
 }
 
 uint8_t TaskSearchDestination::GetType() const { return TaskType_TaskSearchDestination; }
@@ -95,7 +95,7 @@ void TaskSearchDestination::RemoveSelf() {
 
     unit = nullptr;
     search_task = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }
@@ -114,7 +114,7 @@ void TaskSearchDestination::FinishSearch() {
 
     unit = nullptr;
     search_task = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }
@@ -181,7 +181,8 @@ bool TaskSearchDestination::Search() {
         UnitsManager_BaseUnits[unit->GetUnitType()].land_type & SURFACE_TYPE_WATER ? INVALID_ID : AIRTRANS);
 
     if (!is_doomed) {
-        damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
+        damage_potential_map =
+            AiPlayer_Teams[m_team].GetDamagePotentialMap(&*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
     }
 
     position.x = unit->grid_x;
@@ -282,14 +283,14 @@ void TaskSearchDestination::SearchTrySite() {
     }
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).team == team && (*it).hits > 0 && (*it).GetUnitType() == unit->GetUnitType() && unit != (*it) &&
+        if ((*it).team == m_team && (*it).hits > 0 && (*it).GetUnitType() == unit->GetUnitType() && unit != (*it) &&
             ((*it).GetOrder() == ORDER_AWAIT || (*it).GetOrder() == ORDER_SENTRY || (*it).GetOrder() == ORDER_MOVE ||
              (*it).GetOrder() == ORDER_MOVE_TO_UNIT) &&
             Access_GetSquaredDistance(&*unit, best_site) > Access_GetSquaredDistance(&*it, best_site)) {
             bool flag = false;
 
             if ((*it).GetTask()) {
-                if ((*it).GetTask()->ComparePriority(base_priority) > 0) {
+                if ((*it).GetTask()->ComparePriority(m_base_priority) > 0) {
                     flag = unit->GetTask()->IsUnitTransferable(*it);
                 }
 
@@ -329,8 +330,8 @@ bool TaskSearchDestination::sub_3DFCF(UnitInfo* unit_, Point point) {
 
     if (!search_task->IsVisited(*unit_, point)) {
         ++enterable_sites;
-        result =
-            Access_IsAccessible(unit_->GetUnitType(), team, point.x, point.y, AccessModifier_EnemySameClassBlocks) > 0;
+        result = Access_IsAccessible(unit_->GetUnitType(), m_team, point.x, point.y,
+                                     AccessModifier_EnemySameClassBlocks) > 0;
 
     } else {
         result = false;

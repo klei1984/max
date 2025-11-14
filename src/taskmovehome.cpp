@@ -42,7 +42,7 @@ void TaskMoveHome::MoveFinishedCallback(Task* task, UnitInfo* unit, char result)
 void TaskMoveHome::PopulateTeamZones(uint8_t** map) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team) {
+        if ((*it).team == m_team) {
             Point site;
             Rect bounds;
 
@@ -65,7 +65,7 @@ void TaskMoveHome::PopulateTeamZones(uint8_t** map) {
 void TaskMoveHome::PopulateDefenses(uint8_t** map, ResourceID unit_type) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && (*it).GetUnitType() == unit_type && (*it).GetOrder() != ORDER_IDLE &&
+        if ((*it).team == m_team && (*it).GetUnitType() == unit_type && (*it).GetOrder() != ORDER_IDLE &&
             (*it).ammo > (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) &&
             (*it).hits == (*it).GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
             int32_t unit_range = (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE);
@@ -110,11 +110,7 @@ void TaskMoveHome::PopulateOccupiedSites(uint8_t** map, SmartList<UnitInfo>* uni
     }
 }
 
-char* TaskMoveHome::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Move back to complex");
-
-    return buffer;
-}
+std::string TaskMoveHome::WriteStatusLog() const { return "Move back to complex"; }
 
 uint8_t TaskMoveHome::GetType() const { return TaskType_TaskMoveHome; }
 
@@ -157,7 +153,7 @@ bool TaskMoveHome::Execute(UnitInfo& unit_) {
         {
             Point destination(unit->grid_x, unit->grid_y);
             Point site;
-            auto info_map = AiPlayer_Teams[team].GetInfoMap();
+            auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
             int32_t safety;
             int32_t maximum_safety = map1.GetMapColumn(unit->grid_x)[unit->grid_y];
             int32_t distance;
@@ -208,7 +204,7 @@ void TaskMoveHome::RemoveSelf() {
         TaskManager.ClearUnitTasksAndRemindAvailable(&*unit);
 
         unit = nullptr;
-        parent = nullptr;
+        m_parent = nullptr;
         TaskManager.RemoveTask(*this);
     }
 }

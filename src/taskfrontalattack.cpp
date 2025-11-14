@@ -21,6 +21,8 @@
 
 #include "taskfrontalattack.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "aiattack.hpp"
 #include "aiplayer.hpp"
@@ -74,7 +76,7 @@ void TaskFrontalAttack::IssueOrders() {
             }
         }
 
-        if (GameManager_IsActiveTurn(team)) {
+        if (GameManager_IsActiveTurn(m_team)) {
             for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
                 if (Task_IsReadyToTakeOrders(&*it)) {
                     if ((*it).speed == 0 || Access_GetSquaredDistance(&*it, spotted_unit->GetLastPosition()) <=
@@ -121,9 +123,9 @@ void TaskFrontalAttack::IssueOrders() {
                     UnitValues* unit_values = (*it).GetBaseValues();
 
                     if (units1.GetCount() == 1 ||
-                        (UnitsManager_TeamInfo[team].heat_map_complete &&
-                         UnitsManager_TeamInfo[team].heat_map_complete[target->grid_y * ResourceManager_MapSize.x +
-                                                                       target->grid_x] != 1) ||
+                        (UnitsManager_TeamInfo[m_team].heat_map_complete &&
+                         UnitsManager_TeamInfo[m_team].heat_map_complete[target->grid_y * ResourceManager_MapSize.x +
+                                                                         target->grid_x] != 1) ||
                         Access_GetSquaredDistance(&*it, target) >
                             unit_values->GetAttribute(ATTRIB_SCAN) * unit_values->GetAttribute(ATTRIB_SCAN)) {
                         unit_value = ((unit_values->GetAttribute(ATTRIB_ARMOR) * 4 + (*it).hits) * 12) /
@@ -170,7 +172,7 @@ void TaskFrontalAttack::IssueOrders() {
                     } else {
                         attacker_range = attacker->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
-                        if (!spotted_unit->GetUnit()->IsVisibleToTeam(team)) {
+                        if (!spotted_unit->GetUnit()->IsVisibleToTeam(m_team)) {
                             attacker_range =
                                 std::min(attacker_range, attacker->GetBaseValues()->GetAttribute(ATTRIB_SCAN));
                         }
@@ -189,7 +191,7 @@ void TaskFrontalAttack::IssueOrders() {
                         }
 
                         damage_potential_on_friendly_unit =
-                            AiPlayer_Teams[team].GetDamagePotential(attacker, site, local_caution_level, true);
+                            AiPlayer_Teams[m_team].GetDamagePotential(attacker, site, local_caution_level, true);
 
                         if (!AiAttack_IsAttackProfitable(attacker, target, damage_potential_on_friendly_unit,
                                                          local_caution_level, total_predicted_damage_to_enemy, true)) {
@@ -203,7 +205,7 @@ void TaskFrontalAttack::IssueOrders() {
                                         &*it, target, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE);
                                 }
 
-                                damage_potential_on_friendly_unit = AiPlayer_Teams[team].GetDamagePotential(
+                                damage_potential_on_friendly_unit = AiPlayer_Teams[m_team].GetDamagePotential(
                                     attacker, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true);
 
                                 if (AiAttack_IsAttackProfitable(attacker, target, damage_potential_on_friendly_unit,
@@ -308,17 +310,14 @@ int32_t TaskFrontalAttack::GetCautionLevel(UnitInfo& unit) {
     return result;
 }
 
-char* TaskFrontalAttack::WriteStatusLog(char* buffer) const {
+std::string TaskFrontalAttack::WriteStatusLog() const {
     if (spotted_unit && spotted_unit->GetUnit() && spotted_unit->GetUnit()->hits > 0) {
-        sprintf(buffer, "Frontal attack on %s in [%i,%i]",
-                UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].GetSingularName(),
-                spotted_unit->GetLastPositionX() + 1, spotted_unit->GetLastPositionY() + 1);
-
+        return std::format("Frontal attack on {} in [{},{}]",
+                           UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].GetSingularName(),
+                           spotted_unit->GetLastPositionX() + 1, spotted_unit->GetLastPositionY() + 1);
     } else {
-        strcpy(buffer, "Completed frontal attack.");
+        return "Completed frontal attack.";
     }
-
-    return buffer;
 }
 
 uint8_t TaskFrontalAttack::GetType() const { return TaskType_TaskFrontalAttack; }
@@ -333,7 +332,8 @@ void TaskFrontalAttack::Init() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
          it != UnitsManager_MobileAirUnits.End(); ++it) {
-        if ((*it).team == team && ((*it).GetTask() == nullptr || (*it).GetTask()->ComparePriority(base_priority) > 0) &&
+        if ((*it).team == m_team &&
+            ((*it).GetTask() == nullptr || (*it).GetTask()->ComparePriority(m_base_priority) > 0) &&
             AiPlayer_GetProjectedDamage(&*it, target, caution_level) > 0) {
             AddUnit(*it);
         }
@@ -341,7 +341,8 @@ void TaskFrontalAttack::Init() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == team && ((*it).GetTask() == nullptr || (*it).GetTask()->ComparePriority(base_priority) > 0) &&
+        if ((*it).team == m_team &&
+            ((*it).GetTask() == nullptr || (*it).GetTask()->ComparePriority(m_base_priority) > 0) &&
             AiPlayer_GetProjectedDamage(&*it, target, caution_level) > 0) {
             AddUnit(*it);
         }
@@ -374,7 +375,7 @@ bool TaskFrontalAttack::Execute(UnitInfo& unit) {
 }
 
 void TaskFrontalAttack::RemoveSelf() {
-    parent = nullptr;
+    m_parent = nullptr;
     spotted_unit = nullptr;
 
     for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {

@@ -21,6 +21,8 @@
 
 #include "taskupdateterrain.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "aiplayer.hpp"
 #include "game_manager.hpp"
@@ -34,15 +36,13 @@ TaskUpdateTerrain::TaskUpdateTerrain(uint16_t team) : Task(team, nullptr, 0) {}
 
 TaskUpdateTerrain::~TaskUpdateTerrain() {}
 
-char* TaskUpdateTerrain::WriteStatusLog(char* buffer) const {
+std::string TaskUpdateTerrain::WriteStatusLog() const {
     if (location.x < ResourceManager_MapSize.x) {
-        sprintf(buffer, "Update Terrain [%i,%i]", location.x + 1, location.y + 1);
+        return std::format("Update Terrain [{},{}]", location.x + 1, location.y + 1);
 
     } else {
-        strcpy(buffer, "Update Terrain (finished)");
+        return "Update Terrain (finished)";
     }
-
-    return buffer;
 }
 
 uint8_t TaskUpdateTerrain::GetType() const { return TaskType_TaskUpdateTerrain; }
@@ -73,6 +73,6 @@ void TaskUpdateTerrain::BeginTurn() {
 }
 
 void TaskUpdateTerrain::RemoveSelf() {
-    parent = nullptr;
+    m_parent = nullptr;
     TaskManager.RemoveTask(*this);
 }

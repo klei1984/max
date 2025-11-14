@@ -21,6 +21,8 @@
 
 #include "taskfindpath.hpp"
 
+#include <format>
+
 #include "ailog.hpp"
 #include "paths_manager.hpp"
 #include "task_manager.hpp"
@@ -31,7 +33,7 @@ TaskFindPath::TaskFindPath(Task* parent, PathRequest* request,
                            void (*result_callback_)(Task* task, PathRequest* path_request, Point destination_,
                                                     GroundPath* path, uint8_t result),
                            void (*cancel_callback_)(Task* task, PathRequest* path_request))
-    : Task(parent->GetTeam(), parent, parent->GetPriority()) {
+    : Task(m_parent->GetTeam(), parent, m_parent->GetPriority()) {
     result_callback = result_callback_;
     cancel_callback = cancel_callback_;
 
@@ -42,20 +44,13 @@ TaskFindPath::TaskFindPath(Task* parent, PathRequest* request,
 
 TaskFindPath::~TaskFindPath() {}
 
-char* TaskFindPath::WriteStatusLog(char* buffer) const {
+std::string TaskFindPath::WriteStatusLog() const {
     if (path_request) {
         Point destination(path_request->GetDestination());
-        char string[50];
-
-        strcpy(buffer, "Find Path to ");
-        sprintf(string, "[%i,%i].", destination.x + 1, destination.y + 1);
-        strcat(buffer, string);
-
+        return std::format("Find Path to [{},{}].", destination.x + 1, destination.y + 1);
     } else {
-        strcpy(buffer, "Find path (finished)");
+        return "Find path (finished)";
     }
-
-    return buffer;
 }
 
 uint8_t TaskFindPath::GetType() const { return TaskType_TaskFindPath; }
@@ -83,7 +78,7 @@ void TaskFindPath::RemoveSelf() {
         path_request = nullptr;
     }
 
-    parent = nullptr;
+    m_parent = nullptr;
     TaskManager.RemoveTask(*this);
 }
 
@@ -106,10 +101,10 @@ void TaskFindPath::CancelRequest() {
 
         path_request->GetClient()->RemoveTask(this, false);
 
-        cancel_callback(&*parent, &*path_request);
+        cancel_callback(&*m_parent, &*path_request);
 
         path_request = nullptr;
-        parent = nullptr;
+        m_parent = nullptr;
         TaskManager.RemoveTask(*this);
     }
 }
@@ -121,9 +116,9 @@ void TaskFindPath::Finish(Point position, GroundPath* path, bool result) {
 
     path_request->GetClient()->RemoveTask(this, false);
 
-    result_callback(&*parent, &*path_request, position, path, result);
+    result_callback(&*m_parent, &*path_request, position, path, result);
 
     path_request = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
     TaskManager.RemoveTask(*this);
 }

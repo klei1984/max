@@ -47,7 +47,7 @@ void TaskCheckAssaults::CheckAssaults() {
             unit_iterator = UnitsManager_MobileAirUnits.Begin();
         }
 
-        if (unit_iterator != UnitsManager_MobileAirUnits.End() && (*unit_iterator).team != team) {
+        if (unit_iterator != UnitsManager_MobileAirUnits.End() && (*unit_iterator).team != m_team) {
             SelectNext();
         }
     }
@@ -84,7 +84,7 @@ void TaskCheckAssaults::SelectNext() {
                 unit_iterator = UnitsManager_MobileAirUnits.Begin();
             }
 
-        } while (unit_iterator != UnitsManager_MobileAirUnits.End() && (*unit_iterator).team != team);
+        } while (unit_iterator != UnitsManager_MobileAirUnits.End() && (*unit_iterator).team != m_team);
     }
 }
 
@@ -104,11 +104,7 @@ void TaskCheckAssaults::MoveFinishedCallback(Task* task, UnitInfo* unit, char re
     }
 }
 
-char* TaskCheckAssaults::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Advance to attack nearby enemies.");
-
-    return buffer;
-}
+std::string TaskCheckAssaults::WriteStatusLog() const { return "Advance to attack nearby enemies."; }
 
 uint8_t TaskCheckAssaults::GetType() const { return TaskType_TaskCheckAssaults; }
 
@@ -120,7 +116,7 @@ void TaskCheckAssaults::EndTurn() { CheckAssaults(); }
 
 void TaskCheckAssaults::RemoveSelf() {
     unit_iterator = UnitsManager_MobileAirUnits.End();
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }

@@ -21,6 +21,8 @@
 
 #include "taskgetmaterials.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "ailog.hpp"
 #include "game_manager.hpp"
@@ -35,25 +37,22 @@ TaskGetMaterials::~TaskGetMaterials() {}
 uint16_t TaskGetMaterials::GetPriority() const {
     uint16_t result;
 
-    if (parent) {
-        result = parent->GetPriority();
+    if (m_parent) {
+        result = m_parent->GetPriority();
 
     } else {
-        result = base_priority;
+        result = m_base_priority;
     }
 
     return result;
 }
 
-char* TaskGetMaterials::WriteStatusLog(char* buffer) const {
-    sprintf(buffer, "Get %i Materials", materials_needed);
+std::string TaskGetMaterials::WriteStatusLog() const {
+    std::string result = std::format("Get {} Materials", materials_needed);
 
     if (requestor) {
         if (requestor->storage < materials_needed) {
-            char text[50];
-
-            sprintf(text, ": %i on hand, ", requestor->storage);
-            strcat(buffer, text);
+            result += std::format(": {} on hand, ", requestor->storage);
 
             if (source) {
                 int32_t remaining_demand = materials_needed - requestor->storage;
@@ -62,23 +61,22 @@ char* TaskGetMaterials::WriteStatusLog(char* buffer) const {
                     remaining_demand = source->storage;
                 }
 
-                sprintf(text, "get %i from ", remaining_demand);
-                strcat(buffer, text);
-                strcat(buffer, UnitsManager_BaseUnits[source->GetUnitType()].GetSingularName());
+                result += std::format("get {} from ", remaining_demand);
+                result += UnitsManager_BaseUnits[source->GetUnitType()].GetSingularName();
 
             } else {
-                strcat(buffer, "waiting for source.");
+                result += "waiting for source.";
             }
 
         } else {
-            strcat(buffer, ": already on hand.");
+            result += ": already on hand.";
         }
 
     } else {
-        strcat(buffer, ": finished.");
+        result += ": finished.";
     }
 
-    return buffer;
+    return result;
 }
 
 uint8_t TaskGetMaterials::GetType() const { return TaskType_TaskGetMaterials; }
@@ -99,7 +97,7 @@ void TaskGetMaterials::EndTurn() {
     } else {
         ReleaseSource();
 
-        parent = nullptr;
+        m_parent = nullptr;
 
         TaskManager.RemoveTask(*this);
     }
@@ -113,14 +111,14 @@ void TaskGetMaterials::EventCargoTransfer(UnitInfo& unit) {
 
         if (requestor->storage >= materials_needed) {
             requestor->RemoveTask(this);
-            parent = nullptr;
+            m_parent = nullptr;
             requestor = nullptr;
         }
 
         ReleaseSource();
 
         if (!requestor) {
-            parent = nullptr;
+            m_parent = nullptr;
 
             TaskManager.RemoveTask(*this);
         }
@@ -159,7 +157,7 @@ void TaskGetMaterials::DoTransfer() {
 
         source->SetParent(requestor.Get());
 
-        SDL_assert(GameManager_IsActiveTurn(team));
+        SDL_assert(GameManager_IsActiveTurn(m_team));
 
         AILOG_LOG(log, "Order {} materials from {} at [{},{}] for {} at [{},{}] holding {} materials.",
                   source->target_grid_x, UnitsManager_BaseUnits[source->GetUnitType()].GetSingularName(),
@@ -181,7 +179,7 @@ UnitInfo* TaskGetMaterials::FindBuilding() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && (*it).storage > 0 && (*it).hits > 0 &&
+        if ((*it).team == m_team && (*it).storage > 0 && (*it).hits > 0 &&
             UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
             UnitInfo* candidate_building = FindClosestBuilding((*it).GetComplex());
 
@@ -205,15 +203,15 @@ void TaskGetMaterials::FindTruck() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == team && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW &&
+        if ((*it).team == m_team && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW &&
             (*it).storage > 0 && (*it).hits > 0 &&
             ((*it).GetOrder() == ORDER_AWAIT || ((*it).GetOrder() == ORDER_MOVE && (*it).speed == 0)) &&
             requestor != *it) {
             bool candidate_found;
 
             if ((*it).GetTask()) {
-                if ((*it).GetTask()->ComparePriority(base_priority) <= 0) {
-                    if ((*it).GetTask()->ComparePriority(base_priority) == 0 &&
+                if ((*it).GetTask()->ComparePriority(m_base_priority) <= 0) {
+                    if ((*it).GetTask()->ComparePriority(m_base_priority) == 0 &&
                         (*it).GetTask()->GetType() == TaskType_TaskGetMaterials &&
                         (*it).GetTask()->GetId() > this->GetId()) {
                         candidate_found = true;

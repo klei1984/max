@@ -1282,15 +1282,14 @@ uint16_t UnitInfo::GetImageIndex() const { return image_index; }
 
 void UnitInfo::AddTask(Task* task) {
     SmartPointer<Task> old_task(GetTask());
-    char text[100];
 
     AILOG(log, "Adding task to {} {}: {}", UnitsManager_BaseUnits[unit_type].GetSingularName(), unit_id,
-          task->WriteStatusLog(text));
+          task->WriteStatusLog());
 
     tasks.PushFront(*task);
 
     if (old_task) {
-        AILOG_LOG(log, "Old topmost task: {}", old_task->WriteStatusLog(text));
+        AILOG_LOG(log, "Old topmost task: {}", old_task->WriteStatusLog());
     }
 }
 
@@ -4202,10 +4201,9 @@ SmartObjectArray<ResourceID> UnitInfo::GetBuildList() { return build_list; }
 
 void UnitInfo::RemoveTask(Task* task, bool mode) {
     SmartPointer<Task> unit_task(GetTask());
-    char text[100];
 
     AILOG(log, "Removing task from {} {}: {}", UnitsManager_BaseUnits[unit_type].GetSingularName(), unit_id,
-          task->WriteStatusLog(text));
+          task->WriteStatusLog());
 
     if (unit_task) {
         SmartPointer<Task> reference_task;
@@ -4215,10 +4213,10 @@ void UnitInfo::RemoveTask(Task* task, bool mode) {
         reference_task = GetTask();
 
         if (unit_task == reference_task) {
-            AILOG_LOG(log, "No change in top task ({})", unit_task->WriteStatusLog(text));
+            AILOG_LOG(log, "No change in top task ({})", unit_task->WriteStatusLog());
 
         } else if (tasks.GetCount() > 0) {
-            AILOG_LOG(log, "New topmost task: {}", reference_task->WriteStatusLog(text));
+            AILOG_LOG(log, "New topmost task: {}", reference_task->WriteStatusLog());
 
             if (mode && Task_IsReadyToTakeOrders(this)) {
                 Task_RemindMoveFinished(this);

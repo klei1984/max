@@ -54,7 +54,7 @@ public:
 
     bool IsUnitUsable(UnitInfo& unit);
     uint16_t GetPriority() const;
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     Rect* GetBounds(Rect* bounds);
     uint8_t GetType() const;
     bool IsNeeded();

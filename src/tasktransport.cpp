@@ -44,7 +44,7 @@ void TaskTransport::AddClients(SmartList<TaskMove>* list) {
     if (unit_transporter && unit_transporter->storage) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
              it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-            if ((*it).GetOrder() == ORDER_IDLE && unit_transporter == (*it).GetParent() && (*it).team == team) {
+            if ((*it).GetOrder() == ORDER_IDLE && unit_transporter == (*it).GetParent() && (*it).team == m_team) {
                 if (!(*it).GetTask() || (*it).GetTask()->GetType() != TaskType_TaskMove) {
                     TaskMove* task = new (std::nothrow) TaskMove(&*it, &TaskTransport_MoveFinishedCallback);
 
@@ -68,8 +68,9 @@ bool TaskTransport::WillTransportNewClient(TaskMove* task) {
     bool result;
 
     if (!unit_transporter || unit_transporter->hits > 0) {
-        if (!unit_transporter || (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], transporter_unit_type)
-                                      ->GetAttribute(ATTRIB_STORAGE) > unit_transporter->storage)) {
+        if (!unit_transporter ||
+            (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[m_team], transporter_unit_type)
+                 ->GetAttribute(ATTRIB_STORAGE) > unit_transporter->storage)) {
             if (task->GetPassenger()) {
                 if (move_tasks.GetCount() != 0 || (unit_transporter && unit_transporter->storage != 0)) {
                     if (unit_transporter) {
@@ -128,7 +129,7 @@ bool TaskTransport::WillTransportNewClient(TaskMove* task) {
 
                     } else {
                         if (static_cast<uint32_t>(
-                                UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], transporter_unit_type)
+                                UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[m_team], transporter_unit_type)
                                     ->GetAttribute(ATTRIB_STORAGE)) > move_tasks.GetCount()) {
                             result = true;
 
@@ -196,7 +197,7 @@ bool TaskTransport::ChooseNewTask() {
 
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                      it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-                    if ((*it).team == team && ((*it).flags & MOBILE_LAND_UNIT) && (*it).GetUnitType() != SURVEYOR) {
+                    if ((*it).team == m_team && ((*it).flags & MOBILE_LAND_UNIT) && (*it).GetUnitType() != SURVEYOR) {
                         if ((*it).GetTask() && (*it).GetTask()->GetType() == TaskType_TaskMove &&
                             Task_IsReadyToTakeOrders(&*it)) {
                             TaskMove* move = dynamic_cast<TaskMove*>((*it).GetTask());
@@ -355,8 +356,8 @@ void TaskTransport::MoveFinishedCallback2(Task* task, UnitInfo* unit, char resul
 
 bool TaskTransport::IsUnitTransferable(UnitInfo& unit) { return unit_transporter != unit; }
 
-char* TaskTransport::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Transport units: ");
+std::string TaskTransport::WriteStatusLog() const {
+    std::string result = "Transport units: ";
 
     if (unit_transporter || !task_obtain_units) {
         if (task_move && task_move->GetPassenger()) {
@@ -366,8 +367,8 @@ char* TaskTransport::WriteStatusLog(char* buffer) const {
 
                     task_move->GetPassenger()->GetDisplayName(unit_name, sizeof(unit_name));
 
-                    sprintf(buffer, "Transport units: drop off %s at [%i,%i]", unit_name,
-                            task_move->GetDestination().x + 1, task_move->GetDestination().y + 1);
+                    result = std::format("Transport units: drop off {} at [{},{}]", unit_name,
+                                         task_move->GetDestination().x + 1, task_move->GetDestination().y + 1);
                 }
 
             } else {
@@ -375,20 +376,20 @@ char* TaskTransport::WriteStatusLog(char* buffer) const {
 
                 task_move->GetPassenger()->GetDisplayName(unit_name, sizeof(unit_name));
 
-                sprintf(buffer, "Transport units: pick up %s at [%i,%i]", unit_name,
-                        task_move->GetPassenger()->grid_x + 1, task_move->GetPassenger()->grid_y + 1);
+                result = std::format("Transport units: pick up {} at [{},{}]", unit_name,
+                                     task_move->GetPassenger()->grid_x + 1, task_move->GetPassenger()->grid_y + 1);
             }
 
         } else {
-            strcat(buffer, " doing nothing. ");
+            result += " doing nothing. ";
         }
 
     } else {
-        sprintf(buffer, "Transport units: Waiting for %s.",
-                UnitsManager_BaseUnits[transporter_unit_type].GetSingularName());
+        result = std::format("Transport units: Waiting for {}.",
+                             UnitsManager_BaseUnits[transporter_unit_type].GetSingularName());
     }
 
-    return buffer;
+    return result;
 }
 
 Rect* TaskTransport::GetBounds(Rect* bounds) {
@@ -595,7 +596,7 @@ void TaskTransport::RemoveSelf() {
     unit_transporter = nullptr;
     task_move = nullptr;
     task_obtain_units = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }
@@ -747,11 +748,11 @@ void TaskTransport_FinishTransport(Task* const task, UnitInfo* const transporter
 bool TaskTransport::LoadUnit(UnitInfo* unit) {
     bool result;
 
-    if (unit_transporter && unit_transporter->IsReadyForOrders(this) && GameManager_IsActiveTurn(team)) {
+    if (unit_transporter && unit_transporter->IsReadyForOrders(this) && GameManager_IsActiveTurn(m_team)) {
         AILOG(log, "Transport: Load {} on {}.", UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(),
               UnitsManager_BaseUnits[unit_transporter->GetUnitType()].GetSingularName());
 
-        if (Task_IsReadyToTakeOrders(unit) && GameManager_IsActiveTurn(team)) {
+        if (Task_IsReadyToTakeOrders(unit) && GameManager_IsActiveTurn(m_team)) {
             int32_t distance = Access_GetApproximateDistance(unit, &*unit_transporter);
 
             if (unit_transporter->GetUnitType() == AIRTRANS && distance > 0) {
@@ -768,7 +769,7 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
             } else if (unit_transporter->GetUnitType() == AIRTRANS) {
                 unit_transporter->SetParent(unit);
 
-                SDL_assert(GameManager_IsActiveTurn(team));
+                SDL_assert(GameManager_IsActiveTurn(m_team));
 
                 UnitsManager_SetNewOrder(&*unit_transporter, ORDER_LOAD, ORDER_STATE_INIT);
 
@@ -778,7 +779,7 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
                 unit->target_grid_x = unit_transporter->grid_x;
                 unit->target_grid_y = unit_transporter->grid_y;
 
-                SDL_assert(GameManager_IsActiveTurn(team));
+                SDL_assert(GameManager_IsActiveTurn(m_team));
 
                 SmartPointer<GroundPath> path =
                     new (std::nothrow) GroundPath(unit_transporter->grid_x, unit_transporter->grid_y);

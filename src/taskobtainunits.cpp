@@ -48,7 +48,7 @@ uint32_t TaskObtainUnits::CountInstancesOfUnitType(ResourceID unit_type) {
 bool TaskObtainUnits::IsValidCandidate(UnitInfo* unit, bool mode) {
     bool result;
 
-    if (team != unit->team || unit->hits <= 0) {
+    if (m_team != unit->team || unit->hits <= 0) {
         result = false;
 
     } else if (unit->GetOrder() != ORDER_AWAIT && unit->GetOrder() != ORDER_SENTRY &&
@@ -147,8 +147,8 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
 uint16_t TaskObtainUnits::GetPriority() const {
     uint16_t flags;
 
-    if (parent != nullptr) {
-        flags = parent->GetPriority();
+    if (m_parent != nullptr) {
+        flags = m_parent->GetPriority();
     } else {
         flags = TASK_PRIORITY_MOVE;
     }
@@ -156,25 +156,25 @@ uint16_t TaskObtainUnits::GetPriority() const {
     return flags;
 }
 
-char* TaskObtainUnits::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Obtain units: ");
+std::string TaskObtainUnits::WriteStatusLog() const {
+    std::string result = "Obtain units: ";
 
     if (units->GetCount() == 0) {
-        strcat(buffer, "(finished)");
+        result += "(finished)";
     }
 
     for (uint32_t i = 0; i < units->GetCount() && i < 3; ++i) {
-        strcat(buffer, UnitsManager_BaseUnits[*units[i]].GetSingularName());
+        result += UnitsManager_BaseUnits[*units[i]].GetSingularName();
         if ((i + 1) < units->GetCount() && i < 2) {
-            strcat(buffer, ", ");
+            result += ", ";
         }
     }
 
     if (units->GetCount() > 3) {
-        strcat(buffer, "...");
+        result += "...";
     }
 
-    return buffer;
+    return result;
 }
 
 uint8_t TaskObtainUnits::GetType() const { return TaskType_TaskObtainUnits; }
@@ -182,8 +182,8 @@ uint8_t TaskObtainUnits::GetType() const { return TaskType_TaskObtainUnits; }
 bool TaskObtainUnits::IsNeeded() {
     bool result;
 
-    if (units->GetCount() > 0 && parent != nullptr) {
-        result = parent->IsNeeded();
+    if (units->GetCount() > 0 && m_parent != nullptr) {
+        result = m_parent->IsNeeded();
     } else {
         result = false;
     }
@@ -200,14 +200,14 @@ void TaskObtainUnits::AddUnit(UnitInfo& unit) {
 
     if (CountInstancesOfUnitType(unit.GetUnitType())) {
         units->Remove(index);
-        parent->AddUnit(unit);
+        m_parent->AddUnit(unit);
 
         if (units->GetCount() == 0) {
-            if (parent != nullptr) {
-                parent->ChildComplete(this);
+            if (m_parent != nullptr) {
+                m_parent->ChildComplete(this);
             }
 
-            parent = nullptr;
+            m_parent = nullptr;
             TaskManager.RemoveTask(*this);
         }
     }
@@ -230,7 +230,7 @@ void TaskObtainUnits::BeginTurn() {
 }
 
 void TaskObtainUnits::EndTurn() {
-    if (parent == nullptr || !parent->IsNeeded()) {
+    if (m_parent == nullptr || !m_parent->IsNeeded()) {
         units.Clear();
     }
 
@@ -252,7 +252,7 @@ void TaskObtainUnits::EndTurn() {
                     }
                 }
 
-                parent->AddUnit(*unit);
+                m_parent->AddUnit(*unit);
             }
         }
 
@@ -262,13 +262,13 @@ void TaskObtainUnits::EndTurn() {
 
         for (uint32_t i = 0; i < units.GetCount(); ++i) {
             if (UnitsManager_BaseUnits[*units[i]].flags & STATIONARY) {
-                TaskManager.CreateBuilding(*units[i], team, point, this);
+                TaskManager.CreateBuilding(*units[i], m_team, point, this);
             } else if (*units[i] == CONSTRCT || *units[i] == ENGINEER) {
-                TaskManager.CreateUnit(*units[i], team, point, this);
+                TaskManager.CreateUnit(*units[i], m_team, point, this);
             } else if (!IsUnitTypeRequested[*units[i]]) {
                 IsUnitTypeRequested[*units[i]] = true;
 
-                RequestUnits(*units[i], team, CountInstancesOfUnitType(*units[i]), point);
+                RequestUnits(*units[i], m_team, CountInstancesOfUnitType(*units[i]), point);
             }
         }
 
@@ -276,11 +276,11 @@ void TaskObtainUnits::EndTurn() {
     }
 
     if (!units.GetCount()) {
-        if (parent != nullptr) {
-            parent->ChildComplete(this);
+        if (m_parent != nullptr) {
+            m_parent->ChildComplete(this);
         }
 
-        parent = nullptr;
+        m_parent = nullptr;
         TaskManager.RemoveTask(*this);
     }
 }
@@ -339,7 +339,7 @@ void TaskObtainUnits::RemoveSelf() {
     AILOG(log, "Obtain Unit: Parent Complete");
 
     units.Clear();
-    parent = nullptr;
+    m_parent = nullptr;
     TaskManager.RemoveTask(*this);
 }
 

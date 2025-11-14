@@ -29,11 +29,7 @@ TaskUpgrade::TaskUpgrade(UnitInfo* unit) : TaskRepair(unit) {}
 
 TaskUpgrade::~TaskUpgrade() {}
 
-char* TaskUpgrade::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Upgrade unit.");
-
-    return buffer;
-}
+std::string TaskUpgrade::WriteStatusLog() const { return "Upgrade unit."; }
 
 uint8_t TaskUpgrade::GetType() const { return TaskType_TaskUpgrade; }
 
@@ -42,7 +38,7 @@ void TaskUpgrade::SelectOperator() {}
 int32_t TaskUpgrade::GetTurnsToComplete() {
     int32_t result;
 
-    if (AiPlayer_Teams[team].ShouldUpgradeUnit(&*target_unit)) {
+    if (AiPlayer_Teams[m_team].ShouldUpgradeUnit(&*target_unit)) {
         result = target_unit->GetNormalRateBuildCost() / 4;
 
     } else {
@@ -55,7 +51,7 @@ int32_t TaskUpgrade::GetTurnsToComplete() {
 bool TaskUpgrade::IsInPerfectCondition() {
     bool result;
 
-    if (AiPlayer_Teams[team].ShouldUpgradeUnit(&*target_unit)) {
+    if (AiPlayer_Teams[m_team].ShouldUpgradeUnit(&*target_unit)) {
         result = false;
 
     } else {
@@ -85,7 +81,7 @@ void TaskUpgrade::IssueOrder() {
 
     operator_unit->SetParent(&*target_unit);
 
-    if (AiPlayer_Teams[team].ShouldUpgradeUnit(&*target_unit)) {
+    if (AiPlayer_Teams[m_team].ShouldUpgradeUnit(&*target_unit)) {
         UnitsManager_SetNewOrder(&*operator_unit, ORDER_UPGRADE, ORDER_STATE_INIT);
 
     } else if (target_unit->ammo < target_unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO)) {

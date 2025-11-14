@@ -21,6 +21,8 @@
 
 #include "taskattack.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "aiattack.hpp"
 #include "ailog.hpp"
@@ -82,13 +84,13 @@ uint16_t TaskAttack::GetPriority() const {
         result = secondary_targets[0].GetPriority();
 
     } else {
-        result = base_priority;
+        result = m_base_priority;
     }
 
     return result;
 }
 
-char* TaskAttack::WriteStatusLog(char* buffer) const {
+std::string TaskAttack::WriteStatusLog() const {
     TaskKillUnit* task = kill_unit_task.Get();
 
     if (task && !task->GetUnitSpotted()) {
@@ -147,24 +149,21 @@ char* TaskAttack::WriteStatusLog(char* buffer) const {
 
         position = task->DeterminePosition();
 
-        sprintf(buffer, "%s %s at [%i,%i]", status,
-                UnitsManager_BaseUnits[task->GetUnitSpotted()->GetUnitType()].GetSingularName(), position.x + 1,
-                position.y + 1);
+        std::string result = std::format(
+            "{} {} at [{},{}]", status, UnitsManager_BaseUnits[task->GetUnitSpotted()->GetUnitType()].GetSingularName(),
+            position.x + 1, position.y + 1);
 
         if (leader) {
-            char text[100];
-
-            sprintf(text, ", leader %s %i at [%i,%i]", UnitsManager_BaseUnits[leader->GetUnitType()].GetSingularName(),
-                    leader->unit_id, leader->grid_x + 1, leader->grid_y + 1);
-
-            strcat(buffer, text);
+            result += std::format(", leader {} {} at [{},{}]",
+                                  UnitsManager_BaseUnits[leader->GetUnitType()].GetSingularName(), leader->unit_id,
+                                  leader->grid_x + 1, leader->grid_y + 1);
         }
 
-    } else {
-        strcpy(buffer, "Completed attack task.");
-    }
+        return result;
 
-    return buffer;
+    } else {
+        return "Completed attack task.";
+    }
 }
 
 Rect* TaskAttack::GetBounds(Rect* bounds) {
@@ -387,7 +386,7 @@ void TaskAttack::RemoveSelf() {
     primary_targets.Clear();
     secondary_targets.Clear();
     kill_unit_task = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
     support_attack_task = nullptr;
     leader = nullptr;
     leader_task = nullptr;
@@ -649,7 +648,7 @@ bool TaskAttack::EvaluateLandAttack() {
         bool sea_unit_present = false;
         uint16_t task_priority = GetPriority();
 
-        weight_table = AiPlayer_Teams[team].GetExtendedWeightTable(unit, 0x03);
+        weight_table = AiPlayer_Teams[m_team].GetExtendedWeightTable(unit, 0x03);
 
         for (uint32_t i = 0; !unit && i < weight_table.GetCount(); ++i) {
             if (weight_table[i].weight > 0 &&
@@ -679,7 +678,7 @@ bool TaskAttack::EvaluateLandAttack() {
 
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
                  it != UnitsManager_GroundCoverUnits.End(); ++it) {
-                if ((*it).GetUnitType() != BRIDGE && (*it).IsVisibleToTeam(team)) {
+                if ((*it).GetUnitType() != BRIDGE && (*it).IsVisibleToTeam(m_team)) {
                     access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] = 2;
                 }
             }
@@ -701,11 +700,11 @@ bool TaskAttack::EvaluateLandAttack() {
             worth_of_land_units = 0;
             worth_of_sea_units = 0;
 
-            weight_table = AiPlayer_Teams[team].GetExtendedWeightTable(unit, 0x01);
+            weight_table = AiPlayer_Teams[m_team].GetExtendedWeightTable(unit, 0x01);
 
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                  it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-                if ((*it).team == team && (*it).hits > 0 && (*it).ammo > 0 &&
+                if ((*it).team == m_team && (*it).hits > 0 && (*it).ammo > 0 &&
                     (*it).ammo >= (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) &&
                     !((*it).flags & MOBILE_AIR_UNIT) &&
                     (((*it).flags & MOBILE_SEA_UNIT) || access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] == 3) &&
@@ -741,7 +740,7 @@ bool TaskAttack::EvaluateLandAttack() {
             } else {
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
-                    if ((*it).team == team && (*it).GetUnitType() == LANDPLT) {
+                    if ((*it).team == m_team && (*it).GetUnitType() == LANDPLT) {
                         stationary_unit_present = true;
 
                         if (access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] == 3) {
@@ -753,7 +752,7 @@ bool TaskAttack::EvaluateLandAttack() {
                 if (!stationary_unit_present) {
                     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                          it != UnitsManager_StationaryUnits.End(); ++it) {
-                        if ((*it).team == team && access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] == 3) {
+                        if ((*it).team == m_team && access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] == 3) {
                             return true;
                         }
                     }
@@ -801,7 +800,7 @@ void TaskAttack::Finish() {
 bool TaskAttack::RequestReconUnit(ResourceID unit_type, int32_t safe_distance) {
     bool result;
 
-    if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_SCAN) >=
+    if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[m_team], unit_type)->GetAttribute(ATTRIB_SCAN) >=
         safe_distance) {
         if (recon_unit) {
             if (recon_unit->GetUnitType() == unit_type) {
@@ -839,7 +838,7 @@ bool TaskAttack::RequestReconUnit(ResourceID unit_type, int32_t safe_distance) {
 bool TaskAttack::FindReconUnit(ResourceID unit_type, int32_t safe_distance) {
     bool result;
 
-    if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_SCAN) >=
+    if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[m_team], unit_type)->GetAttribute(ATTRIB_SCAN) >=
         safe_distance) {
         SmartList<UnitInfo>* units{nullptr};
         UnitInfo* new_recon_unit{nullptr};
@@ -853,7 +852,7 @@ bool TaskAttack::FindReconUnit(ResourceID unit_type, int32_t safe_distance) {
         }
 
         for (auto it = units->Begin(); it != units->End(); ++it) {
-            if ((*it).team == team && (*it).GetUnitType() == unit_type &&
+            if ((*it).team == m_team && (*it).GetUnitType() == unit_type &&
                 (*it).GetBaseValues()->GetAttribute(ATTRIB_SCAN) >= safe_distance &&
                 (!(*it).GetTask() || (*it).GetTask()->ComparePriority(task_priority) > 0)) {
                 if (!new_recon_unit || (new_recon_unit->GetTask() && !(*it).GetTask())) {
@@ -961,17 +960,17 @@ void TaskAttack::GetSafeDistances(int32_t* safe_distance_air, int32_t* safe_dist
 
         safe_air_distance =
             *safe_distance_air -
-            UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], AWAC)->GetAttribute(ATTRIB_SCAN);
+            UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[m_team], AWAC)->GetAttribute(ATTRIB_SCAN);
 
         if (access_flags & MOBILE_LAND_UNIT) {
             safe_ground_distance =
                 *safe_distance_ground -
-                UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], SCANNER)->GetAttribute(ATTRIB_SCAN);
+                UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[m_team], SCANNER)->GetAttribute(ATTRIB_SCAN);
 
         } else {
             safe_ground_distance =
                 *safe_distance_ground -
-                UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], FASTBOAT)->GetAttribute(ATTRIB_SCAN);
+                UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[m_team], FASTBOAT)->GetAttribute(ATTRIB_SCAN);
         }
 
         if (safe_air_distance > 0 && safe_ground_distance > 0) {
@@ -1099,7 +1098,7 @@ bool TaskAttack::IsThereTimeToPrepare() {
     if (op_state <= ATTACK_STATE_GATHER_FORCES) {
         if (IsTargetGroupInSight()) {
             if (kill_unit_task && kill_unit_task->GetUnitSpotted()) {
-                result = !kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team);
+                result = !kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(m_team);
 
             } else {
                 result = false;
@@ -1119,28 +1118,28 @@ bool TaskAttack::IsThereTimeToPrepare() {
 bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t caution_level) {
     Point target_position(unit->grid_x, unit->grid_y);
     Point position;
-    auto info_map = AiPlayer_Teams[team].GetInfoMap();
-    int16_t** damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(unit, caution_level, false);
+    auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
+    int16_t** damage_potential_map = AiPlayer_Teams[m_team].GetDamagePotentialMap(unit, caution_level, false);
     Rect bounds;
     ResourceID transporter = INVALID_ID;
     bool result;
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
-    if (Task_GetReadyUnitsCount(team, AIRTRANS) > 0) {
+    if (Task_GetReadyUnitsCount(m_team, AIRTRANS) > 0) {
         transporter = AIRTRANS;
 
-    } else if (Task_GetReadyUnitsCount(team, SEATRANS) > 0) {
+    } else if (Task_GetReadyUnitsCount(m_team, SEATRANS) > 0) {
         transporter = SEATRANS;
 
     } else if ((unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY) &&
-               (Task_GetReadyUnitsCount(team, CLNTRANS) > 0)) {
+               (Task_GetReadyUnitsCount(m_team, CLNTRANS) > 0)) {
         transporter = CLNTRANS;
 
-    } else if (Task_GetReadyUnitsCount(team, AIRPLT) > 0) {
+    } else if (Task_GetReadyUnitsCount(m_team, AIRPLT) > 0) {
         transporter = AIRTRANS;
 
-    } else if (Task_GetReadyUnitsCount(team, SHIPYARD) > 0) {
+    } else if (Task_GetReadyUnitsCount(m_team, SHIPYARD) > 0) {
         transporter = SEATRANS;
     }
 
@@ -1202,7 +1201,7 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
                                         if ((!(access_flags & MOBILE_LAND_UNIT) ||
                                              Access_GetModifiedSurfaceType(position.x, position.y) !=
                                                  SURFACE_TYPE_WATER) &&
-                                            Access_IsAccessible(unit->GetUnitType(), team, position.x, position.y,
+                                            Access_IsAccessible(unit->GetUnitType(), m_team, position.x, position.y,
                                                                 AccessModifier_SameClassBlocks)) {
                                             target_position = position;
                                             minimum_distance = distance;
@@ -1358,7 +1357,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
 
                     if (distance < minimum_distance &&
                         (!access_flags || Access_GetModifiedSurfaceType(site.x, site.y) != SURFACE_TYPE_WATER) &&
-                        Access_IsAccessible(unit->GetUnitType(), team, site.x, site.y,
+                        Access_IsAccessible(unit->GetUnitType(), m_team, site.x, site.y,
                                             AccessModifier_SameClassBlocks)) {
                         best_site = site;
                         minimum_distance = distance;
@@ -1378,7 +1377,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
 bool TaskAttack::MoveReconUnit(int32_t caution_level) {
     Point position = kill_unit_task->DeterminePosition();
     Point site;
-    bool is_visible_to_team = kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team);
+    bool is_visible_to_team = kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(m_team);
     bool result;
 
     AILOG(log, "Move recon unit.");
@@ -1466,7 +1465,7 @@ bool TaskAttack::IsAttackUnderControl() {
         }
 
         if (projected_damage >= required_damage) {
-            if (!kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team)) {
+            if (!kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(m_team)) {
                 if (recon_unit && recon_unit->grid_x == recon_unit->attack_site.x &&
                     recon_unit->grid_y == recon_unit->attack_site.y) {
                     result = true;
@@ -1526,7 +1525,7 @@ bool TaskAttack::PlanMoveForReconUnit() {
                         if (op_state > ATTACK_STATE_GATHER_FORCES && op_state < ATTACK_STATE_NORMAL_SEARCH) {
                             if ((leader->flags & MOBILE_LAND_UNIT) &&
                                 Access_GetModifiedSurfaceType(leader->grid_x, leader->grid_y) != SURFACE_TYPE_LAND &&
-                                AiPlayer_Teams[team].GetStrategy() != AI_STRATEGY_SCOUT_HORDE) {
+                                AiPlayer_Teams[m_team].GetStrategy() != AI_STRATEGY_SCOUT_HORDE) {
                                 result = MoveReconUnit(caution_level);
 
                             } else {
@@ -1585,7 +1584,7 @@ bool TaskAttack::IsViableLeader(UnitInfo* unit) {
 
     if (unit->hits > 0) {
         if (kill_unit_task && kill_unit_task->GetUnitSpotted()) {
-            if (kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team)) {
+            if (kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(m_team)) {
                 if (unit->GetUnitType() == COMMANDO || unit->GetUnitType() == SUBMARNE) {
                     UnitInfo* target = kill_unit_task->GetUnitSpotted();
                     int32_t unit_scan = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
@@ -1636,7 +1635,7 @@ Point TaskAttack::GetLeaderDestination() {
 
 void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
     AccessMap access_map;
-    auto info_map = AiPlayer_Teams[team].GetInfoMap();
+    auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
     int32_t caution_level = unit->ammo > 0 ? CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE : CAUTION_LEVEL_AVOID_ALL_DAMAGE;
 
     PathsManager_InitAccessMap(unit, access_map.GetMap(), 0x01, caution_level);
@@ -1813,7 +1812,7 @@ void TaskAttack::EvaluateAttackReadiness() {
     }
 
     if (kill_unit_task && kill_unit_task->GetUnitSpotted()) {
-        if (!kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team) && !IsReconUnitAvailable()) {
+        if (!kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(m_team) && !IsReconUnitAvailable()) {
             AILOG_LOG(log, "Task has no spotter.");
 
             op_state = ATTACK_STATE_WAIT;
@@ -1890,7 +1889,7 @@ void TaskAttack::EvaluateAttackReadiness() {
         }
 
         if (op_state == ATTACK_STATE_NORMAL_SEARCH || op_state == ATTACK_STATE_BOLD_SEARCH) {
-            if (kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team)) {
+            if (kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(m_team)) {
                 AILOG_LOG(log, "Target is visible.");
 
                 op_state = ATTACK_STATE_ATTACK;
@@ -1900,7 +1899,7 @@ void TaskAttack::EvaluateAttackReadiness() {
             }
         }
 
-        if (op_state == ATTACK_STATE_ATTACK && !kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(team)) {
+        if (op_state == ATTACK_STATE_ATTACK && !kill_unit_task->GetUnitSpotted()->IsVisibleToTeam(m_team)) {
             AILOG_LOG(log, "Target not visible, changing from Attack to Search.");
 
             op_state = ATTACK_STATE_NORMAL_SEARCH;
@@ -1960,15 +1959,15 @@ void TaskAttack::AssessEnemyUnits() {
 
     access_flags |= MOBILE_AIR_UNIT;
 
-    AiAttack_GetTargetTeams(team, teams);
+    AiAttack_GetTargetTeams(m_team, teams);
 
-    enemy_team = AiPlayer_Teams[team].GetTargetTeam();
+    enemy_team = AiPlayer_Teams[m_team].GetTargetTeam();
 
     for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
         (*it).GetSpottedUnit()->SetTask(nullptr);
     }
 
-    base_priority = TASK_PRIORITY_ATTACK_DEFAULT;
+    m_base_priority = TASK_PRIORITY_ATTACK_DEFAULT;
 
     for (SmartList<TaskKillUnit>::Iterator it = primary_targets.Begin(); it != primary_targets.End(); ++it) {
         UnitInfo* target = (*it).GetUnitSpotted();
@@ -1979,20 +1978,20 @@ void TaskAttack::AssessEnemyUnits() {
             if ((target->flags & BUILDING) || target->GetUnitType() == CONSTRCT) {
                 is_relevant = target->team == enemy_team;
 
-                if (is_relevant && base_priority > TASK_PRIORITY_ATTACK_PRIORITY_TARGET &&
+                if (is_relevant && m_base_priority > TASK_PRIORITY_ATTACK_PRIORITY_TARGET &&
                     (target->GetUnitType() == GREENHSE || target->GetUnitType() == MININGST) &&
-                    UnitsManager_TeamInfo[enemy_team].team_points > UnitsManager_TeamInfo[team].team_points) {
-                    base_priority = TASK_PRIORITY_ATTACK_PRIORITY_TARGET;
+                    UnitsManager_TeamInfo[enemy_team].team_points > UnitsManager_TeamInfo[m_team].team_points) {
+                    m_base_priority = TASK_PRIORITY_ATTACK_PRIORITY_TARGET;
                 }
 
             } else {
                 if (target->team == PLAYER_TEAM_ALIEN) {
                     is_relevant = true;
 
-                } else if (AiAttack_IsWithinReach(target, team, teams)) {
+                } else if (AiAttack_IsWithinReach(target, m_team, teams)) {
                     is_relevant = true;
 
-                    base_priority = TASK_PRIORITY_ATTACK_MOBILE;
+                    m_base_priority = TASK_PRIORITY_ATTACK_MOBILE;
                 }
             }
 
@@ -2016,8 +2015,8 @@ void TaskAttack::AssessEnemyUnits() {
         }
     }
 
-    for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[team].GetSpottedUnits().Begin();
-         it != AiPlayer_Teams[team].GetSpottedUnits().End(); ++it) {
+    for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[m_team].GetSpottedUnits().Begin();
+         it != AiPlayer_Teams[m_team].GetSpottedUnits().End(); ++it) {
         UnitInfo* target = (*it).GetUnit();
 
         if (target && target->team == enemy_team && (*it).GetTask() != this && IsDefenderDangerous(&*it)) {
@@ -2025,7 +2024,7 @@ void TaskAttack::AssessEnemyUnits() {
 
             if (attack_task) {
                 if (attack_task->GetAccessFlags() == access_flags &&
-                    (attack_task->GetPriority() & TASK_PRIORITY_MASK) == base_priority) {
+                    (attack_task->GetPriority() & TASK_PRIORITY_MASK) == m_base_priority) {
                     AILOG_LOG(log, "Merging attack tasks.");
 
                     attack_task->CopyTargets(this);
@@ -2038,7 +2037,7 @@ void TaskAttack::AssessEnemyUnits() {
                 }
 
             } else {
-                SmartPointer<TaskKillUnit> task_kill_unit(new (std::nothrow) TaskKillUnit(this, &*it, base_priority));
+                SmartPointer<TaskKillUnit> task_kill_unit(new (std::nothrow) TaskKillUnit(this, &*it, m_base_priority));
 
                 (*it).SetTask(this);
                 secondary_targets.PushBack(*task_kill_unit);
@@ -2049,7 +2048,7 @@ void TaskAttack::AssessEnemyUnits() {
     }
 
     for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
-        (*it).SetPriority(base_priority);
+        (*it).SetPriority(m_base_priority);
     }
 }
 

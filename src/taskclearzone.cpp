@@ -39,7 +39,7 @@ void TaskClearZone::PathFindResultCallback(Task* task, PathRequest* request, Poi
     AILOG(log, "Clear zone: path result.");
 
     if (path && (!clear_zone->moving_unit || clear_zone->moving_unit->IsReadyForOrders(clear_zone)) &&
-        GameManager_IsActiveTurn(clear_zone->team)) {
+        GameManager_IsActiveTurn(clear_zone->m_team)) {
         SDL_assert(clear_zone->moving_unit != nullptr);
 
         clear_zone->state = CLEARZONE_STATE_MOVING_UNIT;
@@ -99,38 +99,39 @@ TaskClearZone::TaskClearZone(uint16_t team, uint32_t flags_)
 
 TaskClearZone::~TaskClearZone() {}
 
-char* TaskClearZone::WriteStatusLog(char* buffer) const {
-    if (unit_flags == MOBILE_AIR_UNIT) {
-        strcpy(buffer, "Clear air zones: ");
+std::string TaskClearZone::WriteStatusLog() const {
+    std::string result;
 
+    if (unit_flags == MOBILE_AIR_UNIT) {
+        result = "Clear air zones: ";
     } else {
-        strcpy(buffer, "Clear land / sea zones: ");
+        result = "Clear land / sea zones: ";
     }
 
     switch (state) {
         case CLEARZONE_STATE_WAITING: {
-            strcat(buffer, "waiting");
+            result += "waiting";
         } break;
 
         case CLEARZONE_STATE_EXAMINING_ZONES: {
-            strcat(buffer, "examining zones");
+            result += "examining zones";
         } break;
 
         case CLEARZONE_STATE_SEARCHING_MAP: {
-            strcat(buffer, "searching map");
+            result += "searching map";
         } break;
 
         case CLEARZONE_STATE_WAITING_FOR_PATH: {
-            strcat(buffer, "waiting for path");
+            result += "waiting for path";
         } break;
 
         case CLEARZONE_STATE_MOVING_UNIT: {
-            strcat(buffer, "moving ");
-            strcat(buffer, UnitsManager_BaseUnits[moving_unit->GetUnitType()].GetSingularName());
+            result += "moving ";
+            result += UnitsManager_BaseUnits[moving_unit->GetUnitType()].GetSingularName();
         } break;
     }
 
-    return buffer;
+    return result;
 }
 
 uint8_t TaskClearZone::GetType() const { return TaskType_TaskClearZone; }
@@ -153,7 +154,7 @@ void TaskClearZone::EndTurn() {
     AILOG(log, "Clear Zone: End Turn.");
 
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
-        if (GameManager_IsActiveTurn(team)) {
+        if (GameManager_IsActiveTurn(m_team)) {
             if (state != CLEARZONE_STATE_EXAMINING_ZONES && state != CLEARZONE_STATE_WAITING_FOR_PATH) {
                 if (state == CLEARZONE_STATE_MOVING_UNIT) {
                     state = CLEARZONE_STATE_WAITING;
@@ -207,7 +208,7 @@ void TaskClearZone::RemoveSelf() {
         moving_unit = nullptr;
     }
 
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }
@@ -233,7 +234,7 @@ bool TaskClearZone::ExamineZones() {
     zone_squares.Clear();
     points2.Clear();
 
-    auto info_map = AiPlayer_Teams[team].GetInfoMap();
+    auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
 
     if (info_map) {
         for (uint32_t i = 0; i < zones.GetCount(); ++i) {
@@ -259,7 +260,7 @@ bool TaskClearZone::ExamineZones() {
                 info_map[site.x][site.y] |= INFO_MAP_CLEAR_OUT_ZONE;
             }
 
-            UnitInfo* unit = Access_GetTeamUnit(site.x, site.y, team, unit_flags);
+            UnitInfo* unit = Access_GetTeamUnit(site.x, site.y, m_team, unit_flags);
 
             if (unit && zone->unit != unit) {
                 is_found = true;
@@ -267,7 +268,7 @@ bool TaskClearZone::ExamineZones() {
 
             if (IsNewSite(site)) {
                 if (unit) {
-                    if (unit->team != team) {
+                    if (unit->team != m_team) {
                         zones.Erase(i);
 
                         zone->Finished(false);
@@ -307,7 +308,7 @@ bool TaskClearZone::ExamineZones() {
                     }
 
                 } else {
-                    if (Access_IsAccessible(zone->unit->GetUnitType(), team, site.x, site.y,
+                    if (Access_IsAccessible(zone->unit->GetUnitType(), m_team, site.x, site.y,
                                             AccessModifier_SameClassBlocks)) {
                         points1.Append(&site);
 
@@ -350,7 +351,7 @@ bool TaskClearZone::IsNewSite(Point site) {
 
 void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
     if (Task_IsReadyToTakeOrders(zone_square->unit)) {
-        UnitInfo* unit = Access_GetTeamUnit(site.x, site.y, team, unit_flags);
+        UnitInfo* unit = Access_GetTeamUnit(site.x, site.y, m_team, unit_flags);
 
         if (unit) {
             if (unit->shots > 0 && Task_ShouldReserveShot(unit, site)) {
@@ -365,7 +366,7 @@ void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
                 points2.Append(&site);
             }
 
-        } else if (Access_IsAccessible(zone_square->unit->GetUnitType(), team, site.x, site.y,
+        } else if (Access_IsAccessible(zone_square->unit->GetUnitType(), m_team, site.x, site.y,
                                        AccessModifier_SameClassBlocks)) {
             bool is_found = false;
 
@@ -392,7 +393,7 @@ void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
                 }
 
                 if (caution_level > CAUTION_LEVEL_NONE &&
-                    AiPlayer_Teams[team].GetDamagePotential(zone_square->unit, site, caution_level, true) >=
+                    AiPlayer_Teams[m_team].GetDamagePotential(zone_square->unit, site, caution_level, true) >=
                         unit_hits) {
                 } else {
                     moving_unit = zone_square->unit;
@@ -484,7 +485,7 @@ void TaskClearZone::SearchMap() {
 }
 
 void TaskClearZone::AddZone(Zone* zone) {
-    auto info_map = AiPlayer_Teams[team].GetInfoMap();
+    auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
 
     AILOG(log, "Clear Zone: Add Zone for {} at [{},{}].",
           UnitsManager_BaseUnits[zone->unit->GetUnitType()].GetSingularName(), zone->unit->grid_x + 1,

@@ -41,7 +41,7 @@ public:
     ~TaskFrontalAttack();
 
     int32_t GetCautionLevel(UnitInfo& unit);
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     void AddUnit(UnitInfo& unit);
     void Init();

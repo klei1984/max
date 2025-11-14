@@ -86,7 +86,7 @@ public:
     TaskManageBuildings(uint16_t team, Point site);
     ~TaskManageBuildings();
 
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     bool IsNeeded();
     void AddUnit(UnitInfo& unit);

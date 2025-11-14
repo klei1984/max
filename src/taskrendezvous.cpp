@@ -133,18 +133,17 @@ void TaskRendezvous::SecondaryMoveFinishedCallback(Task* task, UnitInfo* unit, c
     }
 }
 
-char* TaskRendezvous::WriteStatusLog(char* buffer) const {
+std::string TaskRendezvous::WriteStatusLog() const {
     if (unit1 == nullptr || unit2 == nullptr) {
-        strcpy(buffer, "Completed rendezvous task.");
+        return "Completed rendezvous task.";
     } else {
-        strcpy(buffer, "Bring ");
-        strcat(buffer, UnitsManager_BaseUnits[unit2->GetUnitType()].GetSingularName());
-        strcat(buffer, " and ");
-        strcat(buffer, UnitsManager_BaseUnits[unit1->GetUnitType()].GetSingularName());
-        strcat(buffer, " together.");
+        std::string result = "Bring ";
+        result += UnitsManager_BaseUnits[unit2->GetUnitType()].GetSingularName();
+        result += " and ";
+        result += UnitsManager_BaseUnits[unit1->GetUnitType()].GetSingularName();
+        result += " together.";
+        return result;
     }
-
-    return buffer;
 }
 
 uint8_t TaskRendezvous::GetType() const { return TaskType_TaskRendezvous; }
@@ -177,7 +176,7 @@ bool TaskRendezvous::Execute(UnitInfo& unit) {
     bool result = false;
 
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
-        if (GameManager_IsActiveTurn(team)) {
+        if (GameManager_IsActiveTurn(m_team)) {
             if (unit1 && unit2 && (unit1 == unit || unit2 == unit)) {
                 if (unit1->GetTask() == this || unit1->GetTask() == nullptr ||
                     unit1->GetTask()->GetType() == TaskType_TaskMove) {
@@ -227,7 +226,7 @@ void TaskRendezvous::RemoveSelf() {
 
     unit1 = nullptr;
     unit2 = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
     TaskManager.RemoveTask(*this);
 }
 
@@ -248,7 +247,7 @@ void TaskRendezvous::RemoveUnit(UnitInfo& unit) {
 void TaskRendezvous::RemoveTask() {
     unit1 = nullptr;
     unit2 = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
     TaskManager.RemoveTask(*this);
 }
 
@@ -259,7 +258,7 @@ void TaskRendezvous::Finish(char result) {
     Task_RemoveMovementTasks(&*unit1);
     Task_RemoveMovementTasks(&*unit2);
 
-    result_callback(&*parent, &*unit2, result);
+    result_callback(&*m_parent, &*unit2, result);
 
     RemoveTask();
 }

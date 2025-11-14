@@ -37,7 +37,7 @@ public:
     TaskMoveHome(UnitInfo* unit, Task* task);
     ~TaskMoveHome();
 
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     void Init();
     void EndTurn();

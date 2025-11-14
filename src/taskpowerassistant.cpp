@@ -30,11 +30,7 @@ TaskPowerAssistant::TaskPowerAssistant(TaskManageBuildings* manager_)
 
 TaskPowerAssistant::~TaskPowerAssistant() {}
 
-char* TaskPowerAssistant::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Power assistant");
-
-    return buffer;
-}
+std::string TaskPowerAssistant::WriteStatusLog() const { return "Power assistant"; }
 
 uint8_t TaskPowerAssistant::GetType() const { return TaskType_TaskPowerAssistant; }
 
@@ -46,7 +42,7 @@ void TaskPowerAssistant::BeginTurn() {
 
 void TaskPowerAssistant::RemoveSelf() {
     manager = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }

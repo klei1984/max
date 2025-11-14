@@ -28,20 +28,13 @@ TaskMineAssistant::TaskMineAssistant(uint16_t team) : Task(team, nullptr, TASK_P
 
 TaskMineAssistant::~TaskMineAssistant() {}
 
-char* TaskMineAssistant::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Mine placing assistant");
+std::string TaskMineAssistant::WriteStatusLog() const { return "Mine placing assistant"; }
 
-    return buffer;
-}
+uint8_t TaskMineAssistant::GetType() const { return TaskType_TaskMineAssisstant; }
 
-uint8_t TaskMineAssistant::GetType() const {
-    /// \todo Is this a defect? Could something be broken by fixing this?
-    return TaskType_TaskMineAssisstant;
-}
-
-void TaskMineAssistant::BeginTurn() { AiPlayer_Teams[team].PlanMinefields(); }
+void TaskMineAssistant::BeginTurn() { AiPlayer_Teams[m_team].PlanMinefields(); }
 
 void TaskMineAssistant::RemoveSelf() {
-    parent = nullptr;
+    m_parent = nullptr;
     TaskManager.RemoveTask(*this);
 }

@@ -73,11 +73,7 @@ bool TaskExplore::IsUnitUsable(UnitInfo& unit) {
     return result;
 }
 
-char* TaskExplore::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Explore map.");
-
-    return buffer;
-}
+std::string TaskExplore::WriteStatusLog() const { return "Explore map."; }
 
 uint8_t TaskExplore::GetType() const { return TaskType_TaskExplore; }
 
@@ -105,7 +101,7 @@ void TaskExplore::TaskAbstractSearch_vfunc28(UnitInfo& unit) {
 }
 
 bool TaskExplore::IsVisited(UnitInfo& unit, Point point) {
-    auto info_map = AiPlayer_Teams[team].GetInfoMap();
+    auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
 
     if (unit.GetUnitType() == FASTBOAT || unit.GetUnitType() == SUBMARNE) {
         if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * point.y + point.x] != SURFACE_TYPE_WATER) {

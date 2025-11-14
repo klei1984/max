@@ -29,7 +29,7 @@ public:
     TaskFindMines(uint16_t team, Point point);
     ~TaskFindMines();
 
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     void BeginTurn();
     bool Execute(UnitInfo& unit);

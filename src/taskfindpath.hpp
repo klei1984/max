@@ -38,7 +38,7 @@ public:
                  void (*cancel_callback)(Task* task, PathRequest* path_request));
     ~TaskFindPath();
 
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     bool IsThinking();
     void Init();

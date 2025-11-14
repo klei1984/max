@@ -21,6 +21,8 @@
 
 #include "taskdebugger.hpp"
 
+#include <format>
+
 #include "ailog.hpp"
 #include "game_manager.hpp"
 #include "message_manager.hpp"
@@ -87,11 +89,11 @@ void TaskDebugger::InitTaskList(Task* task) {
     tasks.Insert(nullptr);
 
     if (task) {
-        SmartPointer<Task> parent(task->GetParent());
+        SmartPointer<Task> parent_task(task->GetParent());
 
-        while (parent) {
-            tasks.Insert(&*parent, 1);
-            parent = parent->GetParent();
+        while (parent_task) {
+            tasks.Insert(&*parent_task, 1);
+            parent_task = parent_task->GetParent();
         }
 
         task_count = tasks.GetCount();
@@ -113,20 +115,20 @@ void TaskDebugger::InitTaskList(Task* task) {
 }
 
 void TaskDebugger::DrawRow(int32_t uly, const char* caption, Task* task, int32_t color) {
-    char text[100];
     int32_t full_width = Text_GetWidth(caption);
+    std::string text;
 
     Text_Blit(&window.buffer[window.width * (Text_GetHeight() / 2 + uly)], caption, image->GetWidth(), window.width,
               color);
 
     if (task) {
-        task->WriteStatusLog(text);
+        text = task->WriteStatusLog();
 
     } else {
-        sprintf(text, "Task Manager (%i reminders queued)", TaskManager.GetRemindersCount());
+        text = std::format("Task Manager ({} reminders queued)", TaskManager.GetRemindersCount());
     }
 
-    Text_TextBox(window.buffer, window.width, text, full_width, uly, image->GetWidth() - full_width,
+    Text_TextBox(window.buffer, window.width, text.c_str(), full_width, uly, image->GetWidth() - full_width,
                  Text_GetHeight() * 2, color, false);
 }
 

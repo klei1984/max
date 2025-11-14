@@ -21,6 +21,8 @@
 
 #include "taskkillunit.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "aiattack.hpp"
 #include "ailog.hpp"
@@ -79,19 +81,19 @@ void TaskKillUnit::MoveFinishedCallback(Task* task, UnitInfo* unit, char result)
 }
 
 void TaskKillUnit::FindVaildTypes() {
-    TaskAttack* attack_task = dynamic_cast<TaskAttack*>(&*parent);
+    TaskAttack* attack_task = dynamic_cast<TaskAttack*>(&*m_parent);
     uint32_t unit_flags = 0;
     uint32_t unit_flags2 = attack_task->GetAccessFlags();
 
     if (spotted_unit) {
         AILOG(log, "Kill unit: Find Valid Types");
 
-        weight_table = AiPlayer_Teams[team].GetExtendedWeightTable(spotted_unit->GetUnit(), 0x01);
+        weight_table = AiPlayer_Teams[m_team].GetExtendedWeightTable(spotted_unit->GetUnit(), 0x01);
 
         for (uint32_t i = 0; i < weight_table.GetCount(); ++i) {
             if (weight_table[i].weight > 0) {
                 if (weight_table[i].unit_type == SCOUT &&
-                    AiPlayer_Teams[team].GetStrategy() != AI_STRATEGY_SCOUT_HORDE) {
+                    AiPlayer_Teams[m_team].GetStrategy() != AI_STRATEGY_SCOUT_HORDE) {
                     unit_flags |= MOBILE_LAND_UNIT;
 
                 } else {
@@ -136,7 +138,7 @@ void TaskKillUnit::FindVaildTypes() {
                 if (weight_table[i].unit_type != COMMANDO) {
                     if (unit_flags & UnitsManager_BaseUnits[weight_table[i].unit_type].flags) {
                         if (weight_table[i].unit_type == SCOUT && !(unit_flags & MOBILE_LAND_UNIT) &&
-                            AiPlayer_Teams[team].GetStrategy() != AI_STRATEGY_SCOUT_HORDE) {
+                            AiPlayer_Teams[m_team].GetStrategy() != AI_STRATEGY_SCOUT_HORDE) {
                             weight_table[i].weight = 0;
                         }
 
@@ -181,8 +183,8 @@ bool TaskKillUnit::GetNewUnits() {
                     is_found = true;
                 }
 
-                if (parent) {
-                    unit2 = dynamic_cast<TaskAttack*>(&*parent)->DetermineLeader();
+                if (m_parent) {
+                    unit2 = dynamic_cast<TaskAttack*>(&*m_parent)->DetermineLeader();
 
                 } else {
                     unit2 = nullptr;
@@ -192,10 +194,10 @@ bool TaskKillUnit::GetNewUnits() {
                     unit2->GetUnitType() != COMMANDO) {
                     ResourceID unit_type = INVALID_ID;
 
-                    if (Task_GetReadyUnitsCount(team, AIRTRANS) > 0) {
+                    if (Task_GetReadyUnitsCount(m_team, AIRTRANS) > 0) {
                         unit_type = AIRTRANS;
 
-                    } else if (Task_GetReadyUnitsCount(team, SEATRANS) > 0) {
+                    } else if (Task_GetReadyUnitsCount(m_team, SEATRANS) > 0) {
                         unit_type = SEATRANS;
                     }
 
@@ -215,8 +217,8 @@ bool TaskKillUnit::GetNewUnits() {
                         AddUnit(*unit1);
 
                         if (TickTimer_HaveTimeToThink()) {
-                            if (!unit2 && parent) {
-                                unit2 = dynamic_cast<TaskAttack*>(&*parent)->DetermineLeader();
+                            if (!unit2 && m_parent) {
+                                unit2 = dynamic_cast<TaskAttack*>(&*m_parent)->DetermineLeader();
                             }
 
                         } else {
@@ -257,7 +259,7 @@ bool TaskKillUnit::GetNewUnits() {
 
                     for (uint32_t i = 0; i < table.GetCount(); ++i) {
                         if (table[i].unit_type != INVALID_ID) {
-                            if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], table[i].unit_type)
+                            if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[m_team], table[i].unit_type)
                                         ->GetAttribute(ATTRIB_TURNS) > turns_till_mission_end ||
                                 (UnitsManager_BaseUnits[table[i].unit_type].flags & REGENERATING_UNIT)) {
                                 table[i].weight = 0;
@@ -273,7 +275,7 @@ bool TaskKillUnit::GetNewUnits() {
                         if (unit_type != INVALID_ID) {
                             AILOG_LOG(log, "adding {}", UnitsManager_BaseUnits[unit_type].GetSingularName());
 
-                            unit = new (std::nothrow) UnitInfo(unit_type, team, 0xFFFF);
+                            unit = new (std::nothrow) UnitInfo(unit_type, m_team, 0xFFFF);
 
                             remaining_hits -= GetProjectedDamage(&*unit, spotted_unit->GetUnit());
 
@@ -323,7 +325,7 @@ UnitInfo* TaskKillUnit::FindClosestCombatUnit(SmartList<UnitInfo>* units_, UnitI
     bool is_found;
 
     for (SmartList<UnitInfo>::Iterator it = units_->Begin(); it != units_->End(); ++it) {
-        if ((*it).team == team && (*it).hits > 0 && (*it).ammo > 0) {
+        if ((*it).team == m_team && (*it).hits > 0 && (*it).ammo > 0) {
             if ((*it).GetOrder() == ORDER_AWAIT || (*it).GetOrder() == ORDER_SENTRY || (*it).GetOrder() == ORDER_MOVE ||
                 (*it).GetOrder() == ORDER_MOVE_TO_UNIT) {
                 is_found = false;
@@ -359,13 +361,13 @@ UnitInfo* TaskKillUnit::FindClosestCombatUnit(SmartList<UnitInfo>* units_, UnitI
 bool TaskKillUnit::GiveOrdersToUnit(UnitInfo* unit) {
     bool result;
 
-    if (unit->IsReadyForOrders(this) && parent && unit->speed > 0) {
+    if (unit->IsReadyForOrders(this) && m_parent && unit->speed > 0) {
         AILOG(log, "Kill {}: give orders to {}.",
               spotted_unit ? UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].GetSingularName() : "unit",
               UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
 
         if (spotted_unit && unit->ammo >= unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {
-            result = dynamic_cast<TaskAttack*>(&*parent)->MoveCombatUnit(this, unit);
+            result = dynamic_cast<TaskAttack*>(&*m_parent)->MoveCombatUnit(this, unit);
 
         } else {
             if (spotted_unit) {
@@ -411,38 +413,32 @@ uint16_t TaskKillUnit::GetPriority() const {
     uint16_t result;
 
     if (spotted_unit) {
-        result = base_priority + AiAttack_GetTargetFlags(nullptr, spotted_unit->GetUnit(), team);
+        result = m_base_priority + AiAttack_GetTargetFlags(nullptr, spotted_unit->GetUnit(), m_team);
 
     } else {
-        result = base_priority + 0xFF;
+        result = m_base_priority + 0xFF;
     }
 
     return result;
 }
 
-char* TaskKillUnit::WriteStatusLog(char* buffer) const {
+std::string TaskKillUnit::WriteStatusLog() const {
     if (spotted_unit && spotted_unit->GetUnit()) {
-        char unit_name[50];
-
-        spotted_unit->GetUnit()->GetDisplayName(unit_name, sizeof(unit_name));
-
-        sprintf(buffer, "Kill %s at [%i,%i]",
-                UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].GetSingularName(),
-                spotted_unit->GetLastPositionX() + 1, spotted_unit->GetLastPositionY() + 1);
+        std::string result = std::format(
+            "Kill {} at [{},{}]", UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].GetSingularName(),
+            spotted_unit->GetLastPositionX() + 1, spotted_unit->GetLastPositionY() + 1);
 
         if (required_damage > projected_damage) {
-            strcat(buffer,
-                   SmartString().Sprintf(40, " (%i points needed)", required_damage - projected_damage).GetCStr());
-
+            result += std::format(" ({} points needed)", required_damage - projected_damage);
         } else {
-            strcat(buffer, " (ready)");
+            result += " (ready)";
         }
 
-    } else {
-        strcpy(buffer, "Completed Kill Unit task.");
-    }
+        return result;
 
-    return buffer;
+    } else {
+        return "Completed Kill Unit task.";
+    }
 }
 
 Rect* TaskKillUnit::GetBounds(Rect* bounds) {
@@ -477,8 +473,8 @@ void TaskKillUnit::AddUnit(UnitInfo& unit) {
         unit.attack_site.x = 0;
         unit.attack_site.y = 0;
 
-        if (parent && !parent->IsScheduledForTurnEnd()) {
-            TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*parent));
+        if (m_parent && !m_parent->IsScheduledForTurnEnd()) {
+            TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*m_parent));
         }
 
     } else {
@@ -572,14 +568,12 @@ void TaskKillUnit::RemoveSelf() {
 
         spotted_unit = nullptr;
 
-        if (parent) {
-            char buffer[200];
+        if (m_parent) {
+            AILOG_LOG(log, "Notifying {} that task is finished", m_parent->WriteStatusLog());
 
-            AILOG_LOG(log, "Notifying {} that task is finished", parent->WriteStatusLog(buffer));
+            m_parent->ChildComplete(this);
 
-            parent->ChildComplete(this);
-
-            parent = nullptr;
+            m_parent = nullptr;
         }
 
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
@@ -608,8 +602,8 @@ void TaskKillUnit::RemoveUnit(UnitInfo& unit) {
         projected_damage -= GetProjectedDamage(&unit, spotted_unit->GetUnit());
     }
 
-    if (parent) {
-        parent->RemoveUnit(unit);
+    if (m_parent) {
+        m_parent->RemoveUnit(unit);
     }
 
     if (!IsScheduledForTurnStart()) {
@@ -633,7 +627,7 @@ void TaskKillUnit::EventEnemyUnitSpotted(UnitInfo& unit) {}
 
 int32_t TaskKillUnit::GetTotalProjectedDamage() {
     int32_t result = 0;
-    TaskAttack* attack_task = dynamic_cast<TaskAttack*>(&*parent);
+    TaskAttack* attack_task = dynamic_cast<TaskAttack*>(&*m_parent);
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if (attack_task->IsDestinationReached(&*it)) {

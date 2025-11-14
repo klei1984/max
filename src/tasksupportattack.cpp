@@ -48,7 +48,7 @@ void TaskSupportAttack::ObtainUnits(uint32_t unit_flags_) {
         needs_supply_unit = false;
     }
 
-    highest_scan = dynamic_cast<TaskAttack*>(&*parent)->GetHighestScan();
+    highest_scan = dynamic_cast<TaskAttack*>(&*m_parent)->GetHighestScan();
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if (((*it).flags & unit_flags) && AiAttack_GetTargetValue(&*it) <= highest_scan) {
@@ -99,7 +99,7 @@ void TaskSupportAttack::ObtainUnits(uint32_t unit_flags_) {
 bool TaskSupportAttack::IssueOrders(UnitInfo* unit) {
     bool result;
 
-    if (unit->IsReadyForOrders(this) && parent && unit->speed > 0) {
+    if (unit->IsReadyForOrders(this) && m_parent && unit->speed > 0) {
         AILOG(log, "Support attack: give orders to {}.", UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
 
         if (unit->ammo >= unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {
@@ -113,7 +113,7 @@ bool TaskSupportAttack::IssueOrders(UnitInfo* unit) {
                 result = true;
 
             } else {
-                result = dynamic_cast<TaskAttack*>(&*parent)->MoveCombatUnit(this, unit);
+                result = dynamic_cast<TaskAttack*>(&*m_parent)->MoveCombatUnit(this, unit);
             }
 
         } else {
@@ -147,17 +147,13 @@ TaskSupportAttack::~TaskSupportAttack() {}
 
 bool TaskSupportAttack::IsUnitUsable(UnitInfo& unit) { return false; }
 
-char* TaskSupportAttack::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Support attack.");
-
-    return buffer;
-}
+std::string TaskSupportAttack::WriteStatusLog() const { return "Support attack."; }
 
 Rect* TaskSupportAttack::GetBounds(Rect* bounds) {
     Rect* result;
 
-    if (parent) {
-        result = parent->GetBounds(bounds);
+    if (m_parent) {
+        result = m_parent->GetBounds(bounds);
 
     } else {
         result = Task::GetBounds(bounds);
@@ -168,10 +164,10 @@ Rect* TaskSupportAttack::GetBounds(Rect* bounds) {
 
 uint8_t TaskSupportAttack::GetType() const { return TaskType_TaskSupportAttack; }
 
-bool TaskSupportAttack::IsNeeded() { return parent != nullptr; }
+bool TaskSupportAttack::IsNeeded() { return m_parent != nullptr; }
 
 void TaskSupportAttack::AddUnit(UnitInfo& unit) {
-    if (parent) {
+    if (m_parent) {
         unit.AddTask(this);
         units.PushBack(unit);
         unit.attack_site.x = 0;
@@ -198,8 +194,8 @@ void TaskSupportAttack::AddUnit(UnitInfo& unit) {
 }
 
 void TaskSupportAttack::BeginTurn() {
-    if (parent) {
-        ObtainUnits(dynamic_cast<TaskAttack*>(&*parent)->GetAccessFlags());
+    if (m_parent) {
+        ObtainUnits(dynamic_cast<TaskAttack*>(&*m_parent)->GetAccessFlags());
 
         if (!IsScheduledForTurnEnd()) {
             TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
@@ -214,7 +210,7 @@ bool TaskSupportAttack::Execute(UnitInfo& unit) {
 
     AILOG(log, "Support attack: think about moving {}", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
 
-    if (parent) {
+    if (m_parent) {
         if (unit.IsReadyForOrders(this)) {
             if (AiAttack_EvaluateAssault(&unit, this, &MoveFinishedCallback)) {
                 if (AiAttack_EvaluateAttack(&unit)) {
@@ -243,7 +239,7 @@ bool TaskSupportAttack::Execute(UnitInfo& unit) {
 }
 
 void TaskSupportAttack::RemoveSelf() {
-    parent = nullptr;
+    m_parent = nullptr;
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         TaskManager.ClearUnitTasksAndRemindAvailable(&*it);

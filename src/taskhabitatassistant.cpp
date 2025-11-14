@@ -30,18 +30,14 @@ TaskHabitatAssistant::TaskHabitatAssistant(TaskManageBuildings* manager_)
 
 TaskHabitatAssistant::~TaskHabitatAssistant() {}
 
-char* TaskHabitatAssistant::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Habitat assistant");
-
-    return buffer;
-}
+std::string TaskHabitatAssistant::WriteStatusLog() const { return "Habitat assistant"; }
 
 uint8_t TaskHabitatAssistant::GetType() const { return TaskType_TaskHabitatAssistant; }
 
 void TaskHabitatAssistant::BeginTurn() { manager->CheckWorkers(); }
 
 void TaskHabitatAssistant::RemoveSelf() {
-    parent = nullptr;
+    m_parent = nullptr;
     manager = nullptr;
 
     TaskManager.RemoveTask(*this);

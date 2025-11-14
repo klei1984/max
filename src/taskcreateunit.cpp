@@ -21,6 +21,8 @@
 
 #include "taskcreateunit.hpp"
 
+#include <format>
+
 #include "ai.hpp"
 #include "ailog.hpp"
 #include "builder.hpp"
@@ -52,24 +54,24 @@ TaskCreateUnit::~TaskCreateUnit() {}
 uint16_t TaskCreateUnit::GetPriority() const {
     uint16_t result;
 
-    if (parent) {
-        result = parent->GetPriority();
+    if (m_parent) {
+        result = m_parent->GetPriority();
 
     } else {
-        result = base_priority;
+        result = m_base_priority;
     }
 
     return result;
 }
 
-char* TaskCreateUnit::WriteStatusLog(char* buffer) const {
-    sprintf(buffer, "Create a %s", UnitsManager_BaseUnits[unit_type].GetSingularName());
+std::string TaskCreateUnit::WriteStatusLog() const {
+    std::string result = std::format("Create a {}", UnitsManager_BaseUnits[unit_type].GetSingularName());
 
     if (builder && builder->GetBuildRate() > 1) {
-        strcat(buffer, " at x2 rate");
+        result += " at x2 rate";
     }
 
-    return buffer;
+    return result;
 }
 
 uint8_t TaskCreateUnit::GetType() const { return TaskType_TaskCreateUnit; }
@@ -117,7 +119,7 @@ void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
             TaskManager.ClearUnitTasksAndRemindAvailable(&*builder);
         }
 
-        parent = nullptr;
+        m_parent = nullptr;
 
         TaskManager.RemoveTask(*this);
     }
@@ -208,15 +210,15 @@ bool TaskCreateUnit::Task_vfunc28() { return op_state >= CREATE_UNIT_STATE_BUILD
 void TaskCreateUnit::WaitForMaterials() {
     SDL_assert(op_state == CREATE_UNIT_STATE_WAITING_FOR_MATERIALS);
 
-    if (GameManager_IsActiveTurn(team)) {
+    if (GameManager_IsActiveTurn(m_team)) {
         Cargo materials;
         Cargo capacity;
 
         builder->GetComplex()->GetCargoInfo(materials, capacity);
 
         if (materials.raw >= 10) {
-            if ((unit_type == ENGINEER || unit_type == CONSTRCT) && Task_GetReadyUnitsCount(team, unit_type) > 0 &&
-                TaskManager_NeedToReserveRawMaterials(team)) {
+            if ((unit_type == ENGINEER || unit_type == CONSTRCT) && Task_GetReadyUnitsCount(m_team, unit_type) > 0 &&
+                TaskManager_NeedToReserveRawMaterials(m_team)) {
                 return;
             }
 
@@ -228,7 +230,7 @@ void TaskCreateUnit::WaitForMaterials() {
 
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
-                    if ((*it).team == team) {
+                    if ((*it).team == m_team) {
                         if ((*it).GetUnitType() == MININGST) {
                             ++mining_station_count;
 
@@ -260,7 +262,7 @@ void TaskCreateUnit::WaitForMaterials() {
                         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                              it != UnitsManager_StationaryUnits.End(); ++it) {
                             if (buildings_to_shut_down > 0) {
-                                if ((*it).team == team && (*it).GetUnitType() == GREENHSE &&
+                                if ((*it).team == m_team && (*it).GetUnitType() == GREENHSE &&
                                     (*it).GetOrder() == ORDER_POWER_ON) {
                                     UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
@@ -275,7 +277,7 @@ void TaskCreateUnit::WaitForMaterials() {
                         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                              it != UnitsManager_StationaryUnits.End(); ++it) {
                             if (buildings_to_shut_down > 0) {
-                                if ((*it).team == team && (*it).GetUnitType() == COMMTWR &&
+                                if ((*it).team == m_team && (*it).GetUnitType() == COMMTWR &&
                                     (*it).GetOrder() == ORDER_POWER_ON) {
                                     UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
@@ -336,16 +338,16 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
     bool result;
 
     if (op_state <= CREATE_UNIT_STATE_BUILDING) {
-        if (GameManager_IsActiveTurn(team)) {
+        if (GameManager_IsActiveTurn(m_team)) {
             if (Task_EstimateTurnsTillMissionEnd() >
-                    UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)
+                    UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[m_team], unit_type)
                         ->GetAttribute(ATTRIB_TURNS) &&
-                parent && parent->IsNeeded()) {
+                m_parent && m_parent->IsNeeded()) {
                 result = true;
 
             } else if (builder && op_state == CREATE_UNIT_STATE_BUILDING &&
                        (builder->GetOrderState() != ORDER_STATE_EXECUTING_ORDER ||
-                        builder->build_time != BuildMenu_GetTurnsToBuild(unit_type, team))) {
+                        builder->build_time != BuildMenu_GetTurnsToBuild(unit_type, m_team))) {
                 result = true;
 
             } else {
@@ -363,7 +365,7 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
                 }
 
                 builder = nullptr;
-                parent = nullptr;
+                m_parent = nullptr;
 
                 TaskManager.RemoveTask(*this);
 

@@ -32,18 +32,15 @@ TaskDefenseAssistant::TaskDefenseAssistant(TaskManageBuildings* manager_, Resour
 
 TaskDefenseAssistant::~TaskDefenseAssistant() {}
 
-char* TaskDefenseAssistant::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, UnitsManager_BaseUnits[unit_type].GetSingularName());
-    strcat(buffer, " defense assistant");
-
-    return buffer;
+std::string TaskDefenseAssistant::WriteStatusLog() const {
+    return std::string(UnitsManager_BaseUnits[unit_type].GetSingularName()) + " defense assistant";
 }
 
 uint8_t TaskDefenseAssistant::GetType() const { return TaskType_TaskDefenseAssistant; }
 
 void TaskDefenseAssistant::BeginTurn() {
     if (Task_EstimateTurnsTillMissionEnd() >=
-        UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
+        UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[m_team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
         Point site;
 
         if (manager->FindDefenseSite(unit_type, nullptr, site, 1, TASK_PRIORITY_BUILDING_DEFENSE)) {
@@ -56,7 +53,7 @@ void TaskDefenseAssistant::BeginTurn() {
 }
 
 void TaskDefenseAssistant::RemoveSelf() {
-    parent = nullptr;
+    m_parent = nullptr;
     manager = nullptr;
 
     TaskManager.RemoveTask(*this);

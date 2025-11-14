@@ -113,7 +113,7 @@ void TaskAbstractSearch::RemoveSelf() {
     }
 
     units.Clear();
-    parent = nullptr;
+    m_parent = nullptr;
     TaskManager.RemoveTask(*this);
 }
 

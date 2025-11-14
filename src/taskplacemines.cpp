@@ -48,14 +48,10 @@ bool TaskPlaceMines::IsUnitUsable(UnitInfo& unit) {
     return unit.GetUnitType() == MINELAYR || unit.GetUnitType() == SEAMNLYR;
 }
 
-char* TaskPlaceMines::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Place mines");
-
-    return buffer;
-}
+std::string TaskPlaceMines::WriteStatusLog() const { return "Place mines"; }
 
 Rect* TaskPlaceMines::GetBounds(Rect* bounds) {
-    auto info_map = AiPlayer_Teams[team].GetInfoMap();
+    auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
 
     if (info_map) {
         for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
@@ -155,11 +151,11 @@ bool TaskPlaceMines::Execute(UnitInfo& unit) {
             result = true;
 
         } else if (unit.storage > 0) {
-            auto info_map = AiPlayer_Teams[team].GetInfoMap();
+            auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
 
             if (info_map) {
                 if (info_map[unit.grid_x][unit.grid_y] & INFO_MAP_MINE_FIELD) {
-                    if (GameManager_IsActiveTurn(team)) {
+                    if (GameManager_IsActiveTurn(m_team)) {
                         UnitsManager_SetNewOrder(&unit, ORDER_LAY_MINE, ORDER_STATE_PLACING_MINES);
 
                         info_map[unit.grid_x][unit.grid_y] &= ~INFO_MAP_MINE_FIELD;
@@ -244,7 +240,7 @@ void TaskPlaceMines::RemoveSelf() {
 
     units.Clear();
 
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }

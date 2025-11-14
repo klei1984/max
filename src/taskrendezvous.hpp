@@ -40,7 +40,7 @@ public:
                    void (*result_callback)(Task* task, UnitInfo* unit, char result));
     ~TaskRendezvous();
 
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     void Init();
     void BeginTurn();

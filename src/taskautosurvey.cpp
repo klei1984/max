@@ -21,6 +21,8 @@
 
 #include "taskautosurvey.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "ailog.hpp"
 #include "game_manager.hpp"
@@ -45,7 +47,7 @@ TaskAutoSurvey::TaskAutoSurvey(UnitInfo* unit_) : Task(unit_->team, nullptr, TAS
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && (*it).GetUnitType() == MININGST) {
+        if ((*it).team == m_team && (*it).GetUnitType() == MININGST) {
             central_site.x = (*it).grid_x;
             central_site.y = (*it).grid_y;
 
@@ -56,11 +58,7 @@ TaskAutoSurvey::TaskAutoSurvey(UnitInfo* unit_) : Task(unit_->team, nullptr, TAS
 
 TaskAutoSurvey::~TaskAutoSurvey() {}
 
-char* TaskAutoSurvey::WriteStatusLog(char* buffer) const {
-    sprintf(buffer, "Auto Survey (radius %i)", radius);
-
-    return buffer;
-}
+std::string TaskAutoSurvey::WriteStatusLog() const { return std::format("Auto Survey (radius {})", radius); }
 
 uint8_t TaskAutoSurvey::GetType() const { return TaskType_TaskAutoSurvey; }
 
@@ -69,11 +67,11 @@ void TaskAutoSurvey::Init() { unit->AddTask(this); }
 bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
     bool result;
 
-    if (unit == unit_ && unit->IsReadyForOrders(this) && GameManager_IsActiveTurn(team) && unit->speed > 0) {
+    if (unit == unit_ && unit->IsReadyForOrders(this) && GameManager_IsActiveTurn(m_team) && unit->speed > 0) {
         AILOG(log, "Auto survey: Move {} at [{},{}]", UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(),
               unit->grid_x + 1, unit->grid_y + 1);
 
-        uint16_t hash_team_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;
+        uint16_t hash_team_id = UnitsManager_TeamInfo[m_team].team_units->hash_team_id;
         TransporterMap map(&*unit, 2, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
         if (radius) {
@@ -243,7 +241,7 @@ void TaskAutoSurvey::RemoveSelf() {
     }
 
     unit = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }

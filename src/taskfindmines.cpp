@@ -31,11 +31,7 @@ TaskFindMines::TaskFindMines(uint16_t team_, Point point_)
 
 TaskFindMines::~TaskFindMines() {}
 
-char* TaskFindMines::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Look for enemy land/sea mines");
-
-    return buffer;
-}
+std::string TaskFindMines::WriteStatusLog() const { return "Look for enemy land/sea mines"; }
 
 uint8_t TaskFindMines::GetType() const { return TaskType_TaskFindMines; }
 
@@ -46,8 +42,8 @@ void TaskFindMines::BeginTurn() {
 
     if (unit != units.End() && requestors == 0) {
         int16_t** damage_potential_map =
-            AiPlayer_Teams[team].GetDamagePotentialMap(&*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, false);
-        int8_t** mine_map = AiPlayer_Teams[team].GetMineMap();
+            AiPlayer_Teams[m_team].GetDamagePotentialMap(&*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, false);
+        int8_t** mine_map = AiPlayer_Teams[m_team].GetMineMap();
         uint32_t valuable_sites = 0;
 
         if (damage_potential_map && mine_map) {
@@ -91,7 +87,7 @@ bool TaskFindMines::Execute(UnitInfo& unit) {
     return result;
 }
 
-bool TaskFindMines::IsVisited(UnitInfo& unit, Point site) { return AiPlayer_Teams[team].GetMineMapEntry(site) <= 0; }
+bool TaskFindMines::IsVisited(UnitInfo& unit, Point site) { return AiPlayer_Teams[m_team].GetMineMapEntry(site) <= 0; }
 
 void TaskFindMines::ObtainUnit() {
     SmartPointer<TaskObtainUnits> obtain_units_task = new (std::nothrow) TaskObtainUnits(this, point);

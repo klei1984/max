@@ -29,7 +29,7 @@ public:
     TaskFrontierAssistant(uint16_t team);
     ~TaskFrontierAssistant();
 
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     void BeginTurn();
     void RemoveSelf();

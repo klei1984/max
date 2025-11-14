@@ -36,7 +36,7 @@ public:
     ~TaskActivate();
 
     bool IsUnitTransferable(UnitInfo& unit);
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     Rect* GetBounds(Rect* bounds);
     uint8_t GetType() const;
     void AddUnit(UnitInfo& unit);

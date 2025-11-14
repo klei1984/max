@@ -21,6 +21,8 @@
 
 #include "taskactivate.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "ailog.hpp"
 #include "aiplayer.hpp"
@@ -39,7 +41,7 @@ TaskActivate::~TaskActivate() {}
 void TaskActivate::Activate() {
     if (unit_to_activate != nullptr) {
         if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
-            if (GameManager_IsActiveTurn(team)) {
+            if (GameManager_IsActiveTurn(m_team)) {
                 if (unit_to_activate->GetTask() == this) {
                     if (unit_to_activate->GetOrder() == ORDER_IDLE || unit_to_activate->GetOrder() == ORDER_BUILD ||
                         unit_to_activate->GetOrder() == ORDER_AWAIT) {
@@ -83,7 +85,7 @@ void TaskActivate::Activate() {
                                     for (int32_t range = 0; range < unit_size + 1; ++range) {
                                         position += Paths_8DirPointsArray[direction];
 
-                                        if (Access_IsAccessible(unit_to_activate->GetUnitType(), team, position.x,
+                                        if (Access_IsAccessible(unit_to_activate->GetUnitType(), m_team, position.x,
                                                                 position.y, AccessModifier_SameClassBlocks)) {
                                             AILOG_LOG(log, "Open square: [{},{}].", position.x + 1, position.y + 1);
 
@@ -136,12 +138,12 @@ void TaskActivate::Activate() {
                                     for (int32_t range = 0; range < unit_size + 1; ++range) {
                                         position += Paths_8DirPointsArray[direction];
 
-                                        if (Access_IsAccessible(unit_to_activate->GetUnitType(), team, position.x,
+                                        if (Access_IsAccessible(unit_to_activate->GetUnitType(), m_team, position.x,
                                                                 position.y, AccessModifier_EnemySameClassBlocks)) {
                                             if (zone == nullptr) {
                                                 zone = new (std::nothrow) Zone(unit_to_activate.Get(), this);
 
-                                                AiPlayer_Teams[team].ClearZone(zone.Get());
+                                                AiPlayer_Teams[m_team].ClearZone(zone.Get());
 
                                                 zone->SetImportance(false);
                                             }
@@ -169,18 +171,16 @@ void TaskActivate::Activate() {
 
 bool TaskActivate::IsUnitTransferable(UnitInfo& unit) { return unit_to_activate != unit; }
 
-char* TaskActivate::WriteStatusLog(char* buffer) const {
+std::string TaskActivate::WriteStatusLog() const {
     if (unit_to_activate && unit_parent) {
-        sprintf(buffer, "Activate %s %i at [%i,%i] from %s %i at [%i,%i].",
-                UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].GetSingularName(), unit_to_activate->unit_id,
-                unit_to_activate->grid_x + 1, unit_to_activate->grid_y + 1,
-                UnitsManager_BaseUnits[unit_parent->GetUnitType()].GetSingularName(), unit_parent->unit_id,
-                unit_parent->grid_x + 1, unit_parent->grid_y + 1);
-
+        return std::format("Activate {} {} at [{},{}] from {} {} at [{},{}].",
+                           UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].GetSingularName(),
+                           unit_to_activate->unit_id, unit_to_activate->grid_x + 1, unit_to_activate->grid_y + 1,
+                           UnitsManager_BaseUnits[unit_parent->GetUnitType()].GetSingularName(), unit_parent->unit_id,
+                           unit_parent->grid_x + 1, unit_parent->grid_y + 1);
     } else {
-        strcpy(buffer, "Activate unit.");
+        return "Activate unit.";
     }
-    return buffer;
 }
 
 Rect* TaskActivate::GetBounds(Rect* bounds) {
@@ -238,8 +238,8 @@ bool TaskActivate::Execute(UnitInfo& unit) {
 
                 unit_to_activate->RemoveTask(this);
 
-                if (parent->GetType() == TaskType_TaskCreateUnit) {
-                    parent->AddUnit(*unit_to_activate);
+                if (m_parent->GetType() == TaskType_TaskCreateUnit) {
+                    m_parent->AddUnit(*unit_to_activate);
                 }
 
                 if (!unit_to_activate->GetTask()) {
@@ -275,7 +275,7 @@ void TaskActivate::RemoveSelf() {
 
     unit_to_activate = nullptr;
     unit_parent = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
     zone = nullptr;
 
     TaskManager.RemoveTask(*this);
@@ -288,7 +288,7 @@ void TaskActivate::RemoveUnit(UnitInfo& unit) {
 
         unit_to_activate = nullptr;
         zone = nullptr;
-        parent = nullptr;
+        m_parent = nullptr;
         unit_parent = nullptr;
 
         TaskManager.RemoveTask(*this);

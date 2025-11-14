@@ -28,17 +28,13 @@ TaskFrontierAssistant::TaskFrontierAssistant(uint16_t team) : Task(team, nullptr
 
 TaskFrontierAssistant::~TaskFrontierAssistant() {}
 
-char* TaskFrontierAssistant::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Frontier determining assistant");
-
-    return buffer;
-}
+std::string TaskFrontierAssistant::WriteStatusLog() const { return "Frontier determining assistant"; }
 
 uint8_t TaskFrontierAssistant::GetType() const { return TaskType_TaskFrontierAssistant; }
 
-void TaskFrontierAssistant::BeginTurn() { AiPlayer_Teams[team].GuessEnemyAttackDirections(); }
+void TaskFrontierAssistant::BeginTurn() { AiPlayer_Teams[m_team].GuessEnemyAttackDirections(); }
 
 void TaskFrontierAssistant::RemoveSelf() {
-    parent = nullptr;
+    m_parent = nullptr;
     TaskManager.RemoveTask(*this);
 }

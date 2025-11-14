@@ -46,7 +46,7 @@ public:
     TaskDump(TaskTransport* task_transport, TaskMove* task_move, UnitInfo* transporter);
     ~TaskDump();
 
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     void Init();
     void RemoveSelf();

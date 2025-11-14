@@ -21,6 +21,8 @@
 
 #include "taskrepair.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "ailog.hpp"
 #include "aiplayer.hpp"
@@ -80,7 +82,7 @@ void TaskRepair::DoRepairs() {
     if (target_unit->GetTask() == this ||
         (operator_unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == 0) {
         if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
-            if (GameManager_IsActiveTurn(team)) {
+            if (GameManager_IsActiveTurn(m_team)) {
                 AILOG(log, "Repair/reload {}: perform repair.",
                       UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName());
 
@@ -130,7 +132,7 @@ UnitInfo* TaskRepair::SelectRepairShop() {
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
-            if ((*it).team == team && (*it).GetUnitType() == repair_shop) {
+            if ((*it).team == m_team && (*it).GetUnitType() == repair_shop) {
                 distance = Access_GetApproximateDistance(&*it, &*target_unit);
 
                 if (result == nullptr || distance < minimum_distance) {
@@ -197,14 +199,14 @@ void TaskRepair::CreateUnitIfNeeded(ResourceID unit_type) {
     }
 
     for (SmartList<UnitInfo>::Iterator it = unit_list->Begin(); it != unit_list->End(); ++it) {
-        if ((*it).team == team && (*it).GetUnitType() == unit_type) {
+        if ((*it).team == m_team && (*it).GetUnitType() == unit_type) {
             return;
         }
     }
 
     for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
          ++it) {
-        if ((*it).GetTeam() == team &&
+        if ((*it).GetTeam() == m_team &&
             ((*it).GetType() == TaskType_TaskCreateBuilding || (*it).GetType() == TaskType_TaskCreateUnit)) {
             if (dynamic_cast<TaskCreate*>(&*it)->GetUnitType() == unit_type) {
                 return;
@@ -213,7 +215,7 @@ void TaskRepair::CreateUnitIfNeeded(ResourceID unit_type) {
     }
 
     if (UnitsManager_BaseUnits[unit_type].flags & STATIONARY) {
-        AiPlayer_Teams[team].CreateBuilding(unit_type, Point(target_unit->grid_x, target_unit->grid_y), this);
+        AiPlayer_Teams[m_team].CreateBuilding(unit_type, Point(target_unit->grid_x, target_unit->grid_y), this);
 
     } else {
         SmartPointer<Task> task(new (std::nothrow)
@@ -229,16 +231,13 @@ TaskRepair::~TaskRepair() {}
 
 bool TaskRepair::IsUnitTransferable(UnitInfo& unit) { return target_unit != unit; }
 
-char* TaskRepair::WriteStatusLog(char* buffer) const {
+std::string TaskRepair::WriteStatusLog() const {
     if (target_unit != nullptr) {
-        strcpy(buffer, "Repair ");
-        strcat(buffer, UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName());
+        return std::format("Repair {}", UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName());
 
     } else {
-        strcpy(buffer, "Finished repair task.");
+        return "Finished repair task.";
     }
-
-    return buffer;
 }
 
 Rect* TaskRepair::GetBounds(Rect* bounds) {
@@ -312,7 +311,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
 
             } else {
                 if (target_unit->GetOrderState() == ORDER_STATE_STORE) {
-                    if (GameManager_IsActiveTurn(team)) {
+                    if (GameManager_IsActiveTurn(m_team)) {
                         AILOG_LOG(log, "{} is inside {}.",
                                   UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName(),
                                   UnitsManager_BaseUnits[operator_unit->GetUnitType()].GetSingularName());
@@ -329,7 +328,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                             AILOG_LOG(log, "Adjacent to {}.",
                                       UnitsManager_BaseUnits[operator_unit->GetUnitType()].GetSingularName());
 
-                            if (GameManager_PlayMode != PLAY_MODE_UNKNOWN && GameManager_IsActiveTurn(team)) {
+                            if (GameManager_PlayMode != PLAY_MODE_UNKNOWN && GameManager_IsActiveTurn(m_team)) {
                                 if (operator_unit->flags & STATIONARY) {
                                     if (target_unit->GetOrder() == ORDER_AWAIT) {
                                         // only enter repair shop if there is free capacity in it
@@ -423,7 +422,7 @@ void TaskRepair::RemoveSelf() {
     target_unit = nullptr;
     operator_unit = nullptr;
 
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }
@@ -454,10 +453,10 @@ void TaskRepair::SelectOperator() {
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
              it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-            if ((*it).team == team && (*it).GetUnitType() == REPAIR && (*it).hits > 0 &&
+            if ((*it).team == m_team && (*it).GetUnitType() == REPAIR && (*it).hits > 0 &&
                 ((*it).GetOrder() == ORDER_AWAIT || ((*it).GetOrder() == ORDER_MOVE && (*it).speed == 0)) &&
                 target_unit != (*it)) {
-                if ((*it).GetTask() == nullptr || (*it).GetTask()->ComparePriority(base_priority) > 0) {
+                if ((*it).GetTask() == nullptr || (*it).GetTask()->ComparePriority(m_base_priority) > 0) {
                     distance = Access_GetApproximateDistance(&*it, &*target_unit);
 
                     if (unit == nullptr || distance < minimum_distance) {

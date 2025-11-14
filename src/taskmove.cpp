@@ -21,6 +21,8 @@
 
 #include "taskmove.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "adjustrequest.hpp"
 #include "ai.hpp"
@@ -45,7 +47,7 @@ TaskMove::TaskMove(UnitInfo* unit, Task* task, uint16_t minimum_distance_, uint8
     passenger = unit;
     minimum_distance = minimum_distance_;
 
-    SDL_assert(unit->team == team);
+    SDL_assert(unit->team == m_team);
 
     caution_level = caution_level_;
 
@@ -101,33 +103,31 @@ TaskMove::~TaskMove() {}
 
 int32_t TaskMove::GetCautionLevel(UnitInfo& unit) { return caution_level; }
 
-char* TaskMove::WriteStatusLog(char* buffer) const {
+std::string TaskMove::WriteStatusLog() const {
     if (passenger) {
         if (planned_path.GetCount()) {
             Point waypoint = *planned_path[planned_path.GetCount() - 1];
 
             if (transporter_unit_type == INVALID_ID) {
-                sprintf(buffer, "Move to [%i,%i]", waypoint.x + 1, waypoint.y + 1);
+                return std::format("Move to [{},{}]", waypoint.x + 1, waypoint.y + 1);
 
             } else {
-                sprintf(buffer, "Move to [%i,%i] via [%i,%i] using %s", passenger_destination.x + 1,
-                        passenger_destination.y + 1, waypoint.x + 1, waypoint.y + 1,
-                        UnitsManager_BaseUnits[transporter_unit_type].GetSingularName());
+                return std::format("Move to [{},{}] via [{},{}] using {}", passenger_destination.x + 1,
+                                   passenger_destination.y + 1, waypoint.x + 1, waypoint.y + 1,
+                                   UnitsManager_BaseUnits[transporter_unit_type].GetSingularName());
             }
 
         } else if (transporter_unit_type == INVALID_ID) {
-            strcpy(buffer, "Move: calculating.");
+            return "Move: calculating.";
 
         } else {
-            sprintf(buffer, "Move to [%i,%i] using %s", passenger_destination.x + 1, passenger_destination.y + 1,
-                    UnitsManager_BaseUnits[transporter_unit_type].GetSingularName());
+            return std::format("Move to [{},{}] using {}", passenger_destination.x + 1, passenger_destination.y + 1,
+                               UnitsManager_BaseUnits[transporter_unit_type].GetSingularName());
         }
 
     } else {
-        strcpy(buffer, "Move: finished.");
+        return "Move: finished.";
     }
-
-    return buffer;
 }
 
 uint8_t TaskMove::GetType() const { return TaskType_TaskMove; }
@@ -331,7 +331,7 @@ void TaskMove::RemoveSelf() {
     }
 
     zone = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }
@@ -368,13 +368,13 @@ void TaskMove::AttemptTransport() {
 
     } else {
         if ((passenger->GetUnitType() == COMMANDO || passenger->GetUnitType() == INFANTRY) &&
-            (FindUnit(&UnitsManager_MobileLandSeaUnits, team, CLNTRANS) ||
-             FindUnit(&UnitsManager_StationaryUnits, team, LIGHTPLT))) {
+            (FindUnit(&UnitsManager_MobileLandSeaUnits, m_team, CLNTRANS) ||
+             FindUnit(&UnitsManager_StationaryUnits, m_team, LIGHTPLT))) {
             int32_t team_id;
 
             for (team_id = PLAYER_TEAM_RED; team_id < PLAYER_TEAM_MAX - 1; ++team_id) {
                 if (UnitsManager_TeamInfo[team_id].team_type != TEAM_TYPE_NONE) {
-                    if (team_id != team) {
+                    if (team_id != m_team) {
                         if (UnitsManager_TeamInfo[team_id]
                                 .heat_map_complete[ResourceManager_MapSize.x * passenger->grid_y + passenger->grid_x] >
                             0) {
@@ -391,7 +391,7 @@ void TaskMove::AttemptTransport() {
             }
         }
 
-        if (Builder_IsBuildable(AIRTRANS) && FindUnit(&UnitsManager_MobileAirUnits, team, AIRTRANS)) {
+        if (Builder_IsBuildable(AIRTRANS) && FindUnit(&UnitsManager_MobileAirUnits, m_team, AIRTRANS)) {
             AttemptTransportType(AIRTRANS);
 
         } else {
@@ -423,7 +423,7 @@ void TaskMove::FindWaypointUsingTransport() {
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
-    if (Access_IsAccessible(passenger->GetUnitType(), team, site.x, site.y, AccessModifier_SameClassBlocks) &&
+    if (Access_IsAccessible(passenger->GetUnitType(), m_team, site.x, site.y, AccessModifier_SameClassBlocks) &&
         !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
         destination_waypoint = passenger_destination;
     }
@@ -440,7 +440,7 @@ void TaskMove::FindWaypointUsingTransport() {
                 if (Access_IsInsideBounds(&bounds, &site)) {
                     keep_searching = true;
 
-                    if (Access_IsAccessible(passenger->GetUnitType(), team, site.x, site.y,
+                    if (Access_IsAccessible(passenger->GetUnitType(), m_team, site.x, site.y,
                                             AccessModifier_EnemySameClassBlocks) &&
                         !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
                         passenger_destination = site;
@@ -504,14 +504,14 @@ void TaskMove::Finished(int32_t result) {
 
         passenger->RemoveTask(this, false);
 
-        if (parent) {
-            result_callback(&*parent, &*passenger, result);
+        if (m_parent) {
+            result_callback(&*m_parent, &*passenger, result);
         }
     }
 
     passenger = nullptr;
     zone = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }
@@ -561,7 +561,7 @@ void TaskMove::FullPathResultCallback(Task* task, PathRequest* path_request, Poi
             if ((Access_GetApproximateDistance(move->passenger->grid_x - move->destination_waypoint.x,
                                                move->passenger->grid_y - move->destination_waypoint.y) /
                  2) > move->passenger->GetBaseValues()->GetAttribute(ATTRIB_SPEED)) {
-                AiPlayer_Teams[move->team].AddTransportOrder(
+                AiPlayer_Teams[move->m_team].AddTransportOrder(
                     new (std::nothrow) TransportOrder(&*move->passenger, move->transporter_unit_type, path));
             }
         }
@@ -667,7 +667,7 @@ void TaskMove::BlockedPathResultCallback(Task* task, PathRequest* path_request, 
 
                 local_zone->Add(&site);
 
-                unit = Access_GetTeamUnit(site.x, site.y, move->team, unit_flags);
+                unit = Access_GetTeamUnit(site.x, site.y, move->m_team, unit_flags);
 
                 if (unit) {
                     AILOG_LOG(log, "Blocked by {} at [{},{}].",
@@ -689,7 +689,7 @@ void TaskMove::BlockedPathResultCallback(Task* task, PathRequest* path_request, 
                 move->zone = local_zone;
                 move->zone->SetImportance(move->field_69);
 
-                AiPlayer_Teams[move->team].ClearZone(&*local_zone);
+                AiPlayer_Teams[move->m_team].ClearZone(&*local_zone);
 
             } else {
                 move->passenger_waypoint = site;
@@ -837,7 +837,7 @@ void TaskMove::TranscribeTransportPath(Point site, GroundPath* path) {
         position.x += steps[i]->x;
         position.y += steps[i]->y;
 
-        if (Access_IsAccessible(passenger->GetUnitType(), team, position.x, position.y, AccessModifier_NoModifiers)) {
+        if (Access_IsAccessible(passenger->GetUnitType(), m_team, position.x, position.y, AccessModifier_NoModifiers)) {
             if (flag1) {
                 passenger_destination = position;
                 flag1 = false;
@@ -871,18 +871,18 @@ void TaskMove::TranscribeTransportPath(Point site, GroundPath* path) {
 
         } else {
             if (!path_result) {
-                AiPlayer_Teams[team].AddTransportOrder(new (std::nothrow)
-                                                           TransportOrder(&*passenger, transporter_unit_type, path));
+                AiPlayer_Teams[m_team].AddTransportOrder(new (std::nothrow)
+                                                             TransportOrder(&*passenger, transporter_unit_type, path));
             }
 
-            if (transporter_unit_type == SEATRANS && !FindUnit(&UnitsManager_MobileLandSeaUnits, team, SEATRANS)) {
-                if (!FindUnit(&UnitsManager_StationaryUnits, team, SHIPYARD)) {
+            if (transporter_unit_type == SEATRANS && !FindUnit(&UnitsManager_MobileLandSeaUnits, m_team, SEATRANS)) {
+                if (!FindUnit(&UnitsManager_StationaryUnits, m_team, SHIPYARD)) {
                     block_count -= 20;
                 }
 
                 if (block_count < 10) {
                     TaskManageBuildings* manager =
-                        dynamic_cast<TaskManageBuildings*>(AiPlayer_Teams[team].FindManager(site));
+                        dynamic_cast<TaskManageBuildings*>(AiPlayer_Teams[m_team].FindManager(site));
 
                     position = site;
 
@@ -890,9 +890,9 @@ void TaskMove::TranscribeTransportPath(Point site, GroundPath* path) {
                         position.x += steps[i]->x;
                         position.y += steps[i]->y;
 
-                        if (!Access_IsAccessible(passenger->GetUnitType(), team, position.x, position.y,
+                        if (!Access_IsAccessible(passenger->GetUnitType(), m_team, position.x, position.y,
                                                  AccessModifier_NoModifiers) &&
-                            Access_IsAccessible(BRIDGE, team, position.x, position.y, AccessModifier_NoModifiers)) {
+                            Access_IsAccessible(BRIDGE, m_team, position.x, position.y, AccessModifier_NoModifiers)) {
                             manager->BuildBridge(position, this);
                         }
                     }
@@ -925,7 +925,7 @@ bool TaskMove::CheckAirPath() {
         result = true;
 
     } else {
-        int16_t** damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, true);
+        int16_t** damage_potential_map = AiPlayer_Teams[m_team].GetDamagePotentialMap(&*passenger, caution_level, true);
 
         if (damage_potential_map) {
             int32_t line_distance_x = passenger_waypoint.x - passenger->grid_x;
@@ -972,7 +972,7 @@ void TaskMove::MoveAirUnit() {
     if (passenger->IsReadyForOrders(this)) {
         AILOG(log, "Move air unit.");
 
-        if (GameManager_IsActiveTurn(team)) {
+        if (GameManager_IsActiveTurn(m_team)) {
             SmartPointer<UnitInfo> unit;
             bool flag = false;
             int32_t step_index;
@@ -1011,7 +1011,7 @@ void TaskMove::MoveAirUnit() {
 
                                     return;
 
-                                } else if ((*it).team == team && (*it).speed >= 2) {
+                                } else if ((*it).team == m_team && (*it).speed >= 2) {
                                     AILOG_LOG(log, "Attempting to displace blocker.");
 
                                     if (!zone) {
@@ -1020,7 +1020,7 @@ void TaskMove::MoveAirUnit() {
                                         zone->Add(&passenger_waypoint);
                                         zone->SetImportance(field_69);
 
-                                        AiPlayer_Teams[team].ClearZone(&*zone);
+                                        AiPlayer_Teams[m_team].ClearZone(&*zone);
                                     }
 
                                 } else {
@@ -1042,7 +1042,7 @@ void TaskMove::MoveAirUnit() {
                     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
                          it != UnitsManager_MobileAirUnits.End(); ++it) {
                         if ((*it).GetOrder() == ORDER_MOVE && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER &&
-                            (*it).team == team && (*it).target_grid_x == passenger_waypoint.x &&
+                            (*it).team == m_team && (*it).target_grid_x == passenger_waypoint.x &&
                             (*it).target_grid_y == passenger_waypoint.y) {
                             AILOG_LOG(log, "[{},{}] is a destination for {} at [{},{}].", passenger_waypoint.x + 1,
                                       passenger_waypoint.y + 1,
@@ -1094,7 +1094,7 @@ bool TaskMove::IsPathClear() {
         uint32_t step_index;
 
         for (step_index = 0; step_index < planned_path.GetCount(); ++step_index) {
-            if (Access_IsAccessible(passenger->GetUnitType(), team, planned_path[step_index]->x,
+            if (Access_IsAccessible(passenger->GetUnitType(), m_team, planned_path[step_index]->x,
                                     planned_path[step_index]->y, AccessModifier_SameClassBlocks)) {
                 if (passenger_waypoint == *planned_path[step_index]) {
                     break;
@@ -1154,7 +1154,7 @@ void TaskMove::FindCurrentLocation() {
         minimum_distance = Access_GetApproximateDistance(position, *planned_path[0]) / 2;
 
         if (caution_level > CAUTION_LEVEL_NONE) {
-            damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, true);
+            damage_potential_map = AiPlayer_Teams[m_team].GetDamagePotentialMap(&*passenger, caution_level, true);
         }
 
         unit_hits = passenger->hits;
@@ -1216,7 +1216,7 @@ bool TaskMove::FindWaypoint() {
     passenger_waypoint.y = passenger->grid_y;
 
     for (uint32_t i = 0; i < planned_path.GetCount() && unit_speed > 0; ++i) {
-        step_cost = Access_IsAccessible(passenger->GetUnitType(), team, planned_path[i]->x, planned_path[i]->y,
+        step_cost = Access_IsAccessible(passenger->GetUnitType(), m_team, planned_path[i]->x, planned_path[i]->y,
                                         AccessModifier_EnemySameClassBlocks);
 
         if (planned_path[i]->x && planned_path[i]->y) {
@@ -1232,7 +1232,7 @@ bool TaskMove::FindWaypoint() {
         int16_t** damage_potential_map = nullptr;
 
         if (caution_level > CAUTION_LEVEL_NONE) {
-            damage_potential_map = AiPlayer_Teams[team].GetDamagePotentialMap(&*passenger, caution_level, true);
+            damage_potential_map = AiPlayer_Teams[m_team].GetDamagePotentialMap(&*passenger, caution_level, true);
         }
 
         if (damage_potential_map && damage_potential_map[passenger_waypoint.x][passenger_waypoint.y] >= unit_hits) {
@@ -1259,7 +1259,7 @@ bool TaskMove::FindWaypoint() {
 }
 
 void TaskMove::MoveUnit(GroundPath* path) {
-    if (passenger->IsReadyForOrders(this) && path && GameManager_IsActiveTurn(team)) {
+    if (passenger->IsReadyForOrders(this) && path && GameManager_IsActiveTurn(m_team)) {
         AILOG(log, "Moving unit to [{},{}].", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
 
         if (caution_level > CAUTION_LEVEL_NONE && Task_ShouldReserveShot(&*passenger, passenger_waypoint)) {
@@ -1277,8 +1277,8 @@ void TaskMove::MoveUnit(GroundPath* path) {
                 site.x = position.x + steps[step_index]->x;
                 site.y = position.y + steps[step_index]->y;
 
-                step_cost =
-                    Access_IsAccessible(passenger->GetUnitType(), team, site.x, site.y, AccessModifier_SameClassBlocks);
+                step_cost = Access_IsAccessible(passenger->GetUnitType(), m_team, site.x, site.y,
+                                                AccessModifier_SameClassBlocks);
 
                 if (site.x != position.x && site.y != position.y) {
                     step_cost = (step_cost * 3) / 2;
@@ -1352,7 +1352,7 @@ void TaskMove::FindTransport(ResourceID unit_type) {
 
     for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
          ++it) {
-        if ((*it).GetTeam() == team && (*it).GetType() == TaskType_TaskTransport) {
+        if ((*it).GetTeam() == m_team && (*it).GetType() == TaskType_TaskTransport) {
             TaskTransport* task = dynamic_cast<TaskTransport*>(&*it);
 
             if (task->GetTransporterType() == unit_type) {

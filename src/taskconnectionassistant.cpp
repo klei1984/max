@@ -30,11 +30,7 @@ TaskConnectionAssistant::TaskConnectionAssistant(TaskManageBuildings* manager_)
 
 TaskConnectionAssistant::~TaskConnectionAssistant() {}
 
-char* TaskConnectionAssistant::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Connection assistant");
-
-    return buffer;
-}
+std::string TaskConnectionAssistant::WriteStatusLog() const { return "Connection assistant"; }
 
 uint8_t TaskConnectionAssistant::GetType() const { return TaskType_TaskConnectionAssistant; }
 
@@ -42,7 +38,7 @@ void TaskConnectionAssistant::BeginTurn() { manager->ReconnectBuildings(); }
 
 void TaskConnectionAssistant::RemoveSelf() {
     manager = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }

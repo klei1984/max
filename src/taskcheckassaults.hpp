@@ -37,7 +37,7 @@ public:
     TaskCheckAssaults(uint16_t team);
     ~TaskCheckAssaults();
 
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     bool IsThinking();
     void BeginTurn();

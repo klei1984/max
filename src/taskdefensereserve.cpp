@@ -99,7 +99,7 @@ bool TaskDefenseReserve::SupportAttacker(UnitInfo* unit) {
 
 TaskDefenseReserve::TaskDefenseReserve(uint16_t team_, Point site_)
     : Task(team_, nullptr, TASK_PRIORITY_DEFENSE_RESERVE) {
-    int32_t ai_strategy = AiPlayer_Teams[team].GetStrategy();
+    int32_t ai_strategy = AiPlayer_Teams[m_team].GetStrategy();
     site = site_;
 
     managers[DEFENSE_TYPE_BASIC_LAND].AddRule(ALNTANK, 1);
@@ -193,11 +193,7 @@ bool TaskDefenseReserve::IsUnitUsable(UnitInfo& unit) {
     return false;
 }
 
-char* TaskDefenseReserve::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Defense Reserve");
-
-    return buffer;
-}
+std::string TaskDefenseReserve::WriteStatusLog() const { return "Defense Reserve"; }
 
 uint8_t TaskDefenseReserve::GetType() const { return TaskType_TaskDefenseReserve; }
 
@@ -230,7 +226,7 @@ void TaskDefenseReserve::EndTurn() {
 
     memset(unit_counts, 0, sizeof(unit_counts));
 
-    target_team = AiPlayer_Teams[team].GetTargetTeam();
+    target_team = AiPlayer_Teams[m_team].GetTargetTeam();
 
     for (int32_t i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
         managers[i].MaintainDefences(this);
@@ -243,7 +239,7 @@ void TaskDefenseReserve::EndTurn() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == team && ((*it).flags & BUILDING)) {
+        if ((*it).team == m_team && ((*it).flags & BUILDING)) {
             if (IsAdjacentToWater(&*it)) {
                 total_assets_sea += (*it).GetNormalRateBuildCost();
 
@@ -255,7 +251,7 @@ void TaskDefenseReserve::EndTurn() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team) {
+        if ((*it).team == m_team) {
             ++unit_counts[(*it).GetUnitType()];
         }
     }
@@ -345,7 +341,7 @@ void TaskDefenseReserve::RemoveSelf() {
         managers[i].ClearUnitsList();
     }
 
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }

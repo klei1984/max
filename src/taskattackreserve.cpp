@@ -89,11 +89,7 @@ bool TaskAttackReserve::IsUnitUsable(UnitInfo& unit) {
     return result;
 }
 
-char* TaskAttackReserve::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Maintain an attack reserve.");
-
-    return buffer;
-}
+std::string TaskAttackReserve::WriteStatusLog() const { return "Maintain an attack reserve."; }
 
 uint8_t TaskAttackReserve::GetType() const { return TaskType_TaskAttackReserve; }
 
@@ -135,17 +131,17 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
             TaskManager.ClearUnitTasksAndRemindAvailable(&unit);
         }
 
-    } else if (unit.team == team && unit.GetOrder() != ORDER_IDLE) {
+    } else if (unit.team == m_team && unit.GetOrder() != ORDER_IDLE) {
         if (unit.GetUnitType() == LANDPLT || unit.GetUnitType() == LIGHTPLT || unit.GetUnitType() == AIRPLT ||
             unit.GetUnitType() == SHIPYARD || unit.GetUnitType() == TRAINHAL) {
             if (unit.GetComplex()->material > 10 && unit.GetComplex()->fuel > 10) {
                 int32_t turns_till_mission_end = Task_EstimateTurnsTillMissionEnd();
-                WeightTable table = AiPlayer_Teams[team].GetFilteredWeightTable(INVALID_ID, 3);
+                WeightTable table = AiPlayer_Teams[m_team].GetFilteredWeightTable(INVALID_ID, 3);
 
                 for (uint32_t i = 0; i < table.GetCount(); ++i) {
                     const auto builder_type = Builder_GetBuilderType(table[i].unit_type);
                     if (builder_type == INVALID_ID || builder_type != unit.GetUnitType() ||
-                        UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], table[i].unit_type)
+                        UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[m_team], table[i].unit_type)
                                 ->GetAttribute(ATTRIB_TURNS) > turns_till_mission_end) {
                         table[i].weight = 0;
                     }
@@ -158,7 +154,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
 
                     obtain_units_task->AddUnit(unit_type);
 
-                    total_worth += Ai_GetNormalRateBuildCost(unit_type, team);
+                    total_worth += Ai_GetNormalRateBuildCost(unit_type, m_team);
 
                     TaskManager.AppendTask(*obtain_units_task);
                 }
@@ -166,7 +162,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
         }
 
         if (unit.GetUnitType() == CONSTRCT || unit.GetUnitType() == ENGINEER) {
-            if (!TaskManager_NeedToReserveRawMaterials(team)) {
+            if (!TaskManager_NeedToReserveRawMaterials(m_team)) {
                 WeightTable table;
                 bool builders_needed = false;
                 ResourceID unit_type;
@@ -176,7 +172,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
 
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
-                    if ((*it).team == team) {
+                    if ((*it).team == m_team) {
                         ++unit_types[(*it).GetUnitType()];
                     }
                 }
@@ -185,7 +181,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
                     builders_needed = true;
                 }
 
-                table += AiPlayer_Teams[team].GetFilteredWeightTable(INVALID_ID, 2);
+                table += AiPlayer_Teams[m_team].GetFilteredWeightTable(INVALID_ID, 2);
 
                 for (uint32_t i = 0; i < table.GetCount(); ++i) {
                     if (table[i].unit_type == INVALID_ID) {
@@ -223,7 +219,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
                     }
 
                     if (unit_type != INVALID_ID) {
-                        AiPlayer_Teams[team].CreateBuilding(unit_type, site, this);
+                        AiPlayer_Teams[m_team].CreateBuilding(unit_type, site, this);
                     }
                 }
             }
@@ -290,7 +286,7 @@ void TaskAttackReserve::RemoveSelf() {
 
     units.Clear();
 
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }

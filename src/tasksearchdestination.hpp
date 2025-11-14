@@ -60,7 +60,7 @@ public:
     TaskSearchDestination(Task* task, UnitInfo* unit, int32_t radius);
     ~TaskSearchDestination();
 
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     void Init();
     void EndTurn();

@@ -33,7 +33,7 @@ public:
     ~TaskExplore();
 
     bool IsUnitUsable(UnitInfo& unit);
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     bool Execute(UnitInfo& unit);
     void TaskAbstractSearch_vfunc28(UnitInfo& unit);

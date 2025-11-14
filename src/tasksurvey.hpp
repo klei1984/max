@@ -31,7 +31,7 @@ public:
     TaskSurvey(uint16_t team, Point point);
     ~TaskSurvey();
 
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     bool Execute(UnitInfo& unit);
     bool IsVisited(UnitInfo& unit, Point point);

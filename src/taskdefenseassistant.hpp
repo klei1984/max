@@ -32,7 +32,7 @@ public:
     TaskDefenseAssistant(TaskManageBuildings* manager, ResourceID unit_type);
     ~TaskDefenseAssistant();
 
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
     void BeginTurn();
     void RemoveSelf();

@@ -30,11 +30,7 @@ TaskReload::TaskReload(UnitInfo* unit) : TaskRepair(unit) {}
 
 TaskReload::~TaskReload() {}
 
-char* TaskReload::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Reload unit with ammunition.");
-
-    return buffer;
-}
+std::string TaskReload::WriteStatusLog() const { return "Reload unit with ammunition."; }
 
 uint8_t TaskReload::GetType() const { return TaskType_TaskReload; }
 
@@ -96,10 +92,10 @@ void TaskReload::SelectOperator() {
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
              it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-            if ((*it).team == team && (*it).GetUnitType() == unit_type && (*it).hits > 0 &&
+            if ((*it).team == m_team && (*it).GetUnitType() == unit_type && (*it).hits > 0 &&
                 ((*it).GetOrder() == ORDER_AWAIT || ((*it).GetOrder() == ORDER_MOVE && (*it).speed == 0)) &&
                 target_unit != (*it)) {
-                if ((*it).GetTask() == nullptr || (*it).GetTask()->ComparePriority(base_priority) > 0) {
+                if ((*it).GetTask() == nullptr || (*it).GetTask()->ComparePriority(m_base_priority) > 0) {
                     distance = Access_GetApproximateDistance(&*it, &*target_unit);
 
                     if (unit == nullptr || distance < minimum_distance) {

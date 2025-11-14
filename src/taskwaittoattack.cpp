@@ -32,11 +32,7 @@ TaskWaitToAttack::TaskWaitToAttack(UnitInfo* unit)
 
 TaskWaitToAttack::~TaskWaitToAttack() {}
 
-char* TaskWaitToAttack::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Waiting to attack.");
-
-    return buffer;
-}
+std::string TaskWaitToAttack::WriteStatusLog() const { return "Waiting to attack."; }
 
 uint8_t TaskWaitToAttack::GetType() const { return TaskType_TaskWaitToAttack; }
 
@@ -50,7 +46,7 @@ void TaskWaitToAttack::Init() {
     }
 
     if (it != attacker->GetTasks().End()) {
-        parent = nullptr;
+        m_parent = nullptr;
 
         TaskManager.RemoveTask(*this);
 
@@ -67,7 +63,7 @@ void TaskWaitToAttack::RemoveSelf() {
     }
 
     attacker = nullptr;
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }
@@ -78,7 +74,7 @@ bool TaskWaitToAttack::CheckReactions() {
         AiAttack_EvaluateAttack(&*attacker);
 
         attacker->RemoveTask(this);
-        parent = nullptr;
+        m_parent = nullptr;
         TaskManager.RemoveTask(*this);
     }
 
@@ -88,7 +84,7 @@ bool TaskWaitToAttack::CheckReactions() {
 void TaskWaitToAttack::RemoveUnit(UnitInfo& unit) {
     if (attacker == unit) {
         attacker = nullptr;
-        parent = nullptr;
+        m_parent = nullptr;
 
         TaskManager.RemoveTask(*this);
     }

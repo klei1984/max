@@ -21,6 +21,8 @@
 
 #include "task.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "ai.hpp"
 #include "ailog.hpp"
@@ -37,7 +39,7 @@
 uint32_t Task::task_id = 0;
 uint32_t Task::task_count = 0;
 
-static const char* const Task_TaskNames[] = {"Activate",
+static const std::string Task_TaskNames[] = {"Activate",
                                              "AssistMove",
                                              "Attack",
                                              "AttackReserve",
@@ -89,7 +91,9 @@ static const char* const Task_TaskNames[] = {"Activate",
 
 static SmartList<UnitInfo>* Task_GetUnitList(ResourceID unit_type);
 
-const char* Task_GetName(Task* task) { return task ? Task_TaskNames[task->GetType()] : ""; }
+std::string_view Task_GetName(Task* task) {
+    return task ? std::string_view(Task_TaskNames[task->GetType()]) : std::string_view("");
+}
 
 void Task_UpgradeStationaryUnit(UnitInfo* unit) {
     Complex* complex = unit->GetComplex();
@@ -376,24 +380,24 @@ int32_t Task_EstimateTurnsTillMissionEnd() {
 }
 
 Task::Task(uint16_t team, Task* parent, uint16_t priority)
-    : id(++task_id),
-      team(team),
-      parent(parent),
-      base_priority(priority),
-      needs_processing(true),
-      scheduled_for_turn_start(false),
-      scheduled_for_turn_end(false) {
+    : m_id(++task_id),
+      m_team(team),
+      m_parent(parent),
+      m_base_priority(priority),
+      m_needs_processing(true),
+      m_scheduled_for_turn_start(false),
+      m_scheduled_for_turn_end(false) {
     ++task_count;
 }
 
 Task::Task(const Task& other)
-    : id(other.id),
-      team(other.team),
-      parent(other.parent),
-      base_priority(other.base_priority),
-      needs_processing(other.needs_processing),
-      scheduled_for_turn_start(other.scheduled_for_turn_start),
-      scheduled_for_turn_end(other.scheduled_for_turn_end) {
+    : m_id(other.m_id),
+      m_team(other.m_team),
+      m_parent(other.m_parent),
+      m_base_priority(other.m_base_priority),
+      m_needs_processing(other.m_needs_processing),
+      m_scheduled_for_turn_start(other.m_scheduled_for_turn_start),
+      m_scheduled_for_turn_end(other.m_scheduled_for_turn_end) {
     ++task_count;
 }
 
@@ -411,31 +415,31 @@ void Task::RemindTurnStart(bool priority) {
     }
 }
 
-bool Task::IsProcessingNeeded() const { return needs_processing; }
+bool Task::IsProcessingNeeded() const { return m_needs_processing; }
 
-void Task::SetProcessingNeeded(bool value) { needs_processing = value; }
+void Task::SetProcessingNeeded(bool value) { m_needs_processing = value; }
 
-bool Task::IsScheduledForTurnStart() const { return scheduled_for_turn_start; }
+bool Task::IsScheduledForTurnStart() const { return m_scheduled_for_turn_start; }
 
-void Task::ChangeIsScheduledForTurnStart(bool value) { scheduled_for_turn_start = value; }
+void Task::ChangeIsScheduledForTurnStart(bool value) { m_scheduled_for_turn_start = value; }
 
-bool Task::IsScheduledForTurnEnd() const { return scheduled_for_turn_end; }
+bool Task::IsScheduledForTurnEnd() const { return m_scheduled_for_turn_end; }
 
-void Task::ChangeIsScheduledForTurnEnd(bool value) { scheduled_for_turn_end = value; }
+void Task::ChangeIsScheduledForTurnEnd(bool value) { m_scheduled_for_turn_end = value; }
 
-uint16_t Task::GetTeam() const { return team; }
+uint16_t Task::GetTeam() const { return m_team; }
 
-Task* Task::GetParent() { return &*parent; }
+Task* Task::GetParent() { return &*m_parent; }
 
-void Task::SetParent(Task* task) { parent = task; }
+void Task::SetParent(Task* task) { m_parent = task; }
 
-void Task::SetPriority(uint16_t priority) { base_priority = priority; }
+void Task::SetPriority(uint16_t priority) { m_base_priority = priority; }
 
 int16_t Task::ComparePriority(uint16_t task_priority) {
     int32_t result;
 
-    if (base_priority + TASK_PRIORITY_TOLERANCE >= task_priority) {
-        if (base_priority - TASK_PRIORITY_TOLERANCE <= task_priority) {
+    if (m_base_priority + TASK_PRIORITY_TOLERANCE >= task_priority) {
+        if (m_base_priority - TASK_PRIORITY_TOLERANCE <= task_priority) {
             result = GetPriority() - task_priority;
         } else {
             result = 1;
@@ -560,7 +564,7 @@ int32_t Task_GetReadyUnitsCount(uint16_t team, ResourceID unit_type) {
 bool Task::IsUnitTransferable(UnitInfo& unit) {
     bool result = true;
 
-    if (parent != nullptr && !parent->IsUnitTransferable(unit)) {
+    if (m_parent != nullptr && !m_parent->IsUnitTransferable(unit)) {
         result = false;
     }
 
@@ -588,7 +592,7 @@ int32_t Task::GetCautionLevel(UnitInfo& unit) {
     return result;
 }
 
-uint16_t Task::GetPriority() const { return base_priority; }
+uint16_t Task::GetPriority() const { return m_base_priority; }
 
 Rect* Task::GetBounds(Rect* bounds) {
     bounds->ulx = 0;
@@ -602,8 +606,8 @@ Rect* Task::GetBounds(Rect* bounds) {
 bool Task::IsNeeded() {
     bool result;
 
-    if (parent != nullptr) {
-        result = parent->IsNeeded();
+    if (m_parent != nullptr) {
+        result = m_parent->IsNeeded();
     } else {
         result = true;
     }
@@ -628,7 +632,7 @@ bool Task::ExchangeOperator(UnitInfo& unit) { return false; }
 bool Task::Execute(UnitInfo& unit) { return false; }
 
 void Task::RemoveSelf() {
-    parent = nullptr;
+    m_parent = nullptr;
     TaskManager.RemoveTask(*this);
 }
 
@@ -650,4 +654,4 @@ void Task::EventUnitUnloaded(UnitInfo& unit1, UnitInfo& unit2) {}
 
 void Task::EventZoneCleared(Zone* zone, bool status) {}
 
-uint32_t Task::GetId() const { return id; }
+uint32_t Task::GetId() const { return m_id; }

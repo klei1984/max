@@ -108,7 +108,7 @@ void TaskGetResource::ReleaseSource() {
 
 TaskGetResource::TaskGetResource(Task* task, UnitInfo& unit) : Task(unit.team, task, TASK_PRIORITY_GET_RESOURCE) {
     if (task) {
-        base_priority = task->GetPriority();
+        m_base_priority = task->GetPriority();
     }
 
     requestor = unit;
@@ -133,7 +133,7 @@ void TaskGetResource::EndTurn() {
         if (source && source->GetTask() == this) {
             if (Task_IsAdjacent(&*supplier, requestor->grid_x, requestor->grid_y)) {
                 if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
-                    if (GameManager_IsActiveTurn(team)) {
+                    if (GameManager_IsActiveTurn(m_team)) {
                         DoTransfer();
                     }
                 }
@@ -149,7 +149,7 @@ void TaskGetResource::EndTurn() {
 }
 
 void TaskGetResource::RemoveSelf() {
-    parent = nullptr;
+    m_parent = nullptr;
 
     ReleaseSource();
 

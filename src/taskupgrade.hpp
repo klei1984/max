@@ -29,7 +29,7 @@ public:
     TaskUpgrade(UnitInfo* unit);
     ~TaskUpgrade();
 
-    char* WriteStatusLog(char* buffer) const;
+    std::string WriteStatusLog() const;
     uint8_t GetType() const;
 
     void SelectOperator();

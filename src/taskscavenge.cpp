@@ -33,11 +33,7 @@ TaskScavenge::~TaskScavenge() {}
 
 bool TaskScavenge::IsUnitUsable(UnitInfo& unit) { return unit.GetUnitType() == BULLDOZR; }
 
-char* TaskScavenge::WriteStatusLog(char* buffer) const {
-    strcpy(buffer, "Scavenge materials");
-
-    return buffer;
-}
+std::string TaskScavenge::WriteStatusLog() const { return "Scavenge raw materials."; }
 
 uint8_t TaskScavenge::GetType() const { return TaskType_TaskScavenge; }
 
@@ -51,11 +47,11 @@ void TaskScavenge::AddUnit(UnitInfo& unit) {
 
 void TaskScavenge::BeginTurn() {
     if (units.GetCount() == 0 && !wait_for_unit) {
-        SmartPointer<UnitInfo> dummy_unit(new (std::nothrow) UnitInfo(BULLDOZR, team, 0xFFFF));
+        SmartPointer<UnitInfo> dummy_unit(new (std::nothrow) UnitInfo(BULLDOZR, m_team, 0xFFFF));
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
              it != UnitsManager_GroundCoverUnits.End(); ++it) {
-            if ((*it).IsVisibleToTeam(team) && ((*it).GetUnitType() == SMLRUBLE || (*it).GetUnitType() == LRGRUBLE) &&
+            if ((*it).IsVisibleToTeam(m_team) && ((*it).GetUnitType() == SMLRUBLE || (*it).GetUnitType() == LRGRUBLE) &&
                 !Ai_IsDangerousLocation(&*dummy_unit, Point((*it).grid_x, (*it).grid_y), CAUTION_LEVEL_AVOID_ALL_DAMAGE,
                                         true)) {
                 SmartPointer<TaskObtainUnits> obtain_task(new (std::nothrow)
@@ -99,14 +95,14 @@ bool TaskScavenge::Execute(UnitInfo& unit) {
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
              it != UnitsManager_GroundCoverUnits.End(); ++it) {
-            if ((*it).IsVisibleToTeam(team) && ((*it).GetUnitType() == SMLRUBLE || (*it).GetUnitType() == LRGRUBLE)) {
+            if ((*it).IsVisibleToTeam(m_team) && ((*it).GetUnitType() == SMLRUBLE || (*it).GetUnitType() == LRGRUBLE)) {
                 Point position((*it).grid_x, (*it).grid_y);
 
                 distance = Access_GetSquaredDistance(&unit, &*it);
 
                 if ((!target || distance < minimum_distance) &&
                     !Ai_IsDangerousLocation(&unit, position, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true) &&
-                    Access_GetRemovableRubble(team, (*it).grid_x, (*it).grid_y)) {
+                    Access_GetRemovableRubble(m_team, (*it).grid_x, (*it).grid_y)) {
                     target = &*it;
                     minimum_distance = distance;
                 }
@@ -140,7 +136,7 @@ void TaskScavenge::RemoveSelf() {
     }
 
     units.Clear();
-    parent = nullptr;
+    m_parent = nullptr;
 
     TaskManager.RemoveTask(*this);
 }
