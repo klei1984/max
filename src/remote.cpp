@@ -611,7 +611,6 @@ void Remote_Init() {
 
             case ORDER_UNLOAD:
             case ORDER_REPAIR:
-            case ORDER_REFUEL:
             case ORDER_RELOAD:
             case ORDER_UPGRADE: {
                 Remote_OrderProcessors[i].WritePacket = &Remote_OrderProcessor2_Write;

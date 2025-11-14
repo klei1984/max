@@ -321,7 +321,6 @@ public:
     void SpawnNewUnit();
     void ReadPacket(NetPacket& packet);
     void WritePacket(NetPacket& packet);
-    void Refuel(UnitInfo* parent);
     void Reload(UnitInfo* parent);
     bool Upgrade(UnitInfo* parent);
     void BuildOrder();
@@ -418,8 +417,6 @@ public:
     bool bobbed;
     uint8_t engine;
     uint8_t weapon;
-    uint8_t comm;
-    uint8_t fuel_distance;
     uint8_t move_fraction;
     SmartPointer<UnitPath> path;
     uint16_t connectors;
@@ -429,7 +426,6 @@ public:
     SmartObjectArray<ResourceID> build_list;
     uint16_t build_rate;
     uint8_t repeat_build;
-    bool energized;
     uint16_t id;
     SmartList<UnitInfo>* unit_list;
     SmartPointer<UnitInfo> enemy_unit;

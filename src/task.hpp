@@ -481,13 +481,6 @@ public:
     virtual bool CheckReactions();
 
     /**
-     * \brief Handles the event when a unit assigned to this task is refueled.
-     *
-     * \param unit Reference to the unit that was refueled.
-     */
-    virtual void EventUnitRefueled(UnitInfo& unit);
-
-    /**
      * \brief Removes a unit from this task's control.
      *
      * \param unit Reference to the unit to remove.

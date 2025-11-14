@@ -179,7 +179,6 @@ static void UnitsManager_ProcessOrderTakeOff(UnitInfo* unit);
 static void UnitsManager_ProcessOrderLoad(UnitInfo* unit);
 static void UnitsManager_ProcessOrderIdle(UnitInfo* unit);
 static void UnitsManager_ProcessOrderRepair(UnitInfo* unit);
-static void UnitsManager_ProcessOrderRefuel(UnitInfo* unit);
 static void UnitsManager_ProcessOrderReload(UnitInfo* unit);
 static void UnitsManager_ProcessOrderTransfer(UnitInfo* unit);
 static void UnitsManager_ProcessOrderHaltBuilding(UnitInfo* unit);
@@ -4850,12 +4849,6 @@ void UnitsManager_ProcessOrderRepair(UnitInfo* unit) {
     UnitsManager_Repair(unit);
 }
 
-void UnitsManager_ProcessOrderRefuel(UnitInfo* unit) {
-    Ai_SetTasksPendingFlag("Refuelling");
-
-    unit->Refuel(unit->GetParent());
-}
-
 void UnitsManager_ProcessOrderReload(UnitInfo* unit) {
     Ai_SetTasksPendingFlag("Reloading");
 
@@ -5067,10 +5060,6 @@ void UnitsManager_ProcessOrder(UnitInfo* unit) {
             UnitsManager_ProcessOrderRepair(unit);
         } break;
 
-        case ORDER_REFUEL: {
-            UnitsManager_ProcessOrderRefuel(unit);
-        } break;
-
         case ORDER_RELOAD: {
             UnitsManager_ProcessOrderReload(unit);
         } break;
@@ -5135,7 +5124,6 @@ void UnitsManager_CheckIfUnitDestroyed(UnitInfo* unit) {
     if (unit->hits == 0) {
         unit->engine = 0;
         unit->weapon = 0;
-        unit->comm = 0;
     }
 }
 

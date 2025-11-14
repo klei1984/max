@@ -614,8 +614,6 @@ void Task::RemoveSelf() {
 
 bool Task::CheckReactions() { return false; }
 
-void Task::EventUnitRefueled(UnitInfo& unit) {}
-
 void Task::RemoveUnit(UnitInfo& unit) {}
 
 void Task::EventCargoTransfer(UnitInfo& unit) {}

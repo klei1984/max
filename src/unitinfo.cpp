@@ -534,14 +534,11 @@ UnitInfo::UnitInfo()
       bobbed(false),
       engine(0),
       weapon(0),
-      comm(0),
-      fuel_distance(0),
       move_fraction(0),
       connectors(0),
       shake_effect_state(0),
       build_rate(0),
       repeat_build(0),
-      energized(false),
       id(0),
       unit_list(nullptr),
       in_transit(false),
@@ -618,15 +615,12 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
       bobbed(false),
       engine(0),
       weapon(0),
-      comm(0),
-      fuel_distance(0),
       move_fraction(0),
       connectors(0),
       shake_effect_state(0),
       base_values(UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)),
       build_rate(1),
       repeat_build(0),
-      energized(false),
       id(id),
       unit_list(nullptr),
       in_transit(false),
@@ -690,7 +684,6 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
         weapon = 0;
     }
 
-    comm = 2;
     moved = 0;
     bobbed = false;
     shake_effect_state = 0;
@@ -764,8 +757,6 @@ UnitInfo::UnitInfo(const UnitInfo& other)
       bobbed(other.bobbed),
       engine(other.engine),
       weapon(other.weapon),
-      comm(other.comm),
-      fuel_distance(other.fuel_distance),
       move_fraction(other.move_fraction),
       path(other.path),
       connectors(other.connectors),
@@ -775,7 +766,6 @@ UnitInfo::UnitInfo(const UnitInfo& other)
       build_list(other.build_list),
       build_rate(other.build_rate),
       repeat_build(other.repeat_build),
-      energized(other.energized),
       id(other.id),
       unit_list(other.unit_list),
       parent_unit(other.GetParent()),
@@ -3057,10 +3047,18 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
     file.Read(shake_effect_state);
     file.Read(engine);
     file.Read(weapon);
-    file.Read(comm);
-    file.Read(fuel_distance);
-    file.Read(move_fraction);
-    file.Read(energized);
+
+    {
+        uint8_t comm_temp;
+        uint8_t fuel_distance_temp;
+        bool energized_temp;
+
+        file.Read(comm_temp);
+        file.Read(fuel_distance_temp);
+        file.Read(move_fraction);
+        file.Read(energized_temp);
+    }
+
     file.Read(repeat_build);
     file.Read(build_rate);
     file.Read(disabled_reaction_fire);
@@ -3173,10 +3171,7 @@ void UnitInfo::FileSave(SmartFileWriter& file) noexcept {
     file.Write(shake_effect_state);
     file.Write(engine);
     file.Write(weapon);
-    file.Write(comm);
-    file.Write(fuel_distance);
     file.Write(move_fraction);
-    file.Write(energized);
     file.Write(repeat_build);
     file.Write(build_rate);
     file.Write(disabled_reaction_fire);
@@ -3453,8 +3448,6 @@ void UnitInfo::Resupply() {
 int32_t UnitInfo::GetRawConsumptionRate() { return Cargo_GetRawConsumptionRate(unit_type, GetMaxAllowedBuildRate()); }
 
 void UnitInfo::UpdateProduction() {
-    energized = false;
-
     if (orders == ORDER_BUILD && state != ORDER_STATE_UNIT_READY && (flags & MOBILE_LAND_UNIT)) {
         int32_t maximum_build_rate = BuildMenu_GetMaxPossibleBuildRate(unit_type, build_time, storage);
 
@@ -4674,23 +4667,6 @@ void UnitInfo::CancelBuilding() {
         if (GameManager_SelectedUnit == this) {
             SoundManager_PlaySfx(this, SFX_TYPE_IDLE);
         }
-    }
-}
-
-void UnitInfo::Refuel(UnitInfo* parent) {
-    if (!energized && unit_type == FUELTRCK && storage > 0) {
-        --storage;
-        energized = true;
-    }
-
-    RestoreOrders();
-
-    if (GameManager_SelectedUnit == this) {
-        GameManager_UpdateInfoDisplay(this);
-    }
-
-    if (parent->GetTask()) {
-        parent->GetTask()->EventUnitRefueled(*parent);
     }
 }
 
