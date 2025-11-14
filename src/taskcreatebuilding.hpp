@@ -58,7 +58,7 @@ class TaskCreateBuilding : public TaskCreate {
                                int32_t value);
 
 public:
-    TaskCreateBuilding(Task* task, uint16_t flags, ResourceID unit_type, Point site, TaskManageBuildings* manager);
+    TaskCreateBuilding(Task* task, uint16_t priority, ResourceID unit_type, Point site, TaskManageBuildings* manager);
     TaskCreateBuilding(UnitInfo* unit, TaskManageBuildings* manager);
     ~TaskCreateBuilding();
 
@@ -67,7 +67,7 @@ public:
     uint8_t GetType() const;
     bool IsNeeded();
     void AddUnit(UnitInfo& unit);
-    void Begin();
+    void Init();
     void BeginTurn();
     void ChildComplete(Task* task);
     void EndTurn();

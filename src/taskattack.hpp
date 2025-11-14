@@ -80,18 +80,18 @@ class TaskAttack : public Task {
     void AssessEnemyUnits();
 
 public:
-    TaskAttack(SpottedUnit* spotted_unit, uint16_t task_flags);
+    TaskAttack(SpottedUnit* spotted_unit, uint16_t task_priority);
     ~TaskAttack();
 
     bool IsUnitUsable(UnitInfo& unit);
     int32_t GetCautionLevel(UnitInfo& unit);
-    uint16_t GetFlags() const;
+    uint16_t GetPriority() const;
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);
     uint8_t GetType() const;
     bool IsNeeded();
     void AddUnit(UnitInfo& unit);
-    void Begin();
+    void Init();
     void BeginTurn();
     void ChildComplete(Task* task);
     void EndTurn();

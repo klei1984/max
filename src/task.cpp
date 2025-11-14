@@ -375,11 +375,11 @@ int32_t Task_EstimateTurnsTillMissionEnd() {
     return result;
 }
 
-Task::Task(uint16_t team, Task* parent, uint16_t flags)
+Task::Task(uint16_t team, Task* parent, uint16_t priority)
     : id(++task_id),
       team(team),
       parent(parent),
-      flags(flags),
+      base_priority(priority),
       needs_processing(true),
       scheduled_for_turn_start(false),
       scheduled_for_turn_end(false) {
@@ -390,7 +390,7 @@ Task::Task(const Task& other)
     : id(other.id),
       team(other.team),
       parent(other.parent),
-      flags(other.flags),
+      base_priority(other.base_priority),
       needs_processing(other.needs_processing),
       scheduled_for_turn_start(other.scheduled_for_turn_start),
       scheduled_for_turn_end(other.scheduled_for_turn_end) {
@@ -429,14 +429,14 @@ Task* Task::GetParent() { return &*parent; }
 
 void Task::SetParent(Task* task) { parent = task; }
 
-void Task::SetFlags(uint16_t flags_) { flags = flags_; }
+void Task::SetPriority(uint16_t priority) { base_priority = priority; }
 
-int16_t Task::DeterminePriority(uint16_t task_flags) {
+int16_t Task::ComparePriority(uint16_t task_priority) {
     int32_t result;
 
-    if (flags + 0xFF >= task_flags) {
-        if (flags - 0xFF <= task_flags) {
-            result = GetFlags() - task_flags;
+    if (base_priority + TASK_PRIORITY_TOLERANCE >= task_priority) {
+        if (base_priority - TASK_PRIORITY_TOLERANCE <= task_priority) {
+            result = GetPriority() - task_priority;
         } else {
             result = 1;
         }
@@ -557,10 +557,10 @@ int32_t Task_GetReadyUnitsCount(uint16_t team, ResourceID unit_type) {
     return count;
 }
 
-bool Task::Task_vfunc1(UnitInfo& unit) {
+bool Task::IsUnitTransferable(UnitInfo& unit) {
     bool result = true;
 
-    if (parent != nullptr && !parent->Task_vfunc1(unit)) {
+    if (parent != nullptr && !parent->IsUnitTransferable(unit)) {
         result = false;
     }
 
@@ -588,7 +588,7 @@ int32_t Task::GetCautionLevel(UnitInfo& unit) {
     return result;
 }
 
-uint16_t Task::GetFlags() const { return flags; }
+uint16_t Task::GetPriority() const { return base_priority; }
 
 Rect* Task::GetBounds(Rect* bounds) {
     bounds->ulx = 0;
@@ -615,7 +615,7 @@ bool Task::IsThinking() { return false; }
 
 void Task::AddUnit(UnitInfo& unit) {}
 
-void Task::Begin() { RemindTurnStart(true); }
+void Task::Init() { RemindTurnStart(true); }
 
 void Task::BeginTurn() { EndTurn(); }
 
@@ -634,7 +634,7 @@ void Task::RemoveSelf() {
 
 bool Task::CheckReactions() { return false; }
 
-void Task::Task_vfunc20(UnitInfo& unit) {}
+void Task::EventUnitRefueled(UnitInfo& unit) {}
 
 void Task::RemoveUnit(UnitInfo& unit) {}
 

@@ -24,7 +24,7 @@
 #include "aiplayer.hpp"
 #include "task_manager.hpp"
 
-TaskFrontierAssistant::TaskFrontierAssistant(uint16_t team) : Task(team, nullptr, 0x1A00) {}
+TaskFrontierAssistant::TaskFrontierAssistant(uint16_t team) : Task(team, nullptr, TASK_PRIORITY_FRONTIER) {}
 
 TaskFrontierAssistant::~TaskFrontierAssistant() {}
 

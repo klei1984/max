@@ -31,7 +31,7 @@ public:
     TaskGetMaterials(Task* task, UnitInfo* unit, uint16_t materials_needed);
     ~TaskGetMaterials();
 
-    uint16_t GetFlags() const;
+    uint16_t GetPriority() const;
     char* WriteStatusLog(char* buffer) const;
     uint8_t GetType() const;
     void EndTurn();

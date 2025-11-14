@@ -37,7 +37,7 @@ void TaskPlaceMines::MoveFinishedCallback(Task* task, UnitInfo* unit, char resul
     }
 }
 
-TaskPlaceMines::TaskPlaceMines(uint16_t team_) : Task(team_, nullptr, 0x1A00) {
+TaskPlaceMines::TaskPlaceMines(uint16_t team_) : Task(team_, nullptr, TASK_PRIORITY_FRONTIER) {
     mine_layer_count = 0;
     sea_mine_layer_count = 0;
 }

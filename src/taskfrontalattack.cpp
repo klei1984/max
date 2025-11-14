@@ -287,7 +287,7 @@ void TaskFrontalAttack::IssueOrders() {
 }
 
 TaskFrontalAttack::TaskFrontalAttack(uint16_t team_, SpottedUnit* spotted_unit_, int32_t caution_level_)
-    : Task(team_, nullptr, 0x400) {
+    : Task(team_, nullptr, TASK_PRIORITY_FRONTAL_ATTACK) {
     spotted_unit = spotted_unit_;
     caution_level = caution_level_;
     field_19 = false;
@@ -328,12 +328,12 @@ void TaskFrontalAttack::AddUnit(UnitInfo& unit) {
     units1.PushBack(unit);
 }
 
-void TaskFrontalAttack::Begin() {
+void TaskFrontalAttack::Init() {
     UnitInfo* target = spotted_unit->GetUnit();
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
          it != UnitsManager_MobileAirUnits.End(); ++it) {
-        if ((*it).team == team && ((*it).GetTask() == nullptr || (*it).GetTask()->DeterminePriority(flags) > 0) &&
+        if ((*it).team == team && ((*it).GetTask() == nullptr || (*it).GetTask()->ComparePriority(base_priority) > 0) &&
             AiPlayer_GetProjectedDamage(&*it, target, caution_level) > 0) {
             AddUnit(*it);
         }
@@ -341,7 +341,7 @@ void TaskFrontalAttack::Begin() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == team && ((*it).GetTask() == nullptr || (*it).GetTask()->DeterminePriority(flags) > 0) &&
+        if ((*it).team == team && ((*it).GetTask() == nullptr || (*it).GetTask()->ComparePriority(base_priority) > 0) &&
             AiPlayer_GetProjectedDamage(&*it, target, caution_level) > 0) {
             AddUnit(*it);
         }

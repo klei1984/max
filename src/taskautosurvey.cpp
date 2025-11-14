@@ -29,7 +29,7 @@
 #include "transportermap.hpp"
 #include "units_manager.hpp"
 
-TaskAutoSurvey::TaskAutoSurvey(UnitInfo* unit_) : Task(unit_->team, nullptr, 0x2200) {
+TaskAutoSurvey::TaskAutoSurvey(UnitInfo* unit_) : Task(unit_->team, nullptr, TASK_PRIORITY_AUTO_SURVEY) {
     unit = unit_;
     central_site.x = unit_->grid_x;
     central_site.y = unit_->grid_y;
@@ -64,7 +64,7 @@ char* TaskAutoSurvey::WriteStatusLog(char* buffer) const {
 
 uint8_t TaskAutoSurvey::GetType() const { return TaskType_TaskAutoSurvey; }
 
-void TaskAutoSurvey::Begin() { unit->AddTask(this); }
+void TaskAutoSurvey::Init() { unit->AddTask(this); }
 
 bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
     bool result;

@@ -34,14 +34,14 @@
 #include "tasktransport.hpp"
 #include "units_manager.hpp"
 
-TaskAttack::TaskAttack(SpottedUnit* spotted_unit, uint16_t task_flags)
-    : Task(spotted_unit->GetTeam(), nullptr, task_flags) {
+TaskAttack::TaskAttack(SpottedUnit* spotted_unit, uint16_t task_priority)
+    : Task(spotted_unit->GetTeam(), nullptr, task_priority) {
     op_state = ATTACK_STATE_INIT;
     attack_zone_reached = false;
     target_team = spotted_unit->GetUnit()->team;
     access_flags = 0;
 
-    TaskKillUnit* task = new (std::nothrow) TaskKillUnit(this, spotted_unit, task_flags);
+    TaskKillUnit* task = new (std::nothrow) TaskKillUnit(this, spotted_unit, task_priority);
 
     primary_targets.PushBack(*task);
     secondary_targets.PushBack(*task);
@@ -75,14 +75,14 @@ int32_t TaskAttack::GetCautionLevel(UnitInfo& unit) {
     return result;
 }
 
-uint16_t TaskAttack::GetFlags() const {
+uint16_t TaskAttack::GetPriority() const {
     uint16_t result;
 
     if (secondary_targets.GetCount()) {
-        result = secondary_targets[0].GetFlags();
+        result = secondary_targets[0].GetPriority();
 
     } else {
-        result = flags;
+        result = base_priority;
     }
 
     return result;
@@ -210,7 +210,7 @@ void TaskAttack::AddUnit(UnitInfo& unit) {
     }
 }
 
-void TaskAttack::Begin() {
+void TaskAttack::Init() {
     access_flags = MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT;
 
     TaskManager.AppendTask(primary_targets[0]);
@@ -647,7 +647,7 @@ bool TaskAttack::EvaluateLandAttack() {
     if (unit) {
         WeightTable weight_table;
         bool sea_unit_present = false;
-        uint16_t task_flags = GetFlags();
+        uint16_t task_priority = GetPriority();
 
         weight_table = AiPlayer_Teams[team].GetExtendedWeightTable(unit, 0x03);
 
@@ -714,8 +714,8 @@ bool TaskAttack::EvaluateLandAttack() {
                     bool is_relevant = false;
 
                     if ((*it).GetTask()) {
-                        if ((*it).GetTask()->DeterminePriority(task_flags) > 0) {
-                            is_relevant = (*it).GetTask()->Task_vfunc1(*it);
+                        if ((*it).GetTask()->ComparePriority(task_priority) > 0) {
+                            is_relevant = (*it).GetTask()->IsUnitTransferable(*it);
                         }
 
                     } else {
@@ -843,7 +843,7 @@ bool TaskAttack::FindReconUnit(ResourceID unit_type, int32_t safe_distance) {
         safe_distance) {
         SmartList<UnitInfo>* units{nullptr};
         UnitInfo* new_recon_unit{nullptr};
-        uint16_t task_flags = GetFlags();
+        uint16_t task_priority = GetPriority();
 
         if (UnitsManager_BaseUnits[unit_type].flags & MOBILE_AIR_UNIT) {
             units = &UnitsManager_MobileAirUnits;
@@ -855,7 +855,7 @@ bool TaskAttack::FindReconUnit(ResourceID unit_type, int32_t safe_distance) {
         for (auto it = units->Begin(); it != units->End(); ++it) {
             if ((*it).team == team && (*it).GetUnitType() == unit_type &&
                 (*it).GetBaseValues()->GetAttribute(ATTRIB_SCAN) >= safe_distance &&
-                (!(*it).GetTask() || (*it).GetTask()->DeterminePriority(task_flags) > 0)) {
+                (!(*it).GetTask() || (*it).GetTask()->ComparePriority(task_priority) > 0)) {
                 if (!new_recon_unit || (new_recon_unit->GetTask() && !(*it).GetTask())) {
                     new_recon_unit = &*it;
                 }
@@ -1968,7 +1968,7 @@ void TaskAttack::AssessEnemyUnits() {
         (*it).GetSpottedUnit()->SetTask(nullptr);
     }
 
-    flags = 0x1F00;
+    base_priority = TASK_PRIORITY_ATTACK_DEFAULT;
 
     for (SmartList<TaskKillUnit>::Iterator it = primary_targets.Begin(); it != primary_targets.End(); ++it) {
         UnitInfo* target = (*it).GetUnitSpotted();
@@ -1979,10 +1979,10 @@ void TaskAttack::AssessEnemyUnits() {
             if ((target->flags & BUILDING) || target->GetUnitType() == CONSTRCT) {
                 is_relevant = target->team == enemy_team;
 
-                if (is_relevant && flags > 0x1700 &&
+                if (is_relevant && base_priority > TASK_PRIORITY_ATTACK_PRIORITY_TARGET &&
                     (target->GetUnitType() == GREENHSE || target->GetUnitType() == MININGST) &&
                     UnitsManager_TeamInfo[enemy_team].team_points > UnitsManager_TeamInfo[team].team_points) {
-                    flags = 0x1700;
+                    base_priority = TASK_PRIORITY_ATTACK_PRIORITY_TARGET;
                 }
 
             } else {
@@ -1992,7 +1992,7 @@ void TaskAttack::AssessEnemyUnits() {
                 } else if (AiAttack_IsWithinReach(target, team, teams)) {
                     is_relevant = true;
 
-                    flags = 0x1000;
+                    base_priority = TASK_PRIORITY_ATTACK_MOBILE;
                 }
             }
 
@@ -2024,7 +2024,8 @@ void TaskAttack::AssessEnemyUnits() {
             TaskAttack* attack_task = dynamic_cast<TaskAttack*>((*it).GetTask());
 
             if (attack_task) {
-                if (attack_task->GetAccessFlags() == access_flags && (attack_task->GetFlags() & 0xFF00) == flags) {
+                if (attack_task->GetAccessFlags() == access_flags &&
+                    (attack_task->GetPriority() & TASK_PRIORITY_MASK) == base_priority) {
                     AILOG_LOG(log, "Merging attack tasks.");
 
                     attack_task->CopyTargets(this);
@@ -2037,7 +2038,7 @@ void TaskAttack::AssessEnemyUnits() {
                 }
 
             } else {
-                SmartPointer<TaskKillUnit> task_kill_unit(new (std::nothrow) TaskKillUnit(this, &*it, flags));
+                SmartPointer<TaskKillUnit> task_kill_unit(new (std::nothrow) TaskKillUnit(this, &*it, base_priority));
 
                 (*it).SetTask(this);
                 secondary_targets.PushBack(*task_kill_unit);
@@ -2048,7 +2049,7 @@ void TaskAttack::AssessEnemyUnits() {
     }
 
     for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
-        (*it).SetFlags(flags);
+        (*it).SetPriority(base_priority);
     }
 }
 

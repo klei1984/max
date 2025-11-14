@@ -1081,7 +1081,7 @@ Task* AiAttack_GetPrimaryTask(UnitInfo* unit) {
     return task;
 }
 
-bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_flags) {
+bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_priority) {
     SmartPointer<UnitInfo> leader;
     bool is_execution_phase = false;
     TaskAttack* attack_task = nullptr;
@@ -1096,7 +1096,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_flags) {
 
             if (attack_task) {
                 if (!is_execution_phase || attack_task->IsExecutionPhase()) {
-                    if (attack_task->DeterminePriority(task_flags) <= 0) {
+                    if (attack_task->ComparePriority(task_priority) <= 0) {
                         distance = Access_GetSquaredDistance(unit, &*it);
 
                         if (!leader || distance < minimum_distance ||
@@ -1118,7 +1118,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_flags) {
 
             if (attack_task) {
                 if (!is_execution_phase || attack_task->IsExecutionPhase()) {
-                    if (attack_task->DeterminePriority(task_flags) <= 0) {
+                    if (attack_task->ComparePriority(task_priority) <= 0) {
                         distance = Access_GetSquaredDistance(unit, &*it);
 
                         if (!leader || distance < minimum_distance ||

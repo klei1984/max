@@ -34,7 +34,7 @@ public:
     TaskAssistMove(uint16_t team);
     ~TaskAssistMove();
 
-    bool Task_vfunc1(UnitInfo& unit);
+    bool IsUnitTransferable(UnitInfo& unit);
     bool IsUnitUsable(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
     uint8_t GetType() const;

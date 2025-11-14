@@ -41,7 +41,7 @@ public:
     char* WriteStatusLog(char* buffer) const;
     uint8_t GetType() const;
     bool IsThinking();
-    void Begin();
+    void Init();
     void EndTurn();
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);

@@ -31,7 +31,7 @@ TaskFindPath::TaskFindPath(Task* parent, PathRequest* request,
                            void (*result_callback_)(Task* task, PathRequest* path_request, Point destination_,
                                                     GroundPath* path, uint8_t result),
                            void (*cancel_callback_)(Task* task, PathRequest* path_request))
-    : Task(parent->GetTeam(), parent, parent->GetFlags()) {
+    : Task(parent->GetTeam(), parent, parent->GetPriority()) {
     result_callback = result_callback_;
     cancel_callback = cancel_callback_;
 
@@ -62,7 +62,7 @@ uint8_t TaskFindPath::GetType() const { return TaskType_TaskFindPath; }
 
 bool TaskFindPath::IsThinking() { return path_request != nullptr; }
 
-void TaskFindPath::Begin() {
+void TaskFindPath::Init() {
     AILOG(log, "Task find path for {}: begin.",
           UnitsManager_BaseUnits[path_request->GetClient()->GetUnitType()].GetSingularName());
 

@@ -29,12 +29,12 @@
 #include "ticktimer.hpp"
 #include "transportermap.hpp"
 
-TaskRetreat::TaskRetreat(UnitInfo* unit, Task* task, uint16_t flags, int32_t caution_level_)
-    : Task(unit->team, task, flags), unit_to_retreat(unit), caution_level(caution_level_) {}
+TaskRetreat::TaskRetreat(UnitInfo* unit, Task* task, uint16_t priority, int32_t caution_level_)
+    : Task(unit->team, task, priority), unit_to_retreat(unit), caution_level(caution_level_) {}
 
 TaskRetreat::~TaskRetreat() {}
 
-bool TaskRetreat::Task_vfunc1(UnitInfo& unit) { return unit_to_retreat != unit; }
+bool TaskRetreat::IsUnitTransferable(UnitInfo& unit) { return unit_to_retreat != unit; }
 
 char* TaskRetreat::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Retreat from danger");
@@ -44,7 +44,7 @@ char* TaskRetreat::WriteStatusLog(char* buffer) const {
 
 uint8_t TaskRetreat::GetType() const { return TaskType_TaskRetreat; }
 
-void TaskRetreat::Begin() {
+void TaskRetreat::Init() {
     field_23 = 0;
     position.x = unit_to_retreat->grid_x;
     position.y = unit_to_retreat->grid_y;

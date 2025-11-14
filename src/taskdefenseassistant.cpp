@@ -25,7 +25,7 @@
 #include "units_manager.hpp"
 
 TaskDefenseAssistant::TaskDefenseAssistant(TaskManageBuildings* manager_, ResourceID unit_type_)
-    : Task(manager_->GetTeam(), manager_, manager_->GetFlags()) {
+    : Task(manager_->GetTeam(), manager_, manager_->GetPriority()) {
     manager = manager_;
     unit_type = unit_type_;
 }
@@ -46,9 +46,9 @@ void TaskDefenseAssistant::BeginTurn() {
         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
         Point site;
 
-        if (manager->FindDefenseSite(unit_type, nullptr, site, 1, 0x1200)) {
-            SmartPointer<TaskCreateBuilding> create_building_task(
-                new (std::nothrow) TaskCreateBuilding(this, 0x1200, unit_type, site, &*manager));
+        if (manager->FindDefenseSite(unit_type, nullptr, site, 1, TASK_PRIORITY_BUILDING_DEFENSE)) {
+            SmartPointer<TaskCreateBuilding> create_building_task(new (std::nothrow) TaskCreateBuilding(
+                this, TASK_PRIORITY_BUILDING_DEFENSE, unit_type, site, &*manager));
 
             manager->AddCreateOrder(&*create_building_task);
         }

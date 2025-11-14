@@ -39,7 +39,8 @@ void TaskSurvey::MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
     }
 }
 
-TaskSurvey::TaskSurvey(uint16_t team_, Point point_) : TaskAbstractSearch(team_, nullptr, 0x2200, point_) {}
+TaskSurvey::TaskSurvey(uint16_t team_, Point point_)
+    : TaskAbstractSearch(team_, nullptr, TASK_PRIORITY_AUTO_SURVEY, point_) {}
 
 TaskSurvey::~TaskSurvey() {}
 

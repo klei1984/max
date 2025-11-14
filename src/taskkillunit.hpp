@@ -49,11 +49,11 @@ class TaskKillUnit : public Task {
     bool GiveOrdersToUnit(UnitInfo* unit);
 
 public:
-    TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit, uint16_t flags);
+    TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit, uint16_t priority);
     ~TaskKillUnit();
 
     bool IsUnitUsable(UnitInfo& unit);
-    uint16_t GetFlags() const;
+    uint16_t GetPriority() const;
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);
     uint8_t GetType() const;

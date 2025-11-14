@@ -39,13 +39,13 @@ class TaskRetreat : public Task {
     static void TaskMoveResultCallback(Task* task, UnitInfo* unit, char result);
 
 public:
-    TaskRetreat(UnitInfo* unit, Task* task, uint16_t flags, int32_t caution_level);
+    TaskRetreat(UnitInfo* unit, Task* task, uint16_t priority, int32_t caution_level);
     ~TaskRetreat();
 
-    bool Task_vfunc1(UnitInfo& unit);
+    bool IsUnitTransferable(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
     uint8_t GetType() const;
-    void Begin();
+    void Init();
     void EndTurn();
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);

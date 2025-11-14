@@ -63,7 +63,7 @@ class TaskManager {
     SmartList<UnitInfo> units_to_check;
     uint32_t reminder_counter;
 
-    bool IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t flags);
+    bool IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t task_priority);
 
 public:
     /**

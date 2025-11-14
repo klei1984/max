@@ -24,7 +24,7 @@
 #include "task_manager.hpp"
 
 TaskHabitatAssistant::TaskHabitatAssistant(TaskManageBuildings* manager_)
-    : Task(manager_->GetTeam(), manager_, manager_->GetFlags()) {
+    : Task(manager_->GetTeam(), manager_, manager_->GetPriority()) {
     manager = manager_;
 }
 

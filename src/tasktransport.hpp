@@ -47,13 +47,13 @@ public:
     TaskTransport(TaskMove* task_move, ResourceID transporter);
     ~TaskTransport();
 
-    bool Task_vfunc1(UnitInfo& unit);
+    bool IsUnitTransferable(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);
     uint8_t GetType() const;
     bool IsNeeded();
     void AddUnit(UnitInfo& unit);
-    void Begin();
+    void Init();
     void BeginTurn();
     void ChildComplete(Task* task);
     void EndTurn();

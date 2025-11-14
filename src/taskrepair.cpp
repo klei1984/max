@@ -223,11 +223,11 @@ void TaskRepair::CreateUnitIfNeeded(ResourceID unit_type) {
     }
 }
 
-TaskRepair::TaskRepair(UnitInfo* unit) : Task(unit->team, nullptr, 0x1100), target_unit(unit) {}
+TaskRepair::TaskRepair(UnitInfo* unit) : Task(unit->team, nullptr, TASK_PRIORITY_REPAIR), target_unit(unit) {}
 
 TaskRepair::~TaskRepair() {}
 
-bool TaskRepair::Task_vfunc1(UnitInfo& unit) { return target_unit != unit; }
+bool TaskRepair::IsUnitTransferable(UnitInfo& unit) { return target_unit != unit; }
 
 char* TaskRepair::WriteStatusLog(char* buffer) const {
     if (target_unit != nullptr) {
@@ -249,7 +249,7 @@ Rect* TaskRepair::GetBounds(Rect* bounds) {
 
 uint8_t TaskRepair::GetType() const { return TaskType_TaskRepair; }
 
-void TaskRepair::Begin() {
+void TaskRepair::Init() {
     AILOG(log, "Begin repair/reload/upgrade unit.");
 
     target_unit->AddTask(this);
@@ -457,7 +457,7 @@ void TaskRepair::SelectOperator() {
             if ((*it).team == team && (*it).GetUnitType() == REPAIR && (*it).hits > 0 &&
                 ((*it).GetOrder() == ORDER_AWAIT || ((*it).GetOrder() == ORDER_MOVE && (*it).speed == 0)) &&
                 target_unit != (*it)) {
-                if ((*it).GetTask() == nullptr || (*it).GetTask()->DeterminePriority(flags) > 0) {
+                if ((*it).GetTask() == nullptr || (*it).GetTask()->ComparePriority(base_priority) > 0) {
                     distance = Access_GetApproximateDistance(&*it, &*target_unit);
 
                     if (unit == nullptr || distance < minimum_distance) {

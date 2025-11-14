@@ -27,7 +27,8 @@
 #include "taskmove.hpp"
 #include "units_manager.hpp"
 
-TaskRemoveMines::TaskRemoveMines(Task* task, UnitInfo* unit_) : TaskRemoveRubble(task, unit_, 0x100) {}
+TaskRemoveMines::TaskRemoveMines(Task* task, UnitInfo* unit_)
+    : TaskRemoveRubble(task, unit_, TASK_PRIORITY_REMOVE_RUBBLE_LOW) {}
 
 TaskRemoveMines::~TaskRemoveMines() {}
 

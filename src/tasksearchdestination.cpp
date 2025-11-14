@@ -32,7 +32,7 @@
 #include "units_manager.hpp"
 
 TaskSearchDestination::TaskSearchDestination(Task* task, UnitInfo* unit_, int32_t radius_)
-    : Task(task->GetTeam(), task, task->GetFlags()) {
+    : Task(task->GetTeam(), task, task->GetPriority()) {
     index = 0;
     radius = 0;
     field_57 = 0;
@@ -60,7 +60,7 @@ char* TaskSearchDestination::WriteStatusLog(char* buffer) const {
 
 uint8_t TaskSearchDestination::GetType() const { return TaskType_TaskSearchDestination; }
 
-void TaskSearchDestination::Begin() {
+void TaskSearchDestination::Init() {
     Point position;
 
     AILOG(log, "Search destination begin.");
@@ -289,8 +289,8 @@ void TaskSearchDestination::SearchTrySite() {
             bool flag = false;
 
             if ((*it).GetTask()) {
-                if ((*it).GetTask()->DeterminePriority(flags) > 0) {
-                    flag = unit->GetTask()->Task_vfunc1(*it);
+                if ((*it).GetTask()->ComparePriority(base_priority) > 0) {
+                    flag = unit->GetTask()->IsUnitTransferable(*it);
                 }
 
             } else {

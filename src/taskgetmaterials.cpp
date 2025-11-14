@@ -32,14 +32,14 @@ TaskGetMaterials::TaskGetMaterials(Task* task, UnitInfo* unit, uint16_t material
 
 TaskGetMaterials::~TaskGetMaterials() {}
 
-uint16_t TaskGetMaterials::GetFlags() const {
+uint16_t TaskGetMaterials::GetPriority() const {
     uint16_t result;
 
     if (parent) {
-        result = parent->GetFlags();
+        result = parent->GetPriority();
 
     } else {
-        result = flags;
+        result = base_priority;
     }
 
     return result;
@@ -212,8 +212,8 @@ void TaskGetMaterials::FindTruck() {
             bool candidate_found;
 
             if ((*it).GetTask()) {
-                if ((*it).GetTask()->DeterminePriority(flags) <= 0) {
-                    if ((*it).GetTask()->DeterminePriority(flags) == 0 &&
+                if ((*it).GetTask()->ComparePriority(base_priority) <= 0) {
+                    if ((*it).GetTask()->ComparePriority(base_priority) == 0 &&
                         (*it).GetTask()->GetType() == TaskType_TaskGetMaterials &&
                         (*it).GetTask()->GetId() > this->GetId()) {
                         candidate_found = true;

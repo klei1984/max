@@ -137,7 +137,7 @@ void TaskEscort::MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
     }
 }
 
-TaskEscort::TaskEscort(UnitInfo* unit, ResourceID unit_type_) : Task(unit->team, nullptr, 0x0F00) {
+TaskEscort::TaskEscort(UnitInfo* unit, ResourceID unit_type_) : Task(unit->team, nullptr, TASK_PRIORITY_ESCORT) {
     target = unit;
     unit_type = unit_type_;
     is_escort_requested = 0;
@@ -145,7 +145,7 @@ TaskEscort::TaskEscort(UnitInfo* unit, ResourceID unit_type_) : Task(unit->team,
 
 TaskEscort::~TaskEscort() {}
 
-bool TaskEscort::Task_vfunc1(UnitInfo& unit) { return (!target || target->hits == 0 || escort != unit); }
+bool TaskEscort::IsUnitTransferable(UnitInfo& unit) { return (!target || target->hits == 0 || escort != unit); }
 
 char* TaskEscort::WriteStatusLog(char* buffer) const {
     if (target) {
@@ -170,7 +170,7 @@ void TaskEscort::AddUnit(UnitInfo& unit) {
     }
 }
 
-void TaskEscort::Begin() {
+void TaskEscort::Init() {
     target->AddDelayedTask(this);
     RemindTurnStart(true);
 }

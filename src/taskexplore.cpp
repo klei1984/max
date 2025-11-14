@@ -31,7 +31,8 @@
 #include "taskobtainunits.hpp"
 #include "units_manager.hpp"
 
-TaskExplore::TaskExplore(uint16_t team_, Point point_) : TaskAbstractSearch(team_, nullptr, 0x1B00, point_) {
+TaskExplore::TaskExplore(uint16_t team_, Point point_)
+    : TaskAbstractSearch(team_, nullptr, TASK_PRIORITY_EXPLORE, point_) {
     memset(obtain_requests, 0, sizeof(obtain_requests));
 
     obtain_requests[SCOUT] = 1;

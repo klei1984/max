@@ -35,7 +35,7 @@ protected:
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
 public:
-    TaskRemoveRubble(Task* task, UnitInfo* unit, uint16_t flags);
+    TaskRemoveRubble(Task* task, UnitInfo* unit, uint16_t priority);
     ~TaskRemoveRubble();
 
     char* WriteStatusLog(char* buffer) const;
@@ -43,7 +43,7 @@ public:
     uint8_t GetType() const;
     bool IsNeeded();
     void AddUnit(UnitInfo& unit);
-    void Begin();
+    void Init();
     void EndTurn();
     bool Execute(UnitInfo& unit);
     void RemoveSelf();

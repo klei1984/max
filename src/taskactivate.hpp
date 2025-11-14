@@ -35,12 +35,12 @@ public:
     TaskActivate(UnitInfo* unit, Task* task, UnitInfo* parent);
     ~TaskActivate();
 
-    bool Task_vfunc1(UnitInfo& unit);
+    bool IsUnitTransferable(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);
     uint8_t GetType() const;
     void AddUnit(UnitInfo& unit);
-    void Begin();
+    void Init();
     void EndTurn();
     bool Execute(UnitInfo& unit);
     void RemoveSelf();

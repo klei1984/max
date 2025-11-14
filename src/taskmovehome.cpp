@@ -30,7 +30,7 @@
 #include "units_manager.hpp"
 #include "zonewalker.hpp"
 
-TaskMoveHome::TaskMoveHome(UnitInfo* unit_, Task* task) : Task(unit_->team, task, task->GetFlags()) { unit = unit_; }
+TaskMoveHome::TaskMoveHome(UnitInfo* unit_, Task* task) : Task(unit_->team, task, task->GetPriority()) { unit = unit_; }
 
 TaskMoveHome::~TaskMoveHome() {}
 
@@ -118,7 +118,7 @@ char* TaskMoveHome::WriteStatusLog(char* buffer) const {
 
 uint8_t TaskMoveHome::GetType() const { return TaskType_TaskMoveHome; }
 
-void TaskMoveHome::Begin() {
+void TaskMoveHome::Init() {
     unit->AddTask(this);
     Task_RemindMoveFinished(&*unit);
 }

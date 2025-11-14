@@ -38,11 +38,11 @@ public:
     TaskEscort(UnitInfo* unit, ResourceID unit_type);
     ~TaskEscort();
 
-    bool Task_vfunc1(UnitInfo& unit);
+    bool IsUnitTransferable(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
     uint8_t GetType() const;
     void AddUnit(UnitInfo& unit);
-    void Begin();
+    void Init();
     void EndTurn();
     bool Execute(UnitInfo& unit);
     void RemoveSelf();

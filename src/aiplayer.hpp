@@ -110,7 +110,7 @@ class AiPlayer {
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
     Point GetUnitClusterCoordinates(uint16_t team, SmartList<UnitInfo>* units);
     Point GetTeamClusterCoordinates(uint16_t team);
-    void DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_flags);
+    void DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_priority);
     void UpdatePriorityTasks();
     void DetermineTargetLocation(Point position);
     bool IsKeyFacility(ResourceID unit_type);

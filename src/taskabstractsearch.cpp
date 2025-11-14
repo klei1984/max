@@ -40,8 +40,8 @@ void TaskAbstractSearch::FindDestination(UnitInfo& unit, int32_t radius) {
     }
 }
 
-TaskAbstractSearch::TaskAbstractSearch(uint16_t team_, Task* task, uint16_t flags_, Point point_)
-    : Task(team_, task, flags_) {
+TaskAbstractSearch::TaskAbstractSearch(uint16_t team_, Task* task, uint16_t priority_, Point point_)
+    : Task(team_, task, priority_) {
     point = point_;
     requestors = 0;
 }

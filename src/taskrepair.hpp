@@ -43,11 +43,11 @@ public:
     TaskRepair(UnitInfo* unit);
     ~TaskRepair();
 
-    bool Task_vfunc1(UnitInfo& unit);
+    bool IsUnitTransferable(UnitInfo& unit);
     char* WriteStatusLog(char* buffer) const;
     Rect* GetBounds(Rect* bounds);
     uint8_t GetType() const;
-    void Begin();
+    void Init();
     void BeginTurn();
     void EndTurn();
     bool Execute(UnitInfo& unit);

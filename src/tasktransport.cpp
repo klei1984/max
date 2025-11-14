@@ -31,7 +31,7 @@
 #include "units_manager.hpp"
 
 TaskTransport::TaskTransport(TaskMove* task_move_, ResourceID transporter)
-    : Task(task_move_->GetTeam(), nullptr, task_move_->GetFlags()) {
+    : Task(task_move_->GetTeam(), nullptr, task_move_->GetPriority()) {
     transporter_unit_type = transporter;
     task_move = task_move_;
     move_tasks.PushBack(*task_move_);
@@ -353,7 +353,7 @@ void TaskTransport::MoveFinishedCallback2(Task* task, UnitInfo* unit, char resul
     }
 }
 
-bool TaskTransport::Task_vfunc1(UnitInfo& unit) { return unit_transporter != unit; }
+bool TaskTransport::IsUnitTransferable(UnitInfo& unit) { return unit_transporter != unit; }
 
 char* TaskTransport::WriteStatusLog(char* buffer) const {
     strcpy(buffer, "Transport units: ");
@@ -424,7 +424,7 @@ void TaskTransport::AddUnit(UnitInfo& unit) {
     }
 }
 
-void TaskTransport::Begin() {
+void TaskTransport::Init() {
     if (unit_transporter) {
         AILOG(log, "Transport: Begin.");
 

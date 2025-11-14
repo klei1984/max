@@ -32,7 +32,7 @@
 #include "tasktransport.hpp"
 #include "units_manager.hpp"
 
-TaskAssistMove::TaskAssistMove(uint16_t team_) : Task(team_, nullptr, 0x2800) {}
+TaskAssistMove::TaskAssistMove(uint16_t team_) : Task(team_, nullptr, TASK_PRIORITY_ASSIST_MOVE) {}
 
 TaskAssistMove::~TaskAssistMove() {}
 
@@ -70,7 +70,7 @@ void TaskAssistMove::CompleteTransport(UnitInfo* transporter, UnitInfo* client, 
     TaskTransport_FinishTransport(this, transporter, client, site);
 }
 
-bool TaskAssistMove::Task_vfunc1(UnitInfo& unit) { return unit.storage == 0; }
+bool TaskAssistMove::IsUnitTransferable(UnitInfo& unit) { return unit.storage == 0; }
 
 bool TaskAssistMove::IsUnitUsable(UnitInfo& unit) {
     return unit.GetUnitType() == AIRTRANS || unit.GetUnitType() == SEATRANS || unit.GetUnitType() == CLNTRANS;

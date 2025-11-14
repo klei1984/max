@@ -63,9 +63,9 @@ static bool TaskCreateBuilding_IsMoreLifeNeeded(uint16_t team);
 static bool TaskCreateBuilding_IsMoreFuelReservesNeeded(uint16_t team);
 static int32_t TaskCreateBuilding_DetermineMapSurfaceRequirements(ResourceID unit_type, Point site);
 
-TaskCreateBuilding::TaskCreateBuilding(Task* task, uint16_t flags_, ResourceID unit_type_, Point site_,
+TaskCreateBuilding::TaskCreateBuilding(Task* task, uint16_t priority_, ResourceID unit_type_, Point site_,
                                        TaskManageBuildings* manager_)
-    : TaskCreate(task, flags_, unit_type_) {
+    : TaskCreate(task, priority_, unit_type_) {
     char buffer[200];
     site = site_;
     manager = manager_;
@@ -407,7 +407,8 @@ bool TaskCreateBuilding::RequestRubbleRemoval() {
                 }
 
                 if (unit) {
-                    SmartPointer<Task> remove_rubble_task(new (std::nothrow) TaskRemoveRubble(this, unit.Get(), 0x200));
+                    SmartPointer<Task> remove_rubble_task(
+                        new (std::nothrow) TaskRemoveRubble(this, unit.Get(), TASK_PRIORITY_REMOVE_RUBBLE));
 
                     tasks.PushBack(*remove_rubble_task);
                     TaskManager.AppendTask(*remove_rubble_task);
@@ -587,7 +588,7 @@ void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
     }
 }
 
-void TaskCreateBuilding::Begin() {
+void TaskCreateBuilding::Init() {
     AILOG(log, "Task Create Building: Begin");
 
     if (builder) {
@@ -986,8 +987,8 @@ bool TaskCreateBuilding::RequestWaterPlatform() {
                 if (TaskCreateBuilding_DetermineMapSurfaceRequirements(WTRPLTFM, position) == 1) {
                     field_42 = true;
 
-                    SmartPointer<TaskCreateBuilding> create_building_task(
-                        new (std::nothrow) TaskCreateBuilding(this, GetFlags() - 0x80, WTRPLTFM, position, nullptr));
+                    SmartPointer<TaskCreateBuilding> create_building_task(new (std::nothrow) TaskCreateBuilding(
+                        this, GetPriority() - TASK_PRIORITY_ADJUST_MINOR, WTRPLTFM, position, nullptr));
 
                     tasks.PushBack(*create_building_task);
                     TaskManager.AppendTask(*create_building_task);
@@ -1108,8 +1109,8 @@ void TaskCreateBuilding::BuildBoardwalks() {
                     if (map.GetMapColumn(position.x)[position.y] == 1) {
                         AILOG_LOG(log, "Create boardwalk at [{},{}].", position.x + 1, position.y + 1);
 
-                        SmartPointer<TaskCreateBuilding> create_building_task =
-                            new (std::nothrow) TaskCreateBuilding(this, 0x1C80, BRIDGE, position, &*manager);
+                        SmartPointer<TaskCreateBuilding> create_building_task = new (std::nothrow) TaskCreateBuilding(
+                            this, TASK_PRIORITY_BRIDGE_BASE | TASK_PRIORITY_ADJUST_MINOR, BRIDGE, position, &*manager);
 
                         if (manager) {
                             manager->AddCreateOrder(&*create_building_task);
@@ -1286,7 +1287,7 @@ bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
     Point position;
     Point start_position;
     bool is_found = false;
-    uint16_t flags1;
+    uint16_t bridge_priority;
     uint16_t bridge_count;
     Rect bounds;
     int32_t range_limit;
@@ -1326,10 +1327,10 @@ bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
         }
     }
 
-    flags1 = GetFlags() - 200;
+    bridge_priority = GetPriority() - TASK_PRIORITY_ADJUST_BRIDGE;
 
     if (unit_type != LIGHTPLT && unit_type != LANDPLT && unit_type != DEPOT && unit_type != TRAINHAL) {
-        flags1 = 0x1C00;
+        bridge_priority = TASK_PRIORITY_BRIDGE_BASE;
     }
 
     if (is_found) {
@@ -1341,8 +1342,8 @@ bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
             if (map[position.x][position.y] == 1) {
                 AILOG_LOG(log, "Create bridge at [{},{}].", position.x + 1, position.y + 1);
 
-                create_building_task =
-                    new (std::nothrow) TaskCreateBuilding(this, flags1 + bridge_count, BRIDGE, position, &*manager);
+                create_building_task = new (std::nothrow)
+                    TaskCreateBuilding(this, bridge_priority + bridge_count, BRIDGE, position, &*manager);
 
                 tasks.PushBack(*create_building_task);
 

@@ -83,7 +83,7 @@ void TaskDefenseReserve::MoveFinishedCallback(Task* task, UnitInfo* unit, char r
 bool TaskDefenseReserve::SupportAttacker(UnitInfo* unit) {
     bool result;
 
-    if (AiAttack_FollowAttacker(this, unit, 0x1800)) {
+    if (AiAttack_FollowAttacker(this, unit, TASK_PRIORITY_FOLLOW_DEFENSE)) {
         result = true;
 
     } else {
@@ -97,7 +97,8 @@ bool TaskDefenseReserve::SupportAttacker(UnitInfo* unit) {
     return result;
 }
 
-TaskDefenseReserve::TaskDefenseReserve(uint16_t team_, Point site_) : Task(team_, nullptr, 0x1900) {
+TaskDefenseReserve::TaskDefenseReserve(uint16_t team_, Point site_)
+    : Task(team_, nullptr, TASK_PRIORITY_DEFENSE_RESERVE) {
     int32_t ai_strategy = AiPlayer_Teams[team].GetStrategy();
     site = site_;
 

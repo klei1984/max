@@ -27,7 +27,7 @@
 #include "taskremoverubble.hpp"
 #include "units_manager.hpp"
 
-TaskScavenge::TaskScavenge(uint16_t team_) : Task(team_, nullptr, 0x2100) { wait_for_unit = false; }
+TaskScavenge::TaskScavenge(uint16_t team_) : Task(team_, nullptr, TASK_PRIORITY_SCAVENGE) { wait_for_unit = false; }
 
 TaskScavenge::~TaskScavenge() {}
 
@@ -114,7 +114,8 @@ bool TaskScavenge::Execute(UnitInfo& unit) {
         }
 
         if (target) {
-            SmartPointer<Task> remove_rubble_task(new (std::nothrow) TaskRemoveRubble(this, target, 0x2100));
+            SmartPointer<Task> remove_rubble_task(new (std::nothrow)
+                                                      TaskRemoveRubble(this, target, TASK_PRIORITY_SCAVENGE));
 
             remove_rubble_task->AddUnit(unit);
 

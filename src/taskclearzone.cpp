@@ -137,7 +137,7 @@ uint8_t TaskClearZone::GetType() const { return TaskType_TaskClearZone; }
 
 bool TaskClearZone::IsThinking() { return state != CLEARZONE_STATE_WAITING && state != CLEARZONE_STATE_MOVING_UNIT; }
 
-void TaskClearZone::Begin() {
+void TaskClearZone::Init() {
     AILOG(log, "Clear Zone: Begin.");
 
     RemindTurnEnd();

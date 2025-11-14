@@ -27,7 +27,8 @@
 #include "units_manager.hpp"
 
 TaskWaitToAttack::TaskWaitToAttack(UnitInfo* unit)
-    : Task(unit->team, unit->GetTask(), unit->GetTask() ? unit->GetTask()->GetFlags() : 0x2900), attacker(unit) {}
+    : Task(unit->team, unit->GetTask(), unit->GetTask() ? unit->GetTask()->GetPriority() : TASK_PRIORITY_MOVE),
+      attacker(unit) {}
 
 TaskWaitToAttack::~TaskWaitToAttack() {}
 
@@ -41,7 +42,7 @@ uint8_t TaskWaitToAttack::GetType() const { return TaskType_TaskWaitToAttack; }
 
 bool TaskWaitToAttack::IsThinking() { return false; }
 
-void TaskWaitToAttack::Begin() {
+void TaskWaitToAttack::Init() {
     SmartList<Task>::Iterator it;
 
     for (it = attacker->GetTasks().Begin();

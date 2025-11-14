@@ -35,7 +35,8 @@
 #include "units_manager.hpp"
 #include "weighttable.hpp"
 
-TaskAttackReserve::TaskAttackReserve(uint16_t team, Point site_) : Task(team, nullptr, 0x2600) {
+TaskAttackReserve::TaskAttackReserve(uint16_t team, Point site_)
+    : Task(team, nullptr, TASK_PRIORITY_ATTACK_RESERVE_POOL) {
     site = site_;
     total_worth = 0;
 }
@@ -55,7 +56,7 @@ void TaskAttackReserve::MoveFinishedCallback(Task* task, UnitInfo* unit, char re
 bool TaskAttackReserve::ChaseAttacker(UnitInfo* unit) {
     bool result;
 
-    if (AiAttack_FollowAttacker(this, unit, 0x2000)) {
+    if (AiAttack_FollowAttacker(this, unit, TASK_PRIORITY_FOLLOW_ATTACK)) {
         result = true;
 
     } else {

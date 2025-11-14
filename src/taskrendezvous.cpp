@@ -70,7 +70,7 @@ bool TaskRendezvous_SearchMap(UnitInfo* unit1, UnitInfo* unit2, Point* site, cha
 
 TaskRendezvous::TaskRendezvous(UnitInfo* unit1, UnitInfo* unit2, Task* task,
                                void (*result_callback_)(Task* task, UnitInfo* unit, char mode))
-    : Task(task->GetTeam(), task, task->GetFlags()), unit1(unit1), unit2(unit2), result_callback(result_callback_) {}
+    : Task(task->GetTeam(), task, task->GetPriority()), unit1(unit1), unit2(unit2), result_callback(result_callback_) {}
 
 TaskRendezvous::~TaskRendezvous() {}
 
@@ -149,7 +149,7 @@ char* TaskRendezvous::WriteStatusLog(char* buffer) const {
 
 uint8_t TaskRendezvous::GetType() const { return TaskType_TaskRendezvous; }
 
-void TaskRendezvous::Begin() {
+void TaskRendezvous::Init() {
     if (unit1->GetBaseValues()->GetAttribute(ATTRIB_SPEED) > 0) {
         unit1->AddTask(this);
     }

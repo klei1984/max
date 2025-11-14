@@ -30,7 +30,8 @@
 #include "taskrendezvous.hpp"
 #include "units_manager.hpp"
 
-TaskRemoveRubble::TaskRemoveRubble(Task* task, UnitInfo* unit_, uint16_t flags_) : Task(task->GetTeam(), task, flags_) {
+TaskRemoveRubble::TaskRemoveRubble(Task* task, UnitInfo* unit_, uint16_t priority_)
+    : Task(task->GetTeam(), task, priority_) {
     target = unit_;
 }
 
@@ -73,7 +74,7 @@ void TaskRemoveRubble::AddUnit(UnitInfo& unit_) {
     }
 }
 
-void TaskRemoveRubble::Begin() {
+void TaskRemoveRubble::Init() {
     if (!unit) {
         ObtainUnit();
     }

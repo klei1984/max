@@ -45,7 +45,7 @@ TaskManager::TaskManager() : reminder_counter(0) {}
 
 TaskManager::~TaskManager() {}
 
-bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t flags) {
+bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t task_priority) {
     bool result;
 
     AILOG(log, "Task: should build {}?", UnitsManager_BaseUnits[unit_type].GetSingularName());
@@ -77,7 +77,7 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t fla
 
             for (SmartList<TaskObtainUnits>::Iterator it = unit_requests.Begin(); it != unit_requests.End(); ++it) {
                 if ((*it).GetTeam() == team && (*it).CountInstancesOfUnitType(unit_type) &&
-                    (*it).DeterminePriority(flags + 250) <= 0) {
+                    (*it).ComparePriority(task_priority + TASK_PRIORITY_ADJUST_MAJOR) <= 0) {
                     requested_count += (*it).CountInstancesOfUnitType(unit_type);
                 }
             }
@@ -88,7 +88,8 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t fla
                     TaskCreate* create_task = dynamic_cast<TaskCreate*>(&*it);
 
                     if (create_task->GetUnitType() == unit_type) {
-                        if (create_task->Task_vfunc28() || create_task->DeterminePriority(flags + 250) <= 0) {
+                        if (create_task->Task_vfunc28() ||
+                            create_task->ComparePriority(task_priority + TASK_PRIORITY_ADJUST_MAJOR) <= 0) {
                             return false;
                         }
                     }
@@ -211,13 +212,13 @@ void TaskManager::CollectPotentialAttackTargets(UnitInfo* unit) {
 void TaskManager::EnqueueUnitForReactionCheck(UnitInfo& unit) { units_to_check.PushBack(unit); }
 
 void TaskManager::CreateBuilding(ResourceID unit_type, uint16_t team, Point site, Task* task) {
-    if (IsUnitNeeded(unit_type, team, task->GetFlags())) {
+    if (IsUnitNeeded(unit_type, team, task->GetPriority())) {
         AiPlayer_Teams[team].CreateBuilding(unit_type, site, task);
     }
 }
 
 void TaskManager::CreateUnit(ResourceID unit_type, uint16_t team, Point site, Task* task) {
-    if (IsUnitNeeded(unit_type, team, task->GetFlags())) {
+    if (IsUnitNeeded(unit_type, team, task->GetPriority())) {
         SmartPointer<TaskCreateUnit> create_unit_task(new (std::nothrow) TaskCreateUnit(unit_type, task, site));
 
         AppendTask(*create_unit_task);
@@ -233,7 +234,7 @@ void TaskManager::AppendTask(Task& task) {
         unit_requests.PushBack(*dynamic_cast<TaskObtainUnits*>(&task));
     }
 
-    task.Begin();
+    task.Init();
 }
 
 void TaskManager::AppendReminder(Reminder* reminder, bool priority) {
@@ -395,7 +396,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
             unit->GetUnitType() == AIRPLT || unit->GetUnitType() == TRAINHAL) {
             if (!unit->GetTask() && unit->hits > 0) {
                 SmartPointer<TaskObtainUnits> obtain_units_task;
-                uint16_t task_flags{UINT16_MAX};
+                uint16_t task_priority{UINT16_MAX};
 
                 if (AiLog_IsEnabled()) {
                     char unit_name[300];
@@ -495,10 +496,10 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
 
                 for (SmartList<TaskObtainUnits>::Iterator it = unit_requests.Begin(); it != unit_requests.End(); ++it) {
                     if ((*it).GetTeam() == unit->team) {
-                        if ((!obtain_units_task || (*it).DeterminePriority(task_flags) < 0) &&
+                        if ((!obtain_units_task || (*it).ComparePriority(task_priority) < 0) &&
                             (*it).CountInstancesOfUnitType(unit->GetUnitType())) {
                             obtain_units_task = *it;
-                            task_flags = obtain_units_task->GetFlags();
+                            task_priority = obtain_units_task->GetPriority();
                         }
                     }
                 }
@@ -516,7 +517,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                     for (SmartList<TaskObtainUnits>::Iterator it = unit_requests.Begin(); it != unit_requests.End();
                          ++it) {
                         if ((*it).GetTeam() == unit->team) {
-                            (*it).Begin();
+                            (*it).Init();
                         }
                     }
                 }

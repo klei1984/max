@@ -33,7 +33,7 @@ protected:
     void FindDestination(UnitInfo& unit, int32_t radius);
 
 public:
-    TaskAbstractSearch(uint16_t team, Task* task, uint16_t flags, Point point);
+    TaskAbstractSearch(uint16_t team, Task* task, uint16_t priority, Point point);
     ~TaskAbstractSearch();
 
     Point GetPoint() const;

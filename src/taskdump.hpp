@@ -48,7 +48,7 @@ public:
 
     char* WriteStatusLog(char* buffer) const;
     uint8_t GetType() const;
-    void Begin();
+    void Init();
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
 };

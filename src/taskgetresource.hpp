@@ -40,7 +40,7 @@ public:
     TaskGetResource(Task* task, UnitInfo& unit);
     ~TaskGetResource();
 
-    virtual void Begin();
+    virtual void Init();
     virtual void EndTurn();
     virtual void RemoveSelf();
     virtual void RemoveUnit(UnitInfo& unit);

@@ -191,25 +191,25 @@ Point AiPlayer::GetTeamClusterCoordinates(uint16_t team) {
     return site;
 }
 
-void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_flags) {
+void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_priority) {
     if (!spotted_unit->GetTask()) {
-        if (task_flags > 0x1000 &&
+        if (task_priority > TASK_PRIORITY_ATTACK_MOBILE &&
             UnitsManager_TeamInfo[spotted_unit->GetUnit()->team].team_points >
                 UnitsManager_TeamInfo[player_team].team_points &&
             (spotted_unit->GetUnit()->GetUnitType() == GREENHSE ||
              spotted_unit->GetUnit()->GetUnitType() == MININGST)) {
-            task_flags = 0x1700;
+            task_priority = TASK_PRIORITY_ATTACK_PRIORITY_TARGET;
         }
 
-        uint16_t target_task_flags =
-            AiAttack_GetTargetFlags(nullptr, spotted_unit->GetUnit(), player_team) + task_flags + 0xFA;
+        uint16_t target_task_priority = AiAttack_GetTargetFlags(nullptr, spotted_unit->GetUnit(), player_team) +
+                                        task_priority + TASK_PRIORITY_ADJUST_MAJOR;
         int32_t task_index;
 
         for (task_index = 0; task_index < AttackTaskLimit && attack_tasks[task_index]; ++task_index) {
         }
 
         if (task_index == AttackTaskLimit) {
-            for (--task_index; task_index >= 0 && attack_tasks[task_index]->DeterminePriority(target_task_flags) <= 0;
+            for (--task_index; task_index >= 0 && attack_tasks[task_index]->ComparePriority(target_task_priority) <= 0;
                  --task_index) {
             }
         }
@@ -223,7 +223,7 @@ void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_flags) {
                         attack_tasks[task_index]->RemoveSelf();
                     }
 
-                    attack_tasks[task_index] = new (std::nothrow) TaskAttack(spotted_unit, task_flags);
+                    attack_tasks[task_index] = new (std::nothrow) TaskAttack(spotted_unit, task_priority);
                     TaskManager.AppendTask(*attack_tasks[task_index]);
                 }
 
@@ -232,7 +232,7 @@ void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_flags) {
                     attack_tasks[task_index]->RemoveSelf();
                 }
 
-                attack_tasks[task_index] = new (std::nothrow) TaskAttack(spotted_unit, task_flags);
+                attack_tasks[task_index] = new (std::nothrow) TaskAttack(spotted_unit, task_priority);
                 TaskManager.AppendTask(*attack_tasks[task_index]);
             }
         }
@@ -246,11 +246,11 @@ void AiPlayer::UpdatePriorityTasks() {
 
     for (auto it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End(); ++it) {
         if ((*it).GetTeam() == player_team && (*it).GetType() == TaskType_TaskAttack) {
-            uint16_t task_flags = (*it).GetFlags();
+            uint16_t task_priority = (*it).GetPriority();
             int32_t task_index;
 
             for (task_index = 0; task_index < AttackTaskLimit && attack_tasks[task_index] &&
-                                 attack_tasks[task_index]->DeterminePriority(task_flags) <= 0;
+                                 attack_tasks[task_index]->ComparePriority(task_priority) <= 0;
                  ++task_index) {
             }
 
@@ -2541,7 +2541,7 @@ void AiPlayer::BeginTurn() {
 
             for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
                 if (IsKeyFacility((*it).GetUnit()->GetUnitType()) && IsTargetTeam((*it).GetUnit()->team)) {
-                    DetermineAttack(&*it, 0x1F00);
+                    DetermineAttack(&*it, TASK_PRIORITY_ATTACK_DEFAULT);
                 }
             }
 
@@ -2591,14 +2591,14 @@ void AiPlayer::BeginTurn() {
                 UnitInfo* target = (*it).GetUnit();
 
                 if (AiAttack_IsWithinReach(target, player_team, teams)) {
-                    DetermineAttack(&*it, 0x1000);
+                    DetermineAttack(&*it, TASK_PRIORITY_ATTACK_MOBILE);
 
                 } else if (IsTargetTeam(target->team) || target->team == PLAYER_TEAM_ALIEN) {
                     if ((target->GetUnitType() == CONSTRCT && target->GetOrder() == ORDER_BUILD) ||
                         IsKeyFacility(target->GetUnitType()) ||
                         (target->team == PLAYER_TEAM_ALIEN &&
                          (target->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)))) {
-                        DetermineAttack(&*it, 0x1F00);
+                        DetermineAttack(&*it, TASK_PRIORITY_ATTACK_DEFAULT);
                     }
                 }
             }
@@ -3021,7 +3021,8 @@ bool AiPlayer::CheckEndTurn() {
 }
 
 bool AiPlayer::CreateBuilding(ResourceID unit_type, Point position, Task* task) {
-    return dynamic_cast<TaskManageBuildings*>(FindManager(position))->CreateBuilding(unit_type, task, task->GetFlags());
+    return dynamic_cast<TaskManageBuildings*>(FindManager(position))
+        ->CreateBuilding(unit_type, task, task->GetPriority());
 }
 
 void AiPlayer::Init(uint16_t team) {
@@ -4089,7 +4090,7 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
 
             if ((IsKeyFacility(unit->GetUnitType()) || (!is_key_facility && unit->GetUnitType() == CONSTRCT)) &&
                 IsTargetTeam(unit->team)) {
-                DetermineAttack(&*spotted_unit2, 0x1F00);
+                DetermineAttack(&*spotted_unit2, TASK_PRIORITY_ATTACK_DEFAULT);
 
             } else if (!is_key_facility && unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0) {
                 if (IsTargetTeam(unit->team)) {
@@ -4103,7 +4104,7 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
 
                             spotted_units.PushBack(*spotted_unit2);
 
-                            DetermineAttack(&*spotted_unit2, 0x1F00);
+                            DetermineAttack(&*spotted_unit2, TASK_PRIORITY_ATTACK_DEFAULT);
 
                             return;
                         }
@@ -4125,7 +4126,7 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
 
                             spotted_units.PushBack(*spotted_unit2);
 
-                            DetermineAttack(&*spotted_unit2, 0x1F00);
+                            DetermineAttack(&*spotted_unit2, TASK_PRIORITY_ATTACK_DEFAULT);
 
                             return;
                         }
@@ -4778,7 +4779,8 @@ int32_t AiPlayer_GetProjectedDamage(UnitInfo* friendly_unit, UnitInfo* enemy_uni
         Access_IsValidAttackTarget(friendly_unit, enemy_unit)) {
         if (caution_level != CAUTION_LEVEL_AVOID_REACTION_FIRE ||
             friendly_unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
-            if (!friendly_unit->GetTask() || friendly_unit->GetTask()->DeterminePriority(0x400) > 0) {
+            if (!friendly_unit->GetTask() ||
+                friendly_unit->GetTask()->ComparePriority(TASK_PRIORITY_FRONTAL_ATTACK) > 0) {
                 result = AiPlayer_CalculateProjectedDamage(friendly_unit, enemy_unit, caution_level);
 
             } else {

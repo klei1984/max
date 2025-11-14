@@ -25,7 +25,7 @@
 #include "units_manager.hpp"
 
 TaskRadarAssistant::TaskRadarAssistant(TaskManageBuildings* manager_)
-    : Task(manager_->GetTeam(), manager_, manager_->GetFlags()) {
+    : Task(manager_->GetTeam(), manager_, manager_->GetPriority()) {
     manager = manager_;
 }
 
@@ -46,7 +46,7 @@ void TaskRadarAssistant::BeginTurn() {
         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], RADAR)->GetAttribute(ATTRIB_TURNS)) {
         if (manager->FindSiteForRadar(nullptr, site)) {
             SmartPointer<TaskCreateBuilding> create_building_task(
-                new (std::nothrow) TaskCreateBuilding(this, 0x0D00, RADAR, site, &*manager));
+                new (std::nothrow) TaskCreateBuilding(this, TASK_PRIORITY_BUILDING_RADAR, RADAR, site, &*manager));
 
             manager->AddCreateOrder(&*create_building_task);
         }

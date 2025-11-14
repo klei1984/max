@@ -33,8 +33,8 @@
 #include "ticktimer.hpp"
 #include "units_manager.hpp"
 
-TaskKillUnit::TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit_, uint16_t flags_)
-    : Task(spotted_unit_->GetTeam(), task_attack, flags_) {
+TaskKillUnit::TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit_, uint16_t priority_)
+    : Task(spotted_unit_->GetTeam(), task_attack, priority_) {
     UnitInfo* target = spotted_unit_->GetUnit();
     spotted_unit = spotted_unit_;
     unit_requests = 0;
@@ -319,7 +319,7 @@ bool TaskKillUnit::GetNewUnits() {
 
 UnitInfo* TaskKillUnit::FindClosestCombatUnit(SmartList<UnitInfo>* units_, UnitInfo* unit, int32_t* distance,
                                               TransporterMap* map) {
-    uint32_t task_flags = GetFlags();
+    uint32_t task_priority = GetPriority();
     bool is_found;
 
     for (SmartList<UnitInfo>::Iterator it = units_->Begin(); it != units_->End(); ++it) {
@@ -329,8 +329,8 @@ UnitInfo* TaskKillUnit::FindClosestCombatUnit(SmartList<UnitInfo>* units_, UnitI
                 is_found = false;
 
                 if ((*it).GetTask()) {
-                    if ((*it).GetTask()->DeterminePriority(task_flags) > 0) {
-                        is_found = (*it).GetTask()->Task_vfunc1(*it);
+                    if ((*it).GetTask()->ComparePriority(task_priority) > 0) {
+                        is_found = (*it).GetTask()->IsUnitTransferable(*it);
                     }
 
                 } else {
@@ -407,14 +407,14 @@ bool TaskKillUnit::IsUnitUsable(UnitInfo& unit) {
     return result;
 }
 
-uint16_t TaskKillUnit::GetFlags() const {
+uint16_t TaskKillUnit::GetPriority() const {
     uint16_t result;
 
     if (spotted_unit) {
-        result = flags + AiAttack_GetTargetFlags(nullptr, spotted_unit->GetUnit(), team);
+        result = base_priority + AiAttack_GetTargetFlags(nullptr, spotted_unit->GetUnit(), team);
 
     } else {
-        result = flags + 0xFF;
+        result = base_priority + 0xFF;
     }
 
     return result;

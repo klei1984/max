@@ -106,9 +106,9 @@ void TaskGetResource::ReleaseSource() {
     }
 }
 
-TaskGetResource::TaskGetResource(Task* task, UnitInfo& unit) : Task(unit.team, task, 0x2300) {
+TaskGetResource::TaskGetResource(Task* task, UnitInfo& unit) : Task(unit.team, task, TASK_PRIORITY_GET_RESOURCE) {
     if (task) {
-        flags = task->GetFlags();
+        base_priority = task->GetPriority();
     }
 
     requestor = unit;
@@ -116,7 +116,7 @@ TaskGetResource::TaskGetResource(Task* task, UnitInfo& unit) : Task(unit.team, t
 
 TaskGetResource::~TaskGetResource() {}
 
-void TaskGetResource::Begin() {
+void TaskGetResource::Init() {
     requestor->AddTask(this);
 
     if (!IsScheduledForTurnStart()) {

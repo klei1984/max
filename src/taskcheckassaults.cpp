@@ -30,7 +30,7 @@
 #include "units_manager.hpp"
 
 TaskCheckAssaults::TaskCheckAssaults(uint16_t team)
-    : Task(team, nullptr, 0x1E), unit_iterator(UnitsManager_MobileAirUnits.End()) {}
+    : Task(team, nullptr, TASK_PRIORITY_CHECK_ASSAULTS), unit_iterator(UnitsManager_MobileAirUnits.End()) {}
 
 TaskCheckAssaults::~TaskCheckAssaults() {}
 

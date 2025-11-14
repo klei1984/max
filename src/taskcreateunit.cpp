@@ -42,21 +42,21 @@ enum {
 };
 
 TaskCreateUnit::TaskCreateUnit(ResourceID unit_type, Task* task, Point site_)
-    : TaskCreate(task, task->GetFlags(), unit_type), site(site_), op_state(CREATE_UNIT_STATE_INITIALIZING) {}
+    : TaskCreate(task, task->GetPriority(), unit_type), site(site_), op_state(CREATE_UNIT_STATE_INITIALIZING) {}
 
 TaskCreateUnit::TaskCreateUnit(UnitInfo* unit_, Task* task)
     : TaskCreate(task, unit_), site(unit_->grid_x, unit_->grid_y), op_state(CREATE_UNIT_STATE_BUILDING) {}
 
 TaskCreateUnit::~TaskCreateUnit() {}
 
-uint16_t TaskCreateUnit::GetFlags() const {
+uint16_t TaskCreateUnit::GetPriority() const {
     uint16_t result;
 
     if (parent) {
-        result = parent->GetFlags();
+        result = parent->GetPriority();
 
     } else {
-        result = flags;
+        result = base_priority;
     }
 
     return result;
@@ -123,7 +123,7 @@ void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
     }
 }
 
-void TaskCreateUnit::Begin() {
+void TaskCreateUnit::Init() {
     AILOG(log, "Task Create Unit: Begin.");
 
     if (builder) {

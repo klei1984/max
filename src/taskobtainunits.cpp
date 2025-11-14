@@ -29,7 +29,7 @@
 #include "units_manager.hpp"
 
 TaskObtainUnits::TaskObtainUnits(Task* task, Point point)
-    : Task(task->GetTeam(), task, task->GetFlags()), point(point), init(true), reinit(true) {}
+    : Task(task->GetTeam(), task, task->GetPriority()), point(point), init(true), reinit(true) {}
 
 TaskObtainUnits::~TaskObtainUnits() {}
 
@@ -64,11 +64,11 @@ bool TaskObtainUnits::IsValidCandidate(UnitInfo* unit, bool mode) {
             if (mode) {
                 result = false;
 
-            } else if (!task->Task_vfunc1(*unit)) {
+            } else if (!task->IsUnitTransferable(*unit)) {
                 result = false;
 
             } else {
-                result = task->DeterminePriority(GetFlags()) > 0;
+                result = task->ComparePriority(GetPriority()) > 0;
             }
 
         } else {
@@ -144,13 +144,13 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
     return selected_unit;
 }
 
-uint16_t TaskObtainUnits::GetFlags() const {
+uint16_t TaskObtainUnits::GetPriority() const {
     uint16_t flags;
 
     if (parent != nullptr) {
-        flags = parent->GetFlags();
+        flags = parent->GetPriority();
     } else {
-        flags = 0x2900;
+        flags = TASK_PRIORITY_MOVE;
     }
 
     return flags;
@@ -213,7 +213,7 @@ void TaskObtainUnits::AddUnit(UnitInfo& unit) {
     }
 }
 
-void TaskObtainUnits::Begin() {
+void TaskObtainUnits::Init() {
     if (reinit) {
         RemindTurnEnd(true);
 
@@ -286,7 +286,7 @@ void TaskObtainUnits::EndTurn() {
 }
 
 void TaskObtainUnits::RequestUnits(ResourceID unit_type, uint16_t team, int32_t requested_amount, Point site) {
-    uint16_t task_flags = this->GetFlags();
+    uint16_t task_priority = this->GetPriority();
     uint16_t task_team = this->GetTeam();
     auto& tasks = TaskManager.GetTaskList();
 
@@ -304,7 +304,7 @@ void TaskObtainUnits::RequestUnits(ResourceID unit_type, uint16_t team, int32_t 
 
         for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
             if ((*it).GetTeam() == this->GetTeam() && (*it).GetType() == TaskType_TaskCreateUnit) {
-                if ((*it).DeterminePriority(task_flags + 250) <= 0) {
+                if ((*it).ComparePriority(task_priority + TASK_PRIORITY_ADJUST_MAJOR) <= 0) {
                     ++unit_counters[dynamic_cast<TaskCreateUnit*>(it->Get())->GetUnitType()];
                 }
             }

@@ -137,7 +137,7 @@ void TaskSupportAttack::MoveFinishedCallback(Task* task, UnitInfo* unit, char re
     }
 }
 
-TaskSupportAttack::TaskSupportAttack(Task* task) : Task(task->GetTeam(), task, 0x2500) {
+TaskSupportAttack::TaskSupportAttack(Task* task) : Task(task->GetTeam(), task, TASK_PRIORITY_SUPPORT_ATTACK) {
     unit_flags = 0;
     unit_type1 = INVALID_ID;
     unit_type2 = INVALID_ID;

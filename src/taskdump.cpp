@@ -30,7 +30,7 @@
 #include "units_manager.hpp"
 
 TaskDump::TaskDump(TaskTransport* task_transport, TaskMove* task_move_, UnitInfo* transporter)
-    : Task(task_move_->GetTeam(), task_transport, task_move_->GetFlags()),
+    : Task(task_move_->GetTeam(), task_transport, task_move_->GetPriority()),
       transporter_unit(transporter),
       task_move(task_move_) {
     steps_limit = 2;
@@ -162,7 +162,7 @@ char* TaskDump::WriteStatusLog(char* buffer) const {
 
 uint8_t TaskDump::GetType() const { return TaskType_TaskDump; }
 
-void TaskDump::Begin() {
+void TaskDump::Init() {
     transporter_unit->AddTask(this);
     steps_limit = 2;
     steps_counter = 2;

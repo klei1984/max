@@ -40,12 +40,12 @@ public:
     uint32_t CountInstancesOfUnitType(ResourceID unit_type);
     UnitInfo* FindUnit(ResourceID unit_type, bool mode);
 
-    uint16_t GetFlags() const;
+    uint16_t GetPriority() const;
     char* WriteStatusLog(char* buffer) const;
     uint8_t GetType() const;
     bool IsNeeded();
     void AddUnit(UnitInfo& unit);
-    void Begin();
+    void Init();
     void BeginTurn();
     void EndTurn();
     void RemoveSelf();

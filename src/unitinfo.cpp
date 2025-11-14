@@ -4692,7 +4692,7 @@ void UnitInfo::Refuel(UnitInfo* parent) {
     }
 
     if (parent->GetTask()) {
-        parent->GetTask()->Task_vfunc20(*parent);
+        parent->GetTask()->EventUnitRefueled(*parent);
     }
 }
 

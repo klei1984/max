@@ -23,10 +23,10 @@
 
 #include "task_manager.hpp"
 
-TaskCreate::TaskCreate(Task* task, uint16_t flags, ResourceID unit_type_)
-    : Task(task->GetTeam(), task, flags), unit_type(unit_type_) {}
+TaskCreate::TaskCreate(Task* task, uint16_t priority, ResourceID unit_type_)
+    : Task(task->GetTeam(), task, priority), unit_type(unit_type_) {}
 
-TaskCreate::TaskCreate(Task* task, UnitInfo* unit_) : Task(unit_->team, task, task->GetFlags()), builder(unit_) {
+TaskCreate::TaskCreate(Task* task, UnitInfo* unit_) : Task(unit_->team, task, task->GetPriority()), builder(unit_) {
     if (builder->GetOrderState() == ORDER_STATE_UNIT_READY) {
         unit_type = unit_->GetParent()->GetUnitType();
 

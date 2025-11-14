@@ -40,7 +40,7 @@
 
 TaskMove::TaskMove(UnitInfo* unit, Task* task, uint16_t minimum_distance_, uint8_t caution_level_, Point destination,
                    void (*result_callback_)(Task* task, UnitInfo* unit, char result))
-    : Task(unit->team, task, task ? task->GetFlags() : 0x1000) {
+    : Task(unit->team, task, task ? task->GetPriority() : TASK_PRIORITY_ATTACK_MOBILE) {
     path_result = TASKMOVE_RESULT_SUCCESS;
     passenger = unit;
     minimum_distance = minimum_distance_;
@@ -73,7 +73,7 @@ TaskMove::TaskMove(UnitInfo* unit, Task* task, uint16_t minimum_distance_, uint8
 }
 
 TaskMove::TaskMove(UnitInfo* unit, void (*result_callback_)(Task* task, UnitInfo* unit, char result))
-    : Task(unit->team, nullptr, 0x2900) {
+    : Task(unit->team, nullptr, TASK_PRIORITY_MOVE) {
     passenger = unit;
     path_result = TASKMOVE_RESULT_SUCCESS;
     minimum_distance = 0;
@@ -154,7 +154,7 @@ void TaskMove::AddUnit(UnitInfo& unit) {
     }
 }
 
-void TaskMove::Begin() {
+void TaskMove::Init() {
     Task_RemoveMovementTasks(&*passenger);
     passenger->AddTask(this);
 

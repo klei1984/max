@@ -42,7 +42,7 @@ public:
 
     char* WriteStatusLog(char* buffer) const;
     uint8_t GetType() const;
-    void Begin();
+    void Init();
     bool Execute(UnitInfo& unit);
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);

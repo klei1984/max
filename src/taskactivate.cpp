@@ -28,7 +28,8 @@
 #include "task_manager.hpp"
 #include "units_manager.hpp"
 
-TaskActivate::TaskActivate(UnitInfo* unit, Task* task, UnitInfo* parent_) : Task(unit->team, task, task->GetFlags()) {
+TaskActivate::TaskActivate(UnitInfo* unit, Task* task, UnitInfo* parent_)
+    : Task(unit->team, task, task->GetPriority()) {
     unit_to_activate = unit;
     unit_parent = parent_;
 }
@@ -166,7 +167,7 @@ void TaskActivate::Activate() {
     }
 }
 
-bool TaskActivate::Task_vfunc1(UnitInfo& unit) { return unit_to_activate != unit; }
+bool TaskActivate::IsUnitTransferable(UnitInfo& unit) { return unit_to_activate != unit; }
 
 char* TaskActivate::WriteStatusLog(char* buffer) const {
     if (unit_to_activate && unit_parent) {
@@ -203,7 +204,7 @@ void TaskActivate::AddUnit(UnitInfo& unit) {
     }
 }
 
-void TaskActivate::Begin() {
+void TaskActivate::Init() {
     unit_to_activate->AddTask(this);
     Activate();
 }

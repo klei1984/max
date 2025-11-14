@@ -99,7 +99,8 @@ bool TaskManageBuildings_IsUnitAvailable(uint16_t team, SmartList<UnitInfo>* uni
     return false;
 }
 
-TaskManageBuildings::TaskManageBuildings(uint16_t team, Point site) : Task(team, nullptr, 0x1D00) {
+TaskManageBuildings::TaskManageBuildings(uint16_t team, Point site)
+    : Task(team, nullptr, TASK_PRIORITY_MANAGE_BUILDINGS) {
     building_site = site;
 }
 
@@ -117,7 +118,7 @@ void TaskManageBuildings::BuildBridge(Point site, Task* task) {
     }
 
     SmartPointer<TaskCreateBuilding> create_building_task(
-        new (std::nothrow) TaskCreateBuilding(task, task->GetFlags(), BRIDGE, site, this));
+        new (std::nothrow) TaskCreateBuilding(task, task->GetPriority(), BRIDGE, site, this));
 
     AddCreateOrder(&*create_building_task);
 }
@@ -347,7 +348,7 @@ void TaskManageBuildings::ClearPathways(uint16_t** construction_map, Rect bounds
 }
 
 void TaskManageBuildings::ClearPlannedBuildings(uint16_t** construction_map, TaskCreateBuilding* task,
-                                                ResourceID unit_type, uint16_t task_flags) {
+                                                ResourceID unit_type, uint16_t task_priority) {
     AILOG(log, "Clear planned buildings.");
 
     int32_t unit_size = UnitsManager_BaseUnits[unit_type].flags & BUILDING ? 2 : 1;
@@ -373,7 +374,7 @@ void TaskManageBuildings::ClearPlannedBuildings(uint16_t** construction_map, Tas
     bool needs_land_access =
         unit_type == LIGHTPLT || unit_type == LANDPLT || unit_type == DEPOT || unit_type == TRAINHAL;
 
-    if (task_flags <= 0x1300) {
+    if (task_priority <= TASK_PRIORITY_LAND_ACCESS_THRESHOLD) {
         needs_land_access = false;
     }
 
@@ -883,7 +884,8 @@ bool TaskManageBuildings::EvaluateSite(uint16_t** construction_map, ResourceID u
     return result;
 }
 
-bool TaskManageBuildings::FindSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site, uint16_t task_flags) {
+bool TaskManageBuildings::FindSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site,
+                                   uint16_t task_priority) {
     uint16_t** construction_map = CreateMap();
     int32_t unit_size = (UnitsManager_BaseUnits[unit_type].flags & BUILDING) ? 2 : 1;
     bool result;
@@ -908,7 +910,7 @@ bool TaskManageBuildings::FindSite(ResourceID unit_type, TaskCreateBuilding* tas
     }
 
     ClearBuildingAreas(construction_map, task);
-    ClearPlannedBuildings(construction_map, task, unit_type, task_flags);
+    ClearPlannedBuildings(construction_map, task, unit_type, task_priority);
     LimitBlockSize(construction_map, unit_size);
     result = EvaluateSite(construction_map, unit_type, site);
     DeleteMap(construction_map);
@@ -916,7 +918,7 @@ bool TaskManageBuildings::FindSite(ResourceID unit_type, TaskCreateBuilding* tas
     return result;
 }
 
-int32_t TaskManageBuildings::GetUnitCount(ResourceID unit_type, uint16_t task_flags) {
+int32_t TaskManageBuildings::GetUnitCount(ResourceID unit_type, uint16_t task_priority) {
     int32_t unit_count = 0;
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
@@ -926,7 +928,7 @@ int32_t TaskManageBuildings::GetUnitCount(ResourceID unit_type, uint16_t task_fl
     }
 
     for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
-        if ((*it).GetUnitType() == unit_type && ((*it).Task_vfunc28() || (*it).DeterminePriority(task_flags) <= 0)) {
+        if ((*it).GetUnitType() == unit_type && ((*it).Task_vfunc28() || (*it).ComparePriority(task_priority) <= 0)) {
             ++unit_count;
         }
     }
@@ -986,12 +988,12 @@ int32_t TaskManageBuildings::GetHighestGreenHouseCount(uint16_t team_) {
     return highest_greenhouse_count;
 }
 
-bool TaskManageBuildings::CreateBuildings(int32_t building_demand, ResourceID unit_type, uint16_t task_flags) {
+bool TaskManageBuildings::CreateBuildings(int32_t building_demand, ResourceID unit_type, uint16_t task_priority) {
     if (Builder_IsBuildable(unit_type)) {
-        building_demand -= GetUnitCount(unit_type, task_flags);
+        building_demand -= GetUnitCount(unit_type, task_priority);
 
         for (int32_t i = 0; i < building_demand; ++i) {
-            if (CreateBuilding(unit_type, this, task_flags)) {
+            if (CreateBuilding(unit_type, this, task_priority)) {
                 return true;
             }
         }
@@ -1004,10 +1006,12 @@ bool TaskManageBuildings::PlanNextBuildJob() {
     bool result;
 
     if (units.GetCount()) {
-        if (!GetUnitCount(LIGHTPLT, 0x700) && CreateBuilding(LIGHTPLT, this, 0x700)) {
+        if (!GetUnitCount(LIGHTPLT, TASK_PRIORITY_BUILDING_LIGHT_PLANT) &&
+            CreateBuilding(LIGHTPLT, this, TASK_PRIORITY_BUILDING_LIGHT_PLANT)) {
             result = true;
 
-        } else if (!GetUnitCount(LANDPLT, 0x1300) && CreateBuilding(LANDPLT, this, 0x1300)) {
+        } else if (!GetUnitCount(LANDPLT, TASK_PRIORITY_LAND_ACCESS_THRESHOLD) &&
+                   CreateBuilding(LANDPLT, this, TASK_PRIORITY_LAND_ACCESS_THRESHOLD)) {
             result = true;
 
         } else {
@@ -1020,32 +1024,39 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                                        unit_count_shipyard + unit_count_trainhall;
 
             if (unit_count_lightplant > 0 && unit_count_landplant > 0) {
-                if (!GetUnitCount(AIRPLT, 0x1300) && CreateBuilding(AIRPLT, this, 0x1300)) {
+                if (!GetUnitCount(AIRPLT, TASK_PRIORITY_LAND_ACCESS_THRESHOLD) &&
+                    CreateBuilding(AIRPLT, this, TASK_PRIORITY_LAND_ACCESS_THRESHOLD)) {
                     return true;
                 }
 
-                if (!GetUnitCount(HABITAT, 0xC00) && CreateBuilding(HABITAT, this, 0xC00)) {
+                if (!GetUnitCount(HABITAT, TASK_PRIORITY_BUILDING_HABITAT) &&
+                    CreateBuilding(HABITAT, this, TASK_PRIORITY_BUILDING_HABITAT)) {
                     return true;
                 }
 
-                if (!GetUnitCount(GREENHSE, 0x1600) && CreateBuilding(GREENHSE, this, 0x1600)) {
+                if (!GetUnitCount(GREENHSE, TASK_PRIORITY_BUILDING_GREENHOUSE) &&
+                    CreateBuilding(GREENHSE, this, TASK_PRIORITY_BUILDING_GREENHOUSE)) {
                     return true;
                 }
 
-                if (!GetUnitCount(RESEARCH, 0x1500) && CreateBuilding(RESEARCH, this, 0x1500)) {
+                if (!GetUnitCount(RESEARCH, TASK_PRIORITY_BUILDING_UPGRADES) &&
+                    CreateBuilding(RESEARCH, this, TASK_PRIORITY_BUILDING_UPGRADES)) {
                     return true;
                 }
 
                 if (unit_count_airplant > 0) {
-                    if (CreateBuildings((AiPlayer_Teams[team].GetField5() * total_unit_count) / 10, GREENHSE, 0x1600)) {
+                    if (CreateBuildings((AiPlayer_Teams[team].GetField5() * total_unit_count) / 10, GREENHSE,
+                                        TASK_PRIORITY_BUILDING_GREENHOUSE)) {
                         return true;
                     }
 
-                    if (CreateBuildings(GetUnitCount(GREENHSE, 0x1500), RESEARCH, 0x1500)) {
+                    if (CreateBuildings(GetUnitCount(GREENHSE, TASK_PRIORITY_BUILDING_UPGRADES), RESEARCH,
+                                        TASK_PRIORITY_BUILDING_UPGRADES)) {
                         return true;
                     }
 
-                    if (IsSupremeTeam(team) && CreateBuildings(GetHighestGreenHouseCount(team) + 1, GREENHSE, 0x1600)) {
+                    if (IsSupremeTeam(team) && CreateBuildings(GetHighestGreenHouseCount(team) + 1, GREENHSE,
+                                                               TASK_PRIORITY_BUILDING_GREENHOUSE)) {
                         return true;
                     }
                 }
@@ -1055,7 +1066,7 @@ bool TaskManageBuildings::PlanNextBuildJob() {
 
             switch (AiPlayer_Teams[team].GetStrategy()) {
                 case AI_STRATEGY_DEFENSIVE: {
-                    if (CreateBuildings(total_unit_count, LIGHTPLT, 0x1800)) {
+                    if (CreateBuildings(total_unit_count, LIGHTPLT, TASK_PRIORITY_FOLLOW_DEFENSE)) {
                         return true;
                     }
                 } break;
@@ -1064,81 +1075,85 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                 } break;
 
                 case AI_STRATEGY_AIR: {
-                    if (!GetUnitCount(AIRPLT, 0x1300) && CreateBuilding(AIRPLT, this, 0x1300)) {
+                    if (!GetUnitCount(AIRPLT, TASK_PRIORITY_LAND_ACCESS_THRESHOLD) &&
+                        CreateBuilding(AIRPLT, this, TASK_PRIORITY_LAND_ACCESS_THRESHOLD)) {
                         return true;
                     }
 
-                    if (CreateBuildings(total_unit_count, AIRPLT, 0x1800)) {
+                    if (CreateBuildings(total_unit_count, AIRPLT, TASK_PRIORITY_FOLLOW_DEFENSE)) {
                         return true;
                     }
                 } break;
 
                 case AI_STRATEGY_SEA: {
-                    if (!GetUnitCount(SHIPYARD, 0x1300) && CreateBuilding(SHIPYARD, this, 0x1300)) {
+                    if (!GetUnitCount(SHIPYARD, TASK_PRIORITY_LAND_ACCESS_THRESHOLD) &&
+                        CreateBuilding(SHIPYARD, this, TASK_PRIORITY_LAND_ACCESS_THRESHOLD)) {
                         return true;
                     }
 
-                    if (CreateBuildings(total_unit_count, SHIPYARD, 0x1800)) {
+                    if (CreateBuildings(total_unit_count, SHIPYARD, TASK_PRIORITY_FOLLOW_DEFENSE)) {
                         return true;
                     }
                 } break;
 
                 case AI_STRATEGY_SCOUT_HORDE: {
-                    if (CreateBuildings(total_unit_count, LIGHTPLT, 0x1800)) {
+                    if (CreateBuildings(total_unit_count, LIGHTPLT, TASK_PRIORITY_FOLLOW_DEFENSE)) {
                         return true;
                     }
                 } break;
 
                 case AI_STRATEGY_TANK_HORDE: {
-                    if (CreateBuildings(total_unit_count, LANDPLT, 0x1800)) {
+                    if (CreateBuildings(total_unit_count, LANDPLT, TASK_PRIORITY_FOLLOW_DEFENSE)) {
                         return true;
                     }
                 } break;
 
                 case AI_STRATEGY_FAST_ATTACK: {
-                    if (CreateBuildings(total_unit_count / 2, LIGHTPLT, 0x1800)) {
+                    if (CreateBuildings(total_unit_count / 2, LIGHTPLT, TASK_PRIORITY_FOLLOW_DEFENSE)) {
                         return true;
                     }
 
-                    if (CreateBuildings(total_unit_count / 2, LANDPLT, 0x1800)) {
+                    if (CreateBuildings(total_unit_count / 2, LANDPLT, TASK_PRIORITY_FOLLOW_DEFENSE)) {
                         return true;
                     }
                 } break;
 
                 case AI_STRATEGY_COMBINED_ARMS: {
-                    if (CreateBuildings(total_unit_count, LANDPLT, 0x1800)) {
+                    if (CreateBuildings(total_unit_count, LANDPLT, TASK_PRIORITY_FOLLOW_DEFENSE)) {
                         return true;
                     }
                 } break;
 
                 case AI_STRATEGY_ESPIONAGE: {
-                    if (!GetUnitCount(TRAINHAL, 0x1300) && CreateBuilding(TRAINHAL, this, 0x1300)) {
+                    if (!GetUnitCount(TRAINHAL, TASK_PRIORITY_LAND_ACCESS_THRESHOLD) &&
+                        CreateBuilding(TRAINHAL, this, TASK_PRIORITY_LAND_ACCESS_THRESHOLD)) {
                         return true;
                     }
 
-                    if (CreateBuildings(total_unit_count, TRAINHAL, 0x1800)) {
+                    if (CreateBuildings(total_unit_count, TRAINHAL, TASK_PRIORITY_FOLLOW_DEFENSE)) {
                         return true;
                     }
                 } break;
             }
 
-            if (GetUnitCount(LANDPLT, 0x00) && !GetUnitCount(DEPOT, 0x1400) && CreateBuilding(DEPOT, this, 0x1400)) {
+            if (GetUnitCount(LANDPLT, 0x00) && !GetUnitCount(DEPOT, TASK_PRIORITY_BUILDING_REPAIR_SHOP) &&
+                CreateBuilding(DEPOT, this, TASK_PRIORITY_BUILDING_REPAIR_SHOP)) {
                 result = true;
 
-            } else if (GetUnitCount(AIRPLT, 0x00) && !GetUnitCount(HANGAR, 0x1400) &&
-                       CreateBuilding(HANGAR, this, 0x1400)) {
+            } else if (GetUnitCount(AIRPLT, 0x00) && !GetUnitCount(HANGAR, TASK_PRIORITY_BUILDING_REPAIR_SHOP) &&
+                       CreateBuilding(HANGAR, this, TASK_PRIORITY_BUILDING_REPAIR_SHOP)) {
                 result = true;
 
-            } else if (GetUnitCount(SHIPYARD, 0x00) && !GetUnitCount(DOCK, 0x1400) &&
-                       CreateBuilding(DOCK, this, 0x1400)) {
+            } else if (GetUnitCount(SHIPYARD, 0x00) && !GetUnitCount(DOCK, TASK_PRIORITY_BUILDING_REPAIR_SHOP) &&
+                       CreateBuilding(DOCK, this, TASK_PRIORITY_BUILDING_REPAIR_SHOP)) {
                 result = true;
 
-            } else if (GetUnitCount(TRAINHAL, 0x00) && !GetUnitCount(BARRACKS, 0x1D00) &&
-                       CreateBuilding(BARRACKS, this, 0x1D00)) {
+            } else if (GetUnitCount(TRAINHAL, 0x00) && !GetUnitCount(BARRACKS, TASK_PRIORITY_MANAGE_BUILDINGS) &&
+                       CreateBuilding(BARRACKS, this, TASK_PRIORITY_MANAGE_BUILDINGS)) {
                 result = true;
 
-            } else if (unit_count_airplant > 0 && !GetUnitCount(SHIPYARD, 0x1300) &&
-                       CreateBuilding(SHIPYARD, this, 0x1300)) {
+            } else if (unit_count_airplant > 0 && !GetUnitCount(SHIPYARD, TASK_PRIORITY_LAND_ACCESS_THRESHOLD) &&
+                       CreateBuilding(SHIPYARD, this, TASK_PRIORITY_LAND_ACCESS_THRESHOLD)) {
                 result = true;
 
             } else {
@@ -1146,8 +1161,8 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                 int32_t shop_capacity =
                     UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(DEPOT)->GetAttribute(ATTRIB_STORAGE);
 
-                if (GetUnitCount(DEPOT, 0x1400) < (unit_count / (shop_capacity * 2)) &&
-                    CreateBuilding(DEPOT, this, 0x1400)) {
+                if (GetUnitCount(DEPOT, TASK_PRIORITY_BUILDING_REPAIR_SHOP) < (unit_count / (shop_capacity * 2)) &&
+                    CreateBuilding(DEPOT, this, TASK_PRIORITY_BUILDING_REPAIR_SHOP)) {
                     result = true;
 
                 } else {
@@ -1155,8 +1170,8 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                     shop_capacity =
                         UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(HANGAR)->GetAttribute(ATTRIB_STORAGE);
 
-                    if (GetUnitCount(HANGAR, 0x1400) < (unit_count / (shop_capacity * 2)) &&
-                        CreateBuilding(HANGAR, this, 0x1400)) {
+                    if (GetUnitCount(HANGAR, TASK_PRIORITY_BUILDING_REPAIR_SHOP) < (unit_count / (shop_capacity * 2)) &&
+                        CreateBuilding(HANGAR, this, TASK_PRIORITY_BUILDING_REPAIR_SHOP)) {
                         result = true;
 
                     } else {
@@ -1164,8 +1179,9 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                         shop_capacity = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(DOCK)->GetAttribute(
                             ATTRIB_STORAGE);
 
-                        if (GetUnitCount(DOCK, 0x1400) < (unit_count / (shop_capacity * 2)) &&
-                            CreateBuilding(DOCK, this, 0x1400)) {
+                        if (GetUnitCount(DOCK, TASK_PRIORITY_BUILDING_REPAIR_SHOP) <
+                                (unit_count / (shop_capacity * 2)) &&
+                            CreateBuilding(DOCK, this, TASK_PRIORITY_BUILDING_REPAIR_SHOP)) {
                             result = true;
 
                         } else {
@@ -1174,8 +1190,9 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                                 UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(BARRACKS)->GetAttribute(
                                     ATTRIB_STORAGE);
 
-                            if (GetUnitCount(BARRACKS, 0x1D00) < (unit_count / (shop_capacity * 2)) &&
-                                CreateBuilding(BARRACKS, this, 0x1D00)) {
+                            if (GetUnitCount(BARRACKS, TASK_PRIORITY_MANAGE_BUILDINGS) <
+                                    (unit_count / (shop_capacity * 2)) &&
+                                CreateBuilding(BARRACKS, this, TASK_PRIORITY_MANAGE_BUILDINGS)) {
                                 result = true;
 
                             } else {
@@ -1322,7 +1339,7 @@ void TaskManageBuildings::UpdateMiningNeeds() {
     }
 
     if (Cargo_GetGoldConsumptionRate(COMMTWR) <= cargo_gold) {
-        CreateBuilding(COMMTWR, this, 0x1500);
+        CreateBuilding(COMMTWR, this, TASK_PRIORITY_BUILDING_UPGRADES);
     }
 }
 
@@ -1350,7 +1367,7 @@ void TaskManageBuildings::MakeConnectors(int32_t ulx, int32_t uly, int32_t lrx, 
     for (site.x = ulx; site.x < lrx; ++site.x) {
         for (site.y = uly; site.y < lry; ++site.y) {
             SmartPointer<TaskCreateBuilding> create_building_task(
-                new (std::nothrow) TaskCreateBuilding(task, 0x800, CNCT_4W, site, this));
+                new (std::nothrow) TaskCreateBuilding(task, TASK_PRIORITY_BUILDING_CONNECTOR, CNCT_4W, site, this));
 
             AddCreateOrder(&*create_building_task);
         }
@@ -1373,7 +1390,7 @@ bool TaskManageBuildings::CheckNeeds() {
 
         if (cargo_demand.raw < 0 || cargo_demand.fuel < 0 || cargo_demand.gold < 0) {
             SmartList<UnitInfo>::Iterator it;
-            uint16_t task_flags;
+            uint16_t task_priority;
 
             for (it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
                 if ((*it).team == team && (*it).GetUnitType() == MININGST) {
@@ -1382,13 +1399,13 @@ bool TaskManageBuildings::CheckNeeds() {
             }
 
             if (it != UnitsManager_StationaryUnits.End()) {
-                task_flags = 0xE00;
+                task_priority = TASK_PRIORITY_BUILDING_MEDIUM;
 
             } else {
-                task_flags = 0x500;
+                task_priority = TASK_PRIORITY_BUILDING_LOW;
             }
 
-            if (CreateBuilding(MININGST, this, task_flags)) {
+            if (CreateBuilding(MININGST, this, task_priority)) {
                 build_order = true;
             }
         }
@@ -1534,7 +1551,7 @@ void TaskManageBuildings::MarkDefenseSites(uint16_t** construction_map, uint8_t*
 }
 
 void TaskManageBuildings::ClearDefenseSites(uint8_t** access_map, ResourceID unit_type, TaskCreateBuilding* task,
-                                            uint16_t task_flags) {
+                                            uint16_t task_priority) {
     Point position;
 
     AILOG(log, "Clear defended sites for {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
@@ -1557,7 +1574,7 @@ void TaskManageBuildings::ClearDefenseSites(uint8_t** access_map, ResourceID uni
     }
 
     for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
-        if ((*it).GetUnitType() == unit_type && (&*it) != task && (*it).DeterminePriority(task_flags) <= 0) {
+        if ((*it).GetUnitType() == unit_type && (&*it) != task && (*it).ComparePriority(task_priority) <= 0) {
             int32_t unit_range =
                 UnitsManager_TeamInfo[team].team_units->GetCurrentUnitValues(unit_type)->GetAttribute(ATTRIB_RANGE);
 
@@ -2159,7 +2176,7 @@ void TaskManageBuildings::AddUnit(UnitInfo& unit) {
     }
 }
 
-void TaskManageBuildings::Begin() {
+void TaskManageBuildings::Init() {
     if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
         if (Builder_IsBuildable(ANTIAIR)) {
             SmartPointer<TaskDefenseAssistant> task(new (std::nothrow) TaskDefenseAssistant(this, ANTIAIR));
@@ -2306,16 +2323,16 @@ void TaskManageBuildings::EndTurn() {
 
     if (raw_mining_max > 0 && ((cargo.raw >= (capacity.raw * 3) / 4) || (capacity.raw < 2 * adump_capacity)) &&
         capacity.raw < 500) {
-        CreateBuilding(ADUMP, this, 0xA00);
+        CreateBuilding(ADUMP, this, TASK_PRIORITY_BUILDING_DUMP);
     }
 
     if (fuel_mining_max > 0 && (cargo.fuel >= (capacity.fuel * 3) / 4) && capacity.fuel < 500) {
-        CreateBuilding(FDUMP, this, 0xA00);
+        CreateBuilding(FDUMP, this, TASK_PRIORITY_BUILDING_DUMP);
     }
 
     if (gold_mining_max > 0 && (cargo.gold >= (capacity.gold * 3) / 4) && capacity.gold < 500 &&
         Builder_IsBuildable(GOLDSM)) {
-        CreateBuilding(GOLDSM, this, 0xA00);
+        CreateBuilding(GOLDSM, this, TASK_PRIORITY_BUILDING_DUMP);
     }
 }
 
@@ -2332,7 +2349,7 @@ void TaskManageBuildings::RemoveUnit(UnitInfo& unit) { units.Remove(unit); }
 
 void TaskManageBuildings::EventUnitDestroyed(UnitInfo& unit) { units.Remove(unit); }
 
-bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint16_t task_flags) {
+bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint16_t task_priority) {
     Point site;
     bool result;
 
@@ -2346,7 +2363,7 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
             memset(&unit_counters, 0, sizeof(unit_counters));
 
             for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
-                if ((*it).DeterminePriority(task_flags + 0xAF) <= 0) {
+                if ((*it).ComparePriority(task_priority + TASK_PRIORITY_ADJUST_MEDIUM) <= 0) {
                     ++unit_counters[(*it).GetUnitType()];
                 }
             }
@@ -2374,15 +2391,15 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
 
                 } else if (unit_type == GUNTURRT || unit_type == ANTIMSSL || unit_type == ARTYTRRT ||
                            unit_type == ANTIAIR) {
-                    is_site_found = FindDefenseSite(unit_type, nullptr, site, 5, task_flags);
+                    is_site_found = FindDefenseSite(unit_type, nullptr, site, 5, task_priority);
 
                 } else {
-                    is_site_found = FindSite(unit_type, nullptr, site, task_flags);
+                    is_site_found = FindSite(unit_type, nullptr, site, task_priority);
                 }
 
                 if (is_site_found) {
                     SmartPointer<TaskCreateBuilding> create_building_task(
-                        new (std::nothrow) TaskCreateBuilding(task, task_flags, unit_type, site, this));
+                        new (std::nothrow) TaskCreateBuilding(task, task_priority, unit_type, site, this));
 
                     AddCreateOrder(&*create_building_task);
 
@@ -2518,7 +2535,7 @@ void TaskManageBuildings::CheckWorkers() {
         int32_t consumption_rate = -Cargo_GetLifeConsumptionRate(HABITAT);
         int32_t habitat_demand = (total_consumption + consumption_rate - 1) / consumption_rate;
 
-        CreateBuildings(habitat_demand, HABITAT, 0xC00);
+        CreateBuildings(habitat_demand, HABITAT, TASK_PRIORITY_BUILDING_HABITAT);
     }
 }
 
@@ -2583,12 +2600,12 @@ bool TaskManageBuildings::CheckPower() {
 
             power_station_demand = (power_consumption + power_station_demand) / power_generation_rate1;
 
-            if (CreateBuildings(power_station_demand, POWERSTN, 0xB00)) {
+            if (CreateBuildings(power_station_demand, POWERSTN, TASK_PRIORITY_BUILDING_POWER)) {
                 return true;
             }
         }
 
-        if (power_consumption > total_power_generation && CreateBuilding(POWGEN, this, 0xB00)) {
+        if (power_consumption > total_power_generation && CreateBuilding(POWGEN, this, TASK_PRIORITY_BUILDING_POWER)) {
             return true;
 
         } else {
@@ -2645,7 +2662,7 @@ void TaskManageBuildings::AddCreateOrder(TaskCreateBuilding* task) {
 }
 
 bool TaskManageBuildings::FindDefenseSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site, int32_t value,
-                                          uint16_t task_flags) {
+                                          uint16_t task_priority) {
     bool result;
 
     AILOG(log, "Find defense site for {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
@@ -2665,15 +2682,15 @@ bool TaskManageBuildings::FindDefenseSite(ResourceID unit_type, TaskCreateBuildi
 
         MarkDefenseSites(construction_map, access_map.GetMap(), task, value);
         ClearBuildingAreas(construction_map, task);
-        ClearPlannedBuildings(construction_map, task, unit_type, task_flags);
+        ClearPlannedBuildings(construction_map, task, unit_type, task_priority);
         LimitBlockSize(construction_map, 1);
 
         MouseEvent::ProcessInput();
 
-        ClearDefenseSites(access_map.GetMap(), unit_type, task, task_flags);
+        ClearDefenseSites(access_map.GetMap(), unit_type, task, task_priority);
 
         if (unit_type == GUNTURRT || unit_type == ARTYTRRT) {
-            ClearDefenseSites(access_map.GetMap(), ANTIMSSL, task, task_flags);
+            ClearDefenseSites(access_map.GetMap(), ANTIMSSL, task, task_priority);
         }
 
         for (location.x = 1; location.x < ResourceManager_MapSize.x - 1; ++location.x) {
@@ -2732,10 +2749,10 @@ bool TaskManageBuildings::ChangeSite(TaskCreateBuilding* task, Point& site) {
         is_site_found = FindSiteForRadar(task, site);
 
     } else if (unit_type == GUNTURRT || unit_type == ANTIMSSL || unit_type == ARTYTRRT || unit_type == ANTIAIR) {
-        is_site_found = FindDefenseSite(unit_type, task, site, 5, task->GetFlags());
+        is_site_found = FindDefenseSite(unit_type, task, site, 5, task->GetPriority());
 
     } else {
-        is_site_found = FindSite(unit_type, task, site, task->GetFlags());
+        is_site_found = FindSite(unit_type, task, site, task->GetPriority());
     }
 
     if (is_site_found) {

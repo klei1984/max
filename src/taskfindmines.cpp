@@ -26,7 +26,8 @@
 #include "resource_manager.hpp"
 #include "task_manager.hpp"
 
-TaskFindMines::TaskFindMines(uint16_t team_, Point point_) : TaskAbstractSearch(team_, nullptr, 0x2000, point_) {}
+TaskFindMines::TaskFindMines(uint16_t team_, Point point_)
+    : TaskAbstractSearch(team_, nullptr, TASK_PRIORITY_FOLLOW_ATTACK, point_) {}
 
 TaskFindMines::~TaskFindMines() {}
 
