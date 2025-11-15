@@ -336,12 +336,12 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                                             operator_unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
                                             AILOG_LOG(log, "Sending Board order.");
 
-                                            target_unit->target_grid_x = operator_unit->grid_x;
-                                            target_unit->target_grid_y = operator_unit->grid_y;
+                                            target_unit->move_to_grid_x = operator_unit->grid_x;
+                                            target_unit->move_to_grid_y = operator_unit->grid_y;
 
-                                            if (target_unit->target_grid_x == target_unit->grid_x &&
-                                                target_unit->target_grid_y == target_unit->grid_y) {
-                                                ++target_unit->target_grid_x;
+                                            if (target_unit->move_to_grid_x == target_unit->grid_x &&
+                                                target_unit->move_to_grid_y == target_unit->grid_y) {
+                                                ++target_unit->move_to_grid_x;
                                             }
 
                                             UnitsManager_SetNewOrder(&*target_unit, ORDER_MOVE_TO_UNIT,

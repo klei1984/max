@@ -3084,13 +3084,13 @@ void UnitsManager_Popup_OnClick_StartMasterBuilder(ButtonID bid, UnitInfo* unit)
 
     GameManager_DeinitPopupButtons(true);
 
-    grid_x = unit->target_grid_x;
-    grid_y = unit->target_grid_y;
+    grid_x = unit->move_to_grid_x;
+    grid_y = unit->move_to_grid_y;
 
     if (UnitsManager_FindValidPowerGeneratorPosition(unit->team, &grid_x, &grid_y)) {
         UnitsManager_SetNewOrderInt(unit, ORDER_BUILD, ORDER_STATE_SELECT_SITE);
         GameManager_TempTape =
-            UnitsManager_SpawnUnit(LRGTAPE, GameManager_PlayerTeam, unit->target_grid_x, unit->target_grid_y, unit);
+            UnitsManager_SpawnUnit(LRGTAPE, GameManager_PlayerTeam, unit->move_to_grid_x, unit->move_to_grid_y, unit);
 
     } else {
         MessageManager_DrawMessage(_(5e0b), 2, 0);
@@ -3141,8 +3141,8 @@ void UnitsManager_Popup_InitMaster(UnitInfo* unit, struct PopupButtons* buttons)
                 UnitsManager_RegisterButton(buttons, false, _(2c2a), '1',
                                             &UnitsManager_Popup_OnClick_StartMasterBuilder);
 
-                unit->target_grid_x = grid_x;
-                unit->target_grid_y = grid_y;
+                unit->move_to_grid_x = grid_x;
+                unit->move_to_grid_y = grid_y;
             }
         }
     }
@@ -3344,8 +3344,8 @@ void UnitsManager_SetInitialMining(UnitInfo* unit, int32_t grid_x, int32_t grid_
 
 void UnitsManager_StartBuild(UnitInfo* unit) {
     if (unit->GetUnitType() == ENGINEER) {
-        unit->target_grid_x = unit->grid_x;
-        unit->target_grid_y = unit->grid_y;
+        unit->move_to_grid_x = unit->grid_x;
+        unit->move_to_grid_y = unit->grid_y;
     }
 
     unit->SetOrder(unit->GetPriorOrder());
@@ -3754,7 +3754,7 @@ void UnitsManager_ProcessOrders() {
                       UnitsManager_BaseUnits[(*unit_it).GetUnitType()].GetSingularName(), (*unit_it).grid_x + 1,
                       (*unit_it).grid_y + 1);
 
-                (*unit_it).UpdatePinCount((*unit_it).target_grid_x, (*unit_it).target_grid_x, -1);
+                (*unit_it).UpdatePinCount((*unit_it).fire_on_grid_x, (*unit_it).fire_on_grid_y, -1);
                 (*unit_it).RestoreOrders();
 
                 if ((*unit_it).GetOrder() == ORDER_FIRE) {
@@ -4058,7 +4058,7 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
     }
 
     if (unit->GetPriorOrder() == ORDER_FIRE && unit->GetPriorOrderState() != ORDER_STATE_INIT) {
-        unit->UpdatePinCount(unit->target_grid_x, unit->target_grid_y, -1);
+        unit->UpdatePinCount(unit->fire_on_grid_x, unit->fire_on_grid_y, -1);
     }
 
     if (GameManager_LockedUnits.Remove(*unit)) {
@@ -4513,7 +4513,7 @@ void UnitsManager_ProcessOrderFire(UnitInfo* unit) {
         case ORDER_STATE_INIT: {
             UnitsManager_PendingAttacks.PushBack(*unit);
 
-            unit->UpdatePinCount(unit->target_grid_x, unit->target_grid_y, 1);
+            unit->UpdatePinCount(unit->fire_on_grid_x, unit->fire_on_grid_y, 1);
 
             unit->SetOrderState(ORDER_STATE_ATTACK_PENDING);
         } break;
@@ -5340,8 +5340,8 @@ void UnitsManager_DeployMasterBuilder(UnitInfo* unit) {
     SmartPointer<UnitInfo> power_generator;
     SmartPointer<UnitInfo> small_slab;
 
-    int32_t mining_station_grid_x = unit->target_grid_x;
-    int32_t mining_station_grid_y = unit->target_grid_y;
+    int32_t mining_station_grid_x = unit->move_to_grid_x;
+    int32_t mining_station_grid_y = unit->move_to_grid_y;
 
     UnitsManager_DestroyUnit(unit);
 
@@ -5414,8 +5414,8 @@ bool UnitsManager_PursueEnemy(UnitInfo* unit) {
 
         if (enemy_unit) {
             if (Access_GetSquaredDistance(unit, position) > unit_range * unit_range &&
-                (!unit->path || unit->target_grid_x != enemy_unit->grid_x ||
-                 unit->target_grid_y != enemy_unit->grid_y) &&
+                (!unit->path || unit->move_to_grid_x != enemy_unit->grid_x ||
+                 unit->move_to_grid_y != enemy_unit->grid_y) &&
                 ((enemy_unit->GetOrder() != ORDER_MOVE && enemy_unit->GetOrder() != ORDER_MOVE_TO_UNIT &&
                   enemy_unit->GetOrder() != ORDER_MOVE_TO_ATTACK) ||
                  enemy_unit->GetOrderState() == ORDER_STATE_EXECUTING_ORDER)) {
@@ -5523,8 +5523,8 @@ bool UnitsManager_AimAtTarget(UnitInfo* unit) {
         unit_angle = unit->angle;
     }
 
-    int32_t distance_x = unit->target_grid_x - unit->grid_x;
-    int32_t distance_y = unit->target_grid_y - unit->grid_y;
+    int32_t distance_x = unit->fire_on_grid_x - unit->grid_x;
+    int32_t distance_y = unit->fire_on_grid_y - unit->grid_y;
     int32_t target_angle = UnitsManager_GetTargetAngle(distance_x, distance_y);
 
     if (unit_angle == target_angle) {
@@ -5744,7 +5744,7 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
     SDL_assert(client.Get());
 
     if (((client->flags & MOBILE_AIR_UNIT) && client->speed > 0) ||
-        (!Paths_IsOccupied(unit->target_grid_x, unit->target_grid_y, 0, unit->team) &&
+        (!Paths_IsOccupied(unit->move_to_grid_x, unit->move_to_grid_y, 0, unit->team) &&
          !(client->flags & MOBILE_AIR_UNIT))) {
         SDL_assert(unit->storage > 0);
 
@@ -5770,8 +5770,8 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
 
         if (client->flags & MOBILE_AIR_UNIT) {
             client->SetParent(nullptr);
-            client->target_grid_x = unit->target_grid_x;
-            client->target_grid_y = unit->target_grid_y;
+            client->move_to_grid_x = unit->move_to_grid_x;
+            client->move_to_grid_y = unit->move_to_grid_y;
             client->SetOrder(ORDER_MOVE);
             client->SetOrderState(ORDER_STATE_INIT);
 
@@ -5779,15 +5779,15 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
             UnitsManager_ScaleUnit(client.Get(), ORDER_STATE_EXPAND);
 
         } else {
-            UnitsManager_UpdateMapHash(client.Get(), unit->target_grid_x, unit->target_grid_y);
+            UnitsManager_UpdateMapHash(client.Get(), unit->move_to_grid_x, unit->move_to_grid_y);
 
             client->SetOrder(ORDER_AWAIT);
             client->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
 
-            UnitsManager_SetUnitSpriteFrameAfterTransport(client.Get(), unit->target_grid_x, unit->target_grid_y);
+            UnitsManager_SetUnitSpriteFrameAfterTransport(client.Get(), unit->move_to_grid_x, unit->move_to_grid_y);
 
             if ((client->flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == MOBILE_SEA_UNIT) {
-                UnitInfo* bridge_unit = Access_GetUnit1(unit->target_grid_x, unit->target_grid_y);
+                UnitInfo* bridge_unit = Access_GetUnit1(unit->move_to_grid_x, unit->move_to_grid_y);
 
                 if (bridge_unit) {
                     UnitsManager_SetNewOrderInt(bridge_unit, ORDER_MOVE, ORDER_STATE_ELEVATE);
@@ -6628,8 +6628,8 @@ bool UnitsManager_CheckReaction(UnitInfo* unit1, UnitInfo* unit2) {
         Access_IsWithinAttackRange(unit1, unit2->grid_x, unit2->grid_y,
                                    unit1->GetBaseValues()->GetAttribute(ATTRIB_RANGE)) &&
         Access_IsValidAttackTarget(unit1, unit2) && UnitsManager_ShouldAttack(unit1, unit2)) {
-        unit1->target_grid_x = unit2->grid_x;
-        unit1->target_grid_y = unit2->grid_y;
+        unit1->fire_on_grid_x = unit2->grid_x;
+        unit1->fire_on_grid_y = unit2->grid_y;
 
         if (GameManager_PlayerTeam == unit1->team) {
             const char* const UnitsManager_ReactionsToEnemy[] = {_(1b93), _(5a01), _(eb57)};
@@ -6671,14 +6671,14 @@ bool UnitsManager_IsReactionPending(SmartList<UnitInfo>* units, UnitInfo* unit) 
 }
 
 AirPath* UnitsManager_GetMissilePath(UnitInfo* unit) {
-    int32_t distance_x = unit->target_grid_x - unit->grid_x;
-    int32_t distance_y = unit->target_grid_y - unit->grid_y;
+    int32_t distance_x = unit->fire_on_grid_x - unit->grid_x;
+    int32_t distance_y = unit->fire_on_grid_y - unit->grid_y;
     int32_t distance = sqrt(distance_x * distance_x + distance_y * distance_y) * 4.0 + 0.5;
     AirPath* result;
 
     if (distance > 0) {
         result = new (std::nothrow)
-            AirPath(unit, distance_x, distance_y, distance / 4, unit->target_grid_x, unit->target_grid_y);
+            AirPath(unit, distance_x, distance_y, distance / 4, unit->fire_on_grid_x, unit->fire_on_grid_y);
 
     } else {
         result = nullptr;
@@ -6811,8 +6811,8 @@ bool UnitsManager_CheckDelayedReactions(uint16_t team) {
             UnitInfo* unit2 = unit1->GetEnemy();
             Point position = UnitsManager_GetAttackPosition(unit1, unit2);
 
-            unit1->target_grid_x = position.x;
-            unit1->target_grid_y = position.y;
+            unit1->fire_on_grid_x = position.x;
+            unit1->fire_on_grid_y = position.y;
 
             if (UnitsManager_TeamInfo[unit1->team].team_type == TEAM_TYPE_COMPUTER &&
                 unit1->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) && unit1->shots == 1) {

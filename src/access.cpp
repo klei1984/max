@@ -1178,8 +1178,8 @@ void Access_GroupAttackOrder(UnitInfo* unit, bool mode) {
                     if (friendly->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) &&
                         Access_IsValidAttackTarget(friendly, enemy)) {
                         friendly->group_speed = 0;
-                        friendly->target_grid_x = unit->target_grid_x;
-                        friendly->target_grid_y = unit->target_grid_y;
+                        friendly->move_to_grid_x = unit->move_to_grid_x;
+                        friendly->move_to_grid_y = unit->move_to_grid_y;
                         friendly->SetEnemy(enemy);
 
                         SDL_assert(friendly->GetBaseValues()->GetAttribute(ATTRIB_SPEED) > 0);
@@ -1189,24 +1189,24 @@ void Access_GroupAttackOrder(UnitInfo* unit, bool mode) {
                     }
 
                 } else {
-                    friendly->target_grid_x = friendly->attack_site.x - unit->attack_site.x + unit->target_grid_x;
-                    friendly->target_grid_y = friendly->attack_site.y - unit->attack_site.y + unit->target_grid_y;
+                    friendly->move_to_grid_x = friendly->attack_site.x - unit->attack_site.x + unit->move_to_grid_x;
+                    friendly->move_to_grid_y = friendly->attack_site.y - unit->attack_site.y + unit->move_to_grid_y;
 
-                    if (friendly->target_grid_x < 0) {
-                        friendly->target_grid_x = 0;
+                    if (friendly->move_to_grid_x < 0) {
+                        friendly->move_to_grid_x = 0;
 
-                    } else if (friendly->target_grid_x >= ResourceManager_MapSize.x) {
-                        friendly->target_grid_x = ResourceManager_MapSize.x - 1;
+                    } else if (friendly->move_to_grid_x >= ResourceManager_MapSize.x) {
+                        friendly->move_to_grid_x = ResourceManager_MapSize.x - 1;
                     }
 
-                    if (friendly->target_grid_y < 0) {
-                        friendly->target_grid_y = 0;
+                    if (friendly->move_to_grid_y < 0) {
+                        friendly->move_to_grid_y = 0;
 
-                    } else if (friendly->target_grid_y >= ResourceManager_MapSize.y) {
-                        friendly->target_grid_y = ResourceManager_MapSize.y - 1;
+                    } else if (friendly->move_to_grid_y >= ResourceManager_MapSize.y) {
+                        friendly->move_to_grid_y = ResourceManager_MapSize.y - 1;
                     }
 
-                    if (friendly->grid_x != friendly->target_grid_x || friendly->grid_y != friendly->target_grid_y) {
+                    if (friendly->grid_x != friendly->move_to_grid_x || friendly->grid_y != friendly->move_to_grid_y) {
                         friendly->path = nullptr;
 
                         if (friendly->GetOrder() == ORDER_MOVE_TO_ATTACK) {
@@ -2231,8 +2231,8 @@ void Access_UpdateMultiSelection(UnitInfo* unit) {
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         (*it).SetOrder(ORDER_AWAIT);
-        (*it).target_grid_x = (*it).grid_x;
-        (*it).target_grid_y = (*it).grid_y;
+        (*it).move_to_grid_x = (*it).grid_x;
+        (*it).move_to_grid_y = (*it).grid_y;
         (*it).attack_site.x = (*it).grid_x;
         (*it).attack_site.y = (*it).grid_y;
         (*it).path = nullptr;

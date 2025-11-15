@@ -114,7 +114,7 @@ uint8_t PathRequest::GetBoardTransport() const { return board_transport; }
 uint16_t PathRequest::GetMinimumDistance() const { return minimum_distance; }
 
 void PathRequest::AssignGroundPath(UnitInfo* unit, GroundPath* path) {
-    Point destination(unit->target_grid_x, unit->target_grid_y);
+    Point destination(unit->move_to_grid_x, unit->move_to_grid_y);
     SmartObjectArray<PathStep> steps = path->GetSteps();
     SmartPointer<GroundPath> ground_path(new (std::nothrow) GroundPath(destination.x, destination.y));
     int32_t range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
@@ -163,7 +163,8 @@ void PathRequest::Finish(GroundPath* path) {
 
                 range = range * range;
 
-                if (Access_GetSquaredDistance(&*client, Point(client->target_grid_x, client->target_grid_y)) <= range) {
+                if (Access_GetSquaredDistance(&*client, Point(client->move_to_grid_x, client->move_to_grid_y)) <=
+                    range) {
                     UnitsManager_SetNewOrder(&*client, ORDER_MOVE_TO_ATTACK, ORDER_STATE_EXECUTING_ORDER);
                     client->RefreshScreen();
                     Access_ProcessNewGroupOrder(&*client);

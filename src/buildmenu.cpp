@@ -934,8 +934,8 @@ void MobileBuildMenu::Build() {
                     SmartString string;
                     Point point;
 
-                    unit->target_grid_x = grid_x;
-                    unit->target_grid_y = grid_y;
+                    unit->move_to_grid_x = grid_x;
+                    unit->move_to_grid_y = grid_y;
 
                     unit->BuildOrder();
 

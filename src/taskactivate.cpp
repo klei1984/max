@@ -91,16 +91,16 @@ void TaskActivate::Activate() {
 
                                             switch (unit_to_activate->GetOrder()) {
                                                 case ORDER_BUILD: {
-                                                    unit_to_activate->target_grid_x = position.x;
-                                                    unit_to_activate->target_grid_y = position.y;
+                                                    unit_to_activate->move_to_grid_x = position.x;
+                                                    unit_to_activate->move_to_grid_y = position.y;
 
                                                     UnitsManager_SetNewOrder(unit_to_activate.Get(), ORDER_ACTIVATE,
                                                                              ORDER_STATE_IN_TRANSITION);
                                                 } break;
 
                                                 case ORDER_IDLE: {
-                                                    unit_parent->target_grid_x = position.x;
-                                                    unit_parent->target_grid_y = position.y;
+                                                    unit_parent->move_to_grid_x = position.x;
+                                                    unit_parent->move_to_grid_y = position.y;
 
                                                     unit_parent->SetParent(unit_to_activate.Get());
 
@@ -110,8 +110,8 @@ void TaskActivate::Activate() {
                                                 } break;
 
                                                 case ORDER_AWAIT: {
-                                                    unit_to_activate->target_grid_x = position.x;
-                                                    unit_to_activate->target_grid_y = position.y;
+                                                    unit_to_activate->move_to_grid_x = position.x;
+                                                    unit_to_activate->move_to_grid_y = position.y;
 
                                                     UnitsManager_SetNewOrder(unit_to_activate.Get(), ORDER_MOVE,
                                                                              ORDER_STATE_INIT);

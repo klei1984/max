@@ -725,8 +725,8 @@ void TaskTransport_FinishTransport(Task* const task, UnitInfo* const transporter
 
         } else if (Access_IsAccessible(client->GetUnitType(), task->GetTeam(), site.x, site.y,
                                        AccessModifier_SameClassBlocks)) {
-            transporter->target_grid_x = site.x;
-            transporter->target_grid_y = site.y;
+            transporter->move_to_grid_x = site.x;
+            transporter->move_to_grid_y = site.y;
 
             transporter->SetParent(client);
 
@@ -776,8 +776,8 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
                 result = true;
 
             } else if (unit->speed) {
-                unit->target_grid_x = unit_transporter->grid_x;
-                unit->target_grid_y = unit_transporter->grid_y;
+                unit->move_to_grid_x = unit_transporter->grid_x;
+                unit->move_to_grid_y = unit_transporter->grid_y;
 
                 SDL_assert(GameManager_IsActiveTurn(m_team));
 

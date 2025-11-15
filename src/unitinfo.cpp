@@ -504,8 +504,10 @@ UnitInfo::UnitInfo()
       state(ORDER_STATE_INIT),
       prior_orders(ORDER_AWAIT),
       prior_state(ORDER_STATE_INIT),
-      target_grid_x(0),
-      target_grid_y(0),
+      move_to_grid_x(0),
+      move_to_grid_y(0),
+      fire_on_grid_x(0),
+      fire_on_grid_y(0),
       build_time(0),
       total_mining(0),
       raw_mining(0),
@@ -588,8 +590,10 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
       state(ORDER_STATE_EXECUTING_ORDER),
       prior_orders(ORDER_AWAIT),
       prior_state(ORDER_STATE_EXECUTING_ORDER),
-      target_grid_x(0),
-      target_grid_y(0),
+      move_to_grid_x(0),
+      move_to_grid_y(0),
+      fire_on_grid_x(0),
+      fire_on_grid_y(0),
       build_time(0),
       total_mining(0),
       raw_mining(0),
@@ -733,8 +737,10 @@ UnitInfo::UnitInfo(const UnitInfo& other)
       state(other.state),
       prior_orders(other.prior_orders),
       prior_state(other.prior_state),
-      target_grid_x(other.target_grid_x),
-      target_grid_y(other.target_grid_y),
+      move_to_grid_x(other.move_to_grid_x),
+      move_to_grid_y(other.move_to_grid_y),
+      fire_on_grid_x(other.fire_on_grid_x),
+      fire_on_grid_y(other.fire_on_grid_y),
       build_time(other.build_time),
       total_mining(other.total_mining),
       raw_mining(other.raw_mining),
@@ -2355,8 +2361,8 @@ void UnitInfo::Build() {
 
     if (path != nullptr) {
         if (UnitsManager_IssueBuildOrder(this, &grid_x, &grid_y, build_unit_type)) {
-            target_grid_x = grid_x;
-            target_grid_y = grid_y;
+            move_to_grid_x = grid_x;
+            move_to_grid_y = grid_y;
 
             build_time = BuildMenu_GetTurnsToBuild(build_unit_type, team);
 
@@ -3022,8 +3028,26 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
     file.Read(prior_orders);
     file.Read(prior_state);
     file.Read(laying_state);
-    file.Read(target_grid_x);
-    file.Read(target_grid_y);
+
+    if (file.GetFormat() == SmartFileFormat::V70) {
+        int16_t target_grid_x_v70;
+        int16_t target_grid_y_v70;
+
+        file.Read(target_grid_x_v70);
+        file.Read(target_grid_y_v70);
+
+        move_to_grid_x = target_grid_x_v70;
+        move_to_grid_y = target_grid_y_v70;
+        fire_on_grid_x = target_grid_x_v70;
+        fire_on_grid_y = target_grid_y_v70;
+
+    } else {
+        file.Read(move_to_grid_x);
+        file.Read(move_to_grid_y);
+        file.Read(fire_on_grid_x);
+        file.Read(fire_on_grid_y);
+    }
+
     file.Read(build_time);
     file.Read(total_mining);
     file.Read(raw_mining);
@@ -3047,8 +3071,8 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
             experience = 0;
         }
 
-        transfer_cargo = target_grid_x;
-        stealth_dice_roll = static_cast<uint8_t>(target_grid_x);
+        transfer_cargo = move_to_grid_x;
+        stealth_dice_roll = static_cast<uint8_t>(move_to_grid_x);
 
     } else {
         file.Read(experience);
@@ -3174,8 +3198,10 @@ void UnitInfo::FileSave(SmartFileWriter& file) noexcept {
     file.Write(prior_orders);
     file.Write(prior_state);
     file.Write(laying_state);
-    file.Write(target_grid_x);
-    file.Write(target_grid_y);
+    file.Write(move_to_grid_x);
+    file.Write(move_to_grid_y);
+    file.Write(fire_on_grid_x);
+    file.Write(fire_on_grid_y);
     file.Write(build_time);
     file.Write(total_mining);
     file.Write(raw_mining);
@@ -3227,8 +3253,10 @@ void UnitInfo::WritePacket(NetPacket& packet) {
     packet << repeat_build;
     packet << build_time;
     packet << build_rate;
-    packet << target_grid_x;
-    packet << target_grid_y;
+    packet << move_to_grid_x;
+    packet << move_to_grid_y;
+    packet << fire_on_grid_x;
+    packet << fire_on_grid_y;
 
     packet << build_list.GetCount();
 
@@ -3246,8 +3274,10 @@ void UnitInfo::ReadPacket(NetPacket& packet) {
     packet >> repeat_build;
     packet >> build_time;
     packet >> build_rate;
-    packet >> target_grid_x;
-    packet >> target_grid_y;
+    packet >> move_to_grid_x;
+    packet >> move_to_grid_y;
+    packet >> fire_on_grid_x;
+    packet >> fire_on_grid_y;
 
     build_list.Clear();
 
@@ -3994,8 +4024,8 @@ void UnitInfo::SpawnNewUnit() {
         state = ORDER_STATE_EXECUTING_ORDER;
 
         if (GetParent()->flags & BUILDING) {
-            target_grid_x = grid_x;
-            target_grid_y = grid_y;
+            move_to_grid_x = grid_x;
+            move_to_grid_y = grid_y;
 
             UnitsManager_SetNewOrderInt(this, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_TAPE_POSITIONING_DEINIT);
         }
@@ -4301,15 +4331,15 @@ void UnitInfo::DeployConstructionSiteUtilities(ResourceID unit_type) {
         unit_type2 = SMLCONES;
     }
 
-    if (Access_GetModifiedSurfaceType(target_grid_x, target_grid_y) & (SURFACE_TYPE_WATER | SURFACE_TYPE_COAST)) {
+    if (Access_GetModifiedSurfaceType(move_to_grid_x, move_to_grid_y) & (SURFACE_TYPE_WATER | SURFACE_TYPE_COAST)) {
         ++unit_angle;
 
     } else {
-        UnitsManager_DeployUnit(unit_type2, team, nullptr, target_grid_x, target_grid_y, 0);
+        UnitsManager_DeployUnit(unit_type2, team, nullptr, move_to_grid_x, move_to_grid_y, 0);
     }
 
     SmartPointer<UnitInfo> unit =
-        UnitsManager_DeployUnit(unit_type1, team, nullptr, target_grid_x, target_grid_y, unit_angle);
+        UnitsManager_DeployUnit(unit_type1, team, nullptr, move_to_grid_x, move_to_grid_y, unit_angle);
 
     unit->SetParent(this);
 }
@@ -4579,8 +4609,8 @@ int32_t UnitInfo::GetTargetUnitAngle() {
         }
 
     } else {
-        int32_t target_x = target_grid_x * GFX_MAP_TILE_SIZE + GFX_MAP_TILE_SIZE / 2;
-        int32_t target_y = target_grid_y * GFX_MAP_TILE_SIZE + GFX_MAP_TILE_SIZE / 2;
+        int32_t target_x = move_to_grid_x * GFX_MAP_TILE_SIZE + GFX_MAP_TILE_SIZE / 2;
+        int32_t target_y = move_to_grid_y * GFX_MAP_TILE_SIZE + GFX_MAP_TILE_SIZE / 2;
 
         if (target_x > x) {
             if (target_y > y) {
@@ -4684,8 +4714,8 @@ void UnitInfo::CancelBuilding() {
         state = ORDER_STATE_EXECUTING_ORDER;
 
         if (unit_type == CONSTRCT || (unit_type == BULLDOZR && (GetParent()->flags & BUILDING))) {
-            target_grid_x = grid_x;
-            target_grid_y = grid_y;
+            move_to_grid_x = grid_x;
+            move_to_grid_y = grid_y;
 
             UnitsManager_SetNewOrderInt(this, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_TAPE_POSITIONING_DEINIT);
 
@@ -5089,7 +5119,7 @@ void UnitInfo::PrepareFire() {
     }
 
     if (team_visibility || UnitsManager_TeamInfo[GameManager_PlayerTeam]
-                               .heat_map_complete[target_grid_y * ResourceManager_MapSize.x + target_grid_x]) {
+                               .heat_map_complete[fire_on_grid_y * ResourceManager_MapSize.x + fire_on_grid_x]) {
         SoundManager_PlaySfx(this, SFX_TYPE_FIRE);
     }
 
@@ -5146,7 +5176,7 @@ void UnitInfo::PrepareFire() {
             unit_angle = 0;
 
         } else {
-            unit_angle = UnitsManager_GetFiringAngle(target_grid_x - grid_x, target_grid_y - grid_y);
+            unit_angle = UnitsManager_GetFiringAngle(fire_on_grid_x - grid_x, fire_on_grid_y - grid_y);
 
             if (particle_unit == ALNMISSL) {
                 unit_angle *= 2;
@@ -5155,8 +5185,8 @@ void UnitInfo::PrepareFire() {
 
         new_unit = UnitsManager_DeployUnit(particle_unit, team, nullptr, grid_x, grid_y, unit_angle, true);
 
-        new_unit->target_grid_x = target_grid_x;
-        new_unit->target_grid_y = target_grid_y;
+        new_unit->fire_on_grid_x = fire_on_grid_x;
+        new_unit->fire_on_grid_y = fire_on_grid_y;
 
         new_unit->SetParent(this);
 
@@ -5216,7 +5246,7 @@ void UnitInfo::ProgressFire() {
         }
 
         if (!(flags & FIRES_MISSILES)) {
-            Attack(target_grid_x, target_grid_y);
+            Attack(fire_on_grid_x, fire_on_grid_y);
 
             UnitsManager_AddToDelayedReactionList(this);
         }

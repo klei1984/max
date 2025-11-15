@@ -1042,8 +1042,8 @@ void TaskMove::MoveAirUnit() {
                     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
                          it != UnitsManager_MobileAirUnits.End(); ++it) {
                         if ((*it).GetOrder() == ORDER_MOVE && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER &&
-                            (*it).team == m_team && (*it).target_grid_x == passenger_waypoint.x &&
-                            (*it).target_grid_y == passenger_waypoint.y) {
+                            (*it).team == m_team && (*it).move_to_grid_x == passenger_waypoint.x &&
+                            (*it).move_to_grid_y == passenger_waypoint.y) {
                             AILOG_LOG(log, "[{},{}] is a destination for {} at [{},{}].", passenger_waypoint.x + 1,
                                       passenger_waypoint.y + 1,
                                       UnitsManager_BaseUnits[(*it).GetUnitType()].GetSingularName(), (*it).grid_x + 1,
@@ -1068,8 +1068,8 @@ void TaskMove::MoveAirUnit() {
 
             AILOG_LOG(log, "Air move issued to [{},{}].", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
 
-            passenger->target_grid_x = passenger_waypoint.x;
-            passenger->target_grid_y = passenger_waypoint.y;
+            passenger->move_to_grid_x = passenger_waypoint.x;
+            passenger->move_to_grid_y = passenger_waypoint.y;
 
             field_70 = true;
 
@@ -1243,8 +1243,8 @@ bool TaskMove::FindWaypoint() {
         } else {
             AILOG_LOG(log, "Found [{},{}].", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
 
-            passenger->target_grid_x = passenger_waypoint.x;
-            passenger->target_grid_y = passenger_waypoint.y;
+            passenger->move_to_grid_x = passenger_waypoint.x;
+            passenger->move_to_grid_y = passenger_waypoint.y;
 
             result = true;
         }
@@ -1316,8 +1316,8 @@ void TaskMove::MoveUnit(GroundPath* path) {
 
         AILOG_LOG(log, "Move order issued to [{},{}]", passenger_waypoint.x + 1, passenger_waypoint.y + 1);
 
-        passenger->target_grid_x = passenger_waypoint.x;
-        passenger->target_grid_y = passenger_waypoint.y;
+        passenger->move_to_grid_x = passenger_waypoint.x;
+        passenger->move_to_grid_y = passenger_waypoint.y;
         field_70 = true;
         passenger->ChangeAiStateBits(UnitInfo::AI_STATE_NO_RETREAT, false);
 

@@ -3503,8 +3503,8 @@ void GameManager_SelectBuildSite(UnitInfo* unit) {
         unit->SetOrderState(unit->GetPriorOrderState());
 
     } else {
-        unit->target_grid_x = unit->grid_x;
-        unit->target_grid_y = unit->grid_y;
+        unit->move_to_grid_x = unit->grid_x;
+        unit->move_to_grid_y = unit->grid_y;
 
         UnitsManager_SetNewOrder(unit, ORDER_BUILD, ORDER_STATE_BUILD_CANCEL);
 
@@ -4095,8 +4095,8 @@ void GameManager_SetUnitOrder(const UnitOrderType order, const UnitOrderStateTyp
 
         } else {
             if (unit->shots > 0) {
-                unit->target_grid_x = grid_x;
-                unit->target_grid_y = grid_y;
+                unit->fire_on_grid_x = grid_x;
+                unit->fire_on_grid_y = grid_y;
 
                 UnitsManager_SetNewOrder(unit, ORDER_FIRE, ORDER_STATE_INIT);
             }
@@ -4105,8 +4105,8 @@ void GameManager_SetUnitOrder(const UnitOrderType order, const UnitOrderStateTyp
         }
     }
 
-    unit->target_grid_x = grid_x;
-    unit->target_grid_y = grid_y;
+    unit->move_to_grid_x = grid_x;
+    unit->move_to_grid_y = grid_y;
 
     if (unit->GetOrder() == ORDER_MOVE || unit->GetOrder() == ORDER_MOVE_TO_UNIT ||
         unit->GetOrder() == ORDER_MOVE_TO_ATTACK) {
@@ -4498,8 +4498,8 @@ void GameManager_PathBuild(UnitInfo* unit) {
 
     SoundManager_PlayVoice(V_M049, V_F050, -1);
 
-    unit->target_grid_x = GameManager_TempTape->grid_x;
-    unit->target_grid_y = GameManager_TempTape->grid_y;
+    unit->move_to_grid_x = GameManager_TempTape->grid_x;
+    unit->move_to_grid_y = GameManager_TempTape->grid_y;
 
     UnitsManager_DestroyUnit(&*GameManager_TempTape);
     GameManager_TempTape = nullptr;
@@ -4511,10 +4511,10 @@ void GameManager_PathBuild(UnitInfo* unit) {
     }
 
     if (unit->GetUnitType() == ENGINEER &&
-        (unit->grid_x != unit->target_grid_x || unit->grid_y != unit->target_grid_y)) {
-        unit->path = new (std::nothrow) GroundPath(unit->target_grid_x, unit->target_grid_y);
+        (unit->grid_x != unit->move_to_grid_x || unit->grid_y != unit->move_to_grid_y)) {
+        unit->path = new (std::nothrow) GroundPath(unit->move_to_grid_x, unit->move_to_grid_y);
 
-        unit->path->Path_vfunc17(unit->target_grid_x - unit->grid_x, unit->target_grid_y - unit->grid_y);
+        unit->path->Path_vfunc17(unit->move_to_grid_x - unit->grid_x, unit->move_to_grid_y - unit->grid_y);
 
         if (Remote_IsNetworkGame) {
             Remote_SendNetPacket_38(unit);
@@ -6743,8 +6743,8 @@ void GameManager_ProcessInput() {
                                         } break;
 
                                         case CURSOR_ENEMY: {
-                                            GameManager_SelectedUnit->target_grid_x = GameManager_MousePosition.x;
-                                            GameManager_SelectedUnit->target_grid_y = GameManager_MousePosition.y;
+                                            GameManager_SelectedUnit->move_to_grid_x = GameManager_MousePosition.x;
+                                            GameManager_SelectedUnit->move_to_grid_y = GameManager_MousePosition.y;
 
                                             GameManager_SetUnitOrder(ORDER_MOVE_TO_ATTACK, ORDER_STATE_EXECUTING_ORDER,
                                                                      &*GameManager_SelectedUnit,
@@ -6772,9 +6772,9 @@ void GameManager_ProcessInput() {
                                                     GameManager_DeinitPopupButtons(false);
                                                     GameManager_UpdateDrawBounds();
 
-                                                    GameManager_SelectedUnit->target_grid_x =
+                                                    GameManager_SelectedUnit->move_to_grid_x =
                                                         GameManager_MousePosition.x;
-                                                    GameManager_SelectedUnit->target_grid_y =
+                                                    GameManager_SelectedUnit->move_to_grid_y =
                                                         GameManager_MousePosition.y;
 
                                                     UnitsManager_SetNewOrder(&*GameManager_SelectedUnit, ORDER_ACTIVATE,
@@ -6827,8 +6827,8 @@ void GameManager_ProcessInput() {
                                         case CURSOR_ACTIVATE: {
                                             UnitInfo* parent = GameManager_SelectedUnit->GetParent();
 
-                                            parent->target_grid_x = GameManager_MousePosition.x;
-                                            parent->target_grid_y = GameManager_MousePosition.y;
+                                            parent->move_to_grid_x = GameManager_MousePosition.x;
+                                            parent->move_to_grid_y = GameManager_MousePosition.y;
 
                                             parent->SetParent(&*GameManager_SelectedUnit);
 

@@ -69,8 +69,10 @@ struct Packet23Data {
     uint8_t prior_state;
     bool disabled_reaction_fire;
     uint16_t parent_unit_id;
-    int16_t target_grid_x;
-    int16_t target_grid_y;
+    int16_t move_to_grid_x;
+    int16_t move_to_grid_y;
+    int16_t fire_on_grid_x;
+    int16_t fire_on_grid_y;
     uint16_t enemy_unit_id;
     uint8_t total_mining;
     uint8_t raw_mining;
@@ -388,8 +390,10 @@ void Remote_OrderProcessor2_Read(UnitInfo* unit, NetPacket& packet) {
 void Remote_OrderProcessor3_Write(UnitInfo* unit, NetPacket& packet) {
     Remote_OrderProcessor2_Write(unit, packet);
 
-    packet << unit->target_grid_x;
-    packet << unit->target_grid_y;
+    packet << unit->move_to_grid_x;
+    packet << unit->move_to_grid_y;
+    packet << unit->fire_on_grid_x;
+    packet << unit->fire_on_grid_y;
 
     if (unit->GetEnemy()) {
         packet << unit->GetEnemy()->GetId();
@@ -405,8 +409,10 @@ void Remote_OrderProcessor3_Write(UnitInfo* unit, NetPacket& packet) {
 void Remote_OrderProcessor3_Read(UnitInfo* unit, NetPacket& packet) {
     Remote_OrderProcessor2_Read(unit, packet);
 
-    packet >> unit->target_grid_x;
-    packet >> unit->target_grid_y;
+    packet >> unit->move_to_grid_x;
+    packet >> unit->move_to_grid_y;
+    packet >> unit->fire_on_grid_x;
+    packet >> unit->fire_on_grid_y;
     uint16_t unit_id;
 
     packet >> unit_id;
@@ -1101,8 +1107,10 @@ void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet) {
         AILOG_LOG(log, " build rate    {}, {}", unit->build_rate, data.build_rate);
     }
 
-    AILOG_LOG(log, " target grid x {}, {}", unit->target_grid_x, data.target_grid_x);
-    AILOG_LOG(log, " target grid y {}, {}", unit->target_grid_y, data.target_grid_y);
+    AILOG_LOG(log, " move to grid x {}, {}", unit->move_to_grid_x, data.move_to_grid_x);
+    AILOG_LOG(log, " move to grid y {}, {}", unit->move_to_grid_y, data.move_to_grid_y);
+    AILOG_LOG(log, " fire on grid x {}, {}", unit->fire_on_grid_x, data.fire_on_grid_x);
+    AILOG_LOG(log, " fire on grid y {}, {}", unit->fire_on_grid_y, data.fire_on_grid_y);
     AILOG_LOG(log, " reaction fire {}, {}", unit->disabled_reaction_fire, data.disabled_reaction_fire);
     AILOG_LOG(log, " total mining  {}, {}", unit->total_mining, data.total_mining);
     AILOG_LOG(log, " raw mining    {}, {}", unit->raw_mining, data.raw_mining);
@@ -2445,8 +2453,10 @@ void Remote_ProcessNetPacket_23(struct Packet23Data& data, NetPacket& packet) {
 
     local >> data.parent_unit_id;
 
-    local >> data.target_grid_x;
-    local >> data.target_grid_y;
+    local >> data.move_to_grid_x;
+    local >> data.move_to_grid_y;
+    local >> data.fire_on_grid_x;
+    local >> data.fire_on_grid_y;
     local >> data.enemy_unit_id;
 
     local >> data.total_mining;
@@ -2894,8 +2904,8 @@ void Remote_SendNetPacket_38(UnitInfo* unit) {
 
     packet << unit->GetOrder();
     packet << unit->GetOrderState();
-    packet << unit->target_grid_x;
-    packet << unit->target_grid_y;
+    packet << unit->move_to_grid_x;
+    packet << unit->move_to_grid_y;
     packet << unit->group_speed;
 
     uint16_t steps_count;
@@ -2953,8 +2963,8 @@ void Remote_ReceiveNetPacket_38(NetPacket& packet) {
         unit->SetOrder(order);
         unit->SetOrderState(order_state);
 
-        packet >> unit->target_grid_x;
-        packet >> unit->target_grid_y;
+        packet >> unit->move_to_grid_x;
+        packet >> unit->move_to_grid_y;
         packet >> unit->group_speed;
 
         packet >> steps_count;
@@ -2982,7 +2992,7 @@ void Remote_ReceiveNetPacket_38(NetPacket& packet) {
                 packet >> unit->max_velocity;
 
             } else {
-                unit->path = new (std::nothrow) GroundPath(unit->target_grid_x, unit->target_grid_y);
+                unit->path = new (std::nothrow) GroundPath(unit->move_to_grid_x, unit->move_to_grid_y);
 
                 unit->path->ReadPacket(packet, steps_count);
             }

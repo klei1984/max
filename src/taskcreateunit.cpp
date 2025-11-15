@@ -325,8 +325,8 @@ void TaskCreateUnit::WaitForMaterials() {
                 build_list.Clear();
                 build_list.PushBack(&unit_type);
 
-                builder->target_grid_x = 0;
-                builder->target_grid_y = 0;
+                builder->move_to_grid_x = 0;
+                builder->move_to_grid_y = 0;
 
                 builder->BuildOrder();
             }

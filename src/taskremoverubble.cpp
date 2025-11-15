@@ -205,7 +205,7 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
                     if ((*building).GetComplex() == complex) {
                         if (Task_IsAdjacent(building->Get(), unit_->grid_x, unit_->grid_y)) {
                             if (GameManager_IsActiveTurn(m_team)) {
-                                unit_->target_grid_x =
+                                unit_->move_to_grid_x =
                                     std::min(static_cast<int32_t>(unit_->storage),
                                              (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - (*it).storage);
                                 unit_->SetParent(it->Get());

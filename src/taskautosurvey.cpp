@@ -92,8 +92,8 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
 
                     if (direction >= 8) {
                         if (location_found) {
-                            unit->target_grid_x = destination.x;
-                            unit->target_grid_y = destination.y;
+                            unit->move_to_grid_x = destination.x;
+                            unit->move_to_grid_y = destination.y;
 
                             radius = 0;
 
@@ -209,8 +209,8 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
             }
 
             if (location_found) {
-                unit->target_grid_x = destination.x;
-                unit->target_grid_y = destination.y;
+                unit->move_to_grid_x = destination.x;
+                unit->move_to_grid_y = destination.y;
 
                 radius = 0;
 

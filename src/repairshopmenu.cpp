@@ -835,8 +835,8 @@ void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
 
                 if (it != units.End()) {
                     unit->SetParent(&*it);
-                    unit->target_grid_x = point.x;
-                    unit->target_grid_y = point.y;
+                    unit->move_to_grid_x = point.x;
+                    unit->move_to_grid_y = point.y;
 
                     UnitsManager_SetNewOrder(&*unit, ORDER_ACTIVATE, ORDER_STATE_EXECUTING_ORDER);
 

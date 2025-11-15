@@ -624,8 +624,8 @@ bool GroundPath::Execute(UnitInfo* unit) {
     int32_t cost;
     bool is_diagonal_step;
 
-    unit->target_grid_x = x_end;
-    unit->target_grid_y = y_end;
+    unit->move_to_grid_x = x_end;
+    unit->move_to_grid_y = y_end;
 
     for (step = steps[index]; step->x == 0 && step->y == 0; step = steps[index]) {
         ++index;
@@ -1033,15 +1033,15 @@ bool Paths_RequestPath(UnitInfo* unit, int32_t mode) {
         UnitInfo* enemy = unit->GetEnemy();
 
         if (enemy) {
-            unit->target_grid_x = enemy->grid_x;
-            unit->target_grid_y = enemy->grid_y;
+            unit->move_to_grid_x = enemy->grid_x;
+            unit->move_to_grid_y = enemy->grid_y;
         }
     }
 
-    if (unit->target_grid_x >= 0 && unit->target_grid_x < ResourceManager_MapSize.x && unit->target_grid_y >= 0 &&
-        unit->target_grid_y < ResourceManager_MapSize.y) {
-        SmartPointer<PathRequest> request(new (std::nothrow)
-                                              PathRequest(unit, mode, Point(unit->target_grid_x, unit->target_grid_y)));
+    if (unit->move_to_grid_x >= 0 && unit->move_to_grid_x < ResourceManager_MapSize.x && unit->move_to_grid_y >= 0 &&
+        unit->move_to_grid_y < ResourceManager_MapSize.y) {
+        SmartPointer<PathRequest> request(
+            new (std::nothrow) PathRequest(unit, mode, Point(unit->move_to_grid_x, unit->move_to_grid_y)));
 
         request->SetBoardTransport(unit->GetOrder() == ORDER_MOVE_TO_UNIT);
 
@@ -1104,8 +1104,8 @@ AirPath* Paths_GetAirPath(UnitInfo* unit) {
         unit->path = nullptr;
 
     } else {
-        end_x = unit->target_grid_x;
-        end_y = unit->target_grid_y;
+        end_x = unit->move_to_grid_x;
+        end_y = unit->move_to_grid_y;
     }
 
     distance_x = end_x - grid_x;

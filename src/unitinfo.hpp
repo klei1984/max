@@ -387,8 +387,10 @@ public:
     int16_t firing_image_base;
     int16_t connector_image_base;
     int16_t image_index_max;
-    int16_t target_grid_x;
-    int16_t target_grid_y;
+    int16_t move_to_grid_x;
+    int16_t move_to_grid_y;
+    int16_t fire_on_grid_x;
+    int16_t fire_on_grid_y;
     uint8_t build_time;
     uint8_t total_mining;
     uint8_t raw_mining;

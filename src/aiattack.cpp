@@ -340,8 +340,8 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
             }
 
             if (is_valid) {
-                attacker->target_grid_x = target->grid_x;
-                attacker->target_grid_y = target->grid_y;
+                attacker->move_to_grid_x = target->grid_x;
+                attacker->move_to_grid_y = target->grid_y;
 
             } else {
                 int32_t attack_radius = attacker->GetBaseValues()->GetAttribute(ATTRIB_ATTACK_RADIUS);
@@ -370,8 +370,8 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
                     } while (walker.FindNext());
 
                     if (is_found) {
-                        attacker->target_grid_x = site.x;
-                        attacker->target_grid_y = site.y;
+                        attacker->move_to_grid_x = site.x;
+                        attacker->move_to_grid_y = site.y;
 
                     } else {
                         return false;
@@ -714,7 +714,7 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
 
                 } else {
                     if (unit->GetOrder() == ORDER_MOVE_TO_ATTACK &&
-                        !Access_GetAttackTarget(unit, unit->target_grid_x, unit->target_grid_y)) {
+                        !Access_GetAttackTarget(unit, unit->move_to_grid_x, unit->move_to_grid_y)) {
                         UnitsManager_SetNewOrder(unit, ORDER_AWAIT, ORDER_STATE_EXECUTING_ORDER);
                     }
 

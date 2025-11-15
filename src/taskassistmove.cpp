@@ -43,8 +43,8 @@ void TaskAssistMove::RequestTransport(UnitInfo* transporter, UnitInfo* client) {
             UnitsManager_SetNewOrder(transporter, ORDER_LOAD, ORDER_STATE_INIT);
 
         } else {
-            client->target_grid_x = transporter->grid_x;
-            client->target_grid_y = transporter->grid_y;
+            client->move_to_grid_x = transporter->grid_x;
+            client->move_to_grid_y = transporter->grid_y;
 
             if (client->speed < 2) {
                 client->speed = 2;

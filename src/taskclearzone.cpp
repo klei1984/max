@@ -398,8 +398,8 @@ void TaskClearZone::EvaluateSite(ZoneSquare* zone_square, Point site) {
                 } else {
                     moving_unit = zone_square->unit;
 
-                    moving_unit->target_grid_x = site.x;
-                    moving_unit->target_grid_y = site.y;
+                    moving_unit->move_to_grid_x = site.x;
+                    moving_unit->move_to_grid_y = site.y;
 
                     moving_unit->AddTask(this);
 

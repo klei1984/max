@@ -128,8 +128,8 @@ void TaskCreateBuilding::RequestBuilder() {
 void TaskCreateBuilding::AbandonSite() {
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
         if (GameManager_IsActiveTurn(builder->team)) {
-            builder->target_grid_x = builder->grid_x;
-            builder->target_grid_y = builder->grid_y;
+            builder->move_to_grid_x = builder->grid_x;
+            builder->move_to_grid_y = builder->grid_y;
 
             op_state = CREATE_BUILDING_STATE_MOVING_TO_SITE;
 
@@ -155,8 +155,8 @@ bool TaskCreateBuilding::BuildRoad() {
 
                     builder->SetBuildRate(1);
 
-                    builder->target_grid_x = builder->grid_x;
-                    builder->target_grid_y = builder->grid_y;
+                    builder->move_to_grid_x = builder->grid_x;
+                    builder->move_to_grid_y = builder->grid_y;
 
                     builder->path = nullptr;
 
@@ -222,8 +222,8 @@ void TaskCreateBuilding::BeginBuilding() {
                                                     builder->SetBuildRate(1);
                                                 }
 
-                                                builder->target_grid_x = site.x;
-                                                builder->target_grid_y = site.y;
+                                                builder->move_to_grid_x = site.x;
+                                                builder->move_to_grid_y = site.y;
 
                                                 builder->path = nullptr;
 
