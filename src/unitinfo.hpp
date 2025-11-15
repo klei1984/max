@@ -379,8 +379,8 @@ public:
     uint8_t velocity;
     uint8_t scaler_adjust;
     uint8_t turret_angle;
-    char turret_offset_x;
-    char turret_offset_y;
+    int8_t turret_offset_x;
+    int8_t turret_offset_y;
     int16_t total_images;
     int16_t image_base;
     int16_t turret_image_base;
@@ -403,6 +403,7 @@ public:
     uint8_t shots;
     uint8_t move_and_fire;
     int16_t storage;
+    int16_t experience;
     uint8_t ammo;
     uint8_t targeting_mode;
     uint8_t enter_mode;

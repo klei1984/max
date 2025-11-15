@@ -33,7 +33,7 @@ TaskFindPath::TaskFindPath(Task* parent, PathRequest* request,
                            void (*result_callback_)(Task* task, PathRequest* path_request, Point destination_,
                                                     GroundPath* path, uint8_t result),
                            void (*cancel_callback_)(Task* task, PathRequest* path_request))
-    : Task(m_parent->GetTeam(), parent, m_parent->GetPriority()) {
+    : Task(parent->GetTeam(), parent, parent->GetPriority()) {
     result_callback = result_callback_;
     cancel_callback = cancel_callback_;
 

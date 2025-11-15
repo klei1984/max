@@ -4156,7 +4156,7 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t te
     }
 
     if (unit->GetUnitType() == COMMANDO) {
-        unit->storage = unit->GetBaseValues()->GetAttribute(ATTRIB_AGENT_ADJUST);
+        unit->experience = unit->GetBaseValues()->GetAttribute(ATTRIB_AGENT_ADJUST);
     }
 
     if (unit->flags & ANIMATED) {
@@ -6271,7 +6271,7 @@ bool UnitsManager_AttemptStealthAction(UnitInfo* unit) {
 
         if (unit->target_grid_x <= stealth_chance) {
             if (parent->GetOrder() != ORDER_DISABLE) {
-                ++unit->storage;
+                ++unit->experience;
             }
 
             if (GameManager_SelectedUnit == unit) {

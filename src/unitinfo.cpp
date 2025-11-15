@@ -520,6 +520,7 @@ UnitInfo::UnitInfo()
       shots(0),
       move_and_fire(0),
       storage(0),
+      experience(0),
       ammo(0),
       targeting_mode(0),
       enter_mode(0),
@@ -601,6 +602,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
       shots(0),
       move_and_fire(0),
       storage(0),
+      experience(0),
       ammo(0),
       targeting_mode(0),
       enter_mode(0),
@@ -743,6 +745,7 @@ UnitInfo::UnitInfo(const UnitInfo& other)
       shots(other.shots),
       move_and_fire(other.move_and_fire),
       storage(other.storage),
+      experience(other.experience),
       ammo(other.ammo),
       targeting_mode(other.targeting_mode),
       enter_mode(other.enter_mode),
@@ -2105,11 +2108,11 @@ void UnitInfo::Redraw() {
     }
 }
 
-void UnitInfo::GainExperience(int32_t experience) {
+void UnitInfo::GainExperience(int32_t experience_gain) {
     if (flags & REGENERATING_UNIT) {
-        storage += experience;
+        experience += experience_gain;
 
-        if (storage >= 15) {
+        if (experience >= 15) {
             int32_t upgrade_topic;
             int32_t upgrade_cost;
             int32_t upgrade_level;
@@ -2125,7 +2128,7 @@ void UnitInfo::GainExperience(int32_t experience) {
             upgrade_topic = ExpResearchTopics[Randomizer_Generate(sizeof(ExpResearchTopics))];
             upgrade_cost = TeamUnits_GetUpgradeCost(team, unit_type, upgrade_topic);
 
-            while (upgrade_cost <= storage) {
+            while (upgrade_cost <= experience) {
                 upgrade_level = TeamUnits_UpgradeOffsetFactor(team, unit_type, upgrade_topic);
 
                 if (upgrade_topic == RESEARCH_TOPIC_HITS || upgrade_topic == RESEARCH_TOPIC_SPEED) {
@@ -2146,7 +2149,7 @@ void UnitInfo::GainExperience(int32_t experience) {
                     }
                 }
 
-                storage -= upgrade_cost;
+                experience -= upgrade_cost;
 
                 if (!is_upgraded) {
                     base_values = new UnitValues(*base_values);
@@ -3028,6 +3031,20 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
     file.Read(shots);
     file.Read(move_and_fire);
     file.Read(storage);
+
+    if (file.GetFormat() == SmartFileFormat::V70) {
+        if ((flags & REGENERATING_UNIT) || unit_type == COMMANDO) {
+            experience = storage;
+            storage = 0;
+
+        } else {
+            experience = 0;
+        }
+
+    } else {
+        file.Read(experience);
+    }
+
     file.Read(ammo);
     file.Read(targeting_mode);
     file.Read(enter_mode);
@@ -3048,15 +3065,18 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
     file.Read(engine);
     file.Read(weapon);
 
-    {
-        uint8_t comm_temp;
-        uint8_t fuel_distance_temp;
-        bool energized_temp;
+    if (file.GetFormat() == SmartFileFormat::V70) {
+        uint8_t comm;
+        uint8_t fuel_distance;
+        bool energized;
 
-        file.Read(comm_temp);
-        file.Read(fuel_distance_temp);
+        file.Read(comm);
+        file.Read(fuel_distance);
         file.Read(move_fraction);
-        file.Read(energized_temp);
+        file.Read(energized);
+
+    } else {
+        file.Read(move_fraction);
     }
 
     file.Read(repeat_build);
@@ -3158,6 +3178,7 @@ void UnitInfo::FileSave(SmartFileWriter& file) noexcept {
     file.Write(shots);
     file.Write(move_and_fire);
     file.Write(storage);
+    file.Write(experience);
     file.Write(ammo);
     file.Write(targeting_mode);
     file.Write(enter_mode);
@@ -4089,7 +4110,7 @@ void UnitInfo::FollowUnit() {
 }
 
 int32_t UnitInfo::GetExperience() {
-    int32_t result = sqrt(storage * 10) - 2.0;
+    int32_t result = sqrt(experience * 10) - 2.0;
 
     if (result < 0) {
         result = 0;
