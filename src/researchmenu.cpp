@@ -203,8 +203,8 @@ void ResearchMenu_ApplyUpgrades(uint16_t team, uint8_t research_topic) {
         }
 
         if (research_topic == RESEARCH_TOPIC_HITS || research_topic == RESEARCH_TOPIC_SPEED) {
-            old_value = std::min(old_value, UINT8_MAX);
-            new_value = std::min(new_value, UINT8_MAX);
+            old_value = std::min(old_value, UINT16_MAX);
+            new_value = std::min(new_value, UINT16_MAX);
         }
 
         if (new_value != old_value) {

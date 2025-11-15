@@ -2124,8 +2124,8 @@ void AiPlayer::UpgradeUnitType() {
             build_order.primary_attribute == RESEARCH_TOPIC_SPEED) {
             auto current_level = unit_values->GetAttribute(build_order.primary_attribute);
 
-            if (current_level + upgrade_level > UINT8_MAX) {
-                upgrade_level = UINT8_MAX - current_level;
+            if (current_level + upgrade_level > UINT16_MAX) {
+                upgrade_level = UINT16_MAX - current_level;
             }
         }
 

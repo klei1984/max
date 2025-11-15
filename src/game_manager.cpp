@@ -2867,7 +2867,7 @@ void GameManager_ProcessCheatCodes() {
                     if (new_unit_values->GetAttribute(ATTRIB_HITS) <
                         2 * selected_unit_values->GetAttribute(ATTRIB_HITS)) {
                         new_unit_values->SetAttribute(
-                            ATTRIB_HITS, std::min(2 * selected_unit_values->GetAttribute(ATTRIB_HITS), UINT8_MAX));
+                            ATTRIB_HITS, std::min(2 * selected_unit_values->GetAttribute(ATTRIB_HITS), UINT16_MAX));
                     }
 
                     if (new_unit_values->GetAttribute(ATTRIB_SCAN) <

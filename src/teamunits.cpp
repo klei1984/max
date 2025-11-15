@@ -148,7 +148,7 @@ void TeamUnits::Init() {
 
         if (ResourceManager_GetUnitAttributes(id, &attribs)) {
             unitvalues->SetAttribute(ATTRIB_TURNS, attribs.turns_to_build);
-            unitvalues->SetAttribute(ATTRIB_HITS, std::min(attribs.hit_points, static_cast<uint32_t>(UINT8_MAX)));
+            unitvalues->SetAttribute(ATTRIB_HITS, std::min(attribs.hit_points, static_cast<uint32_t>(UINT16_MAX)));
             unitvalues->SetAttribute(ATTRIB_ARMOR, attribs.armor_rating);
             unitvalues->SetAttribute(ATTRIB_ATTACK, attribs.attack_rating);
             unitvalues->SetAttribute(ATTRIB_MOVE_AND_FIRE, attribs.move_and_fire);

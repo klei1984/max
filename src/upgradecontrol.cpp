@@ -122,8 +122,8 @@ void UpgradeControl::Init(int32_t id, int32_t team_base_value, int32_t control_b
     }
 
     if (id == UPGRADE_CONTROL_6 || id == UPGRADE_CONTROL_8) {
-        if (*control_actual_value + upgrade_amount > UINT8_MAX) {
-            upgrade_amount = UINT8_MAX - *control_actual_value;
+        if (*control_actual_value + upgrade_amount > UINT16_MAX) {
+            upgrade_amount = UINT16_MAX - *control_actual_value;
         }
     }
 }
@@ -186,7 +186,7 @@ void UpgradeControl::UpdateControlState() {
                 upgrade_right->Enable();
 
                 if (id == UPGRADE_CONTROL_6 || id == UPGRADE_CONTROL_8) {
-                    if (*control_actual_value >= UINT8_MAX) {
+                    if (*control_actual_value >= UINT16_MAX) {
                         upgrade_right->Disable();
                     }
                 }

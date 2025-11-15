@@ -2146,18 +2146,18 @@ void UnitInfo::GainExperience(int32_t experience_gain) {
                 if (upgrade_topic == RESEARCH_TOPIC_HITS || upgrade_topic == RESEARCH_TOPIC_SPEED) {
                     auto current_level = base_values->GetAttribute(upgrade_topic);
 
-                    if (current_level == UINT8_MAX) {
+                    if (current_level == UINT16_MAX) {
                         upgrade_topic = ExpResearchTopics[Randomizer_Generate(sizeof(ExpResearchTopics))];
                         upgrade_cost = TeamUnits_GetUpgradeCost(team, unit_type, upgrade_topic);
 
                         continue;
                     }
 
-                    if (current_level + upgrade_level > UINT8_MAX) {
+                    if (current_level + upgrade_level > UINT16_MAX) {
                         upgrade_cost = static_cast<float>(upgrade_cost) * static_cast<float>(upgrade_level) /
-                                           (UINT8_MAX - current_level) +
+                                           (UINT16_MAX - current_level) +
                                        0.5f;
-                        upgrade_level = UINT8_MAX - current_level;
+                        upgrade_level = UINT16_MAX - current_level;
                     }
                 }
 
@@ -2228,7 +2228,7 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int32_t attack_potential, int32_t dir
             attack_damage = hits;
         }
 
-        hits -= attack_damage;
+        hits = std::max<uint16_t>(0, hits - attack_damage);
 
         if (hits > 0) {
             ScheduleDelayedTasks(true);
@@ -3056,7 +3056,17 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
     file.Read(raw_mining_max);
     file.Read(gold_mining_max);
     file.Read(fuel_mining_max);
-    file.Read(hits);
+
+    if (file.GetFormat() == SmartFileFormat::V70) {
+        uint8_t hits_v70;
+        file.Read(hits_v70);
+
+        hits = hits_v70;
+
+    } else {
+        file.Read(hits);
+    }
+
     file.Read(speed);
     file.Read(shots);
     file.Read(move_and_fire);
@@ -4464,7 +4474,9 @@ void UnitInfo::UpgradeInt() {
     SmartPointer<UnitValues> values(UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type));
     SmartPointer<UnitInfo> copy = MakeCopy();
 
-    hits += values->GetAttribute(ATTRIB_HITS) - base_values->GetAttribute(ATTRIB_HITS);
+    int32_t new_hits =
+        static_cast<int32_t>(hits) + values->GetAttribute(ATTRIB_HITS) - base_values->GetAttribute(ATTRIB_HITS);
+    hits = std::max<int32_t>(0, std::min<int32_t>(new_hits, UINT16_MAX));
 
     UnitsManager_CheckIfUnitDestroyed(this);
 
@@ -4661,7 +4673,8 @@ int32_t UnitInfo::Repair(int32_t materials) {
                       (base_values->GetAttribute(ATTRIB_HITS) * 4);
     }
 
-    hits += hits_damage_level;
+    int32_t new_hits = static_cast<int32_t>(hits) + hits_damage_level;
+    hits = std::min<int32_t>(new_hits, UINT16_MAX);
 
     UnitsManager_CheckIfUnitDestroyed(this);
 

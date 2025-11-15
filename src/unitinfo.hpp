@@ -399,7 +399,7 @@ public:
     uint8_t raw_mining_max;
     uint8_t gold_mining_max;
     uint8_t fuel_mining_max;
-    uint8_t hits;
+    uint16_t hits;
     uint8_t speed;
     uint8_t group_speed;
     uint8_t shots;
