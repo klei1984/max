@@ -96,7 +96,7 @@ void TaskCheckAssaults::MoveFinishedCallback(Task* task, UnitInfo* unit, char re
     unit->RemoveTask(task);
 
     if (result != TASKMOVE_RESULT_SUCCESS) {
-        unit->RemoveTask(task);
+        task->RemoveUnit(*unit);
     }
 
     if (!task->IsScheduledForTurnEnd()) {
