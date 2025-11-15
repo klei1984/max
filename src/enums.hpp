@@ -86,6 +86,7 @@ enum UnitOrderType : uint8_t {
     ORDER_LOAD = 0xF,
     ORDER_IDLE = 0x10,
     ORDER_REPAIR = 0x11,
+    ORDER_17,
     ORDER_RELOAD = 0x13,
     ORDER_TRANSFER = 0x14,
     ORDER_HALT_BUILDING = 0x15,

@@ -138,21 +138,21 @@ void TaskGetMaterials::DoTransfer() {
 
             if (materials.raw >= requestor->GetBaseValues()->GetAttribute(ATTRIB_STORAGE) * 2 ||
                 materials.raw == capacity.raw) {
-                source->target_grid_x = requestor->GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - requestor->storage;
+                source->transfer_cargo = requestor->GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - requestor->storage;
 
             } else {
-                source->target_grid_x = materials_needed - requestor->storage;
+                source->transfer_cargo = materials_needed - requestor->storage;
             }
 
-            if (source->target_grid_x > materials.raw) {
-                source->target_grid_x = materials.raw;
+            if (source->transfer_cargo > materials.raw) {
+                source->transfer_cargo = materials.raw;
             }
 
         } else {
-            source->target_grid_x = materials_needed - requestor->storage;
+            source->transfer_cargo = materials_needed - requestor->storage;
 
-            if (source->target_grid_x > source->storage) {
-                source->target_grid_x = source->storage;
+            if (source->transfer_cargo > source->storage) {
+                source->transfer_cargo = source->storage;
             }
         }
 
@@ -161,7 +161,7 @@ void TaskGetMaterials::DoTransfer() {
         SDL_assert(GameManager_IsActiveTurn(m_team));
 
         AILOG_LOG(log, "Order {} materials from {} at [{},{}] for {} at [{},{}] holding {} materials.",
-                  source->target_grid_x, UnitsManager_BaseUnits[source->GetUnitType()].GetSingularName(),
+                  source->transfer_cargo, UnitsManager_BaseUnits[source->GetUnitType()].GetSingularName(),
                   source->grid_x + 1, source->grid_y + 1,
                   UnitsManager_BaseUnits[requestor->GetUnitType()].GetSingularName(), requestor->grid_x + 1,
                   requestor->grid_y + 1, requestor->storage);

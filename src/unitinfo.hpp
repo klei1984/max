@@ -404,6 +404,8 @@ public:
     uint8_t move_and_fire;
     int16_t storage;
     int16_t experience;
+    int16_t transfer_cargo;
+    uint8_t stealth_dice_roll;
     uint8_t ammo;
     uint8_t targeting_mode;
     uint8_t enter_mode;

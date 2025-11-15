@@ -387,7 +387,7 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
                     Ai_SetReactionState(AI_REACTION_STATE_ANIMATIONS_ACTIVE);
 
                     attacker->SetParent(target);
-                    attacker->target_grid_x = Randomizer_Generate(101);
+                    attacker->stealth_dice_roll = Randomizer_Generate(101);
 
                     if (target->GetOrder() == ORDER_DISABLE ||
                         (!(target->flags & STATIONARY) &&

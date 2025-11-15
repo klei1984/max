@@ -521,6 +521,8 @@ UnitInfo::UnitInfo()
       move_and_fire(0),
       storage(0),
       experience(0),
+      transfer_cargo(0),
+      stealth_dice_roll(0),
       ammo(0),
       targeting_mode(0),
       enter_mode(0),
@@ -603,6 +605,8 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
       move_and_fire(0),
       storage(0),
       experience(0),
+      transfer_cargo(0),
+      stealth_dice_roll(0),
       ammo(0),
       targeting_mode(0),
       enter_mode(0),
@@ -746,6 +750,8 @@ UnitInfo::UnitInfo(const UnitInfo& other)
       move_and_fire(other.move_and_fire),
       storage(other.storage),
       experience(other.experience),
+      transfer_cargo(other.transfer_cargo),
+      stealth_dice_roll(other.stealth_dice_roll),
       ammo(other.ammo),
       targeting_mode(other.targeting_mode),
       enter_mode(other.enter_mode),
@@ -3041,8 +3047,13 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
             experience = 0;
         }
 
+        transfer_cargo = target_grid_x;
+        stealth_dice_roll = static_cast<uint8_t>(target_grid_x);
+
     } else {
         file.Read(experience);
+        file.Read(transfer_cargo);
+        file.Read(stealth_dice_roll);
     }
 
     file.Read(ammo);
@@ -3179,6 +3190,8 @@ void UnitInfo::FileSave(SmartFileWriter& file) noexcept {
     file.Write(move_and_fire);
     file.Write(storage);
     file.Write(experience);
+    file.Write(transfer_cargo);
+    file.Write(stealth_dice_roll);
     file.Write(ammo);
     file.Write(targeting_mode);
     file.Write(enter_mode);

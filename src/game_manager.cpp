@@ -4580,7 +4580,7 @@ void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
         if (cargo_transferred) {
             char message[200];
 
-            unit1->target_grid_x = cargo_transferred;
+            unit1->transfer_cargo = cargo_transferred;
 
             UnitsManager_SetNewOrder(unit1, ORDER_TRANSFER, ORDER_STATE_INIT);
 
@@ -4613,7 +4613,7 @@ void GameManager_StealUnit(UnitInfo* unit1, UnitInfo* unit2) {
     if (unit2) {
         if (unit1->shots > 0) {
             unit1->SetParent(unit2);
-            unit1->target_grid_x = Randomizer_Generate(101);
+            unit1->stealth_dice_roll = Randomizer_Generate(101);
 
             UnitsManager_SetNewOrder(unit1, ORDER_AWAIT_STEAL_UNIT, ORDER_STATE_INIT);
 
@@ -4629,7 +4629,7 @@ void GameManager_DisableUnit(UnitInfo* unit1, UnitInfo* unit2) {
     if (unit2) {
         if (unit1->shots > 0) {
             unit1->SetParent(unit2);
-            unit1->target_grid_x = Randomizer_Generate(101);
+            unit1->stealth_dice_roll = Randomizer_Generate(101);
 
             UnitsManager_SetNewOrder(unit1, ORDER_AWAIT_DISABLE_UNIT, ORDER_STATE_INIT);
 

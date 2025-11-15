@@ -21,6 +21,8 @@
 
 #include "remote.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "ailog.hpp"
 #include "cursor.hpp"
@@ -85,6 +87,9 @@ struct Packet23Data {
     uint8_t speed;
     uint8_t shots;
     int16_t storage;
+    int16_t experience;
+    int16_t transfer_cargo;
+    uint8_t stealth_dice_roll;
     uint8_t ammo;
 };
 
@@ -131,6 +136,8 @@ static void Remote_ClearNotifyTimeout(bool main_menu_state);
 static void Remote_WriteGameSettings(NetPacket& packet, const std::shared_ptr<Mission> mission);
 static void Remote_ReadGameSettings(NetPacket& packet);
 
+static void Remote_OrderProcessor0_Write(UnitInfo* unit, NetPacket& packet);
+static void Remote_OrderProcessor0_Read(UnitInfo* unit, NetPacket& packet);
 static void Remote_OrderProcessor1_Write(UnitInfo* unit, NetPacket& packet);
 static void Remote_OrderProcessor1_Read(UnitInfo* unit, NetPacket& packet);
 static void Remote_OrderProcessor2_Write(UnitInfo* unit, NetPacket& packet);
@@ -316,6 +323,10 @@ void Remote_ReadGameSettings(NetPacket& packet) {
     packet >> Remote_NetworkMenu->rng_seed;
 }
 
+void Remote_OrderProcessor0_Write(UnitInfo* unit, NetPacket& packet) {}
+
+void Remote_OrderProcessor0_Read(UnitInfo* unit, NetPacket& packet) {}
+
 void Remote_OrderProcessor1_Write(UnitInfo* unit, NetPacket& packet) {
     packet << unit->GetOrder();
     packet << unit->GetOrderState();
@@ -353,6 +364,8 @@ void Remote_OrderProcessor2_Write(UnitInfo* unit, NetPacket& packet) {
     } else {
         packet << static_cast<uint16_t>(0);
     }
+
+    packet << unit->experience;
 }
 
 void Remote_OrderProcessor2_Read(UnitInfo* unit, NetPacket& packet) {
@@ -368,6 +381,8 @@ void Remote_OrderProcessor2_Read(UnitInfo* unit, NetPacket& packet) {
     } else {
         unit->SetParent(nullptr);
     }
+
+    packet >> unit->experience;
 }
 
 void Remote_OrderProcessor3_Write(UnitInfo* unit, NetPacket& packet) {
@@ -382,6 +397,9 @@ void Remote_OrderProcessor3_Write(UnitInfo* unit, NetPacket& packet) {
     } else {
         packet << static_cast<uint16_t>(0);
     }
+
+    packet << unit->transfer_cargo;
+    packet << unit->stealth_dice_roll;
 }
 
 void Remote_OrderProcessor3_Read(UnitInfo* unit, NetPacket& packet) {
@@ -399,6 +417,9 @@ void Remote_OrderProcessor3_Read(UnitInfo* unit, NetPacket& packet) {
     } else {
         unit->SetEnemy(nullptr);
     }
+
+    packet >> unit->transfer_cargo;
+    packet >> unit->stealth_dice_roll;
 }
 
 void Remote_OrderProcessor4_Write(UnitInfo* unit, NetPacket& packet) {
@@ -566,6 +587,12 @@ void Remote_Init() {
 
     for (int32_t i = 0; i < ORDER_COUNT_MAX; ++i) {
         switch (i) {
+            case ORDER_17: {
+                // unused order slots
+                Remote_OrderProcessors[i].WritePacket = &Remote_OrderProcessor0_Write;
+                Remote_OrderProcessors[i].ReadPacket = &Remote_OrderProcessor0_Read;
+            } break;
+
             case ORDER_POWER_ON:
             case ORDER_POWER_OFF:
             case ORDER_EXPLODE:
@@ -1042,12 +1069,12 @@ void Remote_NetErrorUnknownUnit(uint16_t unit_id) {
 }
 
 void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet) {
-    char message[100];
-    AILOG(log, "Units are out of sync:  Host, Peer");
     struct Packet23Data data;
     const char* const team_names[PLAYER_TEAM_MAX + 1] = {"Red", "Green", "Blue", "Gray", "Neutral", "Unknown"};
 
     Remote_ProcessNetPacket_23(data, packet);
+
+    AILOG(log, "Units are out of sync:  Host, Peer");
 
     AILOG_LOG(log, " team          {}, {}",
               (unit->team < PLAYER_TEAM_MAX) ? team_names[unit->team] : team_names[PLAYER_TEAM_MAX],
@@ -1085,11 +1112,14 @@ void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet) {
     AILOG_LOG(log, " speed         {}, {}", unit->speed, data.speed);
     AILOG_LOG(log, " rounds        {}, {}", unit->shots, data.shots);
     AILOG_LOG(log, " storage       {}, {}", unit->storage, data.storage);
+    AILOG_LOG(log, " experience    {}, {}", unit->experience, data.experience);
+    AILOG_LOG(log, " x-fer cargo   {}, {}", unit->transfer_cargo, data.transfer_cargo);
+    AILOG_LOG(log, " stealth dice  {}, {}", unit->stealth_dice_roll, data.stealth_dice_roll);
     AILOG_LOG(log, " ammo          {}, {}", unit->ammo, data.ammo);
 
-    sprintf(message, "Unit, id %i, is in different state in remote packet.", unit->GetId());
+    std::string message = std::format("Unit, id {}, is in different state in remote packet.", unit->GetId());
 
-    MessageManager_DrawMessage(message, 2, 1, false, true);
+    MessageManager_DrawMessage(message.c_str(), 2, 1, false, true);
 }
 
 void Remote_AnalyzeDesync() {
@@ -2435,6 +2465,9 @@ void Remote_ProcessNetPacket_23(struct Packet23Data& data, NetPacket& packet) {
     local >> data.speed;
     local >> data.shots;
     local >> data.storage;
+    local >> data.experience;
+    local >> data.transfer_cargo;
+    local >> data.stealth_dice_roll;
     local >> data.ammo;
 }
 

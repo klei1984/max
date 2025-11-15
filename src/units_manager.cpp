@@ -6163,7 +6163,7 @@ void UnitsManager_Transfer(UnitInfo* unit) {
     SmartPointer<UnitInfo> source(unit);
     SmartPointer<UnitInfo> target(unit->GetParent());
     int32_t cargo_type = UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type;
-    int32_t transfer_amount = unit->target_grid_x;
+    int32_t transfer_amount = unit->transfer_cargo;
 
     if (transfer_amount < 0) {
         source = target;
@@ -6269,7 +6269,7 @@ bool UnitsManager_AttemptStealthAction(UnitInfo* unit) {
             }
         }
 
-        if (unit->target_grid_x <= stealth_chance) {
+        if (unit->stealth_dice_roll <= stealth_chance) {
             if (parent->GetOrder() != ORDER_DISABLE) {
                 ++unit->experience;
             }
