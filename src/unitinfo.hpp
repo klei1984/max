@@ -400,8 +400,8 @@ public:
     uint8_t gold_mining_max;
     uint8_t fuel_mining_max;
     uint16_t hits;
-    uint8_t speed;
-    uint8_t group_speed;
+    uint16_t speed;
+    uint16_t group_speed;
     uint8_t shots;
     uint8_t move_and_fire;
     int16_t storage;

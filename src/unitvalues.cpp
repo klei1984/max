@@ -87,13 +87,9 @@ void UnitValues::FileLoad(SmartFileReader& file) noexcept {
     file.Read(agent_adjust);
     file.Read(version);
     file.Read(units_built);
-
-    speed = std::min<uint16_t>(speed, UINT8_MAX);
 }
 
 void UnitValues::FileSave(SmartFileWriter& file) noexcept {
-    speed = std::min<uint16_t>(speed, UINT8_MAX);
-
     file.Write(turns);
     file.Write(hits);
     file.Write(armor);

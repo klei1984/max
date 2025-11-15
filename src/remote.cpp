@@ -86,7 +86,7 @@ struct Packet23Data {
     int16_t grid_y;
     uint8_t team;
     uint16_t hits;
-    uint8_t speed;
+    uint16_t speed;
     uint8_t shots;
     int16_t storage;
     int16_t experience;

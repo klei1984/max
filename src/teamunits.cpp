@@ -152,7 +152,8 @@ void TeamUnits::Init() {
             unitvalues->SetAttribute(ATTRIB_ARMOR, attribs.armor_rating);
             unitvalues->SetAttribute(ATTRIB_ATTACK, attribs.attack_rating);
             unitvalues->SetAttribute(ATTRIB_MOVE_AND_FIRE, attribs.move_and_fire);
-            unitvalues->SetAttribute(ATTRIB_SPEED, std::min(attribs.movement_points, static_cast<uint32_t>(UINT8_MAX)));
+            unitvalues->SetAttribute(ATTRIB_SPEED,
+                                     std::min(attribs.movement_points, static_cast<uint32_t>(UINT16_MAX)));
             unitvalues->SetAttribute(ATTRIB_FUEL, 0uL);
             unitvalues->SetAttribute(ATTRIB_RANGE, attribs.attack_range);
             unitvalues->SetAttribute(ATTRIB_ROUNDS, attribs.shots_per_turn);

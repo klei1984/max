@@ -3067,7 +3067,17 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
         file.Read(hits);
     }
 
-    file.Read(speed);
+    if (file.GetFormat() == SmartFileFormat::V70) {
+        uint8_t speed_v70;
+
+        file.Read(speed_v70);
+
+        speed = speed_v70;
+
+    } else {
+        file.Read(speed);
+    }
+
     file.Read(shots);
     file.Read(move_and_fire);
     file.Read(storage);
