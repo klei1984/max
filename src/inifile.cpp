@@ -182,18 +182,10 @@ static const IniKey ini_keys_table[] = {
 
 static const int32_t ini_keys_table_size = sizeof(ini_keys_table) / sizeof(struct IniKey);
 
-static const char* const clan_ini_section_name_lut[] = {"Clan ?", "Clan A", "Clan B", "Clan C", "Clan D",
-                                                        "Clan E", "Clan F", "Clan G", "Clan H"};
-
-static const int32_t ini_clans_table_size = sizeof(clan_ini_section_name_lut) / sizeof(char*);
-
 static_assert(ini_keys_table_size == INI_END_DELIMITER,
               "INI enumerator list and configuration ini parameters table size do not match");
 
-static_assert(ini_clans_table_size == 9, "M.A.X. v1.04 has 9 clans");
-
 IniSettings ini_config;
-IniClans ini_clans;
 
 IniSettings::IniSettings() {
     ini.buffer = nullptr;
@@ -415,142 +407,6 @@ void IniSettings::LoadSection(SmartFileReader& file, IniParameter section, char 
 int32_t ini_get_setting(IniParameter index) { return ini_config.GetNumericValue(static_cast<IniParameter>(index)); }
 
 int32_t ini_set_setting(IniParameter param, int32_t value) { return ini_config.SetNumericValue(param, value); }
-
-IniClans::IniClans() { ini.buffer = nullptr; }
-
-IniClans::~IniClans() { inifile_save_to_file_and_free_buffer(&ini); }
-
-void IniClans::Init() { inifile_load_from_resource(&ini, CLANATRB); }
-
-int32_t IniClans::SeekUnit(int32_t clan, int32_t unit) {
-    return inifile_ini_seek_section(&ini, clan_ini_section_name_lut[clan]) &&
-           inifile_ini_seek_param(&ini,
-                                  ResourceManager_GetUnit(static_cast<ResourceID>(unit)).GetSingularName().data());
-}
-
-int32_t IniClans::GetNextUnitUpgrade(int16_t* attrib_id, int16_t* value) {
-    const char* cstr;
-
-    if (!inifile_ini_process_string_value(&ini, buffer, sizeof(buffer))) {
-        return 0;
-    }
-
-    cstr = buffer;
-
-    if (!strlen(cstr)) {
-        return 0;
-    }
-
-    *value = strtol(cstr, nullptr, 10);
-
-    while (*cstr != ' ') {
-        ++cstr;
-    }
-
-    ++cstr;
-
-    for (*attrib_id = 0; *attrib_id < ATTRIB_COUNT; ++(*attrib_id)) {
-        int32_t result;
-
-        switch (*attrib_id) {
-            case ATTRIB_ATTACK: {
-                result = SDL_strcasecmp(_(fca3), cstr);
-            } break;
-
-            case ATTRIB_ROUNDS: {
-                result = SDL_strcasecmp(_(206c), cstr);
-            } break;
-
-            case ATTRIB_RANGE: {
-                result = SDL_strcasecmp(_(2269), cstr);
-            } break;
-
-            case ATTRIB_ARMOR: {
-                result = SDL_strcasecmp(_(d81e), cstr);
-            } break;
-
-            case ATTRIB_HITS: {
-                result = SDL_strcasecmp(_(62f5), cstr);
-            } break;
-
-            case ATTRIB_SPEED: {
-                result = SDL_strcasecmp(_(bbcc), cstr);
-            } break;
-
-            case ATTRIB_SCAN: {
-                result = SDL_strcasecmp(_(59ad), cstr);
-            } break;
-
-            case ATTRIB_TURNS: {
-                result = SDL_strcasecmp(_(6976), cstr);
-            } break;
-
-            case ATTRIB_AMMO: {
-                result = SDL_strcasecmp(_(24d8), cstr);
-            } break;
-
-            case ATTRIB_MOVE_AND_FIRE: {
-                result = SDL_strcasecmp(_(4027), cstr);
-            } break;
-
-            case ATTRIB_FUEL: {
-                result = SDL_strcasecmp("fuel", cstr);
-            } break;
-
-            case ATTRIB_STORAGE: {
-                result = SDL_strcasecmp(_(49a2), cstr);
-            } break;
-
-            case ATTRIB_ATTACK_RADIUS: {
-                result = SDL_strcasecmp(_(4a91), cstr);
-            } break;
-
-            case ATTRIB_AGENT_ADJUST: {
-                result = SDL_strcasecmp(_(e9d8), cstr);
-            } break;
-        }
-
-        if (!result) {
-            break;
-        }
-    }
-
-    SDL_assert(*attrib_id < ATTRIB_COUNT);
-
-    return 1;
-}
-
-void IniClans::GetStringValue(char* buffer, int32_t buffer_size) {
-    inifile_ini_get_string(&ini, buffer, buffer_size, 0);
-}
-
-int32_t IniClans::GetClanGold(int32_t clan) {
-    int32_t result;
-
-    if (inifile_ini_seek_section(&ini, clan_ini_section_name_lut[clan]) && inifile_ini_seek_param(&ini, "Gold") &&
-        inifile_ini_process_string_value(&ini, buffer, sizeof(buffer))) {
-        result = strtol(buffer, nullptr, 10);
-    } else {
-        result = 0;
-    }
-
-    return result;
-}
-
-void IniClans::GetClanText(int32_t clan, char* buffer, int32_t buffer_size) {
-    if (!inifile_ini_seek_section(&ini, clan_ini_section_name_lut[clan]) || !inifile_ini_seek_param(&ini, "Text") ||
-        !inifile_ini_process_string_value(&ini, buffer, buffer_size)) {
-        strcpy(buffer, _(7f53));
-    }
-}
-
-void IniClans::GetClanName(int32_t clan, char* buffer, int32_t buffer_size) {
-    if (inifile_ini_seek_section(&ini, clan_ini_section_name_lut[clan])) {
-        if (inifile_ini_seek_param(&ini, "Name")) {
-            inifile_ini_process_string_value(&ini, buffer, buffer_size);
-        }
-    }
-}
 
 IniSoundVolumes::IniSoundVolumes() { ini.buffer = nullptr; }
 

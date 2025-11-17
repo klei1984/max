@@ -56,23 +56,6 @@ private:
     uint32_t* items;
 };
 
-class IniClans {
-public:
-    IniClans();
-    ~IniClans();
-    void Init();
-    int32_t SeekUnit(int32_t clan, int32_t unit);
-    int32_t GetNextUnitUpgrade(int16_t* attrib_id, int16_t* value);
-    void GetStringValue(char* buffer, int32_t buffer_size);
-    int32_t GetClanGold(int32_t clan);
-    void GetClanText(int32_t clan, char* buffer, int32_t buffer_size);
-    void GetClanName(int32_t clan, char* buffer, int32_t buffer_size);
-
-private:
-    Ini_descriptor ini;
-    char buffer[20];
-};
-
 class IniSoundVolumes {
     Ini_descriptor ini;
 
@@ -84,7 +67,6 @@ public:
 };
 
 extern IniSettings ini_config;
-extern IniClans ini_clans;
 
 extern int32_t ini_setting_victory_type;
 extern int32_t ini_setting_victory_limit;

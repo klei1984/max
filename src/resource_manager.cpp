@@ -177,7 +177,6 @@ static int32_t ResourceManager_BuildColorTables();
 static void ResourceManager_InitMinimapResources();
 static void ResourceManager_InitMainmapResources();
 static bool ResourceManager_LoadMapTiles(FILE* fp, DrawLoadBar* loadbar);
-static void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitValues* unit_values);
 static SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData* data, void* userdata);
 static void ResourceManager_LogOutputHandler(void* userdata, int category, SDL_LogPriority priority,
                                              const char* message);
@@ -500,8 +499,6 @@ void ResourceManager_InitInternals() {
     if (error_code) {
         ResourceManager_ExitGame(error_code);
     }
-
-    ini_clans.Init();
 
     if (WindowManager_Init()) {
         ResourceManager_ExitGame(EXIT_CODE_SCREEN_INIT_FAILED);
@@ -1466,19 +1463,6 @@ bool ResourceManager_LoadMapTiles(FILE* fp, DrawLoadBar* loadbar) {
     }
 
     return true;
-}
-
-void ResourceManager_SetClanUpgrades(int32_t clan, ResourceID unit_type, UnitValues* unit_values) {
-    if (ini_clans.SeekUnit(clan, unit_type)) {
-        for (int16_t attribute, value; ini_clans.GetNextUnitUpgrade(&attribute, &value);) {
-            if (attribute == ATTRIB_TURNS) {
-                unit_values->SetAttribute(attribute, value);
-
-            } else {
-                unit_values->AddAttribute(attribute, value);
-            }
-        }
-    }
 }
 
 void ResourceManager_SetClanUpgradesFromClans(const std::string& clan_id, ResourceID unit_type,
