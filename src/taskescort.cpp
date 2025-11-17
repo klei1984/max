@@ -35,6 +35,7 @@
 #include "tasktransport.hpp"
 #include "taskupgrade.hpp"
 #include "transportermap.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 bool TaskEscort::IssueOrders(UnitInfo* unit) {
@@ -151,8 +152,9 @@ bool TaskEscort::IsUnitTransferable(UnitInfo& unit) { return (!target || target-
 
 std::string TaskEscort::WriteStatusLog() const {
     if (target) {
-        return std::format("Escort {} at [{},{}]", UnitsManager_BaseUnits[target->GetUnitType()].GetSingularName(),
-                           target->grid_x + 1, target->grid_y + 1);
+        return std::format("Escort {} at [{},{}]",
+                           ResourceManager_GetUnit(target->GetUnitType()).GetSingularName().data(), target->grid_x + 1,
+                           target->grid_y + 1);
     } else {
         return "Completed escort task";
     }

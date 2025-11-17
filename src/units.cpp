@@ -196,10 +196,10 @@ Unit* CreateUnitFromJson(const json& unit_data) {
     uint8_t land_type = ParseLandType(unit_data.at("land_type"));
     Unit::CargoType cargo_type = ParseCargoType(unit_data.at("cargo_type").get<std::string>());
     Unit::Gender gender = ParseGender(unit_data.at("gender").get<std::string>());
-    uint32_t singular_name = ParseHexString(unit_data.at("singular_name").get<std::string>());
-    uint32_t plural_name = ParseHexString(unit_data.at("plural_name").get<std::string>());
-    uint32_t description = ParseHexString(unit_data.at("description").get<std::string>());
-    uint32_t tutorial_description = ParseHexString(unit_data.value("tutorial_description", "0x0"));
+    uint32_t singular_name = ParseHexString(unit_data.value("singular_name", "0xffff"));
+    uint32_t plural_name = ParseHexString(unit_data.value("plural_name", "0xffff"));
+    uint32_t description = ParseHexString(unit_data.value("description", "0xffff"));
+    uint32_t tutorial_description = ParseHexString(unit_data.value("tutorial_description", "0xffff"));
 
     return new (std::nothrow)
         Unit(flags, sprite, shadow, data, flics_animation, portrait, icon, armory_portrait, land_type, cargo_type,
@@ -308,7 +308,7 @@ Units::~Units() {
     return result;
 }
 
-[[nodiscard]] const Unit* Units::GetUnit(const std::string& unit_id) const {
+[[nodiscard]] Unit* Units::GetUnit(const std::string& unit_id) const {
     if (m_units) {
         auto it = m_units->find(unit_id);
 

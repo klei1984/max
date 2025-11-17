@@ -26,6 +26,7 @@
 #include "reportstats.hpp"
 #include "smartstring.hpp"
 #include "text.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 CargoSelector::CargoSelector(Window* window, WindowInfo* window_info, SmartObjectArray<ResourceID> unit_types,
@@ -78,7 +79,7 @@ void CargoSelector::Draw() {
         ReportStats_DrawListItemIcon(window_info.buffer, window_info.width, unit_type, GameManager_PlayerTeam, 16,
                                      32 * i + 16);
 
-        strcpy(text, UnitsManager_BaseUnits[unit_type].GetSingularName());
+        strcpy(text, ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
         index = 1;
 
@@ -125,14 +126,11 @@ void CargoSelector::Draw() {
     }
 
     if (page_max_index >= page_min_index && page_max_index < max_item_count + page_min_index) {
-        BaseUnit* unit;
-        int32_t height;
-
-        unit = &UnitsManager_BaseUnits[*unit_types[page_max_index]];
-        height = 32 * (page_max_index - page_min_index);
+        const Unit& unit = ResourceManager_GetUnit(*unit_types[page_max_index]);
+        int32_t height = 32 * (page_max_index - page_min_index);
 
         GameManager_DrawUnitSelector(window_info.buffer, window_info.width, 0, height, 0, height, 32, height + 32,
-                                     unit->flags & BUILDING ? 0x40000 : 0x20000, unit->flags & BUILDING, true);
+                                     unit.GetFlags() & BUILDING ? 0x40000 : 0x20000, unit.GetFlags() & BUILDING, true);
     }
 
     if (page_min_index > 0) {

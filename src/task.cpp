@@ -32,6 +32,7 @@
 #include "reminders.hpp"
 #include "task_manager.hpp"
 #include "taskretreat.hpp"
+#include "unit.hpp"
 #include "unitinfo.hpp"
 #include "units_manager.hpp"
 #include "zonewalker.hpp"
@@ -126,7 +127,7 @@ void Task_RemoveMovementTasks(UnitInfo* unit) {
         for (SmartList<Task>::Iterator it = unit->GetTasks().Begin(); it != unit->GetTasks().End(); ++it) {
             if ((*it).GetType() == TaskType_TaskMove || (*it).GetType() == TaskType_TaskFindPath) {
                 AILOG(log, "Move {}: removing old move task",
-                      UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
+                      ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
                 unit->RemoveTask(&*it, false);
                 (*it).RemoveUnit(*unit);
@@ -186,7 +187,7 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
 
         if (team != PLAYER_TEAM_ALIEN) {
             AILOG(log, "Determine if {} should reserve a shot at [{},{}].",
-                  UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), site.x + 1, site.y + 1);
+                  ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), site.x + 1, site.y + 1);
 
             if (Ai_IsDangerousLocation(unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
                 for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[unit->team].GetSpottedUnits().Begin();
@@ -216,9 +217,10 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
                                     unit_range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
                                 } else {
-                                    AILOG_LOG(log, "{} at [{},{}] outranges us.",
-                                              UnitsManager_BaseUnits[spotted_unit->GetUnitType()].GetSingularName(),
-                                              (*it).GetLastPositionX(), (*it).GetLastPositionY());
+                                    AILOG_LOG(
+                                        log, "{} at [{},{}] outranges us.",
+                                        ResourceManager_GetUnit(spotted_unit->GetUnitType()).GetSingularName().data(),
+                                        (*it).GetLastPositionX(), (*it).GetLastPositionY());
 
                                     return false;
                                 }
@@ -502,7 +504,7 @@ bool Task_RetreatFromDanger(Task* task, UnitInfo* unit, int32_t caution_level) {
 }
 
 SmartList<UnitInfo>* Task_GetUnitList(ResourceID unit_type) {
-    uint32_t flags = UnitsManager_BaseUnits[unit_type].flags;
+    uint32_t flags = ResourceManager_GetUnit(unit_type).GetFlags();
     SmartList<UnitInfo>* list;
 
     if (flags & STATIONARY) {

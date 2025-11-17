@@ -32,6 +32,7 @@
 #include "taskreload.hpp"
 #include "taskrepair.hpp"
 #include "taskupgrade.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 #include "weighttable.hpp"
 
@@ -201,7 +202,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
                         const auto builder_type = Builder_GetBuilderType(table[i].unit_type);
 
                         if (builder_type != INVALID_ID &&
-                            (UnitsManager_BaseUnits[table[i].unit_type].flags &
+                            (ResourceManager_GetUnit(table[i].unit_type).GetFlags() &
                              (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
                             unit_types[builder_type] > 0) {
                             table[i].weight = 0;

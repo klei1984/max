@@ -28,6 +28,7 @@
 #include "menu.hpp"
 #include "resource_manager.hpp"
 #include "text.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 #include "window_manager.hpp"
 
@@ -189,9 +190,8 @@ void ClanSelectMenu::DrawClanUpgrades() {
         }
 
         if (!unit_bonuses.empty()) {
-            const char* unit_name = UnitsManager_BaseUnits[unit_id].GetSingularName();
-
-            unit_bonuses_text += std::format(" {}: {}.", unit_name, unit_bonuses);
+            unit_bonuses_text +=
+                std::format(" {}: {}.", ResourceManager_GetUnit(unit_id).GetSingularName().data(), unit_bonuses);
         }
     }
 

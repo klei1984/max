@@ -24,6 +24,7 @@
 #include "game_manager.hpp"
 #include "reportstats.hpp"
 #include "sound_manager.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 EVENTS_REGISTER_EVENT(UnitSelectEvent);
@@ -279,7 +280,7 @@ void UnitTypeSelector::Draw() {
         uint32_t flags;
 
         height = (page_max_index - page_min_index) * 32;
-        flags = UnitsManager_BaseUnits[*unit_types[page_max_index]].flags;
+        flags = ResourceManager_GetUnit(*unit_types[page_max_index]).GetFlags();
 
         GameManager_DrawUnitSelector(window_info.buffer, window_info.width, 0, height, 0, height, 32, height + 32,
                                      flags & BUILDING ? 0x40000 : 0x20000, flags & BUILDING);

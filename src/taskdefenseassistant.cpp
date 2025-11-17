@@ -22,6 +22,7 @@
 #include "taskdefenseassistant.hpp"
 
 #include "task_manager.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 TaskDefenseAssistant::TaskDefenseAssistant(TaskManageBuildings* manager_, ResourceID unit_type_)
@@ -33,7 +34,7 @@ TaskDefenseAssistant::TaskDefenseAssistant(TaskManageBuildings* manager_, Resour
 TaskDefenseAssistant::~TaskDefenseAssistant() {}
 
 std::string TaskDefenseAssistant::WriteStatusLog() const {
-    return std::string(UnitsManager_BaseUnits[unit_type].GetSingularName()) + " defense assistant";
+    return std::string(ResourceManager_GetUnit(unit_type).GetSingularName().data()) + " defense assistant";
 }
 
 uint8_t TaskDefenseAssistant::GetType() const { return TaskType_TaskDefenseAssistant; }

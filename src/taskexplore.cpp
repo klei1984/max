@@ -29,6 +29,7 @@
 #include "resource_manager.hpp"
 #include "task_manager.hpp"
 #include "taskobtainunits.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 TaskExplore::TaskExplore(uint16_t team_, Point point_)
@@ -49,7 +50,7 @@ bool TaskExplore::IsUnitUsable(UnitInfo& unit) {
     if (obtain_requests[unit.GetUnitType()]) {
         int32_t unit_count = 0;
 
-        AILOG(log, "Can explore task use {}?", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
+        AILOG(log, "Can explore task use {}?", ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data());
 
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
             if ((*it).GetUnitType() == unit.GetUnitType()) {
@@ -57,7 +58,8 @@ bool TaskExplore::IsUnitUsable(UnitInfo& unit) {
             }
         }
 
-        AILOG_LOG(log, "Task has {} {}", unit_count, UnitsManager_BaseUnits[unit.GetUnitType()].GetPluralName());
+        AILOG_LOG(log, "Task has {} {}", unit_count,
+                  ResourceManager_GetUnit(unit.GetUnitType()).GetPluralName().data());
 
         if (unit.GetUnitType() == SCOUT || unit.GetUnitType() == FASTBOAT) {
             result = unit_count < 3;

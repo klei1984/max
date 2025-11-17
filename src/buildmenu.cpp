@@ -35,6 +35,7 @@
 #include "resource_manager.hpp"
 #include "sound_manager.hpp"
 #include "text.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 #include "unitstats.hpp"
 #include "unittypeselector.hpp"
@@ -506,7 +507,6 @@ bool AbstractBuildMenu::Select(UnitTypeSelector* type_selector, bool mode) {
 }
 
 void AbstractBuildMenu::Draw(ResourceID unit_type) {
-    BaseUnit* base_unit;
     WindowInfo local_window;
     int32_t turns;
     int32_t max_build_rate;
@@ -517,15 +517,15 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
         return;
     }
 
-    base_unit = &UnitsManager_BaseUnits[unit_type];
+    const auto& base_unit = ResourceManager_GetUnit(unit_type);
 
     local_window = window;
 
     local_window.buffer = &window.buffer[11 + window.width * 13];
 
-    if (!WindowManager_LoadBigImage(base_unit->portrait, &local_window, window.width, false, true, -1, -1, false)) {
+    if (!WindowManager_LoadBigImage(base_unit.GetPortrait(), &local_window, window.width, false, true, -1, -1, false)) {
         buf_fill(local_window.buffer, 300, 240, window.width, COLOR_BLACK);
-        flicsmgr_construct(base_unit->flics, &local_window, window.width, 16, 17, false, false);
+        flicsmgr_construct(base_unit.GetFlicsAnimation(), &local_window, window.width, 16, 17, false, false);
     }
 
     stats_background->Write(&window);
@@ -538,7 +538,7 @@ void AbstractBuildMenu::Draw(ResourceID unit_type) {
     if (button_description_rest_state) {
         Text_SetFont(GNW_TEXT_FONT_5);
 
-        Text_TextBox(window.buffer, window.width, base_unit->GetDescription(), 16, 17, 290, 230,
+        Text_TextBox(window.buffer, window.width, base_unit.GetDescription().data(), 16, 17, 290, 230,
                      GNW_TEXT_OUTLINE | 0xA2, false, false);
     }
 
@@ -743,7 +743,7 @@ int32_t BuildMenu_GetMaxPossibleBuildRate(ResourceID unit_type, int32_t build_ti
             build_speed_multiplier = rate_2x;
         }
 
-        if (UnitsManager_BaseUnits[unit_type].flags & MOBILE_LAND_UNIT) {
+        if (ResourceManager_GetUnit(unit_type).GetFlags() & MOBILE_LAND_UNIT) {
             const int32_t cost_1x = Cargo_GetRawConsumptionRate(unit_type, 1);
             const int32_t cost_2x = Cargo_GetRawConsumptionRate(unit_type, 2);
             const int32_t cost_4x = Cargo_GetRawConsumptionRate(unit_type, 4);
@@ -887,11 +887,10 @@ void MobileBuildMenu::Build() {
         grid_y = unit->grid_y;
 
         if (UnitsManager_IssueBuildOrder(unit, &grid_x, &grid_y, unit_type)) {
-            BaseUnit* base_unit;
             int32_t turns_to_build;
             int32_t max_build_rate;
 
-            base_unit = &UnitsManager_BaseUnits[unit_type];
+            const auto& base_unit = ResourceManager_GetUnit(unit_type);
 
             turns_to_build = GetTurnsToBuild(unit_type);
 
@@ -918,10 +917,10 @@ void MobileBuildMenu::Build() {
                     Remote_SendNetPacket_38(unit);
                 }
 
-                if ((base_unit->flags & BUILDING) || event_click_path_build) {
+                if ((base_unit.GetFlags() & BUILDING) || event_click_path_build) {
                     UnitsManager_SetNewOrderInt(unit, ORDER_BUILD, ORDER_STATE_SELECT_SITE);
 
-                    GameManager_TempTape = UnitsManager_SpawnUnit((base_unit->flags & BUILDING) ? LRGTAPE : SMLTAPE,
+                    GameManager_TempTape = UnitsManager_SpawnUnit((base_unit.GetFlags() & BUILDING) ? LRGTAPE : SMLTAPE,
                                                                   GameManager_PlayerTeam, grid_x, grid_y, unit);
 
                     MessageManager_DrawMessage(_(06cb), 0, 0);
@@ -941,8 +940,8 @@ void MobileBuildMenu::Build() {
 
                     unit->GetTurnsToBuild(unit_type, build_rate, &turns_to_build);
 
-                    string.Sprintf(250, BuildMenu_EventStrings_Available1[base_unit->gender],
-                                   base_unit->GetSingularName(),
+                    string.Sprintf(250, BuildMenu_EventStrings_Available1[base_unit.GetGender()],
+                                   base_unit.GetSingularName().data(),
                                    UnitsManager_TeamInfo[unit->team].unit_counters[unit_type], turns_to_build);
 
                     if (ResourceManager_GetMissionManager()->GetMission()->IdentifyMission(
@@ -960,9 +959,9 @@ void MobileBuildMenu::Build() {
         } else {
             SmartString string;
 
-            string.Sprintf(150,
-                           BuildMenu_EventStrings_InvalidSquare[UnitsManager_BaseUnits[unit->GetUnitType()].gender],
-                           UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
+            string.Sprintf(
+                150, BuildMenu_EventStrings_InvalidSquare[ResourceManager_GetUnit(unit->GetUnitType()).GetGender()],
+                ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
             MessageManager_DrawMessage(string.GetCStr(), 1, 0);
         }
@@ -1179,13 +1178,9 @@ void FactoryBuildMenu::Build() {
     }
 
     if (build_list->GetCount()) {
-        BaseUnit* base_unit;
-        ResourceID unit_type;
         SmartString string;
-
-        unit_type = *build_list[0];
-
-        base_unit = &UnitsManager_BaseUnits[unit_type];
+        ResourceID unit_type = *build_list[0];
+        const auto& base_unit = ResourceManager_GetUnit(unit_type);
 
         event_click_cancel = true;
         event_success = true;
@@ -1194,8 +1189,8 @@ void FactoryBuildMenu::Build() {
 
         unit->SetBuildRate(build_rate);
 
-        string.Sprintf(250, BuildMenu_EventStrings_Available2[base_unit->gender], base_unit->GetSingularName(),
-                       UnitsManager_TeamInfo[unit->team].unit_counters[unit_type],
+        string.Sprintf(250, BuildMenu_EventStrings_Available2[base_unit.GetGender()],
+                       base_unit.GetSingularName().data(), UnitsManager_TeamInfo[unit->team].unit_counters[unit_type],
                        (unit->build_time + build_rate - 1) / build_rate);
 
         MessageManager_DrawMessage(string.GetCStr(), 1, unit, Point(unit->grid_x, unit->grid_y));

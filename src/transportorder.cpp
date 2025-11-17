@@ -23,6 +23,7 @@
 
 #include "access.hpp"
 #include "task_manager.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 TransportOrder::TransportOrder(UnitInfo* unit, ResourceID unit_type_, GroundPath* path_) {
@@ -42,7 +43,7 @@ uint8_t TransportOrder::GetTransportCategory() const { return transport_category
 int32_t TransportOrder::DetermineCategory(ResourceID unit_type_) {
     int32_t result;
 
-    if (UnitsManager_BaseUnits[unit_type_].flags & MOBILE_AIR_UNIT) {
+    if (ResourceManager_GetUnit(unit_type_).GetFlags() & MOBILE_AIR_UNIT) {
         result = 0;
 
     } else if (unit_type_ == SURVEYOR) {
@@ -54,10 +55,10 @@ int32_t TransportOrder::DetermineCategory(ResourceID unit_type_) {
     } else if (unit_type_ == COMMANDO || unit_type_ == INFANTRY) {
         result = 6;
 
-    } else if (!(UnitsManager_BaseUnits[unit_type_].land_type & SURFACE_TYPE_WATER)) {
+    } else if (!(ResourceManager_GetUnit(unit_type_).GetLandType() & SURFACE_TYPE_WATER)) {
         result = 1;
 
-    } else if (UnitsManager_BaseUnits[unit_type_].flags & MOBILE_LAND_UNIT) {
+    } else if (ResourceManager_GetUnit(unit_type_).GetFlags() & MOBILE_LAND_UNIT) {
         result = 3;
 
     } else {

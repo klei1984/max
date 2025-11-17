@@ -25,6 +25,7 @@
 #include "net_packet.hpp"
 #include "registerarray.hpp"
 #include "survey.hpp"
+#include "unit.hpp"
 #include "unitinfo.hpp"
 #include "units_manager.hpp"
 
@@ -183,16 +184,16 @@ void Complex::Transfer(int32_t raw, int32_t fuel, int32_t gold) {
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if (raw || fuel || gold) {
             if ((*it).GetComplex() == this) {
-                switch (UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type) {
-                    case CARGO_TYPE_RAW: {
+                switch (ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType()) {
+                    case Unit::CargoType::CARGO_TYPE_RAW: {
                         TransferCargo(&*it, &raw);
                     } break;
 
-                    case CARGO_TYPE_FUEL: {
+                    case Unit::CargoType::CARGO_TYPE_FUEL: {
                         TransferCargo(&*it, &fuel);
                     } break;
 
-                    case CARGO_TYPE_GOLD: {
+                    case Unit::CargoType::CARGO_TYPE_GOLD: {
                         TransferCargo(&*it, &gold);
                     } break;
                 }

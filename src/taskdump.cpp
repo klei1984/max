@@ -27,6 +27,7 @@
 #include "paths.hpp"
 #include "taskfindpath.hpp"
 #include "taskpathrequest.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 TaskDump::TaskDump(TaskTransport* task_transport, TaskMove* task_move_, UnitInfo* transporter)
@@ -87,7 +88,8 @@ void TaskDump::Search() {
 
     passenger = task_move->GetPassenger();
 
-    AILOG(log, "Dump {}: search for position.", UnitsManager_BaseUnits[passenger->GetUnitType()].GetSingularName());
+    AILOG(log, "Dump {}: search for position.",
+          ResourceManager_GetUnit(passenger->GetUnitType()).GetSingularName().data());
 
     for (;;) {
         if (--steps_counter < 0) {
@@ -150,7 +152,7 @@ std::string TaskDump::WriteStatusLog() const {
         return "Dump unit task, null move.";
     } else if (task_move->GetPassenger()) {
         return std::string("Find a place to unload ") +
-               UnitsManager_BaseUnits[task_move->GetPassenger()->GetUnitType()].GetSingularName();
+               ResourceManager_GetUnit(task_move->GetPassenger()->GetUnitType()).GetSingularName().data();
     } else {
         return "Dump unit task, null unit.";
     }

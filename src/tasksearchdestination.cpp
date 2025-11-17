@@ -31,6 +31,7 @@
 #include "taskmove.hpp"
 #include "ticktimer.hpp"
 #include "transportermap.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 TaskSearchDestination::TaskSearchDestination(Task* task, UnitInfo* unit_, int32_t radius_)
@@ -178,7 +179,7 @@ bool TaskSearchDestination::Search() {
 
     TransporterMap map(
         &*unit, 1, is_doomed ? CAUTION_LEVEL_NONE : CAUTION_LEVEL_AVOID_ALL_DAMAGE,
-        UnitsManager_BaseUnits[unit->GetUnitType()].land_type & SURFACE_TYPE_WATER ? INVALID_ID : AIRTRANS);
+        ResourceManager_GetUnit(unit->GetUnitType()).GetLandType() & SURFACE_TYPE_WATER ? INVALID_ID : AIRTRANS);
 
     if (!is_doomed) {
         damage_potential_map =
@@ -303,7 +304,7 @@ void TaskSearchDestination::SearchTrySite() {
                 unit = &*it;
 
                 AILOG_LOG(log, "Swapping for {} at [{},{}]",
-                          UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), unit->grid_x + 1,
+                          ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), unit->grid_x + 1,
                           unit->grid_y + 1);
 
                 unit->RemoveTasks();
@@ -345,8 +346,9 @@ void TaskSearchDestination::ResumeSearch() {
 
     if (unit) {
         if (unit->IsReadyForOrders(this) && unit->speed > 0) {
-            AILOG_LOG(log, "Client unit: {} at [{},{}]", UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(),
-                      unit->grid_x + 1, unit->grid_y + 1);
+            AILOG_LOG(log, "Client unit: {} at [{},{}]",
+                      ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), unit->grid_x + 1,
+                      unit->grid_y + 1);
 
             if (!is_doomed) {
                 if (Task_RetreatFromDanger(this, &*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {

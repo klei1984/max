@@ -93,6 +93,7 @@ static std::unique_ptr<std::ofstream> ResourceManager_LogFile;
 static std::shared_ptr<MissionManager> ResourceManager_MissionManager;
 static std::shared_ptr<Attributes> ResourceManager_UnitAttributes;
 static std::shared_ptr<Clans> ResourceManager_Clans;
+static std::unique_ptr<Units> ResourceManager_Units;
 static std::shared_ptr<Language> ResourceManager_LanguageManager;
 static std::shared_ptr<Help> ResourceManager_HelpManager;
 static std::unique_ptr<std::unordered_map<std::string, ResourceID>> ResourceManager_ResourceIDLUT;
@@ -188,6 +189,8 @@ static void ResourceManager_InitHelpManager();
 static void ResourceManager_InitMissionManager();
 static void ResourceManager_InitUnitAttributes();
 static void ResourceManager_InitClans();
+static void ResourceManager_InitUnits();
+static void ResourceManager_ResetUnitsSprites();
 static std::filesystem::path ResourceManager_GetFileResourcePath(const std::string& string,
                                                                  std::filesystem::path& path);
 static std::filesystem::path ResourceManager_GetFileResourcePath(const std::string& string, const ResourceType type);
@@ -424,6 +427,8 @@ void ResourceManager_InitResources() {
     // MAX unit attribute definitions are available
     ResourceManager_InitClans();
     // MAX clan definitions are available
+    ResourceManager_InitUnits();
+    // MAX unit definitions are available
     Randomizer_Init();
     Scripter::Init();
     ResourceManager_InitInternals();
@@ -598,14 +603,8 @@ void ResourceManager_LoadMaxResources() {
 int32_t ResourceManager_InitResManager() {
     int32_t result;
 
-    UnitsManager_InitAbstractUnits();
-
     if (ResourceManager_BuildColorTables()) {
         Cursor_Init();
-
-        for (int16_t j = 0; j < UNIT_END; ++j) {
-            UnitsManager_BaseUnits[j].Init(&UnitsManager_AbstractUnits[j]);
-        }
 
         result = EXIT_CODE_NO_ERROR;
 
@@ -877,11 +876,7 @@ void ResourceManager_FreeResources() {
         }
     }
 
-    for (int16_t j = 0; j < UNIT_END; ++j) {
-        UnitsManager_BaseUnits[j].sprite = nullptr;
-        UnitsManager_BaseUnits[j].shadows = nullptr;
-        UnitsManager_BaseUnits[j].field_47 = nullptr;
-    }
+    ResourceManager_ResetUnitsSprites();
 
     resource_buffer_size = 0;
 
@@ -2140,7 +2135,33 @@ void ResourceManager_InitClans() {
     }
 }
 
+void ResourceManager_InitUnits() {
+    ResourceManager_Units = std::make_unique<Units>();
+
+    if (ResourceManager_Units && ResourceManager_Units->LoadResource()) {
+    } else {
+        SDL_Log("Warning: Failed to load unit definitions");
+    }
+}
+
 std::shared_ptr<Clans> ResourceManager_GetClans() { return ResourceManager_Clans; }
+
+Unit& ResourceManager_GetUnit(const ResourceID unit_type) {
+    SDL_assert(ResourceManager_Units);
+    const char* unit_id = ResourceManager_GetResourceID(unit_type);
+    Unit* unit = ResourceManager_Units->GetUnit(unit_id);
+    SDL_assert(unit);
+    return *unit;
+}
+
+Units& ResourceManager_GetUnits() { return *ResourceManager_Units; }
+
+void ResourceManager_ResetUnitsSprites() {
+    for (auto [unit_id, unit] : ResourceManager_GetUnits()) {
+        unit.SetSpriteData(nullptr);
+        unit.SetShadowData(nullptr);
+    }
+}
 
 TeamClanType ResourceManager_GetClanID(const std::string clan_id) {
     return ResourceManager_ClansLutStringKey.at(clan_id);

@@ -43,6 +43,7 @@
 #include "taskmanagebuildings.hpp"
 #include "taskmove.hpp"
 #include "taskremovemines.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 enum {
@@ -282,7 +283,7 @@ void TaskCreateBuilding::BeginBuilding() {
 }
 
 void TaskCreateBuilding::Abort() {
-    AILOG(log, "Create {} at [{},{}] aborted.", UnitsManager_BaseUnits[unit_type].GetSingularName(), site.x + 1,
+    AILOG(log, "Create {} at [{},{}] aborted.", ResourceManager_GetUnit(unit_type).GetSingularName().data(), site.x + 1,
           site.y + 1);
 
     SmartPointer<Task> create_building(this);
@@ -313,8 +314,8 @@ void TaskCreateBuilding::Abort() {
 }
 
 void TaskCreateBuilding::Finish() {
-    AILOG(log, "Create {} at [{},{}] finished.", UnitsManager_BaseUnits[unit_type].GetSingularName(), site.x + 1,
-          site.y + 1);
+    AILOG(log, "Create {} at [{},{}] finished.", ResourceManager_GetUnit(unit_type).GetSingularName().data(),
+          site.x + 1, site.y + 1);
 
     // prevent early destruction of object
     SmartPointer<Task> create_building_task(this);
@@ -426,8 +427,9 @@ bool TaskCreateBuilding::RequestRubbleRemoval() {
 
 std::string TaskCreateBuilding::WriteStatusLog() const {
     if (unit_type != INVALID_ID) {
-        std::string result = std::format("Create a {} at [{},{}]", UnitsManager_BaseUnits[unit_type].GetSingularName(),
-                                         site.x + 1, site.y + 1);
+        std::string result =
+            std::format("Create a {} at [{},{}]", ResourceManager_GetUnit(unit_type).GetSingularName().data(),
+                        site.x + 1, site.y + 1);
 
         switch (op_state) {
             case CREATE_BUILDING_STATE_INITIALIZING: {
@@ -497,7 +499,7 @@ std::string TaskCreateBuilding::WriteStatusLog() const {
 Rect* TaskCreateBuilding::GetBounds(Rect* bounds) {
     int32_t unit_size;
 
-    if (UnitsManager_BaseUnits[unit_type].flags & BUILDING) {
+    if (ResourceManager_GetUnit(unit_type).GetFlags() & BUILDING) {
         unit_size = 2;
 
     } else {
@@ -520,8 +522,8 @@ bool TaskCreateBuilding::IsNeeded() {
 
 void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
     if (unit_type != INVALID_ID) {
-        AILOG(log, "Build {} at [{},{}]: Add {}", UnitsManager_BaseUnits[unit_type].GetSingularName(), site.x + 1,
-              site.y + 1, UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
+        AILOG(log, "Build {} at [{},{}]: Add {}", ResourceManager_GetUnit(unit_type).GetSingularName().data(),
+              site.x + 1, site.y + 1, ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data());
 
         if (unit.GetUnitType() == unit_type && unit.grid_x == site.x && unit.grid_y == site.y &&
             unit.GetOrder() != ORDER_IDLE) {
@@ -624,7 +626,7 @@ void TaskCreateBuilding::EndTurn() {
         switch (op_state) {
             case CREATE_BUILDING_STATE_EVALUTING_SITE: {
                 AILOG(log, "Task Create {} at [{},{}]: evaluating site",
-                      UnitsManager_BaseUnits[unit_type].GetSingularName(), site.x + 1, site.y + 1);
+                      ResourceManager_GetUnit(unit_type).GetSingularName().data(), site.x + 1, site.y + 1);
 
                 FindBuildSite();
             } break;
@@ -632,7 +634,7 @@ void TaskCreateBuilding::EndTurn() {
             case CREATE_BUILDING_STATE_SITE_BLOCKED: {
                 if (IsProcessingNeeded()) {
                     AILOG(log, "Task Create {} at [{},{}]: site blocked",
-                          UnitsManager_BaseUnits[unit_type].GetSingularName(), site.x + 1, site.y + 1);
+                          ResourceManager_GetUnit(unit_type).GetSingularName().data(), site.x + 1, site.y + 1);
 
                     SetProcessingNeeded(false);
 
@@ -730,7 +732,7 @@ bool TaskCreateBuilding::Execute(UnitInfo& unit) {
                     } else if (CheckMaterials()) {
                         if (builder->grid_x == site.x && builder->grid_y == site.y) {
                             if (TaskCreateBuilding_DetermineMapSurfaceRequirements(unit_type, site)) {
-                                if (UnitsManager_BaseUnits[unit_type].flags & BUILDING) {
+                                if (ResourceManager_GetUnit(unit_type).GetFlags() & BUILDING) {
                                     Rect bounds;
 
                                     op_state = CREATE_BUILDING_STATE_CLEARING_SITE;
@@ -849,8 +851,8 @@ bool TaskCreateBuilding::Execute(UnitInfo& unit) {
 void TaskCreateBuilding::RemoveSelf() { Abort(); }
 
 void TaskCreateBuilding::RemoveUnit(UnitInfo& unit) {
-    AILOG(log, "Create {} at [{},{}]: remove {}.", UnitsManager_BaseUnits[unit_type].GetSingularName(), site.x + 1,
-          site.y + 1, UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
+    AILOG(log, "Create {} at [{},{}]: remove {}.", ResourceManager_GetUnit(unit_type).GetSingularName().data(),
+          site.x + 1, site.y + 1, ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data());
 
     if (builder == unit) {
         builder = nullptr;
@@ -906,7 +908,8 @@ void TaskCreateBuilding::Activate() {
 }
 
 void TaskCreateBuilding::FindBuildSite() {
-    AILOG(log, "Task Create Building: Choose new site for {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
+    AILOG(log, "Task Create Building: Choose new site for {}.",
+          ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
     if (builder->GetTask() == this) {
         Point new_site;
@@ -920,8 +923,8 @@ void TaskCreateBuilding::FindBuildSite() {
                 if (unit_type != INVALID_ID) {
                     site = new_site;
 
-                    AILOG_LOG(log, "New site for {} is [{}, {}].", UnitsManager_BaseUnits[unit_type].GetSingularName(),
-                              site.x + 1, site.y + 1);
+                    AILOG_LOG(log, "New site for {} is [{}, {}].",
+                              ResourceManager_GetUnit(unit_type).GetSingularName().data(), site.x + 1, site.y + 1);
 
                     SDL_assert(site.x > 0 && site.y > 0);
 
@@ -978,7 +981,7 @@ bool TaskCreateBuilding::RequestWaterPlatform() {
             builder->RemoveTasks();
         }
 
-        if (UnitsManager_BaseUnits[unit_type].flags & BUILDING) {
+        if (ResourceManager_GetUnit(unit_type).GetFlags() & BUILDING) {
             BuildBridges();
         }
 
@@ -1083,7 +1086,7 @@ void TaskCreateBuilding::MoveFinishedCallback(Task* task, UnitInfo* unit, char r
 
 void TaskCreateBuilding::BuildBoardwalks() {
     if (unit_type != WTRPLTFM && unit_type != BRIDGE && unit_type != CNCT_4W && unit_type != SHIPYARD &&
-        unit_type != DOCK && (UnitsManager_BaseUnits[unit_type].flags & BUILDING)) {
+        unit_type != DOCK && (ResourceManager_GetUnit(unit_type).GetFlags() & BUILDING)) {
         Point position;
         AccessMap map;
         Rect bounds;
@@ -1530,21 +1533,19 @@ bool TaskCreateBuilding_IsMoreFuelReservesNeeded(uint16_t team) {
 
 int32_t TaskCreateBuilding_DetermineMapSurfaceRequirements(ResourceID unit_type, Point site) {
     Rect bounds;
-    BaseUnit* base_unit;
     bool water_present;
     bool land_present;
     bool coast_present;
     int32_t result;
+    const auto& base_unit = ResourceManager_GetUnit(unit_type);
 
     rect_init(&bounds, site.x, site.y, site.x + 1, site.y + 1);
-
-    base_unit = &UnitsManager_BaseUnits[unit_type];
 
     water_present = false;
     land_present = false;
     coast_present = false;
 
-    if (base_unit->flags & BUILDING) {
+    if (base_unit.GetFlags() & BUILDING) {
         ++bounds.lrx;
         ++bounds.lry;
     }
@@ -1573,13 +1574,13 @@ int32_t TaskCreateBuilding_DetermineMapSurfaceRequirements(ResourceID unit_type,
             }
         }
 
-        if (!(base_unit->land_type & SURFACE_TYPE_LAND) && land_present) {
+        if (!(base_unit.GetLandType() & SURFACE_TYPE_LAND) && land_present) {
             result = 0;
 
-        } else if (!(base_unit->land_type & SURFACE_TYPE_WATER) && water_present) {
+        } else if (!(base_unit.GetLandType() & SURFACE_TYPE_WATER) && water_present) {
             result = 2;
 
-        } else if (!(base_unit->land_type & SURFACE_TYPE_COAST) && coast_present) {
+        } else if (!(base_unit.GetLandType() & SURFACE_TYPE_COAST) && coast_present) {
             result = 2;
 
         } else {

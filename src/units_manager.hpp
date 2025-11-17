@@ -45,9 +45,6 @@ extern SmartList<UnitInfo> UnitsManager_PendingAttacks;
 
 extern const char* const UnitsManager_Orders[];
 
-extern std::vector<AbstractUnit> UnitsManager_AbstractUnits;
-extern BaseUnit UnitsManager_BaseUnits[UNIT_END];
-
 extern SmartPointer<UnitInfo> UnitsManager_Unit;
 
 extern SmartList<UnitInfo> UnitsManager_DelayedAttackTargets[PLAYER_TEAM_MAX];
@@ -65,7 +62,6 @@ extern struct PopupFunctions UnitsManager_PopupCallbacks[];
 
 extern TeamMissionSupplies UnitsManager_TeamMissionSupplies[PLAYER_TEAM_MAX];
 
-void UnitsManager_InitAbstractUnits();
 void UnitsManager_PerformAction(UnitInfo* unit);
 int32_t UnitsManager_CalculateAttackDamage(UnitInfo* attacker_unit, UnitInfo* target_unit, int32_t damage_potential);
 UnitValues* UnitsManager_GetCurrentUnitValues(CTInfo* team_info, ResourceID unit_type);

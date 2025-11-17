@@ -27,6 +27,7 @@
 
 #include "lua.hpp"
 #include "resource_manager.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 static_assert(sizeof(lua_Integer) == sizeof(int64_t) && sizeof(int64_t) == 8,
@@ -133,9 +134,7 @@ static int MaxRegistryTableAddRemove(lua_State* lua);
 static inline void ScriptArgsToLuaValues(lua_State* lua, const ScriptParameters& args);
 
 static inline SmartList<UnitInfo>& GetRelevantUnits(ResourceID unit_type) {
-    uint32_t flags;
-
-    flags = UnitsManager_BaseUnits[unit_type].flags;
+    uint32_t flags = ResourceManager_GetUnit(unit_type).GetFlags();
 
     if (flags & STATIONARY) {
         if (flags & GROUND_COVER) {
@@ -157,13 +156,13 @@ static lua_Integer HasMaterials(const lua_Integer team, const lua_Integer cargo_
     lua_Integer cargo_sum{0};
 
     for (auto it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == cargo_type) {
+        if ((*it).team == team && ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == cargo_type) {
             cargo_sum += (*it).storage;
         }
     }
 
     for (auto it = UnitsManager_MobileLandSeaUnits.Begin(); it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == team && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == cargo_type) {
+        if ((*it).team == team && ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == cargo_type) {
             cargo_sum += (*it).storage;
         }
     }
@@ -183,7 +182,7 @@ static int LuaHasMaterials(lua_State* lua) {
         return luaL_error(lua, "[max_has_materials] Error: Invalid MAX_TEAM (%d)", team);
     }
 
-    if (cargo_type < CARGO_TYPE_RAW or cargo_type > CARGO_TYPE_GOLD) {
+    if (cargo_type < Unit::CargoType::CARGO_TYPE_RAW or cargo_type > Unit::CargoType::CARGO_TYPE_GOLD) {
         return luaL_error(lua, "[max_has_materials] Error: Invalid MAX_CARGO_TYPE (%d)", cargo_type);
     }
 
@@ -306,8 +305,8 @@ static int CanRebuildComplex(const lua_Integer team) {
         int32_t power_demand;
         int32_t sum_cargo_generated_power;
 
-        sum_cargo_fuel = HasMaterials(team, CARGO_TYPE_FUEL);
-        sum_cargo_materials = HasMaterials(team, CARGO_TYPE_RAW);
+        sum_cargo_fuel = HasMaterials(team, Unit::CargoType::CARGO_TYPE_FUEL);
+        sum_cargo_materials = HasMaterials(team, Unit::CargoType::CARGO_TYPE_RAW);
         power_demand = 1;
         sum_cargo_generated_power = 0;
 
@@ -406,7 +405,7 @@ static int CanRebuildBuilders(const lua_Integer team) {
                 resources_needed -= 8;
             }
 
-            if (resources_needed == 0 || resources_needed <= HasMaterials(team, CARGO_TYPE_RAW)) {
+            if (resources_needed == 0 || resources_needed <= HasMaterials(team, Unit::CargoType::CARGO_TYPE_RAW)) {
                 result = true;
 
             } else {
@@ -493,7 +492,7 @@ static lua_Integer GetTotalUnitsBeingConstructed(const lua_Integer team, const l
     SmartList<UnitInfo>* units;
     lua_Integer result = 0;
 
-    if (UnitsManager_BaseUnits[unit_type].flags & STATIONARY) {
+    if (ResourceManager_GetUnit(static_cast<ResourceID>(unit_type)).GetFlags() & STATIONARY) {
         units = &UnitsManager_MobileLandSeaUnits;
 
     } else {
@@ -585,15 +584,15 @@ static lua_Integer GetTotalMining(const lua_Integer team, const lua_Integer carg
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == team && (*it).GetUnitType() == MININGST && (*it).GetOrder() == ORDER_POWER_ON) {
             switch (cargo_type) {
-                case CARGO_TYPE_RAW: {
+                case Unit::CargoType::CARGO_TYPE_RAW: {
                     result += (*it).raw_mining;
                 } break;
 
-                case CARGO_TYPE_FUEL: {
+                case Unit::CargoType::CARGO_TYPE_FUEL: {
                     result += (*it).fuel_mining;
                 } break;
 
-                case CARGO_TYPE_GOLD: {
+                case Unit::CargoType::CARGO_TYPE_GOLD: {
                     result += (*it).gold_mining;
                 } break;
             }
@@ -615,7 +614,7 @@ static int LuaGetTotalMining(lua_State* lua) {
         return luaL_error(lua, "[max_get_total_mining] Error: Invalid MAX_TEAM (%d)", team);
     }
 
-    if (cargo_type < CARGO_TYPE_RAW or cargo_type >= CARGO_TYPE_GOLD) {
+    if (cargo_type < Unit::CargoType::CARGO_TYPE_RAW or cargo_type >= Unit::CargoType::CARGO_TYPE_GOLD) {
         return luaL_error(lua, "[max_get_total_mining] Error: Invalid MAX_CARGO_TYPE (%d)", cargo_type);
     }
 
@@ -638,19 +637,19 @@ static lua_Integer GetTotalConsumption(const lua_Integer team, const lua_Integer
             cargo = Cargo_GetNetProduction(it->Get());
 
             switch (cargo_type) {
-                case CARGO_TYPE_RAW: {
+                case Unit::CargoType::CARGO_TYPE_RAW: {
                     if (cargo.raw < 0) {
                         result -= cargo.raw;
                     }
                 } break;
 
-                case CARGO_TYPE_FUEL: {
+                case Unit::CargoType::CARGO_TYPE_FUEL: {
                     if (cargo.fuel < 0) {
                         result -= cargo.fuel;
                     }
                 } break;
 
-                case CARGO_TYPE_GOLD: {
+                case Unit::CargoType::CARGO_TYPE_GOLD: {
                     if (cargo.gold < 0) {
                         result -= cargo.gold;
                     }
@@ -674,7 +673,7 @@ static int LuaGetTotalConsumption(lua_State* lua) {
         return luaL_error(lua, "[max_get_total_consumption] Error: Invalid MAX_TEAM (%d)", team);
     }
 
-    if (cargo_type < CARGO_TYPE_RAW or cargo_type >= CARGO_TYPE_GOLD) {
+    if (cargo_type < Unit::CargoType::CARGO_TYPE_RAW or cargo_type >= Unit::CargoType::CARGO_TYPE_GOLD) {
         return luaL_error(lua, "[max_get_total_consumption] Error: Invalid MAX_CARGO_TYPE (%d)", cargo_type);
     }
 
@@ -1740,9 +1739,9 @@ void* CreateContext(const ScriptType type) {
             {
                 AddEnum(lua, "MAX_CARGO_TYPE",
                         {
-                            {"RAW", CARGO_TYPE_RAW},
-                            {"FUEL", CARGO_TYPE_FUEL},
-                            {"GOLD", CARGO_TYPE_GOLD},
+                            {"RAW", Unit::CargoType::CARGO_TYPE_RAW},
+                            {"FUEL", Unit::CargoType::CARGO_TYPE_FUEL},
+                            {"GOLD", Unit::CargoType::CARGO_TYPE_GOLD},
                         });
             }
 

@@ -34,6 +34,7 @@
 #include "task_manager.hpp"
 #include "taskrepair.hpp"
 #include "tasktransport.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 TaskAttack::TaskAttack(SpottedUnit* spotted_unit, uint16_t task_priority)
@@ -149,14 +150,15 @@ std::string TaskAttack::WriteStatusLog() const {
 
         position = task->DeterminePosition();
 
-        std::string result = std::format(
-            "{} {} at [{},{}]", status, UnitsManager_BaseUnits[task->GetUnitSpotted()->GetUnitType()].GetSingularName(),
-            position.x + 1, position.y + 1);
+        std::string result =
+            std::format("{} {} at [{},{}]", status,
+                        ResourceManager_GetUnit(task->GetUnitSpotted()->GetUnitType()).GetSingularName().data(),
+                        position.x + 1, position.y + 1);
 
         if (leader) {
             result += std::format(", leader {} {} at [{},{}]",
-                                  UnitsManager_BaseUnits[leader->GetUnitType()].GetSingularName(), leader->unit_id,
-                                  leader->grid_x + 1, leader->grid_y + 1);
+                                  ResourceManager_GetUnit(leader->GetUnitType()).GetSingularName().data(),
+                                  leader->unit_id, leader->grid_x + 1, leader->grid_y + 1);
         }
 
         return result;
@@ -482,7 +484,7 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
 
                 } else {
                     AILOG_LOG(log, "Attack with {} impossible.",
-                              UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
+                              ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
                     TaskManager.ClearUnitTasksAndRemindAvailable(unit);
 
@@ -504,8 +506,8 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
 
                     } else {
                         AILOG_LOG(log, "Grouping unit with {} at [{},{}]",
-                                  UnitsManager_BaseUnits[leader->GetUnitType()].GetSingularName(), leader->grid_x + 1,
-                                  leader->grid_y + 1);
+                                  ResourceManager_GetUnit(leader->GetUnitType()).GetSingularName().data(),
+                                  leader->grid_x + 1, leader->grid_y + 1);
 
                         if (Access_GetApproximateDistance(&*leader, unit) / 2 >
                             unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED)) {
@@ -652,8 +654,8 @@ bool TaskAttack::EvaluateLandAttack() {
 
         for (uint32_t i = 0; !unit && i < weight_table.GetCount(); ++i) {
             if (weight_table[i].weight > 0 &&
-                !(UnitsManager_BaseUnits[weight_table[i].unit_type].flags & MOBILE_LAND_UNIT) &&
-                (UnitsManager_BaseUnits[weight_table[i].unit_type].flags & MOBILE_SEA_UNIT)) {
+                !(ResourceManager_GetUnit(weight_table[i].unit_type).GetFlags() & MOBILE_LAND_UNIT) &&
+                (ResourceManager_GetUnit(weight_table[i].unit_type).GetFlags() & MOBILE_SEA_UNIT)) {
                 sea_unit_present = true;
             }
         }
@@ -844,7 +846,7 @@ bool TaskAttack::FindReconUnit(ResourceID unit_type, int32_t safe_distance) {
         UnitInfo* new_recon_unit{nullptr};
         uint16_t task_priority = GetPriority();
 
-        if (UnitsManager_BaseUnits[unit_type].flags & MOBILE_AIR_UNIT) {
+        if (ResourceManager_GetUnit(unit_type).GetFlags() & MOBILE_AIR_UNIT) {
             units = &UnitsManager_MobileAirUnits;
 
         } else {
@@ -1049,7 +1051,7 @@ void TaskAttack::ChooseFirstTarget() {
 
     if (kill_unit_task && kill_unit_task->GetUnitSpotted()) {
         AILOG_LOG(log, "Chose to attack {}",
-                  UnitsManager_BaseUnits[kill_unit_task->GetUnitSpotted()->GetUnitType()].GetSingularName());
+                  ResourceManager_GetUnit(kill_unit_task->GetUnitSpotted()->GetUnitType()).GetSingularName().data());
     } else {
         AILOG_LOG(log, "No target chosen.");
     }
@@ -1144,8 +1146,8 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
     }
 
     AILOG(log, "Task Attack: Move {} at [{},{}] near [{},{}].",
-          UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), target_position.x + 1, target_position.y + 1,
-          site.x + 1, site.y + 1);
+          ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), target_position.x + 1,
+          target_position.y + 1, site.x + 1, site.y + 1);
 
     TransporterMap map(unit, 0x01, caution_level, transporter);
     bool is_there_time_to_prepare = IsThereTimeToPrepare();
@@ -1876,8 +1878,8 @@ void TaskAttack::EvaluateAttackReadiness() {
 
                     if (Access_GetSquaredDistance(&*it2, position) <= unit_range * unit_range) {
                         AILOG_LOG(log, "{} at [{},{}] is in assault range, shifting to attack mode.",
-                                  UnitsManager_BaseUnits[(*it2).GetUnitType()].GetSingularName(), (*it2).grid_x + 1,
-                                  (*it2).grid_y + 1);
+                                  ResourceManager_GetUnit((*it2).GetUnitType()).GetSingularName().data(),
+                                  (*it2).grid_x + 1, (*it2).grid_y + 1);
 
                         op_state = ATTACK_STATE_NORMAL_SEARCH;
                         attack_zone_reached = false;

@@ -46,6 +46,7 @@
 #include "smartstring.hpp"
 #include "sound_manager.hpp"
 #include "text.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 #include "version.hpp"
 #include "window_manager.hpp"
@@ -274,7 +275,7 @@ void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_pl
             casualties = 0;
 
             for (int32_t j = 0; j < UNIT_END; ++j) {
-                if (UnitsManager_BaseUnits[j].flags & BUILDING) {
+                if (ResourceManager_GetUnit(static_cast<ResourceID>(j)).GetFlags() & BUILDING) {
                     casualties += team_info->casualties[j];
                 }
             }
@@ -319,7 +320,7 @@ void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_pl
             casualties = 0;
 
             for (int32_t j = 0; j < UNIT_END; ++j) {
-                if (UnitsManager_BaseUnits[j].flags & SELECTABLE) {
+                if (ResourceManager_GetUnit(static_cast<ResourceID>(j)).GetFlags() & SELECTABLE) {
                     casualties += team_info->casualties[j];
                 }
             }

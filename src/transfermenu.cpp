@@ -30,6 +30,7 @@
 #include "menu.hpp"
 #include "reportstats.hpp"
 #include "text.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 #include "window_manager.hpp"
 
@@ -45,18 +46,18 @@ void TransferMenu_GetUnitCargoInfo(UnitInfo* source_unit, UnitInfo* destination_
 
         source_unit->GetComplex()->GetCargoInfo(complex_materials, complex_capacity);
 
-        switch (UnitsManager_BaseUnits[source_unit->GetUnitType()].cargo_type) {
-            case MATERIALS: {
+        switch (ResourceManager_GetUnit(source_unit->GetUnitType()).GetCargoType()) {
+            case Unit::CARGO_TYPE_RAW: {
                 materials = complex_materials.raw;
                 capacity = complex_capacity.raw;
             } break;
 
-            case FUEL: {
+            case Unit::CARGO_TYPE_FUEL: {
                 materials = complex_materials.fuel;
                 capacity = complex_capacity.fuel;
             } break;
 
-            case GOLD: {
+            case Unit::CARGO_TYPE_GOLD: {
                 materials = complex_materials.gold;
                 capacity = complex_capacity.gold;
             } break;
@@ -168,16 +169,16 @@ TransferMenu::TransferMenu(UnitInfo* unit) : Window(XFERPIC, GameManager_GetDial
     source_unit_free_capacity = source_unit_capacity - source_unit_materials;
     source_unit_free_capacity = std::min(source_unit_free_capacity, target_unit_materials);
 
-    switch (UnitsManager_BaseUnits[source_unit->GetUnitType()].cargo_type) {
-        case MATERIALS: {
+    switch (ResourceManager_GetUnit(source_unit->GetUnitType()).GetCargoType()) {
+        case Unit::CARGO_TYPE_RAW: {
             material_id = SMBRRAW;
         } break;
 
-        case FUEL: {
+        case Unit::CARGO_TYPE_FUEL: {
             material_id = SMBRFUEL;
         } break;
 
-        case GOLD: {
+        case Unit::CARGO_TYPE_GOLD: {
             material_id = SMBRGOLD;
         } break;
 
@@ -253,14 +254,16 @@ TransferMenu::TransferMenu(UnitInfo* unit) : Window(XFERPIC, GameManager_GetDial
     ReportStats_DrawListItemIcon(window.buffer, window.width, source_unit->GetUnitType(), GameManager_PlayerTeam, 104,
                                  36);
 
-    Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[source_unit->GetUnitType()].GetSingularName(), 10,
-                 52, 110, 30, COLOR_BLACK, true);
+    Text_TextBox(window.buffer, window.width,
+                 ResourceManager_GetUnit(source_unit->GetUnitType()).GetSingularName().data(), 10, 52, 110, 30,
+                 COLOR_BLACK, true);
 
     ReportStats_DrawListItemIcon(window.buffer, window.width, target_unit->GetUnitType(), GameManager_PlayerTeam, 207,
                                  36);
 
-    Text_TextBox(window.buffer, window.width, UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName(), 191,
-                 52, 110, 30, COLOR_BLACK, true);
+    Text_TextBox(window.buffer, window.width,
+                 ResourceManager_GetUnit(target_unit->GetUnitType()).GetSingularName().data(), 191, 52, 110, 30,
+                 COLOR_BLACK, true);
 
     UpdateIndicators();
 }

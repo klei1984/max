@@ -25,6 +25,8 @@
 
 #include <cstring>
 
+#include "resource_manager.hpp"
+
 Unit::Unit(uint32_t flags, ResourceID sprite, ResourceID shadow, ResourceID data, ResourceID flics_animation,
            ResourceID portrait, ResourceID icon, ResourceID armory_portrait, uint8_t land_type, CargoType cargo_type,
            Gender gender, uint32_t singular_name, uint32_t plural_name, uint32_t description,
@@ -46,7 +48,7 @@ Unit::Unit(uint32_t flags, ResourceID sprite, ResourceID shadow, ResourceID data
       m_tutorial_description(tutorial_description),
       m_sprite_data(nullptr),
       m_shadow_data(nullptr),
-      m_data_file([data, flags]() {
+      m_frame_info([data, flags]() {
           FrameInfo file{};
           if (data != INVALID_ID) {
               uint8_t* data_buffer = ResourceManager_LoadResource(data);
@@ -77,6 +79,13 @@ Unit::~Unit() {}
 
 uint32_t Unit::GetFlags() const { return m_flags; }
 
+void Unit::SetFlags(const uint32_t flags) {
+    if (m_flags & EXPLODING) {
+        m_flags &= ~(MISSILE_UNIT | MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | STATIONARY);
+        m_flags |= flags & (MISSILE_UNIT | MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | STATIONARY);
+    }
+}
+
 ResourceID Unit::GetSprite() const { return m_sprite; }
 
 ResourceID Unit::GetShadow() const { return m_shadow; }
@@ -97,19 +106,21 @@ Unit::CargoType Unit::GetCargoType() const { return m_cargo_type; }
 
 Unit::Gender Unit::GetGender() const { return m_gender; }
 
-uint32_t Unit::GetSingularName() const { return m_singular_name; }
+std::string_view Unit::GetSingularName() const { return ResourceManager_GetLanguageEntry(m_singular_name); }
 
-uint32_t Unit::GetPluralName() const { return m_plural_name; }
+std::string_view Unit::GetPluralName() const { return ResourceManager_GetLanguageEntry(m_plural_name); }
 
-uint32_t Unit::GetDescription() const { return m_description; }
+std::string_view Unit::GetDescription() const { return ResourceManager_GetLanguageEntry(m_description); }
 
-uint32_t Unit::GetTutorialDescription() const { return m_tutorial_description; }
+std::string_view Unit::GetTutorialDescription() const {
+    return ResourceManager_GetLanguageEntry(m_tutorial_description);
+}
 
 uint8_t* Unit::GetSpriteData() const { return m_sprite_data; }
 
 uint8_t* Unit::GetShadowData() const { return m_shadow_data; }
 
-const FrameInfo& Unit::GetFrameInfo() const { return m_data_file; }
+const FrameInfo& Unit::GetFrameInfo() const { return m_frame_info; }
 
 void Unit::SetSpriteData(uint8_t* sprite_data) { m_sprite_data = sprite_data; }
 

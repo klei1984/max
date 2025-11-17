@@ -62,7 +62,6 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/optionsmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/chatmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/saveloadmenu.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/saveloadchecks.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/gfx.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reportstats.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/allocmenu.cpp

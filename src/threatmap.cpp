@@ -22,6 +22,7 @@
 #include "threatmap.hpp"
 
 #include "resource_manager.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 ThreatMap::ThreatMap() : dimension(0, 0) {
@@ -101,7 +102,7 @@ uint16_t ThreatMap::GetRiskLevel(ResourceID unit_type) {
         } break;
 
         default: {
-            if (UnitsManager_BaseUnits[unit_type].flags & MOBILE_AIR_UNIT) {
+            if (ResourceManager_GetUnit(unit_type).GetFlags() & MOBILE_AIR_UNIT) {
                 result = 3;
 
             } else {

@@ -29,6 +29,7 @@
 #include "taskreload.hpp"
 #include "taskrepair.hpp"
 #include "taskupgrade.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 DefenseManager::DefenseManager() {
@@ -170,7 +171,7 @@ void DefenseManager::PlanDefenses(int32_t asset_value_goal_, TaskObtainUnits* ta
 
             if (unit_values->GetAttribute(ATTRIB_TURNS) > turns_till_mission_end ||
                 unit_values->GetAttribute(ATTRIB_SPEED) == 0 ||
-                (UnitsManager_BaseUnits[weight_table[i].unit_type].flags & REGENERATING_UNIT) ||
+                (ResourceManager_GetUnit(weight_table[i].unit_type).GetFlags() & REGENERATING_UNIT) ||
                 builder_type == INVALID_ID || unit_counts[builder_type] == 0) {
                 table[i].weight = 0;
             }

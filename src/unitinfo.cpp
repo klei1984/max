@@ -40,6 +40,7 @@
 #include "resource_manager.hpp"
 #include "sound_manager.hpp"
 #include "task_manager.hpp"
+#include "unit.hpp"
 #include "unitinfogroup.hpp"
 #include "units_manager.hpp"
 
@@ -564,7 +565,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
       unit_type(unit_type),
       popup(nullptr),
       sound_table(nullptr),
-      flags(UnitsManager_BaseUnits[unit_type].flags | UnitsManager_TeamInfo[team].team_units->hash_team_id),
+      flags(ResourceManager_GetUnit(unit_type).GetFlags() | UnitsManager_TeamInfo[team].team_units->hash_team_id),
       x(-1),
       y(-1),
       grid_x(-1),
@@ -644,26 +645,24 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
       image_index(0),
       turret_image_index(0),
       ai_state_bits(0) {
-    BaseUnit* unit;
+    const Unit& unit = ResourceManager_GetUnit(unit_type);
 
     rect_init(&sprite_bounds, 0, 0, 0, 0);
     rect_init(&shadow_bounds, 0, 0, 0, 0);
 
     Init();
 
-    unit = &UnitsManager_BaseUnits[unit_type];
-
-    if (unit->sprite) {
-        total_images = reinterpret_cast<struct ImageMultiHeader*>(unit->sprite)->image_count;
+    if (unit.GetSpriteData()) {
+        total_images = reinterpret_cast<struct ImageMultiHeader*>(unit.GetSpriteData())->image_count;
 
     } else {
         total_images = 0;
     }
 
-    image_base = reinterpret_cast<struct BaseUnitDataFile*>(unit->data_buffer)->image_base;
-    turret_image_base = reinterpret_cast<struct BaseUnitDataFile*>(unit->data_buffer)->turret_image_base;
-    firing_image_base = reinterpret_cast<struct BaseUnitDataFile*>(unit->data_buffer)->firing_image_base;
-    connector_image_base = reinterpret_cast<struct BaseUnitDataFile*>(unit->data_buffer)->connector_image_base;
+    image_base = unit.GetFrameInfo().image_base;
+    turret_image_base = unit.GetFrameInfo().turret_image_base;
+    firing_image_base = unit.GetFrameInfo().firing_image_base;
+    connector_image_base = unit.GetFrameInfo().connector_image_base;
 
     if (unit_type == MININGST) {
         image_base = (UnitsManager_TeamInfo[team].team_clan - 1) * sizeof(uint16_t);
@@ -677,7 +676,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
     } else if (unit_type == INFANTRY) {
         image_index_max = 103;
     } else {
-        image_index_max = reinterpret_cast<struct BaseUnitDataFile*>(unit->data_buffer)->image_count + image_index - 1;
+        image_index_max = unit.GetFrameInfo().image_count + image_index - 1;
     }
 
     hits = base_values->GetAttribute(ATTRIB_HITS);
@@ -812,28 +811,27 @@ static RegisterClass UnitInfo_ClassRegister("UnitInfo", &UnitInfo_TypeIndex, &Un
 uint32_t UnitInfo::GetTypeIndex() const { return UnitInfo_TypeIndex; }
 
 void UnitInfo::Init() {
-    BaseUnit* base_unit;
+    Unit& unit = ResourceManager_GetUnit(unit_type);
     uint32_t data_size;
 
-    base_unit = &UnitsManager_BaseUnits[unit_type];
-
-    if (!base_unit->sprite) {
-        base_unit->sprite = ResourceManager_LoadResource(UnitsManager_AbstractUnits[unit_type].sprite);
-        base_unit->shadows = ResourceManager_LoadResource(UnitsManager_AbstractUnits[unit_type].shadows);
+    if (!unit.GetSpriteData()) {
+        uint8_t* sprite_data = ResourceManager_LoadResource(unit.GetSprite());
+        uint8_t* shadow_data = ResourceManager_LoadResource(unit.GetShadow());
 
         if (ResourceManager_DisableEnhancedGraphics) {
-            if (base_unit->sprite) {
-                base_unit->sprite = Gfx_RescaleSprite(base_unit->sprite, &data_size, 0, 2);
-
-                ResourceManager_Realloc(UnitsManager_AbstractUnits[unit_type].sprite, base_unit->sprite, data_size);
+            if (sprite_data) {
+                sprite_data = Gfx_RescaleSprite(sprite_data, &data_size, 0, 2);
+                ResourceManager_Realloc(unit.GetSprite(), sprite_data, data_size);
             }
 
-            if (base_unit->shadows) {
-                base_unit->shadows = Gfx_RescaleSprite(base_unit->shadows, &data_size, 1, 2);
-
-                ResourceManager_Realloc(UnitsManager_AbstractUnits[unit_type].shadows, base_unit->shadows, data_size);
+            if (shadow_data) {
+                shadow_data = Gfx_RescaleSprite(shadow_data, &data_size, 1, 2);
+                ResourceManager_Realloc(unit.GetShadow(), shadow_data, data_size);
             }
         }
+
+        unit.SetSpriteData(sprite_data);
+        unit.SetShadowData(shadow_data);
     }
 
     switch (unit_type) {
@@ -1288,7 +1286,7 @@ uint16_t UnitInfo::GetImageIndex() const { return image_index; }
 void UnitInfo::AddTask(Task* task) {
     SmartPointer<Task> old_task(GetTask());
 
-    AILOG(log, "Adding task to {} {}: {}", UnitsManager_BaseUnits[unit_type].GetSingularName(), unit_id,
+    AILOG(log, "Adding task to {} {}: {}", ResourceManager_GetUnit(unit_type).GetSingularName().data(), unit_id,
           task->WriteStatusLog());
 
     tasks.PushFront(*task);
@@ -1354,11 +1352,9 @@ void UnitInfo::OffsetDrawZones(int32_t offset_x, int32_t offset_y) {
 }
 
 void UnitInfo::UpdateUnitDrawZones() {
-    BaseUnit* base_unit;
+    const Unit& unit = ResourceManager_GetUnit(unit_type);
 
-    base_unit = &UnitsManager_BaseUnits[unit_type];
-
-    if (base_unit->sprite) {
+    if (unit.GetSpriteData()) {
         Point position;
         int32_t unit_size;
 
@@ -1378,11 +1374,12 @@ void UnitInfo::UpdateUnitDrawZones() {
         sprite_bounds.lry = position.y + unit_size - 1;
 
         UpdateSpriteFrameBounds(&sprite_bounds, position.x, position.y,
-                                reinterpret_cast<struct ImageMultiHeader*>(base_unit->sprite), image_index);
+                                reinterpret_cast<struct ImageMultiHeader*>(unit.GetSpriteData()), image_index);
 
         if (flags & (SPINNING_TURRET | TURRET_SPRITE)) {
             UpdateSpriteFrameBounds(&sprite_bounds, position.x + turret_offset_x, position.y + turret_offset_y,
-                                    reinterpret_cast<struct ImageMultiHeader*>(base_unit->sprite), turret_image_index);
+                                    reinterpret_cast<struct ImageMultiHeader*>(unit.GetSpriteData()),
+                                    turret_image_index);
         }
 
         shadow_bounds.ulx = 32000;
@@ -1393,11 +1390,12 @@ void UnitInfo::UpdateUnitDrawZones() {
         position -= shadow_offset;
 
         UpdateSpriteFrameBounds(&shadow_bounds, position.x, position.y,
-                                reinterpret_cast<struct ImageMultiHeader*>(base_unit->shadows), image_index);
+                                reinterpret_cast<struct ImageMultiHeader*>(unit.GetShadowData()), image_index);
 
         if (flags & (SPINNING_TURRET | TURRET_SPRITE)) {
             UpdateSpriteFrameBounds(&shadow_bounds, position.x + turret_offset_x, position.y + turret_offset_y,
-                                    reinterpret_cast<struct ImageMultiHeader*>(base_unit->shadows), turret_image_index);
+                                    reinterpret_cast<struct ImageMultiHeader*>(unit.GetShadowData()),
+                                    turret_image_index);
         }
 
         if (shadow_bounds.ulx > shadow_bounds.lrx || shadow_bounds.uly > shadow_bounds.lry ||
@@ -1416,13 +1414,13 @@ void UnitInfo::GetName(char* const text, const size_t size) const noexcept {
             SDL_utf8strlcpy(text, name, size);
         } else {
             const auto name_length{
-                snprintf(nullptr, 0, "%s %i", UnitsManager_BaseUnits[unit_type].GetSingularName(), unit_id)};
+                snprintf(nullptr, 0, "%s %i", ResourceManager_GetUnit(unit_type).GetSingularName().data(), unit_id)};
 
             if (name_length > 0) {
                 auto buffer{new (std::nothrow) char[name_length + sizeof(char)]};
 
                 snprintf(buffer, name_length + sizeof(char), "%s %i",
-                         UnitsManager_BaseUnits[unit_type].GetSingularName(), unit_id);
+                         ResourceManager_GetUnit(unit_type).GetSingularName().data(), unit_id);
                 SDL_utf8strlcpy(text, buffer, size);
 
                 delete[] buffer;
@@ -1594,7 +1592,7 @@ void UnitInfo::SetName(const char* const text) noexcept {
 int32_t UnitInfo::GetRaw() {
     int32_t result;
 
-    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_RAW) {
+    if (ResourceManager_GetUnit(unit_type).GetCargoType() == Unit::CargoType::CARGO_TYPE_RAW) {
         if (complex != nullptr) {
             Cargo materials;
             Cargo capacity;
@@ -1617,7 +1615,7 @@ int32_t UnitInfo::GetRaw() {
 int32_t UnitInfo::GetRawFreeCapacity() {
     int32_t result;
 
-    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_RAW) {
+    if (ResourceManager_GetUnit(unit_type).GetCargoType() == Unit::CargoType::CARGO_TYPE_RAW) {
         if (complex != nullptr) {
             Cargo materials;
             Cargo capacity;
@@ -1638,7 +1636,7 @@ int32_t UnitInfo::GetRawFreeCapacity() {
 }
 
 void UnitInfo::TransferRaw(int32_t amount) {
-    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_RAW) {
+    if (ResourceManager_GetUnit(unit_type).GetCargoType() == Unit::CargoType::CARGO_TYPE_RAW) {
         storage += amount;
 
         if (complex != nullptr) {
@@ -1660,7 +1658,7 @@ void UnitInfo::TransferRaw(int32_t amount) {
 int32_t UnitInfo::GetFuel() {
     int32_t result;
 
-    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_FUEL) {
+    if (ResourceManager_GetUnit(unit_type).GetCargoType() == Unit::CargoType::CARGO_TYPE_FUEL) {
         if (complex != nullptr) {
             Cargo materials;
             Cargo capacity;
@@ -1683,7 +1681,7 @@ int32_t UnitInfo::GetFuel() {
 int32_t UnitInfo::GetFuelFreeCapacity() {
     int32_t result;
 
-    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_FUEL) {
+    if (ResourceManager_GetUnit(unit_type).GetCargoType() == Unit::CargoType::CARGO_TYPE_FUEL) {
         if (complex != nullptr) {
             Cargo materials;
             Cargo capacity;
@@ -1704,7 +1702,7 @@ int32_t UnitInfo::GetFuelFreeCapacity() {
 }
 
 void UnitInfo::TransferFuel(int32_t amount) {
-    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_FUEL) {
+    if (ResourceManager_GetUnit(unit_type).GetCargoType() == Unit::CargoType::CARGO_TYPE_FUEL) {
         storage += amount;
 
         if (complex != nullptr) {
@@ -1728,7 +1726,7 @@ void UnitInfo::TransferFuel(int32_t amount) {
 int32_t UnitInfo::GetGold() {
     int32_t result;
 
-    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_GOLD) {
+    if (ResourceManager_GetUnit(unit_type).GetCargoType() == Unit::CargoType::CARGO_TYPE_GOLD) {
         if (complex != nullptr) {
             Cargo materials;
             Cargo capacity;
@@ -1751,7 +1749,7 @@ int32_t UnitInfo::GetGold() {
 int32_t UnitInfo::GetGoldFreeCapacity() {
     int32_t result;
 
-    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_GOLD) {
+    if (ResourceManager_GetUnit(unit_type).GetCargoType() == Unit::CargoType::CARGO_TYPE_GOLD) {
         if (complex != nullptr) {
             Cargo materials;
             Cargo capacity;
@@ -1772,7 +1770,7 @@ int32_t UnitInfo::GetGoldFreeCapacity() {
 }
 
 void UnitInfo::TransferGold(int32_t amount) {
-    if (UnitsManager_BaseUnits[unit_type].cargo_type == CARGO_TYPE_GOLD) {
+    if (ResourceManager_GetUnit(unit_type).GetCargoType() == Unit::CargoType::CARGO_TYPE_GOLD) {
         storage += amount;
 
         if (complex != nullptr) {
@@ -2178,7 +2176,7 @@ void UnitInfo::GainExperience(int32_t experience_gain) {
                 if (team == GameManager_PlayerTeam) {
                     SmartString string;
 
-                    string.Sprintf(80, _(d6a7), UnitsManager_BaseUnits[unit_type].GetSingularName(), grid_x + 1,
+                    string.Sprintf(80, _(d6a7), ResourceManager_GetUnit(unit_type).GetSingularName().data(), grid_x + 1,
                                    grid_y + 1);
                     MessageManager_DrawMessage(string.GetCStr(), 0, this, Point(grid_x, grid_y));
                 }
@@ -2264,11 +2262,12 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int32_t attack_potential, int32_t dir
         } else if (IsVisibleToTeam(GameManager_PlayerTeam) && hits == 0) {
             const char* formats[] = {_(e6d7), _(2962), _(01c2)};
 
-            BaseUnit* base_unit = &UnitsManager_BaseUnits[unit_type];
+            const Unit& base_unit = ResourceManager_GetUnit(unit_type);
             Point position(grid_x, grid_y);
             SmartString message;
 
-            message.Sprintf(80, formats[base_unit->gender], base_unit->GetSingularName(), grid_x + 1, grid_y + 1);
+            message.Sprintf(80, formats[base_unit.GetGender()], base_unit.GetSingularName().data(), grid_x + 1,
+                            grid_y + 1);
 
             MessageManager_DrawMessage(message.GetCStr(), 0, this, position);
         }
@@ -3313,17 +3312,16 @@ void UnitInfo::ReadPacket(NetPacket& packet) {
 }
 
 void UnitInfo::UpdateTurretAngle(int32_t turret_angle_, bool redraw) {
-    BaseUnit* base_unit = &UnitsManager_BaseUnits[unit_type];
+    const Unit& base_unit = ResourceManager_GetUnit(unit_type);
+    const Point& offset = base_unit.GetFrameInfo().angle_offsets[angle];
 
     turret_angle = turret_angle_;
-
-    PathStep offset = reinterpret_cast<struct BaseUnitDataFile*>(base_unit->data_buffer)->angle_offsets[angle];
 
     turret_offset_x = offset.x;
     turret_offset_y = offset.y;
 
     if (redraw) {
-        DrawSpriteTurretFrame(turret_image_base + turret_angle_);
+        DrawSpriteTurretFrame(turret_image_base + turret_angle);
     }
 }
 
@@ -3620,18 +3618,18 @@ void UnitInfo::UpdateProduction() {
     }
 
     if (complex) {
-        switch (UnitsManager_BaseUnits[unit_type].cargo_type) {
-            case CARGO_TYPE_RAW: {
+        switch (ResourceManager_GetUnit(unit_type).GetCargoType()) {
+            case Unit::CargoType::CARGO_TYPE_RAW: {
                 storage = std::min(static_cast<int32_t>(complex->material), base_values->GetAttribute(ATTRIB_STORAGE));
                 complex->material -= storage;
             } break;
 
-            case CARGO_TYPE_FUEL: {
+            case Unit::CargoType::CARGO_TYPE_FUEL: {
                 storage = std::min(static_cast<int32_t>(complex->fuel), base_values->GetAttribute(ATTRIB_STORAGE));
                 complex->fuel -= storage;
             } break;
 
-            case CARGO_TYPE_GOLD: {
+            case Unit::CargoType::CARGO_TYPE_GOLD: {
                 storage = std::min(static_cast<int32_t>(complex->gold), base_values->GetAttribute(ATTRIB_STORAGE));
                 complex->gold -= storage;
             } break;
@@ -3666,7 +3664,9 @@ bool UnitInfo::IsInGroupZone(UnitInfoGroup* group) {
 }
 
 void UnitInfo::RenderShadow(Point point, int32_t image_id, Rect* bounds) {
-    if (UnitsManager_BaseUnits[unit_type].shadows) {
+    uint8_t* shadow_data = ResourceManager_GetUnit(unit_type).GetShadowData();
+
+    if (shadow_data) {
         uint32_t scaling_factor;
         uint32_t zoom_level;
         struct ImageMultiFrameHeader* frame;
@@ -3676,7 +3676,7 @@ void UnitInfo::RenderShadow(Point point, int32_t image_id, Rect* bounds) {
         zoom_level = (2 * Gfx_ZoomLevel) / scaling_factor;
 
         if (zoom_level >= 8) {
-            Gfx_ResourceBuffer = UnitsManager_BaseUnits[unit_type].shadows;
+            Gfx_ResourceBuffer = shadow_data;
 
             frame = GetSpriteFrame(reinterpret_cast<struct ImageMultiHeader*>(Gfx_ResourceBuffer), image_id);
 
@@ -3699,7 +3699,9 @@ void UnitInfo::RenderShadow(Point point, int32_t image_id, Rect* bounds) {
 void UnitInfo::RenderAirShadow(Rect* bounds) { RenderShadow(Point(x, y), image_index, bounds); }
 
 void UnitInfo::RenderSprite(Point point, int32_t image_base, Rect* bounds) {
-    if (UnitsManager_BaseUnits[unit_type].sprite) {
+    uint8_t* sprite_data = ResourceManager_GetUnit(unit_type).GetSpriteData();
+
+    if (sprite_data) {
         uint32_t scaling_factor;
         uint32_t zoom_level;
         struct ImageMultiFrameHeader* frame;
@@ -3709,7 +3711,7 @@ void UnitInfo::RenderSprite(Point point, int32_t image_base, Rect* bounds) {
         zoom_level = (2 * Gfx_ZoomLevel) / scaling_factor;
 
         if (zoom_level >= 4) {
-            Gfx_ResourceBuffer = UnitsManager_BaseUnits[unit_type].sprite;
+            Gfx_ResourceBuffer = sprite_data;
 
             frame = GetSpriteFrame(reinterpret_cast<struct ImageMultiHeader*>(Gfx_ResourceBuffer), image_base);
 
@@ -3834,7 +3836,7 @@ int32_t UnitInfo::GetMaxAllowedBuildRate() {
 }
 
 void UnitInfo::StopMovement() {
-    AILOG(log, "{} at [{},{}]: Emergency Stop", UnitsManager_BaseUnits[unit_type].GetSingularName(), grid_x + 1,
+    AILOG(log, "{} at [{},{}]: Emergency Stop", ResourceManager_GetUnit(unit_type).GetSingularName().data(), grid_x + 1,
           grid_y + 1);
 
     if (orders == ORDER_MOVE && path != nullptr) {
@@ -4279,7 +4281,7 @@ SmartObjectArray<ResourceID> UnitInfo::GetBuildList() { return build_list; }
 void UnitInfo::RemoveTask(Task* task, bool mode) {
     SmartPointer<Task> unit_task(GetTask());
 
-    AILOG(log, "Removing task from {} {}: {}", UnitsManager_BaseUnits[unit_type].GetSingularName(), unit_id,
+    AILOG(log, "Removing task from {} {}: {}", ResourceManager_GetUnit(unit_type).GetSingularName().data(), unit_id,
           task->WriteStatusLog());
 
     if (unit_task) {
@@ -4342,7 +4344,7 @@ void UnitInfo::DeployConstructionSiteUtilities(ResourceID unit_type) {
     ResourceID unit_type1;
     ResourceID unit_type2;
 
-    if (UnitsManager_BaseUnits[unit_type].flags & BUILDING) {
+    if (ResourceManager_GetUnit(unit_type).GetFlags() & BUILDING) {
         unit_type1 = LRGTAPE;
         unit_type2 = LRGCONES;
 
@@ -4569,7 +4571,7 @@ void UnitInfo::StepMoveUnit(Point position) {
 }
 
 void UnitInfo::PrepareConstructionSite(ResourceID unit_type) {
-    uint32_t unit_flags = UnitsManager_BaseUnits[unit_type].flags;
+    uint32_t unit_flags = ResourceManager_GetUnit(unit_type).GetFlags();
     SmartPointer<UnitInfo> utility_unit(Access_GetConstructionUtility(team, grid_x, grid_y));
     Point position(utility_unit->grid_x, utility_unit->grid_y);
 
@@ -4595,11 +4597,9 @@ void UnitInfo::PrepareConstructionSite(ResourceID unit_type) {
     if (unit_flags & REQUIRES_SLAB) {
         ResourceID slab_type = (unit_flags & BUILDING) ? LRGSLAB : SMLSLAB;
 
-        SmartPointer<UnitInfo> unit = UnitsManager_DeployUnit(
-            slab_type, team, nullptr, position.x, position.y,
-            Randomizer_Generate(
-                reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[slab_type].data_buffer)
-                    ->image_count));
+        SmartPointer<UnitInfo> unit =
+            UnitsManager_DeployUnit(slab_type, team, nullptr, position.x, position.y,
+                                    Randomizer_Generate(ResourceManager_GetUnit(slab_type).GetFrameInfo().image_count));
 
         unit->scaler_adjust = 4;
 
@@ -4818,8 +4818,8 @@ bool UnitInfo::Upgrade(UnitInfo* parent) {
 
                 GetVersion(unit_mark, parent->GetBaseValues()->GetVersion());
 
-                message.Sprintf(80, _(d23e), UnitsManager_BaseUnits[parent->unit_type].GetSingularName(), unit_mark,
-                                materials_cost);
+                message.Sprintf(80, _(d23e), ResourceManager_GetUnit(parent->unit_type).GetSingularName().data(),
+                                unit_mark, materials_cost);
 
                 MessageManager_DrawMessage(message.GetCStr(), 0, parent, Point(parent->grid_x, parent->grid_y));
             }

@@ -26,6 +26,7 @@
 #include "builder.hpp"
 #include "task_manager.hpp"
 #include "taskcreateunit.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 TaskObtainUnits::TaskObtainUnits(Task* task, Point point)
@@ -86,17 +87,17 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
     UnitInfo* selected_unit{nullptr};
     bool is_unit_available{false};
 
-    if (UnitsManager_BaseUnits[unit_type].flags & STATIONARY) {
+    if (ResourceManager_GetUnit(unit_type).GetFlags() & STATIONARY) {
         list = &UnitsManager_StationaryUnits;
 
-    } else if (UnitsManager_BaseUnits[unit_type].flags & MOBILE_AIR_UNIT) {
+    } else if (ResourceManager_GetUnit(unit_type).GetFlags() & MOBILE_AIR_UNIT) {
         list = &UnitsManager_MobileAirUnits;
 
     } else {
         list = &UnitsManager_MobileLandSeaUnits;
     }
 
-    AILOG(log, "Obtain Unit: Find {} ", UnitsManager_BaseUnits[unit_type].GetSingularName());
+    AILOG(log, "Obtain Unit: Find {} ", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
     for (SmartList<UnitInfo>::Iterator unit = list->Begin(); unit != list->End(); ++unit) {
         if ((*unit).GetUnitType() == unit_type) {
@@ -128,8 +129,8 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
     if (selected_unit) {
         if (!is_unit_available) {
             AILOG_LOG(log, "{} at [{},{}] has {} turns left to build",
-                      UnitsManager_BaseUnits[selected_unit->GetUnitType()].GetSingularName(), selected_unit->grid_x + 1,
-                      selected_unit->grid_y + 1, selected_unit->build_time);
+                      ResourceManager_GetUnit(selected_unit->GetUnitType()).GetSingularName().data(),
+                      selected_unit->grid_x + 1, selected_unit->grid_y + 1, selected_unit->build_time);
 
             selected_unit = nullptr;
 
@@ -164,7 +165,7 @@ std::string TaskObtainUnits::WriteStatusLog() const {
     }
 
     for (uint32_t i = 0; i < units->GetCount() && i < 3; ++i) {
-        result += UnitsManager_BaseUnits[*units[i]].GetSingularName();
+        result += ResourceManager_GetUnit(*units[i]).GetSingularName().data();
         if ((i + 1) < units->GetCount() && i < 2) {
             result += ", ";
         }
@@ -196,7 +197,8 @@ void TaskObtainUnits::AddUnit(UnitInfo& unit) {
 
     int32_t index = units->Find(&unit_type);
 
-    AILOG(log, "Obtain Units: Add {} {}.", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName(), unit.unit_id);
+    AILOG(log, "Obtain Units: Add {} {}.", ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data(),
+          unit.unit_id);
 
     if (CountInstancesOfUnitType(unit.GetUnitType())) {
         units->Remove(index);
@@ -261,7 +263,7 @@ void TaskObtainUnits::EndTurn() {
         memset(IsUnitTypeRequested, false, sizeof(IsUnitTypeRequested));
 
         for (uint32_t i = 0; i < units.GetCount(); ++i) {
-            if (UnitsManager_BaseUnits[*units[i]].flags & STATIONARY) {
+            if (ResourceManager_GetUnit(*units[i]).GetFlags() & STATIONARY) {
                 TaskManager.CreateBuilding(*units[i], m_team, point, this);
             } else if (*units[i] == CONSTRCT || *units[i] == ENGINEER) {
                 TaskManager.CreateUnit(*units[i], m_team, point, this);
@@ -290,7 +292,7 @@ void TaskObtainUnits::RequestUnits(ResourceID unit_type, uint16_t team, int32_t 
     uint16_t task_team = this->GetTeam();
     auto& tasks = TaskManager.GetTaskList();
 
-    AILOG(log, "Task: Request {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
+    AILOG(log, "Task: Request {}.", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
     if (Task_EstimateTurnsTillMissionEnd() >=
         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[task_team], unit_type)->GetAttribute(ATTRIB_TURNS)) {

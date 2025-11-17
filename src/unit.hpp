@@ -23,9 +23,10 @@
 #define UNIT_HPP
 
 #include <cstdint>
+#include <string_view>
 
 #include "point.hpp"
-#include "resource_manager.hpp"
+#include "resourcetable.hpp"
 
 struct FrameInfo {
     int16_t image_base;
@@ -93,7 +94,6 @@ public:
     };
 
 private:
-    const uint32_t m_flags;
     const ResourceID m_sprite;
     const ResourceID m_shadow;
     const ResourceID m_data;
@@ -108,10 +108,11 @@ private:
     const uint32_t m_plural_name;
     const uint32_t m_description;
     const uint32_t m_tutorial_description;
+    const FrameInfo m_frame_info;
 
+    uint32_t m_flags;
     uint8_t* m_sprite_data;
     uint8_t* m_shadow_data;
-    const FrameInfo m_data_file;
 
 public:
     Unit(uint32_t flags, ResourceID sprite, ResourceID shadow, ResourceID data, ResourceID flics_animation,
@@ -125,6 +126,8 @@ public:
     Unit& operator=(const Unit&) = delete;
 
     [[nodiscard]] uint32_t GetFlags() const;
+    void SetFlags(const uint32_t flags);
+
     [[nodiscard]] ResourceID GetSprite() const;
     [[nodiscard]] ResourceID GetShadow() const;
     [[nodiscard]] ResourceID GetData() const;
@@ -135,10 +138,10 @@ public:
     [[nodiscard]] uint8_t GetLandType() const;
     [[nodiscard]] CargoType GetCargoType() const;
     [[nodiscard]] Gender GetGender() const;
-    [[nodiscard]] uint32_t GetSingularName() const;
-    [[nodiscard]] uint32_t GetPluralName() const;
-    [[nodiscard]] uint32_t GetDescription() const;
-    [[nodiscard]] uint32_t GetTutorialDescription() const;
+    [[nodiscard]] std::string_view GetSingularName() const;
+    [[nodiscard]] std::string_view GetPluralName() const;
+    [[nodiscard]] std::string_view GetDescription() const;
+    [[nodiscard]] std::string_view GetTutorialDescription() const;
 
     [[nodiscard]] uint8_t* GetSpriteData() const;
     [[nodiscard]] uint8_t* GetShadowData() const;

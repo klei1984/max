@@ -26,6 +26,7 @@
 #include "gfx.hpp"
 #include "inifile.hpp"
 #include "text.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 #include "unitstats.hpp"
 #include "window_manager.hpp"
@@ -287,7 +288,7 @@ void ReportStats_DrawListItemIcon(uint8_t* buffer, int32_t width, ResourceID uni
                                   int32_t uly) {
     InterfaceMeta data;
 
-    if (UnitsManager_BaseUnits[unit_type].flags & STATIONARY) {
+    if (ResourceManager_GetUnit(unit_type).GetFlags() & STATIONARY) {
         data.divisor = 2;
     } else {
         data.divisor = 1;
@@ -298,7 +299,7 @@ void ReportStats_DrawListItemIcon(uint8_t* buffer, int32_t width, ResourceID uni
     data.frame_index = 0;
     data.brightness = 0xFF;
     data.color_index_table = UnitsManager_TeamInfo[team].team_units->color_index_table;
-    data.icon = UnitsManager_BaseUnits[unit_type].icon;
+    data.icon = ResourceManager_GetUnit(unit_type).GetIcon();
     data.ulx = ulx;
     data.uly = uly;
 
@@ -309,12 +310,11 @@ void ReportStats_DrawListItemIcon(uint8_t* buffer, int32_t width, ResourceID uni
 
     ReportStats_RenderSprite(&data);
 
-    if (UnitsManager_BaseUnits[unit_type].flags & (TURRET_SPRITE | SPINNING_TURRET)) {
-        struct BaseUnitDataFile* data_file =
-            reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[unit_type].data_buffer);
+    if (ResourceManager_GetUnit(unit_type).GetFlags() & (TURRET_SPRITE | SPINNING_TURRET)) {
+        const FrameInfo& data_file = ResourceManager_GetUnit(unit_type).GetFrameInfo();
 
-        data.ulx += data_file->angle_offsets[2].x >> data.divisor;
-        data.uly += data_file->angle_offsets[2].y >> data.divisor;
+        data.ulx += data_file.angle_offsets[2].x >> data.divisor;
+        data.uly += data_file.angle_offsets[2].y >> data.divisor;
         ++data.frame_index;
 
         ReportStats_RenderSprite(&data);
@@ -324,8 +324,8 @@ void ReportStats_DrawListItemIcon(uint8_t* buffer, int32_t width, ResourceID uni
 void ReportStats_DrawListItem(uint8_t* buffer, int32_t width, ResourceID unit_type, int32_t ulx, int32_t uly,
                               int32_t full, int32_t color) {
     ReportStats_DrawListItemIcon(buffer, width, unit_type, GameManager_PlayerTeam, ulx + 16, uly + 16);
-    Text_TextBox(buffer, width, UnitsManager_BaseUnits[unit_type].GetSingularName(), ulx + 35, uly, full - 35, 32,
-                 color, false);
+    Text_TextBox(buffer, width, ResourceManager_GetUnit(unit_type).GetSingularName().data(), ulx + 35, uly, full - 35,
+                 32, color, false);
 }
 
 void ReportStats_DrawNumber(uint8_t* buffer, int64_t number, int32_t width, int32_t full, int32_t color) {
@@ -521,7 +521,7 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
             int32_t cargo_type;
             int32_t cargo_value;
 
-            cargo_type = UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type;
+            cargo_type = ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType();
             cargo_value = 3;
 
             if (unit_values->GetAttribute(ATTRIB_STORAGE) > 4) {
@@ -533,7 +533,7 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
                 cargo_value = 1;
             }
 
-            if (cargo_type < CARGO_TYPE_LAND) {
+            if (cargo_type < Unit::CargoType::CARGO_TYPE_LAND) {
                 cargo_value = 10;
             }
 
@@ -563,8 +563,9 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
         }
 
         if (unit->team == GameManager_PlayerTeam && unit_values->GetAttribute(ATTRIB_STORAGE) &&
-            (unit->flags & STATIONARY) && UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type >= CARGO_TYPE_RAW &&
-            UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type <= CARGO_TYPE_GOLD) {
+            (unit->flags & STATIONARY) &&
+            ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType() >= Unit::CargoType::CARGO_TYPE_RAW &&
+            ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType() <= Unit::CargoType::CARGO_TYPE_GOLD) {
             Cargo materials;
             Cargo capacity;
             int32_t cargo_type;
@@ -573,20 +574,20 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
             int32_t base_value{0};
 
             unit->GetComplex()->GetCargoInfo(materials, capacity);
-            cargo_type = UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type;
+            cargo_type = ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType();
 
             switch (cargo_type) {
-                case CARGO_TYPE_RAW: {
+                case Unit::CargoType::CARGO_TYPE_RAW: {
                     current_value = materials.raw;
                     base_value = capacity.raw;
                 } break;
 
-                case CARGO_TYPE_FUEL: {
+                case Unit::CargoType::CARGO_TYPE_FUEL: {
                     current_value = materials.fuel;
                     base_value = capacity.fuel;
                 } break;
 
-                case CARGO_TYPE_GOLD: {
+                case Unit::CargoType::CARGO_TYPE_GOLD: {
                     current_value = materials.gold;
                     base_value = capacity.gold;
                 } break;
@@ -604,9 +605,9 @@ void ReportStats_Draw(UnitInfo* unit, WinID id, Rect* bounds) {
 
             ReportStats_DrawRowEx(
                 _(4bde), id, bounds, 2,
-                ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type * 2],
-                ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type * 2 + 1], current_value,
-                base_value, cargo_value, false);
+                ReportStats_CargoIcons[ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType() * 2],
+                ReportStats_CargoIcons[ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType() * 2 + 1],
+                current_value, base_value, cargo_value, false);
         }
     }
 }

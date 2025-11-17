@@ -57,8 +57,6 @@ enum : uint32_t {
     REGENERATING_UNIT = 0x10000000
 };
 
-enum : uint8_t { NO_CARGO = 0x0, MATERIALS = 0x1, FUEL = 0x2, GOLD = 0x3 };
-
 enum : uint8_t {
     SURFACE_TYPE_NONE = 0x0,
     SURFACE_TYPE_LAND = 0x1,
@@ -224,16 +222,6 @@ enum {
     CARGO_GOLD = 0x40,
     CARGO_MATERIALS = 0x80,
     CARGO_MASK = 0x1F,
-};
-
-enum CargoType : uint8_t {
-    CARGO_TYPE_NONE,
-    CARGO_TYPE_RAW,
-    CARGO_TYPE_FUEL,
-    CARGO_TYPE_GOLD,
-    CARGO_TYPE_LAND,
-    CARGO_TYPE_SEA,
-    CARGO_TYPE_AIR,
 };
 
 enum ResearchTopicType : uint8_t {

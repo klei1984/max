@@ -30,6 +30,7 @@
 #include "task_manager.hpp"
 #include "taskmove.hpp"
 #include "taskrendezvous.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 TaskRemoveRubble::TaskRemoveRubble(Task* task, UnitInfo* unit_, uint16_t priority_)
@@ -197,7 +198,8 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
             if ((*it).team == m_team && (*it).storage < (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE) &&
-                (*it).hits > 0 && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
+                (*it).hits > 0 &&
+                ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == Unit::CargoType::CARGO_TYPE_RAW) {
                 Complex* complex = (*it).GetComplex();
 
                 for (SmartList<UnitInfo>::Iterator building = UnitsManager_StationaryUnits.Begin();

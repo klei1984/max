@@ -23,6 +23,7 @@
 
 #include "ailog.hpp"
 #include "aiplayer.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 TaskUpgrade::TaskUpgrade(UnitInfo* unit) : TaskRepair(unit) {}
@@ -77,7 +78,7 @@ void TaskUpgrade::CreateUnit() {
 }
 
 void TaskUpgrade::IssueOrder() {
-    AILOG(log, "Upgrading {}.", UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName());
+    AILOG(log, "Upgrading {}.", ResourceManager_GetUnit(target_unit->GetUnitType()).GetSingularName().data());
 
     operator_unit->SetParent(&*target_unit);
 

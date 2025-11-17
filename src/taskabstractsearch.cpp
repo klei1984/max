@@ -26,6 +26,7 @@
 #include "task_manager.hpp"
 #include "taskrepair.hpp"
 #include "tasksearchdestination.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 void TaskAbstractSearch::FindDestination(UnitInfo& unit, int32_t radius) {
@@ -51,7 +52,7 @@ TaskAbstractSearch::~TaskAbstractSearch() {}
 Point TaskAbstractSearch::GetPoint() const { return point; }
 
 void TaskAbstractSearch::AddUnit(UnitInfo& unit) {
-    AILOG(log, "Abstract search: Add {}", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
+    AILOG(log, "Abstract search: Add {}", ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data());
 
     units.PushBack(unit);
     unit.AddTask(this);
@@ -119,7 +120,7 @@ void TaskAbstractSearch::RemoveSelf() {
 
 void TaskAbstractSearch::RemoveUnit(UnitInfo& unit) {
     AILOG(log, "Abstract search: Remove {} (requestors open: {})",
-          UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName(), requestors);
+          ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data(), requestors);
 
     units.Remove(unit);
 }

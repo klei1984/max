@@ -26,13 +26,15 @@
 #include "game_manager.hpp"
 #include "remote.hpp"
 #include "sound_manager.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 const char* PathRequest_CautionLevels[] = {"none", "avoid reaction fire", "avoid next turn's fire", "avoid all damage"};
 
 PathRequest::PathRequest(UnitInfo* unit, int32_t mode, Point point) : client(unit), point(point), flags(mode) {
-    AILOG(log, "Path request for {} at [{},{}].", UnitsManager_BaseUnits[client->GetUnitType()].GetSingularName(),
-          client->grid_x + 1, client->grid_y + 1);
+    AILOG(log, "Path request for {} at [{},{}].",
+          ResourceManager_GetUnit(client->GetUnitType()).GetSingularName().data(), client->grid_x + 1,
+          client->grid_y + 1);
 
     max_cost = INT16_MAX;
     minimum_distance = 0;
@@ -96,7 +98,7 @@ void PathRequest::SetOptimizeFlag(bool value) {
 
 void PathRequest::CreateTransport(ResourceID unit_type) {
     if (unit_type != INVALID_ID) {
-        AILOG(log, "Use {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
+        AILOG(log, "Use {}.", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
         transporter = new (std::nothrow) UnitInfo(unit_type, client->team, 0xFFFF);
 

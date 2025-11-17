@@ -38,6 +38,7 @@
 #include "sound_manager.hpp"
 #include "ticktimer.hpp"
 #include "transport.hpp"
+#include "unit.hpp"
 #include "unitevents.hpp"
 #include "units_manager.hpp"
 #include "version.hpp"
@@ -1086,9 +1087,10 @@ void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet) {
               (unit->team < PLAYER_TEAM_MAX) ? team_names[unit->team] : team_names[PLAYER_TEAM_MAX],
               (data.team < PLAYER_TEAM_MAX) ? team_names[data.team] : team_names[PLAYER_TEAM_MAX]);
 
-    AILOG_LOG(log, " type          {}, {}",
-              (unit->GetUnitType() < UNIT_END) ? UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName() : "?",
-              (data.unit_type < UNIT_END) ? UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName() : "?");
+    AILOG_LOG(
+        log, " type          {}, {}",
+        (unit->GetUnitType() < UNIT_END) ? ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data() : "?",
+        (data.unit_type < UNIT_END) ? ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data() : "?");
 
     AILOG_LOG(log, " unit id       {}, {}", unit->unit_id, data.unit_id);
     AILOG_LOG(log, " parent id     {}, {}", unit->GetParent() ? unit->GetParent()->GetId() : 0, data.parent_unit_id);

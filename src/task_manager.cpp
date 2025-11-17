@@ -37,6 +37,7 @@
 #include "taskrepair.hpp"
 #include "taskupgrade.hpp"
 #include "ticktimer.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 class TaskManager TaskManager;
@@ -48,7 +49,7 @@ TaskManager::~TaskManager() {}
 bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t task_priority) {
     bool result;
 
-    AILOG(log, "Task: should build {}?", UnitsManager_BaseUnits[unit_type].GetSingularName());
+    AILOG(log, "Task: should build {}?", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
     int32_t available_count = 0;
     int32_t requested_count = 0;
@@ -58,7 +59,7 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t tas
     if (turns_till_mission_end >=
         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_TURNS) + 5) {
         if (unit_type != CONSTRCT || turns_till_mission_end >= 25) {
-            if (UnitsManager_BaseUnits[unit_type].flags & STATIONARY) {
+            if (ResourceManager_GetUnit(unit_type).GetFlags() & STATIONARY) {
                 unit_list = &UnitsManager_StationaryUnits;
 
             } else {
@@ -102,7 +103,7 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t tas
 
                 } else if (TaskManager_NeedToReserveRawMaterials(team)) {
                     AILOG_LOG(log, "No, existing {} have a materials shortage",
-                              UnitsManager_BaseUnits[unit_type].GetPluralName());
+                              ResourceManager_GetUnit(unit_type).GetPluralName().data());
 
                     result = false;
 

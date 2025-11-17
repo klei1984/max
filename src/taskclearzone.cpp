@@ -31,6 +31,7 @@
 #include "taskfindpath.hpp"
 #include "taskpathrequest.hpp"
 #include "ticktimer.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 void TaskClearZone::PathFindResultCallback(Task* task, PathRequest* request, Point point, GroundPath* path,
@@ -127,7 +128,7 @@ std::string TaskClearZone::WriteStatusLog() const {
 
         case CLEARZONE_STATE_MOVING_UNIT: {
             result += "moving ";
-            result += UnitsManager_BaseUnits[moving_unit->GetUnitType()].GetSingularName();
+            result += ResourceManager_GetUnit(moving_unit->GetUnitType()).GetSingularName().data();
         } break;
     }
 
@@ -161,7 +162,7 @@ void TaskClearZone::EndTurn() {
 
                     if (moving_unit) {
                         AILOG_LOG(log, "Clear Zone: Move Finished for {} at [{},{}].",
-                                  UnitsManager_BaseUnits[moving_unit->GetUnitType()].GetSingularName(),
+                                  ResourceManager_GetUnit(moving_unit->GetUnitType()).GetSingularName().data(),
                                   moving_unit->grid_x + 1, moving_unit->grid_y + 1);
 
                         moving_unit->RemoveTask(this);
@@ -215,8 +216,8 @@ void TaskClearZone::RemoveSelf() {
 
 void TaskClearZone::RemoveUnit(UnitInfo& unit) {
     if (moving_unit == unit) {
-        AILOG(log, "Clear Zone: Remove {} at [{},{}].", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName(),
-              unit.grid_x + 1, unit.grid_y + 1);
+        AILOG(log, "Clear Zone: Remove {} at [{},{}].",
+              ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data(), unit.grid_x + 1, unit.grid_y + 1);
 
         moving_unit = nullptr;
         state = CLEARZONE_STATE_WAITING;
@@ -488,7 +489,7 @@ void TaskClearZone::AddZone(Zone* zone) {
     auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
 
     AILOG(log, "Clear Zone: Add Zone for {} at [{},{}].",
-          UnitsManager_BaseUnits[zone->unit->GetUnitType()].GetSingularName(), zone->unit->grid_x + 1,
+          ResourceManager_GetUnit(zone->unit->GetUnitType()).GetSingularName().data(), zone->unit->grid_x + 1,
           zone->unit->grid_y + 1);
 
     zones.Insert(zone);

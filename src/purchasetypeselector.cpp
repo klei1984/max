@@ -23,6 +23,7 @@
 
 #include "cargo.hpp"
 #include "reportstats.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 PurchaseTypeSelector::PurchaseTypeSelector(Window* window, WindowInfo* window_info,
@@ -51,7 +52,7 @@ void PurchaseTypeSelector::Draw() {
         turns = UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], *unit_types[page_min_index + i])
                     ->GetAttribute(ATTRIB_TURNS);
 
-        if (UnitsManager_BaseUnits[*unit_types[page_min_index + i]].flags & STATIONARY) {
+        if (ResourceManager_GetUnit(*unit_types[page_min_index + i]).GetFlags() & STATIONARY) {
             cost = Cargo_GetRawConsumptionRate(CONSTRCT, 1) * turns;
 
         } else if (*unit_types[page_min_index + i] == COMMANDO || *unit_types[page_min_index + i] == INFANTRY) {

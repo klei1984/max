@@ -34,6 +34,7 @@
 #include "scrollbar.hpp"
 #include "sound_manager.hpp"
 #include "text.hpp"
+#include "unit.hpp"
 #include "unitinfo.hpp"
 #include "units_manager.hpp"
 #include "window.hpp"
@@ -232,23 +233,20 @@ void RepairShopSlot::Draw(UnitInfo* unit, bool draw_to_screen) {
     menu->FillWindowInfo(&window);
 
     if (this->client != nullptr) {
-        WindowInfo local_window;
-        BaseUnit* base_unit;
+        const auto& base_unit = ResourceManager_GetUnit(unit->GetUnitType());
+        WindowInfo local_window = window;
         char text[200];
-
-        local_window = window;
-        base_unit = &UnitsManager_BaseUnits[unit->GetUnitType()];
 
         local_window.buffer =
             &local_window.buffer[bg_image_area->GetULY() * local_window.width + bg_image_area->GetULX()];
 
-        if (base_unit->armory_portrait != INVALID_ID) {
-            WindowManager_LoadBigImage(base_unit->armory_portrait, &local_window, local_window.width, false,
+        if (base_unit.GetArmoryPortrait() != INVALID_ID) {
+            WindowManager_LoadBigImage(base_unit.GetArmoryPortrait(), &local_window, local_window.width, false,
                                        draw_to_screen);
 
         } else {
             bg_image_area->Write(&window);
-            flicsmgr_construct(base_unit->flics, &window, local_window.width, bg_image_area->GetULX(),
+            flicsmgr_construct(base_unit.GetFlicsAnimation(), &window, local_window.width, bg_image_area->GetULX(),
                                bg_image_area->GetULY(), false, false);
         }
 
@@ -313,10 +311,11 @@ void RepairShopSlot::DrawStats(bool draw_to_screen) {
                             client->GetBaseValues()->GetAttribute(ATTRIB_AMMO), 1, false);
 
     } else if (GameManager_PlayerTeam == client->team && client->GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
-        ReportStats_DrawRow(_(8688), window.id, &bounds,
-                            ReportStats_CargoIcons[UnitsManager_BaseUnits[client->GetUnitType()].cargo_type * 2],
-                            ReportStats_CargoIcons[UnitsManager_BaseUnits[client->GetUnitType()].cargo_type * 2 + 1],
-                            client->storage, client->GetBaseValues()->GetAttribute(ATTRIB_STORAGE), 10, false);
+        ReportStats_DrawRow(
+            _(8688), window.id, &bounds,
+            ReportStats_CargoIcons[ResourceManager_GetUnit(client->GetUnitType()).GetCargoType() * 2],
+            ReportStats_CargoIcons[ResourceManager_GetUnit(client->GetUnitType()).GetCargoType() * 2 + 1],
+            client->storage, client->GetBaseValues()->GetAttribute(ATTRIB_STORAGE), 10, false);
     }
 
     if (draw_to_screen) {

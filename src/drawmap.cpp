@@ -27,6 +27,7 @@
 #include "researchmenu.hpp"
 #include "survey.hpp"
 #include "text.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 #include "window_manager.hpp"
 
@@ -752,8 +753,8 @@ void DrawMap_RenderNamesDisplay(UnitInfo* unit) {
         UnitInfo* parent = unit->GetParent();
 
         if (parent) {
-            sprintf(text, DrawMap_UnitCompletionLabels[UnitsManager_BaseUnits[parent->GetUnitType()].gender],
-                    UnitsManager_BaseUnits[parent->GetUnitType()].GetSingularName());
+            sprintf(text, DrawMap_UnitCompletionLabels[ResourceManager_GetUnit(parent->GetUnitType()).GetGender()],
+                    ResourceManager_GetUnit(parent->GetUnitType()).GetSingularName().data());
 
             if (parent->flags & STATIONARY) {
                 unit = parent;

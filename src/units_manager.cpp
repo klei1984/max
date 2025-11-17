@@ -196,8 +196,6 @@ SmartList<UnitInfo> UnitsManager_StationaryUnits;
 SmartList<UnitInfo> UnitsManager_MobileAirUnits;
 SmartList<UnitInfo> UnitsManager_PendingAttacks;
 
-BaseUnit UnitsManager_BaseUnits[UNIT_END];
-
 SmartPointer<UnitInfo> UnitsManager_Unit;
 
 SmartPointer<UnitInfo> UnitsManager_Units[PLAYER_TEAM_MAX];
@@ -221,1901 +219,6 @@ const char* const UnitsManager_Orders[] = {
     "Awaiting",   "Awaiting",     "Awaiting",  "Awaiting",        "Awaiting",  "Disabled",       "Moving",
     "Repairing",  "Transferring", "Attacking", "Building Halted",
 };
-
-std::vector<AbstractUnit> UnitsManager_AbstractUnits;
-
-void UnitsManager_InitAbstractUnits() {
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | REQUIRES_SLAB,
-        /* sprite          */ COMMTWR,
-        /* shadow          */ S_COMMTW,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_COMMT,
-        /* portrait        */ P_TRANSP,
-        /* icon            */ I_TRANSP,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x79a5,
-        /* plural name     */ 0x08ad,
-        /* description */
-        0x9ed6
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | REQUIRES_SLAB,
-        /* sprite          */ POWERSTN,
-        /* shadow          */ S_POWERS,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_POWERS,
-        /* portrait        */ P_POWSTN,
-        /* icon            */ I_POWSTN,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x1c9b,
-        /* plural name     */ 0x1522,
-        /* description */
-        0x1a05
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | STANDALONE | REQUIRES_SLAB,
-        /* sprite          */ POWGEN,
-        /* shadow          */ S_POWGEN,
-        /* data            */ D_SMLBLD,
-        /* flics animation */ F_POWGEN,
-        /* portrait        */ P_POWGEN,
-        /* icon            */ I_POWGEN,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xbbf4,
-        /* plural name     */ 0x7084,
-        /* description */
-        0x7ed6,
-        /* tutorial description (optional) */
-        0xfbcd);
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE | REQUIRES_SLAB,
-        /* sprite          */ BARRACKS,
-        /* shadow          */ S_BARRAC,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_BARRAC,
-        /* portrait        */ P_BARRCK,
-        /* icon            */ I_BARRCK,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ 4,
-        /* gender          */ 'N',
-        /* singular name   */ 0xc8d3,
-        /* plural name     */ 0x10c9,
-        /* description */
-        0x5a81
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | REQUIRES_SLAB,
-        /* sprite          */ SHIELDGN,
-        /* shadow          */ S_SHIELD,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_SHIELD,
-        /* portrait        */ P_SHIELD,
-        /* icon            */ I_SHIELD,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x5ea2,
-        /* plural name     */ 0x5a91,
-        /* description */
-        0x4582
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ ANIMATED | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | STANDALONE |
-            REQUIRES_SLAB,
-        /* sprite          */ RADAR,
-        /* shadow          */ S_RADAR,
-        /* data            */ D_RADAR,
-        /* flics animation */ F_RADAR,
-        /* portrait        */ P_RADAR,
-        /* icon            */ I_RADAR,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x524f,
-        /* plural name     */ 0x3184,
-        /* description */
-        0xa5d2
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ STATIONARY | UPGRADABLE | SELECTABLE | STANDALONE | REQUIRES_SLAB,
-        /* sprite          */ ADUMP,
-        /* shadow          */ S_ADUMP,
-        /* data            */ D_SMLBLD,
-        /* flics animation */ F_ADUMP,
-        /* portrait        */ P_SMSTOR,
-        /* icon            */ I_SMSTOR,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ MATERIALS,
-        /* gender          */ 'N',
-        /* singular name   */ 0xc2d8,
-        /* plural name     */ 0x5053,
-        /* description */
-        0x53b3,
-        /* tutorial description (optional) */
-        0x656d);
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ STATIONARY | UPGRADABLE | SELECTABLE | STANDALONE | REQUIRES_SLAB,
-        /* sprite          */ FDUMP,
-        /* shadow          */ S_FDUMP,
-        /* data            */ D_SMLBLD,
-        /* flics animation */ F_FDUMP,
-        /* portrait        */ P_SMFUEL,
-        /* icon            */ I_SMFUEL,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ FUEL,
-        /* gender          */ 'N',
-        /* singular name   */ 0x93dc,
-        /* plural name     */ 0x51d9,
-        /* description */
-        0xe1a5,
-        /* tutorial description (optional) */
-        0x75d4);
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ STATIONARY | UPGRADABLE | SELECTABLE | STANDALONE | REQUIRES_SLAB,
-        /* sprite          */ GOLDSM,
-        /* shadow          */ S_GOLDSM,
-        /* data            */ D_SMLBLD,
-        /* flics animation */ F_GOLDSM,
-        /* portrait        */ P_SMVLT,
-        /* icon            */ I_SMVLT,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ GOLD,
-        /* gender          */ 'N',
-        /* singular name   */ 0x282f,
-        /* plural name     */ 0x4340,
-        /* description */
-        0x760c,
-        /* tutorial description (optional) */
-        0x8672);
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE | REQUIRES_SLAB,
-        /* sprite          */ DEPOT,
-        /* shadow          */ S_DEPOT,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_DEPOT,
-        /* portrait        */ P_DEPOT,
-        /* icon            */ I_DEPOT,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ 4,
-        /* gender          */ 'N',
-        /* singular name   */ 0xf830,
-        /* plural name     */ 0xe8a8,
-        /* description */
-        0xa135,
-        /* tutorial description (optional) */
-        0x731e);
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE | REQUIRES_SLAB,
-        /* sprite          */ HANGAR,
-        /* shadow          */ S_HANGAR,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_HANGAR,
-        /* portrait        */ P_HANGAR,
-        /* icon            */ I_HANGAR,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ 6,
-        /* gender          */ 'N',
-        /* singular name   */ 0x66ad,
-        /* plural name     */ 0x43a4,
-        /* description */
-        0x42ec
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE,
-        /* sprite          */ DOCK,
-        /* shadow          */ S_DOCK,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_DOCK,
-        /* portrait        */ P_DOCK,
-        /* icon            */ I_DOCK,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_WATER,
-        /* cargo type      */ 5,
-        /* gender          */ 'N',
-        /* singular name   */ 0x49c1,
-        /* plural name     */ 0x5d61,
-        /* description */
-        0x1c3b
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ CONNECTOR_UNIT | STATIONARY | UPGRADABLE | SELECTABLE,
-        /* sprite          */ CNCT_4W,
-        /* shadow          */ S_CNCT4W,
-        /* data            */ D_SMLBLD,
-        /* flics animation */ F_CNCT4W,
-        /* portrait        */ P_CONNEC,
-        /* icon            */ I_CONNEC,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
-        /* cargo type      */ 0,
-        /* gender          */ 'N',
-        /* singular name   */ 0x8f0d,
-        /* plural name     */ 0xc3d2,
-        /* description */
-        0xc971,
-        /* tutorial description (optional) */
-        0x9736);
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | BUILDING | STATIONARY,
-        /* sprite          */ LRGRUBLE,
-        /* shadow          */ S_LRGRBL,
-        /* data            */ D_LRGRBL,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x53d5,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | STATIONARY,
-        /* sprite          */ SMLRUBLE,
-        /* shadow          */ S_SMLRBL,
-        /* data            */ D_SMLRBL,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xd9e7,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | BUILDING | STATIONARY | SELECTABLE,
-        /* sprite          */ LRGTAPE,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_LRGRBL,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xf243,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | STATIONARY | SELECTABLE,
-        /* sprite          */ SMLTAPE,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_LRGRBL,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xb9f3,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | BUILDING | STATIONARY,
-        /* sprite          */ LRGSLAB,
-        /* shadow          */ S_LRGSLA,
-        /* data            */ D_LRGSLA,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x6cdf,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | STATIONARY,
-        /* sprite          */ SMLSLAB,
-        /* shadow          */ S_SMLSLA,
-        /* data            */ D_DEFALT,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x155f,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | BUILDING | STATIONARY,
-        /* sprite          */ LRGCONES,
-        /* shadow          */ S_LRGCON,
-        /* data            */ D_DEFALT,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xa325,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | STATIONARY,
-        /* sprite          */ SMLCONES,
-        /* shadow          */ S_SMLCON,
-        /* data            */ D_DEFALT,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x3fd7,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | STATIONARY | SELECTABLE,
-        /* sprite          */ ROAD,
-        /* shadow          */ S_ROAD,
-        /* data            */ D_DEFALT,
-        /* flics animation */ F_ROAD,
-        /* portrait        */ P_ROAD,
-        /* icon            */ I_ROAD,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xa22e,
-        /* plural name     */ 0x02e7,
-        /* description */
-        0x4d4a
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ STATIONARY | UPGRADABLE | SELECTABLE,
-        /* sprite          */ LANDPAD,
-        /* shadow          */ S_LANDPA,
-        /* data            */ D_DEFALT,
-        /* flics animation */ F_LANDPA,
-        /* portrait        */ P_LANDPD,
-        /* icon            */ I_LANDPD,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ 6,
-        /* gender          */ 'N',
-        /* singular name   */ 0xbe71,
-        /* plural name     */ 0xb393,
-        /* description */
-        0x2627
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | UPGRADABLE | CONSTRUCTOR_UNIT | ELECTRONIC_UNIT | SELECTABLE,
-        /* sprite          */ SHIPYARD,
-        /* shadow          */ S_SHIPYA,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_SHIPYA,
-        /* portrait        */ P_SHIPYD,
-        /* icon            */ I_SHIPYD,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_WATER,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xbc7b,
-        /* plural name     */ 0xc323,
-        /* description */
-        0x29b9
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | UPGRADABLE | CONSTRUCTOR_UNIT | ELECTRONIC_UNIT | SELECTABLE |
-            REQUIRES_SLAB,
-        /* sprite          */ LIGHTPLT,
-        /* shadow          */ S_LIGHTP,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_LIGHTP,
-        /* portrait        */ P_LGHTPL,
-        /* icon            */ I_LGHTPL,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xeebb,
-        /* plural name     */ 0x27ca,
-        /* description */
-        0x5250,
-        /* tutorial description (optional) */
-        0x381d);
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | UPGRADABLE | CONSTRUCTOR_UNIT | ELECTRONIC_UNIT | SELECTABLE |
-            REQUIRES_SLAB,
-        /* sprite          */ LANDPLT,
-        /* shadow          */ S_LANDPL,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_LANDPL,
-        /* portrait        */ P_HVYPLT,
-        /* icon            */ I_HVYPLT,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xca88,
-        /* plural name     */ 0x43e4,
-        /* description */
-        0xe9d2,
-        /* tutorial description (optional) */
-        0x70ae);
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | REQUIRES_SLAB,
-        /* sprite          */ SUPRTPLT,
-        /* shadow          */ S_SUPRTP,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_SUPRTP,
-        /* portrait        */ P_LIFESP,
-        /* icon            */ I_LIFESP,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | UPGRADABLE | CONSTRUCTOR_UNIT | ELECTRONIC_UNIT | SELECTABLE |
-            REQUIRES_SLAB,
-        /* sprite          */ AIRPLT,
-        /* shadow          */ S_AIRPLT,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_AIRPLT,
-        /* portrait        */ P_AIRPLT,
-        /* icon            */ I_AIRPLT,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x751e,
-        /* plural name     */ 0x331b,
-        /* description */
-        0x784f
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | UPGRADABLE | SELECTABLE | REQUIRES_SLAB,
-        /* sprite          */ HABITAT,
-        /* shadow          */ S_HABITA,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_HABITA,
-        /* portrait        */ P_HABITA,
-        /* icon            */ I_HABITA,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x97e9,
-        /* plural name     */ 0xc2e2,
-        /* description */
-        0x73ae
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | REQUIRES_SLAB,
-        /* sprite          */ RESEARCH,
-        /* shadow          */ S_RESEAR,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_RESEAR,
-        /* portrait        */ P_RESEAR,
-        /* icon            */ I_RESEAR,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xe531,
-        /* plural name     */ 0xe103,
-        /* description */
-        0xfa10
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | REQUIRES_SLAB,
-        /* sprite          */ GREENHSE,
-        /* shadow          */ S_GREENH,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_GREENH,
-        /* portrait        */ P_GREENH,
-        /* icon            */ I_GREENH,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x5972,
-        /* plural name     */ 0x4b34,
-        /* description */
-        0x6182
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | REQUIRES_SLAB,
-        /* sprite          */ RECCENTR,
-        /* shadow          */ S_RECCEN,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_RECCEN,
-        /* portrait        */ P_RECCTR,
-        /* icon            */ I_RECCTR,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x79b5,
-        /* plural name     */ 0x6006,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | REQUIRES_SLAB,
-        /* sprite          */ TRAINHAL,
-        /* shadow          */ S_TRAINH,
-        /* data            */ D_LRGBLD,
-        /* flics animation */ F_TRAINH,
-        /* portrait        */ P_TRNHLL,
-        /* icon            */ I_TRNHLL,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x30c9,
-        /* plural name     */ 0xaaad,
-        /* description */
-        0xc11b
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | STATIONARY | UPGRADABLE | SELECTABLE,
-        /* sprite          */ WTRPLTFM,
-        /* shadow          */ S_WTRPLT,
-        /* data            */ D_DEFALT,
-        /* flics animation */ F_WTRPLT,
-        /* portrait        */ P_WATER,
-        /* icon            */ I_WATER,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x9a30,
-        /* plural name     */ 0xcbf4,
-        /* description */
-        0x75fb
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ STATIONARY | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE | STANDALONE |
-            REQUIRES_SLAB | TURRET_SPRITE | SENTRY_UNIT,
-        /* sprite          */ GUNTURRT,
-        /* shadow          */ S_GUNTUR,
-        /* data            */ D_FIXED,
-        /* flics animation */ F_GUNTUR,
-        /* portrait        */ P_GUNTUR,
-        /* icon            */ I_GUNTUR,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xe1c0,
-        /* plural name     */ 0x5cd9,
-        /* description */
-        0x6fae,
-        /* tutorial description (optional) */
-        0x0fc3);
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ STATIONARY | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE | STANDALONE |
-            REQUIRES_SLAB | TURRET_SPRITE | SENTRY_UNIT,
-        /* sprite          */ ANTIAIR,
-        /* shadow          */ S_ANTIAI,
-        /* data            */ D_ANTIAI,
-        /* flics animation */ F_ANTIAI,
-        /* portrait        */ P_FXAA,
-        /* icon            */ I_FXAA,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x4cb4,
-        /* plural name     */ 0x3764,
-        /* description */
-        0x5282
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ STATIONARY | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE | STANDALONE |
-            REQUIRES_SLAB | TURRET_SPRITE | SENTRY_UNIT,
-        /* sprite          */ ARTYTRRT,
-        /* shadow          */ S_ARTYTR,
-        /* data            */ D_FIXED,
-        /* flics animation */ F_ARTYTR,
-        /* portrait        */ P_ARTYTR,
-        /* icon            */ I_ARTYTR,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x6689,
-        /* plural name     */ 0x64b7,
-        /* description */
-        0x96b3
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ STATIONARY | UPGRADABLE | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT |
-            SELECTABLE | STANDALONE | REQUIRES_SLAB | TURRET_SPRITE | SENTRY_UNIT,
-        /* sprite          */ ANTIMSSL,
-        /* shadow          */ S_ANTIMS,
-        /* data            */ D_FIXED,
-        /* flics animation */ F_ANTIMS,
-        /* portrait        */ P_FXROCK,
-        /* icon            */ I_FXROCK,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xf5c8,
-        /* plural name     */ 0x24cb,
-        /* description */
-        0xd8d2
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ STATIONARY | UPGRADABLE | SELECTABLE | STANDALONE,
-        /* sprite          */ BLOCK,
-        /* shadow          */ S_BLOCK,
-        /* data            */ D_SMLBLD,
-        /* flics animation */ F_BLOCK,
-        /* portrait        */ P_BLOCK,
-        /* icon            */ I_BLOCK,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x65a8,
-        /* plural name     */ 0x703f,
-        /* description */
-        0xc75e
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | STATIONARY | UPGRADABLE | SELECTABLE,
-        /* sprite          */ BRIDGE,
-        /* shadow          */ S_BRIDGE,
-        /* data            */ D_BRIDGE,
-        /* flics animation */ F_BRIDGE,
-        /* portrait        */ P_BRIDGE,
-        /* icon            */ I_BRIDGE,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x3892,
-        /* plural name     */ 0xd982,
-        /* description */
-        0x0886
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ BUILDING | STATIONARY | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | REQUIRES_SLAB,
-        /* sprite          */ MININGST,
-        /* shadow          */ S_MINING,
-        /* data            */ D_MINING,
-        /* flics animation */ F_MINING,
-        /* portrait        */ P_MINING,
-        /* icon            */ I_MINING,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ MATERIALS,
-        /* gender          */ 'N',
-        /* singular name   */ 0x72a5,
-        /* plural name     */ 0xb41b,
-        /* description */
-        0x0777,
-        /* tutorial description (optional) */
-        0x5a0e);
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | STATIONARY | UPGRADABLE | SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ LANDMINE,
-        /* shadow          */ S_LANDMI,
-        /* data            */ D_DEFALT,
-        /* flics animation */ F_LANDMI,
-        /* portrait        */ P_LANDMN,
-        /* icon            */ I_LANDMN,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xa2c3,
-        /* plural name     */ 0xee79,
-        /* description */
-        0x3b31
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | STATIONARY | UPGRADABLE | SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ SEAMINE,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_DEFALT,
-        /* flics animation */ F_SEAMIN,
-        /* portrait        */ P_SEAMIN,
-        /* icon            */ I_SEAMIN,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_WATER,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xa309,
-        /* plural name     */ 0xe7f8,
-        /* description */
-        0x470d
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ EXPLODING | ANIMATED | STATIONARY,
-        /* sprite          */ LNDEXPLD,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_UEXPLD,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ 255,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x4e33,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ EXPLODING | ANIMATED | STATIONARY,
-        /* sprite          */ AIREXPLD,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_UEXPLD,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ 255,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x4e33,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ EXPLODING | ANIMATED | STATIONARY,
-        /* sprite          */ SEAEXPLD,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_UEXPLD,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ 255,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x4e33,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ EXPLODING | ANIMATED | STATIONARY,
-        /* sprite          */ BLDEXPLD,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_BEXPLD,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ 255,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x4e33,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ EXPLODING | ANIMATED | STATIONARY,
-        /* sprite          */ HITEXPLD,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_SEXPLD,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ 255,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x4e33,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ MASTER,
-        /* shadow          */ S_MASTER,
-        /* data            */ D_MOBILE,
-        /* flics animation */ F_MASTER,
-        /* portrait        */ P_MASTER,
-        /* icon            */ I_MASTER,
-        /* armory portrait */ A_MASTER,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x4ef8,
-        /* plural name     */ 0x603b,
-        /* description */
-        0xb66a
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | UPGRADABLE | CONSTRUCTOR_UNIT | ELECTRONIC_UNIT |
-            SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ CONSTRCT,
-        /* shadow          */ S_CONSTR,
-        /* data            */ D_AMPHIB,
-        /* flics animation */ F_CONSTR,
-        /* portrait        */ P_CONTRC,
-        /* icon            */ I_CONTRC,
-        /* armory portrait */ A_CONTRC,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
-        /* cargo type      */ MATERIALS,
-        /* gender          */ 'N',
-        /* singular name   */ 0x7a39,
-        /* plural name     */ 0x3b10,
-        /* description */
-        0xd28e,
-        /* tutorial description (optional) */
-        0xaafe);
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT |
-            SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ SCOUT,
-        /* shadow          */ S_SCOUT,
-        /* data            */ D_AMPHIB,
-        /* flics animation */ F_SCOUT,
-        /* portrait        */ P_SCOUT,
-        /* icon            */ I_SCOUT,
-        /* armory portrait */ A_SCOUT,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x8a1d,
-        /* plural name     */ 0x95a3,
-        /* description */
-        0xb2bb,
-        /* tutorial description (optional) */
-        0x1ccb);
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE |
-            TURRET_SPRITE | SENTRY_UNIT,
-        /* sprite          */ TANK,
-        /* shadow          */ S_TANK,
-        /* data            */ D_TANK,
-        /* flics animation */ F_TANK,
-        /* portrait        */ P_TANK,
-        /* icon            */ I_TANK,
-        /* armory portrait */ A_TANK,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'M',
-        /* singular name   */ 0xc0b2,
-        /* plural name     */ 0xca60,
-        /* description */
-        0xd58b,
-        /* tutorial description (optional) */
-        0x809e);
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE |
-            SENTRY_UNIT,
-        /* sprite          */ ARTILLRY,
-        /* shadow          */ S_ARTILL,
-        /* data            */ D_FIRING,
-        /* flics animation */ F_ARTILL,
-        /* portrait        */ P_ARTY,
-        /* icon            */ I_ARTY,
-        /* armory portrait */ A_ARTY,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'M',
-        /* singular name   */ 0xbaf1,
-        /* plural name     */ 0x301e,
-        /* description */
-        0x3a41
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT |
-            SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ ROCKTLCH,
-        /* shadow          */ S_ROCKTL,
-        /* data            */ D_FIRING,
-        /* flics animation */ F_ROCKTL,
-        /* portrait        */ P_ROCKET,
-        /* icon            */ I_ROCKET,
-        /* armory portrait */ A_ROCKET,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'M',
-        /* singular name   */ 0xdcf4,
-        /* plural name     */ 0xa685,
-        /* description */
-        0x03cb
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT |
-            SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ MISSLLCH,
-        /* shadow          */ S_MISSLL,
-        /* data            */ D_FIRING,
-        /* flics animation */ F_MISSLL,
-        /* portrait        */ P_MISSIL,
-        /* icon            */ I_MISSIL,
-        /* armory portrait */ A_MISSIL,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'M',
-        /* singular name   */ 0x3fa5,
-        /* plural name     */ 0xc263,
-        /* description */
-        0x0aa6
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE |
-            TURRET_SPRITE | SENTRY_UNIT,
-        /* sprite          */ SP_FLAK,
-        /* shadow          */ S_FLAK,
-        /* data            */ D_SP_FLK,
-        /* flics animation */ F_FLAK,
-        /* portrait        */ P_AA,
-        /* icon            */ I_AA,
-        /* armory portrait */ A_AA,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'M',
-        /* singular name   */ 0xb6ef,
-        /* plural name     */ 0xa3da,
-        /* description */
-        0x051d
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ MINELAYR,
-        /* shadow          */ S_MINELA,
-        /* data            */ D_MOBILE,
-        /* flics animation */ F_MINELA,
-        /* portrait        */ P_MNELAY,
-        /* icon            */ I_MNELAY,
-        /* armory portrait */ A_MNELAY,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ MATERIALS,
-        /* gender          */ 'M',
-        /* singular name   */ 0xc838,
-        /* plural name     */ 0xd26f,
-        /* description */
-        0x45c2
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE |
-            SENTRY_UNIT,
-        /* sprite          */ SURVEYOR,
-        /* shadow          */ S_SURVEY,
-        /* data            */ D_AMPHIB,
-        /* flics animation */ F_SURVEY,
-        /* portrait        */ P_SURVEY,
-        /* icon            */ I_SURVEY,
-        /* armory portrait */ A_SURVEY,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'M',
-        /* singular name   */ 0x5bc4,
-        /* plural name     */ 0x8def,
-        /* description */
-        0xf3a3,
-        /* tutorial description (optional) */
-        0xd2c2);
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT |
-            SPINNING_TURRET,
-        /* sprite          */ SCANNER,
-        /* shadow          */ S_SCANNE,
-        /* data            */ D_SCANNR,
-        /* flics animation */ F_SCANNE,
-        /* portrait        */ P_SCANNR,
-        /* icon            */ I_SCANNR,
-        /* armory portrait */ A_SCANNR,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'M',
-        /* singular name   */ 0x71d4,
-        /* plural name     */ 0xe812,
-        /* description */
-        0x2643
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ SPLYTRCK,
-        /* shadow          */ S_SPLYTR,
-        /* data            */ D_MOBILE,
-        /* flics animation */ F_SPLYTR,
-        /* portrait        */ P_SPLYTR,
-        /* icon            */ I_SPLYTR,
-        /* armory portrait */ A_SPLYTR,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ MATERIALS,
-        /* gender          */ 'N',
-        /* singular name   */ 0x9dff,
-        /* plural name     */ 0xc597,
-        /* description */
-        0xd932
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ GOLDTRCK,
-        /* shadow          */ S_GOLDTR,
-        /* data            */ D_MOBILE,
-        /* flics animation */ F_GOLDTR,
-        /* portrait        */ P_GOLDTR,
-        /* icon            */ I_GOLDTR,
-        /* armory portrait */ A_GOLDTR,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ GOLD,
-        /* gender          */ 'N',
-        /* singular name   */ 0xe4c1,
-        /* plural name     */ 0x23bb,
-        /* description */
-        0x65cf
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | UPGRADABLE | CONSTRUCTOR_UNIT | ELECTRONIC_UNIT |
-            SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ ENGINEER,
-        /* shadow          */ S_ENGINE,
-        /* data            */ D_AMPHIB,
-        /* flics animation */ F_ENGINE,
-        /* portrait        */ P_ENGINR,
-        /* icon            */ I_ENGINR,
-        /* armory portrait */ A_ENGINR,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
-        /* cargo type      */ MATERIALS,
-        /* gender          */ 'N',
-        /* singular name   */ 0xd933,
-        /* plural name     */ 0x373a,
-        /* description */
-        0x52b5,
-        /* tutorial description (optional) */
-        0x3fec);
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ BULLDOZR,
-        /* shadow          */ S_BULLDO,
-        /* data            */ D_MOBILE,
-        /* flics animation */ F_BULLDO,
-        /* portrait        */ P_BULLDZ,
-        /* icon            */ I_BULLDZ,
-        /* armory portrait */ A_BULLDZ,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ MATERIALS,
-        /* gender          */ 'N',
-        /* singular name   */ 0xfac3,
-        /* plural name     */ 0x5be1,
-        /* description */
-        0x3876
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ REPAIR,
-        /* shadow          */ S_REPAIR,
-        /* data            */ D_MOBILE,
-        /* flics animation */ F_REPAIR,
-        /* portrait        */ P_REPAIR,
-        /* icon            */ I_REPAIR,
-        /* armory portrait */ A_REPAIR,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ MATERIALS,
-        /* gender          */ 'N',
-        /* singular name   */ 0xf152,
-        /* plural name     */ 0x156b,
-        /* description */
-        0x8fdf
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ FUELTRCK,
-        /* shadow          */ S_FUELTR,
-        /* data            */ D_MOBILE,
-        /* flics animation */ F_FUELTR,
-        /* portrait        */ P_FUELTR,
-        /* icon            */ I_FUELTR,
-        /* armory portrait */ A_FUELTR,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ FUEL,
-        /* gender          */ 'N',
-        /* singular name   */ 0x3753,
-        /* plural name     */ 0x7dd4,
-        /* description */
-        0xf5be
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE |
-            SENTRY_UNIT,
-        /* sprite          */ CLNTRANS,
-        /* shadow          */ S_CLNTRA,
-        /* data            */ D_MOBILE,
-        /* flics animation */ F_CLNTRA,
-        /* portrait        */ P_COLNST,
-        /* icon            */ I_COLNST,
-        /* armory portrait */ A_COLNST,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
-        /* cargo type      */ 4,
-        /* gender          */ 'N',
-        /* singular name   */ 0x66e9,
-        /* plural name     */ 0x93e1,
-        /* description */
-        0xa28a
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ COMMANDO,
-        /* shadow          */ S_COMMAN,
-        /* data            */ D_COMMAN,
-        /* flics animation */ F_COMMAN,
-        /* portrait        */ P_COMMAN,
-        /* icon            */ I_COMMAN,
-        /* armory portrait */ A_COMMAN,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_COAST,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'M',
-        /* singular name   */ 0x38df,
-        /* plural name     */ 0x6b15,
-        /* description */
-        0xcc81
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ INFANTRY,
-        /* shadow          */ S_INFANT,
-        /* data            */ D_INFANT,
-        /* flics animation */ F_INFANT,
-        /* portrait        */ P_INFANT,
-        /* icon            */ I_INFANT,
-        /* armory portrait */ A_INFANT,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_COAST,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'M',
-        /* singular name   */ 0xad96,
-        /* plural name     */ 0x461c,
-        /* description */
-        0x8061
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE |
-            TURRET_SPRITE | SENTRY_UNIT,
-        /* sprite          */ FASTBOAT,
-        /* shadow          */ S_FASTBO,
-        /* data            */ D_ESCORT,
-        /* flics animation */ F_FASTBO,
-        /* portrait        */ P_ESCORT,
-        /* icon            */ I_ESCORT,
-        /* armory portrait */ A_ESCORT,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_WATER,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x4cc2,
-        /* plural name     */ 0x363b,
-        /* description */
-        0x365d
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT |
-            SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ CORVETTE,
-        /* shadow          */ S_CORVET,
-        /* data            */ D_FIRING,
-        /* flics animation */ F_CORVET,
-        /* portrait        */ P_CORVET,
-        /* icon            */ I_CORVET,
-        /* armory portrait */ A_CORVET,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_WATER,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x0f0c,
-        /* plural name     */ 0xeb92,
-        /* description */
-        0x916e
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | ELECTRONIC_UNIT | SELECTABLE |
-            TURRET_SPRITE | SENTRY_UNIT,
-        /* sprite          */ BATTLSHP,
-        /* shadow          */ S_BATTLS,
-        /* data            */ D_BATTLS,
-        /* flics animation */ F_BATTLS,
-        /* portrait        */ P_GUNBT,
-        /* icon            */ I_GUNBT,
-        /* armory portrait */ A_GUNBT,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_WATER,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x4ae7,
-        /* plural name     */ 0x9cbf,
-        /* description */
-        0xfe06
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | FIRES_MISSILES | ELECTRONIC_UNIT | SELECTABLE |
-            SENTRY_UNIT,
-        /* sprite          */ SUBMARNE,
-        /* shadow          */ S_SUBMAR,
-        /* data            */ D_SUB,
-        /* flics animation */ F_SUBMAR,
-        /* portrait        */ P_SUB,
-        /* icon            */ I_SUB,
-        /* armory portrait */ A_SUB,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_WATER,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x5662,
-        /* plural name     */ 0x358f,
-        /* description */
-        0x06b2
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ SEATRANS,
-        /* shadow          */ S_SEATRA,
-        /* data            */ D_MOBILE,
-        /* flics animation */ F_SEATRA,
-        /* portrait        */ P_SEATRN,
-        /* icon            */ I_SEATRN,
-        /* armory portrait */ A_SEATRN,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
-        /* cargo type      */ 4,
-        /* gender          */ 'N',
-        /* singular name   */ 0x2b1a,
-        /* plural name     */ 0xfb02,
-        /* description */
-        0xf368
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT |
-            SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ MSSLBOAT,
-        /* shadow          */ S_MSSLBO,
-        /* data            */ D_FIRING,
-        /* flics animation */ F_MSSLBO,
-        /* portrait        */ P_MSLCR,
-        /* icon            */ I_MSLCR,
-        /* armory portrait */ A_MSLCR,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_WATER,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xee2f,
-        /* plural name     */ 0x76ab,
-        /* description */
-        0xac8d
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ SEAMNLYR,
-        /* shadow          */ S_SEAMNL,
-        /* data            */ D_MOBILE,
-        /* flics animation */ F_SEAMNL,
-        /* portrait        */ P_SEAMNL,
-        /* icon            */ I_SEAMNL,
-        /* armory portrait */ A_SEAMNL,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_WATER,
-        /* cargo type      */ MATERIALS,
-        /* gender          */ 'N',
-        /* singular name   */ 0xefbe,
-        /* plural name     */ 0xf511,
-        /* description */
-        0x24e7
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_SEA_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ CARGOSHP,
-        /* shadow          */ S_CARGOS,
-        /* data            */ D_MOBILE,
-        /* flics animation */ F_CARGOS,
-        /* portrait        */ P_CARGOS,
-        /* icon            */ I_CARGOS,
-        /* armory portrait */ A_CARGOS,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_WATER | SURFACE_TYPE_COAST,
-        /* cargo type      */ MATERIALS,
-        /* gender          */ 'N',
-        /* singular name   */ 0xa04b,
-        /* plural name     */ 0x48bb,
-        /* description */
-        0x2a9f
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_AIR_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT |
-            SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ FIGHTER,
-        /* shadow          */ S_FIGHTE,
-        /* data            */ D_FIRING,
-        /* flics animation */ F_FIGHTE,
-        /* portrait        */ P_FIGHTR,
-        /* icon            */ I_FIGHTR,
-        /* armory portrait */ A_FIGHTR,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST | SURFACE_TYPE_AIR,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'M',
-        /* singular name   */ 0xfe5b,
-        /* plural name     */ 0xc8fd,
-        /* description */
-        0x71d6
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_AIR_UNIT | UPGRADABLE | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT |
-            SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ BOMBER,
-        /* shadow          */ S_BOMBER,
-        /* data            */ D_FIRING,
-        /* flics animation */ F_BOMBER,
-        /* portrait        */ P_BOMBER,
-        /* icon            */ I_BOMBER,
-        /* armory portrait */ A_BOMBER,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST | SURFACE_TYPE_AIR,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'M',
-        /* singular name   */ 0x62eb,
-        /* plural name     */ 0xa8d9,
-        /* description */
-        0xca13
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_AIR_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT,
-        /* sprite          */ AIRTRANS,
-        /* shadow          */ S_AIRTRA,
-        /* data            */ D_MOBILE,
-        /* flics animation */ F_AIRTRA,
-        /* portrait        */ P_AIRTRN,
-        /* icon            */ I_AIRTRN,
-        /* armory portrait */ A_AIRTRN,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST | SURFACE_TYPE_AIR,
-        /* cargo type      */ 4,
-        /* gender          */ 'N',
-        /* singular name   */ 0x4195,
-        /* plural name     */ 0x883c,
-        /* description */
-        0x60d7
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_AIR_UNIT | UPGRADABLE | ELECTRONIC_UNIT | SELECTABLE | SENTRY_UNIT |
-            SPINNING_TURRET,
-        /* sprite          */ AWAC,
-        /* shadow          */ S_AWAC,
-        /* data            */ D_AWAC,
-        /* flics animation */ F_AWAC,
-        /* portrait        */ P_AWAC,
-        /* icon            */ I_AWAC,
-        /* armory portrait */ A_AWAC,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST | SURFACE_TYPE_AIR,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xd91c,
-        /* plural name     */ 0x4044,
-        /* description */
-        0x9b5d
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_SEA_UNIT | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT | SELECTABLE |
-            SENTRY_UNIT | REGENERATING_UNIT,
-        /* sprite          */ JUGGRNT,
-        /* shadow          */ S_JUGGRN,
-        /* data            */ D_FIRING,
-        /* flics animation */ F_JUGGRN,
-        /* portrait        */ P_JUGGER,
-        /* icon            */ I_JUGGER,
-        /* armory portrait */ A_JUGGER,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_WATER,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'M',
-        /* singular name   */ 0x1801,
-        /* plural name     */ 0x48c0,
-        /* description */
-        0x9f7c
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT | SELECTABLE |
-            TURRET_SPRITE | SENTRY_UNIT | REGENERATING_UNIT,
-        /* sprite          */ ALNTANK,
-        /* shadow          */ S_ALNTAN,
-        /* data            */ D_ALTANK,
-        /* flics animation */ F_ALNTAN,
-        /* portrait        */ P_ALNTAN,
-        /* icon            */ I_ALNTAN,
-        /* armory portrait */ A_ALNTAN,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'M',
-        /* singular name   */ 0xb952,
-        /* plural name     */ 0x1cff,
-        /* description */
-        0x91b3
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_LAND_UNIT | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT | SELECTABLE |
-            SENTRY_UNIT | REGENERATING_UNIT,
-        /* sprite          */ ALNASGUN,
-        /* shadow          */ S_ALNASG,
-        /* data            */ D_FIRING,
-        /* flics animation */ F_ALNASG,
-        /* portrait        */ P_ALNASG,
-        /* icon            */ I_ALNASG,
-        /* armory portrait */ A_ALNASG,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'M',
-        /* singular name   */ 0x0ca9,
-        /* plural name     */ 0xbde7,
-        /* description */
-        0x0a15
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MOBILE_AIR_UNIT | HAS_FIRING_SPRITE | FIRES_MISSILES | ELECTRONIC_UNIT | SELECTABLE |
-            SENTRY_UNIT | REGENERATING_UNIT,
-        /* sprite          */ ALNPLANE,
-        /* shadow          */ S_ALNPLA,
-        /* data            */ D_FIRING,
-        /* flics animation */ F_ALNPLA,
-        /* portrait        */ P_ALNPLA,
-        /* icon            */ I_ALNPLA,
-        /* armory portrait */ A_ALNPLA,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND | SURFACE_TYPE_WATER | SURFACE_TYPE_COAST | SURFACE_TYPE_AIR,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'M',
-        /* singular name   */ 0x1d38,
-        /* plural name     */ 0xa44c,
-        /* description */
-        0x0f27
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MISSILE_UNIT,
-        /* sprite          */ ROCKET,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_TORPDO,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ 255,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x3fa1,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | MISSILE_UNIT,
-        /* sprite          */ TORPEDO,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_TORPDO,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ 255,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x6e71,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MISSILE_UNIT,
-        /* sprite          */ ALNMISSL,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_ALNMSL,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ 255,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xa415,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MISSILE_UNIT,
-        /* sprite          */ ALNTBALL,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_ALNPBL,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ 255,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x5e53,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ MISSILE_UNIT,
-        /* sprite          */ ALNABALL,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_ALNPBL,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ 255,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xb88e,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ EXPLODING | ANIMATED | MISSILE_UNIT,
-        /* sprite          */ RKTSMOKE,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_SMOKE,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ 255,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xcd46,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | EXPLODING | ANIMATED | MISSILE_UNIT,
-        /* sprite          */ TRPBUBLE,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_BUBBLE,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ 255,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xc498,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ STATIONARY,
-        /* sprite          */ HARVSTER,
-        /* shadow          */ S_HARVST,
-        /* data            */ D_DEFALT,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0x154f,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-
-    UnitsManager_AbstractUnits.emplace_back(
-        /* flags           */ GROUND_COVER | STATIONARY,
-        /* sprite          */ WALDO,
-        /* shadow          */ INVALID_ID,
-        /* data            */ D_DEFALT,
-        /* flics animation */ INVALID_ID,
-        /* portrait        */ INVALID_ID,
-        /* icon            */ INVALID_ID,
-        /* armory portrait */ INVALID_ID,
-        /* unknown         */ INVALID_ID,
-        /* land type       */ SURFACE_TYPE_LAND,
-        /* cargo type      */ NO_CARGO,
-        /* gender          */ 'N',
-        /* singular name   */ 0xf2b2,
-        /* plural name     */ 0,
-        /* description */
-        0
-        /* tutorial description (optional) */
-    );
-}
 
 CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
 
@@ -2369,7 +472,7 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
 
         MessageManager_DrawMessage(
             string
-                .Sprintf(80, _(8967), UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), mark_level,
+                .Sprintf(80, _(8967), ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), mark_level,
                          material_cost)
                 .GetCStr(),
             0, upgraded_unit, Point(upgraded_unit->grid_x, upgraded_unit->grid_y));
@@ -2379,7 +482,7 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
 
         MessageManager_DrawMessage(
             string
-                .Sprintf(80, _(2693), unit_count, UnitsManager_BaseUnits[unit->GetUnitType()].GetPluralName(),
+                .Sprintf(80, _(2693), unit_count, ResourceManager_GetUnit(unit->GetUnitType()).GetPluralName().data(),
                          mark_level, material_cost)
                 .GetCStr(),
             0, 0);
@@ -2438,9 +541,9 @@ void UnitsManager_Popup_InitCommons(UnitInfo* unit, struct PopupButtons* buttons
                                     &UnitsManager_Popup_OnClick_Manual);
     }
 
-    if (UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type > CARGO_TYPE_NONE &&
-        UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type <= CARGO_TYPE_GOLD && unit->GetOrder() != ORDER_CLEAR &&
-        unit->GetOrder() != ORDER_BUILD) {
+    if (ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType() > Unit::CargoType::CARGO_TYPE_NONE &&
+        ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType() <= Unit::CargoType::CARGO_TYPE_GOLD &&
+        unit->GetOrder() != ORDER_CLEAR && unit->GetOrder() != ORDER_BUILD) {
         UnitsManager_RegisterButton(buttons, unit->cursor == 3, _(886b), '3', &UnitsManager_Popup_OnClick_Transfer);
     }
 
@@ -2782,7 +885,7 @@ void UnitsManager_Popup_OnClick_PowerOn(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(true);
     UnitsManager_SetNewOrder(unit, ORDER_POWER_ON, ORDER_STATE_INIT);
 
-    sprintf(message, _(8576), UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), _(b8d3));
+    sprintf(message, _(8576), ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), _(b8d3));
 
     MessageManager_DrawMessage(message, 0, 0);
 }
@@ -2793,7 +896,7 @@ void UnitsManager_Popup_OnClick_PowerOff(ButtonID bid, UnitInfo* unit) {
     GameManager_DeinitPopupButtons(true);
     UnitsManager_SetNewOrder(unit, ORDER_POWER_OFF, ORDER_STATE_INIT);
 
-    sprintf(message, _(d599), UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), _(b4dc));
+    sprintf(message, _(d599), ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), _(b4dc));
 
     MessageManager_DrawMessage(message, 0, 0);
 }
@@ -3290,7 +1393,7 @@ uint32_t UnitsManager_MoveUnitAndParent(UnitInfo* unit, int32_t grid_x, int32_t 
         unit_type = parent->GetConstructedUnitType();
     }
 
-    if (UnitsManager_BaseUnits[unit->GetUnitType()].flags & BUILDING) {
+    if (ResourceManager_GetUnit(unit->GetUnitType()).GetFlags() & BUILDING) {
         result = UnitsManager_IsAccessible(unit->team, unit_type, grid_x, grid_y);
 
     } else {
@@ -3369,8 +1472,8 @@ void UnitsManager_StartBuild(UnitInfo* unit) {
 
         unit->GetTurnsToBuild(unit_type, build_speed_multiplier, &turns_to_build_unit);
 
-        string.Sprintf(250, UnitsManager_BuildTimeEstimates[UnitsManager_BaseUnits[unit_type].gender],
-                       UnitsManager_BaseUnits[unit_type].GetSingularName(),
+        string.Sprintf(250, UnitsManager_BuildTimeEstimates[ResourceManager_GetUnit(unit_type).GetGender()],
+                       ResourceManager_GetUnit(unit_type).GetSingularName().data(),
                        UnitsManager_TeamInfo[GameManager_PlayerTeam].unit_counters[unit_type], turns_to_build_unit);
 
         MessageManager_DrawMessage(string.GetCStr(), 0, unit, Point(unit->grid_x, unit->grid_y));
@@ -3751,7 +1854,7 @@ void UnitsManager_ProcessOrders() {
 
             } else {
                 AILOG(log, "{} at [{},{}] cannot fire.",
-                      UnitsManager_BaseUnits[(*unit_it).GetUnitType()].GetSingularName(), (*unit_it).grid_x + 1,
+                      ResourceManager_GetUnit((*unit_it).GetUnitType()).GetSingularName().data(), (*unit_it).grid_x + 1,
                       (*unit_it).grid_y + 1);
 
                 (*unit_it).UpdatePinCount((*unit_it).fire_on_grid_x, (*unit_it).fire_on_grid_y, -1);
@@ -3798,14 +1901,14 @@ void UnitsManager_SetNewOrderInt(UnitInfo* unit, const UnitOrderType order, cons
 
         if (unit->GetOrder() == ORDER_AWAIT_SCALING) {
             AILOG(log, "New order ({}) issued for {} while scaling.", UnitsManager_Orders[order],
-                  UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
+                  ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
             UnitsManager_NewOrderWhileScaling(unit);
         }
 
         if (unit->GetOrderState() == ORDER_STATE_NEW_ORDER) {
             AILOG(log, "New order ({}) issued for {} while waiting for path.", UnitsManager_Orders[order],
-                  UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
+                  ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
             unit->SetOrder(ORDER_AWAIT);
             unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
@@ -4039,7 +2142,7 @@ void UnitsManager_UpdateConnectors(UnitInfo* unit) {
 void UnitsManager_DestroyUnit(UnitInfo* unit) {
     SmartPointer<UnitInfo> unit_to_destroy(unit);
 
-    AILOG(log, "{} at [{},{}] destroyed.", UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(),
+    AILOG(log, "{} at [{},{}] destroyed.", ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(),
           unit->grid_x + 1, unit->grid_y + 1);
 
     PathsManager_RemoveRequest(unit);
@@ -4122,7 +2225,6 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t te
                                                bool skip_map_status_update) {
     uint16_t id;
     UnitInfo* unit;
-    BaseUnit* base_unit;
 
     id = 0xFFFF;
 
@@ -4210,15 +2312,12 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t te
         unit->SetOrder(ORDER_DISABLE);
     }
 
-    base_unit = &UnitsManager_BaseUnits[unit_type];
-
     if (unit->flags & (TURRET_SPRITE | SPINNING_TURRET)) {
         unit->UpdateTurretAngle(unit->angle);
 
         if (unit->flags & SPINNING_TURRET) {
             unit->image_index_max =
-                unit->turret_image_base +
-                reinterpret_cast<struct BaseUnitDataFile*>(base_unit->data_buffer)->turret_image_count - 1;
+                unit->turret_image_base + ResourceManager_GetUnit(unit_type).GetFrameInfo().turret_image_count - 1;
         }
     }
 
@@ -5207,7 +3306,7 @@ void UnitsManager_Landing(UnitInfo* unit) {
 void UnitsManager_Loading(UnitInfo* unit) {
     if (unit->Take()) {
         SmartPointer<UnitInfo> parent = unit->GetParent();
-        BaseUnit* base_unit = &UnitsManager_BaseUnits[parent->GetUnitType()];
+        const Unit& base_unit = ResourceManager_GetUnit(parent->GetUnitType());
 
         unit->SetOrder(ORDER_AWAIT);
         unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
@@ -5220,7 +3319,7 @@ void UnitsManager_Loading(UnitInfo* unit) {
         if (GameManager_SelectedUnit == unit) {
             char message[400];
 
-            sprintf(message, _(c15c), base_unit->GetSingularName(), parent->unit_id);
+            sprintf(message, _(c15c), base_unit.GetSingularName().data(), parent->unit_id);
 
             MessageManager_DrawMessage(message, 0, 0);
         }
@@ -5230,7 +3329,7 @@ void UnitsManager_Loading(UnitInfo* unit) {
 void UnitsManager_Unloading(UnitInfo* unit) {
     if (unit->Take()) {
         SmartPointer<UnitInfo> parent = unit->GetParent();
-        BaseUnit* base_unit = &UnitsManager_BaseUnits[parent->GetUnitType()];
+        const Unit& base_unit = ResourceManager_GetUnit(parent->GetUnitType());
 
         unit->SetOrder(ORDER_AWAIT);
         unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
@@ -5243,7 +3342,7 @@ void UnitsManager_Unloading(UnitInfo* unit) {
         if (GameManager_SelectedUnit == unit) {
             char message[400];
 
-            sprintf(message, _(60f3), base_unit->GetSingularName(), parent->unit_id);
+            sprintf(message, _(60f3), base_unit.GetSingularName().data(), parent->unit_id);
 
             MessageManager_DrawMessage(message, 0, 0);
         }
@@ -5358,10 +3457,9 @@ void UnitsManager_DeployMasterBuilder(UnitInfo* unit) {
     power_generator = UnitsManager_DeployUnit(POWGEN, unit_team, mining_station->GetComplex(), mining_station_grid_x,
                                               mining_station_grid_y, 0);
 
-    small_slab = UnitsManager_DeployUnit(
-        SMLSLAB, unit_team, nullptr, power_generator_grid_x, power_generator_grid_y,
-        Randomizer_Generate(
-            reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[SMLSLAB].data_buffer)->image_count));
+    small_slab =
+        UnitsManager_DeployUnit(SMLSLAB, unit_team, nullptr, power_generator_grid_x, power_generator_grid_y,
+                                Randomizer_Generate(ResourceManager_GetUnit(SMLSLAB).GetFrameInfo().image_count));
 
     UnitsManager_SetInitialMining(&*mining_station, mining_station_grid_x, mining_station_grid_y);
 
@@ -5601,7 +3699,7 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
 
         cargo_amount = unit->GetNormalRateBuildCost() / 2;
 
-        if (UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
+        if (ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType() == Unit::CargoType::CARGO_TYPE_RAW) {
             cargo_amount += unit->storage;
         }
     }
@@ -5673,9 +3771,7 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
     }
 
     if (rubble_type != INVALID_ID) {
-        int32_t image_index =
-            reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[rubble_type].data_buffer)->image_count -
-            1;
+        int32_t image_index = ResourceManager_GetUnit(rubble_type).GetFrameInfo().image_count - 1;
 
         image_index = Randomizer_Generate(image_index + 1);
 
@@ -5876,21 +3972,21 @@ void UnitsManager_StartExplosion(UnitInfo* unit) {
             unit_type = LNDEXPLD;
         }
 
-        BaseUnit* base_unit = &UnitsManager_BaseUnits[unit_type];
+        {
+            auto& base_unit = ResourceManager_GetUnit(unit_type);
 
-        base_unit->flags &= ~(MISSILE_UNIT | MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | STATIONARY);
+            if (unit_flags & GROUND_COVER) {
+                base_unit.SetFlags(MOBILE_LAND_UNIT);
 
-        if (unit_flags & GROUND_COVER) {
-            base_unit->flags |= MOBILE_LAND_UNIT;
+            } else if (unit_flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
+                base_unit.SetFlags(STATIONARY);
 
-        } else if (unit_flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
-            base_unit->flags |= STATIONARY;
+            } else if (unit_flags & STATIONARY) {
+                base_unit.SetFlags(MOBILE_AIR_UNIT);
 
-        } else if (unit_flags & STATIONARY) {
-            base_unit->flags |= MOBILE_AIR_UNIT;
-
-        } else {
-            base_unit->flags |= MISSILE_UNIT;
+            } else {
+                base_unit.SetFlags(MISSILE_UNIT);
+            }
         }
 
         explosion = UnitsManager_DeployUnit(unit_type, unit->team, nullptr, unit->grid_x, unit->grid_y, 0, true);
@@ -6162,7 +4258,7 @@ void UnitsManager_Repair(UnitInfo* unit) {
 void UnitsManager_Transfer(UnitInfo* unit) {
     SmartPointer<UnitInfo> source(unit);
     SmartPointer<UnitInfo> target(unit->GetParent());
-    int32_t cargo_type = UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type;
+    Unit::CargoType cargo_type = ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType();
     int32_t transfer_amount = unit->transfer_cargo;
 
     if (transfer_amount < 0) {
@@ -6172,7 +4268,7 @@ void UnitsManager_Transfer(UnitInfo* unit) {
         transfer_amount = labs(transfer_amount);
     }
 
-    if (cargo_type == CARGO_TYPE_RAW) {
+    if (cargo_type == Unit::CargoType::CARGO_TYPE_RAW) {
         target->TransferRaw(transfer_amount);
 
         if (source->GetComplex()) {
@@ -6192,7 +4288,7 @@ void UnitsManager_Transfer(UnitInfo* unit) {
             source->GetComplex()->material += transfer_amount;
         }
 
-    } else if (cargo_type == CARGO_TYPE_FUEL) {
+    } else if (cargo_type == Unit::CargoType::CARGO_TYPE_FUEL) {
         target->TransferFuel(transfer_amount);
 
         if (source->GetComplex()) {
@@ -6211,7 +4307,7 @@ void UnitsManager_Transfer(UnitInfo* unit) {
         }
 
     } else {
-        SDL_assert(cargo_type == CARGO_TYPE_GOLD);
+        SDL_assert(cargo_type == Unit::CargoType::CARGO_TYPE_GOLD);
 
         target->TransferGold(transfer_amount);
 
@@ -6633,13 +4729,14 @@ bool UnitsManager_CheckReaction(UnitInfo* unit1, UnitInfo* unit2) {
 
         if (GameManager_PlayerTeam == unit1->team) {
             const char* const UnitsManager_ReactionsToEnemy[] = {_(1b93), _(5a01), _(eb57)};
-            BaseUnit* base_unit = &UnitsManager_BaseUnits[unit2->GetUnitType()];
+            const Unit& base_unit = ResourceManager_GetUnit(unit2->GetUnitType());
             Point position(unit1->grid_x, unit1->grid_y);
             SmartString message;
 
-            message.Sprintf(150, UnitsManager_ReactionsToEnemy[base_unit->gender],
-                            UnitsManager_BaseUnits[unit1->GetUnitType()].GetSingularName(), unit1->grid_x + 1,
-                            unit1->grid_y + 1, base_unit->GetSingularName(), unit2->grid_x + 1, unit2->grid_y + 1);
+            message.Sprintf(150, UnitsManager_ReactionsToEnemy[base_unit.GetGender()],
+                            ResourceManager_GetUnit(unit1->GetUnitType()).GetSingularName().data(), unit1->grid_x + 1,
+                            unit1->grid_y + 1, base_unit.GetSingularName().data(), unit2->grid_x + 1,
+                            unit2->grid_y + 1);
 
             MessageManager_DrawMessage(message.GetCStr(), 0, unit1, position);
         }
@@ -6908,11 +5005,10 @@ bool UnitsManager_IsAccessible(uint16_t team, ResourceID unit_type, int32_t grid
 }
 
 bool UnitsManager_IssueBuildOrder(UnitInfo* unit, int16_t* grid_x, int16_t* grid_y, ResourceID unit_type) {
-    BaseUnit* base_unit;
+    const Unit& base_unit = ResourceManager_GetUnit(unit_type);
     bool result;
     uint16_t team;
 
-    base_unit = &UnitsManager_BaseUnits[unit_type];
     team = unit->team;
 
     if (unit->flags & STATIONARY) {
@@ -6921,7 +5017,7 @@ bool UnitsManager_IssueBuildOrder(UnitInfo* unit, int16_t* grid_x, int16_t* grid
     } else {
         Hash_MapHash.Remove(unit);
 
-        if (base_unit->flags & BUILDING) {
+        if (base_unit.GetFlags() & BUILDING) {
             result = UnitsManager_IsAccessible(team, unit_type, *grid_x, *grid_y) ||
                      UnitsManager_IsAccessible(team, unit_type, *grid_x, --*grid_y) ||
                      UnitsManager_IsAccessible(team, unit_type, --*grid_x, *grid_y) ||

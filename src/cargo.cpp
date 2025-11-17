@@ -22,6 +22,7 @@
 #include "cargo.hpp"
 
 #include "inifile.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 static void Cargo_ApplyUnitConsumption(const ResourceID unit_type, const int32_t build_speed_multiplier, Cargo& cargo);
@@ -29,16 +30,16 @@ static void Cargo_ApplyUnitConsumption(const ResourceID unit_type, const int32_t
 Cargo Cargo_GetInventory(UnitInfo* const unit) {
     Cargo cargo;
 
-    switch (UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type) {
-        case MATERIALS: {
+    switch (ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType()) {
+        case Unit::CARGO_TYPE_RAW: {
             cargo.raw += unit->storage;
         } break;
 
-        case FUEL: {
+        case Unit::CARGO_TYPE_FUEL: {
             cargo.fuel += unit->storage;
         } break;
 
-        case GOLD: {
+        case Unit::CARGO_TYPE_GOLD: {
             cargo.gold += unit->storage;
         } break;
     }
@@ -49,16 +50,16 @@ Cargo Cargo_GetInventory(UnitInfo* const unit) {
 Cargo Cargo_GetCargoCapacity(UnitInfo* const unit) {
     Cargo cargo;
 
-    switch (UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type) {
-        case MATERIALS: {
+    switch (ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType()) {
+        case Unit::CARGO_TYPE_RAW: {
             cargo.raw += unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
         } break;
 
-        case FUEL: {
+        case Unit::CARGO_TYPE_FUEL: {
             cargo.fuel += unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
         } break;
 
-        case GOLD: {
+        case Unit::CARGO_TYPE_GOLD: {
             cargo.gold += unit->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
         } break;
     }

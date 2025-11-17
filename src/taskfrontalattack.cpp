@@ -30,6 +30,7 @@
 #include "inifile.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 void TaskFrontalAttack::MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
@@ -313,7 +314,7 @@ int32_t TaskFrontalAttack::GetCautionLevel(UnitInfo& unit) {
 std::string TaskFrontalAttack::WriteStatusLog() const {
     if (spotted_unit && spotted_unit->GetUnit() && spotted_unit->GetUnit()->hits > 0) {
         return std::format("Frontal attack on {} in [{},{}]",
-                           UnitsManager_BaseUnits[spotted_unit->GetUnit()->GetUnitType()].GetSingularName(),
+                           ResourceManager_GetUnit(spotted_unit->GetUnit()->GetUnitType()).GetSingularName().data(),
                            spotted_unit->GetLastPositionX() + 1, spotted_unit->GetLastPositionY() + 1);
     } else {
         return "Completed frontal attack.";

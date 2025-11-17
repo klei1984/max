@@ -28,6 +28,7 @@
 #include "taskgetmaterials.hpp"
 #include "taskmove.hpp"
 #include "taskrepair.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 void TaskSupportAttack::ObtainUnits(uint32_t unit_flags_) {
@@ -100,7 +101,8 @@ bool TaskSupportAttack::IssueOrders(UnitInfo* unit) {
     bool result;
 
     if (unit->IsReadyForOrders(this) && m_parent && unit->speed > 0) {
-        AILOG(log, "Support attack: give orders to {}.", UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
+        AILOG(log, "Support attack: give orders to {}.",
+              ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
         if (unit->ammo >= unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {
             if (unit->hits < unit->GetBaseValues()->GetAttribute(ATTRIB_HITS) / 4) {
@@ -208,7 +210,8 @@ void TaskSupportAttack::EndTurn() { AddReminders(); }
 bool TaskSupportAttack::Execute(UnitInfo& unit) {
     bool result;
 
-    AILOG(log, "Support attack: think about moving {}", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
+    AILOG(log, "Support attack: think about moving {}",
+          ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data());
 
     if (m_parent) {
         if (unit.IsReadyForOrders(this)) {

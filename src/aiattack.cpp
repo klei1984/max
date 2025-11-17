@@ -34,6 +34,7 @@
 #include "tasktransport.hpp"
 #include "taskwaittoattack.hpp"
 #include "transportermap.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 #include "zonewalker.hpp"
 
@@ -182,7 +183,7 @@ bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, i
 
     if (mode) {
         distance1 = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE) + unit->speed;
-        if ((UnitsManager_BaseUnits[unit->GetUnitType()].land_type & (SURFACE_TYPE_LAND | SURFACE_TYPE_WATER)) ==
+        if ((ResourceManager_GetUnit(unit->GetUnitType()).GetLandType() & (SURFACE_TYPE_LAND | SURFACE_TYPE_WATER)) ==
                 (SURFACE_TYPE_LAND | SURFACE_TYPE_WATER) &&
             !(unit->flags & MOBILE_AIR_UNIT)) {
             mode = false;
@@ -558,7 +559,7 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
     int32_t minimum_damage = 32000;
     int32_t unit_scan = base_values->GetAttribute(ATTRIB_SCAN);
     int32_t unit_range = base_values->GetAttribute(ATTRIB_RANGE);
-    uint8_t surface_type = UnitsManager_BaseUnits[unit->GetUnitType()].land_type;
+    uint8_t surface_type = ResourceManager_GetUnit(unit->GetUnitType()).GetLandType();
     Point unit_position;
     bool teams[PLAYER_TEAM_MAX];
     int32_t distance;

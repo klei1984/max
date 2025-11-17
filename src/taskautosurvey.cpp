@@ -29,6 +29,7 @@
 #include "task_manager.hpp"
 #include "ticktimer.hpp"
 #include "transportermap.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 TaskAutoSurvey::TaskAutoSurvey(UnitInfo* unit_) : Task(unit_->team, nullptr, TASK_PRIORITY_AUTO_SURVEY) {
@@ -68,8 +69,9 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
     bool result;
 
     if (unit == unit_ && unit->IsReadyForOrders(this) && GameManager_IsActiveTurn(m_team) && unit->speed > 0) {
-        AILOG(log, "Auto survey: Move {} at [{},{}]", UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(),
-              unit->grid_x + 1, unit->grid_y + 1);
+        AILOG(log, "Auto survey: Move {} at [{},{}]",
+              ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), unit->grid_x + 1,
+              unit->grid_y + 1);
 
         uint16_t hash_team_id = UnitsManager_TeamInfo[m_team].team_units->hash_team_id;
         TransporterMap map(&*unit, 2, CAUTION_LEVEL_AVOID_ALL_DAMAGE);

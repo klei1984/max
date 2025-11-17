@@ -35,6 +35,7 @@
 #include "taskmove.hpp"
 #include "taskmovehome.hpp"
 #include "taskrendezvous.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 static void TaskRepair_RendesvousResultCallback();
@@ -47,7 +48,8 @@ void TaskRepair::ChooseOperator() {
     if (target_unit != nullptr) {
         operator_unit = nullptr;
 
-        AILOG(log, "Choose unit to repair {}.", UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName());
+        AILOG(log, "Choose unit to repair {}.",
+              ResourceManager_GetUnit(target_unit->GetUnitType()).GetSingularName().data());
 
         unit = SelectRepairShop();
 
@@ -71,7 +73,7 @@ void TaskRepair::ChooseOperator() {
         }
 
         if (operator_unit != nullptr) {
-            AILOG_LOG(log, "Found {}.", UnitsManager_BaseUnits[operator_unit->GetUnitType()].GetSingularName());
+            AILOG_LOG(log, "Found {}.", ResourceManager_GetUnit(operator_unit->GetUnitType()).GetSingularName().data());
 
             operator_unit->AddTask(this);
         }
@@ -84,7 +86,7 @@ void TaskRepair::DoRepairs() {
         if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
             if (GameManager_IsActiveTurn(m_team)) {
                 AILOG(log, "Repair/reload {}: perform repair.",
-                      UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName());
+                      ResourceManager_GetUnit(target_unit->GetUnitType()).GetSingularName().data());
 
                 if (operator_unit->flags & STATIONARY) {
                     Cargo materials;
@@ -99,7 +101,7 @@ void TaskRepair::DoRepairs() {
 
                     } else {
                         AILOG_LOG(log, "{} has no material.",
-                                  UnitsManager_BaseUnits[operator_unit->GetUnitType()].GetSingularName());
+                                  ResourceManager_GetUnit(operator_unit->GetUnitType()).GetSingularName().data());
                     }
 
                 } else if (operator_unit->storage > 0) {
@@ -191,7 +193,7 @@ ResourceID TaskRepair::GetRepairShopType() {
 void TaskRepair::CreateUnitIfNeeded(ResourceID unit_type) {
     SmartList<UnitInfo>* unit_list;
 
-    if (UnitsManager_BaseUnits[unit_type].flags & STATIONARY) {
+    if (ResourceManager_GetUnit(unit_type).GetFlags() & STATIONARY) {
         unit_list = &UnitsManager_StationaryUnits;
 
     } else {
@@ -214,7 +216,7 @@ void TaskRepair::CreateUnitIfNeeded(ResourceID unit_type) {
         }
     }
 
-    if (UnitsManager_BaseUnits[unit_type].flags & STATIONARY) {
+    if (ResourceManager_GetUnit(unit_type).GetFlags() & STATIONARY) {
         AiPlayer_Teams[m_team].CreateBuilding(unit_type, Point(target_unit->grid_x, target_unit->grid_y), this);
 
     } else {
@@ -233,7 +235,7 @@ bool TaskRepair::IsUnitTransferable(UnitInfo& unit) { return target_unit != unit
 
 std::string TaskRepair::WriteStatusLog() const {
     if (target_unit != nullptr) {
-        return std::format("Repair {}", UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName());
+        return std::format("Repair {}", ResourceManager_GetUnit(target_unit->GetUnitType()).GetSingularName().data());
 
     } else {
         return "Finished repair task.";
@@ -269,7 +271,8 @@ bool TaskRepair::Execute(UnitInfo& unit) {
     bool result;
 
     if (target_unit == unit && target_unit->GetTask() == this) {
-        AILOG(log, "Repair/reload {} move unit.", UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName());
+        AILOG(log, "Repair/reload {} move unit.",
+              ResourceManager_GetUnit(target_unit->GetUnitType()).GetSingularName().data());
 
         if (IsInPerfectCondition()) {
             SmartPointer<Task> task;
@@ -313,8 +316,8 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                 if (target_unit->GetOrderState() == ORDER_STATE_STORE) {
                     if (GameManager_IsActiveTurn(m_team)) {
                         AILOG_LOG(log, "{} is inside {}.",
-                                  UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName(),
-                                  UnitsManager_BaseUnits[operator_unit->GetUnitType()].GetSingularName());
+                                  ResourceManager_GetUnit(target_unit->GetUnitType()).GetSingularName().data(),
+                                  ResourceManager_GetUnit(operator_unit->GetUnitType()).GetSingularName().data());
 
                         DoRepairs();
                     }
@@ -326,7 +329,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                         operator_unit->GetTask() != this) {
                         if (Task_IsAdjacent(&*operator_unit, target_unit->grid_x, target_unit->grid_y)) {
                             AILOG_LOG(log, "Adjacent to {}.",
-                                      UnitsManager_BaseUnits[operator_unit->GetUnitType()].GetSingularName());
+                                      ResourceManager_GetUnit(operator_unit->GetUnitType()).GetSingularName().data());
 
                             if (GameManager_PlayMode != PLAY_MODE_UNKNOWN && GameManager_IsActiveTurn(m_team)) {
                                 if (operator_unit->flags & STATIONARY) {
@@ -428,8 +431,8 @@ void TaskRepair::RemoveSelf() {
 }
 
 void TaskRepair::RemoveUnit(UnitInfo& unit) {
-    AILOG(log, "Repair {}: remove {}.", UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName(),
-          UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
+    AILOG(log, "Repair {}: remove {}.", ResourceManager_GetUnit(target_unit->GetUnitType()).GetSingularName().data(),
+          ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data());
 
     if (target_unit == unit) {
         SmartPointer<Task> task(this);

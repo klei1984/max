@@ -26,6 +26,7 @@
 #include "game_manager.hpp"
 #include "message_manager.hpp"
 #include "remote.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 class ProductionManager {
@@ -313,14 +314,14 @@ void ProductionManager::ComposeIndustryMessage(UnitInfo* const unit, const char*
         units.PushBack(&unit_type);
 
         if (selected_unit == unit) {
-            sprintf(text, format1, UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), material);
+            sprintf(text, format1, ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), material);
 
         } else {
             if (buffer[0] == '\0') {
                 strcpy(buffer, _(b441));
             }
 
-            sprintf(text, format2, material, UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
+            sprintf(text, format2, material, ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
         }
 
         strcat(buffer, text);
@@ -336,7 +337,7 @@ bool ProductionManager::PowerOn(ResourceID unit_type) {
 
             units.PushBack(&unit_type);
 
-            sprintf(text, _(0aea), UnitsManager_BaseUnits[unit_type].GetSingularName(), _(ff10));
+            sprintf(text, _(0aea), ResourceManager_GetUnit(unit_type).GetSingularName().data(), _(ff10));
             strcat(buffer, text);
         }
 

@@ -27,6 +27,7 @@
 #include "taskgetresource.hpp"
 #include "taskmove.hpp"
 #include "transportermap.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 static bool TaskRendezvous_SearchLocation(UnitInfo* unit1, UnitInfo* unit2, Point* site);
@@ -138,9 +139,9 @@ std::string TaskRendezvous::WriteStatusLog() const {
         return "Completed rendezvous task.";
     } else {
         std::string result = "Bring ";
-        result += UnitsManager_BaseUnits[unit2->GetUnitType()].GetSingularName();
+        result += ResourceManager_GetUnit(unit2->GetUnitType()).GetSingularName().data();
         result += " and ";
-        result += UnitsManager_BaseUnits[unit1->GetUnitType()].GetSingularName();
+        result += ResourceManager_GetUnit(unit1->GetUnitType()).GetSingularName().data();
         result += " together.";
         return result;
     }

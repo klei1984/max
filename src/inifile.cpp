@@ -28,6 +28,7 @@
 
 #include "gnw.h"
 #include "resource_manager.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 enum IniKeyValueType_e {
@@ -423,7 +424,8 @@ void IniClans::Init() { inifile_load_from_resource(&ini, CLANATRB); }
 
 int32_t IniClans::SeekUnit(int32_t clan, int32_t unit) {
     return inifile_ini_seek_section(&ini, clan_ini_section_name_lut[clan]) &&
-           inifile_ini_seek_param(&ini, UnitsManager_BaseUnits[unit].GetSingularName());
+           inifile_ini_seek_param(&ini,
+                                  ResourceManager_GetUnit(static_cast<ResourceID>(unit)).GetSingularName().data());
 }
 
 int32_t IniClans::GetNextUnitUpgrade(int16_t* attrib_id, int16_t* value) {

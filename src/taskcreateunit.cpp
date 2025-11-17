@@ -32,6 +32,7 @@
 #include "task_manager.hpp"
 #include "taskactivate.hpp"
 #include "taskescort.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 enum {
@@ -65,7 +66,7 @@ uint16_t TaskCreateUnit::GetPriority() const {
 }
 
 std::string TaskCreateUnit::WriteStatusLog() const {
-    std::string result = std::format("Create a {}", UnitsManager_BaseUnits[unit_type].GetSingularName());
+    std::string result = std::format("Create a {}", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
     if (builder && builder->GetBuildRate() > 1) {
         result += " at x2 rate";
@@ -77,7 +78,8 @@ std::string TaskCreateUnit::WriteStatusLog() const {
 uint8_t TaskCreateUnit::GetType() const { return TaskType_TaskCreateUnit; }
 
 void TaskCreateUnit::AddUnit(UnitInfo& unit_) {
-    AILOG(log, "Task Create Unit: Add builder {}.", UnitsManager_BaseUnits[unit_.GetUnitType()].GetSingularName());
+    AILOG(log, "Task Create Unit: Add builder {}.",
+          ResourceManager_GetUnit(unit_.GetUnitType()).GetSingularName().data());
 
     if (op_state == CREATE_UNIT_STATE_OBTAININING_BUILDER && (unit_.flags & STATIONARY)) {
         op_state = CREATE_UNIT_STATE_WAITING_FOR_MATERIALS;
@@ -156,7 +158,7 @@ void TaskCreateUnit::BeginTurn() {
 }
 
 void TaskCreateUnit::EndTurn() {
-    AILOG(log, "Create {}: End Turn.", UnitsManager_BaseUnits[unit_type].GetSingularName());
+    AILOG(log, "Create {}: End Turn.", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
     if (op_state == CREATE_UNIT_STATE_INITIALIZING) {
         const auto builder_type = Builder_GetBuilderType(unit_type);
@@ -192,7 +194,7 @@ bool TaskCreateUnit::Execute(UnitInfo& unit_) {
 }
 
 void TaskCreateUnit::RemoveUnit(UnitInfo& unit_) {
-    AILOG(log, "Task Create Unit: Remove {}.", UnitsManager_BaseUnits[unit_.GetUnitType()].GetSingularName());
+    AILOG(log, "Task Create Unit: Remove {}.", ResourceManager_GetUnit(unit_.GetUnitType()).GetSingularName().data());
 
     if (builder == unit_) {
         if (op_state <= CREATE_UNIT_STATE_BUILDING) {
@@ -352,7 +354,7 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
 
             } else {
                 AILOG(log, "Create {}: aborting, no longer needed.",
-                      UnitsManager_BaseUnits[unit_type].GetSingularName());
+                      ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
                 if (op_state == CREATE_UNIT_STATE_BUILDING && builder) {
                     UnitsManager_SetNewOrder(&*builder, ORDER_HALT_BUILDING, ORDER_STATE_BUILD_CANCEL);

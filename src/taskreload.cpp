@@ -24,6 +24,7 @@
 #include "access.hpp"
 #include "ailog.hpp"
 #include "task_manager.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 TaskReload::TaskReload(UnitInfo* unit) : TaskRepair(unit) {}
@@ -135,8 +136,8 @@ void TaskReload::CreateUnit() {
 }
 
 void TaskReload::IssueOrder() {
-    AILOG(log, "Reloading {} from {}.", UnitsManager_BaseUnits[target_unit->GetUnitType()].GetSingularName(),
-          UnitsManager_BaseUnits[operator_unit->GetUnitType()].GetSingularName());
+    AILOG(log, "Reloading {} from {}.", ResourceManager_GetUnit(target_unit->GetUnitType()).GetSingularName().data(),
+          ResourceManager_GetUnit(operator_unit->GetUnitType()).GetSingularName().data());
 
     operator_unit->SetParent(&*target_unit);
     UnitsManager_SetNewOrder(&*operator_unit, ORDER_RELOAD, ORDER_STATE_INIT);

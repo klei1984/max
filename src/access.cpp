@@ -33,6 +33,7 @@
 #include "remote.hpp"
 #include "resource_manager.hpp"
 #include "survey.hpp"
+#include "unit.hpp"
 #include "unitevents.hpp"
 #include "units_manager.hpp"
 
@@ -106,7 +107,7 @@ uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x
     uint32_t unit_flags;
     uint32_t result;
 
-    unit_flags = UnitsManager_BaseUnits[unit_type].flags;
+    unit_flags = ResourceManager_GetUnit(unit_type).GetFlags();
 
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
         result = 4;
@@ -237,7 +238,7 @@ uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x
                 }
             }
 
-            if (!(UnitsManager_BaseUnits[unit_type].land_type & surface_type)) {
+            if (!(ResourceManager_GetUnit(unit_type).GetLandType() & surface_type)) {
                 result = 0;
             }
         }
@@ -829,7 +830,7 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
 
                     if (friendly_target_class & enemy_target_class) {
                         AILOG(log, "Access: {} at [{},{}] spotted enemies",
-                              UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), unit->grid_x + 1,
+                              ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), unit->grid_x + 1,
                               unit->grid_y + 1);
 
                         if (unit->GetUnitList()) {
@@ -1807,11 +1808,11 @@ bool Access_IsValidAttackTargetEx(ResourceID attacker, ResourceID target, uint32
 }
 
 bool Access_IsValidAttackTargetType(ResourceID attacker, ResourceID target) {
-    return Access_IsValidAttackTargetTypeEx(attacker, target, UnitsManager_BaseUnits[target].flags);
+    return Access_IsValidAttackTargetTypeEx(attacker, target, ResourceManager_GetUnit(target).GetFlags());
 }
 
 bool Access_IsValidAttackTarget(ResourceID attacker, ResourceID target, Point point) {
-    return Access_IsValidAttackTargetEx(attacker, target, UnitsManager_BaseUnits[target].flags, point);
+    return Access_IsValidAttackTargetEx(attacker, target, ResourceManager_GetUnit(target).GetFlags(), point);
 }
 
 bool Access_IsUnitBusyAtLocation(UnitInfo* unit) {

@@ -28,6 +28,7 @@
 #include "complex.hpp"
 #include "game_manager.hpp"
 #include "task_manager.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 TaskGetMaterials::TaskGetMaterials(Task* task, UnitInfo* unit, uint16_t materials_needed_)
@@ -63,7 +64,7 @@ std::string TaskGetMaterials::WriteStatusLog() const {
                 }
 
                 result += std::format("get {} from ", remaining_demand);
-                result += UnitsManager_BaseUnits[source->GetUnitType()].GetSingularName();
+                result += ResourceManager_GetUnit(source->GetUnitType()).GetSingularName().data();
 
             } else {
                 result += "waiting for source.";
@@ -161,9 +162,9 @@ void TaskGetMaterials::DoTransfer() {
         SDL_assert(GameManager_IsActiveTurn(m_team));
 
         AILOG_LOG(log, "Order {} materials from {} at [{},{}] for {} at [{},{}] holding {} materials.",
-                  source->transfer_cargo, UnitsManager_BaseUnits[source->GetUnitType()].GetSingularName(),
+                  source->transfer_cargo, ResourceManager_GetUnit(source->GetUnitType()).GetSingularName().data(),
                   source->grid_x + 1, source->grid_y + 1,
-                  UnitsManager_BaseUnits[requestor->GetUnitType()].GetSingularName(), requestor->grid_x + 1,
+                  ResourceManager_GetUnit(requestor->GetUnitType()).GetSingularName().data(), requestor->grid_x + 1,
                   requestor->grid_y + 1, requestor->storage);
 
         UnitsManager_SetNewOrder(source.Get(), ORDER_TRANSFER, ORDER_STATE_INIT);
@@ -181,7 +182,7 @@ UnitInfo* TaskGetMaterials::FindBuilding() {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == m_team && (*it).storage > 0 && (*it).hits > 0 &&
-            UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
+            ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == Unit::CargoType::CARGO_TYPE_RAW) {
             UnitInfo* candidate_building = FindClosestBuilding((*it).GetComplex());
 
             const int32_t distance = Access_GetApproximateDistance(candidate_building, it->Get());
@@ -204,7 +205,8 @@ void TaskGetMaterials::FindTruck() {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == m_team && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW &&
+        if ((*it).team == m_team &&
+            ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == Unit::CargoType::CARGO_TYPE_RAW &&
             (*it).storage > 0 && (*it).hits > 0 &&
             ((*it).GetOrder() == ORDER_AWAIT || ((*it).GetOrder() == ORDER_MOVE && (*it).speed == 0)) &&
             requestor != *it) {

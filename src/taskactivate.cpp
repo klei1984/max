@@ -28,6 +28,7 @@
 #include "aiplayer.hpp"
 #include "game_manager.hpp"
 #include "task_manager.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 TaskActivate::TaskActivate(UnitInfo* unit, Task* task, UnitInfo* parent_)
@@ -62,9 +63,9 @@ void TaskActivate::Activate() {
                             }
 
                             AILOG(log, "Activate {} {} at [{},{}] from {} {} at [{},{}].",
-                                  UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].GetSingularName(),
+                                  ResourceManager_GetUnit(unit_to_activate->GetUnitType()).GetSingularName().data(),
                                   unit_to_activate->unit_id, unit_to_activate->grid_x + 1, unit_to_activate->grid_y + 1,
-                                  UnitsManager_BaseUnits[unit_parent->GetUnitType()].GetSingularName(),
+                                  ResourceManager_GetUnit(unit_parent->GetUnitType()).GetSingularName().data(),
                                   unit_parent->unit_id, unit_parent->grid_x + 1, unit_parent->grid_y + 1);
 
                             if (unit_to_activate->GetOrder() != ORDER_IDLE || unit_parent->GetOrder() == ORDER_BUILD ||
@@ -159,7 +160,7 @@ void TaskActivate::Activate() {
 
                             } else {
                                 AILOG_LOG(log, "{} is not ready for orders.",
-                                          UnitsManager_BaseUnits[unit_parent->GetUnitType()].GetSingularName());
+                                          ResourceManager_GetUnit(unit_parent->GetUnitType()).GetSingularName().data());
                             }
                         }
                     }
@@ -174,10 +175,10 @@ bool TaskActivate::IsUnitTransferable(UnitInfo& unit) { return unit_to_activate 
 std::string TaskActivate::WriteStatusLog() const {
     if (unit_to_activate && unit_parent) {
         return std::format("Activate {} {} at [{},{}] from {} {} at [{},{}].",
-                           UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].GetSingularName(),
+                           ResourceManager_GetUnit(unit_to_activate->GetUnitType()).GetSingularName().data(),
                            unit_to_activate->unit_id, unit_to_activate->grid_x + 1, unit_to_activate->grid_y + 1,
-                           UnitsManager_BaseUnits[unit_parent->GetUnitType()].GetSingularName(), unit_parent->unit_id,
-                           unit_parent->grid_x + 1, unit_parent->grid_y + 1);
+                           ResourceManager_GetUnit(unit_parent->GetUnitType()).GetSingularName().data(),
+                           unit_parent->unit_id, unit_parent->grid_x + 1, unit_parent->grid_y + 1);
     } else {
         return "Activate unit.";
     }
@@ -233,7 +234,7 @@ bool TaskActivate::Execute(UnitInfo& unit) {
 
             if (!Access_IsInsideBounds(&bounds, &position)) {
                 AILOG(log, "Completed activation of {} {}.",
-                      UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].GetSingularName(),
+                      ResourceManager_GetUnit(unit_to_activate->GetUnitType()).GetSingularName().data(),
                       unit_to_activate->unit_id);
 
                 unit_to_activate->RemoveTask(this);
@@ -284,7 +285,7 @@ void TaskActivate::RemoveSelf() {
 void TaskActivate::RemoveUnit(UnitInfo& unit) {
     if (unit_to_activate == unit) {
         AILOG(log, "Removing {} from Activate Unit.",
-              UnitsManager_BaseUnits[unit_to_activate->GetUnitType()].GetSingularName());
+              ResourceManager_GetUnit(unit_to_activate->GetUnitType()).GetSingularName().data());
 
         unit_to_activate = nullptr;
         zone = nullptr;

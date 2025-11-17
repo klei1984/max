@@ -752,9 +752,7 @@ void GameManager_DeployUnit(uint16_t team, ResourceID unit_type, int32_t grid_x,
         }
 
         UnitsManager_DeployUnit(slab_type, team, nullptr, grid_x, grid_y,
-                                Randomizer_Generate(reinterpret_cast<struct BaseUnitDataFile*>(
-                                                        UnitsManager_BaseUnits[slab_type].data_buffer)
-                                                        ->image_count));
+                                Randomizer_Generate(ResourceManager_GetUnit(slab_type).GetFrameInfo().image_count));
     }
 
     if (unit_type == MININGST) {
@@ -2347,7 +2345,7 @@ uint16_t GameManager_GetUnitListChecksum(SmartList<UnitInfo>* units, uint16_t te
 
                 crc_checksum = GameManager_GetCrc16((*it).shots, crc_checksum);
 
-                if (UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type) {
+                if (ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType()) {
                     crc_checksum = GameManager_GetCrc16((*it).storage, crc_checksum);
                 }
 
@@ -2794,8 +2792,10 @@ void GameManager_ProcessCheatCodes() {
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
                     if ((*it).team == GameManager_PlayerTeam &&
-                        UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type >= CARGO_TYPE_RAW &&
-                        UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type <= CARGO_TYPE_GOLD) {
+                        ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() >=
+                            Unit::CargoType::CARGO_TYPE_RAW &&
+                        ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() <=
+                            Unit::CargoType::CARGO_TYPE_GOLD) {
                         (*it).storage = (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
                     }
                 }
@@ -2803,8 +2803,10 @@ void GameManager_ProcessCheatCodes() {
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
                      it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
                     if ((*it).team == GameManager_PlayerTeam &&
-                        UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type >= CARGO_TYPE_RAW &&
-                        UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type <= CARGO_TYPE_GOLD) {
+                        ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() >=
+                            Unit::CargoType::CARGO_TYPE_RAW &&
+                        ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() <=
+                            Unit::CargoType::CARGO_TYPE_GOLD) {
                         (*it).storage = (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
                     }
                 }
@@ -2953,11 +2955,6 @@ void GameManager_InitUnitsAndGameState() {
     WindowManager_LoadPalette(FRAMEPIC);
 
     UnitsManager_InitPopupMenus();
-
-    for (int32_t i = 0; i < UNIT_END; ++i) {
-        UnitsManager_BaseUnits[i].Init(&UnitsManager_AbstractUnits[i]);
-        MouseEvent::ProcessInput();
-    }
 
     for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX; ++i) {
         ResourceManager_InitClanUnitValues(i);
@@ -3415,8 +3412,9 @@ void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
 
     switch (event) {
         case 0: {
-            sprintf(text, GameManager_EventStrings_EnemySpotted[UnitsManager_BaseUnits[unit->GetUnitType()].gender],
-                    UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
+            sprintf(text,
+                    GameManager_EventStrings_EnemySpotted[ResourceManager_GetUnit(unit->GetUnitType()).GetGender()],
+                    ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
             if (!GameManager_IsInsideMapView(unit) && timer_elapsed_time(GameManager_NotifyTimeout) > 5000) {
                 resource_id1 = V_M070;
@@ -3429,7 +3427,7 @@ void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
 
         case 1: {
             sprintf(text, unit->hits ? _(fd20) : _(73cc),
-                    UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
+                    ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
             if (unit->hits && !GameManager_IsInsideMapView(unit)) {
                 resource_id1 = V_M229;
@@ -3444,28 +3442,28 @@ void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
         } break;
 
         case 2: {
-            sprintf(text, _(3206), UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
+            sprintf(text, _(3206), ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
             resource_id1 = V_M243;
             resource_id2 = V_F243;
         } break;
 
         case 3: {
-            sprintf(text, _(20c3), UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
+            sprintf(text, _(20c3), ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
             resource_id1 = V_M249;
             resource_id2 = V_F249;
         } break;
 
         case 4: {
-            sprintf(text, _(f900), UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
+            sprintf(text, _(f900), ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
             resource_id1 = V_M012;
             resource_id2 = V_F012;
         } break;
 
         case 5: {
-            sprintf(text, _(eb6c), UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName());
+            sprintf(text, _(eb6c), ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
             resource_id1 = V_M012;
             resource_id2 = V_F012;
@@ -4459,8 +4457,12 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
                         GameManager_IsValidTransferTarget(GameManager_Unit, &*GameManager_SelectedUnit)) {
                         switch (GameManager_SelectedUnit->cursor) {
                             case CURSOR_ARROW_NE: {
-                                if (UnitsManager_BaseUnits[GameManager_SelectedUnit->GetUnitType()].cargo_type ==
-                                        UnitsManager_BaseUnits[GameManager_Unit->GetUnitType()].cargo_type &&
+                                if (ResourceManager_GetUnit(
+                                        static_cast<ResourceID>(GameManager_SelectedUnit->GetUnitType()))
+                                            .GetCargoType() ==
+                                        ResourceManager_GetUnit(
+                                            static_cast<ResourceID>(GameManager_Unit->GetUnitType()))
+                                            .GetCargoType() &&
                                     GameManager_Unit->GetOrder() != ORDER_CLEAR &&
                                     GameManager_Unit->GetOrder() != ORDER_BUILD) {
                                     return CURSOR_TRANSFER;
@@ -4566,11 +4568,11 @@ void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
         SoundManager_PlaySfx(NCANC0);
         MessageManager_DrawMessage(_(42b7), 1, 0);
 
-    } else if (UnitsManager_BaseUnits[unit1->GetUnitType()].cargo_type ==
-                   UnitsManager_BaseUnits[unit2->GetUnitType()].cargo_type ||
+    } else if (ResourceManager_GetUnit(unit1->GetUnitType()).GetCargoType() ==
+                   ResourceManager_GetUnit(unit2->GetUnitType()).GetCargoType() ||
                (unit2->GetComplex() && (unit2->flags & STATIONARY) &&
                 (unit2 = GameManager_GetUnitWithCargoType(
-                     unit2->GetComplex(), UnitsManager_BaseUnits[unit1->GetUnitType()].cargo_type)) != nullptr)) {
+                     unit2->GetComplex(), ResourceManager_GetUnit(unit1->GetUnitType()).GetCargoType())) != nullptr)) {
         int32_t cargo_transferred;
 
         unit1->SetParent(unit2);
@@ -4586,16 +4588,16 @@ void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
 
             cargo_transferred = labs(cargo_transferred);
 
-            switch (UnitsManager_BaseUnits[unit1->GetUnitType()].cargo_type) {
-                case CARGO_TYPE_RAW: {
+            switch (ResourceManager_GetUnit(unit1->GetUnitType()).GetCargoType()) {
+                case Unit::CargoType::CARGO_TYPE_RAW: {
                     sprintf(message, _(ea89), cargo_transferred);
                 } break;
 
-                case CARGO_TYPE_FUEL: {
+                case Unit::CargoType::CARGO_TYPE_FUEL: {
                     sprintf(message, _(311d), cargo_transferred);
                 } break;
 
-                case CARGO_TYPE_GOLD: {
+                case Unit::CargoType::CARGO_TYPE_GOLD: {
                     sprintf(message, _(9880), cargo_transferred);
                 } break;
             }
@@ -4925,10 +4927,8 @@ void GameManager_ProcessTeamMissionSupplyUnits(uint16_t team) {
     ++UnitsManager_TeamInfo[team].stats_mines_built;
     ++UnitsManager_TeamInfo[team].stats_buildings_built;
 
-    UnitsManager_DeployUnit(
-        LRGSLAB, team, nullptr, mining_station_location.x, mining_station_location.y,
-        Randomizer_Generate(
-            reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[LRGSLAB].data_buffer)->image_count));
+    UnitsManager_DeployUnit(LRGSLAB, team, nullptr, mining_station_location.x, mining_station_location.y,
+                            Randomizer_Generate(ResourceManager_GetUnit(LRGSLAB).GetFrameInfo().image_count));
 
     UnitsManager_SetInitialMining(&*mining_station, mining_station_location.x, mining_station_location.y);
 
@@ -4940,10 +4940,8 @@ void GameManager_ProcessTeamMissionSupplyUnits(uint16_t team) {
     power_generator->SetOrder(ORDER_POWER_ON);
     power_generator->SetOrderState(ORDER_STATE_INIT);
 
-    UnitsManager_DeployUnit(
-        SMLSLAB, team, nullptr, power_generator_location.x, power_generator_location.y,
-        Randomizer_Generate(
-            reinterpret_cast<struct BaseUnitDataFile*>(UnitsManager_BaseUnits[SMLSLAB].data_buffer)->image_count));
+    UnitsManager_DeployUnit(SMLSLAB, team, nullptr, power_generator_location.x, power_generator_location.y,
+                            Randomizer_Generate(ResourceManager_GetUnit(SMLSLAB).GetFrameInfo().image_count));
 
     UnitsManager_UpdateConnectors(&*power_generator);
 
@@ -5239,8 +5237,8 @@ bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo>& units) {
             ((*it).GetOrder() == ORDER_MOVE_TO_UNIT && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER)) {
             char text[200];
 
-            sprintf(text, _(dcc6), UnitsManager_BaseUnits[(*it).GetUnitType()].GetSingularName(), (*it).grid_x + 1,
-                    (*it).grid_y + 1, GameManager_OrderStatusMessages[(*it).GetOrder()]);
+            sprintf(text, _(dcc6), ResourceManager_GetUnit((*it).GetUnitType()).GetSingularName().data(),
+                    (*it).grid_x + 1, (*it).grid_y + 1, GameManager_OrderStatusMessages[(*it).GetOrder()]);
 
             MessageManager_DrawMessage(text, 0, 0);
 
@@ -5828,7 +5826,8 @@ bool GameManager_IsUnitNotInAir(UnitInfo* unit) {
 UnitInfo* GameManager_GetUnitWithCargoType(Complex* complex, int32_t cargo_type) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).GetComplex() == complex && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == cargo_type) {
+        if ((*it).GetComplex() == complex &&
+            ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == cargo_type) {
             return &(*it);
         }
     }
@@ -5892,8 +5891,8 @@ int32_t GameManager_GetUnitActionCursor(UnitInfo* unit1, int32_t grid_x, int32_t
                 GameManager_Unit != unit1 && GameManager_Unit->hits > 0) {
                 switch (unit1->cursor) {
                     case CURSOR_ARROW_NE: {
-                        if (UnitsManager_BaseUnits[unit1->GetUnitType()].cargo_type ==
-                                UnitsManager_BaseUnits[GameManager_Unit->GetUnitType()].cargo_type &&
+                        if (ResourceManager_GetUnit(unit1->GetUnitType()).GetCargoType() ==
+                                ResourceManager_GetUnit(GameManager_Unit->GetUnitType()).GetCargoType() &&
                             GameManager_Unit->GetOrder() != ORDER_CLEAR &&
                             GameManager_Unit->GetOrder() != ORDER_BUILD) {
                             result = CURSOR_TRANSFER;
@@ -5901,7 +5900,7 @@ int32_t GameManager_GetUnitActionCursor(UnitInfo* unit1, int32_t grid_x, int32_t
                         } else if (!(unit1->flags & STATIONARY) && (GameManager_Unit->flags & STATIONARY) &&
                                    GameManager_GetUnitWithCargoType(
                                        GameManager_Unit->GetComplex(),
-                                       UnitsManager_BaseUnits[unit1->GetUnitType()].cargo_type)) {
+                                       ResourceManager_GetUnit(unit1->GetUnitType()).GetCargoType())) {
                             result = CURSOR_TRANSFER;
 
                         } else {
@@ -6881,7 +6880,7 @@ void GameManager_MenuDeleteFlic() {
 void GameManager_MenuCreateFlic(ResourceID unit_type, int32_t ulx, int32_t uly) {
     WindowInfo* main_window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     WindowInfo* flic_window = WindowManager_GetWindow(WINDOW_CORNER_FLIC);
-    BaseUnit* base_unit = &UnitsManager_BaseUnits[unit_type];
+    const Unit& base_unit = ResourceManager_GetUnit(unit_type);
 
     GameManager_MenuDeleteFlic();
 
@@ -6899,7 +6898,7 @@ void GameManager_MenuCreateFlic(ResourceID unit_type, int32_t ulx, int32_t uly) 
     GameManager_Flic.dw.window = flic_window->window;
 
     GameManager_Flic.flc =
-        flicsmgr_construct(base_unit->flics, &GameManager_Flic.sw, GameManager_Flic.sw.width, 0, 0, 2, 0);
+        flicsmgr_construct(base_unit.GetFlicsAnimation(), &GameManager_Flic.sw, GameManager_Flic.sw.width, 0, 0, 2, 0);
 
     const int32_t font_id = Text_GetFont();
     Text_SetFont(GNW_TEXT_FONT_2);
@@ -7537,7 +7536,7 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
             uint8_t cargo_type;
             int32_t storage_value;
 
-            cargo_type = UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type;
+            cargo_type = ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType();
             storage_value = unit_values->GetAttribute(ATTRIB_STORAGE);
 
             if (storage_value <= 4) {
@@ -7550,7 +7549,7 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
                 scaling_factor = 3;
             }
 
-            if (cargo_type < CARGO_TYPE_LAND) {
+            if (cargo_type < Unit::CargoType::CARGO_TYPE_LAND) {
                 scaling_factor = 10;
             }
 
@@ -7582,8 +7581,8 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
 
         if ((unit->team == GameManager_PlayerTeam || GameManager_MaxSpy) &&
             unit_values->GetAttribute(ATTRIB_STORAGE) > 0 && (unit->flags & STATIONARY) &&
-            UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type >= CARGO_TYPE_RAW &&
-            UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type <= CARGO_TYPE_GOLD) {
+            ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType() >= Unit::CargoType::CARGO_TYPE_RAW &&
+            ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType() <= Unit::CargoType::CARGO_TYPE_GOLD) {
             Cargo materials;
             Cargo capacity;
             int32_t value{0};
@@ -7591,18 +7590,18 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
 
             unit->GetComplex()->GetCargoInfo(materials, capacity);
 
-            switch (UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type) {
-                case CARGO_TYPE_RAW: {
+            switch (ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType()) {
+                case Unit::CargoType::CARGO_TYPE_RAW: {
                     value = materials.raw;
                     value_limit = capacity.raw;
                 } break;
 
-                case CARGO_TYPE_FUEL: {
+                case Unit::CargoType::CARGO_TYPE_FUEL: {
                     value = materials.fuel;
                     value_limit = capacity.fuel;
                 } break;
 
-                case CARGO_TYPE_GOLD: {
+                case Unit::CargoType::CARGO_TYPE_GOLD: {
                     value = materials.gold;
                     value_limit = capacity.gold;
                 } break;
@@ -7610,8 +7609,8 @@ void GameManager_UpdateInfoDisplay(UnitInfo* unit) {
 
             GameManager_DrawInfoDisplayRow(
                 _(d28b), WINDOW_STAT_ROW_3,
-                ReportStats_CargoIcons[UnitsManager_BaseUnits[unit->GetUnitType()].cargo_type * 2], value, value_limit,
-                scaling_factor);
+                ReportStats_CargoIcons[ResourceManager_GetUnit(unit->GetUnitType()).GetCargoType() * 2], value,
+                value_limit, scaling_factor);
         }
 
         window = WindowManager_GetWindow(WINDOW_STAT_WINDOW);
@@ -7738,15 +7737,15 @@ void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
         string.Sprintf(80, _(af4a), unit->build_time);
 
     } else if (unit->GetOrderState() == ORDER_STATE_UNIT_READY) {
-        BaseUnit* base_unit1 = &UnitsManager_BaseUnits[unit->GetUnitType()];
-        BaseUnit* base_unit2 = &UnitsManager_BaseUnits[unit->GetParent()->GetUnitType()];
+        const Unit& base_unit1 = ResourceManager_GetUnit(unit->GetUnitType());
+        const Unit& base_unit2 = ResourceManager_GetUnit(unit->GetParent()->GetUnitType());
 
         if (unit->flags & STATIONARY) {
-            string.Sprintf(200, GameManager_EventStrings_FinishedBuilding[base_unit2->gender],
-                           base_unit2->GetSingularName(), base_unit2->GetSingularName());
+            string.Sprintf(200, GameManager_EventStrings_FinishedBuilding[base_unit2.GetGender()],
+                           base_unit2.GetSingularName().data(), base_unit2.GetSingularName().data());
         } else {
-            string.Sprintf(200, GameManager_EventStrings_FinishedConstruction[base_unit1->gender],
-                           base_unit2->GetSingularName(), base_unit1->GetSingularName());
+            string.Sprintf(200, GameManager_EventStrings_FinishedConstruction[base_unit1.GetGender()],
+                           base_unit2.GetSingularName().data(), base_unit1.GetSingularName().data());
         }
 
     } else {
@@ -7755,14 +7754,16 @@ void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
         SDL_assert(build_list.GetCount() > 0);
 
         if (unit->GetOrder() == ORDER_HALT_BUILDING || unit->GetOrder() == ORDER_HALT_BUILDING_2) {
-            string.Sprintf(200, _(cdf8), UnitsManager_BaseUnits[*build_list[0]].GetSingularName(), unit->build_time);
+            string.Sprintf(200, _(cdf8), ResourceManager_GetUnit(*build_list[0]).GetSingularName().data(),
+                           unit->build_time);
 
         } else {
             int32_t turns_to_build;
 
             unit->GetTurnsToBuild(*build_list[0], unit->GetBuildRate(), &turns_to_build);
 
-            string.Sprintf(200, _(ee24), UnitsManager_BaseUnits[*build_list[0]].GetSingularName(), turns_to_build);
+            string.Sprintf(200, _(ee24), ResourceManager_GetUnit(*build_list[0]).GetSingularName().data(),
+                           turns_to_build);
         }
     }
 
@@ -7880,7 +7881,7 @@ void GameManager_DrawUnitStatusMessage(UnitInfo* unit) {
     }
 
     if (mission_category == MISSION_CATEGORY_TRAINING) {
-        MessageManager_DrawMessage(UnitsManager_BaseUnits[unit->GetUnitType()].GetTutorial(), 0, 0);
+        MessageManager_DrawMessage(ResourceManager_GetUnit(unit->GetUnitType()).GetTutorialDescription().data(), 0, 0);
     }
 
     if (unit->GetOrder() == ORDER_BUILD || unit->GetOrder() == ORDER_CLEAR || unit->GetOrder() == ORDER_HALT_BUILDING ||
@@ -7957,12 +7958,17 @@ void GameManager_ReportNewUnitsMessage(uint32_t* counts) {
             ++different_type_count;
 
             if (counts[unit_type] > 1) {
-                sprintf(chunk, GameManager_EventStrings_NewPlural[UnitsManager_BaseUnits[unit_type].gender],
-                        counts[unit_type], UnitsManager_BaseUnits[unit_type].GetPluralName());
+                sprintf(chunk,
+                        GameManager_EventStrings_NewPlural[ResourceManager_GetUnit(static_cast<ResourceID>(unit_type))
+                                                               .GetGender()],
+                        counts[unit_type],
+                        ResourceManager_GetUnit(static_cast<ResourceID>(unit_type)).GetPluralName().data());
 
             } else {
-                sprintf(chunk, GameManager_EventStrings_NewSingular[UnitsManager_BaseUnits[unit_type].gender],
-                        UnitsManager_BaseUnits[unit_type].GetSingularName());
+                sprintf(chunk,
+                        GameManager_EventStrings_NewSingular[ResourceManager_GetUnit(static_cast<ResourceID>(unit_type))
+                                                                 .GetGender()],
+                        ResourceManager_GetUnit(static_cast<ResourceID>(unit_type)).GetSingularName().data());
             }
 
             if (different_type_count == 1) {
@@ -8127,7 +8133,7 @@ void GameManager_QuickBuildMenuDrawPortraits(WindowInfo* window, ResourceID id1,
     uint16_t unit_id{id1};
 
     for (int32_t i = 0; i < MENU_QUICK_BUILD_UNIT_SLOTS; ++i) {
-        auto base_unit{&UnitsManager_BaseUnits[unit_id]};
+        const Unit& base_unit{ResourceManager_GetUnit(static_cast<ResourceID>(unit_id))};
         Rect bounds;
 
         bounds.ulx = GameManager_QuickBuildMenuItems[i].ulx;
@@ -8145,9 +8151,9 @@ void GameManager_QuickBuildMenuDrawPortraits(WindowInfo* window, ResourceID id1,
                      GameManager_QuickBuildMenuItems[i].height, width, COLOR_BLACK);
 
         } else {
-            win_print(window->id, base_unit->GetSingularName(), GameManager_QuickBuildMenuItems[i].width, bounds.ulx,
-                      bounds.lry, 0x20 | GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_ALLOW_TRUNCATED);
-            flicsmgr_construct(base_unit->flics, window, width, bounds.ulx, bounds.uly, false, false);
+            win_print(window->id, base_unit.GetSingularName().data(), GameManager_QuickBuildMenuItems[i].width,
+                      bounds.ulx, bounds.lry, 0x20 | GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_ALLOW_TRUNCATED);
+            flicsmgr_construct(base_unit.GetFlicsAnimation(), window, width, bounds.ulx, bounds.uly, false, false);
             win_enable_button(GameManager_QuickBuildMenuItems[i].bid);
         }
 
@@ -8260,12 +8266,12 @@ void GameManager_QuickBuildMenu() {
                         static_cast<ResourceID>(GameManager_QuickBuildMenuUnitId + key - 1003);
                     GameManager_QuickBuildMenuActive = true;
 
-                    auto base_unit{&UnitsManager_BaseUnits[GameManager_QuickBuildUnitId]};
+                    const Unit& base_unit{ResourceManager_GetUnit(GameManager_QuickBuildUnitId)};
                     auto portrait_window{WindowManager_GetWindow(WINDOW_CORNER_FLIC)};
                     auto main_window{WindowManager_GetWindow(WINDOW_MAIN_WINDOW)};
 
-                    flicsmgr_construct(base_unit->flics, main_window, main_window->width, portrait_window->window.ulx,
-                                       portrait_window->window.uly, false, false);
+                    flicsmgr_construct(base_unit.GetFlicsAnimation(), main_window, main_window->width,
+                                       portrait_window->window.ulx, portrait_window->window.uly, false, false);
 
                     GameManager_QuickBuilderUnit =
                         UnitsManager_SpawnUnit(GameManager_QuickBuildUnitId, GameManager_PlayerTeam, 0, 0, nullptr);

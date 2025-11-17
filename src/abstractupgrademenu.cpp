@@ -33,6 +33,7 @@
 #include "researchmenu.hpp"
 #include "scrollbar.hpp"
 #include "text.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 #include "unitstats.hpp"
 #include "window_manager.hpp"
@@ -345,28 +346,24 @@ bool AbstractUpgradeMenu::EventHandler(Event* event) {
 }
 
 void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
-    BaseUnit* base_unit;
-
     this->unit_type = unit_type;
 
-    if (unit_type != INVALID_ID) {
-        base_unit = &UnitsManager_BaseUnits[unit_type];
-    } else {
-        base_unit = nullptr;
-    }
-
-    if (!base_unit || !WindowManager_LoadBigImage(base_unit->portrait, &window2, window1.width, false, false)) {
+    if (unit_type == INVALID_ID) {
         buf_fill(window2.buffer, 300, 240, window1.width, 0);
 
-        if (base_unit) {
-            flicsmgr_construct(base_unit->flics, &window2, window1.width, 16, 17, false, false);
-        }
-    }
+    } else {
+        const Unit& base_unit = ResourceManager_GetUnit(unit_type);
 
-    if (unit_type != INVALID_ID && button_description_rest_state) {
-        Text_SetFont(GNW_TEXT_FONT_5);
-        Text_TextBox(window2.buffer, window1.width, base_unit->GetDescription(), 16, 17, 280, 230,
-                     GNW_TEXT_OUTLINE | 0xA2, false, false);
+        if (!WindowManager_LoadBigImage(base_unit.GetPortrait(), &window2, window1.width, false, false)) {
+            buf_fill(window2.buffer, 300, 240, window1.width, 0);
+            flicsmgr_construct(base_unit.GetFlicsAnimation(), &window2, window1.width, 16, 17, false, false);
+        }
+
+        if (button_description_rest_state) {
+            Text_SetFont(GNW_TEXT_FONT_5);
+            Text_TextBox(window2.buffer, window1.width, base_unit.GetDescription().data(), 16, 17, 280, 230,
+                         GNW_TEXT_OUTLINE | 0xA2, false, false);
+        }
     }
 
     for (int32_t i = 0; i < upgrade_control_count; ++i) {
@@ -682,7 +679,7 @@ bool AbstractUpgradeMenu::IsUnitFiltered(ResourceID unit_type) {
     bool result;
     uint32_t flags;
 
-    flags = UnitsManager_BaseUnits[unit_type].flags;
+    flags = ResourceManager_GetUnit(unit_type).GetFlags();
 
     if ((flags & UPGRADABLE) && Builder_IsBuildable(unit_type)) {
         if (((flags & MOBILE_LAND_UNIT) && button_ground_rest_state) ||
@@ -711,8 +708,8 @@ bool AbstractUpgradeMenu::IsBetterUnit(ResourceID unit_type1, ResourceID unit_ty
     uint32_t flags1;
     uint32_t flags2;
 
-    flags1 = UnitsManager_BaseUnits[unit_type1].flags;
-    flags2 = UnitsManager_BaseUnits[unit_type2].flags;
+    flags1 = ResourceManager_GetUnit(unit_type1).GetFlags();
+    flags2 = ResourceManager_GetUnit(unit_type2).GetFlags();
 
     if ((flags1 & MOBILE_LAND_UNIT) != (flags2 & MOBILE_LAND_UNIT)) {
         return !(flags1 & MOBILE_LAND_UNIT);

@@ -38,7 +38,6 @@
 #include "mouseevent.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
-#include "saveloadchecks.hpp"
 #include "sound_manager.hpp"
 #include "teamunits.hpp"
 #include "text.hpp"
@@ -732,17 +731,6 @@ void SaveSlot::DrawSaveSlot(int32_t game_file_type) {
     SaveLoadMenu_DrawSaveSlotResource(image_down, width, FNAME_DN, file_name, GNW_TEXT_FONT_5);
     SaveLoadMenu_DrawSaveSlotResource(image_down, width, FTYPE_DN, SaveLoadMenu_SaveTypeTitles[game_file_type],
                                       GNW_TEXT_FONT_2);
-}
-
-bool SaveLoadMenu_RunPlausibilityTests() {
-    bool result = false;
-
-    // too slow    result |= SaveLoadChecks_OrderedLists();
-    result |= SaveLoadChecks_Defect11();
-    result |= SaveLoadChecks_Defect183();
-    result |= SaveLoadChecks_Defect151();
-
-    return result;
 }
 
 void SaveLoadMenu_CreateBackup(const char* file_name) {

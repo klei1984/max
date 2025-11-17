@@ -40,7 +40,7 @@ public:
 
     [[nodiscard]] bool LoadFile(const std::string& path);
     [[nodiscard]] bool LoadResource();
-    [[nodiscard]] const Unit* GetUnit(const std::string& unit_id) const;
+    [[nodiscard]] Unit* GetUnit(const std::string& unit_id) const;
 
     template <typename MapIterator>
     class IteratorWrapper {

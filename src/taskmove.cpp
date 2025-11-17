@@ -38,6 +38,7 @@
 #include "taskmanagebuildings.hpp"
 #include "tasktransport.hpp"
 #include "transportorder.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 TaskMove::TaskMove(UnitInfo* unit, Task* task, uint16_t minimum_distance_, uint8_t caution_level_, Point destination,
@@ -114,7 +115,7 @@ std::string TaskMove::WriteStatusLog() const {
             } else {
                 return std::format("Move to [{},{}] via [{},{}] using {}", passenger_destination.x + 1,
                                    passenger_destination.y + 1, waypoint.x + 1, waypoint.y + 1,
-                                   UnitsManager_BaseUnits[transporter_unit_type].GetSingularName());
+                                   ResourceManager_GetUnit(transporter_unit_type).GetSingularName().data());
             }
 
         } else if (transporter_unit_type == INVALID_ID) {
@@ -122,7 +123,7 @@ std::string TaskMove::WriteStatusLog() const {
 
         } else {
             return std::format("Move to [{},{}] using {}", passenger_destination.x + 1, passenger_destination.y + 1,
-                               UnitsManager_BaseUnits[transporter_unit_type].GetSingularName());
+                               ResourceManager_GetUnit(transporter_unit_type).GetSingularName().data());
         }
 
     } else {
@@ -147,7 +148,7 @@ Point TaskMove::GetTransporterWaypoint() const { return transport_waypoint; }
 void TaskMove::RemoveTransport() { transporter_unit_type = INVALID_ID; }
 
 void TaskMove::AddUnit(UnitInfo& unit) {
-    AILOG(log, "Move: add {}.", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
+    AILOG(log, "Move: add {}.", ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data());
 
     if (passenger == &unit && unit.GetTask() == this) {
         Task_RemindMoveFinished(&*passenger, true);
@@ -169,7 +170,7 @@ void TaskMove::Init() {
 
 void TaskMove::BeginTurn() {
     if (passenger) {
-        AILOG(log, "Move {}: Begin Turn", UnitsManager_BaseUnits[passenger->GetUnitType()].GetSingularName());
+        AILOG(log, "Move {}: Begin Turn", ResourceManager_GetUnit(passenger->GetUnitType()).GetSingularName().data());
 
         if (passenger->GetOrder() == ORDER_IDLE && passenger->GetOrderState() == ORDER_STATE_PREPARE_STORE &&
             (passenger_destination.x < 0 || passenger_destination.y < 0)) {
@@ -215,8 +216,8 @@ bool TaskMove::Execute(UnitInfo& unit) {
     bool result;
 
     if (passenger == &unit) {
-        AILOG(log, "Move finished for {} at [{},{}].", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName(),
-              unit.grid_x + 1, unit.grid_y + 1);
+        AILOG(log, "Move finished for {} at [{},{}].",
+              ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data(), unit.grid_x + 1, unit.grid_y + 1);
 
         if (unit.IsReadyForOrders(this)) {
             if (UnitsManager_TeamInfo[passenger->team].team_type == TEAM_TYPE_COMPUTER) {
@@ -324,7 +325,7 @@ void TaskMove::RemoveSelf() {
         passenger->RemoveTask(this);
 
         AILOG(log, "Move (RemoveSelf): Remove {} at [{},{}].",
-              UnitsManager_BaseUnits[passenger->GetUnitType()].GetSingularName(), passenger->grid_x + 1,
+              ResourceManager_GetUnit(passenger->GetUnitType()).GetSingularName().data(), passenger->grid_x + 1,
               passenger->grid_y + 1);
 
         passenger = nullptr;
@@ -339,7 +340,7 @@ void TaskMove::RemoveSelf() {
 void TaskMove::RemoveUnit(UnitInfo& unit) {
     if (passenger == &unit) {
         AILOG(log, "Move (RemoveUnit): Remove {} at [{},{}].",
-              UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName(), unit.grid_x + 1, unit.grid_y + 1);
+              ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data(), unit.grid_x + 1, unit.grid_y + 1);
 
         Finished(TASKMOVE_RESULT_CANCELLED);
     }
@@ -363,7 +364,7 @@ void TaskMove::EventZoneCleared(Zone* zone_, bool status) {
 }
 
 void TaskMove::AttemptTransport() {
-    if (UnitsManager_BaseUnits[passenger->GetUnitType()].land_type & SURFACE_TYPE_WATER) {
+    if (ResourceManager_GetUnit(passenger->GetUnitType()).GetLandType() & SURFACE_TYPE_WATER) {
         Finished(TASKMOVE_RESULT_BLOCKED);
 
     } else {
@@ -401,7 +402,7 @@ void TaskMove::AttemptTransport() {
 }
 
 void TaskMove::AttemptTransportType(ResourceID unit_type) {
-    AILOG(log, "Attempt {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
+    AILOG(log, "Attempt {}.", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
     PathRequest* request =
         new (std::nothrow) TaskPathRequest(&*passenger, AccessModifier_NoModifiers, destination_waypoint);
@@ -455,7 +456,7 @@ void TaskMove::FindWaypointUsingTransport() {
 }
 
 void TaskMove::Search(bool mode) {
-    AILOG(log, "Move {}: find path.", UnitsManager_BaseUnits[passenger->GetUnitType()].GetSingularName());
+    AILOG(log, "Move {}: find path.", ResourceManager_GetUnit(passenger->GetUnitType()).GetSingularName().data());
 
     Point line_distance(destination_waypoint.x - passenger->grid_x, destination_waypoint.y - passenger->grid_y);
 
@@ -495,11 +496,11 @@ void TaskMove::Finished(int32_t result) {
     if (passenger) {
         const char* result_codes[] = {"success", "already in range", "blocked", "cancelled"};
 
-        AILOG(log, "Move {}: finished ({})", UnitsManager_BaseUnits[passenger->GetUnitType()].GetSingularName(),
+        AILOG(log, "Move {}: finished ({})", ResourceManager_GetUnit(passenger->GetUnitType()).GetSingularName().data(),
               result_codes[result]);
 
         AILOG_LOG(log, "Move (Finished): Remove {} at [{},{}].",
-                  UnitsManager_BaseUnits[passenger->GetUnitType()].GetSingularName(), passenger->grid_x + 1,
+                  ResourceManager_GetUnit(passenger->GetUnitType()).GetSingularName().data(), passenger->grid_x + 1,
                   passenger->grid_y + 1);
 
         passenger->RemoveTask(this, false);
@@ -671,7 +672,8 @@ void TaskMove::BlockedPathResultCallback(Task* task, PathRequest* path_request, 
 
                 if (unit) {
                     AILOG_LOG(log, "Blocked by {} at [{},{}].",
-                              UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(), site.x + 1, site.y + 1);
+                              ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), site.x + 1,
+                              site.y + 1);
 
                     flag = true;
 
@@ -998,7 +1000,7 @@ void TaskMove::MoveAirUnit() {
                         for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                             if ((*it).flags & MOBILE_AIR_UNIT) {
                                 AILOG_LOG(log, "Blocked by {} at [{},{}]",
-                                          UnitsManager_BaseUnits[(*it).GetUnitType()].GetSingularName(),
+                                          ResourceManager_GetUnit((*it).GetUnitType()).GetSingularName().data(),
                                           (*it).grid_x + 1, (*it).grid_y + 1);
 
                                 if ((*it).GetOrder() == ORDER_MOVE &&
@@ -1046,8 +1048,8 @@ void TaskMove::MoveAirUnit() {
                             (*it).move_to_grid_y == passenger_waypoint.y) {
                             AILOG_LOG(log, "[{},{}] is a destination for {} at [{},{}].", passenger_waypoint.x + 1,
                                       passenger_waypoint.y + 1,
-                                      UnitsManager_BaseUnits[(*it).GetUnitType()].GetSingularName(), (*it).grid_x + 1,
-                                      (*it).grid_y + 1);
+                                      ResourceManager_GetUnit((*it).GetUnitType()).GetSingularName().data(),
+                                      (*it).grid_x + 1, (*it).grid_y + 1);
 
                             if (step_index) {
                                 flag = false;

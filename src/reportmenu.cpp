@@ -30,6 +30,7 @@
 #include "remote.hpp"
 #include "reportstats.hpp"
 #include "text.hpp"
+#include "unit.hpp"
 #include "unitinfo.hpp"
 #include "units_manager.hpp"
 #include "window.hpp"
@@ -573,7 +574,7 @@ void ReportMenu::UpdateStatistics() {
     }
 
     for (int32_t unit_type = 0; unit_type < UNIT_END; ++unit_type) {
-        unit_flags = UnitsManager_BaseUnits[unit_type].flags;
+        unit_flags = ResourceManager_GetUnit(static_cast<ResourceID>(unit_type)).GetFlags();
 
         if (!(unit_flags & SELECTABLE) || (unit_flags & GROUND_COVER) || !(unit_flags & unit_flags_mask)) {
             active_units[unit_type] = false;
@@ -1120,7 +1121,7 @@ void ReportMenu::UpdateSelectedUnitStatus(UnitInfo* unit, WindowInfo* window, in
             SDL_assert(build_list.GetCount() > 0);
 
             if (unit->GetOrder() == ORDER_HALT_BUILDING || unit->GetOrder() == ORDER_HALT_BUILDING_2) {
-                string.Sprintf(200, _(abea), UnitsManager_BaseUnits[*build_list[0]].GetSingularName(),
+                string.Sprintf(200, _(abea), ResourceManager_GetUnit(*build_list[0]).GetSingularName().data(),
                                unit->build_time);
 
             } else {
@@ -1128,7 +1129,8 @@ void ReportMenu::UpdateSelectedUnitStatus(UnitInfo* unit, WindowInfo* window, in
 
                 unit->GetTurnsToBuild(*build_list[0], unit->GetBuildRate(), &turns_to_build);
 
-                string.Sprintf(200, _(4262), UnitsManager_BaseUnits[*build_list[0]].GetSingularName(), turns_to_build);
+                string.Sprintf(200, _(4262), ResourceManager_GetUnit(*build_list[0]).GetSingularName().data(),
+                               turns_to_build);
 
                 ReportStats_DrawListItemIcon(window->buffer, window->width, *build_list[0], GameManager_PlayerTeam,
                                              ulx + width + 20, (height / 2) + uly);

@@ -33,6 +33,7 @@
 #include "gnw.h"
 #include "point.hpp"
 #include "resourcetable.hpp"
+#include "units.hpp"
 
 class MissionManager;
 
@@ -145,6 +146,8 @@ std::string ResourceManager_GetHelpEntry(const std::string& section, const int32
 [[nodiscard]] bool ResourceManager_GetUnitAttributes(const uint32_t index, UnitAttributes* const attributes);
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager();
 std::shared_ptr<Clans> ResourceManager_GetClans();
+Unit& ResourceManager_GetUnit(const ResourceID unit_type);
+Units& ResourceManager_GetUnits();
 TeamClanType ResourceManager_GetClanID(const std::string clan_id);
 std::string ResourceManager_GetClanID(const TeamClanType clan_id);
 

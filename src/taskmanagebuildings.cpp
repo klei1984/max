@@ -41,6 +41,7 @@
 #include "taskhabitatassistant.hpp"
 #include "taskpowerassistant.hpp"
 #include "taskradarassistant.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 #include "zonewalker.hpp"
 
@@ -351,7 +352,7 @@ void TaskManageBuildings::ClearPlannedBuildings(uint16_t** construction_map, Tas
                                                 ResourceID unit_type, uint16_t task_priority) {
     AILOG(log, "Clear planned buildings.");
 
-    int32_t unit_size = UnitsManager_BaseUnits[unit_type].flags & BUILDING ? 2 : 1;
+    int32_t unit_size = ResourceManager_GetUnit(unit_type).GetFlags() & BUILDING ? 2 : 1;
 
     for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if (&*it != task && (*it).GetUnitType() != CNCT_4W && (*it).GetUnitType() != WTRPLTFM && (*it).Task_vfunc29()) {
@@ -370,7 +371,7 @@ void TaskManageBuildings::ClearPlannedBuildings(uint16_t** construction_map, Tas
         }
     }
 
-    bool is_water = UnitsManager_BaseUnits[unit_type].land_type == SURFACE_TYPE_WATER;
+    bool is_water = ResourceManager_GetUnit(unit_type).GetLandType() == SURFACE_TYPE_WATER;
     bool needs_land_access =
         unit_type == LIGHTPLT || unit_type == LANDPLT || unit_type == DEPOT || unit_type == TRAINHAL;
 
@@ -735,7 +736,7 @@ bool TaskManageBuildings::IsSafeSite(uint16_t** construction_map, Point site, Re
         result = false;
 
     } else {
-        if (UnitsManager_BaseUnits[unit_type].flags & BUILDING) {
+        if (ResourceManager_GetUnit(unit_type).GetFlags() & BUILDING) {
             ++site_bounds.lrx;
             ++site_bounds.lry;
         }
@@ -860,7 +861,7 @@ bool TaskManageBuildings::EvaluateSite(uint16_t** construction_map, ResourceID u
 
         rect_init(&bounds, site.x, site.y, site.x + 1, site.y + 1);
 
-        if (UnitsManager_BaseUnits[unit_type].flags & BUILDING) {
+        if (ResourceManager_GetUnit(unit_type).GetFlags() & BUILDING) {
             ++bounds.lrx;
             ++bounds.lry;
         }
@@ -887,7 +888,7 @@ bool TaskManageBuildings::EvaluateSite(uint16_t** construction_map, ResourceID u
 bool TaskManageBuildings::FindSite(ResourceID unit_type, TaskCreateBuilding* task, Point& site,
                                    uint16_t task_priority) {
     uint16_t** construction_map = CreateMap();
-    int32_t unit_size = (UnitsManager_BaseUnits[unit_type].flags & BUILDING) ? 2 : 1;
+    int32_t unit_size = (ResourceManager_GetUnit(unit_type).GetFlags() & BUILDING) ? 2 : 1;
     bool result;
 
     AILOG(log, "Find Site.");
@@ -1261,16 +1262,16 @@ void TaskManageBuildings::UpdateMiningNeeds() {
             cargo_demand.fuel -= Cargo_GetFuelConsumptionRate((*it).GetUnitType());
             cargo_demand.gold -= Cargo_GetGoldConsumptionRate((*it).GetUnitType());
 
-            switch (UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type) {
-                case CARGO_TYPE_RAW: {
+            switch (ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType()) {
+                case Unit::CargoType::CARGO_TYPE_RAW: {
                     cargo_demand.raw += (*it).storage / 10;
                 } break;
 
-                case CARGO_TYPE_FUEL: {
+                case Unit::CargoType::CARGO_TYPE_FUEL: {
                     cargo_demand.fuel += (*it).storage / 10;
                 } break;
 
-                case CARGO_TYPE_GOLD: {
+                case Unit::CargoType::CARGO_TYPE_GOLD: {
                     cargo_demand.gold += (*it).storage / 20;
                 } break;
             }
@@ -1456,7 +1457,7 @@ void TaskManageBuildings::ClearAreasNearBuildings(uint8_t** access_map, int32_t 
             if (unit_type != CNCT_4W && unit_type != WTRPLTFM && unit_type != BRIDGE) {
                 Rect limits;
 
-                unit_size = (UnitsManager_BaseUnits[unit_type].flags & BUILDING) ? area_expanse : 1;
+                unit_size = (ResourceManager_GetUnit(unit_type).GetFlags() & BUILDING) ? area_expanse : 1;
 
                 (*it).GetBounds(&limits);
 
@@ -1524,7 +1525,7 @@ void TaskManageBuildings::MarkDefenseSites(uint16_t** construction_map, uint8_t*
 
     for (SmartList<TaskCreateBuilding>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
         if ((&*it) != task && (*it).Task_vfunc28()) {
-            if ((UnitsManager_BaseUnits[(*it).GetUnitType()].flags & BUILDING) || (*it).GetUnitType() == RADAR) {
+            if ((ResourceManager_GetUnit((*it).GetUnitType()).GetFlags() & BUILDING) || (*it).GetUnitType() == RADAR) {
                 Rect bounds;
                 Point site;
                 int32_t accessmap_value;
@@ -1554,7 +1555,7 @@ void TaskManageBuildings::ClearDefenseSites(uint8_t** access_map, ResourceID uni
                                             uint16_t task_priority) {
     Point position;
 
-    AILOG(log, "Clear defended sites for {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
+    AILOG(log, "Clear defended sites for {}.", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
     for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
         if ((*it).GetUnitType() == unit_type) {
@@ -2154,7 +2155,7 @@ uint8_t TaskManageBuildings::GetType() const { return TaskType_TaskManageBuildin
 bool TaskManageBuildings::IsNeeded() { return true; }
 
 void TaskManageBuildings::AddUnit(UnitInfo& unit) {
-    AILOG(log, "Task Manage Buildings: Add {}.", UnitsManager_BaseUnits[unit.GetUnitType()].GetSingularName());
+    AILOG(log, "Task Manage Buildings: Add {}.", ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data());
 
     if (unit.flags & STATIONARY) {
         units.PushBack(unit);
@@ -2260,18 +2261,18 @@ void TaskManageBuildings::EndTurn() {
             gold_mining_max += (*it).gold_mining_max;
         }
 
-        switch (UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type) {
-            case CARGO_TYPE_RAW: {
+        switch (ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType()) {
+            case Unit::CargoType::CARGO_TYPE_RAW: {
                 cargo.raw += (*it).storage;
                 capacity.raw += (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
             } break;
 
-            case CARGO_TYPE_FUEL: {
+            case Unit::CargoType::CARGO_TYPE_FUEL: {
                 cargo.fuel += (*it).storage;
                 capacity.fuel += (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
             } break;
 
-            case CARGO_TYPE_GOLD: {
+            case Unit::CargoType::CARGO_TYPE_GOLD: {
                 cargo.gold += (*it).storage;
                 capacity.gold += (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
             } break;
@@ -2302,16 +2303,16 @@ void TaskManageBuildings::EndTurn() {
             }
         }
 
-        switch (UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type) {
-            case CARGO_TYPE_RAW: {
+        switch (ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType()) {
+            case Unit::CargoType::CARGO_TYPE_RAW: {
                 capacity.raw += team_units->GetCurrentUnitValues((*it).GetUnitType())->GetAttribute(ATTRIB_STORAGE);
             } break;
 
-            case CARGO_TYPE_FUEL: {
+            case Unit::CargoType::CARGO_TYPE_FUEL: {
                 capacity.fuel += team_units->GetCurrentUnitValues((*it).GetUnitType())->GetAttribute(ATTRIB_STORAGE);
             } break;
 
-            case CARGO_TYPE_GOLD: {
+            case Unit::CargoType::CARGO_TYPE_GOLD: {
                 capacity.gold += team_units->GetCurrentUnitValues((*it).GetUnitType())->GetAttribute(ATTRIB_STORAGE);
             } break;
         }
@@ -2349,7 +2350,7 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
     Point site;
     bool result;
 
-    AILOG(log, "Manager: Create {}", UnitsManager_BaseUnits[unit_type].GetSingularName());
+    AILOG(log, "Manager: Create {}", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
     if (Builder_IsBuildable(unit_type)) {
         if (Task_EstimateTurnsTillMissionEnd() >=
@@ -2553,7 +2554,7 @@ bool TaskManageBuildings::CheckPower() {
             power_generation -= power_consumption_rate;
         }
 
-        if (UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_AIR) {
+        if (ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == Unit::CargoType::CARGO_TYPE_AIR) {
             total_storage += (*it).storage;
         }
     }
@@ -2661,7 +2662,7 @@ bool TaskManageBuildings::FindDefenseSite(ResourceID unit_type, TaskCreateBuildi
                                           uint16_t task_priority) {
     bool result;
 
-    AILOG(log, "Find defense site for {}.", UnitsManager_BaseUnits[unit_type].GetSingularName());
+    AILOG(log, "Find defense site for {}.", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
     if (ResourceManager_MapSize.x > 0 && ResourceManager_MapSize.y > 0) {
         uint16_t** construction_map = CreateMap();
@@ -2739,7 +2740,7 @@ bool TaskManageBuildings::ChangeSite(TaskCreateBuilding* task, Point& site) {
     ResourceID unit_type = task->GetUnitType();
     bool is_site_found;
 
-    AILOG(log, "Change site for {}", UnitsManager_BaseUnits[unit_type].GetSingularName());
+    AILOG(log, "Change site for {}", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
     if (unit_type == RADAR) {
         is_site_found = FindSiteForRadar(task, site);

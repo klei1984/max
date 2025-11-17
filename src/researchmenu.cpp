@@ -140,9 +140,9 @@ void ResearchMenu_ApplyUpgrades(uint16_t team, uint8_t research_topic) {
     team_units = UnitsManager_TeamInfo[team].team_units;
 
     for (int32_t unit_type = 0; unit_type < UNIT_END; ++unit_type) {
-        SmartPointer<UnitValues> unit_values1 = team_units->GetBaseUnitValues(static_cast<ResourceID>(unit_type));
+        SmartPointer<UnitValues> unit_values1 = team_units->GetBaseUnitValues(unit_type);
         SmartPointer<UnitValues> unit_values2 =
-            new (std::nothrow) UnitValues(*team_units->GetCurrentUnitValues(static_cast<ResourceID>(unit_type)));
+            new (std::nothrow) UnitValues(*team_units->GetCurrentUnitValues(unit_type));
         uint16_t value1;
         uint16_t* value2;
         int32_t old_value;

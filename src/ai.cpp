@@ -33,6 +33,7 @@
 #include "randomizer.hpp"
 #include "task_manager.hpp"
 #include "taskautosurvey.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 #define AI_SAFE_ENEMY_DISTANCE 400
@@ -52,7 +53,7 @@ int32_t Ai_GetNormalRateBuildCost(ResourceID unit_type, uint16_t team) {
     int32_t turns = BuildMenu_GetTurnsToBuild(unit_type, team);
     int32_t result;
 
-    if (UnitsManager_BaseUnits[unit_type].flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
+    if (ResourceManager_GetUnit(unit_type).GetFlags() & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
         result = turns * Cargo_GetRawConsumptionRate(LANDPLT, 1);
 
     } else {
@@ -434,7 +435,8 @@ bool TaskManager_NeedToReserveRawMaterials(uint16_t team) {
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
          it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-        if ((*it).team == team && UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
+        if ((*it).team == team &&
+            ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == Unit::CargoType::CARGO_TYPE_RAW) {
             raw_materials += (*it).storage;
 
             if ((*it).GetUnitType() == ENGINEER) {
@@ -452,7 +454,7 @@ bool TaskManager_NeedToReserveRawMaterials(uint16_t team) {
         if ((*it).team == team) {
             raw_materials -= Cargo_GetRawConsumptionRate((*it).GetUnitType(), 1);
 
-            if (UnitsManager_BaseUnits[(*it).GetUnitType()].cargo_type == CARGO_TYPE_RAW) {
+            if (ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == Unit::CargoType::CARGO_TYPE_RAW) {
                 raw_materials += (*it).storage;
 
                 if ((*it).storage == (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {

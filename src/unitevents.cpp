@@ -22,6 +22,7 @@
 #include "unitevents.hpp"
 
 #include "ailog.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 
 SmartList<UnitEvent> UnitEvent_UnitEvents;
@@ -36,8 +37,9 @@ UnitEventEmergencyStop::~UnitEventEmergencyStop() {}
 
 void UnitEventEmergencyStop::Process() {
     if (unit->hits > 0) {
-        AILOG(log, "Emergency stop for {} at [{},{}].", UnitsManager_BaseUnits[unit->GetUnitType()].GetSingularName(),
-              unit->grid_x + 1, unit->grid_y + 1);
+        AILOG(log, "Emergency stop for {} at [{},{}].",
+              ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), unit->grid_x + 1,
+              unit->grid_y + 1);
 
         unit->StopMovement();
     }

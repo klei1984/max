@@ -31,6 +31,7 @@
 #include "resource_manager.hpp"
 #include "taskdebugger.hpp"
 #include "text.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 #include "window_manager.hpp"
 
@@ -462,7 +463,6 @@ void UnitStats_Menu(UnitInfo* unit) {
 UnitStatsMenu::UnitStatsMenu(UnitInfo* unit_)
     : Window(STATS, GameManager_GetDialogWindowCenterMode()), unit(unit_), event_release(false) {
     WindowInfo debug_window;
-    BaseUnit* base_unit;
     char text[40];
 
     Add();
@@ -487,7 +487,7 @@ UnitStatsMenu::UnitStatsMenu(UnitInfo* unit_)
     button_help->SetSfx(NHELP0);
     button_help->RegisterButton(window.id);
 
-    base_unit = &UnitsManager_BaseUnits[unit->GetUnitType()];
+    const auto& base_unit = ResourceManager_GetUnit(unit->GetUnitType());
 
     debug_window = window;
 
@@ -501,8 +501,8 @@ UnitStatsMenu::UnitStatsMenu(UnitInfo* unit_)
         task_debugger = new (std::nothrow) TaskDebugger(&debug_window, unit->GetTask(), 2000, 2001, 2002);
 
     } else {
-        if (!WindowManager_LoadBigImage(base_unit->portrait, &debug_window, window.width, false)) {
-            flicsmgr_construct(base_unit->flics, &window, window.width, 100, 74, false, false);
+        if (!WindowManager_LoadBigImage(base_unit.GetPortrait(), &debug_window, window.width, false)) {
+            flicsmgr_construct(base_unit.GetFlicsAnimation(), &window, window.width, 100, 74, false, false);
         }
     }
 
@@ -514,7 +514,7 @@ UnitStatsMenu::UnitStatsMenu(UnitInfo* unit_)
     unit->GetDisplayName(text, sizeof(text));
 
     Text_TextBox(window.buffer, window.width, text, 336, 60, 287, 11, 0xA2, true);
-    Text_TextBox(window.buffer, window.width, base_unit->GetDescription(), 345, 90, 270, 117, 0xA2, false, false);
+    Text_TextBox(window.buffer, window.width, base_unit.GetDescription().data(), 345, 90, 270, 117, 0xA2, false, false);
 
     Text_SetFont(GNW_TEXT_FONT_5);
     Text_TextBox(window.buffer, window.width, _(94b7), 327, 7, 158, 18, COLOR_GREEN, true);

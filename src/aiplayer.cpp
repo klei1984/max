@@ -51,6 +51,7 @@
 #include "taskscavenge.hpp"
 #include "tasksurvey.hpp"
 #include "taskupdateterrain.hpp"
+#include "unit.hpp"
 #include "units_manager.hpp"
 #include "zonewalker.hpp"
 
@@ -2811,7 +2812,7 @@ void AiPlayer::PlanMinefields() {
                 TaskCreateBuilding* create_building = dynamic_cast<TaskCreateBuilding*>(&*it);
 
                 if (create_building->Task_vfunc28()) {
-                    if (UnitsManager_BaseUnits[create_building->GetUnitType()].flags & BUILDING) {
+                    if (ResourceManager_GetUnit(create_building->GetUnitType()).GetFlags() & BUILDING) {
                         Point position = create_building->DeterminePosition();
                         ZoneWalker walker(position, 8);
                         int32_t surface_type = Access_GetSurfaceType(position.x, position.y);
@@ -2838,7 +2839,7 @@ void AiPlayer::PlanMinefields() {
 
                     create_building->GetBounds(&bounds);
 
-                    if (UnitsManager_BaseUnits[create_building->GetUnitType()].flags & BUILDING) {
+                    if (ResourceManager_GetUnit(create_building->GetUnitType()).GetFlags() & BUILDING) {
                         bounds.ulx = std::max(0, bounds.ulx - 2);
                         bounds.uly = std::max(0, bounds.uly - 2);
                         bounds.lrx = std::min(static_cast<int32_t>(ResourceManager_MapSize.x), bounds.lrx + 2);
@@ -2861,7 +2862,7 @@ void AiPlayer::PlanMinefields() {
 
             (*it).GetBounds(&bounds);
 
-            if (UnitsManager_BaseUnits[(*it).GetUnitType()].flags & BUILDING) {
+            if (ResourceManager_GetUnit((*it).GetUnitType()).GetFlags() & BUILDING) {
                 bounds.ulx = std::max(0, bounds.ulx - 2);
                 bounds.uly = std::max(0, bounds.uly - 2);
                 bounds.lrx = std::min(static_cast<int32_t>(ResourceManager_MapSize.x), bounds.lrx + 2);
@@ -3838,7 +3839,8 @@ WeightTable AiPlayer::GetFilteredWeightTable(ResourceID unit_type, uint16_t flag
 
     if (flags & 0x01) {
         for (uint32_t i = 0; i < table.GetCount(); ++i) {
-            if (table[i].unit_type != INVALID_ID && (UnitsManager_BaseUnits[table[i].unit_type].flags & STATIONARY)) {
+            if (table[i].unit_type != INVALID_ID &&
+                (ResourceManager_GetUnit(table[i].unit_type).GetFlags() & STATIONARY)) {
                 table[i].weight = 0;
             }
         }
@@ -3847,7 +3849,7 @@ WeightTable AiPlayer::GetFilteredWeightTable(ResourceID unit_type, uint16_t flag
     if (flags & 0x02) {
         for (uint32_t i = 0; i < table.GetCount(); ++i) {
             if (table[i].unit_type != INVALID_ID &&
-                (UnitsManager_BaseUnits[table[i].unit_type].flags & REGENERATING_UNIT)) {
+                (ResourceManager_GetUnit(table[i].unit_type).GetFlags() & REGENERATING_UNIT)) {
                 table[i].weight = 0;
             }
         }
@@ -3950,7 +3952,7 @@ WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, uint8_t flags) {
 
         for (uint32_t i = 0; i < table.GetCount(); ++i) {
             if (table[i].unit_type != INVALID_ID) {
-                int32_t surface_type = UnitsManager_BaseUnits[table[i].unit_type].land_type;
+                int32_t surface_type = ResourceManager_GetUnit(table[i].unit_type).GetLandType();
                 int32_t unit_range = team_units->GetCurrentUnitValues(table[i].unit_type)->GetAttribute(ATTRIB_RANGE);
 
                 if (surface_type == SURFACE_TYPE_LAND &&
@@ -4755,7 +4757,7 @@ int32_t AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* ene
 
     if (AiPlayer_TerrainDistanceField->GetMinimumRange(
             Point(enemy_unit->grid_x, enemy_unit->grid_y),
-            UnitsManager_BaseUnits[friendly_unit->GetUnitType()].land_type) <= range * range) {
+            ResourceManager_GetUnit(friendly_unit->GetUnitType()).GetLandType()) <= range * range) {
         if (unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE) && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
             int32_t distance2 = ((friendly_unit->speed / 2) + range);
 
