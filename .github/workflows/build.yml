@@ -678,7 +678,7 @@ jobs:
          run: |
             sudo apt install -y flatpak flatpak-builder
             flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-            flatpak install --assumeyes --noninteractive flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
+            flatpak install --assumeyes --noninteractive flathub org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08
             tar zxf ${{steps.build_configuration.outputs.build_type}}/Sources/Linux-x64/max-port-*-Source.tar.gz --directory=${{steps.build_configuration.outputs.build_type}}/Sources/Linux-x64 --strip-components=1
             cd ${{steps.build_configuration.outputs.build_type}}/Sources/Linux-x64
             sh cmake/scripts/linux/get-dependencies cmake/versions.cmake
