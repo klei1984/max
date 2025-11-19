@@ -30,7 +30,7 @@
 Unit::Unit(uint32_t flags, ResourceID sprite, ResourceID shadow, ResourceID data, ResourceID flics_animation,
            ResourceID portrait, ResourceID icon, ResourceID armory_portrait, uint8_t land_type, CargoType cargo_type,
            Gender gender, uint32_t singular_name, uint32_t plural_name, uint32_t description,
-           uint32_t tutorial_description)
+           uint32_t tutorial_description, std::unordered_map<SfxType, SoundEffectInfo>&& sound_effects)
     : m_flags(flags),
       m_sprite(sprite),
       m_shadow(shadow),
@@ -73,7 +73,8 @@ Unit::Unit(uint32_t flags, ResourceID sprite, ResourceID shadow, ResourceID data
           }
 
           return file;
-      }()) {}
+      }()),
+      m_sound_effects(std::move(sound_effects)) {}
 
 Unit::~Unit() {}
 
@@ -125,3 +126,8 @@ const FrameInfo& Unit::GetFrameInfo() const { return m_frame_info; }
 void Unit::SetSpriteData(uint8_t* sprite_data) { m_sprite_data = sprite_data; }
 
 void Unit::SetShadowData(uint8_t* shadow_data) { m_shadow_data = shadow_data; }
+
+const Unit::SoundEffectInfo& Unit::GetSoundEffect(SfxType sfx_type) const {
+    auto it = m_sound_effects.find(sfx_type);
+    return it->second;
+}

@@ -44,403 +44,6 @@
 #include "unitinfogroup.hpp"
 #include "units_manager.hpp"
 
-static const std::vector<SoundElement> UnitInfo_SfxDefaultUnit = {{{SFX_TYPE_IDLE, GEN_IDLE},
-                                                                   {SFX_TYPE_WATER_IDLE, WGN_IDLE},
-                                                                   {SFX_TYPE_DRIVE, GEN_DRVE},
-                                                                   {SFX_TYPE_WATER_DRIVE, WGN_DRVE},
-                                                                   {SFX_TYPE_STOP, GEN_STOP},
-                                                                   {SFX_TYPE_WATER_STOP, WGN_STOP},
-                                                                   {SFX_TYPE_TRANSFORM, GEN_XFRM},
-                                                                   {SFX_TYPE_BUILDING, GEN_BLDG},
-                                                                   {SFX_TYPE_SHRINK, GEN_SHNK},
-                                                                   {SFX_TYPE_EXPAND, GEN_XPND},
-                                                                   {SFX_TYPE_TURRET, GEN_TRRT},
-                                                                   {SFX_TYPE_FIRE, GEN_FIRE},
-                                                                   {SFX_TYPE_HIT, GEN_HIT},
-                                                                   {SFX_TYPE_EXPLOAD, GEN_XPLD},
-                                                                   {SFX_TYPE_POWER_CONSUMPTION_START, GEN_PRCS},
-                                                                   {SFX_TYPE_POWER_CONSUMPTION_END, GEN_PRCE},
-                                                                   {SFX_TYPE_LAND, GEN_LAND},
-                                                                   {SFX_TYPE_TAKE, GEN_TAKE}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxMonopoleMine = {{{SFX_TYPE_BUILDING, MONOP10},
-                                                                    {SFX_TYPE_HIT, MONOP15},
-                                                                    {SFX_TYPE_EXPLOAD, MONOP16},
-                                                                    {SFX_TYPE_POWER_CONSUMPTION_START, MONOP17},
-                                                                    {SFX_TYPE_POWER_CONSUMPTION_END, MONOP18}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxPowerStation = {{{SFX_TYPE_BUILDING, POWST10},
-                                                                    {SFX_TYPE_HIT, POWST15},
-                                                                    {SFX_TYPE_EXPLOAD, POWST16},
-                                                                    {SFX_TYPE_POWER_CONSUMPTION_START, POWST17},
-                                                                    {SFX_TYPE_POWER_CONSUMPTION_END, POWST18}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxPowerGenerator = {{{SFX_TYPE_BUILDING, POWGN10},
-                                                                      {SFX_TYPE_HIT, POWGN15},
-                                                                      {SFX_TYPE_EXPLOAD, POWGN16},
-                                                                      {SFX_TYPE_POWER_CONSUMPTION_START, POWGN17},
-                                                                      {SFX_TYPE_POWER_CONSUMPTION_END, POWGN18}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxBarracks = {{{SFX_TYPE_HIT, BARRA15}, {SFX_TYPE_EXPLOAD, BARRA16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxGoldRefinery = {{{SFX_TYPE_BUILDING, GOLDR10},
-                                                                    {SFX_TYPE_HIT, GOLDR15},
-                                                                    {SFX_TYPE_EXPLOAD, GOLDR16},
-                                                                    {SFX_TYPE_POWER_CONSUMPTION_START, GOLDR17},
-                                                                    {SFX_TYPE_POWER_CONSUMPTION_END, GOLDR18}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxRadar = {
-    {{SFX_TYPE_IDLE, RADAR13}, {SFX_TYPE_HIT, RADAR15}, {SFX_TYPE_EXPLOAD, RADAR16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxMaterialStorage = {
-    {{SFX_TYPE_HIT, SSTOR15}, {SFX_TYPE_EXPLOAD, SSTOR16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxFuelStorage = {
-    {{SFX_TYPE_HIT, SFUEL15}, {SFX_TYPE_EXPLOAD, SFUEL16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxGoldVault = {{{SFX_TYPE_HIT, SGOLD15}, {SFX_TYPE_EXPLOAD, SGOLD16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxDepot = {{{SFX_TYPE_HIT, DEPOT15}, {SFX_TYPE_EXPLOAD, DEPOT16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxHangar = {{{SFX_TYPE_HIT, HANGR15}, {SFX_TYPE_EXPLOAD, HANGR16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxDock = {{{SFX_TYPE_HIT, DOCK15}, {SFX_TYPE_EXPLOAD, DOCK16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxRoad = {{{SFX_TYPE_HIT, ROAD15}, {SFX_TYPE_EXPLOAD, ROAD16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxLandingPad = {{{SFX_TYPE_HIT, LPAD15}, {SFX_TYPE_EXPLOAD, LPAD16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxShipyard = {{{SFX_TYPE_BUILDING, SUNIT10},
-                                                                {SFX_TYPE_HIT, SUNIT15},
-                                                                {SFX_TYPE_EXPLOAD, SUNIT16},
-                                                                {SFX_TYPE_POWER_CONSUMPTION_START, SUNIT17},
-                                                                {SFX_TYPE_POWER_CONSUMPTION_END, SUNIT18}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxLightVehiclePlant = {{{SFX_TYPE_BUILDING, LVP10},
-                                                                         {SFX_TYPE_HIT, LVP15},
-                                                                         {SFX_TYPE_EXPLOAD, LVP16},
-                                                                         {SFX_TYPE_POWER_CONSUMPTION_START, LVP17},
-                                                                         {SFX_TYPE_POWER_CONSUMPTION_END, LVP18}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxHeavyVehiclePlant = {{{SFX_TYPE_BUILDING, HVP10},
-                                                                         {SFX_TYPE_HIT, HVP15},
-                                                                         {SFX_TYPE_EXPLOAD, HVP16},
-                                                                         {SFX_TYPE_POWER_CONSUMPTION_START, HVP17},
-                                                                         {SFX_TYPE_POWER_CONSUMPTION_END, HVP18}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxAirUnitsPlant = {{{SFX_TYPE_BUILDING, AUNIT10},
-                                                                     {SFX_TYPE_HIT, AUNIT15},
-                                                                     {SFX_TYPE_EXPLOAD, AUNIT16},
-                                                                     {SFX_TYPE_POWER_CONSUMPTION_START, AUNIT17},
-                                                                     {SFX_TYPE_POWER_CONSUMPTION_END, AUNIT18}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxHabitat = {
-    {{SFX_TYPE_BUILDING, DORMI10}, {SFX_TYPE_HIT, DORMI15}, {SFX_TYPE_EXPLOAD, DORMI16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxResearchCentre = {{{SFX_TYPE_BUILDING, RESEAR10},
-                                                                      {SFX_TYPE_HIT, RESEAR15},
-                                                                      {SFX_TYPE_EXPLOAD, RESEAR16},
-                                                                      {SFX_TYPE_POWER_CONSUMPTION_START, RESEAR17},
-                                                                      {SFX_TYPE_POWER_CONSUMPTION_END, RESEAR18}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxEcoSphere = {{{SFX_TYPE_BUILDING, ECOSP10},
-                                                                 {SFX_TYPE_HIT, ECOSP15},
-                                                                 {SFX_TYPE_EXPLOAD, ECOSP16},
-                                                                 {SFX_TYPE_POWER_CONSUMPTION_START, ECOSP17},
-                                                                 {SFX_TYPE_POWER_CONSUMPTION_END, ECOSP18}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxTrainingHall = {{{SFX_TYPE_BUILDING, TRAIN10},
-                                                                    {SFX_TYPE_HIT, TRAIN15},
-                                                                    {SFX_TYPE_EXPLOAD, TRAIN16},
-                                                                    {SFX_TYPE_POWER_CONSUMPTION_START, TRAIN17},
-                                                                    {SFX_TYPE_POWER_CONSUMPTION_END, TRAIN18}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxWaterPlatform = {
-    {{SFX_TYPE_HIT, WPLAT15}, {SFX_TYPE_EXPLOAD, WPLAT16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxGunTurret = {
-    {{SFX_TYPE_FIRE, FGUN14}, {SFX_TYPE_HIT, FGUN15}, {SFX_TYPE_EXPLOAD, FGUN16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxArtillery = {
-    {{SFX_TYPE_FIRE, FARTY14}, {SFX_TYPE_HIT, FARTY15}, {SFX_TYPE_EXPLOAD, FARTY16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxAntiAir = {
-    {{SFX_TYPE_FIRE, FANTI14}, {SFX_TYPE_HIT, FANTI15}, {SFX_TYPE_EXPLOAD, FANTI16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxMissileLauncher = {
-    {{SFX_TYPE_FIRE, FROCK14}, {SFX_TYPE_HIT, FROCK15}, {SFX_TYPE_EXPLOAD, FROCK16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxConcreteBlock = {
-    {{SFX_TYPE_HIT, BLOCK15}, {SFX_TYPE_EXPLOAD, BLOCK16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxBridge = {{{SFX_TYPE_HIT, BRIDG15}, {SFX_TYPE_EXPLOAD, BRIDG16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxMiningStation = {{{SFX_TYPE_BUILDING, MSTAT10},
-                                                                     {SFX_TYPE_HIT, MSTAT15},
-                                                                     {SFX_TYPE_EXPLOAD, MSTAT16},
-                                                                     {SFX_TYPE_POWER_CONSUMPTION_START, MSTAT17},
-                                                                     {SFX_TYPE_POWER_CONSUMPTION_END, MSTAT18}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxLandMine = {{{SFX_TYPE_EXPLOAD, LMINE16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxSeaMine = {{{SFX_TYPE_EXPLOAD, CMINE16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxHitExplosion = {
-    {{SFX_TYPE_HIT, EMPTYLND}, {SFX_TYPE_EXPLOAD, EMPTYWTR}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxMasterBuilder = {{{SFX_TYPE_IDLE, MASTR1},
-                                                                     {SFX_TYPE_DRIVE, MASTR5},
-                                                                     {SFX_TYPE_STOP, MASTR7},
-                                                                     {SFX_TYPE_TRANSFORM, MASTR15},
-                                                                     {SFX_TYPE_HIT, MASTR9},
-                                                                     {SFX_TYPE_EXPLOAD, MASTR16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxConstructor = {{{SFX_TYPE_IDLE, CONST1},
-                                                                   {SFX_TYPE_DRIVE, CONST5},
-                                                                   {SFX_TYPE_STOP, CONST7},
-                                                                   {SFX_TYPE_BUILDING, CONST10},
-                                                                   {SFX_TYPE_HIT, CONST15},
-                                                                   {SFX_TYPE_EXPLOAD, CONST16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxScout = {{{SFX_TYPE_IDLE, SCOUT1},
-                                                             {SFX_TYPE_DRIVE, SCOUT5},
-                                                             {SFX_TYPE_STOP, SCOUT7},
-                                                             {SFX_TYPE_FIRE, SCOUT14},
-                                                             {SFX_TYPE_HIT, SCOUT15},
-                                                             {SFX_TYPE_EXPLOAD, SCOUT16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxTank = {{{SFX_TYPE_IDLE, TANK1},
-                                                            {SFX_TYPE_DRIVE, TANK5},
-                                                            {SFX_TYPE_STOP, TANK7},
-                                                            {SFX_TYPE_FIRE, TANK14},
-                                                            {SFX_TYPE_HIT, TANK15},
-                                                            {SFX_TYPE_EXPLOAD, TANK16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxAssaultGun = {{{SFX_TYPE_IDLE, ASGUN1},
-                                                                  {SFX_TYPE_DRIVE, ASGUN5},
-                                                                  {SFX_TYPE_STOP, ASGUN7},
-                                                                  {SFX_TYPE_FIRE, ASGUN14},
-                                                                  {SFX_TYPE_HIT, ASGUN15},
-                                                                  {SFX_TYPE_EXPLOAD, ASGUN16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxRocketLauncher = {{{SFX_TYPE_IDLE, RLNCH1},
-                                                                      {SFX_TYPE_DRIVE, RLNCH5},
-                                                                      {SFX_TYPE_STOP, RLNCH7},
-                                                                      {SFX_TYPE_FIRE, RLNCH14},
-                                                                      {SFX_TYPE_HIT, RLNCH15},
-                                                                      {SFX_TYPE_EXPLOAD, RLNCH16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxMissileCrawler = {{{SFX_TYPE_IDLE, MSLNC1},
-                                                                      {SFX_TYPE_DRIVE, MSLNC5},
-                                                                      {SFX_TYPE_STOP, MSLNC7},
-                                                                      {SFX_TYPE_FIRE, MSLNC14},
-                                                                      {SFX_TYPE_HIT, MSLNC15},
-                                                                      {SFX_TYPE_EXPLOAD, MSLNC16}}};
-
-static const std::vector<SoundElement> MobileAntiAir = {{{SFX_TYPE_IDLE, MANTI1},
-                                                         {SFX_TYPE_DRIVE, MANTI5},
-                                                         {SFX_TYPE_STOP, MANTI7},
-                                                         {SFX_TYPE_FIRE, MANTI14},
-                                                         {SFX_TYPE_HIT, MANTI15},
-                                                         {SFX_TYPE_EXPLOAD, MANTI16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxMineLayer = {{{SFX_TYPE_IDLE, MLAYER1},
-                                                                 {SFX_TYPE_DRIVE, MLAYER5},
-                                                                 {SFX_TYPE_STOP, MLAYER7},
-                                                                 {SFX_TYPE_HIT, MLAYER15},
-                                                                 {SFX_TYPE_EXPLOAD, MLAYER16},
-                                                                 {SFX_TYPE_POWER_CONSUMPTION_START, MLAYER17},
-                                                                 {SFX_TYPE_POWER_CONSUMPTION_END, MLAYER18}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxSurveyor = {{{SFX_TYPE_IDLE, SURVY1},
-                                                                {SFX_TYPE_DRIVE, SURVY5},
-                                                                {SFX_TYPE_STOP, SURVY7},
-                                                                {SFX_TYPE_HIT, SURVY15},
-                                                                {SFX_TYPE_EXPLOAD, SURVY16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxScanner = {{{SFX_TYPE_IDLE, SCAN1},
-                                                               {SFX_TYPE_DRIVE, SCAN5},
-                                                               {SFX_TYPE_STOP, SCAN7},
-                                                               {SFX_TYPE_HIT, SCAN15},
-                                                               {SFX_TYPE_EXPLOAD, SCAN16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxSupplyTruck = {{{SFX_TYPE_IDLE, MTRUK1},
-                                                                   {SFX_TYPE_DRIVE, MTRUK5},
-                                                                   {SFX_TYPE_STOP, MTRUK7},
-                                                                   {SFX_TYPE_HIT, MTRUK15},
-                                                                   {SFX_TYPE_EXPLOAD, MTRUK16},
-                                                                   {SFX_TYPE_POWER_CONSUMPTION_START, MTRUK17}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxGoldTruck = {{{SFX_TYPE_IDLE, GTRUK1},
-                                                                 {SFX_TYPE_DRIVE, GTRUK5},
-                                                                 {SFX_TYPE_STOP, GTRUK7},
-                                                                 {SFX_TYPE_HIT, GTRUK15},
-                                                                 {SFX_TYPE_EXPLOAD, GTRUK16},
-                                                                 {SFX_TYPE_POWER_CONSUMPTION_START, GTRUK17}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxEngineer = {{{SFX_TYPE_IDLE, ENGIN1},
-                                                                {SFX_TYPE_DRIVE, ENGIN5},
-                                                                {SFX_TYPE_STOP, ENGIN7},
-                                                                {SFX_TYPE_BUILDING, ENGIN10},
-                                                                {SFX_TYPE_HIT, ENGIN15},
-                                                                {SFX_TYPE_EXPLOAD, ENGIN16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxBulldozer = {{{SFX_TYPE_IDLE, BULL1},
-                                                                 {SFX_TYPE_DRIVE, BULL5},
-                                                                 {SFX_TYPE_STOP, BULL7},
-                                                                 {SFX_TYPE_BUILDING, BULL10},
-                                                                 {SFX_TYPE_HIT, BULL15},
-                                                                 {SFX_TYPE_EXPLOAD, BULL16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxRepairUnit = {{{SFX_TYPE_IDLE, REPAIR1},
-                                                                  {SFX_TYPE_DRIVE, REPAIR5},
-                                                                  {SFX_TYPE_STOP, REPAIR7},
-                                                                  {SFX_TYPE_HIT, REPAIR15},
-                                                                  {SFX_TYPE_EXPLOAD, REPAIR16},
-                                                                  {SFX_TYPE_POWER_CONSUMPTION_START, REPAIR17}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxFuelTruck = {{{SFX_TYPE_IDLE, FTRUK1},
-                                                                 {SFX_TYPE_DRIVE, FTRUK5},
-                                                                 {SFX_TYPE_STOP, FTRUK7},
-                                                                 {SFX_TYPE_HIT, FTRUK15},
-                                                                 {SFX_TYPE_EXPLOAD, FTRUK16},
-                                                                 {SFX_TYPE_POWER_CONSUMPTION_START, FTRUK17}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxArmouredPersonnelCarrier = {{{SFX_TYPE_IDLE, APC1},
-                                                                                {SFX_TYPE_DRIVE, APC5},
-                                                                                {SFX_TYPE_STOP, APC7},
-                                                                                {SFX_TYPE_HIT, APC15},
-                                                                                {SFX_TYPE_EXPLOAD, APC16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxInfiltrator = {
-    {{SFX_TYPE_DRIVE, INFIL5}, {SFX_TYPE_FIRE, INFIL14}, {SFX_TYPE_HIT, INFIL15}, {SFX_TYPE_EXPLOAD, INFIL16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxInfantry = {
-    {{SFX_TYPE_DRIVE, INFAN5}, {SFX_TYPE_FIRE, INFAN14}, {SFX_TYPE_HIT, INFAN15}, {SFX_TYPE_EXPLOAD, INFAN16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxEscort = {{{SFX_TYPE_IDLE, ESCRT2},
-                                                              {SFX_TYPE_DRIVE, ESCRT6},
-                                                              {SFX_TYPE_STOP, ESCRT8},
-                                                              {SFX_TYPE_FIRE, ESCRT14},
-                                                              {SFX_TYPE_HIT, ESCRT15},
-                                                              {SFX_TYPE_EXPLOAD, ESCRT16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxCorvette = {{{SFX_TYPE_IDLE, CORVT2},
-                                                                {SFX_TYPE_DRIVE, CORVT6},
-                                                                {SFX_TYPE_STOP, CORVT8},
-                                                                {SFX_TYPE_FIRE, CORVT14},
-                                                                {SFX_TYPE_HIT, CORVT15},
-                                                                {SFX_TYPE_EXPLOAD, CORVT16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxGunBoat = {{{SFX_TYPE_IDLE, GUNBT2},
-                                                               {SFX_TYPE_DRIVE, GUNBT6},
-                                                               {SFX_TYPE_STOP, GUNBT8},
-                                                               {SFX_TYPE_FIRE, GUNBT14},
-                                                               {SFX_TYPE_HIT, GUNBT15},
-                                                               {SFX_TYPE_EXPLOAD, GUNBT16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxSubmarine = {{{SFX_TYPE_IDLE, SUB2},
-                                                                 {SFX_TYPE_DRIVE, SUB6},
-                                                                 {SFX_TYPE_STOP, SUB8},
-                                                                 {SFX_TYPE_FIRE, SUB14},
-                                                                 {SFX_TYPE_HIT, SUB15},
-                                                                 {SFX_TYPE_EXPLOAD, SUB16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxSeaTransport = {{{SFX_TYPE_IDLE, STRANS2},
-                                                                    {SFX_TYPE_DRIVE, STRANS6},
-                                                                    {SFX_TYPE_STOP, STRANS8},
-                                                                    {SFX_TYPE_HIT, STRANS15},
-                                                                    {SFX_TYPE_EXPLOAD, STRANS16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxMissileCruiser = {{{SFX_TYPE_IDLE, MSLCR2},
-                                                                      {SFX_TYPE_DRIVE, MSLCR6},
-                                                                      {SFX_TYPE_STOP, MSLCR8},
-                                                                      {SFX_TYPE_FIRE, MSLCR14},
-                                                                      {SFX_TYPE_HIT, MSLCR15},
-                                                                      {SFX_TYPE_EXPLOAD, MSLCR16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxSeaMineLayer = {{{SFX_TYPE_IDLE, SMINE2},
-                                                                    {SFX_TYPE_DRIVE, SMINE6},
-                                                                    {SFX_TYPE_STOP, SMINE8},
-                                                                    {SFX_TYPE_HIT, SMINE15},
-                                                                    {SFX_TYPE_EXPLOAD, SMINE16},
-                                                                    {SFX_TYPE_POWER_CONSUMPTION_START, SMINE17},
-                                                                    {SFX_TYPE_POWER_CONSUMPTION_END, SMINE18}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxCargoShip = {{{SFX_TYPE_IDLE, CSHIP2},
-                                                                 {SFX_TYPE_DRIVE, CSHIP6},
-                                                                 {SFX_TYPE_STOP, CSHIP8},
-                                                                 {SFX_TYPE_HIT, CSHIP15},
-                                                                 {SFX_TYPE_POWER_CONSUMPTION_START, CSHIP17},
-                                                                 {SFX_TYPE_EXPLOAD, CSHIP16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxFighter = {{{SFX_TYPE_IDLE, FIGHT1},
-                                                               {SFX_TYPE_DRIVE, FIGHT5},
-                                                               {SFX_TYPE_STOP, FIGHT7},
-                                                               {SFX_TYPE_FIRE, FIGHT14},
-                                                               {SFX_TYPE_HIT, FIGHT15},
-                                                               {SFX_TYPE_EXPLOAD, FIGHT16},
-                                                               {SFX_TYPE_LAND, FIGHT19},
-                                                               {SFX_TYPE_TAKE, FIGHT20}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxGroundAttackPlane = {{{SFX_TYPE_IDLE, ATACK1},
-                                                                         {SFX_TYPE_DRIVE, ATACK5},
-                                                                         {SFX_TYPE_STOP, ATACK7},
-                                                                         {SFX_TYPE_FIRE, ATACK14},
-                                                                         {SFX_TYPE_HIT, ATACK15},
-                                                                         {SFX_TYPE_EXPLOAD, ATACK16},
-                                                                         {SFX_TYPE_LAND, ATACK19},
-                                                                         {SFX_TYPE_TAKE, ATACK20}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxAirTransport = {{{SFX_TYPE_IDLE, ATRANS1},
-                                                                    {SFX_TYPE_DRIVE, ATRANS5},
-                                                                    {SFX_TYPE_STOP, ATRANS7},
-                                                                    {SFX_TYPE_HIT, ATRANS15},
-                                                                    {SFX_TYPE_EXPLOAD, ATRANS16},
-                                                                    {SFX_TYPE_POWER_CONSUMPTION_START, ATRANS17},
-                                                                    {SFX_TYPE_POWER_CONSUMPTION_END, ATRANS18},
-                                                                    {SFX_TYPE_LAND, ATRANS19},
-                                                                    {SFX_TYPE_TAKE, ATRANS20}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxAwac = {{{SFX_TYPE_IDLE, AWAC1},
-                                                            {SFX_TYPE_DRIVE, AWAC5},
-                                                            {SFX_TYPE_STOP, AWAC7},
-                                                            {SFX_TYPE_FIRE, AWAC14},
-                                                            {SFX_TYPE_HIT, AWAC15},
-                                                            {SFX_TYPE_EXPLOAD, AWAC16},
-                                                            {SFX_TYPE_LAND, AWAC19},
-                                                            {SFX_TYPE_TAKE, AWAC20}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxAlienGunBoat = {{{SFX_TYPE_IDLE, JUGGR1},
-                                                                    {SFX_TYPE_DRIVE, JUGGR5},
-                                                                    {SFX_TYPE_STOP, JUGGR7},
-                                                                    {SFX_TYPE_FIRE, JUGGR14},
-                                                                    {SFX_TYPE_HIT, JUGGR15},
-                                                                    {SFX_TYPE_EXPLOAD, JUGGR16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxAlienTank = {{{SFX_TYPE_IDLE, ALNTK1},
-                                                                 {SFX_TYPE_DRIVE, ALNTK5},
-                                                                 {SFX_TYPE_STOP, ALNTK7},
-                                                                 {SFX_TYPE_FIRE, ALNTK14},
-                                                                 {SFX_TYPE_HIT, ALNTK15},
-                                                                 {SFX_TYPE_EXPLOAD, ALNTK16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxAlienAssaultGun = {{{SFX_TYPE_IDLE, ALNAG1},
-                                                                       {SFX_TYPE_DRIVE, ALNAG5},
-                                                                       {SFX_TYPE_STOP, ALNAG7},
-                                                                       {SFX_TYPE_FIRE, ALNAG14},
-                                                                       {SFX_TYPE_HIT, ALNAG15},
-                                                                       {SFX_TYPE_EXPLOAD, ALNAG16}}};
-
-static const std::vector<SoundElement> UnitInfo_SfxAlienAttackPlane = {{{SFX_TYPE_IDLE, ALNPL1},
-                                                                        {SFX_TYPE_DRIVE, ALNPL5},
-                                                                        {SFX_TYPE_STOP, ALNPL7},
-                                                                        {SFX_TYPE_FIRE, ALNPL14},
-                                                                        {SFX_TYPE_HIT, ALNPL15},
-                                                                        {SFX_TYPE_EXPLOAD, ALNPL16},
-                                                                        {SFX_TYPE_LAND, ALNPL19},
-                                                                        {SFX_TYPE_TAKE, ALNPL20}}};
-
 const uint8_t UnitInfo::ExpResearchTopics[] = {RESEARCH_TOPIC_ATTACK, RESEARCH_TOPIC_SHOTS, RESEARCH_TOPIC_RANGE,
                                                RESEARCH_TOPIC_ARMOR, RESEARCH_TOPIC_HITS};
 
@@ -475,10 +78,9 @@ void UnitInfo_BuildList_FileSave(SmartObjectArray<ResourceID>* build_list, Smart
 
 UnitInfo::UnitInfo()
     : name(nullptr),
-      sound(SFX_TYPE_INVALID),
+      sound(Unit::SFX_TYPE_INVALID),
       unit_type(INVALID_ID),
       popup(nullptr),
-      sound_table(nullptr),
       flags(0),
       x(-1),
       y(-1),
@@ -561,10 +163,9 @@ UnitInfo::UnitInfo()
 
 UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t angle)
     : name(nullptr),
-      sound(SFX_TYPE_INVALID),
+      sound(Unit::SFX_TYPE_INVALID),
       unit_type(unit_type),
       popup(nullptr),
-      sound_table(nullptr),
       flags(ResourceManager_GetUnit(unit_type).GetFlags() | UnitsManager_TeamInfo[team].team_units->hash_team_id),
       x(-1),
       y(-1),
@@ -707,7 +308,6 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
 UnitInfo::UnitInfo(const UnitInfo& other)
     : unit_type(other.unit_type),
       popup(other.popup),
-      sound_table(other.sound_table),
       flags(other.flags),
       x(other.x),
       y(other.y),
@@ -960,288 +560,6 @@ void UnitInfo::Init() {
 
         default: {
             popup = &UnitsManager_PopupCallbacks[0];
-        } break;
-    }
-
-    switch (unit_type) {
-        case COMMTWR: {
-            sound_table = &UnitInfo_SfxMonopoleMine;
-        } break;
-
-        case POWERSTN: {
-            sound_table = &UnitInfo_SfxPowerStation;
-        } break;
-
-        case POWGEN: {
-            sound_table = &UnitInfo_SfxPowerGenerator;
-        } break;
-
-        case BARRACKS: {
-            sound_table = &UnitInfo_SfxBarracks;
-        } break;
-
-        case SHIELDGN: {
-            sound_table = &UnitInfo_SfxGoldRefinery;
-        } break;
-
-        case RADAR: {
-            sound_table = &UnitInfo_SfxRadar;
-        } break;
-
-        case ADUMP: {
-            sound_table = &UnitInfo_SfxMaterialStorage;
-        } break;
-
-        case FDUMP: {
-            sound_table = &UnitInfo_SfxFuelStorage;
-        } break;
-
-        case GOLDSM: {
-            sound_table = &UnitInfo_SfxGoldVault;
-        } break;
-
-        case DEPOT: {
-            sound_table = &UnitInfo_SfxDepot;
-        } break;
-
-        case HANGAR: {
-            sound_table = &UnitInfo_SfxHangar;
-        } break;
-
-        case DOCK: {
-            sound_table = &UnitInfo_SfxDock;
-        } break;
-
-        case ROAD: {
-            sound_table = &UnitInfo_SfxRoad;
-        } break;
-
-        case LANDPAD: {
-            sound_table = &UnitInfo_SfxLandingPad;
-        } break;
-
-        case SHIPYARD: {
-            sound_table = &UnitInfo_SfxShipyard;
-        } break;
-
-        case LIGHTPLT: {
-            sound_table = &UnitInfo_SfxLightVehiclePlant;
-        } break;
-
-        case LANDPLT: {
-            sound_table = &UnitInfo_SfxHeavyVehiclePlant;
-        } break;
-
-        case AIRPLT: {
-            sound_table = &UnitInfo_SfxAirUnitsPlant;
-        } break;
-
-        case HABITAT: {
-            sound_table = &UnitInfo_SfxHabitat;
-        } break;
-
-        case RESEARCH: {
-            sound_table = &UnitInfo_SfxResearchCentre;
-        } break;
-
-        case GREENHSE: {
-            sound_table = &UnitInfo_SfxEcoSphere;
-        } break;
-
-        case TRAINHAL: {
-            sound_table = &UnitInfo_SfxTrainingHall;
-        } break;
-
-        case WTRPLTFM: {
-            sound_table = &UnitInfo_SfxWaterPlatform;
-        } break;
-
-        case GUNTURRT: {
-            sound_table = &UnitInfo_SfxGunTurret;
-        } break;
-
-        case ANTIAIR: {
-            sound_table = &UnitInfo_SfxAntiAir;
-        } break;
-
-        case ARTYTRRT: {
-            sound_table = &UnitInfo_SfxArtillery;
-        } break;
-
-        case ANTIMSSL: {
-            sound_table = &UnitInfo_SfxMissileLauncher;
-        } break;
-
-        case BLOCK: {
-            sound_table = &UnitInfo_SfxConcreteBlock;
-        } break;
-
-        case BRIDGE: {
-            sound_table = &UnitInfo_SfxBridge;
-        } break;
-
-        case MININGST: {
-            sound_table = &UnitInfo_SfxMiningStation;
-        } break;
-
-        case LANDMINE: {
-            sound_table = &UnitInfo_SfxLandMine;
-        } break;
-
-        case SEAMINE: {
-            sound_table = &UnitInfo_SfxSeaMine;
-        } break;
-
-        case HITEXPLD: {
-            sound_table = &UnitInfo_SfxHitExplosion;
-        } break;
-
-        case MASTER: {
-            sound_table = &UnitInfo_SfxMasterBuilder;
-        } break;
-
-        case CONSTRCT: {
-            sound_table = &UnitInfo_SfxConstructor;
-        } break;
-
-        case SCOUT: {
-            sound_table = &UnitInfo_SfxScout;
-        } break;
-
-        case TANK: {
-            sound_table = &UnitInfo_SfxTank;
-        } break;
-
-        case ARTILLRY: {
-            sound_table = &UnitInfo_SfxAssaultGun;
-        } break;
-
-        case ROCKTLCH: {
-            sound_table = &UnitInfo_SfxRocketLauncher;
-        } break;
-
-        case MISSLLCH: {
-            sound_table = &UnitInfo_SfxMissileCrawler;
-        } break;
-
-        case SP_FLAK: {
-            sound_table = &MobileAntiAir;
-        } break;
-
-        case MINELAYR: {
-            sound_table = &UnitInfo_SfxMineLayer;
-        } break;
-
-        case SURVEYOR: {
-            sound_table = &UnitInfo_SfxSurveyor;
-        } break;
-
-        case SCANNER: {
-            sound_table = &UnitInfo_SfxScanner;
-        } break;
-
-        case SPLYTRCK: {
-            sound_table = &UnitInfo_SfxSupplyTruck;
-        } break;
-
-        case GOLDTRCK: {
-            sound_table = &UnitInfo_SfxGoldTruck;
-        } break;
-
-        case ENGINEER: {
-            sound_table = &UnitInfo_SfxEngineer;
-        } break;
-
-        case BULLDOZR: {
-            sound_table = &UnitInfo_SfxBulldozer;
-        } break;
-
-        case REPAIR: {
-            sound_table = &UnitInfo_SfxRepairUnit;
-        } break;
-
-        case FUELTRCK: {
-            sound_table = &UnitInfo_SfxFuelTruck;
-        } break;
-
-        case CLNTRANS: {
-            sound_table = &UnitInfo_SfxArmouredPersonnelCarrier;
-        } break;
-
-        case COMMANDO: {
-            sound_table = &UnitInfo_SfxInfiltrator;
-        } break;
-
-        case INFANTRY: {
-            sound_table = &UnitInfo_SfxInfantry;
-        } break;
-
-        case FASTBOAT: {
-            sound_table = &UnitInfo_SfxEscort;
-        } break;
-
-        case CORVETTE: {
-            sound_table = &UnitInfo_SfxCorvette;
-        } break;
-
-        case BATTLSHP: {
-            sound_table = &UnitInfo_SfxGunBoat;
-        } break;
-
-        case SUBMARNE: {
-            sound_table = &UnitInfo_SfxSubmarine;
-        } break;
-
-        case SEATRANS: {
-            sound_table = &UnitInfo_SfxSeaTransport;
-        } break;
-
-        case MSSLBOAT: {
-            sound_table = &UnitInfo_SfxMissileCruiser;
-        } break;
-
-        case SEAMNLYR: {
-            sound_table = &UnitInfo_SfxSeaMineLayer;
-        } break;
-
-        case CARGOSHP: {
-            sound_table = &UnitInfo_SfxCargoShip;
-        } break;
-
-        case FIGHTER: {
-            sound_table = &UnitInfo_SfxFighter;
-        } break;
-
-        case BOMBER: {
-            sound_table = &UnitInfo_SfxGroundAttackPlane;
-        } break;
-
-        case AIRTRANS: {
-            sound_table = &UnitInfo_SfxAirTransport;
-        } break;
-
-        case AWAC: {
-            sound_table = &UnitInfo_SfxAwac;
-        } break;
-
-        case JUGGRNT: {
-            sound_table = &UnitInfo_SfxAlienGunBoat;
-        } break;
-
-        case ALNTANK: {
-            sound_table = &UnitInfo_SfxAlienTank;
-        } break;
-
-        case ALNASGUN: {
-            sound_table = &UnitInfo_SfxAlienAssaultGun;
-        } break;
-
-        case ALNPLANE: {
-            sound_table = &UnitInfo_SfxAlienAttackPlane;
-        } break;
-
-        default: {
-            sound_table = &UnitInfo_SfxDefaultUnit;
         } break;
     }
 }
@@ -2371,7 +1689,7 @@ void UnitInfo::Build() {
             SetParent(nullptr);
 
             ClearBuildListAndPath();
-            SoundManager_PlaySfx(this, SFX_TYPE_IDLE);
+            SoundManager_PlaySfx(this, Unit::SFX_TYPE_IDLE);
         }
 
     } else {
@@ -2405,12 +1723,12 @@ void UnitInfo::Move() {
 
         if (GameManager_SelectedUnit == this) {
             if (speed > 0 && !path->IsEndStep()) {
-                if (GetSfxType() != SFX_TYPE_DRIVE && GetSfxType() != SFX_TYPE_STOP) {
-                    SoundManager_PlaySfx(this, SFX_TYPE_DRIVE);
+                if (GetSfxType() != Unit::SFX_TYPE_DRIVE && GetSfxType() != Unit::SFX_TYPE_STOP) {
+                    SoundManager_PlaySfx(this, Unit::SFX_TYPE_DRIVE);
                 }
 
             } else {
-                SoundManager_PlaySfx(this, SFX_TYPE_STOP);
+                SoundManager_PlaySfx(this, Unit::SFX_TYPE_STOP);
             }
         }
 
@@ -3343,10 +2661,10 @@ void UnitInfo::Attack(int32_t grid_x, int32_t grid_y) {
                     UnitsManager_DeployUnit(HITEXPLD, team, nullptr, grid_x, grid_y, 0, true);
 
                 if (Access_GetModifiedSurfaceType(grid_x, grid_y) == SURFACE_TYPE_LAND) {
-                    SoundManager_PlaySfx(&*explosion, SFX_TYPE_HIT);
+                    SoundManager_PlaySfx(&*explosion, Unit::SFX_TYPE_HIT);
 
                 } else {
-                    SoundManager_PlaySfx(&*explosion, SFX_TYPE_EXPLOAD);
+                    SoundManager_PlaySfx(&*explosion, Unit::SFX_TYPE_EXPLOAD);
                 }
             }
         }
@@ -3399,7 +2717,7 @@ void UnitInfo::StartBuilding() {
         if (GameManager_SelectedUnit == this) {
             GameManager_UpdateInfoDisplay(&*GameManager_SelectedUnit);
 
-            SoundManager_PlaySfx(this, SFX_TYPE_POWER_CONSUMPTION_START);
+            SoundManager_PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_START);
         }
 
     } else {
@@ -4055,7 +3373,7 @@ void UnitInfo::SpawnNewUnit() {
         SetParent(nullptr);
 
         if (GameManager_SelectedUnit == this) {
-            SoundManager_PlaySfx(this, SFX_TYPE_IDLE);
+            SoundManager_PlaySfx(this, Unit::SFX_TYPE_IDLE);
         }
 
     } else {
@@ -4095,7 +3413,7 @@ void UnitInfo::SpawnNewUnit() {
             int32_t position_y = this->grid_y;
 
             if (GameManager_SelectedUnit == this) {
-                SoundManager_PlaySfx(this, SFX_TYPE_IDLE);
+                SoundManager_PlaySfx(this, Unit::SFX_TYPE_IDLE);
             }
 
             utility_unit = Access_GetConstructionUtility(team, position_x, position_y);
@@ -4210,7 +3528,7 @@ void UnitInfo::MoveFinished(bool mode) {
     if (GameManager_SelectedUnit == this) {
         GameManager_UpdateInfoDisplay(this);
         GameManager_AutoSelectNext(this);
-        SoundManager_PlaySfx(this, SFX_TYPE_IDLE);
+        SoundManager_PlaySfx(this, Unit::SFX_TYPE_IDLE);
     }
 
     velocity = 0;
@@ -4370,7 +3688,7 @@ bool UnitInfo::Land() {
     bool result;
 
     if (moved == 0 && GameManager_SelectedUnit == this) {
-        SoundManager_PlaySfx(this, SFX_TYPE_LAND);
+        SoundManager_PlaySfx(this, Unit::SFX_TYPE_LAND);
     }
 
     RefreshScreen();
@@ -4403,7 +3721,7 @@ bool UnitInfo::Take() {
     bool result;
 
     if (moved == 0 && GameManager_SelectedUnit == this) {
-        SoundManager_PlaySfx(this, SFX_TYPE_TAKE);
+        SoundManager_PlaySfx(this, Unit::SFX_TYPE_TAKE);
     }
 
     RefreshScreen();
@@ -4715,7 +4033,7 @@ void UnitInfo::CancelBuilding() {
         }
 
         if (GameManager_SelectedUnit == this) {
-            SoundManager_PlaySfx(this, SFX_TYPE_POWER_CONSUMPTION_END);
+            SoundManager_PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_END);
 
             GameManager_UpdateInfoDisplay(this);
         }
@@ -4752,7 +4070,7 @@ void UnitInfo::CancelBuilding() {
         }
 
         if (GameManager_SelectedUnit == this) {
-            SoundManager_PlaySfx(this, SFX_TYPE_IDLE);
+            SoundManager_PlaySfx(this, Unit::SFX_TYPE_IDLE);
         }
     }
 }
@@ -4782,7 +4100,7 @@ void UnitInfo::Reload(UnitInfo* parent) {
 
     if (need_action) {
         if (GameManager_SelectedUnit == this) {
-            SoundManager_PlaySfx(this, SFX_TYPE_POWER_CONSUMPTION_START, true);
+            SoundManager_PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_START, true);
         }
 
         parent->ammo = parent->GetBaseValues()->GetAttribute(ATTRIB_AMMO);
@@ -4979,7 +4297,7 @@ void UnitInfo::PlaceMine() {
             if (GameManager_SelectedUnit == this) {
                 GameManager_UpdateInfoDisplay(this);
 
-                SoundManager_PlaySfx(this, SFX_TYPE_POWER_CONSUMPTION_START, true);
+                SoundManager_PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_START, true);
             }
         }
     }
@@ -5011,7 +4329,7 @@ void UnitInfo::PickUpMine() {
                 if (GameManager_SelectedUnit == this) {
                     GameManager_UpdateInfoDisplay(this);
 
-                    SoundManager_PlaySfx(this, SFX_TYPE_POWER_CONSUMPTION_END, true);
+                    SoundManager_PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_END, true);
                 }
             }
         }
@@ -5143,7 +4461,7 @@ void UnitInfo::PrepareFire() {
 
     if (team_visibility || UnitsManager_TeamInfo[GameManager_PlayerTeam]
                                .heat_map_complete[fire_on_grid_y * ResourceManager_MapSize.x + fire_on_grid_x]) {
-        SoundManager_PlaySfx(this, SFX_TYPE_FIRE);
+        SoundManager_PlaySfx(this, Unit::SFX_TYPE_FIRE);
     }
 
     if (flags & HAS_FIRING_SPRITE) {
@@ -5333,12 +4651,12 @@ void UnitInfo::ChangeTeam(uint16_t target_team) {
 
 void UnitInfo::SetParent(UnitInfo* const parent) noexcept { parent_unit = parent; }
 
-[[nodiscard]] uint8_t UnitInfo::GetSfxType() const noexcept { return sound; }
+[[nodiscard]] Unit::SfxType UnitInfo::GetSfxType() const noexcept { return sound; }
 
-uint8_t UnitInfo::SetSfxType(uint8_t sound) noexcept {
+Unit::SfxType UnitInfo::SetSfxType(Unit::SfxType sound) noexcept {
     auto previous_sound{this->sound};
 
-    SDL_assert(sound < SFX_TYPE_LIMIT);
+    SDL_assert(sound < Unit::SFX_TYPE_LIMIT);
 
     this->sound = sound;
 

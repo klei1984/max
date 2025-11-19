@@ -56,16 +56,6 @@ private:
     uint32_t* items;
 };
 
-class IniSoundVolumes {
-    Ini_descriptor ini;
-
-public:
-    IniSoundVolumes();
-    ~IniSoundVolumes();
-    void Init();
-    int32_t GetUnitVolume(ResourceID id);
-};
-
 extern IniSettings ini_config;
 
 extern int32_t ini_setting_victory_type;

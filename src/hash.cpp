@@ -48,7 +48,7 @@ void SmartList_UnitInfo_FileLoad(SmartList<UnitInfo>& list, SmartFileReader& fil
             unit->color_cycling_lut = ResourceManager_TeamDerelictColorIndexTable;
         }
 
-        unit->SetSfxType(SFX_TYPE_INVALID);
+        unit->SetSfxType(Unit::SFX_TYPE_INVALID);
     }
 }
 

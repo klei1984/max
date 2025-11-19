@@ -1809,7 +1809,7 @@ void UnitsManager_TestBustedCommando(UnitInfo* unit) {
 
 void UnitsManager_ScaleUnit(UnitInfo* unit, const UnitOrderStateType state) {
     if (GameManager_PlayerTeam == unit->team) {
-        SoundManager_PlaySfx(unit, state == ORDER_STATE_EXPAND ? SFX_TYPE_EXPAND : SFX_TYPE_SHRINK);
+        SoundManager_PlaySfx(unit, state == ORDER_STATE_EXPAND ? Unit::SFX_TYPE_EXPAND : Unit::SFX_TYPE_SHRINK);
     }
 
     UnitsManager_SetNewOrderInt(unit, ORDER_AWAIT_SCALING, state);
@@ -2148,7 +2148,7 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
     PathsManager_RemoveRequest(unit);
 
     if (unit_to_destroy == GameManager_SelectedUnit) {
-        SoundManager_PlaySfx(unit, SFX_TYPE_INVALID);
+        SoundManager_PlaySfx(unit, Unit::SFX_TYPE_INVALID);
         GameManager_SelectedUnit = nullptr;
 
         if (GameManager_IsMainMenuEnabled) {
@@ -2380,7 +2380,7 @@ void UnitsManager_FinishUnitScaling(UnitInfo* unit) {
         }
 
         if (GameManager_SelectedUnit == unit) {
-            SoundManager_PlaySfx(unit, SFX_TYPE_INVALID);
+            SoundManager_PlaySfx(unit, Unit::SFX_TYPE_INVALID);
 
             GameManager_UpdateInfoDisplay(unit);
             GameManager_AutoSelectNext(unit);
@@ -2643,7 +2643,7 @@ void UnitsManager_ProcessOrderFire(UnitInfo* unit) {
             unit->SetOrderState(ORDER_STATE_IN_PROGRESS);
 
             if (GameManager_SelectedUnit == unit) {
-                SoundManager_PlaySfx(unit, SFX_TYPE_TURRET);
+                SoundManager_PlaySfx(unit, Unit::SFX_TYPE_TURRET);
             }
 
             UnitsManager_OrdersPending = true;
@@ -2693,7 +2693,7 @@ void UnitsManager_ProcessOrderBuild(UnitInfo* unit) {
             }
 
             if (GameManager_SelectedUnit == unit) {
-                SoundManager_PlaySfx(unit, SFX_TYPE_BUILDING);
+                SoundManager_PlaySfx(unit, Unit::SFX_TYPE_BUILDING);
             }
         } break;
 
@@ -2772,7 +2772,7 @@ void UnitsManager_ProcessOrderPowerOn(UnitInfo* unit) {
         Ai_SetTasksPendingFlag("Power up");
 
         if (GameManager_SelectedUnit == unit) {
-            SoundManager_PlaySfx(unit, SFX_TYPE_POWER_CONSUMPTION_START);
+            SoundManager_PlaySfx(unit, Unit::SFX_TYPE_POWER_CONSUMPTION_START);
         }
 
         UnitsManager_PowerUpUnit(unit, -1);
@@ -3382,7 +3382,7 @@ void UnitsManager_PowerDownUnit(UnitInfo* unit) {
     Ai_SetTasksPendingFlag("Power Down");
 
     if (GameManager_SelectedUnit == unit) {
-        SoundManager_PlaySfx(unit, SFX_TYPE_POWER_CONSUMPTION_END);
+        SoundManager_PlaySfx(unit, Unit::SFX_TYPE_POWER_CONSUMPTION_END);
     }
 
     UnitsManager_PowerUpUnit(unit, 1);
@@ -3924,14 +3924,14 @@ void UnitsManager_StartExplosion(UnitInfo* unit) {
     unit->RefreshScreen();
 
     if (unit->hits > 0) {
-        SoundManager_PlaySfx(unit, SFX_TYPE_HIT);
+        SoundManager_PlaySfx(unit, Unit::SFX_TYPE_HIT);
 
     } else {
         if (GameManager_SelectedUnit == unit) {
-            SoundManager_PlaySfx(unit, SFX_TYPE_INVALID);
+            SoundManager_PlaySfx(unit, Unit::SFX_TYPE_INVALID);
         }
 
-        SoundManager_PlaySfx(unit, SFX_TYPE_EXPLOAD);
+        SoundManager_PlaySfx(unit, Unit::SFX_TYPE_EXPLOAD);
     }
 
     if ((unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY) && unit->hits == 0) {
@@ -4036,7 +4036,7 @@ void UnitsManager_ProgressExplosion(UnitInfo* unit) {
 void UnitsManager_ProgressUnloading(UnitInfo* unit) {
     if (unit->Land()) {
         if (GameManager_SelectedUnit == unit) {
-            SoundManager_PlaySfx(unit, SFX_TYPE_POWER_CONSUMPTION_END, true);
+            SoundManager_PlaySfx(unit, Unit::SFX_TYPE_POWER_CONSUMPTION_END, true);
         }
 
         SmartPointer<UnitInfo> client(unit->GetParent());
@@ -4106,7 +4106,7 @@ void UnitsManager_StartClearing(UnitInfo* unit) {
     unit->DrawSpriteFrame(unit->GetImageIndex() + 8);
 
     if (GameManager_SelectedUnit == unit) {
-        SoundManager_PlaySfx(unit, SFX_TYPE_BUILDING);
+        SoundManager_PlaySfx(unit, Unit::SFX_TYPE_BUILDING);
     }
 }
 
@@ -4118,7 +4118,7 @@ void UnitsManager_ProgressLoading(UnitInfo* unit) {
         if (parent->hits > 0 && parent->GetOrder() != ORDER_FIRE && parent->GetOrder() != ORDER_EXPLODE &&
             parent->GetOrderState() != ORDER_STATE_DESTROY) {
             if (GameManager_SelectedUnit == unit) {
-                SoundManager_PlaySfx(unit, SFX_TYPE_POWER_CONSUMPTION_START, true);
+                SoundManager_PlaySfx(unit, Unit::SFX_TYPE_POWER_CONSUMPTION_START, true);
             }
 
             parent->path = nullptr;
@@ -4223,7 +4223,7 @@ void UnitsManager_Repair(UnitInfo* unit) {
     SmartPointer<UnitInfo> parent(unit->GetParent());
 
     if (GameManager_SelectedUnit == unit) {
-        SoundManager_PlaySfx(unit, SFX_TYPE_POWER_CONSUMPTION_START, true);
+        SoundManager_PlaySfx(unit, Unit::SFX_TYPE_POWER_CONSUMPTION_START, true);
     }
 
     if (unit->GetComplex()) {

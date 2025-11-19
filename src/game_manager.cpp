@@ -2284,7 +2284,7 @@ void GameManager_UpdateGuiControl(uint16_t team) {
     GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, COLOR_BLACK, true);
 
     if (GameManager_SelectedUnit != nullptr) {
-        SoundManager_PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID);
+        SoundManager_PlaySfx(&*GameManager_SelectedUnit, Unit::SFX_TYPE_INVALID);
     }
 
     GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, 4, 0);
@@ -3304,7 +3304,7 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
 
     if (save_slot) {
         if (GameManager_SelectedUnit != nullptr) {
-            SoundManager_PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID);
+            SoundManager_PlaySfx(&*GameManager_SelectedUnit, Unit::SFX_TYPE_INVALID);
         }
 
         MessageManager_ClearMessageBox();
@@ -3507,7 +3507,7 @@ void GameManager_SelectBuildSite(UnitInfo* unit) {
         UnitsManager_SetNewOrder(unit, ORDER_BUILD, ORDER_STATE_BUILD_CANCEL);
 
         if (GameManager_SelectedUnit == unit) {
-            SoundManager_PlaySfx(unit, SFX_TYPE_POWER_CONSUMPTION_END);
+            SoundManager_PlaySfx(unit, Unit::SFX_TYPE_POWER_CONSUMPTION_END);
         }
     }
 
@@ -6989,7 +6989,7 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
     if (GameManager_DisplayControlsInitialized) {
         if (GameManager_SelectedUnit != nullptr && GameManager_SelectedUnit != unit) {
             GameManager_SelectedUnit->RefreshScreen();
-            SoundManager_PlaySfx(&*GameManager_SelectedUnit, SFX_TYPE_INVALID);
+            SoundManager_PlaySfx(&*GameManager_SelectedUnit, Unit::SFX_TYPE_INVALID);
         }
 
         Gamemanager_FlicButton->Enable(unit && unit->team == GameManager_PlayerTeam);
@@ -7001,7 +7001,7 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
 
         if (unit) {
             WindowInfo* window;
-            int32_t sound;
+            Unit::SfxType sound;
             char text[100];
 
             unit->targeting_mode = 0;
@@ -7069,17 +7069,17 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
             GameManager_UpdateInfoDisplay(unit);
             unit->RefreshScreen();
 
-            sound = SFX_TYPE_IDLE;
+            sound = Unit::SFX_TYPE_IDLE;
 
             if (unit->GetOrder() == ORDER_BUILD && (unit->GetOrderState() == ORDER_STATE_BUILD_IN_PROGRESS ||
                                                     unit->GetOrderState() == ORDER_STATE_EXECUTING_ORDER)) {
-                sound = SFX_TYPE_BUILDING;
+                sound = Unit::SFX_TYPE_BUILDING;
 
             } else if (unit->GetOrder() == ORDER_CLEAR && unit->GetOrderState() == ORDER_STATE_IN_PROGRESS) {
-                sound = SFX_TYPE_BUILDING;
+                sound = Unit::SFX_TYPE_BUILDING;
 
             } else if (unit->GetOrder() == ORDER_POWER_ON && unit->GetOrderState() == ORDER_STATE_EXECUTING_ORDER) {
-                sound = SFX_TYPE_BUILDING;
+                sound = Unit::SFX_TYPE_BUILDING;
             }
 
             SoundManager_PlaySfx(unit, sound);

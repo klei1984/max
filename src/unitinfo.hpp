@@ -37,11 +37,6 @@
 
 class NetPacket;
 
-struct SoundElement {
-    uint8_t type;
-    uint16_t resource_id;
-};
-
 struct PopupButtons {
     uint8_t popup_count;
     uint8_t position[UNITINFO_MAX_POPUP_BUTTON_COUNT];
@@ -89,7 +84,7 @@ private:
 
     SmartPointer<UnitInfo> parent_unit;
     char* name;
-    uint8_t sound;
+    Unit::SfxType sound;
     ResourceID unit_type;
     UnitOrderType orders;
     UnitOrderType prior_orders;
@@ -151,7 +146,7 @@ public:
      *
      * \returns one of the SfxType enum values
      */
-    [[nodiscard]] uint8_t GetSfxType() const noexcept;
+    [[nodiscard]] Unit::SfxType GetSfxType() const noexcept;
 
     /**
      * Set sound effect type being played by the sound manager for the unit.
@@ -159,7 +154,7 @@ public:
      * \param sound one of the SfxType enum values
      * \returns previous sound type
      */
-    uint8_t SetSfxType(uint8_t sound) noexcept;
+    Unit::SfxType SetSfxType(Unit::SfxType sound) noexcept;
 
     /**
      * Get type of unit.
@@ -363,7 +358,6 @@ public:
     void SetParent(UnitInfo* const parent) noexcept;
 
     struct PopupFunctions* popup;
-    const std::vector<SoundElement>* sound_table;
     uint32_t flags;
     uint16_t x;
     uint16_t y;

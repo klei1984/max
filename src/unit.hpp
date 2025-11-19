@@ -24,6 +24,7 @@
 
 #include <cstdint>
 #include <string_view>
+#include <unordered_map>
 
 #include "point.hpp"
 #include "resourcetable.hpp"
@@ -42,6 +43,37 @@ struct FrameInfo {
 
 class Unit {
 public:
+    enum SfxType : uint8_t {
+        SFX_TYPE_INVALID,
+        SFX_TYPE_IDLE,
+        SFX_TYPE_WATER_IDLE,
+        SFX_TYPE_DRIVE,
+        SFX_TYPE_WATER_DRIVE,
+        SFX_TYPE_STOP,
+        SFX_TYPE_WATER_STOP,
+        SFX_TYPE_TRANSFORM,
+        SFX_TYPE_BUILDING,
+        SFX_TYPE_SHRINK,
+        SFX_TYPE_EXPAND,
+        SFX_TYPE_TURRET,
+        SFX_TYPE_FIRE,
+        SFX_TYPE_HIT,
+        SFX_TYPE_EXPLOAD,
+        SFX_TYPE_POWER_CONSUMPTION_START,
+        SFX_TYPE_POWER_CONSUMPTION_END,
+        SFX_TYPE_LAND,
+        SFX_TYPE_TAKE,
+        SFX_TYPE_LIMIT
+    };
+
+    struct SoundEffectInfo {
+        ResourceID resource_id;
+        uint32_t volume;
+        bool is_default;
+        bool persistent;
+        bool looping;
+    };
+
     enum Flags : uint32_t {
         GROUND_COVER = 0x1,
         EXPLODING = 0x2,
@@ -109,6 +141,7 @@ private:
     const uint32_t m_description;
     const uint32_t m_tutorial_description;
     const FrameInfo m_frame_info;
+    const std::unordered_map<SfxType, SoundEffectInfo> m_sound_effects;
 
     uint32_t m_flags;
     uint8_t* m_sprite_data;
@@ -118,7 +151,7 @@ public:
     Unit(uint32_t flags, ResourceID sprite, ResourceID shadow, ResourceID data, ResourceID flics_animation,
          ResourceID portrait, ResourceID icon, ResourceID armory_portrait, uint8_t land_type, CargoType cargo_type,
          Gender gender, uint32_t singular_name, uint32_t plural_name, uint32_t description,
-         uint32_t tutorial_description);
+         uint32_t tutorial_description, std::unordered_map<SfxType, SoundEffectInfo>&& sound_effects);
 
     ~Unit();
 
@@ -146,6 +179,7 @@ public:
     [[nodiscard]] uint8_t* GetSpriteData() const;
     [[nodiscard]] uint8_t* GetShadowData() const;
     [[nodiscard]] const FrameInfo& GetFrameInfo() const;
+    [[nodiscard]] const SoundEffectInfo& GetSoundEffect(SfxType sfx_type) const;
 
     void SetSpriteData(uint8_t* sprite_data);
     void SetShadowData(uint8_t* shadow_data);

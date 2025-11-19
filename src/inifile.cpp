@@ -407,27 +407,3 @@ void IniSettings::LoadSection(SmartFileReader& file, IniParameter section, char 
 int32_t ini_get_setting(IniParameter index) { return ini_config.GetNumericValue(static_cast<IniParameter>(index)); }
 
 int32_t ini_set_setting(IniParameter param, int32_t value) { return ini_config.SetNumericValue(param, value); }
-
-IniSoundVolumes::IniSoundVolumes() { ini.buffer = nullptr; }
-
-IniSoundVolumes::~IniSoundVolumes() { inifile_save_to_file_and_free_buffer(&ini); }
-
-void IniSoundVolumes::Init() { inifile_load_from_resource(&ini, SOUNDVOL); }
-
-int32_t IniSoundVolumes::GetUnitVolume(ResourceID id) {
-    int32_t value;
-
-    if (!this->ini.buffer) {
-        return 0x7FFF;
-    }
-
-    if (inifile_ini_seek_section(&ini, "Unit Volumes")) {
-        if (ResourceManager_GetResourceFileID(id) != -1) {
-            if (inifile_ini_get_numeric_value(&ini, ResourceManager_GetResourceID(id), &value)) {
-                return 0x7FFF * value / 100u;
-            }
-        }
-    }
-
-    return 0x7FFF;
-}

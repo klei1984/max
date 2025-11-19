@@ -75,13 +75,36 @@ static const std::unordered_map<std::string, Unit::CargoType> CargoTypeMap = {
     {"CARGO_TYPE_LAND", Unit::CargoType::CARGO_TYPE_LAND}, {"CARGO_TYPE_SEA", Unit::CargoType::CARGO_TYPE_SEA},
     {"CARGO_TYPE_AIR", Unit::CargoType::CARGO_TYPE_AIR}};
 
+static const std::unordered_map<std::string, Unit::SfxType> SfxTypeMap = {
+    {"idle", Unit::SfxType::SFX_TYPE_IDLE},
+    {"water_idle", Unit::SfxType::SFX_TYPE_WATER_IDLE},
+    {"drive", Unit::SfxType::SFX_TYPE_DRIVE},
+    {"water_drive", Unit::SfxType::SFX_TYPE_WATER_DRIVE},
+    {"stop", Unit::SfxType::SFX_TYPE_STOP},
+    {"water_stop", Unit::SfxType::SFX_TYPE_WATER_STOP},
+    {"transform", Unit::SfxType::SFX_TYPE_TRANSFORM},
+    {"building", Unit::SfxType::SFX_TYPE_BUILDING},
+    {"shrink", Unit::SfxType::SFX_TYPE_SHRINK},
+    {"expand", Unit::SfxType::SFX_TYPE_EXPAND},
+    {"turret", Unit::SfxType::SFX_TYPE_TURRET},
+    {"fire", Unit::SfxType::SFX_TYPE_FIRE},
+    {"hit", Unit::SfxType::SFX_TYPE_HIT},
+    {"expload", Unit::SfxType::SFX_TYPE_EXPLOAD},
+    {"power_consumption_start", Unit::SfxType::SFX_TYPE_POWER_CONSUMPTION_START},
+    {"power_consumption_end", Unit::SfxType::SFX_TYPE_POWER_CONSUMPTION_END},
+    {"land", Unit::SfxType::SFX_TYPE_LAND},
+    {"take", Unit::SfxType::SFX_TYPE_TAKE}};
+
 static uint32_t ParseFlags(const json& flags_array);
 static uint8_t ParseLandType(const json& land_type_array);
 static Unit::CargoType ParseCargoType(const std::string& cargo_type_str);
 static Unit::Gender ParseGender(const std::string& gender_str);
 static uint32_t ParseHexString(const std::string& hex_str);
 static ResourceID ParseResourceID(const std::string& resource_str);
-static Unit* CreateUnitFromJson(const json& unit_data);
+static std::unordered_map<Unit::SfxType, Unit::SoundEffectInfo> ParseSoundEffects(
+    const json& sfx_types_data, const json& default_sound_effects_data, const json& unit_sound_effects_data);
+static Unit* CreateUnitFromJson(const json& sfx_types_data, const json& default_sound_effects_data,
+                                const json& unit_data);
 
 uint32_t ParseFlags(const json& flags_array) {
     uint32_t flags = 0;
@@ -184,7 +207,92 @@ ResourceID ParseResourceID(const std::string& resource_str) {
     return result;
 }
 
-Unit* CreateUnitFromJson(const json& unit_data) {
+std::unordered_map<Unit::SfxType, Unit::SoundEffectInfo> ParseSoundEffects(const json& sfx_types_data,
+                                                                           const json& default_sound_effects_data,
+                                                                           const json& unit_sound_effects_data) {
+    std::unordered_map<Unit::SfxType, Unit::SoundEffectInfo> sound_effects;
+
+    for (const auto& [sfx_key, sfx_type_flags] : sfx_types_data.items()) {
+        auto it = SfxTypeMap.find(sfx_key);
+
+        if (it == SfxTypeMap.end()) {
+            SDL_Log("Warning: Unknown SfxType '%s' in sfx_types", sfx_key.c_str());
+            continue;
+        }
+
+        Unit::SfxType sfx_type = it->second;
+        Unit::SoundEffectInfo info;
+
+        info.persistent = sfx_type_flags.at("persistent").get<bool>();
+        info.looping = sfx_type_flags.at("infinite_looping").get<bool>();
+
+        bool has_unit_specific = false;
+        if (unit_sound_effects_data.contains(sfx_key)) {
+            const auto& unit_sfx = unit_sound_effects_data[sfx_key];
+
+            info.resource_id = ParseResourceID(unit_sfx.at("resource_id").get<std::string>());
+            info.volume = unit_sfx.at("volume").get<uint32_t>();
+            has_unit_specific = true;
+
+        } else if (default_sound_effects_data.contains(sfx_key)) {
+            const auto& default_sfx = default_sound_effects_data[sfx_key];
+
+            info.resource_id = ParseResourceID(default_sfx.at("resource_id").get<std::string>());
+            info.volume = default_sfx.at("volume").get<uint32_t>();
+
+        } else {
+            SDL_Log("Warning: No sound effect defined for sfx type '%s'", sfx_key.c_str());
+
+            info.resource_id = INVALID_ID;
+            info.volume = 0;
+        }
+
+        bool file_exists = false;
+
+        if (info.resource_id != INVALID_ID) {
+            auto fp = ResourceManager_OpenFileResource(info.resource_id, ResourceType_GameData);
+            if (fp) {
+                file_exists = true;
+
+                fclose(fp);
+            }
+        }
+
+        if (has_unit_specific && !file_exists && default_sound_effects_data.contains(sfx_key)) {
+            const auto& default_sfx = default_sound_effects_data[sfx_key];
+
+            SDL_Log("Warning: Unit-specific sound file for '%s' not found, falling back to default", sfx_key.c_str());
+
+            info.resource_id = ParseResourceID(default_sfx.at("resource_id").get<std::string>());
+            info.volume = default_sfx.at("volume").get<uint32_t>();
+            file_exists = false;
+            // must not mark as default sound!
+            if (info.resource_id != INVALID_ID) {
+                auto fp = ResourceManager_OpenFileResource(info.resource_id, ResourceType_GameData);
+                if (fp) {
+                    file_exists = true;
+
+                    fclose(fp);
+                }
+            }
+        }
+
+        info.is_default = !has_unit_specific;
+
+        if (!file_exists) {
+            SDL_Log("Warning: Sound file for '%s' (resource_id=%d) not found on filesystem", sfx_key.c_str(),
+                    info.resource_id);
+        }
+
+        sound_effects[sfx_type] = info;
+    }
+
+    SDL_assert(sound_effects.size() == Unit::SFX_TYPE_LIMIT - 1);
+
+    return sound_effects;
+}
+
+Unit* CreateUnitFromJson(const json& sfx_types_data, const json& default_sound_effects_data, const json& unit_data) {
     uint32_t flags = ParseFlags(unit_data.at("flags"));
     ResourceID sprite = ParseResourceID(unit_data.at("sprite").get<std::string>());
     ResourceID shadow = ParseResourceID(unit_data.at("shadow").get<std::string>());
@@ -200,10 +308,13 @@ Unit* CreateUnitFromJson(const json& unit_data) {
     uint32_t plural_name = ParseHexString(unit_data.value("plural_name", "0xffff"));
     uint32_t description = ParseHexString(unit_data.value("description", "0xffff"));
     uint32_t tutorial_description = ParseHexString(unit_data.value("tutorial_description", "0xffff"));
+    json unit_sound_effects = unit_data.value("sound_effects", json::object());
+    std::unordered_map<Unit::SfxType, Unit::SoundEffectInfo> sound_effects =
+        ParseSoundEffects(sfx_types_data, default_sound_effects_data, unit_sound_effects);
 
     return new (std::nothrow)
         Unit(flags, sprite, shadow, data, flics_animation, portrait, icon, armory_portrait, land_type, cargo_type,
-             gender, singular_name, plural_name, description, tutorial_description);
+             gender, singular_name, plural_name, description, tutorial_description, std::move(sound_effects));
 }
 
 Units::Units() : m_units(std::make_unique<std::unordered_map<std::string, Unit*>>()) {}
@@ -250,10 +361,12 @@ Units::~Units() {
         validator.set_root_schema(jschema);
         validator.validate(jscript);
 
+        const auto& sfx_types = jscript["sfx_types"];
+        const auto& default_sound_effects = jscript["default_sound_effects"];
         const auto& units_object = jscript["units"];
 
         for (const auto& [unit_name, unit_data] : units_object.items()) {
-            Unit* unit = CreateUnitFromJson(unit_data);
+            Unit* unit = CreateUnitFromJson(sfx_types, default_sound_effects, unit_data);
 
             if (unit) {
                 (*m_units)[unit_name] = unit;

@@ -38,7 +38,7 @@ void SoundManager_PlayMusic(const ResourceID id, const bool shuffle) noexcept;
 void SoundManager_HaltMusicPlayback(const bool disable) noexcept;
 void SoundManager_FreeMusic() noexcept;
 void SoundManager_PlaySfx(const ResourceID id) noexcept;
-void SoundManager_PlaySfx(UnitInfo* const unit, const int32_t sound, const bool mode = false) noexcept;
+void SoundManager_PlaySfx(UnitInfo* const unit, const Unit::SfxType sound, const bool mode = false) noexcept;
 void SoundManager_UpdateSfxPosition() noexcept;
 void SoundManager_UpdateSfxPosition(UnitInfo* const unit) noexcept;
 void SoundManager_HaltSfxPlayback(const bool disable) noexcept;
