@@ -117,7 +117,7 @@ uint32_t ParseFlags(const json& flags_array) {
             flags |= it->second;
 
         } else {
-            SDL_Log("Warning: Unknown flag '%s'", flag.c_str());
+            SDL_Log("Units: Unknown flag '%s'\n", flag.c_str());
         }
     }
 
@@ -134,7 +134,7 @@ uint8_t ParseLandType(const json& land_type_array) {
             land_type |= it->second;
 
         } else {
-            SDL_Log("Warning: Unknown surface type '%s'", type.c_str());
+            SDL_Log("Units: Unknown surface type '%s'\n", type.c_str());
         }
     }
 
@@ -148,7 +148,7 @@ Unit::CargoType ParseCargoType(const std::string& cargo_type_str) {
         return it->second;
     }
 
-    SDL_Log("Warning: Unknown cargo type '%s'", cargo_type_str.c_str());
+    SDL_Log("Units: Unknown cargo type '%s'\n", cargo_type_str.c_str());
 
     return Unit::CargoType::CARGO_TYPE_NONE;
 }
@@ -166,7 +166,7 @@ Unit::Gender ParseGender(const std::string& gender_str) {
         result = Unit::Gender::GENDER_NEUTER;
 
     } else {
-        SDL_Log("Warning: Unknown gender '%s'", gender_str.c_str());
+        SDL_Log("Units: Unknown gender '%s'\n", gender_str.c_str());
 
         result = Unit::Gender::GENDER_NEUTER;
     }
@@ -185,7 +185,7 @@ uint32_t ParseHexString(const std::string& hex_str) {
             result = static_cast<uint32_t>(std::stoul(hex_str, nullptr, 16));
 
         } catch (const std::exception& e) {
-            SDL_Log("Warning: Failed to parse hex string '%s': %s", hex_str.c_str(), e.what());
+            SDL_Log("Units: Failed to parse hex string '%s': %s\n", hex_str.c_str(), e.what());
 
             result = 0;
         }
@@ -216,7 +216,6 @@ std::unordered_map<Unit::SfxType, Unit::SoundEffectInfo> ParseSoundEffects(const
         auto it = SfxTypeMap.find(sfx_key);
 
         if (it == SfxTypeMap.end()) {
-            SDL_Log("Warning: Unknown SfxType '%s' in sfx_types", sfx_key.c_str());
             continue;
         }
 
@@ -241,8 +240,6 @@ std::unordered_map<Unit::SfxType, Unit::SoundEffectInfo> ParseSoundEffects(const
             info.volume = default_sfx.at("volume").get<uint32_t>();
 
         } else {
-            SDL_Log("Warning: No sound effect defined for sfx type '%s'", sfx_key.c_str());
-
             info.resource_id = INVALID_ID;
             info.volume = 0;
         }
@@ -261,8 +258,6 @@ std::unordered_map<Unit::SfxType, Unit::SoundEffectInfo> ParseSoundEffects(const
         if (has_unit_specific && !file_exists && default_sound_effects_data.contains(sfx_key)) {
             const auto& default_sfx = default_sound_effects_data[sfx_key];
 
-            SDL_Log("Warning: Unit-specific sound file for '%s' not found, falling back to default", sfx_key.c_str());
-
             info.resource_id = ParseResourceID(default_sfx.at("resource_id").get<std::string>());
             info.volume = default_sfx.at("volume").get<uint32_t>();
             file_exists = false;
@@ -278,12 +273,6 @@ std::unordered_map<Unit::SfxType, Unit::SoundEffectInfo> ParseSoundEffects(const
         }
 
         info.is_default = !has_unit_specific;
-
-        if (!file_exists) {
-            SDL_Log("Warning: Sound file for '%s' (resource_id=%d) not found on filesystem", sfx_key.c_str(),
-                    info.resource_id);
-        }
-
         sound_effects[sfx_type] = info;
     }
 
@@ -372,7 +361,7 @@ Units::~Units() {
                 (*m_units)[unit_name] = unit;
 
             } else {
-                SDL_Log("Warning: Failed to create unit '%s'", unit_name.c_str());
+                SDL_Log("Units: Failed to create unit '%s'\n", unit_name.c_str());
             }
         }
 
