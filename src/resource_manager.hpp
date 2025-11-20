@@ -36,6 +36,7 @@
 #include "units.hpp"
 
 class MissionManager;
+class Settings;
 
 struct __attribute__((packed)) ImageSimpleHeader {
     int16_t width;
@@ -146,6 +147,7 @@ std::string ResourceManager_GetHelpEntry(const std::string& section, const int32
 [[nodiscard]] bool ResourceManager_GetUnitAttributes(const uint32_t index, UnitAttributes* const attributes);
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager();
 std::shared_ptr<Clans> ResourceManager_GetClans();
+std::shared_ptr<Settings> ResourceManager_GetSettings();
 Unit& ResourceManager_GetUnit(const ResourceID unit_type);
 Units& ResourceManager_GetUnits();
 TeamClanType ResourceManager_GetClanID(const std::string clan_id);

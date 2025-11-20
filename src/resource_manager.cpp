@@ -45,6 +45,7 @@
 #include "randomizer.hpp"
 #include "screendump.h"
 #include "scripter.hpp"
+#include "settings.hpp"
 #include "sha2.h"
 #include "sound_manager.hpp"
 #include "units_manager.hpp"
@@ -94,6 +95,7 @@ static std::shared_ptr<MissionManager> ResourceManager_MissionManager;
 static std::shared_ptr<Attributes> ResourceManager_UnitAttributes;
 static std::shared_ptr<Clans> ResourceManager_Clans;
 static std::unique_ptr<Units> ResourceManager_Units;
+static std::shared_ptr<Settings> ResourceManager_Settings;
 static std::shared_ptr<Language> ResourceManager_LanguageManager;
 static std::shared_ptr<Help> ResourceManager_HelpManager;
 static std::unique_ptr<std::unordered_map<std::string, ResourceID>> ResourceManager_ResourceIDLUT;
@@ -188,6 +190,7 @@ static void ResourceManager_InitHelpManager();
 static void ResourceManager_InitMissionManager();
 static void ResourceManager_InitUnitAttributes();
 static void ResourceManager_InitClans();
+static void ResourceManager_InitSettings();
 static void ResourceManager_InitUnits();
 static void ResourceManager_ResetUnitsSprites();
 static std::filesystem::path ResourceManager_GetFileResourcePath(const std::string& string,
@@ -2106,7 +2109,7 @@ void ResourceManager_InitUnitAttributes() {
 
     if (ResourceManager_UnitAttributes && ResourceManager_UnitAttributes->LoadResource()) {
     } else {
-        ;
+        SDL_Log("Warning: Failed to load unit attributes definitions.\n");
     }
 }
 
@@ -2115,7 +2118,16 @@ void ResourceManager_InitClans() {
 
     if (ResourceManager_Clans && ResourceManager_Clans->LoadResource()) {
     } else {
-        ;
+        SDL_Log("Warning: Failed to load clans definitions.\n");
+    }
+}
+
+void ResourceManager_InitSettings() {
+    ResourceManager_Settings = std::make_shared<Settings>();
+
+    if (ResourceManager_Settings && ResourceManager_Settings->Load()) {
+    } else {
+        SDL_Log("Warning: Failed to load settings definitions.\n");
     }
 }
 
@@ -2124,11 +2136,13 @@ void ResourceManager_InitUnits() {
 
     if (ResourceManager_Units && ResourceManager_Units->LoadResource()) {
     } else {
-        SDL_Log("Warning: Failed to load unit definitions");
+        SDL_Log("Warning: Failed to load unit definitions.\n");
     }
 }
 
 std::shared_ptr<Clans> ResourceManager_GetClans() { return ResourceManager_Clans; }
+
+std::shared_ptr<Settings> ResourceManager_GetSettings() { return ResourceManager_Settings; }
 
 Unit& ResourceManager_GetUnit(const ResourceID unit_type) {
     SDL_assert(ResourceManager_Units);

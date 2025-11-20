@@ -26,15 +26,6 @@
 #include "ini.hpp"
 #include "smartfile.hpp"
 
-enum : uint8_t {
-    OPPONENT_TYPE_CLUELESS,
-    OPPONENT_TYPE_APPRENTICE,
-    OPPONENT_TYPE_AVERAGE,
-    OPPONENT_TYPE_EXPERT,
-    OPPONENT_TYPE_MASTER,
-    OPPONENT_TYPE_GOD
-};
-
 class IniSettings {
 public:
     IniSettings();

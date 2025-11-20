@@ -180,6 +180,15 @@ enum TeamClanType : uint8_t {
     TEAM_CLAN_AXIS_INC = 0x8,
 };
 
+enum OpponentType : uint8_t {
+    OPPONENT_TYPE_CLUELESS,
+    OPPONENT_TYPE_APPRENTICE,
+    OPPONENT_TYPE_AVERAGE,
+    OPPONENT_TYPE_EXPERT,
+    OPPONENT_TYPE_MASTER,
+    OPPONENT_TYPE_GOD
+};
+
 enum ExitCodeType : uint8_t {
     EXIT_CODE_NO_ERROR,
     EXIT_CODE_THANKS,
