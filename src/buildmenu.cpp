@@ -26,13 +26,13 @@
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
-#include "inifile.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
 #include "remote.hpp"
 #include "reportstats.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "sound_manager.hpp"
 #include "text.hpp"
 #include "unit.hpp"
@@ -688,7 +688,7 @@ bool BuildMenu_Menu(UnitInfo* unit) {
 int32_t BuildMenu_GetTurnsToBuild(ResourceID unit_type, uint16_t team) {
     int32_t result;
 
-    if (ini_get_setting(INI_QUICK_BUILD)) {
+    if (ResourceManager_GetSettings()->GetNumericValue("quick_build")) {
         result = 1;
 
     } else {
@@ -700,7 +700,7 @@ int32_t BuildMenu_GetTurnsToBuild(ResourceID unit_type, uint16_t team) {
         turns_to_build = UnitsManager_GetCurrentUnitValues(team_info, unit_type)->GetAttribute(ATTRIB_TURNS);
 
         if (team_info->team_type == TEAM_TYPE_COMPUTER) {
-            switch (ini_get_setting(INI_OPPONENT)) {
+            switch (ResourceManager_GetSettings()->GetNumericValue("opponent")) {
                 case OPPONENT_TYPE_MASTER: {
                     result = (turns_to_build * 4 + 2) / 5;
                 } break;

@@ -27,12 +27,13 @@
 #include "ai.hpp"
 #include "game_manager.hpp"
 #include "hash.hpp"
-#include "inifile.hpp"
+#include "menu.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
 #include "missionregistry.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "smartfile.hpp"
 #include "units_manager.hpp"
 
@@ -52,7 +53,8 @@ static bool SaveLoad_LoadFormatV71(SmartFileReader& file, const MissionCategory 
 static std::string SaveLoad_TranslateMissionIndexToHashKey(const uint32_t save_file_type, const uint32_t index);
 static uint32_t SaveLoad_TranslateHashKeyToWorldIndex(const std::string hash);
 static std::string SaveLoad_TranslateWorldIndexToHashKey(const uint32_t index);
-MissionCategory SaveLoad_TranslateSaveFileCategory(const uint32_t save_file_type);
+static MissionCategory SaveLoad_TranslateSaveFileCategory(const uint32_t save_file_type);
+static void SaveLoad_LoadOptions(SmartFileReader& file, bool mode);
 
 void SaveLoad_TeamClearUnitList(SmartList<UnitInfo>& units, uint16_t team) {
     for (auto it = units.Begin(); it != units.End(); ++it) {
@@ -85,6 +87,53 @@ std::filesystem::path SaveLoad_GetFilePath(const MissionCategory mission_categor
     }
 
     return filepath;
+}
+
+void SaveLoad_LoadOptions(SmartFileReader& file, bool mode) {
+    {
+        int32_t world{0};
+        int32_t timer{0};
+        int32_t endturn{0};
+        int32_t start_gold{0};
+        int32_t play_mode{0};
+        int32_t victory_type{0};
+        int32_t victory_limit{0};
+        int32_t opponent{0};
+        int32_t raw_resource{0};
+        int32_t fuel_resource{0};
+        int32_t gold_resource{0};
+        int32_t alien_derelicts{0};
+        const auto settings = ResourceManager_GetSettings();
+
+        file.Read(world);
+        file.Read(timer);
+        file.Read(endturn);
+        file.Read(start_gold);
+        file.Read(play_mode);
+        file.Read(victory_type);
+        file.Read(victory_limit);
+        file.Read(opponent);
+        file.Read(raw_resource);
+        file.Read(fuel_resource);
+        file.Read(gold_resource);
+        file.Read(alien_derelicts);
+
+        if (mode) {
+            settings->SetNumericValue("world", world);
+            settings->SetNumericValue("timer", timer);
+            settings->SetNumericValue("endturn", endturn);
+            settings->SetNumericValue("start_gold", start_gold);
+            settings->SetNumericValue("play_mode", play_mode);
+            settings->SetNumericValue("opponent", opponent);
+            settings->SetNumericValue("raw_resource", raw_resource);
+            settings->SetNumericValue("fuel_resource", fuel_resource);
+            settings->SetNumericValue("gold_resource", gold_resource);
+            settings->SetNumericValue("alien_derelicts", alien_derelicts);
+
+            ini_setting_victory_type = victory_type;
+            ini_setting_victory_limit = victory_limit;
+        }
+    }
 }
 
 bool SaveLoad_GetSaveFileInfoV70(SmartFileReader& file, struct SaveFileInfo& save_file_info, const bool load_options) {
@@ -136,7 +185,7 @@ bool SaveLoad_GetSaveFileInfoV70(SmartFileReader& file, struct SaveFileInfo& sav
             file.Read(turn_timer_time);
             file.Read(endturn_time);
 
-            ini_config.LoadSection(file, INI_OPTIONS, true);
+            SaveLoad_LoadOptions(file, true);
         }
 
         save_file_info.version = version;
@@ -226,7 +275,7 @@ bool SaveLoad_GetSaveFileInfoV71(SmartFileReader& file, struct SaveFileInfo& sav
             file.Read(endturn_time);
             file.Read(game_play_mode);
 
-            ini_config.LoadSection(file, INI_OPTIONS, true);
+            SaveLoad_LoadOptions(file, true);
         }
 
         save_file_info.version = version;
@@ -356,7 +405,7 @@ bool SaveLoad_Save(const std::filesystem::path& filepath, const char* const save
 
         // world hash
         {
-            uint32_t world_index = ini_get_setting(INI_WORLD);
+            uint32_t world_index = ResourceManager_GetSettings()->GetNumericValue("world");
             std::string world = SaveLoad_TranslateWorldIndexToHashKey(world_index);
 
             file.Write(world);
@@ -365,24 +414,17 @@ bool SaveLoad_Save(const std::filesystem::path& filepath, const char* const save
         // team names
         {
             for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
-                std::string ini_team_name;
+                std::string team_name;
 
                 if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-                    char team_name[30];
+                    team_name = ResourceManager_GetSettings()->GetStringValue(menu_team_name_setting[team]);
 
-                    if (!ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_name,
-                                                   sizeof(team_name))) {
-                        team_name[0] = '\0';
+                    if (team_name.empty()) {
+                        team_name = menu_team_names[team];
                     }
-
-                    if (0 == strlen(team_name)) {
-                        SDL_utf8strlcpy(team_name, menu_team_names[team], sizeof(team_name));
-                    }
-
-                    ini_team_name = team_name;
                 }
 
-                error |= !file.Write(ini_team_name);
+                error |= !file.Write(team_name);
             }
         }
 
@@ -422,7 +464,7 @@ bool SaveLoad_Save(const std::filesystem::path& filepath, const char* const save
         // team difficulty levels
         {
             for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
-                uint32_t difficulty_level = ini_get_setting(INI_OPPONENT);
+                int32_t difficulty_level = ResourceManager_GetSettings()->GetNumericValue("opponent");
 
                 switch (difficulty_level) {
                     case OPPONENT_TYPE_CLUELESS:
@@ -451,21 +493,21 @@ bool SaveLoad_Save(const std::filesystem::path& filepath, const char* const save
 
         // turn timer time setting
         {
-            uint32_t turn_timer_time = ini_get_setting(INI_TIMER);
+            int32_t turn_timer_time = ResourceManager_GetSettings()->GetNumericValue("timer");
 
             error |= !file.Write(turn_timer_time);
         }
 
         // end-turn time setting
         {
-            uint32_t endturn_time = ini_get_setting(INI_ENDTURN);
+            int32_t endturn_time = ResourceManager_GetSettings()->GetNumericValue("endturn");
 
             error |= !file.Write(endturn_time);
         }
 
         // game play mode setting
         {
-            uint32_t game_play_mode = ini_get_setting(INI_PLAY_MODE);
+            int32_t game_play_mode = ResourceManager_GetSettings()->GetNumericValue("play_mode");
 
             switch (game_play_mode) {
                 case PLAY_MODE_TURN_BASED:
@@ -480,10 +522,49 @@ bool SaveLoad_Save(const std::filesystem::path& filepath, const char* const save
             error |= !file.Write(game_play_mode);
         }
 
-        // INI sections
+        // settings
         {
-            ini_config.SaveSection(file, INI_OPTIONS);
-            ini_config.SaveSection(file, INI_PREFERENCES);
+            const auto settings = ResourceManager_GetSettings();
+
+            int32_t world = settings->GetNumericValue("world");
+            int32_t timer = settings->GetNumericValue("timer");
+            int32_t endturn = settings->GetNumericValue("endturn");
+            int32_t start_gold = settings->GetNumericValue("start_gold");
+            int32_t play_mode = settings->GetNumericValue("play_mode");
+            int32_t victory_type = ini_setting_victory_type;
+            int32_t victory_limit = ini_setting_victory_limit;
+            int32_t opponent = settings->GetNumericValue("opponent");
+            int32_t raw_resource = settings->GetNumericValue("raw_resource");
+            int32_t fuel_resource = settings->GetNumericValue("fuel_resource");
+            int32_t gold_resource = settings->GetNumericValue("gold_resource");
+            int32_t alien_derelicts = settings->GetNumericValue("alien_derelicts");
+            int32_t effects = settings->GetNumericValue("effects");
+            int32_t click_scroll = settings->GetNumericValue("click_scroll");
+            int32_t quick_scroll = settings->GetNumericValue("quick_scroll");
+            int32_t fast_movement = settings->GetNumericValue("fast_movement");
+            int32_t follow_unit = settings->GetNumericValue("follow_unit");
+            int32_t auto_select = settings->GetNumericValue("auto_select");
+            int32_t enemy_halt = settings->GetNumericValue("enemy_halt");
+
+            file.Write(world);
+            file.Write(timer);
+            file.Write(endturn);
+            file.Write(start_gold);
+            file.Write(play_mode);
+            file.Write(victory_type);
+            file.Write(victory_limit);
+            file.Write(opponent);
+            file.Write(raw_resource);
+            file.Write(fuel_resource);
+            file.Write(gold_resource);
+            file.Write(alien_derelicts);
+            file.Write(effects);
+            file.Write(click_scroll);
+            file.Write(quick_scroll);
+            file.Write(fast_movement);
+            file.Write(follow_unit);
+            file.Write(auto_select);
+            file.Write(enemy_halt);
         }
 
         // surface map (pass table)
@@ -648,6 +729,7 @@ bool SaveLoad_Save(const std::filesystem::path& filepath, const char* const save
 bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission_category, bool is_remote_game,
                             bool ini_load_mode) {
     const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
+    const auto settings = ResourceManager_GetSettings();
     bool result;
     bool save_load_flag;
     uint16_t version;
@@ -688,38 +770,38 @@ bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission
 
     if (!is_remote_game) {
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-            ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_names[team]);
+            settings->SetStringValue(menu_team_name_setting[team], team_names[team]);
         }
     }
 
     ResourceManager_InitInGameAssets(world_index);
 
-    opponent = ini_get_setting(INI_OPPONENT);
-    turn_timer_time = ini_get_setting(INI_TIMER);
-    endturn_time = ini_get_setting(INI_ENDTURN);
-    play_mode = ini_get_setting(INI_PLAY_MODE);
-    backup_start_gold = ini_get_setting(INI_START_GOLD);
-    backup_raw_resource = ini_get_setting(INI_RAW_RESOURCE);
-    backup_fuel_resource = ini_get_setting(INI_FUEL_RESOURCE);
-    backup_gold_resource = ini_get_setting(INI_GOLD_RESOURCE);
-    backup_alien_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
+    opponent = settings->GetNumericValue("opponent");
+    turn_timer_time = settings->GetNumericValue("timer");
+    endturn_time = settings->GetNumericValue("endturn");
+    play_mode = settings->GetNumericValue("play_mode");
+    backup_start_gold = settings->GetNumericValue("start_gold");
+    backup_raw_resource = settings->GetNumericValue("raw_resource");
+    backup_fuel_resource = settings->GetNumericValue("fuel_resource");
+    backup_gold_resource = settings->GetNumericValue("gold_resource");
+    backup_alien_derelicts = settings->GetNumericValue("alien_derelicts");
 
-    ini_config.LoadSection(file, INI_OPTIONS, ini_load_mode);
+    SaveLoad_LoadOptions(file, ini_load_mode);
 
     if (mission_category == MISSION_CATEGORY_TRAINING || mission_category == MISSION_CATEGORY_CAMPAIGN ||
         mission_category == MISSION_CATEGORY_SCENARIO || mission_category == MISSION_CATEGORY_MULTI_PLAYER_SCENARIO) {
-        ini_set_setting(INI_OPPONENT, opponent);
-        ini_set_setting(INI_TIMER, turn_timer_time);
-        ini_set_setting(INI_ENDTURN, endturn_time);
-        ini_set_setting(INI_PLAY_MODE, play_mode);
-        ini_set_setting(INI_START_GOLD, backup_start_gold);
-        ini_set_setting(INI_RAW_RESOURCE, backup_raw_resource);
-        ini_set_setting(INI_FUEL_RESOURCE, backup_fuel_resource);
-        ini_set_setting(INI_GOLD_RESOURCE, backup_gold_resource);
-        ini_set_setting(INI_ALIEN_DERELICTS, backup_alien_derelicts);
+        settings->SetNumericValue("opponent", opponent);
+        settings->SetNumericValue("timer", turn_timer_time);
+        settings->SetNumericValue("endturn", endturn_time);
+        settings->SetNumericValue("play_mode", play_mode);
+        settings->SetNumericValue("start_gold", backup_start_gold);
+        settings->SetNumericValue("raw_resource", backup_raw_resource);
+        settings->SetNumericValue("fuel_resource", backup_fuel_resource);
+        settings->SetNumericValue("gold_resource", backup_gold_resource);
+        settings->SetNumericValue("alien_derelicts", backup_alien_derelicts);
     }
 
-    GameManager_PlayMode = ini_get_setting(INI_PLAY_MODE);
+    GameManager_PlayMode = settings->GetNumericValue("play_mode");
 
     const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
 
@@ -805,7 +887,31 @@ bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission
 
     file.Read(SaveLoadMenu_TurnTimer);
 
-    ini_config.LoadSection(file, INI_PREFERENCES, true);
+    {
+        int32_t effects{0};
+        int32_t click_scroll{0};
+        int32_t quick_scroll{0};
+        int32_t fast_movement{0};
+        int32_t follow_unit{0};
+        int32_t auto_select{0};
+        int32_t enemy_halt{0};
+
+        file.Read(effects);
+        file.Read(click_scroll);
+        file.Read(quick_scroll);
+        file.Read(fast_movement);
+        file.Read(follow_unit);
+        file.Read(auto_select);
+        file.Read(enemy_halt);
+
+        settings->SetNumericValue("effects", effects);
+        settings->SetNumericValue("click_scroll", click_scroll);
+        settings->SetNumericValue("quick_scroll", quick_scroll);
+        settings->SetNumericValue("fast_movement", fast_movement);
+        settings->SetNumericValue("follow_unit", follow_unit);
+        settings->SetNumericValue("auto_select", auto_select);
+        settings->SetNumericValue("enemy_halt", enemy_halt);
+    }
 
     ResourceManager_TeamUnitsRed.FileLoad(file);
     ResourceManager_TeamUnitsGreen.FileLoad(file);
@@ -832,23 +938,20 @@ bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         CTInfo* team_info;
-        char team_name[30];
 
         team_info = &UnitsManager_TeamInfo[team];
 
         if (team_info->team_type != TEAM_TYPE_NONE) {
             if (is_remote_game) {
-                team_info->team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team));
+                team_info->team_type = settings->GetNumericValue(menu_team_player_setting[team]);
 
                 if (team_info->team_type == TEAM_TYPE_PLAYER) {
                     GameManager_PlayerTeam = team;
-                    ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_name,
-                                              sizeof(team_name));
-                    ini_config.SetStringValue(INI_PLAYER_NAME, team_name);
+                    settings->SetStringValue("player_name", settings->GetStringValue(menu_team_name_setting[team]));
                 }
 
             } else if (mission_category == MISSION_CATEGORY_MULTI_PLAYER_SCENARIO) {
-                team_info->team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team));
+                team_info->team_type = settings->GetNumericValue(menu_team_player_setting[team]);
 
                 if (save_load_flag && team_info->team_type == TEAM_TYPE_PLAYER) {
                     GameManager_PlayerTeam = team;
@@ -859,14 +962,13 @@ bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission
                 switch (team_info->team_type) {
                     case TEAM_TYPE_PLAYER: {
                         if (mission_category != MISSION_CATEGORY_HOT_SEAT) {
-                            ini_config.GetStringValue(INI_PLAYER_NAME, team_name, sizeof(team_name));
-                            ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_name);
+                            settings->SetStringValue(menu_team_name_setting[team],
+                                                     settings->GetStringValue("player_name"));
                         }
                     } break;
 
                     case TEAM_TYPE_COMPUTER: {
-                        ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team),
-                                                  menu_team_names[team]);
+                        settings->SetStringValue(menu_team_name_setting[team], menu_team_names[team]);
                     } break;
 
                     case TEAM_TYPE_REMOTE: {
@@ -908,7 +1010,7 @@ bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission
             ResourceManager_InitHeatMaps(team);
         }
 
-        ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), team_info->team_type);
+        settings->SetNumericValue(menu_team_player_setting[team], team_info->team_type);
     }
 
     ResourceManager_InitHeatMaps(PLAYER_TEAM_ALIEN);
@@ -943,6 +1045,7 @@ bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission
 bool SaveLoad_LoadFormatV71(SmartFileReader& file, const MissionCategory mission_category, bool is_remote_game,
                             bool ini_load_mode) {
     const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
+    const auto settings = ResourceManager_GetSettings();
     bool result;
     bool save_load_flag;
     uint32_t version;
@@ -1000,39 +1103,64 @@ bool SaveLoad_LoadFormatV71(SmartFileReader& file, const MissionCategory mission
 
     if (!is_remote_game) {
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-            ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_names[team].c_str());
+            settings->SetStringValue(menu_team_name_setting[team], team_names[team].c_str());
         }
     }
 
     ResourceManager_InitInGameAssets(SaveLoad_TranslateHashKeyToWorldIndex(world));
 
-    opponent = ini_get_setting(INI_OPPONENT);
-    turn_timer_time = ini_get_setting(INI_TIMER);
-    endturn_time = ini_get_setting(INI_ENDTURN);
-    play_mode = ini_get_setting(INI_PLAY_MODE);
-    backup_start_gold = ini_get_setting(INI_START_GOLD);
-    backup_raw_resource = ini_get_setting(INI_RAW_RESOURCE);
-    backup_fuel_resource = ini_get_setting(INI_FUEL_RESOURCE);
-    backup_gold_resource = ini_get_setting(INI_GOLD_RESOURCE);
-    backup_alien_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
+    opponent = settings->GetNumericValue("opponent");
+    turn_timer_time = settings->GetNumericValue("timer");
+    endturn_time = settings->GetNumericValue("endturn");
+    play_mode = settings->GetNumericValue("play_mode");
+    backup_start_gold = settings->GetNumericValue("start_gold");
+    backup_raw_resource = settings->GetNumericValue("raw_resource");
+    backup_fuel_resource = settings->GetNumericValue("fuel_resource");
+    backup_gold_resource = settings->GetNumericValue("gold_resource");
+    backup_alien_derelicts = settings->GetNumericValue("alien_derelicts");
 
-    ini_config.LoadSection(file, INI_OPTIONS, ini_load_mode);
-    ini_config.LoadSection(file, INI_PREFERENCES, true);
+    SaveLoad_LoadOptions(file, ini_load_mode);
+
+    {
+        int32_t effects{0};
+        int32_t click_scroll{0};
+        int32_t quick_scroll{0};
+        int32_t fast_movement{0};
+        int32_t follow_unit{0};
+        int32_t auto_select{0};
+        int32_t enemy_halt{0};
+
+        file.Read(effects);
+        file.Read(click_scroll);
+        file.Read(quick_scroll);
+        file.Read(fast_movement);
+        file.Read(follow_unit);
+        file.Read(auto_select);
+        file.Read(enemy_halt);
+
+        settings->SetNumericValue("effects", effects);
+        settings->SetNumericValue("click_scroll", click_scroll);
+        settings->SetNumericValue("quick_scroll", quick_scroll);
+        settings->SetNumericValue("fast_movement", fast_movement);
+        settings->SetNumericValue("follow_unit", follow_unit);
+        settings->SetNumericValue("auto_select", auto_select);
+        settings->SetNumericValue("enemy_halt", enemy_halt);
+    }
 
     if (mission_category == MISSION_CATEGORY_TRAINING || mission_category == MISSION_CATEGORY_CAMPAIGN ||
         mission_category == MISSION_CATEGORY_SCENARIO || mission_category == MISSION_CATEGORY_MULTI_PLAYER_SCENARIO) {
-        ini_set_setting(INI_OPPONENT, opponent);
-        ini_set_setting(INI_TIMER, turn_timer_time);
-        ini_set_setting(INI_ENDTURN, endturn_time);
-        ini_set_setting(INI_PLAY_MODE, play_mode);
-        ini_set_setting(INI_START_GOLD, backup_start_gold);
-        ini_set_setting(INI_RAW_RESOURCE, backup_raw_resource);
-        ini_set_setting(INI_FUEL_RESOURCE, backup_fuel_resource);
-        ini_set_setting(INI_GOLD_RESOURCE, backup_gold_resource);
-        ini_set_setting(INI_ALIEN_DERELICTS, backup_alien_derelicts);
+        settings->SetNumericValue("opponent", opponent);
+        settings->SetNumericValue("timer", turn_timer_time);
+        settings->SetNumericValue("endturn", endturn_time);
+        settings->SetNumericValue("play_mode", play_mode);
+        settings->SetNumericValue("start_gold", backup_start_gold);
+        settings->SetNumericValue("raw_resource", backup_raw_resource);
+        settings->SetNumericValue("fuel_resource", backup_fuel_resource);
+        settings->SetNumericValue("gold_resource", backup_gold_resource);
+        settings->SetNumericValue("alien_derelicts", backup_alien_derelicts);
     }
 
-    GameManager_PlayMode = ini_get_setting(INI_PLAY_MODE);
+    GameManager_PlayMode = settings->GetNumericValue("play_mode");
 
     const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
 
@@ -1141,23 +1269,20 @@ bool SaveLoad_LoadFormatV71(SmartFileReader& file, const MissionCategory mission
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         CTInfo* team_info;
-        char team_name[30];
 
         team_info = &UnitsManager_TeamInfo[team];
 
         if (team_info->team_type != TEAM_TYPE_NONE) {
             if (is_remote_game) {
-                team_info->team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team));
+                team_info->team_type = settings->GetNumericValue(menu_team_player_setting[team]);
 
                 if (team_info->team_type == TEAM_TYPE_PLAYER) {
                     GameManager_PlayerTeam = team;
-                    ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_name,
-                                              sizeof(team_name));
-                    ini_config.SetStringValue(INI_PLAYER_NAME, team_name);
+                    settings->SetStringValue("player_name", settings->GetStringValue(menu_team_name_setting[team]));
                 }
 
             } else if (mission_category == MISSION_CATEGORY_MULTI_PLAYER_SCENARIO) {
-                team_info->team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team));
+                team_info->team_type = settings->GetNumericValue(menu_team_player_setting[team]);
 
                 if (save_load_flag && team_info->team_type == TEAM_TYPE_PLAYER) {
                     GameManager_PlayerTeam = team;
@@ -1168,14 +1293,13 @@ bool SaveLoad_LoadFormatV71(SmartFileReader& file, const MissionCategory mission
                 switch (team_info->team_type) {
                     case TEAM_TYPE_PLAYER: {
                         if (mission_category != MISSION_CATEGORY_HOT_SEAT) {
-                            ini_config.GetStringValue(INI_PLAYER_NAME, team_name, sizeof(team_name));
-                            ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_name);
+                            settings->SetStringValue(menu_team_name_setting[team],
+                                                     settings->GetStringValue("player_name"));
                         }
                     } break;
 
                     case TEAM_TYPE_COMPUTER: {
-                        ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team),
-                                                  menu_team_names[team]);
+                        settings->SetStringValue(menu_team_name_setting[team], menu_team_names[team]);
                     } break;
 
                     case TEAM_TYPE_REMOTE: {
@@ -1217,7 +1341,7 @@ bool SaveLoad_LoadFormatV71(SmartFileReader& file, const MissionCategory mission
             ResourceManager_InitHeatMaps(team);
         }
 
-        ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), team_info->team_type);
+        settings->SetNumericValue(menu_team_player_setting[team], team_info->team_type);
     }
 
     ResourceManager_InitHeatMaps(PLAYER_TEAM_ALIEN);

@@ -30,7 +30,6 @@
 #include "game_manager.hpp"
 #include "gfx.hpp"
 #include "hash.hpp"
-#include "inifile.hpp"
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
 #include "paths_manager.hpp"
@@ -38,6 +37,7 @@
 #include "registerarray.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "sound_manager.hpp"
 #include "task_manager.hpp"
 #include "unit.hpp"
@@ -2854,7 +2854,7 @@ void UnitInfo::UpdateProduction() {
         build_rate = std::min(static_cast<int32_t>(build_rate), maximum_build_rate);
 
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER ||
-            ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_MASTER ||
+            ResourceManager_GetSettings()->GetNumericValue("opponent") < OPPONENT_TYPE_MASTER ||
             UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], *build_list[0])
                     ->GetAttribute(ATTRIB_TURNS) > 1) {
             storage -= Cargo_GetRawConsumptionRate(unit_type, build_rate);
@@ -3482,7 +3482,7 @@ void UnitInfo::SpawnNewUnit() {
 }
 
 void UnitInfo::FollowUnit() {
-    if (ini_get_setting(INI_FOLLOW_UNIT) && GameManager_SelectedUnit == this) {
+    if (ResourceManager_GetSettings()->GetNumericValue("follow_unit") && GameManager_SelectedUnit == this) {
         if (GameManager_PlayMode == PLAY_MODE_TURN_BASED || GameManager_PlayerTeam == team ||
             UnitsManager_TeamInfo[GameManager_PlayerTeam].finished_turn) {
             if (visible_to_team[GameManager_PlayerTeam] && !GameManager_IsInsideMapView(this)) {
@@ -3511,7 +3511,7 @@ void UnitInfo::BlockedOnPathRequest(bool mode, bool skip_notification) {
 
     state = ORDER_STATE_EXECUTING_ORDER;
 
-    if (!ini_get_setting(INI_DISABLE_FIRE)) {
+    if (!ResourceManager_GetSettings()->GetNumericValue("disable_fire")) {
         delayed_reaction = true;
     }
 
@@ -3559,7 +3559,7 @@ void UnitInfo::MoveFinished(bool mode) {
         Ai_CheckMines(this);
     }
 
-    if (mode && !ini_get_setting(INI_DISABLE_FIRE)) {
+    if (mode && !ResourceManager_GetSettings()->GetNumericValue("disable_fire")) {
         delayed_reaction = true;
 
         UnitsManager_AddToDelayedReactionList(this);

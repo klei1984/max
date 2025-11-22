@@ -28,10 +28,10 @@
 #include "buildmenu.hpp"
 #include "game_manager.hpp"
 #include "hash.hpp"
-#include "inifile.hpp"
 #include "paths_manager.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "survey.hpp"
 #include "unit.hpp"
 #include "unitevents.hpp"
@@ -818,7 +818,7 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
                 if (enemy_target_class != TARGET_CLASS_NONE &&
                     (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_PLAYER ||
                      UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) &&
-                    unit->GetOrder() != ORDER_AWAIT && ini_get_setting(INI_ENEMY_HALT)) {
+                    unit->GetOrder() != ORDER_AWAIT && ResourceManager_GetSettings()->GetNumericValue("enemy_halt")) {
                     uint32_t friendly_target_class = Access_GetTargetClass(unit);
 
                     if (unit->GetUnitList()) {

@@ -30,6 +30,12 @@ struct MenuTitleItem {
     std::string title;
 };
 
+extern const std::string menu_team_name_setting[PLAYER_TEAM_MAX];
+extern const std::string menu_team_player_setting[PLAYER_TEAM_MAX];
+extern const std::string menu_team_clan_setting[PLAYER_TEAM_MAX];
+extern const std::string menu_team_strategy_setting[PLAYER_TEAM_MAX];
+extern const std::string menu_research_factor_setting[RESEARCH_TOPIC_COUNT];
+
 #define MENU_TITLE_ITEM_DEF(ulx, uly, lrx, lry, text) {{(ulx), (uly), (lrx), (lry)}, (text)}
 
 bool menu_check_end_game_conditions(int32_t turn_counter, int32_t turn_counter_session_start, bool is_demo_mode);

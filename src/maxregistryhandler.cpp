@@ -22,7 +22,6 @@
 #include "maxregistryhandler.hpp"
 
 #include "game_manager.hpp"
-#include "inifile.hpp"
 #include "scripter.hpp"
 #include "units_manager.hpp"
 

@@ -22,7 +22,8 @@
 #include "taskabstractsearch.hpp"
 
 #include "ailog.hpp"
-#include "inifile.hpp"
+#include "resource_manager.hpp"
+#include "settings.hpp"
 #include "task_manager.hpp"
 #include "taskrepair.hpp"
 #include "tasksearchdestination.hpp"
@@ -82,7 +83,7 @@ void TaskAbstractSearch::EndTurn() {
         for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
             if ((*it).speed && (*it).IsReadyForOrders(this)) {
                 if ((*it).hits <= ((*it).GetBaseValues()->GetAttribute(ATTRIB_HITS) / 2) &&
-                    ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_APPRENTICE) {
+                    ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_APPRENTICE) {
                     (*it).RemoveTasks();
 
                     SmartPointer<Task> repair_task = new (std::nothrow) TaskRepair(&*it);

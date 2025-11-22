@@ -24,7 +24,8 @@
 #include "ai.hpp"
 #include "aiplayer.hpp"
 #include "builder.hpp"
-#include "inifile.hpp"
+#include "resource_manager.hpp"
+#include "settings.hpp"
 #include "task_manager.hpp"
 #include "taskreload.hpp"
 #include "taskrepair.hpp"
@@ -120,7 +121,7 @@ void DefenseManager::MaintainDefences(Task* task) {
             maintenance_task = nullptr;
 
             if ((*it).GetBaseValues()->GetAttribute(ATTRIB_HITS) != (*it).hits &&
-                ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_APPRENTICE) {
+                ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_APPRENTICE) {
                 maintenance_task = new (std::nothrow) TaskRepair(&*it);
 
             } else if ((*it).ammo < (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {

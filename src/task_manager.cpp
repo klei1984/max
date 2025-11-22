@@ -27,10 +27,10 @@
 #include "aiplayer.hpp"
 #include "builder.hpp"
 #include "game_manager.hpp"
-#include "inifile.hpp"
 #include "missionmanager.hpp"
 #include "reminders.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "taskactivate.hpp"
 #include "taskcreateunit.hpp"
 #include "taskreload.hpp"
@@ -449,7 +449,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                     }
                 }
 
-                if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_APPRENTICE) {
+                if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_APPRENTICE) {
                     if (unit->GetBaseValues()->GetAttribute(ATTRIB_HITS) != unit->hits ||
                         (unit->GetOrderState() == ORDER_STATE_STORE &&
                          unit->GetParent()->GetOrderState() != ORDER_STATE_UNIT_READY)) {
@@ -463,7 +463,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                     }
                 }
 
-                if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT) {
+                if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_EXPERT) {
                     if (unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
                         if (!(unit->flags & REGENERATING_UNIT)) {
                             if (AiPlayer_Teams[unit->team].ShouldUpgradeUnit(unit)) {

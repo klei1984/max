@@ -22,6 +22,8 @@
 #include "optionsmenu.hpp"
 
 #include <algorithm>
+#include <cstring>
+#include <format>
 
 #include "cursor.hpp"
 #include "game_manager.hpp"
@@ -29,6 +31,7 @@
 #include "menu.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "sound_manager.hpp"
 #include "text.hpp"
 #include "window_manager.hpp"
@@ -42,6 +45,9 @@ OptionsMenu::OptionsMenu(uint16_t team, ResourceID bg_image)
       is_slider_active(false),
       button_count(sizeof(options_menu_buttons) / sizeof(struct OptionsButton)) {
     int32_t uly = bg_image == SETUPPIC ? 141 : 383;
+
+    text_buffer[0] = '\0';
+    text_buffer_key = 0;
 
     Cursor_SetCursor(CURSOR_HAND);
     Text_SetFont(GNW_TEXT_FONT_5);
@@ -77,7 +83,7 @@ OptionsMenu::OptionsMenu(uint16_t team, ResourceID bg_image)
     win_draw_rect(window.id, &window.window);
 
     for (int32_t i = 0; i < button_count; ++i) {
-        if ((options_menu_buttons[i].ini_param_index != INI_ENHANCED_GRAPHICS || bg_image == SETUPPIC) &&
+        if ((strcmp(options_menu_buttons[i].setting_key.c_str(), "enhanced_graphics") != 0 || bg_image == SETUPPIC) &&
             options_menu_buttons[i].type == OPTIONS_TYPE_CHECKBOX) {
             options_menu_buttons[i].button->SetRestState(options_menu_buttons[i].rest_state);
         }
@@ -96,9 +102,6 @@ OptionsMenu::~OptionsMenu() {
 
         delete options_menu_buttons[i].image;
         options_menu_buttons[i].image = nullptr;
-
-        delete options_menu_buttons[i].ini_string_value;
-        options_menu_buttons[i].ini_string_value = nullptr;
     }
 
     if (bg_image == PREFSPIC) {
@@ -107,14 +110,12 @@ OptionsMenu::~OptionsMenu() {
 }
 
 void OptionsMenu::InitSliderControl(int32_t id, int32_t ulx, int32_t uly) {
-    IniParameter ini_param_index;
     struct ImageSimpleHeader* slider_slit_image;
     int32_t prfslit_ulx;
     int32_t prfslit_uly;
     int32_t prfslit_pos_x;
     int32_t prfslit_pos_y;
-
-    ini_param_index = options_menu_buttons[id].ini_param_index;
+    std::string setting_key = options_menu_buttons[id].setting_key;
 
     Text_TextBox(&window, options_menu_buttons[id].format, ulx, uly, 185, 20, false, true);
     slider_slit_image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(PRFSLIT));
@@ -131,7 +132,7 @@ void OptionsMenu::InitSliderControl(int32_t id, int32_t ulx, int32_t uly) {
     options_menu_buttons[id].image = new (std::nothrow) Image(prfslit_pos_x, uly, prfslit_ulx, 20);
     options_menu_buttons[id].image->Copy(&window);
 
-    DrawSlider(id, ini_get_setting(ini_param_index));
+    DrawSlider(id, ResourceManager_GetSettings()->GetNumericValue(setting_key));
 
     options_menu_buttons[id].button = new (std::nothrow) Button(prfslit_pos_x, uly, prfslit_ulx, 20);
     options_menu_buttons[id].button->SetPValue(1002 + id);
@@ -140,7 +141,6 @@ void OptionsMenu::InitSliderControl(int32_t id, int32_t ulx, int32_t uly) {
 }
 
 void OptionsMenu::InitEditControl(int32_t id, int32_t ulx, int32_t uly) {
-    IniParameter ini_param_index;
     ResourceID resource_id{INVALID_ID};
     struct ImageSimpleHeader* resource_image;
     int32_t image_ulx;
@@ -149,32 +149,32 @@ void OptionsMenu::InitEditControl(int32_t id, int32_t ulx, int32_t uly) {
     int32_t image_pos_y;
 
     Text_TextBox(&window, options_menu_buttons[id].format, ulx, uly, 185, 20, false, true);
-    ini_param_index = options_menu_buttons[id].ini_param_index;
+
+    std::string setting_key = options_menu_buttons[id].setting_key;
 
     switch (options_menu_buttons[id].type) {
         case OPTIONS_TYPE_EDIT_INT:
         case OPTIONS_TYPE_EDIT_HEX: {
             int32_t radix;
 
-            options_menu_buttons[id].ini_string_value = new (std::nothrow) char[30];
-
             if (options_menu_buttons[id].type == OPTIONS_TYPE_EDIT_HEX) {
-                snprintf(options_menu_buttons[id].ini_string_value, 30, "%#x", options_menu_buttons[id].rest_state);
+                options_menu_buttons[id].ini_string_value = std::format("{:#x}", options_menu_buttons[id].rest_state);
+
             } else {
-                snprintf(options_menu_buttons[id].ini_string_value, 30, "%d", options_menu_buttons[id].rest_state);
+                options_menu_buttons[id].ini_string_value = std::format("{}", options_menu_buttons[id].rest_state);
             }
+
             resource_id = PREFEDIT;
 
         } break;
 
         case OPTIONS_TYPE_EDIT_STR: {
-            options_menu_buttons[id].ini_string_value = new (std::nothrow) char[30];
-
             if (bg_image == PREFSPIC) {
-                ini_param_index = static_cast<IniParameter>(INI_RED_TEAM_NAME + team);
+                setting_key = menu_team_name_setting[team].c_str();
             }
 
-            ini_config.GetStringValue(ini_param_index, options_menu_buttons[id].ini_string_value, 30);
+            options_menu_buttons[id].ini_string_value = ResourceManager_GetSettings()->GetStringValue(setting_key);
+
             resource_id = PREFNAME;
 
         } break;
@@ -197,8 +197,8 @@ void OptionsMenu::InitEditControl(int32_t id, int32_t ulx, int32_t uly) {
     options_menu_buttons[id].image = new (std::nothrow) Image(image_pos_x, uly, image_ulx, 20);
     options_menu_buttons[id].image->Copy(&window);
 
-    Text_TextBox(window.buffer, window.width, options_menu_buttons[id].ini_string_value, image_pos_x, uly, image_ulx,
-                 20, 0xA2, true, true);
+    Text_TextBox(window.buffer, window.width, options_menu_buttons[id].ini_string_value.c_str(), image_pos_x, uly,
+                 image_ulx, 20, 0xA2, true, true);
 
     options_menu_buttons[id].button = new (std::nothrow) Button(image_pos_x, uly, image_ulx, 20);
     options_menu_buttons[id].button->SetPValue(1002 + id);
@@ -208,18 +208,17 @@ void OptionsMenu::InitEditControl(int32_t id, int32_t ulx, int32_t uly) {
 
 void OptionsMenu::InitCheckboxControl(int32_t id, int32_t ulx, int32_t uly) {
     Button* button;
-    IniParameter ini_param_index;
-
-    ini_param_index = options_menu_buttons[id].ini_param_index;
+    std::string setting_key = options_menu_buttons[id].setting_key;
 
     button = new (std::nothrow) Button(UNCHKED, CHECKED, ulx, uly);
     button->Copy(window.id);
     button->SetFlags(1);
 
-    if (ini_param_index == INI_DISABLE_MUSIC || ini_param_index == INI_DISABLE_FX ||
-        ini_param_index == INI_DISABLE_VOICE || ini_param_index == INI_ENHANCED_GRAPHICS) {
+    if (strcmp(setting_key.c_str(), "disable_music") == 0 || strcmp(setting_key.c_str(), "disable_fx") == 0 ||
+        strcmp(setting_key.c_str(), "disable_voice") == 0 || strcmp(setting_key.c_str(), "enhanced_graphics") == 0) {
         button->SetPValue(1002 + id);
         button->SetRValue(1002 + id);
+
     } else {
         button->SetPValue(GNW_INPUT_PRESS + 1002 + id);
         button->SetRValue(GNW_INPUT_PRESS + 1002 + id);
@@ -234,32 +233,22 @@ void OptionsMenu::InitCheckboxControl(int32_t id, int32_t ulx, int32_t uly) {
 }
 
 void OptionsMenu::InitLabelControl(int32_t id, int32_t ulx, int32_t uly) {
-    IniParameter ini_param_index;
     char buffer[200];
     FontColor font_color = Fonts_BrightYellowColor;
+    std::string setting_key = options_menu_buttons[id].setting_key;
 
-    ini_param_index = options_menu_buttons[id].ini_param_index;
-
-    switch (ini_param_index) {
-        case INI_PLAY_MODE: {
-            sprintf(buffer, options_menu_buttons[id].format,
-                    options_menu_play_mode_strings[ini_get_setting(ini_param_index)]);
-        } break;
-
-        case INI_OPPONENT: {
-            sprintf(buffer, options_menu_buttons[id].format,
-                    options_menu_opponent_strings[ini_get_setting(ini_param_index)]);
-        } break;
-
-        case INI_VICTORY_LIMIT: {
-            sprintf(buffer, options_menu_buttons[id].format, ini_setting_victory_limit,
-                    options_menu_victory_type_strings[ini_setting_victory_type]);
-        } break;
-
-        case INI_MUSIC_LEVEL: {
-            strcpy(buffer, options_menu_buttons[id].format);
-            font_color = Fonts_GoldColor;
-        } break;
+    if (strcmp(setting_key.c_str(), "play_mode") == 0) {
+        sprintf(buffer, options_menu_buttons[id].format,
+                options_menu_play_mode_strings[ResourceManager_GetSettings()->GetNumericValue("play_mode")]);
+    } else if (strcmp(setting_key.c_str(), "opponent") == 0) {
+        sprintf(buffer, options_menu_buttons[id].format,
+                options_menu_opponent_strings[ResourceManager_GetSettings()->GetNumericValue("opponent")]);
+    } else if (strcmp(setting_key.c_str(), "victory_limit") == 0) {
+        sprintf(buffer, options_menu_buttons[id].format, ini_setting_victory_limit,
+                options_menu_victory_type_strings[ini_setting_victory_type]);
+    } else if (strcmp(setting_key.c_str(), "music_level") == 0) {
+        strcpy(buffer, options_menu_buttons[id].format);
+        font_color = Fonts_GoldColor;
     }
 
     Text_TextBox(&window, buffer, ulx, uly, window.width, 20, false, true, font_color);
@@ -319,10 +308,12 @@ void OptionsMenu::UpdateSlider(int32_t id) {
 
     win_draw_rect(window.id, &bounds);
 
-    if (button->ini_param_index != INI_QUICK_SCROLL) {
-        if (button->ini_param_index == INI_MUSIC_LEVEL) {
+    std::string button_key = options_menu_buttons[id].setting_key;
+
+    if (strcmp(button_key.c_str(), "quick_scroll") != 0) {
+        if (strcmp(button_key.c_str(), "music_level") == 0) {
             audio_type = AUDIO_TYPE_MUSIC;
-        } else if (button->ini_param_index == INI_FX_SOUND_LEVEL) {
+        } else if (strcmp(button_key.c_str(), "fx_sound_level") == 0) {
             audio_type = AUDIO_TYPE_SFX2;
         } else {
             audio_type = AUDIO_TYPE_VOICE;
@@ -334,7 +325,7 @@ void OptionsMenu::UpdateSlider(int32_t id) {
 
 void OptionsMenu::SetVolume(int32_t id, int32_t audio_type, int32_t value) {
     SoundManager_SetVolume(audio_type, static_cast<float>(value) / 100);
-    ini_set_setting(options_menu_buttons[id].ini_param_index, value);
+    ResourceManager_GetSettings()->SetNumericValue(options_menu_buttons[id].setting_key, value);
 }
 
 int32_t OptionsMenu::ProcessTextEditKeyPress(int32_t key) {
@@ -352,21 +343,23 @@ int32_t OptionsMenu::ProcessTextEditKeyPress(int32_t key) {
         delete text_edit;
         text_edit = nullptr;
 
+        options_menu_buttons[text_buffer_key].ini_string_value = text_buffer;
+
         if (button->type == OPTIONS_TYPE_EDIT_INT) {
             int32_t value;
             int32_t max;
 
-            value = strtol(button->ini_string_value, nullptr, 10);
+            value = strtol(button->ini_string_value.c_str(), nullptr, 10);
 
             max = std::max(value, static_cast<int32_t>(button->range_min));
             value = std::min(static_cast<int32_t>(button->range_max), max);
 
-            snprintf(button->ini_string_value, 30, "%d", value);
+            button->ini_string_value = std::format("{}", value);
         }
 
         button->image->Write(&window);
 
-        Text_TextBox(window.buffer, window.width, button->ini_string_value, button->image->GetULX(),
+        Text_TextBox(window.buffer, window.width, button->ini_string_value.c_str(), button->image->GetULX(),
                      button->image->GetULY(), button->image->GetWidth(), button->image->GetHeight(), 0xA2, true, true);
 
         control_id = 0;
@@ -384,13 +377,13 @@ int32_t OptionsMenu::ProcessTextEditKeyPress(int32_t key) {
 void OptionsMenu::Init() {
     int32_t window_ulx;
     int32_t window_uly;
-    IniParameter ini_param_index;
+    std::string setting_key;
 
     if (bg_image == PREFSPIC) {
         window_uly = 20;
 
 #if !defined(NDEBUG)
-        if (ini_get_setting(INI_DEBUG)) {
+        if (ResourceManager_GetSettings()->GetNumericValue("debug")) {
             window_uly = 0;
         }
 #endif /* !defined(NDEBUG) */
@@ -401,13 +394,13 @@ void OptionsMenu::Init() {
 
     for (int32_t i = 0; i < button_count; ++i) {
         window_ulx = options_menu_buttons[i].ulx;
-        ini_param_index = options_menu_buttons[i].ini_param_index;
+        setting_key = options_menu_buttons[i].setting_key;
 
-        if (ini_param_index != INI_ENHANCED_GRAPHICS || bg_image == SETUPPIC) {
+        if (strcmp(setting_key.c_str(), "enhanced_graphics") != 0 || bg_image == SETUPPIC) {
 #if !defined(NDEBUG)
-            if (ini_get_setting(INI_DEBUG)) {
-                if (ini_param_index == INI_PLAY_MODE || ini_param_index == INI_OPPONENT ||
-                    ini_param_index == INI_VICTORY_LIMIT) {
+            if (ResourceManager_GetSettings()->GetNumericValue("debug")) {
+                if (strcmp(setting_key.c_str(), "play_mode") == 0 || strcmp(setting_key.c_str(), "opponent") == 0 ||
+                    strcmp(setting_key.c_str(), "victory_limit") == 0) {
                     continue;
                 }
             }
@@ -418,7 +411,7 @@ void OptionsMenu::Init() {
             }
 
             if (options_menu_buttons[i].type != OPTIONS_TYPE_SECTION) {
-                options_menu_buttons[i].rest_state = ini_get_setting(ini_param_index);
+                options_menu_buttons[i].rest_state = ResourceManager_GetSettings()->GetNumericValue(setting_key);
                 options_menu_buttons[i].last_rest_state = options_menu_buttons[i].rest_state;
 
                 switch (options_menu_buttons[i].type) {
@@ -440,14 +433,14 @@ void OptionsMenu::Init() {
                 }
 
             } else {
-                if (bg_image == SETUPPIC && ini_param_index != INI_SETUP) {
+                if (bg_image == SETUPPIC && strcmp(setting_key.c_str(), "setup") != 0) {
                     button_count = i;
                     return;
                 }
 
-                if (ini_param_index
+                if (strcmp(setting_key.c_str(), "invalid") != 0
 #if !defined(NDEBUG)
-                    || ini_get_setting(INI_DEBUG)
+                    || ResourceManager_GetSettings()->GetNumericValue("debug")
 #endif /* !defined(NDEBUG) */
                 ) {
                     ;
@@ -500,36 +493,32 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
             ProcessTextEditKeyPress(GNW_KB_KEY_RETURN);
 
             for (int32_t i = 0; i < button_count; ++i) {
-                IniParameter ini_param_index;
-                int32_t option_type;
-
-                ini_param_index = options_menu_buttons[i].ini_param_index;
-                option_type = options_menu_buttons[i].type;
+                std::string setting_key = options_menu_buttons[i].setting_key;
+                int32_t option_type = options_menu_buttons[i].type;
 
                 switch (option_type) {
                     case OPTIONS_TYPE_SLIDER: {
-                        ini_set_setting(ini_param_index, options_menu_buttons[i].rest_state);
+                        ResourceManager_GetSettings()->SetNumericValue(setting_key, options_menu_buttons[i].rest_state);
                     } break;
 
                     case OPTIONS_TYPE_EDIT_INT: {
-                        ini_set_setting(ini_param_index, strtol(options_menu_buttons[i].ini_string_value, nullptr, 10));
+                        ResourceManager_GetSettings()->SetNumericValue(
+                            setting_key, strtol(options_menu_buttons[i].ini_string_value.c_str(), nullptr, 10));
                     } break;
 
                     case OPTIONS_TYPE_EDIT_HEX: {
-                        char buffer[20];
-
-                        snprintf(buffer, 20, "0x%s", options_menu_buttons[i].ini_string_value);
-
-                        ini_config.SetStringValue(ini_param_index, buffer);
-                        ini_set_setting(ini_param_index, strtol(options_menu_buttons[i].ini_string_value, nullptr, 16));
+                        ResourceManager_GetSettings()->SetNumericValue(
+                            setting_key, strtol(options_menu_buttons[i].ini_string_value.c_str(), nullptr, 16));
                     } break;
 
                     case OPTIONS_TYPE_EDIT_STR: {
-                        ini_config.SetStringValue(ini_param_index, options_menu_buttons[i].ini_string_value);
+                        ResourceManager_GetSettings()->SetStringValue(setting_key,
+                                                                      options_menu_buttons[i].ini_string_value);
 
                         if (bg_image == PREFSPIC) {
-                            ini_param_index = static_cast<IniParameter>(INI_RED_TEAM_NAME + team);
-                            ini_config.SetStringValue(ini_param_index, options_menu_buttons[i].ini_string_value);
+                            setting_key = menu_team_name_setting[team].c_str();
+                            ResourceManager_GetSettings()->SetStringValue(setting_key,
+                                                                          options_menu_buttons[i].ini_string_value);
 
                             if (Remote_IsNetworkGame) {
                                 Remote_SendNetPacket_09(team);
@@ -540,7 +529,8 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
 
                     case OPTIONS_TYPE_CHECKBOX: {
                         if (options_menu_buttons[i].button) {
-                            ini_set_setting(ini_param_index, win_button_down(options_menu_buttons[i].button->GetId()));
+                            ResourceManager_GetSettings()->SetNumericValue(
+                                setting_key, win_button_down(options_menu_buttons[i].button->GetId()));
                         }
 
                     } break;
@@ -548,10 +538,11 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
             }
 
             if (bg_image == SETUPPIC) {
-                ResourceManager_DisableEnhancedGraphics = !ini_get_setting(INI_ENHANCED_GRAPHICS);
+                ResourceManager_DisableEnhancedGraphics =
+                    !ResourceManager_GetSettings()->GetNumericValue("enhanced_graphics");
             }
 
-            ini_config.Save();
+            (void)ResourceManager_GetSettings()->Save();
             exit_menu = true;
 
         } break;
@@ -572,43 +563,25 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
             ProcessTextEditKeyPress(GNW_KB_KEY_ESCAPE);
 
             for (int32_t i = 0; i < button_count; ++i) {
-                int32_t ini_param_index;
-                int32_t last_value;
-
-                ini_param_index = options_menu_buttons[i].ini_param_index;
-                last_value = options_menu_buttons[i].last_rest_state;
+                std::string setting_key = options_menu_buttons[i].setting_key;
+                int32_t last_value = options_menu_buttons[i].last_rest_state;
 
                 if (last_value != options_menu_buttons[i].rest_state) {
-                    switch (ini_param_index) {
-                        case INI_MUSIC_LEVEL: {
-                            SetVolume(i, AUDIO_TYPE_MUSIC, last_value);
-                        } break;
-
-                        case INI_FX_SOUND_LEVEL: {
-                            SetVolume(i, AUDIO_TYPE_SFX2, last_value);
-                        } break;
-
-                        case INI_VOICE_LEVEL: {
-                            SetVolume(i, AUDIO_TYPE_VOICE, last_value);
-
-                        } break;
-                        case INI_DISABLE_MUSIC: {
-                            ini_set_setting(INI_DISABLE_MUSIC, last_value);
-                            SoundManager_HaltMusicPlayback(last_value);
-
-                        } break;
-
-                        case INI_DISABLE_FX: {
-                            ini_set_setting(INI_DISABLE_FX, last_value);
-                            SoundManager_HaltSfxPlayback(last_value);
-
-                        } break;
-
-                        case INI_DISABLE_VOICE: {
-                            ini_set_setting(INI_DISABLE_VOICE, last_value);
-                            SoundManager_HaltVoicePlayback(last_value);
-
-                        } break;
+                    if (strcmp(setting_key.c_str(), "music_level") == 0) {
+                        SetVolume(i, AUDIO_TYPE_MUSIC, last_value);
+                    } else if (strcmp(setting_key.c_str(), "fx_sound_level") == 0) {
+                        SetVolume(i, AUDIO_TYPE_SFX2, last_value);
+                    } else if (strcmp(setting_key.c_str(), "voice_level") == 0) {
+                        SetVolume(i, AUDIO_TYPE_VOICE, last_value);
+                    } else if (strcmp(setting_key.c_str(), "disable_music") == 0) {
+                        ResourceManager_GetSettings()->SetNumericValue("disable_music", last_value);
+                        SoundManager_HaltMusicPlayback(last_value);
+                    } else if (strcmp(setting_key.c_str(), "disable_fx") == 0) {
+                        ResourceManager_GetSettings()->SetNumericValue("disable_fx", last_value);
+                        SoundManager_HaltSfxPlayback(last_value);
+                    } else if (strcmp(setting_key.c_str(), "disable_voice") == 0) {
+                        ResourceManager_GetSettings()->SetNumericValue("disable_voice", last_value);
+                        SoundManager_HaltVoicePlayback(last_value);
                     }
                 }
             }
@@ -631,28 +604,22 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
                         ProcessTextEditKeyPress(GNW_KB_KEY_RETURN);
 
                         if (options_menu_buttons[key].type == OPTIONS_TYPE_CHECKBOX) {
-                            IniParameter ini_param_index;
+                            std::string setting_key;
                             int32_t value;
 
                             options_menu_buttons[key].button->PlaySound();
                             value = win_button_down(options_menu_buttons[key].button->GetId());
                             options_menu_buttons[key].rest_state = value;
 
-                            ini_param_index = options_menu_buttons[key].ini_param_index;
-                            ini_set_setting(ini_param_index, value);
+                            setting_key = options_menu_buttons[key].setting_key;
+                            ResourceManager_GetSettings()->SetNumericValue(setting_key, value);
 
-                            switch (ini_param_index) {
-                                case INI_DISABLE_MUSIC: {
-                                    SoundManager_HaltMusicPlayback(value);
-                                } break;
-
-                                case INI_DISABLE_FX: {
-                                    SoundManager_HaltSfxPlayback(value);
-                                } break;
-
-                                case INI_DISABLE_VOICE: {
-                                    SoundManager_HaltVoicePlayback(value);
-                                } break;
+                            if (strcmp(setting_key.c_str(), "disable_music") == 0) {
+                                SoundManager_HaltMusicPlayback(value);
+                            } else if (strcmp(setting_key.c_str(), "disable_fx") == 0) {
+                                SoundManager_HaltSfxPlayback(value);
+                            } else if (strcmp(setting_key.c_str(), "disable_voice") == 0) {
+                                SoundManager_HaltVoicePlayback(value);
                             }
 
                         } else if (options_menu_buttons[key].type == OPTIONS_TYPE_SLIDER) {
@@ -663,8 +630,13 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
                         } else {
                             control_id = key;
                             options_menu_buttons[key].image->Write(&window);
+
+                            SDL_utf8strlcpy(text_buffer, options_menu_buttons[key].ini_string_value.c_str(),
+                                            sizeof(text_buffer));
+                            text_buffer_key = key;
+
                             text_edit = new (std::nothrow)
-                                TextEdit(&window, options_menu_buttons[key].ini_string_value, 30,
+                                TextEdit(&window, text_buffer, sizeof(text_buffer),
                                          options_menu_buttons[key].image->GetULX() + 5,
                                          options_menu_buttons[key].image->GetULY(),
                                          options_menu_buttons[key].image->GetWidth() - 5,
@@ -685,7 +657,7 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
                             }
 
                             text_edit->LoadBgImage();
-                            text_edit->SetEditedText(options_menu_buttons[key].ini_string_value);
+                            text_edit->SetEditedText(options_menu_buttons[key].ini_string_value.c_str());
                             text_edit->DrawFullText();
                             text_edit->EnterTextEditField();
                         }

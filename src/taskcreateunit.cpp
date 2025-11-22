@@ -28,7 +28,7 @@
 #include "builder.hpp"
 #include "buildmenu.hpp"
 #include "game_manager.hpp"
-#include "inifile.hpp"
+#include "settings.hpp"
 #include "task_manager.hpp"
 #include "taskactivate.hpp"
 #include "taskescort.hpp"
@@ -317,7 +317,8 @@ void TaskCreateUnit::WaitForMaterials() {
 
                 op_state = CREATE_UNIT_STATE_BUILDING;
 
-                if (materials.raw > 100 && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+                if (materials.raw > 100 &&
+                    ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
                     builder->SetBuildRate(2);
 
                 } else {

@@ -23,7 +23,8 @@
 
 #include "ailog.hpp"
 #include "gnw.h"
-#include "ini.hpp"
+#include "resource_manager.hpp"
+#include "settings.hpp"
 
 #define SVGA_DEFAULT_WIDTH (640)
 #define SVGA_DEFAULT_HEIGHT (480)
@@ -58,8 +59,9 @@ ScreenBlitFunc scr_blit;
 Uint32 Svga_SetupDisplayMode(SDL_Rect* bounds) {
     Uint32 flags = 0uL;
     SDL_DisplayMode display_mode;
-
-    Svga_DisplayIndex = ini_get_setting(INI_DISPLAY_INDEX);
+    auto settings = ResourceManager_GetSettings();
+    
+    Svga_DisplayIndex = settings->GetNumericValue("display_index");
 
     if (SDL_GetCurrentDisplayMode(Svga_DisplayIndex, &display_mode)) {
         AILOG(log, "SDL_GetCurrentDisplayMode failed: {}\n", SDL_GetError());
@@ -73,10 +75,10 @@ Uint32 Svga_SetupDisplayMode(SDL_Rect* bounds) {
     Svga_DisplayRefreshRate = display_mode.refresh_rate;
     Svga_DisplayPixelFormat = display_mode.format;
 
-    Svga_ScreenMode = ini_get_setting(INI_SCREEN_MODE);
-    Svga_ScaleQuality = ini_get_setting(INI_SCALE_QUALITY);
-    Svga_ScreenWidth = ini_get_setting(INI_WINDOW_WIDTH);
-    Svga_ScreenHeight = ini_get_setting(INI_WINDOW_HEIGHT);
+    Svga_ScreenMode = settings->GetNumericValue("screen_mode");
+    Svga_ScaleQuality = settings->GetNumericValue("scale_quality");
+    Svga_ScreenWidth = settings->GetNumericValue("window_width");
+    Svga_ScreenHeight = settings->GetNumericValue("window_height");
 
     Svga_CorrectAspectRatio(&display_mode);
 
@@ -126,7 +128,7 @@ void Svga_CorrectAspectRatio(SDL_DisplayMode* display_mode) {
         user_aspect_ratio = minimum_aspect_ratio;
     }
 
-    if (!ini_get_setting(INI_DISABLE_AR_CORRECTION)) {
+    if (!ResourceManager_GetSettings()->GetNumericValue("disable_ar_correction")) {
         user_aspect_ratio = display_aspect_ratio;
     }
 

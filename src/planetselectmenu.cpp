@@ -22,10 +22,10 @@
 #include "planetselectmenu.hpp"
 
 #include "helpmenu.hpp"
-#include "inifile.hpp"
 #include "menu.hpp"
 #include "randomizer.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "window_manager.hpp"
 
 void PlanetSelectMenu::ButtonInit(int32_t index) {
@@ -247,7 +247,7 @@ void PlanetSelectMenu::Init() {
     image1 = nullptr;
     image2 = nullptr;
     image3 = nullptr;
-    world = ini_get_setting(INI_WORLD);
+    world = ResourceManager_GetSettings()->GetNumericValue("world");
 
     mouse_hide();
 

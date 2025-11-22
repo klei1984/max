@@ -23,9 +23,9 @@
 
 #include "cursor.hpp"
 #include "gnw.h"
-#include "inifile.hpp"
 #include "mvelib32.h"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "smartstring.hpp"
 #include "sound_manager.hpp"
 #include "window_manager.hpp"
@@ -145,15 +145,15 @@ int32_t movie_run(ResourceID resource_id) {
         movie_init_palette();
         MVE_palCallbacks(movie_cb_set_palette);
 
-        movie_music_level = (32767 * ini_get_setting(INI_MUSIC_LEVEL)) / 100;
+        movie_music_level = (32767 * ResourceManager_GetSettings()->GetNumericValue("music_level")) / 100;
 
-        if (ini_get_setting(INI_DISABLE_MUSIC)) {
+        if (ResourceManager_GetSettings()->GetNumericValue("disable_music")) {
             movie_music_level = 0;
         }
 
         MVE_sndVolume(movie_music_level);
 
-        if (ini_get_setting(INI_MOVIE_PLAY)) {
+        if (ResourceManager_GetSettings()->GetNumericValue("movie_play")) {
             MVE_rmFastMode(1);
         }
 

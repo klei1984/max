@@ -37,7 +37,6 @@
 #include "gfx.hpp"
 #include "hash.hpp"
 #include "help.hpp"
-#include "inifile.hpp"
 #include "language.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
@@ -51,8 +50,6 @@
 #include "units_manager.hpp"
 #include "utf8.hpp"
 #include "window_manager.hpp"
-
-#define INIFILE_BUFFER_SIZE 2048
 
 struct res_index {
     char tag[8];
@@ -196,6 +193,11 @@ static void ResourceManager_ResetUnitsSprites();
 static std::filesystem::path ResourceManager_GetFileResourcePath(const std::string& string,
                                                                  std::filesystem::path& path);
 static std::filesystem::path ResourceManager_GetFileResourcePath(const std::string& string, const ResourceType type);
+static bool ResourceManager_GetBasePath(std::filesystem::path& path);
+static bool ResourceManager_GetPrefPath(std::filesystem::path& path);
+static void ResourceManager_InitBasePath();
+static void ResourceManager_InitPrefPath();
+static void ResourceManager_InitGameDataPath();
 
 static inline std::filesystem::path ResourceManager_GetFileResourcePathPrefix(ResourceType type) {
     auto path{ResourceManager_FilePathGameData};
@@ -351,7 +353,7 @@ bool ResourceManager_GetPrefPath(std::filesystem::path& path) {
 #endif /* SDL_VERSION_ATLEAST(2, 0, 1) */
     }
 
-    if (!std::filesystem::exists(local_path / "settings.ini", ec) || ec) {
+    if (!std::filesystem::exists(local_path / "settings.json", ec) || ec) {
         result = false;
 
     } else {
@@ -364,44 +366,33 @@ bool ResourceManager_GetPrefPath(std::filesystem::path& path) {
 }
 
 bool ResourceManager_GetGameDataPath(std::filesystem::path& path) {
-    auto filepath{ResourceManager_FilePathGamePref / "settings.ini"};
-    Ini_descriptor ini;
+    auto game_data_path = ResourceManager_GetSettings()->GetStringValue("game_data");
+    auto local_path = std::filesystem::path(game_data_path).lexically_normal();
+    std::error_code ec;
     bool result{false};
 
-    if (inifile_init_ini_object_from_ini_file(&ini, filepath.string().c_str())) {
-        constexpr int32_t buffer_size{INIFILE_BUFFER_SIZE};
-        auto buffer = std::make_unique<char[]>(buffer_size);
+    if (std::filesystem::exists(local_path, ec) && !ec) {
+        path = local_path;
 
-        if (inifile_ini_seek_section(&ini, "SETUP") && inifile_ini_seek_param(&ini, "game_data")) {
-            if (inifile_ini_get_string(&ini, buffer.get(), buffer_size, 1, false)) {
-                auto local_path = std::filesystem::path(buffer.get()).lexically_normal();
-                std::error_code ec;
-
-                if (std::filesystem::exists(local_path, ec) && !ec) {
-                    path = local_path;
-
-                    result = true;
-                }
-            }
-        }
+        result = true;
     }
-
-    inifile_save_to_file_and_free_buffer(&ini, true);
 
     return result;
 }
 
-void ResourceManager_InitPaths() {
+void ResourceManager_InitBasePath() {
     if (!ResourceManager_GetBasePath(ResourceManager_FilePathGameBase)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(2690), nullptr);
         exit(EXIT_FAILURE);
     }
-
+}
+void ResourceManager_InitPrefPath() {
     if (!ResourceManager_GetPrefPath(ResourceManager_FilePathGamePref)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(416b), nullptr);
         exit(EXIT_FAILURE);
     }
-
+}
+void ResourceManager_InitGameDataPath() {
     if (!ResourceManager_GetGameDataPath(ResourceManager_FilePathGameData)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(0f72), nullptr);
         exit(EXIT_FAILURE);
@@ -416,8 +407,13 @@ void ResourceManager_InitResources() {
     // resources from patches are available
     ResourceManager_InitLanguageManager();
     // localized strings are available
-    ResourceManager_InitPaths();
-    // resource file system paths are available
+    ResourceManager_InitBasePath();
+    ResourceManager_InitPrefPath();
+    // resource file system base and pref paths are available
+    ResourceManager_InitSettings();
+    // game settings are available
+    ResourceManager_InitGameDataPath();
+    // resource file system game data path is available
     ResourceManager_InitSDL();
     // SDL video sub-system and logging are available
     ResourceManager_TestMemory();
@@ -485,17 +481,10 @@ void ResourceManager_TestDiskSpace() {
 }
 
 void ResourceManager_InitInternals() {
+    auto language = ResourceManager_GetSettings()->GetStringValue("language");
     int32_t error_code;
 
-    ini_config.Init();
-
-    {
-        char language[30];
-
-        ini_config.GetStringValue(INI_LANGUAGE, language, sizeof(language));
-
-        ResourceManager_SetSystemLocale(language);
-    }
+    ResourceManager_SetSystemLocale(language);
 
     error_code = ResourceManager_InitResManager();
 
@@ -507,15 +496,15 @@ void ResourceManager_InitInternals() {
         ResourceManager_ExitGame(EXIT_CODE_SCREEN_INIT_FAILED);
     }
 
-    mouse_set_wheel_sensitivity(ini_get_setting(INI_MOUSE_WHEEL_SENSITIVITY));
+    mouse_set_wheel_sensitivity(ResourceManager_GetSettings()->GetNumericValue("mouse_wheel_sensitivity"));
 
     SDL_SetAssertionHandler(&ResourceManager_AssertionHandler, nullptr);
 
     if (SDL_GetSystemRAM() < ResourceManager_MinimumMemoryEnhancedGfx) {
-        ini_set_setting(INI_ENHANCED_GRAPHICS, false);
+        ResourceManager_GetSettings()->SetNumericValue("enhanced_graphics", false);
     }
 
-    ResourceManager_DisableEnhancedGraphics = !ini_get_setting(INI_ENHANCED_GRAPHICS);
+    ResourceManager_DisableEnhancedGraphics = !ResourceManager_GetSettings()->GetNumericValue("enhanced_graphics");
 
     SoundManager_Init();
     register_pause(-1, nullptr);
@@ -1117,7 +1106,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     int32_t file_offset;
     uint16_t map_tile_count = 0;
 
-    ini_set_setting(INI_WORLD, world);
+    ResourceManager_GetSettings()->SetNumericValue("world", world);
 
     UnitsManager_GroundCoverUnits.Clear();
     UnitsManager_MobileLandSeaUnits.Clear();
@@ -1511,22 +1500,22 @@ void ResourceManager_InitClanUnitValues(uint16_t team) {
     switch (team) {
         case PLAYER_TEAM_RED: {
             team_units = &ResourceManager_TeamUnitsRed;
-            team_clan = ini_get_setting(INI_RED_TEAM_CLAN);
+            team_clan = ResourceManager_GetSettings()->GetNumericValue("red_team_clan");
         } break;
 
         case PLAYER_TEAM_GREEN: {
             team_units = &ResourceManager_TeamUnitsGreen;
-            team_clan = ini_get_setting(INI_GREEN_TEAM_CLAN);
+            team_clan = ResourceManager_GetSettings()->GetNumericValue("green_team_clan");
         } break;
 
         case PLAYER_TEAM_BLUE: {
             team_units = &ResourceManager_TeamUnitsBlue;
-            team_clan = ini_get_setting(INI_BLUE_TEAM_CLAN);
+            team_clan = ResourceManager_GetSettings()->GetNumericValue("blue_team_clan");
         } break;
 
         case PLAYER_TEAM_GRAY: {
             team_units = &ResourceManager_TeamUnitsGray;
-            team_clan = ini_get_setting(INI_GRAY_TEAM_CLAN);
+            team_clan = ResourceManager_GetSettings()->GetNumericValue("gray_team_clan");
         } break;
 
         case PLAYER_TEAM_ALIEN: {
@@ -1541,7 +1530,7 @@ void ResourceManager_InitClanUnitValues(uint16_t team) {
 
     if (team_clan == TEAM_CLAN_RANDOM) {
         team_clan = Randomizer_Generate(8) + 1;
-        ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + team), team_clan);
+        ResourceManager_GetSettings()->SetNumericValue(menu_team_clan_setting[team], team_clan);
     }
 
     UnitsManager_TeamInfo[team].team_clan = team_clan;
@@ -1586,8 +1575,8 @@ void ResourceManager_InitTeamInfo() {
         UnitsManager_TeamInfo[i].Reset();
 
         if (i < PLAYER_TEAM_MAX - 1) {
-            UnitsManager_TeamInfo[i].team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));
-            UnitsManager_TeamInfo[i].team_clan = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + i));
+            UnitsManager_TeamInfo[i].team_type = ResourceManager_GetSettings()->GetNumericValue(menu_team_player_setting[i]);
+            UnitsManager_TeamInfo[i].team_clan = ResourceManager_GetSettings()->GetNumericValue(menu_team_clan_setting[i]);
 
         } else {
             UnitsManager_TeamInfo[i].team_type = TEAM_TYPE_NONE;

@@ -111,9 +111,6 @@ extern double ResourceManager_MinimapWindowScale;
 extern uint8_t* ResourceManager_MainmapBgImage;
 extern int32_t ResourceManager_MainmapZoomLimit;
 
-bool ResourceManager_GetBasePath(std::filesystem::path& path);
-bool ResourceManager_GetPrefPath(std::filesystem::path& path);
-void ResourceManager_InitPaths();
 void ResourceManager_InitResources();
 void ResourceManager_ExitGame(int32_t error_code);
 void ResourceManager_Exit();

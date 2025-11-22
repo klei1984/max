@@ -24,10 +24,11 @@
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
-#include "inifile.hpp"
+#include "menu.hpp"
 #include "remote.hpp"
 #include "reportstats.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "sound_manager.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"
@@ -111,7 +112,7 @@ void ResearchMenu_UpdateResearchProgress(uint16_t team, int32_t research_topic, 
 
     topic = &UnitsManager_TeamInfo[team].research_topics[research_topic];
 
-    topic_factor = ini_get_setting(static_cast<IniParameter>(INI_ATTACK_FACTOR + research_topic));
+    topic_factor = ResourceManager_GetSettings()->GetNumericValue(menu_research_factor_setting[research_topic]);
 
     base = (static_cast<double>(topic->research_level) / 10.0) + 1.0;
 

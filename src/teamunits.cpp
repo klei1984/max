@@ -28,11 +28,11 @@
 
 #include "access.hpp"
 #include "ailog.hpp"
-#include "inifile.hpp"
 #include "net_packet.hpp"
 #include "production_manager.hpp"
 #include "researchmenu.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "units_manager.hpp"
 #include "upgradecontrol.hpp"
 
@@ -246,7 +246,7 @@ int32_t TeamUnits_GetUpgradeCost(uint16_t team, ResourceID unit_type, int32_t at
         upgrade_cost;
 
     if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-        switch (ini_get_setting(INI_OPPONENT)) {
+        switch (ResourceManager_GetSettings()->GetNumericValue("opponent")) {
             case OPPONENT_TYPE_MASTER: {
                 upgrade_cost = (upgrade_cost * 4) / 5;
             } break;

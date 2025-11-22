@@ -25,10 +25,11 @@
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
-#include "inifile.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "remote.hpp"
+#include "resource_manager.hpp"
+#include "settings.hpp"
 #include "text.hpp"
 #include "textedit.hpp"
 #include "units_manager.hpp"
@@ -203,14 +204,11 @@ bool ChatMenu::ProcessKey(int32_t key) {
 }
 
 void ChatMenu::DrawMessage() {
-    char buffer[30];
-
     for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
         if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
             int32_t team_ulx;
             int32_t team_uly;
-
-            ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + i), buffer, sizeof(buffer));
+            const auto team_name = ResourceManager_GetSettings()->GetStringValue(menu_team_name_setting[i]);
 
             switch (i) {
                 case PLAYER_TEAM_RED: {
@@ -234,7 +232,7 @@ void ChatMenu::DrawMessage() {
                 } break;
             }
 
-            Text_TextBox(window.buffer, window.width, buffer, team_ulx, team_uly, 130, 10,
+            Text_TextBox(window.buffer, window.width, team_name.c_str(), team_ulx, team_uly, 130, 10,
                          win_button_down(button_team[i]->GetId()) ? 0xFF : COLOR_RED, true);
         }
     }

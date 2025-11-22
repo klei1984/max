@@ -24,7 +24,6 @@
 #include <utility>
 
 #include "game_manager.hpp"
-#include "inifile.hpp"
 #include "missionmanager.hpp"
 #include "units_manager.hpp"
 

@@ -27,7 +27,7 @@
 #include "aiattack.hpp"
 #include "aiplayer.hpp"
 #include "game_manager.hpp"
-#include "inifile.hpp"
+#include "settings.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"
 #include "unit.hpp"
@@ -71,7 +71,8 @@ void TaskFrontalAttack::IssueOrders() {
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN && target->hits > 0) {
         for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
             if ((*it).shots == 0 && ((*it).speed == 0 || ((*it).GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
-                                                          ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE))) {
+                                                          ResourceManager_GetSettings()->GetNumericValue("opponent") >=
+                                                              OPPONENT_TYPE_AVERAGE))) {
                 (*it).RemoveTask(this);
                 units1.Remove(*it);
             }
@@ -159,7 +160,7 @@ void TaskFrontalAttack::IssueOrders() {
                     bool is_found;
 
                     if (attacker->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
-                        ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+                        ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
                         local_caution_level = CAUTION_LEVEL_AVOID_REACTION_FIRE;
 
                     } else {

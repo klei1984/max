@@ -32,7 +32,6 @@
 #include "enums.hpp"
 #include "game_manager.hpp"
 #include "hash.hpp"
-#include "inifile.hpp"
 #include "message_manager.hpp"
 #include "paths_manager.hpp"
 #include "production_manager.hpp"
@@ -41,6 +40,7 @@
 #include "repairshopmenu.hpp"
 #include "researchmenu.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "smartlist.hpp"
 #include "sound_manager.hpp"
 #include "survey.hpp"
@@ -789,7 +789,7 @@ void UnitsManager_PerformAction(UnitInfo* unit) {
         GameManager_UpdateDrawBounds();
     }
 
-    if (ini_get_setting(INI_AUTO_SELECT)) {
+    if (ResourceManager_GetSettings()->GetNumericValue("auto_select")) {
         GameManager_SelectNextUnit(1);
     }
 }
@@ -2679,7 +2679,7 @@ void UnitsManager_ProcessOrderBuild(UnitInfo* unit) {
         } break;
 
         case ORDER_STATE_BUILD_IN_PROGRESS: {
-            if (ini_get_setting(INI_EFFECTS) && unit->GetUnitType() == CONSTRCT) {
+            if (ResourceManager_GetSettings()->GetNumericValue("effects") && unit->GetUnitType() == CONSTRCT) {
                 if (unit->moved & 0x01) {
                     if (unit->GetImageIndex() + 8 >= 40) {
                         unit->DrawSpriteFrame(unit->GetImageIndex() - 16);
@@ -2856,7 +2856,7 @@ void UnitsManager_ProcessOrderClear(UnitInfo* unit) {
 }
 
 void UnitsManager_ProcessOrderSentry(UnitInfo* unit) {
-    if ((unit->flags & ANIMATED) && ini_get_setting(INI_EFFECTS)) {
+    if ((unit->flags & ANIMATED) && ResourceManager_GetSettings()->GetNumericValue("effects")) {
         if (unit->GetImageIndex() + 1 <= unit->image_index_max) {
             unit->DrawSpriteFrame(unit->GetImageIndex() + 1);
 
@@ -3076,7 +3076,8 @@ void UnitsManager_ProcessOrderLayMine(UnitInfo* unit) {
 }
 
 void UnitsManager_ProcessOrder(UnitInfo* unit) {
-    if ((unit->flags & SPINNING_TURRET) && unit->GetOrder() != ORDER_DISABLE && ini_get_setting(INI_EFFECTS)) {
+    if ((unit->flags & SPINNING_TURRET) && unit->GetOrder() != ORDER_DISABLE &&
+        ResourceManager_GetSettings()->GetNumericValue("effects")) {
         unit->SpinningTurretAdvanceAnimation();
     }
 
@@ -3255,7 +3256,7 @@ bool UnitsManager_IsFactory(ResourceID unit_type) {
 }
 
 void UnitsManager_AddToDelayedReactionList(UnitInfo* unit) {
-    if (!ini_get_setting(INI_DISABLE_FIRE)) {
+    if (!ResourceManager_GetSettings()->GetNumericValue("disable_fire")) {
         UnitsManager_DelayedAttackTargets[unit->team].PushBack(*unit);
         UnitsManager_DelayedReactionsPending = true;
     }
@@ -3395,7 +3396,7 @@ void UnitsManager_PowerDownUnit(UnitInfo* unit) {
 }
 
 void UnitsManager_Animate(UnitInfo* unit) {
-    if (ini_get_setting(INI_EFFECTS)) {
+    if (ResourceManager_GetSettings()->GetNumericValue("effects")) {
         bool is_unit_moved = false;
 
         if (unit->flags & HOVERING) {
@@ -4001,7 +4002,7 @@ void UnitsManager_StartExplosion(UnitInfo* unit) {
             explosion->SetParent(unit);
             unit->SetOrderState(ORDER_STATE_DESTROY);
 
-            if (GameManager_SelectedUnit == unit && ini_get_setting(INI_AUTO_SELECT)) {
+            if (GameManager_SelectedUnit == unit && ResourceManager_GetSettings()->GetNumericValue("auto_select")) {
                 GameManager_AutoSelectNext(unit);
             }
         }
@@ -4550,7 +4551,7 @@ void UnitsManager_DisableUnit(UnitInfo* unit) {
 bool UnitsManager_AssessAttacks() {
     bool result;
 
-    if (ini_get_setting(INI_DISABLE_FIRE)) {
+    if (ResourceManager_GetSettings()->GetNumericValue("disable_fire")) {
         result = false;
 
     } else {

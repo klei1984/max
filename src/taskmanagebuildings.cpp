@@ -27,10 +27,10 @@
 #include "aiplayer.hpp"
 #include "builder.hpp"
 #include "buildmenu.hpp"
-#include "inifile.hpp"
 #include "missionmanager.hpp"
 #include "mouseevent.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "sitemarker.hpp"
 #include "survey.hpp"
 #include "task_manager.hpp"
@@ -2176,7 +2176,7 @@ void TaskManageBuildings::AddUnit(UnitInfo& unit) {
 }
 
 void TaskManageBuildings::Init() {
-    if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+    if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
         if (Builder_IsBuildable(ANTIAIR)) {
             SmartPointer<TaskDefenseAssistant> task(new (std::nothrow) TaskDefenseAssistant(this, ANTIAIR));
 
@@ -2184,7 +2184,7 @@ void TaskManageBuildings::Init() {
         }
     }
 
-    if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_APPRENTICE) {
+    if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_APPRENTICE) {
         if (Builder_IsBuildable(GUNTURRT)) {
             SmartPointer<TaskDefenseAssistant> task(new (std::nothrow) TaskDefenseAssistant(this, GUNTURRT));
 
@@ -2192,7 +2192,7 @@ void TaskManageBuildings::Init() {
         }
     }
 
-    if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+    if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
         if (Builder_IsBuildable(ANTIMSSL)) {
             SmartPointer<TaskDefenseAssistant> task(new (std::nothrow) TaskDefenseAssistant(this, ANTIMSSL));
 

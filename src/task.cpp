@@ -28,8 +28,8 @@
 #include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "game_manager.hpp"
-#include "inifile.hpp"
 #include "reminders.hpp"
+#include "settings.hpp"
 #include "task_manager.hpp"
 #include "taskretreat.hpp"
 #include "unit.hpp"
@@ -449,7 +449,7 @@ bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int32_t caution_level) 
         }
 
         if (unit->shots == 0 && unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
-            ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+            ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
             caution_level = CAUTION_LEVEL_AVOID_ALL_DAMAGE;
         }
 
@@ -463,7 +463,7 @@ bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int32_t caution_level) 
         if (AiPlayer_Teams[unit->team].GetDamagePotential(unit, position, caution_level, false) >= unit_hits) {
             if (unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0 &&
                 (unit->shots > 0 || !unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) ||
-                 ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_AVERAGE) &&
+                 ResourceManager_GetSettings()->GetNumericValue("opponent") < OPPONENT_TYPE_AVERAGE) &&
                 Task_IsUnitDoomedToDestruction(unit, caution_level)) {
                 unit->ChangeAiStateBits(UnitInfo::AI_STATE_NO_RETREAT, true);
 
@@ -555,7 +555,7 @@ int32_t Task::GetCautionLevel(UnitInfo& unit) {
     int32_t result;
 
     if (unit.base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
-        ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+        ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
         if (unit.shots > 0) {
             result = CAUTION_LEVEL_AVOID_REACTION_FIRE;
         } else {

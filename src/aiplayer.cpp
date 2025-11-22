@@ -29,12 +29,13 @@
 #include "complex.hpp"
 #include "continent.hpp"
 #include "game_manager.hpp"
-#include "inifile.hpp"
+#include "menu.hpp"
 #include "message_manager.hpp"
 #include "randomizer.hpp"
 #include "remote.hpp"
 #include "researchmenu.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "task.hpp"
 #include "task_manager.hpp"
 #include "taskassistmove.hpp"
@@ -220,7 +221,7 @@ void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_priority
         if (task_index >= 0) {
             // expert and tougher computer players capture alien units
             if (spotted_unit->GetUnit()->team == PLAYER_TEAM_ALIEN &&
-                ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT) {
+                ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_EXPERT) {
                 if (TaskMove::FindUnit(&UnitsManager_MobileLandSeaUnits, player_team, COMMANDO)) {
                     if (attack_tasks[task_index]) {
                         attack_tasks[task_index]->RemoveSelf();
@@ -758,7 +759,7 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
             BeginTurn();
         }
 
-        if (ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_EXPERT) {
+        if (ResourceManager_GetSettings()->GetNumericValue("opponent") < OPPONENT_TYPE_EXPERT) {
             is_for_attacking = false;
         }
 
@@ -817,8 +818,9 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
         }
 
         if (is_for_attacking) {
-            if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_MASTER &&
-                ini_get_setting(INI_CHEATING_COMPUTER) >= COMPUTER_CHEATING_LEVEL_SHAMELESS) {
+            if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_MASTER &&
+                ResourceManager_GetSettings()->GetNumericValue("cheating_computer") >=
+                    COMPUTER_CHEATING_LEVEL_SHAMELESS) {
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
                     if (IsAbleToAttack(&*it, risk_group_unit, player_team) && (*it).team != player_team) {
@@ -1073,7 +1075,7 @@ WeightTable AiPlayer::GetWeightTable(ResourceID unit_type) {
             table += weight_table_bomber;
             table += weight_table_submarine;
 
-            if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT) {
+            if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_EXPERT) {
                 table += weight_table_commando;
             }
 
@@ -1221,7 +1223,7 @@ int32_t AiPlayer::SelectTeamClan() {
         } break;
     }
 
-    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + player_team), team_clan);
+    ResourceManager_GetSettings()->SetNumericValue(menu_team_clan_setting[player_team], team_clan);
 
     ResourceManager_InitClanUnitValues(player_team);
 
@@ -1258,7 +1260,7 @@ void AiPlayer::RollField5() {
 }
 
 void AiPlayer::RollField7() {
-    if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+    if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
         switch (strategy) {
             case AI_STRATEGY_AIR:
             case AI_STRATEGY_SEA: {
@@ -1354,7 +1356,7 @@ void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
     std::string clan_id =
         ResourceManager_GetClanID(static_cast<TeamClanType>(UnitsManager_TeamInfo[player_team].team_clan));
 
-    mission_supplies->team_gold = ini_get_setting(INI_START_GOLD);
+    mission_supplies->team_gold = ResourceManager_GetSettings()->GetNumericValue("start_gold");
 
     if (clans) {
         mission_supplies->team_gold += clans->GetCredits(clan_id);
@@ -1409,7 +1411,7 @@ void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
                 AddUnitToTeamMissionSupplies(SCOUT, 0);
                 ChooseInitialUpgrades(mission_supplies->team_gold / 2);
 
-                if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+                if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
                     while (AddUnitToTeamMissionSupplies(TANK, 0)) {
                     }
 
@@ -2253,7 +2255,7 @@ bool AiPlayer::IsTargetTeamDefined() const { return (target_team >= PLAYER_TEAM_
 bool AiPlayer::IsTargetTeam(const uint8_t team) const {
     bool result;
 
-    if (ini_get_setting(INI_CHEATING_COMPUTER) >= COMPUTER_CHEATING_LEVEL_INSUFFERABLE) {
+    if (ResourceManager_GetSettings()->GetNumericValue("cheating_computer") >= COMPUTER_CHEATING_LEVEL_INSUFFERABLE) {
         result = (team == target_team);
 
     } else {
@@ -2265,7 +2267,7 @@ bool AiPlayer::IsTargetTeam(const uint8_t team) const {
 }
 
 void AiPlayer::DetermineTargetTeam() {
-    if (ini_get_setting(INI_CHEATING_COMPUTER) >= COMPUTER_CHEATING_LEVEL_SHAMELESS) {
+    if (ResourceManager_GetSettings()->GetNumericValue("cheating_computer") >= COMPUTER_CHEATING_LEVEL_SHAMELESS) {
         int32_t player_team_points = UnitsManager_TeamInfo[player_team].team_points;
         int32_t team_building_counts[PLAYER_TEAM_MAX];
         int32_t target_team_points;
@@ -2531,8 +2533,9 @@ void AiPlayer::BeginTurn() {
                 }
             }
 
-            if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT &&
-                ini_get_setting(INI_CHEATING_COMPUTER) >= COMPUTER_CHEATING_LEVEL_TOLERABLE) {
+            if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_EXPERT &&
+                ResourceManager_GetSettings()->GetNumericValue("cheating_computer") >=
+                    COMPUTER_CHEATING_LEVEL_TOLERABLE) {
                 for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                      it != UnitsManager_StationaryUnits.End(); ++it) {
                     if ((*it).team != player_team &&
@@ -2574,7 +2577,7 @@ void AiPlayer::BeginTurn() {
             SmartPointer<Task> update_terrain(new (std::nothrow) TaskUpdateTerrain(player_team));
             TaskManager.AppendTask(*update_terrain);
 
-            if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_APPRENTICE) {
+            if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_APPRENTICE) {
                 SmartPointer<Task> scavenge(new (std::nothrow) TaskScavenge(player_team));
                 TaskManager.AppendTask(*scavenge);
 
@@ -2663,7 +2666,7 @@ void AiPlayer::BeginTurn() {
         for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
              ++it) {
             if ((*it).team == player_team) {
-                if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+                if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
                     if ((*it).GetUnitType() == RADAR || (*it).GetUnitType() == GUNTURRT ||
                         (*it).GetUnitType() == ARTYTRRT || (*it).GetUnitType() == ANTIMSSL ||
                         (*it).GetUnitType() == ANTIAIR) {
@@ -3081,7 +3084,7 @@ void AiPlayer::Init(uint16_t team) {
         attack_tasks[i] = nullptr;
     }
 
-    int32_t opponent = ini_get_setting(INI_OPPONENT);
+    int32_t opponent = ResourceManager_GetSettings()->GetNumericValue("opponent");
 
     weight_table_ground_defense.Clear();
 
@@ -3911,7 +3914,8 @@ WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, uint8_t flags) {
     TeamUnits* team_units = UnitsManager_TeamInfo[player_team].team_units;
     Point position(target->grid_x, target->grid_y);
 
-    if (target->team == PLAYER_TEAM_ALIEN && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT) {
+    if (target->team == PLAYER_TEAM_ALIEN &&
+        ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_EXPERT) {
         table.Clear();
 
         UnitWeight unit_weight(COMMANDO, 1);
@@ -3943,7 +3947,7 @@ WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, uint8_t flags) {
                 table.PushBack(unit_weight);
             }
 
-            if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+            if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
                 UnitWeight unit_weight(SUBMARNE, 1);
 
                 table.PushBack(unit_weight);
@@ -4239,7 +4243,7 @@ bool AiPlayer::SelectStrategy() {
         }
     }
 
-    int32_t opponent_class = ini_get_setting(INI_OPPONENT);
+    int32_t opponent_class = ResourceManager_GetSettings()->GetNumericValue("opponent");
 
     for (uint32_t i = 0; i < AI_STRATEGY_MAX; ++i) {
         strategy_scores[i] = 0;
@@ -4370,8 +4374,11 @@ bool AiPlayer::SelectStrategy() {
                                                          "sea",           "scout horde", "tank horde", "fast attack",
                                                          "combined arms", "espionage"};
 
-        if (ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_STRATEGY + player_team), strategy_string,
-                                      sizeof(strategy_string))) {
+        strncpy(strategy_string,
+                ResourceManager_GetSettings()->GetStringValue(menu_team_strategy_setting[player_team]).c_str(),
+                sizeof(strategy_string) - 1);
+        strategy_string[sizeof(strategy_string) - 1] = '\0';
+        if (strategy_string[0] != '\0') {
             for (int32_t i = 0; i < AI_STRATEGY_MAX; ++i) {
                 if (!SDL_strcasecmp(strategy_string, strategy_strings[i])) {
                     if (strategy_scores[i] == 0) {
@@ -4758,7 +4765,8 @@ int32_t AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* ene
     if (AiPlayer_TerrainDistanceField->GetMinimumRange(
             Point(enemy_unit->grid_x, enemy_unit->grid_y),
             ResourceManager_GetUnit(friendly_unit->GetUnitType()).GetLandType()) <= range * range) {
-        if (unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE) && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+        if (unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
+            ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
             int32_t distance2 = ((friendly_unit->speed / 2) + range);
 
             if (distance <= distance2 * distance2) {

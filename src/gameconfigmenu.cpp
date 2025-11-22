@@ -23,9 +23,11 @@
 
 #include <format>
 
+#include "game_manager.hpp"
 #include "helpmenu.hpp"
-#include "inifile.hpp"
 #include "menu.hpp"
+#include "resource_manager.hpp"
+#include "settings.hpp"
 #include "text.hpp"
 #include "window_manager.hpp"
 
@@ -47,21 +49,23 @@ static void DrawSelector(WindowInfo* window, MenuTitleItem* menu_item, int32_t c
 }
 
 void GameConfigMenu::Init() {
-    ini_play_mode = ini_get_setting(INI_PLAY_MODE);
-    ini_timer = ini_get_setting(INI_TIMER);
-    ini_endturn = ini_get_setting(INI_ENDTURN);
-    ini_start_gold = ini_get_setting(INI_START_GOLD);
-    ini_opponent = ini_get_setting(INI_OPPONENT);
+    const auto settings = ResourceManager_GetSettings();
+
+    ini_play_mode = settings->GetNumericValue("play_mode");
+    ini_timer = settings->GetNumericValue("timer");
+    ini_endturn = settings->GetNumericValue("endturn");
+    ini_start_gold = settings->GetNumericValue("start_gold");
+    ini_opponent = settings->GetNumericValue("opponent");
 
     if (game_mode != GAME_CONFIG_MENU_GAME_MODE_3 && game_mode != GAME_CONFIG_MENU_GAME_MODE_4) {
-        ini_victory_type = ini_get_setting(INI_VICTORY_TYPE);
-        ini_victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
+        ini_victory_type = settings->GetNumericValue("victory_type");
+        ini_victory_limit = settings->GetNumericValue("victory_limit");
     }
 
-    ini_raw_resource = ini_get_setting(INI_RAW_RESOURCE);
-    ini_fuel_resource = ini_get_setting(INI_FUEL_RESOURCE);
-    ini_gold_resource = ini_get_setting(INI_GOLD_RESOURCE);
-    ini_alien_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
+    ini_raw_resource = settings->GetNumericValue("raw_resource");
+    ini_fuel_resource = settings->GetNumericValue("fuel_resource");
+    ini_gold_resource = settings->GetNumericValue("gold_resource");
+    ini_alien_derelicts = settings->GetNumericValue("alien_derelicts");
 
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     event_click_done = false;
@@ -121,55 +125,58 @@ void GameConfigMenu::Deinit() {
 }
 
 void GameConfigMenu::EventComputerOpponent() {
-    ini_set_setting(INI_OPPONENT, key);
+    ResourceManager_GetSettings()->SetNumericValue("opponent", key);
     DrawPanelComputerOpponent();
     win_draw(window->id);
 }
 
 void GameConfigMenu::EventTurnTimer() {
-    ini_set_setting(INI_TIMER, strtol(game_config_menu_items[key + 9].title.c_str(), nullptr, 10));
+    ResourceManager_GetSettings()->SetNumericValue("timer",
+                                                   strtol(game_config_menu_items[key + 9].title.c_str(), nullptr, 10));
     DrawPanelTurnTimers();
     win_draw(window->id);
 }
 
 void GameConfigMenu::EventEndturn() {
-    ini_set_setting(INI_ENDTURN, strtol(game_config_menu_items[key + 9].title.c_str(), nullptr, 10));
+    ResourceManager_GetSettings()->SetNumericValue("endturn",
+                                                   strtol(game_config_menu_items[key + 9].title.c_str(), nullptr, 10));
     DrawPanelTurnTimers();
     win_draw(window->id);
 }
 
 void GameConfigMenu::EventPlayMode() {
-    ini_set_setting(INI_PLAY_MODE, key - 20);
+    ResourceManager_GetSettings()->SetNumericValue("play_mode", key - 20);
     DrawPanelPlayMode();
     win_draw(window->id);
 }
 
 void GameConfigMenu::EventStartingCredit() {
-    ini_set_setting(INI_START_GOLD, strtol(game_config_menu_items[key + 15].title.c_str(), nullptr, 10));
+    ResourceManager_GetSettings()->SetNumericValue("start_gold",
+                                                   strtol(game_config_menu_items[key + 15].title.c_str(), nullptr, 10));
     DrawPanelStartingCredit();
     win_draw(window->id);
 }
 
 void GameConfigMenu::EventResourceLevelsRaw() {
-    ini_set_setting(INI_RAW_RESOURCE, key - 28);
+    ResourceManager_GetSettings()->SetNumericValue("raw_resource", key - 28);
     DrawPanelResourceLevels();
     win_draw(window->id);
 }
 
 void GameConfigMenu::EventResourceLevelsFuel() {
-    ini_set_setting(INI_FUEL_RESOURCE, key - 31);
+    ResourceManager_GetSettings()->SetNumericValue("fuel_resource", key - 31);
     DrawPanelResourceLevels();
     win_draw(window->id);
 }
 
 void GameConfigMenu::EventResourceLevelsGold() {
-    ini_set_setting(INI_GOLD_RESOURCE, key - 34);
+    ResourceManager_GetSettings()->SetNumericValue("gold_resource", key - 34);
     DrawPanelResourceLevels();
     win_draw(window->id);
 }
 
 void GameConfigMenu::EventResourceLevelsAlien() {
-    ini_set_setting(INI_ALIEN_DERELICTS, key - 37);
+    ResourceManager_GetSettings()->SetNumericValue("alien_derelicts", key - 37);
     DrawPanelResourceLevels();
     win_draw(window->id);
 }
@@ -217,8 +224,8 @@ void GameConfigMenu::EventVictoryCondition() {
         } break;
     }
 
-    ini_set_setting(INI_VICTORY_TYPE, victory_type);
-    ini_set_setting(INI_VICTORY_LIMIT, victory_limit);
+    ResourceManager_GetSettings()->SetNumericValue("victory_type", victory_type);
+    ResourceManager_GetSettings()->SetNumericValue("victory_limit", victory_limit);
 
     DrawPanelVictoryCondition();
     win_draw(window->id);
@@ -234,8 +241,8 @@ void GameConfigMenu::EventVictoryConditionPrefs() {
     DrawPanelVictoryCondition();
     win_draw(window->id);
 
-    victory_type = ini_get_setting(INI_VICTORY_TYPE);
-    victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
+    victory_type = ResourceManager_GetSettings()->GetNumericValue("victory_type");
+    victory_limit = ResourceManager_GetSettings()->GetNumericValue("victory_limit");
 
     if (field_867 == 46 && victory_type) {
         victory_limit = 0;
@@ -260,21 +267,23 @@ void GameConfigMenu::EventVictoryConditionPrefs() {
 }
 
 void GameConfigMenu::EventCancel() {
-    ini_set_setting(INI_PLAY_MODE, ini_play_mode);
-    ini_set_setting(INI_TIMER, ini_timer);
-    ini_set_setting(INI_ENDTURN, ini_endturn);
-    ini_set_setting(INI_START_GOLD, ini_start_gold);
-    ini_set_setting(INI_OPPONENT, ini_opponent);
+    const auto settings = ResourceManager_GetSettings();
+
+    settings->SetNumericValue("play_mode", ini_play_mode);
+    settings->SetNumericValue("timer", ini_timer);
+    settings->SetNumericValue("endturn", ini_endturn);
+    settings->SetNumericValue("start_gold", ini_start_gold);
+    settings->SetNumericValue("opponent", ini_opponent);
 
     if (game_mode != GAME_CONFIG_MENU_GAME_MODE_3 && game_mode != GAME_CONFIG_MENU_GAME_MODE_4) {
-        ini_set_setting(INI_VICTORY_TYPE, ini_victory_type);
-        ini_set_setting(INI_VICTORY_LIMIT, ini_victory_limit);
+        settings->SetNumericValue("victory_type", ini_victory_type);
+        settings->SetNumericValue("victory_limit", ini_victory_limit);
     }
 
-    ini_set_setting(INI_RAW_RESOURCE, ini_raw_resource);
-    ini_set_setting(INI_FUEL_RESOURCE, ini_fuel_resource);
-    ini_set_setting(INI_GOLD_RESOURCE, ini_gold_resource);
-    ini_set_setting(INI_ALIEN_DERELICTS, ini_alien_derelicts);
+    settings->SetNumericValue("raw_resource", ini_raw_resource);
+    settings->SetNumericValue("fuel_resource", ini_fuel_resource);
+    settings->SetNumericValue("gold_resource", ini_gold_resource);
+    settings->SetNumericValue("alien_derelicts", ini_alien_derelicts);
 
     event_click_cancel = true;
 }
@@ -338,7 +347,7 @@ void GameConfigMenu::DrawPanelComputerOpponent() {
     int32_t opponent;
 
     DrawBgPanel(1);
-    opponent = ini_get_setting(INI_OPPONENT);
+    opponent = ResourceManager_GetSettings()->GetNumericValue("opponent");
     DrawRadioButtons(6, 7, opponent);
     text = game_config_menu_difficulty_descriptions[opponent];
     Text_TextBox(window->buffer, window->width, text, WindowManager_ScaleUlx(window, 19),
@@ -357,7 +366,7 @@ void GameConfigMenu::DrawPanelTurnTimers() {
     DrawCaption(window, &game_config_menu_items[13], Fonts_BrightYellowColor, true);
     DrawCaption(window, &game_config_menu_items[14], Fonts_BrightYellowColor, true);
 
-    timer_setting = ini_get_setting(INI_TIMER);
+    timer_setting = ResourceManager_GetSettings()->GetNumericValue("timer");
 
     for (timer_index = 6; timer_index > 0; --timer_index) {
         timer_value = strtol(game_config_menu_items[timer_index + 15].title.c_str(), nullptr, 10);
@@ -367,7 +376,7 @@ void GameConfigMenu::DrawPanelTurnTimers() {
         }
     }
 
-    endturn_setting = ini_get_setting(INI_ENDTURN);
+    endturn_setting = ResourceManager_GetSettings()->GetNumericValue("endturn");
 
     for (endturn_index = 6; endturn_index > 0; --endturn_index) {
         endturn_value = strtol(game_config_menu_items[endturn_index + 22].title.c_str(), nullptr, 10);
@@ -383,7 +392,7 @@ void GameConfigMenu::DrawPanelTurnTimers() {
 
 void GameConfigMenu::DrawPanelPlayMode() {
     DrawBgPanel(3);
-    DrawRadioButtons(2, 29, ini_get_setting(INI_PLAY_MODE));
+    DrawRadioButtons(2, 29, ResourceManager_GetSettings()->GetNumericValue("play_mode"));
 }
 
 void GameConfigMenu::DrawPanelStartingCredit() {
@@ -397,7 +406,7 @@ void GameConfigMenu::DrawPanelStartingCredit() {
         DrawCaption(window, &game_config_menu_items[i + 31]);
     }
 
-    starting_credits = ini_get_setting(INI_START_GOLD);
+    starting_credits = ResourceManager_GetSettings()->GetNumericValue("start_gold");
 
     for (index = 5; index > 0; --index) {
         credits = strtol(game_config_menu_items[index + 37].title.c_str(), nullptr, 10);
@@ -418,10 +427,10 @@ void GameConfigMenu::DrawPanelResourceLevels() {
     DrawCaption(window, &game_config_menu_items[45]);
     DrawCaption(window, &game_config_menu_items[46]);
 
-    DrawRadioButtons(3, 47, ini_get_setting(INI_RAW_RESOURCE));
-    DrawRadioButtons(3, 50, ini_get_setting(INI_FUEL_RESOURCE));
-    DrawRadioButtons(3, 53, ini_get_setting(INI_GOLD_RESOURCE));
-    DrawRadioButtons(3, 56, ini_get_setting(INI_ALIEN_DERELICTS));
+    DrawRadioButtons(3, 47, ResourceManager_GetSettings()->GetNumericValue("raw_resource"));
+    DrawRadioButtons(3, 50, ResourceManager_GetSettings()->GetNumericValue("fuel_resource"));
+    DrawRadioButtons(3, 53, ResourceManager_GetSettings()->GetNumericValue("gold_resource"));
+    DrawRadioButtons(3, 56, ResourceManager_GetSettings()->GetNumericValue("alien_derelicts"));
 }
 
 void GameConfigMenu::DrawPanelVictoryCondition() {
@@ -433,11 +442,11 @@ void GameConfigMenu::DrawPanelVictoryCondition() {
     DrawCaption(window, &game_config_menu_items[59], Fonts_BrightYellowColor, true);
     DrawCaption(window, &game_config_menu_items[60], Fonts_BrightYellowColor, true);
 
-    victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
+    victory_limit = ResourceManager_GetSettings()->GetNumericValue("victory_limit");
 
     const auto text = std::format("{}", victory_limit);
 
-    if (ini_get_setting(INI_VICTORY_TYPE)) {
+    if (ResourceManager_GetSettings()->GetNumericValue("victory_type")) {
         game_config_menu_items[67].title.clear();
 
         if (field_867) {
@@ -504,8 +513,8 @@ void GameConfigMenu::DrawRadioButtons(int32_t element_count, int32_t start_index
 void GameConfigMenu::UpdateTextEdit(int32_t mode) {
     if (text_edit) {
         if (mode) {
-            ini_set_setting(INI_VICTORY_TYPE, field_867 - 46);
-            ini_set_setting(INI_VICTORY_LIMIT, strtol(victory_limit_text, nullptr, 10));
+            ResourceManager_GetSettings()->SetNumericValue("victory_type", field_867 - 46);
+            ResourceManager_GetSettings()->SetNumericValue("victory_limit", strtol(victory_limit_text, nullptr, 10));
         }
 
         text_edit->LeaveTextEditField();
@@ -523,8 +532,8 @@ void GameConfigMenu::EventDone() {
     menu_update_resource_levels();
 
     if (game_mode != GAME_CONFIG_MENU_GAME_MODE_4) {
-        ini_setting_victory_type = ini_get_setting(INI_VICTORY_TYPE);
-        ini_setting_victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
+        ini_setting_victory_type = ResourceManager_GetSettings()->GetNumericValue("victory_type");
+        ini_setting_victory_limit = ResourceManager_GetSettings()->GetNumericValue("victory_limit");
     }
 
     event_click_done = true;

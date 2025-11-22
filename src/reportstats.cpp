@@ -24,7 +24,6 @@
 #include "cargo.hpp"
 #include "game_manager.hpp"
 #include "gfx.hpp"
-#include "inifile.hpp"
 #include "text.hpp"
 #include "unit.hpp"
 #include "units_manager.hpp"

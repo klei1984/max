@@ -33,7 +33,6 @@
 #include "gameconfigmenu.hpp"
 #include "gamesetupmenu.hpp"
 #include "gfx.hpp"
-#include "inifile.hpp"
 #include "missionmanager.hpp"
 #include "movie.hpp"
 #include "okcancelmenu.hpp"
@@ -43,6 +42,7 @@
 #include "remote.hpp"
 #include "resource_manager.hpp"
 #include "saveloadmenu.hpp"
+#include "settings.hpp"
 #include "smartstring.hpp"
 #include "sound_manager.hpp"
 #include "text.hpp"
@@ -99,6 +99,22 @@ static int32_t menu_tips_current_row_index;
 
 static const ResourceID menu_briefing_backgrounds[] = {ENDGAME1, ENDGAME2, ENDGAME3, ENDGAME4, ENDGAME5,
                                                        ENDGAME6, ENDGAME7, ENDGAME8, ENDGAME9};
+
+const std::string menu_team_clan_setting[PLAYER_TEAM_MAX] = {"red_team_clan", "green_team_clan", "blue_team_clan",
+                                                             "gray_team_clan", "alien_team_clan"};
+
+const std::string menu_team_name_setting[PLAYER_TEAM_MAX] = {"red_team_name", "green_team_name", "blue_team_name",
+                                                             "gray_team_name", "alien_team_name"};
+
+const std::string menu_team_player_setting[PLAYER_TEAM_MAX] = {
+    "red_team_player", "green_team_player", "blue_team_player", "gray_team_player", "alien_team_player"};
+
+const std::string menu_team_strategy_setting[PLAYER_TEAM_MAX] = {
+    "red_team_strategy", "green_team_strategy", "blue_team_strategy", "gray_team_strategy", "alien_team_strategy"};
+
+const std::string menu_research_factor_setting[RESEARCH_TOPIC_COUNT] = {"attack_factor", "shots_factor", "range_factor",
+                                                                        "armor_factor",  "hits_factor",  "speed_factor",
+                                                                        "scan_factor",   "cost_factor"};
 
 void draw_menu_title(WindowInfo* window, const char* caption) {
     Text_SetFont(GNW_TEXT_FONT_5);
@@ -161,7 +177,6 @@ void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_pl
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-            char team_name[40];
             ulx += 110;
             ++visible_team;
             lrx = ulx + 90;
@@ -169,10 +184,8 @@ void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_pl
             Text_TextLine(window, SmartString().Sprintf(3, "%i", visible_team).GetCStr(), ulx, 44, 90, true,
                           team_fonts[team]);
 
-            ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_name,
-                                      sizeof(team_name));
-
-            Text_TextBox(window, team_name, ulx, 61, lrx - ulx, 55, true, true, Fonts_BrightSilverColor);
+            Text_TextBox(window, ResourceManager_GetSettings()->GetStringValue(menu_team_name_setting[team]).c_str(),
+                         ulx, 61, lrx - ulx, 55, true, true, Fonts_BrightSilverColor);
         }
     }
 
@@ -511,13 +524,13 @@ void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter,
 
                         ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_CAMPAIGN, hash);
 
-                        ini_set_setting(INI_GAME_FILE_NUMBER, mission_index + 1);
+                        ResourceManager_GetSettings()->SetNumericValue("game_file_number", mission_index + 1);
 
-                        if (ini_get_setting(INI_LAST_CAMPAIGN) < mission_index + 1) {
-                            ini_set_setting(INI_LAST_CAMPAIGN, mission_index + 1);
+                        if (ResourceManager_GetSettings()->GetNumericValue("last_campaign") < mission_index + 1) {
+                            ResourceManager_GetSettings()->SetNumericValue("last_campaign", mission_index + 1);
                         }
 
-                        ini_config.Save();
+                        (void)ResourceManager_GetSettings()->Save();
                     }
 
                     break;
@@ -591,7 +604,8 @@ bool menu_check_end_game_conditions(int32_t turn_counter, int32_t turn_counter_s
                 } else {
                     GameManager_GameState = game_state;
                     UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_ELIMINATED;
-                    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), TEAM_TYPE_ELIMINATED);
+                    ResourceManager_GetSettings()->SetNumericValue(menu_team_player_setting[team],
+                                                                   TEAM_TYPE_ELIMINATED);
                 }
             }
         }
@@ -850,6 +864,7 @@ void menu_draw_mission_story_screen(const Mission::Story& story) {
 }
 
 void menu_update_resource_levels() {
+    const auto settings = ResourceManager_GetSettings();
     int32_t resource_min;
     int32_t resource_max;
     int32_t resource_raw;
@@ -857,46 +872,46 @@ void menu_update_resource_levels() {
     int32_t resource_gold;
     int32_t resource_derelicts;
 
-    resource_raw = ini_get_setting(INI_RAW_RESOURCE);
-    resource_fuel = ini_get_setting(INI_FUEL_RESOURCE);
-    resource_gold = ini_get_setting(INI_GOLD_RESOURCE);
-    resource_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
+    resource_raw = settings->GetNumericValue("raw_resource");
+    resource_fuel = settings->GetNumericValue("fuel_resource");
+    resource_gold = settings->GetNumericValue("gold_resource");
+    resource_derelicts = settings->GetNumericValue("alien_derelicts");
 
     resource_min = 1;
     resource_max = 15;
 
     switch (resource_raw) {
         case 0: {
-            ini_set_setting(INI_RAW_NORMAL_LOW, 0);
-            ini_set_setting(INI_RAW_NORMAL_HIGH, 3);
-            ini_set_setting(INI_RAW_CONCENTRATE_LOW, 8);
-            ini_set_setting(INI_RAW_CONCENTRATE_HIGH, 12);
-            ini_set_setting(INI_RAW_CONCENTRATE_SEPERATION, 28);
-            ini_set_setting(INI_RAW_CONCENTRATE_DIFFUSION, 6);
+            settings->SetNumericValue("raw_normal_low", 0);
+            settings->SetNumericValue("raw_normal_high", 3);
+            settings->SetNumericValue("raw_concentrate_low", 8);
+            settings->SetNumericValue("raw_concentrate_high", 12);
+            settings->SetNumericValue("raw_concentrate_seperation", 28);
+            settings->SetNumericValue("raw_concentrate_diffusion", 6);
 
             resource_min = 4;
             resource_max = 16;
         } break;
 
         case 1: {
-            ini_set_setting(INI_RAW_NORMAL_LOW, 0);
-            ini_set_setting(INI_RAW_NORMAL_HIGH, 5);
-            ini_set_setting(INI_RAW_CONCENTRATE_LOW, 13);
-            ini_set_setting(INI_RAW_CONCENTRATE_HIGH, 16);
-            ini_set_setting(INI_RAW_CONCENTRATE_SEPERATION, 23);
-            ini_set_setting(INI_RAW_CONCENTRATE_DIFFUSION, 5);
+            settings->SetNumericValue("raw_normal_low", 0);
+            settings->SetNumericValue("raw_normal_high", 5);
+            settings->SetNumericValue("raw_concentrate_low", 13);
+            settings->SetNumericValue("raw_concentrate_high", 16);
+            settings->SetNumericValue("raw_concentrate_seperation", 23);
+            settings->SetNumericValue("raw_concentrate_diffusion", 5);
 
             resource_min = 6;
             resource_max = 17;
         } break;
 
         case 2: {
-            ini_set_setting(INI_RAW_NORMAL_LOW, 1);
-            ini_set_setting(INI_RAW_NORMAL_HIGH, 5);
-            ini_set_setting(INI_RAW_CONCENTRATE_LOW, 16);
-            ini_set_setting(INI_RAW_CONCENTRATE_HIGH, 16);
-            ini_set_setting(INI_RAW_CONCENTRATE_SEPERATION, 19);
-            ini_set_setting(INI_RAW_CONCENTRATE_DIFFUSION, 4);
+            settings->SetNumericValue("raw_normal_low", 1);
+            settings->SetNumericValue("raw_normal_high", 5);
+            settings->SetNumericValue("raw_concentrate_low", 16);
+            settings->SetNumericValue("raw_concentrate_high", 16);
+            settings->SetNumericValue("raw_concentrate_seperation", 19);
+            settings->SetNumericValue("raw_concentrate_diffusion", 4);
 
             resource_min = 7;
             resource_max = 18;
@@ -905,36 +920,36 @@ void menu_update_resource_levels() {
 
     switch (resource_fuel) {
         case 0: {
-            ini_set_setting(INI_FUEL_NORMAL_LOW, 1);
-            ini_set_setting(INI_FUEL_NORMAL_HIGH, 2);
-            ini_set_setting(INI_FUEL_CONCENTRATE_LOW, 8);
-            ini_set_setting(INI_FUEL_CONCENTRATE_HIGH, 12);
-            ini_set_setting(INI_FUEL_CONCENTRATE_SEPERATION, 29);
-            ini_set_setting(INI_FUEL_CONCENTRATE_DIFFUSION, 6);
+            settings->SetNumericValue("fuel_normal_low", 1);
+            settings->SetNumericValue("fuel_normal_high", 2);
+            settings->SetNumericValue("fuel_concentrate_low", 8);
+            settings->SetNumericValue("fuel_concentrate_high", 12);
+            settings->SetNumericValue("fuel_concentrate_seperation", 29);
+            settings->SetNumericValue("fuel_concentrate_diffusion", 6);
 
             resource_min += 2;
             resource_max += 1;
         } break;
 
         case 1: {
-            ini_set_setting(INI_FUEL_NORMAL_LOW, 2);
-            ini_set_setting(INI_FUEL_NORMAL_HIGH, 3);
-            ini_set_setting(INI_FUEL_CONCENTRATE_LOW, 12);
-            ini_set_setting(INI_FUEL_CONCENTRATE_HIGH, 16);
-            ini_set_setting(INI_FUEL_CONCENTRATE_SEPERATION, 24);
-            ini_set_setting(INI_FUEL_CONCENTRATE_DIFFUSION, 5);
+            settings->SetNumericValue("fuel_normal_low", 2);
+            settings->SetNumericValue("fuel_normal_high", 3);
+            settings->SetNumericValue("fuel_concentrate_low", 12);
+            settings->SetNumericValue("fuel_concentrate_high", 16);
+            settings->SetNumericValue("fuel_concentrate_seperation", 24);
+            settings->SetNumericValue("fuel_concentrate_diffusion", 5);
 
             resource_min += 3;
             resource_max += 2;
         } break;
 
         case 2: {
-            ini_set_setting(INI_FUEL_NORMAL_LOW, 2);
-            ini_set_setting(INI_FUEL_NORMAL_HIGH, 4);
-            ini_set_setting(INI_FUEL_CONCENTRATE_LOW, 16);
-            ini_set_setting(INI_FUEL_CONCENTRATE_HIGH, 16);
-            ini_set_setting(INI_FUEL_CONCENTRATE_SEPERATION, 20);
-            ini_set_setting(INI_FUEL_CONCENTRATE_DIFFUSION, 4);
+            settings->SetNumericValue("fuel_normal_low", 2);
+            settings->SetNumericValue("fuel_normal_high", 4);
+            settings->SetNumericValue("fuel_concentrate_low", 16);
+            settings->SetNumericValue("fuel_concentrate_high", 16);
+            settings->SetNumericValue("fuel_concentrate_seperation", 20);
+            settings->SetNumericValue("fuel_concentrate_diffusion", 4);
 
             resource_min += 4;
             resource_max += 3;
@@ -943,81 +958,81 @@ void menu_update_resource_levels() {
 
     switch (resource_raw + resource_fuel) {
         case 0: {
-            ini_set_setting(INI_MIXED_RESOURCE_SEPERATION, 49);
+            settings->SetNumericValue("mixed_resource_seperation", 49);
         } break;
 
         case 1: {
-            ini_set_setting(INI_MIXED_RESOURCE_SEPERATION, 44);
+            settings->SetNumericValue("mixed_resource_seperation", 44);
         } break;
 
         case 2: {
-            ini_set_setting(INI_MIXED_RESOURCE_SEPERATION, 40);
+            settings->SetNumericValue("mixed_resource_seperation", 40);
         } break;
 
         case 3: {
-            ini_set_setting(INI_MIXED_RESOURCE_SEPERATION, 36);
+            settings->SetNumericValue("mixed_resource_seperation", 36);
         } break;
 
         case 4: {
-            ini_set_setting(INI_MIXED_RESOURCE_SEPERATION, 33);
+            settings->SetNumericValue("mixed_resource_seperation", 33);
         } break;
     }
 
     switch (resource_gold) {
         case 0: {
-            ini_set_setting(INI_GOLD_NORMAL_LOW, 0);
-            ini_set_setting(INI_GOLD_NORMAL_HIGH, 0);
-            ini_set_setting(INI_GOLD_CONCENTRATE_LOW, 5);
-            ini_set_setting(INI_GOLD_CONCENTRATE_HIGH, 9);
-            ini_set_setting(INI_GOLD_CONCENTRATE_SEPERATION, 39);
-            ini_set_setting(INI_GOLD_CONCENTRATE_DIFFUSION, 6);
+            settings->SetNumericValue("gold_normal_low", 0);
+            settings->SetNumericValue("gold_normal_high", 0);
+            settings->SetNumericValue("gold_concentrate_low", 5);
+            settings->SetNumericValue("gold_concentrate_high", 9);
+            settings->SetNumericValue("gold_concentrate_seperation", 39);
+            settings->SetNumericValue("gold_concentrate_diffusion", 6);
 
             resource_min += 0;
             resource_max += 0;
         } break;
 
         case 1: {
-            ini_set_setting(INI_GOLD_NORMAL_LOW, 0);
-            ini_set_setting(INI_GOLD_NORMAL_HIGH, 0);
-            ini_set_setting(INI_GOLD_CONCENTRATE_LOW, 8);
-            ini_set_setting(INI_GOLD_CONCENTRATE_HIGH, 12);
-            ini_set_setting(INI_GOLD_CONCENTRATE_SEPERATION, 32);
-            ini_set_setting(INI_GOLD_CONCENTRATE_DIFFUSION, 5);
+            settings->SetNumericValue("gold_normal_low", 0);
+            settings->SetNumericValue("gold_normal_high", 0);
+            settings->SetNumericValue("gold_concentrate_low", 8);
+            settings->SetNumericValue("gold_concentrate_high", 12);
+            settings->SetNumericValue("gold_concentrate_seperation", 32);
+            settings->SetNumericValue("gold_concentrate_diffusion", 5);
 
             resource_min += 0;
             resource_max += 1;
         } break;
 
         case 2: {
-            ini_set_setting(INI_GOLD_NORMAL_LOW, 0);
-            ini_set_setting(INI_GOLD_NORMAL_HIGH, 1);
-            ini_set_setting(INI_GOLD_CONCENTRATE_LOW, 12);
-            ini_set_setting(INI_GOLD_CONCENTRATE_HIGH, 16);
-            ini_set_setting(INI_GOLD_CONCENTRATE_SEPERATION, 26);
-            ini_set_setting(INI_GOLD_CONCENTRATE_DIFFUSION, 4);
+            settings->SetNumericValue("gold_normal_low", 0);
+            settings->SetNumericValue("gold_normal_high", 1);
+            settings->SetNumericValue("gold_concentrate_low", 12);
+            settings->SetNumericValue("gold_concentrate_high", 16);
+            settings->SetNumericValue("gold_concentrate_seperation", 26);
+            settings->SetNumericValue("gold_concentrate_diffusion", 4);
 
             resource_min += 1;
             resource_max += 2;
         } break;
     }
 
-    ini_set_setting(INI_MIN_RESOURCES, resource_min);
-    ini_set_setting(INI_MAX_RESOURCES, resource_max);
+    settings->SetNumericValue("min_resources", resource_min);
+    settings->SetNumericValue("max_resources", resource_max);
 
     switch (resource_derelicts) {
         case 0: {
-            ini_set_setting(INI_ALIEN_SEPERATION, 0);
-            ini_set_setting(INI_ALIEN_UNIT_VALUE, 0);
+            settings->SetNumericValue("alien_seperation", 0);
+            settings->SetNumericValue("alien_unit_value", 0);
         } break;
 
         case 1: {
-            ini_set_setting(INI_ALIEN_SEPERATION, 65);
-            ini_set_setting(INI_ALIEN_UNIT_VALUE, 20);
+            settings->SetNumericValue("alien_seperation", 65);
+            settings->SetNumericValue("alien_unit_value", 20);
         } break;
 
         case 2: {
-            ini_set_setting(INI_ALIEN_SEPERATION, 50);
-            ini_set_setting(INI_ALIEN_UNIT_VALUE, 30);
+            settings->SetNumericValue("alien_seperation", 50);
+            settings->SetNumericValue("alien_unit_value", 30);
         } break;
     }
 }
@@ -1229,6 +1244,7 @@ int32_t play_attract_demo(const int32_t save_slot) {
         auto fp{ResourceManager_OpenFileResource(filename, ResourceType_GameData)};
 
         if (fp) {
+            const auto settings = ResourceManager_GetSettings();
             int32_t backup_opponent;
             int32_t backup_timer;
             int32_t backup_endturn;
@@ -1239,47 +1255,47 @@ int32_t play_attract_demo(const int32_t save_slot) {
             int32_t backup_gold_resource;
             int32_t backup_alien_derelicts;
 
-            char backup_player_name[30];
-            char backup_red_team_name[30];
-            char backup_green_team_name[30];
-            char backup_blue_team_name[30];
-            char backup_gray_team_name[30];
+            std::string backup_player_name;
+            std::string backup_red_team_name;
+            std::string backup_green_team_name;
+            std::string backup_blue_team_name;
+            std::string backup_gray_team_name;
 
             fclose(fp);
 
-            backup_opponent = ini_get_setting(INI_OPPONENT);
-            backup_timer = ini_get_setting(INI_TIMER);
-            backup_endturn = ini_get_setting(INI_ENDTURN);
-            backup_play_mode = ini_get_setting(INI_PLAY_MODE);
-            backup_start_gold = ini_get_setting(INI_START_GOLD);
-            backup_raw_resource = ini_get_setting(INI_RAW_RESOURCE);
-            backup_fuel_resource = ini_get_setting(INI_FUEL_RESOURCE);
-            backup_gold_resource = ini_get_setting(INI_GOLD_RESOURCE);
-            backup_alien_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
+            backup_opponent = settings->GetNumericValue("opponent");
+            backup_timer = settings->GetNumericValue("timer");
+            backup_endturn = settings->GetNumericValue("endturn");
+            backup_play_mode = settings->GetNumericValue("play_mode");
+            backup_start_gold = settings->GetNumericValue("start_gold");
+            backup_raw_resource = settings->GetNumericValue("raw_resource");
+            backup_fuel_resource = settings->GetNumericValue("fuel_resource");
+            backup_gold_resource = settings->GetNumericValue("gold_resource");
+            backup_alien_derelicts = settings->GetNumericValue("alien_derelicts");
 
-            ini_config.GetStringValue(INI_PLAYER_NAME, backup_player_name, 30);
-            ini_config.GetStringValue(INI_RED_TEAM_NAME, backup_red_team_name, 30);
-            ini_config.GetStringValue(INI_GREEN_TEAM_NAME, backup_green_team_name, 30);
-            ini_config.GetStringValue(INI_BLUE_TEAM_NAME, backup_blue_team_name, 30);
-            ini_config.GetStringValue(INI_GRAY_TEAM_NAME, backup_gray_team_name, 30);
+            backup_player_name = settings->GetStringValue("player_name");
+            backup_red_team_name = settings->GetStringValue("red_team_name");
+            backup_green_team_name = settings->GetStringValue("green_team_name");
+            backup_blue_team_name = settings->GetStringValue("blue_team_name");
+            backup_gray_team_name = settings->GetStringValue("gray_team_name");
 
             GameManager_GameLoop(GAME_STATE_10_LOAD_GAME);
 
-            ini_set_setting(INI_OPPONENT, backup_opponent);
-            ini_set_setting(INI_TIMER, backup_timer);
-            ini_set_setting(INI_ENDTURN, backup_endturn);
-            ini_set_setting(INI_PLAY_MODE, backup_play_mode);
-            ini_set_setting(INI_START_GOLD, backup_start_gold);
-            ini_set_setting(INI_RAW_RESOURCE, backup_raw_resource);
-            ini_set_setting(INI_FUEL_RESOURCE, backup_fuel_resource);
-            ini_set_setting(INI_GOLD_RESOURCE, backup_gold_resource);
-            ini_set_setting(INI_ALIEN_DERELICTS, backup_alien_derelicts);
+            settings->SetNumericValue("opponent", backup_opponent);
+            settings->SetNumericValue("timer", backup_timer);
+            settings->SetNumericValue("endturn", backup_endturn);
+            settings->SetNumericValue("play_mode", backup_play_mode);
+            settings->SetNumericValue("start_gold", backup_start_gold);
+            settings->SetNumericValue("raw_resource", backup_raw_resource);
+            settings->SetNumericValue("fuel_resource", backup_fuel_resource);
+            settings->SetNumericValue("gold_resource", backup_gold_resource);
+            settings->SetNumericValue("alien_derelicts", backup_alien_derelicts);
 
-            ini_config.SetStringValue(INI_PLAYER_NAME, backup_player_name);
-            ini_config.SetStringValue(INI_RED_TEAM_NAME, backup_red_team_name);
-            ini_config.SetStringValue(INI_GREEN_TEAM_NAME, backup_green_team_name);
-            ini_config.SetStringValue(INI_BLUE_TEAM_NAME, backup_blue_team_name);
-            ini_config.SetStringValue(INI_GRAY_TEAM_NAME, backup_gray_team_name);
+            settings->SetStringValue("player_name", backup_player_name);
+            settings->SetStringValue("red_team_name", backup_red_team_name);
+            settings->SetStringValue("green_team_name", backup_green_team_name);
+            settings->SetStringValue("blue_team_name", backup_blue_team_name);
+            settings->SetStringValue("gray_team_name", backup_gray_team_name);
 
             result = 1;
 
@@ -1701,7 +1717,7 @@ int32_t menu_clan_select_menu_loop(int32_t team) {
 
     clan_select_menu.Deinit();
 
-    ini_set_setting(clan_select_menu.team_clan_ini_id, clan_select_menu.team_clan);
+    ResourceManager_GetSettings()->SetNumericValue(menu_team_clan_setting[team], clan_select_menu.team_clan);
 
     UnitsManager_TeamInfo[team].team_clan = clan_select_menu.team_clan;
     result = clan_select_menu.team_clan;
@@ -1780,7 +1796,7 @@ int32_t menu_planet_select_menu_loop() {
 
     planet_select_menu.Deinit();
     if (!planet_select_menu.event_click_cancel) {
-        ini_set_setting(INI_WORLD, planet_select_menu.world);
+        ResourceManager_GetSettings()->SetNumericValue("world", planet_select_menu.world);
 
         result = 1;
     } else {
@@ -1859,15 +1875,15 @@ int32_t menu_choose_player_menu_loop(bool is_single_player) {
     const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
 
     if (is_single_player) {
-        ini_set_setting(INI_RED_TEAM_PLAYER, TEAM_TYPE_PLAYER);
-        ini_set_setting(INI_GREEN_TEAM_PLAYER, TEAM_TYPE_COMPUTER);
+        ResourceManager_GetSettings()->SetNumericValue(menu_team_player_setting[PLAYER_TEAM_RED], TEAM_TYPE_PLAYER);
+        ResourceManager_GetSettings()->SetNumericValue(menu_team_player_setting[PLAYER_TEAM_GREEN], TEAM_TYPE_COMPUTER);
     } else {
-        ini_set_setting(INI_RED_TEAM_PLAYER, TEAM_TYPE_PLAYER);
-        ini_set_setting(INI_GREEN_TEAM_PLAYER, TEAM_TYPE_PLAYER);
+        ResourceManager_GetSettings()->SetNumericValue(menu_team_player_setting[PLAYER_TEAM_RED], TEAM_TYPE_PLAYER);
+        ResourceManager_GetSettings()->SetNumericValue(menu_team_player_setting[PLAYER_TEAM_GREEN], TEAM_TYPE_PLAYER);
     }
 
-    ini_set_setting(INI_BLUE_TEAM_PLAYER, TEAM_TYPE_NONE);
-    ini_set_setting(INI_GRAY_TEAM_PLAYER, TEAM_TYPE_NONE);
+    ResourceManager_GetSettings()->SetNumericValue(menu_team_player_setting[PLAYER_TEAM_BLUE], TEAM_TYPE_NONE);
+    ResourceManager_GetSettings()->SetNumericValue(menu_team_player_setting[PLAYER_TEAM_GRAY], TEAM_TYPE_NONE);
 
     event_release = false;
 
@@ -1920,17 +1936,15 @@ int32_t menu_choose_player_menu_loop(bool is_single_player) {
     choose_player_menu.Deinit();
 
     for (int32_t i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
-        int32_t team_type;
-        char buffer[30];
-
-        team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));
+        int32_t team_type = ResourceManager_GetSettings()->GetNumericValue(menu_team_player_setting[i]);
 
         if (is_single_player && team_type == TEAM_TYPE_PLAYER) {
-            ini_config.GetStringValue(INI_PLAYER_NAME, buffer, sizeof(buffer));
-            ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + i), buffer);
+            ResourceManager_GetSettings()->SetStringValue(menu_team_name_setting[i],
+                                                          ResourceManager_GetSettings()->GetStringValue("player_name"));
             is_single_player = false;
+
         } else {
-            ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + i), menu_team_names[i]);
+            ResourceManager_GetSettings()->SetStringValue(menu_team_name_setting[i], menu_team_names[i]);
         }
     }
 
@@ -1950,19 +1964,19 @@ int32_t GameSetupMenu_Menu(const MissionCategory mission_category, bool flag1, c
 
     if (mission_category == MISSION_CATEGORY_CAMPAIGN) {
         int32_t mission_count = ResourceManager_GetMissionManager()->GetMissions(MISSION_CATEGORY_CAMPAIGN).size();
-        int32_t last_campaign = ini_get_setting(INI_LAST_CAMPAIGN);
+        int32_t last_campaign = ResourceManager_GetSettings()->GetNumericValue("last_campaign");
 
         if (last_campaign > mission_count) {
-            ini_set_setting(INI_LAST_CAMPAIGN, mission_count);
-            ini_config.Save();
+            ResourceManager_GetSettings()->SetNumericValue("last_campaign", mission_count);
+            (void)ResourceManager_GetSettings()->Save();
 
             last_campaign = mission_count;
         }
 
-        ini_set_setting(INI_GAME_FILE_NUMBER, last_campaign);
+        ResourceManager_GetSettings()->SetNumericValue("game_file_number", last_campaign);
 
     } else {
-        ini_set_setting(INI_GAME_FILE_NUMBER, 1);
+        ResourceManager_GetSettings()->SetNumericValue("game_file_number", 1);
     }
 
     for (;;) {
@@ -2038,7 +2052,7 @@ int32_t GameSetupMenu_Menu(const MissionCategory mission_category, bool flag1, c
             break;
         }
 
-        ini_set_setting(INI_GAME_FILE_NUMBER, game_setup_menu.game_file_number);
+        ResourceManager_GetSettings()->SetNumericValue("game_file_number", game_setup_menu.game_file_number);
 
         if (game_setup_menu.GetMissionCategory() != MISSION_CATEGORY_MULTI_PLAYER_SCENARIO || flag1) {
             if (menu_options_menu_loop(2)) {
@@ -2057,10 +2071,14 @@ int32_t GameSetupMenu_Menu(const MissionCategory mission_category, bool flag1, c
                 if (game_setup_menu.GetMissionCategory() == MISSION_CATEGORY_MULTI_PLAYER_SCENARIO) {
                     if (SaveLoad_GetSaveFileInfo(game_setup_menu.GetMissionCategory(), game_setup_menu.game_file_number,
                                                  save_file_info)) {
-                        ini_set_setting(INI_RED_TEAM_CLAN, save_file_info.team_clan[PLAYER_TEAM_RED]);
-                        ini_set_setting(INI_GREEN_TEAM_CLAN, save_file_info.team_clan[PLAYER_TEAM_GREEN]);
-                        ini_set_setting(INI_BLUE_TEAM_CLAN, save_file_info.team_clan[PLAYER_TEAM_BLUE]);
-                        ini_set_setting(INI_GRAY_TEAM_CLAN, save_file_info.team_clan[PLAYER_TEAM_GRAY]);
+                        ResourceManager_GetSettings()->SetNumericValue(menu_team_clan_setting[PLAYER_TEAM_RED],
+                                                                       save_file_info.team_clan[PLAYER_TEAM_RED]);
+                        ResourceManager_GetSettings()->SetNumericValue(menu_team_clan_setting[PLAYER_TEAM_GREEN],
+                                                                       save_file_info.team_clan[PLAYER_TEAM_GREEN]);
+                        ResourceManager_GetSettings()->SetNumericValue(menu_team_clan_setting[PLAYER_TEAM_BLUE],
+                                                                       save_file_info.team_clan[PLAYER_TEAM_BLUE]);
+                        ResourceManager_GetSettings()->SetNumericValue(menu_team_clan_setting[PLAYER_TEAM_GRAY],
+                                                                       save_file_info.team_clan[PLAYER_TEAM_GRAY]);
                     }
 
                     if (menu_choose_player_menu_loop(is_single_player)) {
@@ -2124,7 +2142,8 @@ int32_t menu_custom_game_menu(const bool is_single_player) {
         }
 
         for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
-            ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + i), ini_get_setting(INI_PLAYER_CLAN));
+            ResourceManager_GetSettings()->SetNumericValue(
+                menu_team_clan_setting[i], ResourceManager_GetSettings()->GetNumericValue("player_clan"));
         }
 
         player_menu_passed = menu_choose_player_menu_loop(is_single_player);
@@ -2383,7 +2402,7 @@ int32_t menu_multiplayer_menu_loop() {
                     auto save_slot = SaveLoadMenu_MenuLoop(MISSION_CATEGORY_HOT_SEAT, false);
 
                     if (save_slot) {
-                        ini_set_setting(INI_GAME_FILE_NUMBER, save_slot);
+                        ResourceManager_GetSettings()->SetNumericValue("game_file_number", save_slot);
                         GameManager_GameLoop(GAME_STATE_10_LOAD_GAME);
 
                         key = 9000;
@@ -2504,8 +2523,8 @@ void main_menu() {
     mouse_set_position(WindowManager_GetWidth(window) / 2, WindowManager_GetHeight(window) / 2);
     menu_portrait_id = INVALID_ID;
     Randomizer_SetSeed(time(nullptr));
-    ini_setting_victory_type = ini_get_setting(INI_VICTORY_TYPE);
-    ini_setting_victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
+    ini_setting_victory_type = ResourceManager_GetSettings()->GetNumericValue("victory_type");
+    ini_setting_victory_limit = ResourceManager_GetSettings()->GetNumericValue("victory_limit");
 
     struct MenuButton main_menu_buttons[] = {
         MENU_BUTTON_DEF(true, 385, 175, _(28f9), GNW_KB_KEY_SHIFT_N, MBUTT0),
@@ -2582,7 +2601,7 @@ void main_menu() {
                         auto save_slot = SaveLoadMenu_MenuLoop(MISSION_CATEGORY_CUSTOM, false);
 
                         if (save_slot) {
-                            ini_set_setting(INI_GAME_FILE_NUMBER, save_slot);
+                            ResourceManager_GetSettings()->SetNumericValue("game_file_number", save_slot);
 
                             GameManager_GameLoop(GAME_STATE_10_LOAD_GAME);
 

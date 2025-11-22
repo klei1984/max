@@ -28,11 +28,11 @@
 #include "enums.hpp"
 #include "game_manager.hpp"
 #include "gnw.h"
-#include "inifile.hpp"
 #include "miniaudio.h"
 #include "mvelib32.h"
 #include "randomizer.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 
 #define SOUND_MANAGER_SAMPLE_RATE (48000)
 #define SOUND_MANAGER_CHANNELS (2)
@@ -243,14 +243,16 @@ void SoundManager::Init() noexcept {
         voice_group->Init(engine, MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE);
         sfx_group->Init(engine, MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE);
 
+        auto settings = ResourceManager_GetSettings();
+
         ma_sound_group_set_volume(music_group->GetGroup(),
-                                  std::min<float>(ini_get_setting(INI_MUSIC_LEVEL), 100) / 100);
+                                  std::min<float>(settings->GetNumericValue("music_level"), 100) / 100);
 
         ma_sound_group_set_volume(sfx_group->GetGroup(),
-                                  std::min<float>(ini_get_setting(INI_FX_SOUND_LEVEL), 100) / 100);
+                                  std::min<float>(settings->GetNumericValue("fx_sound_level"), 100) / 100);
 
         ma_sound_group_set_volume(voice_group->GetGroup(),
-                                  std::min<float>(ini_get_setting(INI_VOICE_LEVEL), 100) / 100);
+                                  std::min<float>(settings->GetNumericValue("voice_level"), 100) / 100);
 
         is_audio_enabled = true;
 
@@ -400,7 +402,7 @@ void SoundManager::FreeSample(SmartPointer<SoundSample> sample) noexcept {
 
 void SoundManager::PlayMusic(const ResourceID id, const bool shuffle) noexcept {
     if ((id != INVALID_ID) && (id != current_music_played)) {
-        if (ini_get_setting(INI_DISABLE_MUSIC)) {
+        if (ResourceManager_GetSettings()->GetNumericValue("disable_music")) {
             last_music_played = id;
 
         } else {
@@ -450,7 +452,7 @@ void SoundManager::FreeMusic() noexcept {
 }
 
 void SoundManager::PlaySfx(const ResourceID id) noexcept {
-    if (!ini_get_setting(INI_DISABLE_FX)) {
+    if (!ResourceManager_GetSettings()->GetNumericValue("disable_fx")) {
         SmartPointer<SoundJob> job(new (std::nothrow) SoundJob);
 
         job->id = id;
@@ -494,7 +496,7 @@ void SoundManager::PlaySfx(UnitInfo* const unit, const Unit::SfxType sound, cons
             return;
         }
 
-        if (!ini_get_setting(INI_DISABLE_FX) && is_audio_enabled) {
+        if (!ResourceManager_GetSettings()->GetNumericValue("disable_fx") && is_audio_enabled) {
             if (sound >= Unit::SFX_TYPE_IDLE && sound <= Unit::SFX_TYPE_STOP &&
                 (unit->flags & (MOBILE_LAND_UNIT | MOBILE_SEA_UNIT)) == (MOBILE_LAND_UNIT | MOBILE_SEA_UNIT) &&
                 unit->image_base == 8) {
@@ -612,7 +614,7 @@ void SoundManager::HaltSfxPlayback(const bool disable) noexcept {
 
 void SoundManager::PlayVoice(const ResourceID id1, const ResourceID id2, const int16_t priority) noexcept {
     if (priority >= 0) {
-        if (!IsVoiceGroupScheduled(id1, id2) && !ini_get_setting(INI_DISABLE_VOICE)) {
+        if (!IsVoiceGroupScheduled(id1, id2) && !ResourceManager_GetSettings()->GetNumericValue("disable_voice")) {
             int16_t priority_value;
             uint16_t randomized_voice_id;
 
@@ -895,7 +897,7 @@ float SoundManager::GetPanning(int32_t distance, const bool reverse) noexcept {
 
     panning = (SOUND_MANAGER_PANNING_RIGHT * (distance + 56)) / 112;
 
-    if (ini_get_setting(INI_CHANNELS_REVERSED)) {
+    if (ResourceManager_GetSettings()->GetNumericValue("channels_reversed")) {
         panning = SOUND_MANAGER_PANNING_RIGHT - panning;
     }
 
@@ -970,7 +972,7 @@ int32_t SoundManager::LoadSound(SoundJob& job, SoundSample& sample) noexcept {
         flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE;
     }
 
-    auto fp{ResourceManager_OpenFileResource(job.id, ResourceType_GameData, "rb", &filepath)};
+    FILE* fp{ResourceManager_OpenFileResource(job.id, ResourceType_GameData, "rb", &filepath)};
 
     if (fp) {
         LoadLoopPoints(fp, sample);

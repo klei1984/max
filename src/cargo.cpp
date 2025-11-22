@@ -21,7 +21,7 @@
 
 #include "cargo.hpp"
 
-#include "inifile.hpp"
+#include "settings.hpp"
 #include "unit.hpp"
 #include "units_manager.hpp"
 
@@ -107,7 +107,7 @@ Cargo Cargo_GetNetProduction(UnitInfo* const unit, const bool current_order) {
                 difficulty_factor = 4;
 
                 if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER) {
-                    opponent = ini_get_setting(INI_OPPONENT);
+                    opponent = ResourceManager_GetSettings()->GetNumericValue("opponent");
 
                     if (opponent == OPPONENT_TYPE_MASTER) {
                         difficulty_factor = 5;

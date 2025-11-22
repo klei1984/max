@@ -7,11 +7,11 @@
 : "${XDG_DATA_DIRS:="/usr/local/share:/usr/share"}"
 
 # Look for max-port preferences folder
-if [ -f "$XDG_DATA_HOME/max-port/settings.ini" ]; then
+if [ -f "$XDG_DATA_HOME/max-port/settings.json" ]; then
   maxport_prefs_dir="$XDG_DATA_HOME/max-port"
-elif [ -f "$HOME/.local/share/max-port/settings.ini" ]; then
+elif [ -f "$HOME/.local/share/max-port/settings.json" ]; then
   maxport_prefs_dir="$HOME/.local/share/max-port"
-elif [ -f "./settings.ini" ]; then
+elif [ -f "./settings.json" ]; then
   maxport_prefs_dir="."
 else
   maxport_prefs_dir=""
@@ -39,13 +39,9 @@ if ! [ -f "$maxport_base_dir/PATCHES.RES" ] && ! [ -f "$maxport_base_dir/patches
   fi
 fi
 
-# Read game data folder location from ini file
-maxport_game_data_dir=$(grep '^\[SETUP\]' --after-context=2048 \
-"$maxport_prefs_dir/settings.ini" 2>/dev/null | tail -n +2  | grep --before-context=2048 \
-'^\[' | head -n -1 | grep '^game_data' | cut -d '=' -f 2)
-
-# Remove carriage return from path
-maxport_game_data_dir=${maxport_game_data_dir%?}
+# Read game data folder location from json file
+maxport_game_data_dir=$(grep '"game_data"' "$maxport_prefs_dir/settings.json" 2>/dev/null | \
+sed -n 's/.*"game_data"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
 
 if [ -f "$maxport_game_data_dir/MAX.RES" ] || [ -f "$maxport_game_data_dir/max.res" ]; then
   :
@@ -155,31 +151,35 @@ else
     fi
   done
 
-  # Update ini configuration file
-  if ! [ -f "$maxport_prefs_dir/settings.ini" ]; then
-    if [ -f "$maxport_base_dir/settings.ini" ]; then
+  # Update json configuration file
+  if ! [ -f "$maxport_prefs_dir/settings.json" ]; then
+    if [ -f "$maxport_base_dir/settings.json" ]; then
       if ! [ -d "$maxport_prefs_dir" ]; then
         mkdir -p "$maxport_prefs_dir"
       fi
-      cp -n "$maxport_base_dir/settings.ini" "$maxport_prefs_dir" 2>/dev/null
+      cp -n "$maxport_base_dir/settings.json" "$maxport_prefs_dir" 2>/dev/null
     fi
   fi
 
-    if [ -f "$maxport_prefs_dir/settings.ini" ]; then
-      # Preserve original DOS line endinds
-      sed -bi'' "/^\[SETUP]/,/^\[/{s+^game_data[[:space:]]*=.*\r+game_data=$maxport_game_data_dir\r+}" "$maxport_prefs_dir/settings.ini"
-    fi
+  if [ -f "$maxport_prefs_dir/settings.json" ]; then
+    # Escape backslashes and forward slashes for JSON
+    maxport_escaped_path=$(echo "$maxport_game_data_dir" | sed 's/\\/\\\\/g')
+    # Update the game_data field in JSON
+    sed -i "s+\"game_data\"[[:space:]]*:[[:space:]]*\"[^\"]*\"+\"game_data\": \"$maxport_escaped_path\"+g" "$maxport_prefs_dir/settings.json"
+  fi
 fi
 
-# Copy existing saved game files to preferences folder
-cp -n "$maxport_game_data_dir/*.DTA" "$maxport_prefs_dir" 2>/dev/null || true
-cp -n "$maxport_game_data_dir/*.HOT" "$maxport_prefs_dir" 2>/dev/null || true
-cp -n "$maxport_game_data_dir/*.MLT" "$maxport_prefs_dir" 2>/dev/null || true
-cp -n "$maxport_game_data_dir/*.BAK" "$maxport_prefs_dir" 2>/dev/null || true
-cp -n "$maxport_game_data_dir/*.dta" "$maxport_prefs_dir" 2>/dev/null || true
-cp -n "$maxport_game_data_dir/*.hot" "$maxport_prefs_dir" 2>/dev/null || true
-cp -n "$maxport_game_data_dir/*.mlt" "$maxport_prefs_dir" 2>/dev/null || true
-cp -n "$maxport_game_data_dir/*.bak" "$maxport_prefs_dir" 2>/dev/null || true
+# Copy existing saved game files to preferences folder (skip if source equals destination)
+if [ "$maxport_game_data_dir" != "$maxport_prefs_dir" ]; then
+  cp -n "$maxport_game_data_dir/*.DTA" "$maxport_prefs_dir" 2>/dev/null || true
+  cp -n "$maxport_game_data_dir/*.HOT" "$maxport_prefs_dir" 2>/dev/null || true
+  cp -n "$maxport_game_data_dir/*.MLT" "$maxport_prefs_dir" 2>/dev/null || true
+  cp -n "$maxport_game_data_dir/*.BAK" "$maxport_prefs_dir" 2>/dev/null || true
+  cp -n "$maxport_game_data_dir/*.dta" "$maxport_prefs_dir" 2>/dev/null || true
+  cp -n "$maxport_game_data_dir/*.hot" "$maxport_prefs_dir" 2>/dev/null || true
+  cp -n "$maxport_game_data_dir/*.mlt" "$maxport_prefs_dir" 2>/dev/null || true
+  cp -n "$maxport_game_data_dir/*.bak" "$maxport_prefs_dir" 2>/dev/null || true
+fi
 
 # Play the game
 if [ -x "@CMAKE_INSTALL_PREFIX@/@GAME_INSTALL_LIB_PATH@/max" ]; then

@@ -107,4 +107,7 @@ extern bool GameManager_DisplayButtonNames;
 extern bool GameManager_DisplayButtonMinimap2x;
 extern bool GameManager_DisplayButtonMinimapTnt;
 
+extern int32_t ini_setting_victory_type;
+extern int32_t ini_setting_victory_limit;
+
 #endif /* GAME_MANAGER_HPP */

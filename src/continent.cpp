@@ -24,8 +24,9 @@
 #include "access.hpp"
 #include "accessmap.hpp"
 #include "continentfiller.hpp"
-#include "inifile.hpp"
 #include "randomizer.hpp"
+#include "resource_manager.hpp"
+#include "settings.hpp"
 #include "units_manager.hpp"
 
 bool Continent::IsDangerousProximity(int32_t grid_x, int32_t grid_y, uint16_t team, int32_t proximity_range) {
@@ -50,7 +51,8 @@ bool Continent::IsViableSite(bool test_proximity, uint16_t team, Point site) {
 
     if (map[site.x][site.y] == filler) {
         if (test_proximity) {
-            if (IsDangerousProximity(site.x, site.y, team, ini_get_setting(INI_PROXIMITY_RANGE) + 4)) {
+            if (IsDangerousProximity(site.x, site.y, team,
+                                     ResourceManager_GetSettings()->GetNumericValue("proximity_range") + 4)) {
                 return false;
             }
         }
@@ -112,7 +114,7 @@ uint16_t Continent::GetFiller() const { return filler; }
 bool Continent::IsCloseProximity() const {
     int32_t proximity_range;
 
-    proximity_range = ini_get_setting(INI_PROXIMITY_RANGE);
+    proximity_range = ResourceManager_GetSettings()->GetNumericValue("proximity_range");
 
     return (bounds.lrx - bounds.ulx) <= proximity_range && (bounds.lry - bounds.uly) <= proximity_range;
 }

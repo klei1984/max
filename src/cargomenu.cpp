@@ -22,9 +22,9 @@
 #include "cargomenu.hpp"
 
 #include "helpmenu.hpp"
-#include "inifile.hpp"
 #include "menu.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "text.hpp"
 #include "units_manager.hpp"
 #include "window_manager.hpp"
@@ -60,7 +60,7 @@ CargoMenu::CargoMenu(uint16_t team) : AbstractUpgradeMenu(team, CARGOPIC) {
 
     } else {
         // Initialize gold amounts only at first entry
-        start_gold = ini_get_setting(INI_START_GOLD);
+        start_gold = ResourceManager_GetSettings()->GetNumericValue("start_gold");
 
         if (clans) {
             start_gold += clans->GetCredits(clan_id);

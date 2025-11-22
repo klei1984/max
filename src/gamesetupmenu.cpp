@@ -24,11 +24,11 @@
 #include <filesystem>
 
 #include "helpmenu.hpp"
-#include "inifile.hpp"
 #include "menu.hpp"
 #include "missionmanager.hpp"
 #include "resource_manager.hpp"
 #include "saveloadmenu.hpp"
+#include "settings.hpp"
 #include "text.hpp"
 #include "window_manager.hpp"
 
@@ -90,7 +90,7 @@ void GameSetupMenu::Init(int32_t palette_from_image) {
     event_click_done = false;
     event_click_cancel = false;
 
-    game_file_number = ini_get_setting(INI_GAME_FILE_NUMBER);
+    game_file_number = ResourceManager_GetSettings()->GetNumericValue("game_file_number");
     game_index_first_on_page =
         ((game_file_number - 1) / GAME_SETUP_MENU_MISSION_COUNT) * GAME_SETUP_MENU_MISSION_COUNT + 1;
     strings = nullptr;
@@ -251,7 +251,7 @@ void GameSetupMenu::EventHelp() {
 }
 
 void GameSetupMenu::DrawMissionList() {
-    const size_t ini_last_campaign = ini_get_setting(INI_LAST_CAMPAIGN);
+    const size_t ini_last_campaign = ResourceManager_GetSettings()->GetNumericValue("last_campaign");
 
     menu_draw_menu_portrait_frame(window);
 
@@ -398,7 +398,8 @@ void GameSetupMenu::DrawDescriptionPanel() {
 int32_t GameSetupMenu::FindNextValidFile(int32_t game_slot) {
     int32_t result;
 
-    if (m_mission_category == MISSION_CATEGORY_CAMPAIGN && ini_get_setting(INI_LAST_CAMPAIGN) < game_slot) {
+    if (m_mission_category == MISSION_CATEGORY_CAMPAIGN &&
+        ResourceManager_GetSettings()->GetNumericValue("last_campaign") < game_slot) {
         result = false;
 
     } else {

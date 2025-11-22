@@ -28,12 +28,12 @@
 #include "game_manager.hpp"
 #include "gfx.hpp"
 #include "hash.hpp"
-#include "inifile.hpp"
 #include "message_manager.hpp"
 #include "net_packet.hpp"
 #include "paths_manager.hpp"
 #include "registerarray.hpp"
 #include "remote.hpp"
+#include "settings.hpp"
 #include "sound_manager.hpp"
 #include "unitinfo.hpp"
 #include "units_manager.hpp"
@@ -1223,7 +1223,7 @@ bool BuilderPath::Execute(UnitInfo* unit) {
     bool result;
     int32_t direction;
 
-    if (ini_get_setting(INI_EFFECTS)) {
+    if (ResourceManager_GetSettings()->GetNumericValue("effects")) {
         unit->RefreshScreen();
     }
 

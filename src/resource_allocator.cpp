@@ -22,51 +22,56 @@
 #include "resource_allocator.hpp"
 
 #include "access.hpp"
-#include "inifile.hpp"
 #include "randomizer.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 
 int32_t ResourceRange::GetValue() const {
     return ((Randomizer_Generate(max - min + 1) + min) + (Randomizer_Generate(max - min + 1) + min) + 1) / 2;
 }
 
 ResourceAllocator::ResourceAllocator(uint16_t material_type) : material_type(material_type) {
-    max_resources = ini_get_setting(INI_MAX_RESOURCES);
-    mixed_resource_seperation = ini_get_setting(INI_MIXED_RESOURCE_SEPERATION);
+    auto settings = ResourceManager_GetSettings();
+
+    max_resources = settings->GetNumericValue("max_resources");
+    mixed_resource_seperation = settings->GetNumericValue("mixed_resource_seperation");
     mixed_resource_seperation_variance = mixed_resource_seperation / 5;
 
     switch (material_type) {
         case CARGO_MATERIALS: {
             m_point.x = 0;
             m_point.y = 0;
-            normal = ResourceRange(ini_get_setting(INI_RAW_NORMAL_LOW), ini_get_setting(INI_RAW_NORMAL_HIGH));
-            concentrate =
-                ResourceRange(ini_get_setting(INI_RAW_CONCENTRATE_LOW), ini_get_setting(INI_RAW_CONCENTRATE_HIGH));
-            concentrate_seperation = ini_get_setting(INI_RAW_CONCENTRATE_SEPERATION);
+            normal = ResourceRange(settings->GetNumericValue("raw_normal_low"),
+                                   settings->GetNumericValue("raw_normal_high"));
+            concentrate = ResourceRange(settings->GetNumericValue("raw_concentrate_low"),
+                                        settings->GetNumericValue("raw_concentrate_high"));
+            concentrate_seperation = settings->GetNumericValue("raw_concentrate_seperation");
             concentrate_variance = concentrate_seperation / 5;
-            concentrate_diffusion = ini_get_setting(INI_RAW_CONCENTRATE_DIFFUSION);
+            concentrate_diffusion = settings->GetNumericValue("raw_concentrate_diffusion");
         } break;
 
         case CARGO_GOLD: {
             m_point.x = 1;
             m_point.y = 0;
-            normal = ResourceRange(ini_get_setting(INI_GOLD_NORMAL_LOW), ini_get_setting(INI_GOLD_NORMAL_HIGH));
-            concentrate =
-                ResourceRange(ini_get_setting(INI_GOLD_CONCENTRATE_LOW), ini_get_setting(INI_GOLD_CONCENTRATE_HIGH));
-            concentrate_seperation = ini_get_setting(INI_GOLD_CONCENTRATE_SEPERATION);
+            normal = ResourceRange(settings->GetNumericValue("gold_normal_low"),
+                                   settings->GetNumericValue("gold_normal_high"));
+            concentrate = ResourceRange(settings->GetNumericValue("gold_concentrate_low"),
+                                        settings->GetNumericValue("gold_concentrate_high"));
+            concentrate_seperation = settings->GetNumericValue("gold_concentrate_seperation");
             concentrate_variance = concentrate_seperation / 5;
-            concentrate_diffusion = ini_get_setting(INI_GOLD_CONCENTRATE_DIFFUSION);
+            concentrate_diffusion = settings->GetNumericValue("gold_concentrate_diffusion");
         } break;
 
         case CARGO_FUEL: {
             m_point.x = 1;
             m_point.y = 1;
-            normal = ResourceRange(ini_get_setting(INI_FUEL_NORMAL_LOW), ini_get_setting(INI_FUEL_NORMAL_HIGH));
-            concentrate =
-                ResourceRange(ini_get_setting(INI_FUEL_CONCENTRATE_LOW), ini_get_setting(INI_FUEL_CONCENTRATE_HIGH));
-            concentrate_seperation = ini_get_setting(INI_FUEL_CONCENTRATE_SEPERATION);
+            normal = ResourceRange(settings->GetNumericValue("fuel_normal_low"),
+                                   settings->GetNumericValue("fuel_normal_high"));
+            concentrate = ResourceRange(settings->GetNumericValue("fuel_concentrate_low"),
+                                        settings->GetNumericValue("fuel_concentrate_high"));
+            concentrate_seperation = settings->GetNumericValue("fuel_concentrate_seperation");
             concentrate_variance = concentrate_seperation / 5;
-            concentrate_diffusion = ini_get_setting(INI_FUEL_CONCENTRATE_DIFFUSION);
+            concentrate_diffusion = settings->GetNumericValue("fuel_concentrate_diffusion");
         } break;
     }
 }

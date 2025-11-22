@@ -27,12 +27,12 @@
 #include "game_manager.hpp"
 #include "gameconfigmenu.hpp"
 #include "helpmenu.hpp"
-#include "inifile.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
 #include "randomizer.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "text.hpp"
 #include "window_manager.hpp"
 
@@ -273,7 +273,7 @@ void NetworkMenu::Init() {
     is_multi_scenario = false;
     is_map_changed = 0;
 
-    SetClans(ini_get_setting(INI_PLAYER_CLAN));
+    SetClans(ResourceManager_GetSettings()->GetNumericValue("player_clan"));
     mouse_hide();
     WindowManager_LoadBigImage(MULTGAME, window, window->width, false, false, -1, -1, true);
 
@@ -298,13 +298,7 @@ void NetworkMenu::Init() {
         buttons[i] = nullptr;
     }
 
-    {
-        char ini_player_name[30];
-
-        ini_config.GetStringValue(INI_PLAYER_NAME, ini_player_name, sizeof(ini_player_name));
-
-        player_name = ini_player_name;
-    }
+    player_name = ResourceManager_GetSettings()->GetStringValue("player_name");
 
     for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
         team_nodes[i] = 0;
@@ -378,8 +372,8 @@ void NetworkMenu::EventEditPlayerName() {
 
 void NetworkMenu::EventSelectClan() {
     DeleteButtons();
-    ini_set_setting(INI_PLAYER_CLAN, menu_clan_select_menu_loop(0));
-    SetClans(ini_get_setting(INI_PLAYER_CLAN));
+    ResourceManager_GetSettings()->SetNumericValue("player_clan", menu_clan_select_menu_loop(0));
+    SetClans(ResourceManager_GetSettings()->GetNumericValue("player_clan"));
     Reinit(false);
 }
 
@@ -415,14 +409,14 @@ void NetworkMenu::EventMapButton() {
     DeleteButtons();
 
     if (menu_planet_select_menu_loop()) {
-        ini_world_index = ini_get_setting(INI_WORLD);
+        ini_world_index = ResourceManager_GetSettings()->GetNumericValue("world");
         strcpy(world_name, menu_planet_names[ini_world_index]);
-        ini_setting_victory_type = ini_get_setting(INI_VICTORY_TYPE);
-        ini_setting_victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
+        ini_setting_victory_type = ResourceManager_GetSettings()->GetNumericValue("victory_type");
+        ini_setting_victory_limit = ResourceManager_GetSettings()->GetNumericValue("victory_limit");
         ReadIniSettings(GAME_STATE_6_GAME_SETUP);
         ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_MULTI, "MISSION_CATEGORY_MULTI");
         UpdateSaveSettings(nullptr);
-        SetClans(ini_get_setting(INI_PLAYER_CLAN));
+        SetClans(ResourceManager_GetSettings()->GetNumericValue("player_clan"));
     }
 
     Reinit(true);
@@ -439,7 +433,7 @@ void NetworkMenu::EventLoadButton() {
     if (save_slot) {
         multi_scenario_id = save_slot;
 
-        ini_set_setting(INI_GAME_FILE_NUMBER, save_slot);
+        ResourceManager_GetSettings()->SetNumericValue("game_file_number", save_slot);
 
         if (SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI, save_slot, save_file_info, true)) {
             for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
@@ -467,7 +461,7 @@ void NetworkMenu::EventScenarioButton() {
 
     if (GameSetupMenu_Menu(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, false, false)) {
         const auto team_index = player_team;
-        const auto save_slot = ini_get_setting(INI_GAME_FILE_NUMBER);
+        const auto save_slot = ResourceManager_GetSettings()->GetNumericValue("game_file_number");
         SaveFileInfo save_file_info;
 
         multi_scenario_id = save_slot;
@@ -475,9 +469,9 @@ void NetworkMenu::EventScenarioButton() {
         if (SaveLoad_GetSaveFileInfo(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO, save_slot, save_file_info, true)) {
             save_file_info.save_name = std::format("{} #{}", _(2954), save_slot);
 
-            ini_set_setting(INI_PLAY_MODE, ini_play_mode);
-            ini_set_setting(INI_TIMER, ini_timer);
-            ini_set_setting(INI_ENDTURN, ini_endturn);
+            ResourceManager_GetSettings()->SetNumericValue("play_mode", ini_play_mode);
+            ResourceManager_GetSettings()->SetNumericValue("timer", ini_timer);
+            ResourceManager_GetSettings()->SetNumericValue("endturn", ini_endturn);
 
             for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
                 team_clans[i] = save_file_info.team_clan[i];
@@ -647,23 +641,25 @@ void NetworkMenu::SetButtonState(int32_t button_index, bool state) {
 }
 
 void NetworkMenu::ReadIniSettings(int32_t game_state) {
+    const auto settings = ResourceManager_GetSettings();
+
     GameManager_GameState = game_state;
 
-    ini_play_mode = ini_get_setting(INI_PLAY_MODE);
-    ini_timer = ini_get_setting(INI_TIMER);
-    ini_endturn = ini_get_setting(INI_ENDTURN);
-    ini_start_gold = ini_get_setting(INI_START_GOLD);
-    ini_opponent = ini_get_setting(INI_OPPONENT);
+    ini_play_mode = settings->GetNumericValue("play_mode");
+    ini_timer = settings->GetNumericValue("timer");
+    ini_endturn = settings->GetNumericValue("endturn");
+    ini_start_gold = settings->GetNumericValue("start_gold");
+    ini_opponent = settings->GetNumericValue("opponent");
     ini_victory_type = ini_setting_victory_type;
     ini_victory_limit = ini_setting_victory_limit;
-    ini_raw_resource = ini_get_setting(INI_RAW_RESOURCE);
-    ini_fuel_resource = ini_get_setting(INI_FUEL_RESOURCE);
-    ini_gold_resource = ini_get_setting(INI_GOLD_RESOURCE);
-    ini_alien_derelicts = ini_get_setting(INI_ALIEN_DERELICTS);
-    ini_world_index = ini_get_setting(INI_WORLD);
+    ini_raw_resource = settings->GetNumericValue("raw_resource");
+    ini_fuel_resource = settings->GetNumericValue("fuel_resource");
+    ini_gold_resource = settings->GetNumericValue("gold_resource");
+    ini_alien_derelicts = settings->GetNumericValue("alien_derelicts");
+    ini_world_index = settings->GetNumericValue("world");
 
     if (GameManager_GameState == GAME_STATE_6_GAME_SETUP) {
-        strcpy(world_name, menu_planet_names[ini_world_index]);
+        SDL_utf8strlcpy(world_name, menu_planet_names[ini_world_index], sizeof(world_name));
     }
 }
 
@@ -738,7 +734,7 @@ int32_t NetworkMenu::SetupScenario(int32_t mode) {
     int32_t result;
 
     if (!is_multi_scenario) {
-        SetClans(ini_get_setting(INI_PLAYER_CLAN));
+        SetClans(ResourceManager_GetSettings()->GetNumericValue("player_clan"));
         is_incompatible_save_file = false;
 
         return false;
@@ -1241,13 +1237,7 @@ void NetworkMenu::LeaveEditField() {
 
             menu_draw_menu_title(window, &network_menu_titles[MENU_ITEM_NAME_FIELD], 0xA2, true);
 
-            {
-                char ini_player_name[30];
-
-                SDL_strlcpy(ini_player_name, player_name.c_str(), sizeof(ini_player_name));
-
-                ini_config.SetStringValue(INI_PLAYER_NAME, ini_player_name);
-            }
+            ResourceManager_GetSettings()->SetStringValue("player_name", player_name);
 
             if (player_team != -1) {
                 images[3 + player_team]->Write(window);

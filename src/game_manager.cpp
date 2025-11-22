@@ -36,7 +36,6 @@
 #include "gfx.hpp"
 #include "hash.hpp"
 #include "helpmenu.hpp"
-#include "inifile.hpp"
 #include "menu.hpp"
 #include "menulandingsequence.hpp"
 #include "message_manager.hpp"
@@ -54,6 +53,7 @@
 #include "resource_allocator.hpp"
 #include "resource_manager.hpp"
 #include "saveloadmenu.hpp"
+#include "settings.hpp"
 #include "sound_manager.hpp"
 #include "survey.hpp"
 #include "task_manager.hpp"
@@ -146,6 +146,9 @@ const char* const GameManager_CheatCodes[CHEAT_CODE_COUNT] = {"[MAXSPY]", "[MAXS
 const ResourceID GameManager_AlienBuildings[] = {SHIELDGN, SUPRTPLT, RECCENTR};
 
 const ResourceID GameManager_AlienUnits[] = {ALNTANK, ALNASGUN, ALNPLANE};
+
+int32_t ini_setting_victory_type;
+int32_t ini_setting_victory_limit;
 
 uint8_t GameManager_MouseButtons;
 uint8_t GameManager_ActiveWindow;
@@ -584,7 +587,7 @@ void GameManager_TeamTurnConcurrent(int32_t& game_state) {
         }
 
         if (Remote_IsNetworkGame) {
-            if (ini_get_setting(INI_LOG_FILE_DEBUG)) {
+            if (ResourceManager_GetSettings()->GetNumericValue("log_file_debug")) {
                 MessageManager_DrawMessage(_(0d6b), 0, 0);
                 Remote_AnalyzeDesync();
             }
@@ -909,7 +912,7 @@ bool GameManager_RefreshOrders(uint16_t team, bool check_production) {
 
 void GameManager_HandleTurnTimer() {
     if (GameManager_PlayMode != PLAY_MODE_TURN_BASED) {
-        int32_t timer_setting = ini_get_setting(INI_ENDTURN);
+        int32_t timer_setting = ResourceManager_GetSettings()->GetNumericValue("endturn");
         bool flag = false;
 
         if (timer_setting < 15) {
@@ -1257,7 +1260,7 @@ bool GameManager_PlayerMissionSetup(uint16_t team) {
     GameManager_PlayerTeam = team;
     GameManager_ActiveTurnTeam = team;
 
-    ini_set_setting(INI_PLAYER_CLAN, UnitsManager_TeamInfo[team].team_clan);
+    ResourceManager_GetSettings()->SetNumericValue("player_clan", UnitsManager_TeamInfo[team].team_clan);
 
     if (GameManager_IsMapInitialized) {
         GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, 4, 0, false);
@@ -1273,7 +1276,7 @@ bool GameManager_PlayerMissionSetup(uint16_t team) {
         auto clans = ResourceManager_GetClans();
         auto clan_id = ResourceManager_GetClanID(static_cast<TeamClanType>(UnitsManager_TeamInfo[team].team_clan));
 
-        team_gold = ini_get_setting(INI_START_GOLD);
+        team_gold = ResourceManager_GetSettings()->GetNumericValue("start_gold");
 
         if (clans) {
             team_gold += clans->GetCredits(clan_id);
@@ -1512,8 +1515,8 @@ int32_t GameManager_CheckLandingZones(uint16_t team1, uint16_t team2) {
     int32_t distance_y;
 
     if (UnitsManager_TeamMissionSupplies[team2].units.GetCount()) {
-        proximity_range = ini_get_setting(INI_PROXIMITY_RANGE);
-        exclude_range = ini_get_setting(INI_EXCLUDE_RANGE);
+        proximity_range = ResourceManager_GetSettings()->GetNumericValue("proximity_range");
+        exclude_range = ResourceManager_GetSettings()->GetNumericValue("exclude_range");
 
         distance_x = labs(UnitsManager_TeamMissionSupplies[team1].starting_position.x -
                           UnitsManager_TeamMissionSupplies[team2].starting_position.x);
@@ -1720,11 +1723,11 @@ bool GameManager_ZoomMainMapView(int32_t zoom_level, bool mode) {
 
     GameManager_UpdateZoomSlider();
 
-    GameManager_QuickScroll = ini_get_setting(INI_QUICK_SCROLL);
+    GameManager_QuickScroll = ResourceManager_GetSettings()->GetNumericValue("quick_scroll");
 
     if (GameManager_QuickScroll < 4) {
         GameManager_QuickScroll = 16;
-        ini_set_setting(INI_QUICK_SCROLL, GameManager_QuickScroll);
+        ResourceManager_GetSettings()->SetNumericValue("quick_scroll", GameManager_QuickScroll);
     }
 
     GameManager_QuickScroll = (Gfx_MapScalingFactor * GameManager_QuickScroll) / GFX_SCALE_DENOMINATOR;
@@ -1789,7 +1792,7 @@ void GameManager_UpdateMainMapView(int32_t mode, int32_t ulx, int32_t uly, bool 
 }
 
 void GameManager_AutoSelectNext(UnitInfo* unit) {
-    if (!ini_get_setting(INI_AUTO_SELECT) || GameManager_IsInteractable(unit)) {
+    if (!ResourceManager_GetSettings()->GetNumericValue("auto_select") || GameManager_IsInteractable(unit)) {
         GameManager_EnableMainMenu(unit);
 
     } else {
@@ -1805,7 +1808,7 @@ void GameManager_AutoSelectNext(UnitInfo* unit) {
 
 Point GameManager_GetStartPositionMiningStation(uint16_t team) {
     TeamMissionSupplies* supplies = &UnitsManager_TeamMissionSupplies[team];
-    const int32_t max_resources = ini_get_setting(INI_MAX_RESOURCES);
+    const int32_t max_resources = ResourceManager_GetSettings()->GetNumericValue("max_resources");
     const int32_t minimum_fuel = (max_resources * 8 + 10) / 20;
     const int32_t minimum_materials = (max_resources * 12 + 10) / 20;
     Point point(supplies->starting_position);
@@ -1943,7 +1946,7 @@ void GameManager_GameSetup(int32_t game_state) {
         GameManager_GameState = GAME_STATE_10_LOAD_GAME;
 
         if (mission_category != MISSION_CATEGORY_CAMPAIGN) {
-            SaveLoadMenu_SaveSlot = ini_get_setting(INI_GAME_FILE_NUMBER);
+            SaveLoadMenu_SaveSlot = ResourceManager_GetSettings()->GetNumericValue("game_file_number");
         }
 
         if (SaveLoad_Load(filepath, mission_category, !Remote_IsNetworkGame, Remote_IsNetworkGame)) {
@@ -1971,7 +1974,8 @@ void GameManager_GameSetup(int32_t game_state) {
 
     Access_UpdateVisibilityStatus(GameManager_AllVisible);
 
-    SoundManager_PlayMusic(static_cast<ResourceID>(ini_get_setting(INI_WORLD) / 6 + SNOW_MSC), true);
+    SoundManager_PlayMusic(
+        static_cast<ResourceID>(ResourceManager_GetSettings()->GetNumericValue("world") / 6 + SNOW_MSC), true);
 
     GameManager_MenuAnimateDisplayControls();
     GameManager_MenuInitDisplayControls();
@@ -2200,10 +2204,10 @@ void GameManager_DrawTurnTimer(int32_t turn_time, bool mode) {
 
     if (turn_time <= 20) {
         if (GameManager_IsTurnTimerActive && GameManager_PlayerTeam == GameManager_ActiveTurnTeam) {
-            if (turn_time == 20 && ini_get_setting(INI_TIMER) > 20) {
+            if (turn_time == 20 && ResourceManager_GetSettings()->GetNumericValue("timer") > 20) {
                 SoundManager_PlayVoice(V_M272, V_F273);
             } else if (!UnitsManager_TeamInfo[GameManager_PlayerTeam].finished_turn &&
-                       ini_get_setting(INI_TIMER) > 20 && Remote_UpdatePauseTimer) {
+                       ResourceManager_GetSettings()->GetNumericValue("timer") > 20 && Remote_UpdatePauseTimer) {
                 SoundManager_PlayVoice(V_M275, V_F275);
             }
 
@@ -2417,13 +2421,13 @@ void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosa
     GameManager_EnableMainMenu(nullptr);
 
     if (game_state == GAME_STATE_10_LOAD_GAME) {
-        ini_timer_setting = ini_get_setting(INI_TIMER);
+        ini_timer_setting = ResourceManager_GetSettings()->GetNumericValue("timer");
         GameManager_GameState = SaveLoadMenu_GameState;
 
         GameManager_UpdatePanelButtons(GameManager_PlayerTeam);
 
     } else {
-        ini_timer_setting = ini_get_setting(INI_TIMER);
+        ini_timer_setting = ResourceManager_GetSettings()->GetNumericValue("timer");
         GameManager_GameState = GAME_STATE_11_TURN_ACTIVE;
     }
 
@@ -2467,7 +2471,7 @@ void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosa
             if (game_state != GAME_STATE_10_LOAD_GAME) {
                 GameManager_ProgressBuildState(team);
 
-                ini_timer_setting = ini_get_setting(INI_ENDTURN);
+                ini_timer_setting = ResourceManager_GetSettings()->GetNumericValue("endturn");
 
                 if (ini_timer_setting < 45) {
                     ini_timer_setting = 45;
@@ -2496,7 +2500,8 @@ void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosa
     }
 
     if (GameManager_CheckDesync()) {
-        if (enable_autosave && mission_category != MISSION_CATEGORY_DEMO && ini_get_setting(INI_AUTO_SAVE)) {
+        if (enable_autosave && mission_category != MISSION_CATEGORY_DEMO &&
+            ResourceManager_GetSettings()->GetNumericValue("auto_save")) {
             char log_message[30];
             const auto file_name = SaveLoad_GetSaveFileName(SaveLoad_GetSaveFileCategory(mission_category), 10);
 
@@ -3010,10 +3015,10 @@ void GameManager_InitUnitsAndGameState() {
 
     GameManager_QuickBuildMenuActive = false;
 
-    GameManager_AllVisible = ini_get_setting(INI_ALL_VISIBLE);
-    GameManager_RealTime = ini_get_setting(INI_REAL_TIME);
-    GameManager_PlayMode = ini_get_setting(INI_PLAY_MODE);
-    GameManager_FastMovement = ini_get_setting(INI_FAST_MOVEMENT);
+    GameManager_AllVisible = ResourceManager_GetSettings()->GetNumericValue("all_visible");
+    GameManager_RealTime = ResourceManager_GetSettings()->GetNumericValue("real_time");
+    GameManager_PlayMode = ResourceManager_GetSettings()->GetNumericValue("play_mode");
+    GameManager_FastMovement = ResourceManager_GetSettings()->GetNumericValue("fast_movement");
 
     GameManager_ArrowKeyFlags = 0;
 
@@ -3047,10 +3052,11 @@ bool GameManager_InitGame() {
         ResourceManager_InitTeamInfo();
     }
 
-    ResourceManager_InitInGameAssets(ini_get_setting(INI_WORLD));
+    ResourceManager_InitInGameAssets(ResourceManager_GetSettings()->GetNumericValue("world"));
 
     for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
-        UnitsManager_TeamInfo[i].team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));
+        UnitsManager_TeamInfo[i].team_type =
+            ResourceManager_GetSettings()->GetNumericValue(menu_team_player_setting[i]);
         ResourceManager_InitHeatMaps(i);
     }
 
@@ -3088,7 +3094,8 @@ bool GameManager_InitGame() {
     }
 
     GameManager_PopulateMapWithResources();
-    GameManager_PopulateMapWithAlienUnits(ini_get_setting(INI_ALIEN_SEPERATION), ini_get_setting(INI_ALIEN_UNIT_VALUE));
+    GameManager_PopulateMapWithAlienUnits(ResourceManager_GetSettings()->GetNumericValue("alien_seperation"),
+                                          ResourceManager_GetSettings()->GetNumericValue("alien_unit_value"));
 
     for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
         if (UnitsManager_TeamInfo[i].team_type != TEAM_TYPE_NONE) {
@@ -3378,7 +3385,8 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
 
     WindowManager_FadeIn(0);
 
-    SoundManager_PlayMusic(static_cast<ResourceID>(ini_get_setting(INI_WORLD) / 6 + SNOW_MSC), true);
+    SoundManager_PlayMusic(
+        static_cast<ResourceID>(ResourceManager_GetSettings()->GetNumericValue("world") / 6 + SNOW_MSC), true);
 
     if (load_successful) {
         GameManager_UpdatePanelButtons(GameManager_PlayerTeam);
@@ -3867,22 +3875,24 @@ void GameManager_MenuClickPreferencesButton() {
 
     menu_preferences_window(GameManager_PlayerTeam);
 
-    GameManager_RealTime = ini_get_setting(INI_REAL_TIME);
-    GameManager_FastMovement = ini_get_setting(INI_FAST_MOVEMENT);
-    GameManager_QuickScroll = (ini_get_setting(INI_QUICK_SCROLL) * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR;
+    GameManager_RealTime = ResourceManager_GetSettings()->GetNumericValue("real_time");
+    GameManager_FastMovement = ResourceManager_GetSettings()->GetNumericValue("fast_movement");
+    GameManager_QuickScroll =
+        (ResourceManager_GetSettings()->GetNumericValue("quick_scroll") * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR;
 
     if (Remote_IsNetworkGame) {
-        GameManager_PlayMode = ini_get_setting(INI_PLAY_MODE);
+        GameManager_PlayMode = ResourceManager_GetSettings()->GetNumericValue("play_mode");
 
         Remote_SendNetPacket_17();
     }
 
-    if (GameManager_AllVisible != ini_get_setting(INI_ALL_VISIBLE)) {
-        Access_UpdateVisibilityStatus(ini_get_setting(INI_ALL_VISIBLE));
+    if (GameManager_AllVisible != ResourceManager_GetSettings()->GetNumericValue("all_visible")) {
+        Access_UpdateVisibilityStatus(ResourceManager_GetSettings()->GetNumericValue("all_visible"));
     }
 
     for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        UnitsManager_TeamInfo[team].team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team));
+        UnitsManager_TeamInfo[team].team_type =
+            ResourceManager_GetSettings()->GetNumericValue(menu_team_player_setting[team]);
     }
 
     GameManager_EnableMainMenu(&*GameManager_SelectedUnit);
@@ -4665,7 +4675,7 @@ void GameManager_PopulateMapWithResources() {
     ResourceAllocator allocator_fuel(CARGO_FUEL);
     ResourceAllocator allocator_gold(CARGO_GOLD);
 
-    const int32_t max_resources{ini_get_setting(INI_MAX_RESOURCES)};
+    const int32_t max_resources{ResourceManager_GetSettings()->GetNumericValue("max_resources")};
     const int32_t minimum_fuel{(max_resources * 8 + 10) / 20};
     const int32_t minimum_materials{(max_resources * 12 + 10) / 20};
 
@@ -4690,7 +4700,7 @@ void GameManager_PopulateMapWithResources() {
     allocator_fuel.ConcentrateResources();
     allocator_gold.ConcentrateResources();
 
-    ResourceAllocator::SettleMinimumResourceLevels(ini_get_setting(INI_MIN_RESOURCES));
+    ResourceAllocator::SettleMinimumResourceLevels(ResourceManager_GetSettings()->GetNumericValue("min_resources"));
 }
 
 void GameManager_FindSpot(Point* point) {
@@ -6221,8 +6231,8 @@ bool GameManager_UpdateSelection(UnitInfo* unit1, UnitInfo* unit2, int32_t grid_
 }
 
 void GameManager_SetGridOffset(int32_t grid_x_offset, int32_t grid_y_offset) {
-    if (!ini_get_setting(INI_CLICK_SCROLL) || (GameManager_MouseButtons & MOUSE_PRESS_LEFT) ||
-        GameManager_RenderState == 2) {
+    if (!ResourceManager_GetSettings()->GetNumericValue("click_scroll") ||
+        (GameManager_MouseButtons & MOUSE_PRESS_LEFT) || GameManager_RenderState == 2) {
         GameManager_GridOffset.x = grid_x_offset;
         GameManager_GridOffset.y = grid_y_offset;
     }
@@ -6929,7 +6939,7 @@ void GameManager_DrawFlic(Rect* bounds) {
 }
 
 void GameManager_AdvanceFlic() {
-    if (GameManager_Flic.flc && GameManager_PlayFlic && ini_get_setting(INI_EFFECTS)) {
+    if (GameManager_Flic.flc && GameManager_PlayFlic && ResourceManager_GetSettings()->GetNumericValue("effects")) {
         uint32_t time_stamp = timer_get();
 
         if ((time_stamp - GameManager_FlicFrameTimeStamp) >= TIMER_FPS_TO_MS(15)) {
@@ -7492,7 +7502,7 @@ uint8_t GameManager_GetDialogWindowCenterMode() {
     if (GameManager_GameState <= GAME_STATE_3_MAIN_MENU) {
         result = WINDOW_MAIN_WINDOW;
 
-    } else if (ini_get_setting(INI_DIALOG_CENTER_MODE)) {
+    } else if (ResourceManager_GetSettings()->GetNumericValue("dialog_center_mode")) {
         result = WINDOW_MAIN_WINDOW;
 
     } else {
@@ -8056,8 +8066,8 @@ void GameManager_DrawProximityZones() {
     range = 0;
     base_values->SetAttribute(ATTRIB_RANGE, range);
 
-    ini_proximity_range = ini_get_setting(INI_PROXIMITY_RANGE);
-    ini_exclude_range = ini_get_setting(INI_EXCLUDE_RANGE);
+    ini_proximity_range = ResourceManager_GetSettings()->GetNumericValue("proximity_range");
+    ini_exclude_range = ResourceManager_GetSettings()->GetNumericValue("exclude_range");
 
     for (int32_t proximity_range = 1; proximity_range <= ini_proximity_range; ++proximity_range) {
         base_values->SetAttribute(ATTRIB_SCAN, proximity_range);

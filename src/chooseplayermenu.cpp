@@ -22,22 +22,20 @@
 #include "chooseplayermenu.hpp"
 
 #include "helpmenu.hpp"
-#include "inifile.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
+#include "settings.hpp"
 #include "window_manager.hpp"
 
 void ChoosePlayerMenu::ButtonSetState(int32_t team, int32_t rest_state) {
-    int32_t team_player_ini_setting;
+    int32_t team_player_type = ResourceManager_GetSettings()->GetNumericValue(menu_team_player_setting[team]) - 1;
 
-    team_player_ini_setting = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team)) - 1;
-
-    if (team_player_ini_setting < 0) {
-        team_player_ini_setting = TEAM_TYPE_COMPUTER;
+    if (team_player_type < 0) {
+        team_player_type = TEAM_TYPE_COMPUTER;
     }
 
-    buttons[team_player_ini_setting * 4 + team]->SetRestState(rest_state);
+    buttons[team_player_type * 4 + team]->SetRestState(rest_state);
 }
 
 void ChoosePlayerMenu::Init() {
@@ -81,27 +79,28 @@ void ChoosePlayerMenu::Deinit() {
 void ChoosePlayerMenu::EventSelectHuman() {
     if (is_single_player) {
         for (int32_t i = 0; i < PLAYER_TEAM_ALIEN; ++i) {
-            if (ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i)) == TEAM_TYPE_PLAYER) {
+            if (ResourceManager_GetSettings()->GetNumericValue(menu_team_player_setting[i]) == TEAM_TYPE_PLAYER) {
                 ButtonSetState(i, 0);
-                ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i),
-                                ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + key_press)));
+                ResourceManager_GetSettings()->SetNumericValue(
+                    menu_team_player_setting[i],
+                    ResourceManager_GetSettings()->GetNumericValue(menu_team_player_setting[key_press]));
                 ButtonSetState(i, 1);
                 break;
             }
         }
     }
 
-    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + key_press), TEAM_TYPE_PLAYER);
+    ResourceManager_GetSettings()->SetNumericValue(menu_team_player_setting[key_press], TEAM_TYPE_PLAYER);
     UpdateButtons();
 }
 
 void ChoosePlayerMenu::EventSelectComputer() {
-    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + key_press - 4), TEAM_TYPE_COMPUTER);
+    ResourceManager_GetSettings()->SetNumericValue(menu_team_player_setting[key_press - 4], TEAM_TYPE_COMPUTER);
     UpdateButtons();
 }
 
 void ChoosePlayerMenu::EventSelectNone() {
-    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + key_press - 8), TEAM_TYPE_NONE);
+    ResourceManager_GetSettings()->SetNumericValue(menu_team_player_setting[key_press - 8], TEAM_TYPE_NONE);
     UpdateButtons();
 }
 
@@ -131,7 +130,7 @@ void ChoosePlayerMenu::ButtonInit(int32_t index, int32_t mode) {
         image_id = static_cast<ResourceID>(control->image_id + 1);
         clan_logo_id = CLN0LOGO;
 
-        if (ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + index - 12)) == TEAM_TYPE_PLAYER) {
+        if (ResourceManager_GetSettings()->GetNumericValue(menu_team_player_setting[index - 12]) == TEAM_TYPE_PLAYER) {
             const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
 
             if (mission_category != MISSION_CATEGORY_MULTI_PLAYER_SCENARIO) {
@@ -140,7 +139,7 @@ void ChoosePlayerMenu::ButtonInit(int32_t index, int32_t mode) {
 
             if (is_single_player || mission_category == MISSION_CATEGORY_MULTI_PLAYER_SCENARIO) {
                 clan_logo_id = static_cast<ResourceID>(
-                    CLN0LOGO + ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + index - 12)));
+                    CLN0LOGO + ResourceManager_GetSettings()->GetNumericValue(menu_team_clan_setting[index - 12]));
             }
         }
 
@@ -201,7 +200,7 @@ void ChoosePlayerMenu::UpdateButtons() {
         buttons[i]->Enable();
 
         if (i >= 12 && i < 16 &&
-            (ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i - 12)) != TEAM_TYPE_PLAYER ||
+            (ResourceManager_GetSettings()->GetNumericValue(menu_team_player_setting[i - 12]) != TEAM_TYPE_PLAYER ||
              mission_category == MISSION_CATEGORY_MULTI_PLAYER_SCENARIO)) {
             buttons[i]->Disable();
         }
@@ -220,7 +219,7 @@ void ChoosePlayerMenu::EventDone() {
     for (int32_t i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
         int32_t team_type;
 
-        team_type = ini_get_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + i));
+        team_type = ResourceManager_GetSettings()->GetNumericValue(menu_team_player_setting[i]);
 
         if (team_type == TEAM_TYPE_PLAYER) {
             ++human_player_count;

@@ -1,4 +1,4 @@
-# Section
+; Section
 SectionEnd
 
 !include "nsDialogs.nsh"
@@ -84,19 +84,19 @@ Var GameDataDir_IsPortableMode
 
 Function GameDataDirVerifyAssets
 	Push $R0 # install (next) button handle
-	Push $R1 # path
+	Push $R1 # Path
 
-	# discard passed control handle
+	; Discard passed control handle
 	Exch 2
 	Pop $R0
 
-	# get button handle
+	; Get button handle
 	GetDlgItem $R0 $HWNDPARENT 1
 
-	# get path from edit control
+	; Get path from edit control
 	${NSD_GetText} $GameDataDir_EditControlHandle $R1
 
-	# verify assets
+	; Verify assets
 	${if} ${FileExists} "$R1\MAX.RES"
 		EnableWindow $R0 1
 		GetFullPathName $GameDataDir_GameDataPath "$R1"
@@ -113,20 +113,20 @@ Function GameDataDirVerifyAssets
 FunctionEnd
 
 Function GameDataDirBrowseButtonOnClick
-	Push $R0 # path
+	Push $R0 # Path
 
-	# discard passed control handle
+	; Discard passed control handle
 	Exch
 	Pop $R0
 
-	# get path
+	; Get path
 	${NSD_GetText} $GameDataDir_EditControlHandle $R0
 
-	# set initial path for dialog
+	; Set initial path for dialog
 	nsDialogs::SelectFolderDialog " " $R0
 	Pop $R0
 
-	# update edit control with valid selection
+	; Update edit control with valid selection
 	${IfNot} $R0 == error
 		${NSD_SetText} $GameDataDir_EditControlHandle "$R0"
 	${EndIf}
@@ -138,10 +138,10 @@ Function GameDataDirPageCreate
 	Push $R0 # Dialog handle
 	Push $R1 # captions
 	Push $R2 # captions
-	Push $R3 # unused control handles
-	Push $R4 # button handle
+	Push $R3 # Unused control handles
+	Push $R4 # Button handle
 
-	# create a new page
+	; Create a new page
 	nsDialogs::Create 1018
 	Pop $R0
 
@@ -152,46 +152,46 @@ Function GameDataDirPageCreate
 	${GetLangString} Title $R1
 	${GetLangString} Description $R2
 
-	# set title and description fields
+	; Set title and description fields
 	!insertmacro MUI_HEADER_TEXT "$R1" "$R2"
 
-	# set help text
+	; Set help text
 	${GetLangString} Help $R1
 	${NSD_CreateLabel} 0 0 100% 30u $R1
 
-	# create group box for file dialog
+	; Create group box for file dialog
 	${GetLangString} GameDataDir $R1
 
 	${NSD_CreateGroupBox} 0u 71u 100% 34u "$R1"
 	Pop $R2
 
-	# create edit control
+	; Create edit control
 	${NSD_CreateDirRequest} 10u 85u 210u 12u ""
 	Pop $GameDataDir_EditControlHandle
 
 	${NSD_OnChange} $GameDataDir_EditControlHandle GameDataDirVerifyAssets
 	System::Call shlwapi::SHAutoComplete($GameDataDir_EditControlHandle, 1)
 
-	# create browse button
+	; Create browse button
 	${NSD_CreateBrowseButton} 228u 83u 60u 15u "$(^BrowseBtn)"
 	Pop $R4
 
 	${NSD_OnClick} $R4 GameDataDirBrowseButtonOnClick
 
-	# set portable text
+	; Set portable text
 	${GetLangString} Portable $R1
 
-	# create checkbox
+	; Create checkbox
 	${NSD_CreateCheckbox} 0u 110u 100% 20u "$R1"
 	Pop $GameDataDir_CheckBoxHandle
 
 	${NSD_Uncheck} $GameDataDir_CheckBoxHandle
 
-	# simulate directory request on change event
+	; Simulate directory request on change event
 	Push ""
 	Call GameDataDirVerifyAssets
 
-	# render present page
+	; Render present page
 	nsDialogs::Show
 
 	Pop $R4
@@ -202,9 +202,9 @@ Function GameDataDirPageCreate
 FunctionEnd
 
 Function GameDataDirPageLeave
-	Push $R0 # checkbox state
+	Push $R0 # Checkbox state
 
-	# save portable mode state
+	; Save portable mode state
 	${NSD_GetState} $GameDataDir_CheckBoxHandle $R0
 
 	${If} $R0 == ${BST_CHECKED}
@@ -218,12 +218,248 @@ Function GameDataDirPageLeave
 	Pop $R0
 FunctionEnd
 
-Section "" Section_SetupUserPrefsPath
-	Push $R0 # context
-	Push $R1 # path
-	Push $R2 # user data path
+Function UpdateJsonGameDataPath
+	; Stack on entry: settings_file_path
+	Exch $R6 ; $R6 = settings file path, stack now has old $R6
+	Push $R0 # Input file handle
+	Push $R1 # Output file handle
+	Push $R2 # Line buffer
+	Push $R3 # Game_data path with escaped backslashes
+	Push $R4 # Character position counter
+	Push $R5 # Temp file path
+	Push $R7 # Temp character
+	Push $R8 # Substring test
+	Push $R9 # Match counter for debugging
 
-	# save context
+	; Escape backslashes in game data path for JSON (replace \\ with \\\\)
+	StrCpy $R3 ""
+	StrCpy $R4 0
+
+	escape_loop:
+		StrCpy $R7 "$GameDataDir_GameDataPath" 1 $R4
+		StrCmp $R7 "" escape_done
+		StrCmp $R7 "\" 0 +3
+			StrCpy $R3 "$R3\\"
+			Goto escape_next
+		StrCpy $R3 "$R3$R7"
+		escape_next:
+		IntOp $R4 $R4 + 1
+		Goto escape_loop
+
+	escape_done:
+
+	; Check if input file exists
+	IfFileExists "$R6" file_exists file_not_found
+
+	file_not_found:
+		Goto cleanup
+
+	file_exists:
+	; Open input file for reading (mode 'r' = read, binary mode to preserve exact content)
+	ClearErrors
+	FileOpen $R0 "$R6" r
+	${If} ${Errors}
+		; Try alternative: open for read-write which sometimes works better on Windows
+		ClearErrors
+		FileOpen $R0 "$R6" a
+		${If} ${Errors}
+			Goto file_open_error
+		${EndIf}
+		FileSeek $R0 0 SET  # Go back to beginning
+	${EndIf}
+
+	; Create temporary output file
+	GetTempFileName $R5
+	FileOpen $R1 "$R5" w
+	IfErrors temp_open_error
+
+	; Initialize match counter
+	StrCpy $R9 0
+
+	; Process each line
+	read_loop:
+		ClearErrors
+		FileRead $R0 $R2
+		IfErrors read_done
+
+		; Check if line contains "game_data" key using StrStr
+		; StrStr returns the haystack starting from the needle if found, empty string if not found
+		Push $R2
+		Push '"game_data"'
+		Call StrStr
+		Pop $R8
+
+		; If $R8 is empty, the substring was not found
+		StrCmp $R8 "" write_line
+
+		; Additionally check we're not in the middle of another key name
+		; The line should have "game_data" not as part of another word
+		; A proper match would have whitespace or quote before "game_data"
+		Push $R2
+		Push "$\t"
+		Call StrStr
+		Pop $R7
+		StrCmp $R7 "" check_space_prefix
+
+		; Check if tab+quote+game_data exists
+		Push $R7
+		Push '	"game_data"'
+		Call StrStr
+		Pop $R7
+		StrCmp $R7 "" write_line  # Not the right pattern, skip
+		Goto found_game_data
+
+		check_space_prefix:
+			; Check for space prefix pattern
+			Push $R2
+			Push ' "game_data"'
+			Call StrStr
+			Pop $R7
+			StrCmp $R7 "" write_line  # Not found with proper prefix
+
+		found_game_data:
+		; Found game_data line with proper formatting
+		IntOp $R9 $R9 + 1
+
+		; This line contains game_data, find the part before the colon
+		StrCpy $R4 0
+		StrCpy $R8 ""
+
+		find_colon:
+			StrCpy $R7 $R2 1 $R4
+			StrCmp $R7 "" write_line
+			StrCmp $R7 ":" found_colon
+			StrCpy $R8 "$R8$R7"
+			IntOp $R4 $R4 + 1
+			Goto find_colon
+
+		found_colon:
+			; Write modified line with proper JSON formatting (preserving indentation)
+			FileWrite $R1 '$R8: "$R3",$\r$\n'
+			Goto read_loop
+
+		write_line:
+			; Write unmodified line
+			FileWrite $R1 $R2
+			Goto read_loop
+
+	read_done:
+		FileClose $R0
+		FileClose $R1
+
+		; Replace original file with modified version
+		Delete "$R6"
+		Rename "$R5" "$R6"
+		IfErrors rename_error
+		Goto cleanup
+
+	file_open_error:
+		Goto cleanup
+
+	temp_open_error:
+		FileClose $R0
+		Goto cleanup
+
+	rename_error:
+
+	cleanup:
+	Pop $R9
+	Pop $R8
+	Pop $R7
+	Pop $R6
+	Pop $R5
+	Pop $R4
+	Pop $R3
+	Pop $R2
+	Pop $R1
+	Pop $R0
+FunctionEnd
+
+Function CopyFilesNoClobber
+	; Stack on entry (top first): destination_dir, source_pattern
+	; Calling convention: Push source_pattern, Push destination_dir, Call CopyFilesNoClobber
+	Exch $R0 ; $R0 = destination dir (top of stack), stack now has old $R0
+	Exch ; Swap, stack now: destination_dir, old $R0
+	Exch $R1 ; $R1 = source pattern (second on stack), stack now has old $R1, old $R0
+	Push $R2 ; Search handle
+	Push $R3 ; Current filename
+	Push $R4 ; Source directory
+	Push $R5 ; Destination file path
+	Push $R6 ; Source file path / temp
+
+	; Extract source directory by finding last backslash
+	StrCpy $R4 ""
+	StrLen $R6 $R1
+	IntOp $R6 $R6 - 1
+	
+find_last_backslash:
+	IntCmp $R6 -1 copy_loop_start
+	StrCpy $R5 $R1 1 $R6
+	StrCmp $R5 "\" found_backslash
+	IntOp $R6 $R6 - 1
+	Goto find_last_backslash
+	
+found_backslash:
+	IntOp $R6 $R6 + 1
+	StrCpy $R4 $R1 $R6
+
+copy_loop_start:
+	; Start finding files matching the pattern
+	FindFirst $R2 $R3 $R1
+	
+	; Check if search handle is valid
+	${If} $R2 == ""
+		Goto copy_done
+	${EndIf}
+	${If} $R2 == "0"
+		Goto copy_done
+	${EndIf}
+	
+	; Check if any files were found
+	StrCmp $R3 "" copy_done
+	
+copy_loop:
+	; Skip "." and ".." entries
+	StrCmp $R3 "." find_next
+	StrCmp $R3 ".." find_next
+	
+	; Build full source and destination paths
+	StrCpy $R6 "$R4$R3"
+	StrCpy $R5 "$R0$R3"
+	
+	; Check if destination file already exists
+	IfFileExists "$R5" find_next
+	
+	; Copy file (only if it doesn't exist)
+	CopyFiles /SILENT "$R6" "$R5"
+	
+find_next:
+	FindNext $R2 $R3
+	StrCmp $R3 "" copy_done
+	Goto copy_loop
+	
+copy_done:
+	; Check if handle is valid before closing
+	${If} $R2 != ""
+	${AndIf} $R2 != "0"
+		FindClose $R2
+	${EndIf}
+	
+	Pop $R6
+	Pop $R5
+	Pop $R4
+	Pop $R3
+	Pop $R2
+	Pop $R1
+	Pop $R0
+FunctionEnd
+
+Section "" Section_SetupUserPrefsPath
+	Push $R0 # Context
+	Push $R1 # Unused
+	Push $R2 # User data path
+
+	; Save context
 	Push "false"
 	Pop $R0
 
@@ -232,46 +468,58 @@ Section "" Section_SetupUserPrefsPath
 		Push "true"
 		Pop $R0
 
-	# non portable mode
+	; Non portable mode
 	${IfNot} $GameDataDir_IsPortableMode == "true"
-		# store user data directory path
+		; Store user data directory path
 		Push "$APPDATA\M.A.X. Port"
 		Pop $R2
 
-		# create user PrefsPath directory
+		; Create user PrefsPath directory
 		${IfNot} ${FileExists} "$R2\*.*"
 			CreateDirectory "$R2\"
 		${EndIf}
 
-		# move settings.ini to user PrefsPath directory
-		${IfNot} ${FileExists} "$R2\settings.ini"
-			CopyFiles /SILENT /FILESONLY "$INSTDIR\settings.ini" "$R2\"
+		; Move settings.json to user PrefsPath directory
+		${IfNot} ${FileExists} "$R2\settings.json"
+			CopyFiles /SILENT /FILESONLY "$INSTDIR\settings.json" "$R2\"
 		${EndIf}
 
-		# remove unwanted configuration files
-		Delete "$INSTDIR\settings.ini"
+		; Remove unwanted configuration files
+		Delete "$INSTDIR\settings.json"
 		Delete "$INSTDIR\.portable"
 	${Else}
-		# store user data directory path
+		; Store user data directory path
 		Push "$INSTDIR"
 		Pop $R2
 	${EndIf}
 
-	# configure game data directory
+	; Configure game data directory
 	${If} ${FileExists} "$GameDataDir_GameDataPath\*.*"
-		WriteINIStr "$R2\settings.ini" "SETUP" "game_data" "$GameDataDir_GameDataPath"
-		FlushINI "$R2\settings.ini"
+		; Update configuration file
+		Push "$R2\settings.json"
+		Call UpdateJsonGameDataPath
+
+		; Copy saved game files to user PrefsPath directory (without overwriting existing files)
+		${IfNot} $GameDataDir_GameDataPath == $R2
+			Push "$GameDataDir_GameDataPath\*.DTA"
+			Push "$R2\"
+			Call CopyFilesNoClobber
+
+			Push "$GameDataDir_GameDataPath\*.HOT"
+			Push "$R2\"
+			Call CopyFilesNoClobber
+
+			Push "$GameDataDir_GameDataPath\*.MLT"
+			Push "$R2\"
+			Call CopyFilesNoClobber
+
+			Push "$GameDataDir_GameDataPath\*.BAK"
+			Push "$R2\"
+			Call CopyFilesNoClobber
+		${EndIf}
 	${EndIf}
 
-	# copy saved game files to user PrefsPath directory
-	${If} ${FileExists} "$GameDataDir_GameDataPath\*.*"
-		CopyFiles /SILENT /FILESONLY "$GameDataDir_GameDataPath\*.DTA" "$R2\"
-		CopyFiles /SILENT /FILESONLY "$GameDataDir_GameDataPath\*.HOT" "$R2\"
-		CopyFiles /SILENT /FILESONLY "$GameDataDir_GameDataPath\*.MLT" "$R2\"
-		CopyFiles /SILENT /FILESONLY "$GameDataDir_GameDataPath\*.BAK" "$R2\"
-	${EndIf}
-
-	# restore context
+	; Restore context
 	${If} $R0 == "true"
 		SetShellVarContext all
 	${EndIf}
@@ -279,4 +527,4 @@ Section "" Section_SetupUserPrefsPath
 	Pop $R2
 	Pop $R1
 	Pop $R0
-# SectionEnd
+; SectionEnd

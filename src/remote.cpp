@@ -29,12 +29,13 @@
 #include "game_manager.hpp"
 #include "hash.hpp"
 #include "helpmenu.hpp"
-#include "inifile.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
 #include "networkmenu.hpp"
 #include "randomizer.hpp"
+#include "resource_manager.hpp"
+#include "settings.hpp"
 #include "sound_manager.hpp"
 #include "ticktimer.hpp"
 #include "transport.hpp"
@@ -492,21 +493,15 @@ void Remote_OrderProcessor5_Read(UnitInfo* unit, NetPacket& packet) {
 int32_t Remote_SetupPlayers() {
     GameManager_PlayerTeam = Remote_NetworkMenu->player_team;
 
-    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + GameManager_PlayerTeam), TEAM_TYPE_PLAYER);
+    ResourceManager_GetSettings()->SetNumericValue(menu_team_player_setting[GameManager_PlayerTeam], TEAM_TYPE_PLAYER);
 
     UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type = TEAM_TYPE_PLAYER;
 
-    {
-        char ini_player_name[30];
+    ResourceManager_GetSettings()->SetStringValue("player_name", Remote_NetworkMenu->player_name);
 
-        SDL_strlcpy(ini_player_name, Remote_NetworkMenu->player_name.c_str(), sizeof(ini_player_name));
+    int32_t player_clan = ResourceManager_GetSettings()->GetNumericValue("player_clan");
 
-        ini_config.SetStringValue(INI_PLAYER_NAME, ini_player_name);
-    }
-
-    int32_t player_clan = ini_get_setting(INI_PLAYER_CLAN);
-
-    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + GameManager_PlayerTeam), player_clan);
+    ResourceManager_GetSettings()->SetNumericValue(menu_team_clan_setting[GameManager_PlayerTeam], player_clan);
 
     UnitsManager_TeamInfo[GameManager_PlayerTeam].team_clan = player_clan;
 
@@ -514,18 +509,18 @@ int32_t Remote_SetupPlayers() {
 
     for (int32_t team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
         if (Remote_NetworkMenu->team_nodes[team] > 4) {
-            ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team),
-                                      Remote_NetworkMenu->team_names[team]);
+            ResourceManager_GetSettings()->SetStringValue(menu_team_name_setting[team],
+                                                          Remote_NetworkMenu->team_names[team]);
 
             if (Remote_NetworkMenu->team_nodes[team] != Remote_NetworkMenu->player_node) {
-                ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), TEAM_TYPE_REMOTE);
+                ResourceManager_GetSettings()->SetNumericValue(menu_team_player_setting[team], TEAM_TYPE_REMOTE);
                 UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_REMOTE;
 
                 ++remote_player_count;
             }
 
         } else {
-            ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), TEAM_TYPE_NONE);
+            ResourceManager_GetSettings()->SetNumericValue(menu_team_player_setting[team], TEAM_TYPE_NONE);
             UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_NONE;
         }
     }
@@ -539,7 +534,7 @@ void Remote_ResponseTimeout(uint16_t team, bool mode) {
     char message[100];
     const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
 
-    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_PLAYER + team), TEAM_TYPE_ELIMINATED);
+    ResourceManager_GetSettings()->SetNumericValue(menu_team_player_setting[team], TEAM_TYPE_ELIMINATED);
 
     UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_ELIMINATED;
 
@@ -755,26 +750,26 @@ bool Remote_AnalyzeDesyncHost(SmartList<UnitInfo>& units) {
 
 int32_t Remote_Lobby(bool is_host_mode) {
     int32_t result;
-    char ini_transport[30];
     int32_t transort_type;
+    std::string transport_setting = ResourceManager_GetSettings()->GetStringValue("transport");
 
     Remote_IsHostMode = is_host_mode;
 
     ResourceManager_InitTeamInfo();
     Remote_Init();
 
-    if (ini_config.GetStringValue(INI_NETWORK_TRANSPORT, ini_transport, sizeof(ini_transport))) {
-        if (!strcmp(ini_transport, TRANSPORT_DEFAULT_TYPE)) {
+    if (!transport_setting.empty()) {
+        if (!strcmp(transport_setting.c_str(), TRANSPORT_DEFAULT_TYPE)) {
             transort_type = TRANSPORT_DEFAULT_UDP;
 
         } else {
             SmartString error_message;
 
-            ini_config.SetStringValue(INI_NETWORK_TRANSPORT, TRANSPORT_DEFAULT_TYPE);
+            ResourceManager_GetSettings()->SetStringValue("transport", TRANSPORT_DEFAULT_TYPE);
 
             error_message.Sprintf(
                 100, "Unknown network transport layer type (%s), using default (" TRANSPORT_DEFAULT_TYPE ").\n",
-                ini_transport);
+                transport_setting.c_str());
             MessageManager_DrawMessage(error_message.GetCStr(), 2, 1, true);
 
             transort_type = TRANSPORT_DEFAULT_UDP;
@@ -1184,7 +1179,7 @@ void Remote_AnalyzeDesync() {
 
     SaveLoadMenu_Save("save.dbg", "debug save", false);
 
-    if (ini_get_setting(INI_TIMER)) {
+    if (ResourceManager_GetSettings()->GetNumericValue("timer")) {
         Remote_UpdatePauseTimer = true;
     }
 }
@@ -1747,13 +1742,13 @@ void Remote_SendNetPacket_09(int32_t team) {
     packet << UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades;
     packet << UnitsManager_TeamInfo[team].research_topics;
 
-    char team_name[30];
+    const auto team_name = ResourceManager_GetSettings()->GetStringValue(menu_team_name_setting[team]);
 
-    if (!ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), team_name, sizeof(team_name))) {
+    if (team_name.empty()) {
         SDL_assert(0);
     }
 
-    packet << SmartString(team_name);
+    packet << SmartString(team_name.c_str());
 
     Remote_TransmitPacket(packet, REMOTE_MULTICAST);
 }
@@ -1772,7 +1767,7 @@ void Remote_ReceiveNetPacket_09(NetPacket& packet) {
     packet >> UnitsManager_TeamInfo[entity_id].research_topics;
     packet >> team_name;
 
-    ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + entity_id), team_name.GetCStr());
+    ResourceManager_GetSettings()->SetStringValue(menu_team_name_setting[entity_id], team_name.GetCStr());
 }
 
 void Remote_SendNetPacket_10(int32_t team, ResourceID unit_type) {
@@ -2021,6 +2016,7 @@ void Remote_ReceiveNetPacket_16(NetPacket& packet) {
 }
 
 void Remote_SendNetPacket_17() {
+    const auto settings = ResourceManager_GetSettings();
     NetPacket packet;
 
     int32_t world;
@@ -2062,44 +2058,44 @@ void Remote_SendNetPacket_17() {
     int32_t alien_seperation;
     int32_t alien_unit_value;
 
-    world = ini_get_setting(INI_WORLD);
-    game_file_number = ini_get_setting(INI_GAME_FILE_NUMBER);
-    play_mode = ini_get_setting(INI_PLAY_MODE);
-    all_visible = ini_get_setting(INI_ALL_VISIBLE);
-    quick_build = ini_get_setting(INI_QUICK_BUILD);
-    real_time = ini_get_setting(INI_REAL_TIME);
-    log_file_debug = ini_get_setting(INI_LOG_FILE_DEBUG);
-    disable_fire = ini_get_setting(INI_DISABLE_FIRE);
-    fast_movement = ini_get_setting(INI_FAST_MOVEMENT);
-    timer = ini_get_setting(INI_TIMER);
-    endturn = ini_get_setting(INI_ENDTURN);
-    start_gold = ini_get_setting(INI_START_GOLD);
-    auto_save = ini_get_setting(INI_AUTO_SAVE);
-    victory_type = ini_get_setting(INI_VICTORY_TYPE);
-    victory_limit = ini_get_setting(INI_VICTORY_LIMIT);
-    raw_normal_low = ini_get_setting(INI_RAW_NORMAL_LOW);
-    raw_normal_high = ini_get_setting(INI_RAW_NORMAL_HIGH);
-    raw_concentrate_low = ini_get_setting(INI_RAW_CONCENTRATE_LOW);
-    raw_concentrate_high = ini_get_setting(INI_RAW_CONCENTRATE_HIGH);
-    raw_concentrate_seperation = ini_get_setting(INI_RAW_CONCENTRATE_SEPERATION);
-    raw_concentrate_diffusion = ini_get_setting(INI_RAW_CONCENTRATE_DIFFUSION);
-    fuel_normal_low = ini_get_setting(INI_FUEL_NORMAL_LOW);
-    fuel_normal_high = ini_get_setting(INI_FUEL_NORMAL_HIGH);
-    fuel_concentrate_low = ini_get_setting(INI_FUEL_CONCENTRATE_LOW);
-    fuel_concentrate_high = ini_get_setting(INI_FUEL_CONCENTRATE_HIGH);
-    fuel_concentrate_seperation = ini_get_setting(INI_FUEL_CONCENTRATE_SEPERATION);
-    fuel_concentrate_diffusion = ini_get_setting(INI_FUEL_CONCENTRATE_DIFFUSION);
-    gold_normal_low = ini_get_setting(INI_GOLD_NORMAL_LOW);
-    gold_normal_high = ini_get_setting(INI_GOLD_NORMAL_HIGH);
-    gold_concentrate_low = ini_get_setting(INI_GOLD_CONCENTRATE_LOW);
-    gold_concentrate_high = ini_get_setting(INI_GOLD_CONCENTRATE_HIGH);
-    gold_concentrate_seperation = ini_get_setting(INI_GOLD_CONCENTRATE_SEPERATION);
-    gold_concentrate_diffusion = ini_get_setting(INI_GOLD_CONCENTRATE_DIFFUSION);
-    mixed_resource_seperation = ini_get_setting(INI_MIXED_RESOURCE_SEPERATION);
-    min_resources = ini_get_setting(INI_MIN_RESOURCES);
-    max_resources = ini_get_setting(INI_MAX_RESOURCES);
-    alien_seperation = ini_get_setting(INI_ALIEN_SEPERATION);
-    alien_unit_value = ini_get_setting(INI_ALIEN_UNIT_VALUE);
+    world = settings->GetNumericValue("world");
+    game_file_number = settings->GetNumericValue("game_file_number");
+    play_mode = settings->GetNumericValue("play_mode");
+    all_visible = settings->GetNumericValue("all_visible");
+    quick_build = settings->GetNumericValue("quick_build");
+    real_time = settings->GetNumericValue("real_time");
+    log_file_debug = settings->GetNumericValue("log_file_debug");
+    disable_fire = settings->GetNumericValue("disable_fire");
+    fast_movement = settings->GetNumericValue("fast_movement");
+    timer = settings->GetNumericValue("timer");
+    endturn = settings->GetNumericValue("endturn");
+    start_gold = settings->GetNumericValue("start_gold");
+    auto_save = settings->GetNumericValue("auto_save");
+    victory_type = settings->GetNumericValue("victory_type");
+    victory_limit = settings->GetNumericValue("victory_limit");
+    raw_normal_low = settings->GetNumericValue("raw_normal_low");
+    raw_normal_high = settings->GetNumericValue("raw_normal_high");
+    raw_concentrate_low = settings->GetNumericValue("raw_concentrate_low");
+    raw_concentrate_high = settings->GetNumericValue("raw_concentrate_high");
+    raw_concentrate_seperation = settings->GetNumericValue("raw_concentrate_seperation");
+    raw_concentrate_diffusion = settings->GetNumericValue("raw_concentrate_diffusion");
+    fuel_normal_low = settings->GetNumericValue("fuel_normal_low");
+    fuel_normal_high = settings->GetNumericValue("fuel_normal_high");
+    fuel_concentrate_low = settings->GetNumericValue("fuel_concentrate_low");
+    fuel_concentrate_high = settings->GetNumericValue("fuel_concentrate_high");
+    fuel_concentrate_seperation = settings->GetNumericValue("fuel_concentrate_seperation");
+    fuel_concentrate_diffusion = settings->GetNumericValue("fuel_concentrate_diffusion");
+    gold_normal_low = settings->GetNumericValue("gold_normal_low");
+    gold_normal_high = settings->GetNumericValue("gold_normal_high");
+    gold_concentrate_low = settings->GetNumericValue("gold_concentrate_low");
+    gold_concentrate_high = settings->GetNumericValue("gold_concentrate_high");
+    gold_concentrate_seperation = settings->GetNumericValue("gold_concentrate_seperation");
+    gold_concentrate_diffusion = settings->GetNumericValue("gold_concentrate_diffusion");
+    mixed_resource_seperation = settings->GetNumericValue("mixed_resource_seperation");
+    min_resources = settings->GetNumericValue("min_resources");
+    max_resources = settings->GetNumericValue("max_resources");
+    alien_seperation = settings->GetNumericValue("alien_seperation");
+    alien_unit_value = settings->GetNumericValue("alien_unit_value");
 
     packet << static_cast<uint8_t>(REMOTE_PACKET_17);
     packet << static_cast<uint16_t>(0);
@@ -2148,6 +2144,7 @@ void Remote_SendNetPacket_17() {
 }
 
 void Remote_ReceiveNetPacket_17(NetPacket& packet) {
+    const auto settings = ResourceManager_GetSettings();
     uint16_t entity_id;
 
     packet >> entity_id;
@@ -2194,8 +2191,8 @@ void Remote_ReceiveNetPacket_17(NetPacket& packet) {
     int32_t alien_seperation;
     int32_t alien_unit_value;
 
-    backup_timer = ini_get_setting(INI_TIMER);
-    backup_endturn = ini_get_setting(INI_ENDTURN);
+    backup_timer = settings->GetNumericValue("timer");
+    backup_endturn = settings->GetNumericValue("endturn");
 
     packet >> game_state;
     packet >> world;
@@ -2244,46 +2241,46 @@ void Remote_ReceiveNetPacket_17(NetPacket& packet) {
     ini_setting_victory_type = victory_type;
     ini_setting_victory_limit = victory_limit;
 
-    ini_set_setting(INI_PLAY_MODE, play_mode);
-    ini_set_setting(INI_ALL_VISIBLE, all_visible);
-    ini_set_setting(INI_QUICK_BUILD, quick_build);
-    ini_set_setting(INI_REAL_TIME, real_time);
-    ini_set_setting(INI_LOG_FILE_DEBUG, log_file_debug);
-    ini_set_setting(INI_DISABLE_FIRE, disable_fire);
-    ini_set_setting(INI_FAST_MOVEMENT, fast_movement);
-    ini_set_setting(INI_TIMER, timer);
-    ini_set_setting(INI_ENDTURN, endturn);
-    ini_set_setting(INI_START_GOLD, start_gold);
-    ini_set_setting(INI_AUTO_SAVE, auto_save);
-    ini_set_setting(INI_RAW_NORMAL_LOW, raw_normal_low);
-    ini_set_setting(INI_RAW_NORMAL_HIGH, raw_normal_high);
-    ini_set_setting(INI_RAW_CONCENTRATE_LOW, raw_concentrate_low);
-    ini_set_setting(INI_RAW_CONCENTRATE_HIGH, raw_concentrate_high);
-    ini_set_setting(INI_RAW_CONCENTRATE_SEPERATION, raw_concentrate_seperation);
-    ini_set_setting(INI_RAW_CONCENTRATE_DIFFUSION, raw_concentrate_diffusion);
-    ini_set_setting(INI_FUEL_NORMAL_LOW, fuel_normal_low);
-    ini_set_setting(INI_FUEL_NORMAL_HIGH, fuel_normal_high);
-    ini_set_setting(INI_FUEL_CONCENTRATE_LOW, fuel_concentrate_low);
-    ini_set_setting(INI_FUEL_CONCENTRATE_HIGH, fuel_concentrate_high);
-    ini_set_setting(INI_FUEL_CONCENTRATE_SEPERATION, fuel_concentrate_seperation);
-    ini_set_setting(INI_FUEL_CONCENTRATE_DIFFUSION, fuel_concentrate_diffusion);
-    ini_set_setting(INI_GOLD_NORMAL_LOW, gold_normal_low);
-    ini_set_setting(INI_GOLD_NORMAL_HIGH, gold_normal_high);
-    ini_set_setting(INI_GOLD_CONCENTRATE_LOW, gold_concentrate_low);
-    ini_set_setting(INI_GOLD_CONCENTRATE_HIGH, gold_concentrate_high);
-    ini_set_setting(INI_GOLD_CONCENTRATE_SEPERATION, gold_concentrate_seperation);
-    ini_set_setting(INI_GOLD_CONCENTRATE_DIFFUSION, gold_concentrate_diffusion);
-    ini_set_setting(INI_MIXED_RESOURCE_SEPERATION, mixed_resource_seperation);
-    ini_set_setting(INI_MIN_RESOURCES, min_resources);
-    ini_set_setting(INI_MAX_RESOURCES, max_resources);
-    ini_set_setting(INI_ALIEN_SEPERATION, alien_seperation);
-    ini_set_setting(INI_ALIEN_UNIT_VALUE, alien_unit_value);
+    settings->SetNumericValue("play_mode", play_mode);
+    settings->SetNumericValue("all_visible", all_visible);
+    settings->SetNumericValue("quick_build", quick_build);
+    settings->SetNumericValue("real_time", real_time);
+    settings->SetNumericValue("log_file_debug", log_file_debug);
+    settings->SetNumericValue("disable_fire", disable_fire);
+    settings->SetNumericValue("fast_movement", fast_movement);
+    settings->SetNumericValue("timer", timer);
+    settings->SetNumericValue("endturn", endturn);
+    settings->SetNumericValue("start_gold", start_gold);
+    settings->SetNumericValue("auto_save", auto_save);
+    settings->SetNumericValue("raw_normal_low", raw_normal_low);
+    settings->SetNumericValue("raw_normal_high", raw_normal_high);
+    settings->SetNumericValue("raw_concentrate_low", raw_concentrate_low);
+    settings->SetNumericValue("raw_concentrate_high", raw_concentrate_high);
+    settings->SetNumericValue("raw_concentrate_seperation", raw_concentrate_seperation);
+    settings->SetNumericValue("raw_concentrate_diffusion", raw_concentrate_diffusion);
+    settings->SetNumericValue("fuel_normal_low", fuel_normal_low);
+    settings->SetNumericValue("fuel_normal_high", fuel_normal_high);
+    settings->SetNumericValue("fuel_concentrate_low", fuel_concentrate_low);
+    settings->SetNumericValue("fuel_concentrate_high", fuel_concentrate_high);
+    settings->SetNumericValue("fuel_concentrate_seperation", fuel_concentrate_seperation);
+    settings->SetNumericValue("fuel_concentrate_diffusion", fuel_concentrate_diffusion);
+    settings->SetNumericValue("gold_normal_low", gold_normal_low);
+    settings->SetNumericValue("gold_normal_high", gold_normal_high);
+    settings->SetNumericValue("gold_concentrate_low", gold_concentrate_low);
+    settings->SetNumericValue("gold_concentrate_high", gold_concentrate_high);
+    settings->SetNumericValue("gold_concentrate_seperation", gold_concentrate_seperation);
+    settings->SetNumericValue("gold_concentrate_diffusion", gold_concentrate_diffusion);
+    settings->SetNumericValue("mixed_resource_seperation", mixed_resource_seperation);
+    settings->SetNumericValue("min_resources", min_resources);
+    settings->SetNumericValue("max_resources", max_resources);
+    settings->SetNumericValue("alien_seperation", alien_seperation);
+    settings->SetNumericValue("alien_unit_value", alien_unit_value);
 
     if (GameManager_GameState == GAME_STATE_3_MAIN_MENU) {
         GameManager_GameState = game_state;
 
-        ini_set_setting(INI_WORLD, world);
-        ini_set_setting(INI_GAME_FILE_NUMBER, game_file_number);
+        settings->SetNumericValue("world", world);
+        settings->SetNumericValue("game_file_number", game_file_number);
 
     } else {
         if (GameManager_AllVisible != all_visible) {
@@ -2318,12 +2315,10 @@ void Remote_ReceiveNetPacket_18(NetPacket& packet) {
 
     packet >> entity_id;
 
-    char team_name[30];
-
-    ini_config.GetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + entity_id), team_name, sizeof(team_name));
+    const auto team_name = ResourceManager_GetSettings()->GetStringValue(menu_team_name_setting[entity_id]);
 
     SmartString message_text;
-    SmartString message(team_name);
+    SmartString message(team_name.c_str());
 
     packet >> message_text;
 
@@ -2528,7 +2523,7 @@ void Remote_ReceiveNetPacket_26(NetPacket& packet) {
 
     packet >> team_clan;
 
-    ini_set_setting(static_cast<IniParameter>(INI_RED_TEAM_CLAN + entity_id), team_clan);
+    ResourceManager_GetSettings()->SetNumericValue(menu_team_clan_setting[entity_id], team_clan);
 
     ResourceManager_InitClanUnitValues(entity_id);
 }

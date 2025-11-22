@@ -32,8 +32,9 @@
 
 #include <utility>
 
-#include "inifile.hpp"
 #include "netlog.hpp"
+#include "resource_manager.hpp"
+#include "settings.hpp"
 #include "version.hpp"
 
 enum : uint8_t {
@@ -144,14 +145,13 @@ TransportUdpDefault::~TransportUdpDefault() {
 }
 
 void TransportUdpDefault_GetServerAddress(ENetAddress& address) {
-    char server_address[30];
+    std::string server_address = ResourceManager_GetSettings()->GetStringValue("server_address");
 
-    if (!ini_config.GetStringValue(INI_NETWORK_HOST_ADDRESS, server_address, sizeof(server_address)) ||
-        enet_address_set_host_ip(&address, server_address) != 0) {
+    if (server_address.empty() || enet_address_set_host_ip(&address, server_address.c_str()) != 0) {
         (void)enet_address_set_host_ip(&address, "127.0.0.1");
     }
 
-    int32_t server_port = ini_get_setting(INI_NETWORK_HOST_PORT);
+    int32_t server_port = ResourceManager_GetSettings()->GetNumericValue("host_port");
 
     if (!server_port || server_port < 1024 || server_port > 65535) {
         server_port = TransportUdpDefault_DefaultHostPort;
@@ -181,7 +181,7 @@ bool TransportUdpDefault::Init(int32_t mode) {
         context->NetRole = -1;
         context->LastError = "No error.";
 
-        if (ini_get_setting(INI_LOG_FILE_DEBUG)) {
+        if (ResourceManager_GetSettings()->GetNumericValue("log_file_debug")) {
             NetLog_Enable();
         }
     }

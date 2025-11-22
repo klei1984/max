@@ -1,2 +1,5 @@
-[install]
-portable_mode=1
+{
+  "install": {
+    "portable_mode": 1
+  }
+}

@@ -26,7 +26,8 @@
 #include "access.hpp"
 #include "aiattack.hpp"
 #include "aiplayer.hpp"
-#include "inifile.hpp"
+#include "resource_manager.hpp"
+#include "settings.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"
 #include "taskobtainunits.hpp"
@@ -187,13 +188,13 @@ void TaskEscort::EndTurn() {
                         TaskManager.AppendTask(*reload_task);
 
                     } else if (escort->hits < escort->GetBaseValues()->GetAttribute(ATTRIB_HITS) / 2 &&
-                               ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_APPRENTICE) {
+                               ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_APPRENTICE) {
                         SmartPointer<Task> repair_task(new (std::nothrow) TaskRepair(&*escort));
 
                         TaskManager.AppendTask(*repair_task);
 
                     } else if (!(escort->flags & REGENERATING_UNIT) &&
-                               ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT &&
+                               ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_EXPERT &&
                                AiPlayer_Teams[escort->team].ShouldUpgradeUnit(&*escort)) {
                         SmartPointer<Task> upgrade_task(new (std::nothrow) TaskUpgrade(&*escort));
 

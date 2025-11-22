@@ -31,13 +31,13 @@
 #include "game_manager.hpp"
 #include "hash.hpp"
 #include "helpmenu.hpp"
-#include "inifile.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
 #include "mouseevent.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "sound_manager.hpp"
 #include "teamunits.hpp"
 #include "text.hpp"
@@ -428,8 +428,8 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
                             if (mission_category == MISSION_CATEGORY_MULTI_PLAYER_SCENARIO) {
                                 for (int32_t i = 0; i < 4; ++i) {
                                     if (UnitsManager_TeamInfo[i].team_type) {
-                                        ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + i),
-                                                                  menu_team_names[i]);
+                                        ResourceManager_GetSettings()->SetStringValue(menu_team_name_setting[i],
+                                                                                      menu_team_names[i]);
                                     }
                                 }
                             }

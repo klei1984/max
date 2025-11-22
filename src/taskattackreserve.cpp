@@ -25,7 +25,8 @@
 #include "aiattack.hpp"
 #include "aiplayer.hpp"
 #include "builder.hpp"
-#include "inifile.hpp"
+#include "resource_manager.hpp"
+#include "settings.hpp"
 #include "task_manager.hpp"
 #include "taskmovehome.hpp"
 #include "taskobtainunits.hpp"
@@ -240,13 +241,14 @@ void TaskAttackReserve::EndTurn() {
                 TaskManager.AppendTask(*reload_task);
 
             } else if ((*it).hits < (*it).GetBaseValues()->GetAttribute(ATTRIB_HITS) / 2 &&
-                       ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_APPRENTICE) {
+                       ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_APPRENTICE) {
                 SmartPointer<Task> repair_task(new (std::nothrow) TaskRepair(&*it));
 
                 TaskManager.AppendTask(*repair_task);
 
             } else if (((*it).flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
-                       !((*it).flags & REGENERATING_UNIT) && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT &&
+                       !((*it).flags & REGENERATING_UNIT) &&
+                       ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_EXPERT &&
                        AiPlayer_Teams[(*it).team].ShouldUpgradeUnit(&*it)) {
                 SmartPointer<Task> upgrade_task(new (std::nothrow) TaskUpgrade(&*it));
 

@@ -24,9 +24,9 @@
 #include <format>
 
 #include "helpmenu.hpp"
-#include "inifile.hpp"
 #include "menu.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "text.hpp"
 #include "unit.hpp"
 #include "units_manager.hpp"
@@ -37,8 +37,8 @@ void ClanSelectMenu::Init(int32_t team) {
 
     window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
 
-    team_clan_ini_id = static_cast<IniParameter>(INI_RED_TEAM_CLAN + team);
-    team_clan = ini_get_setting(team_clan_ini_id);
+    this->team = team;
+    team_clan = ResourceManager_GetSettings()->GetNumericValue(menu_team_clan_setting[team]);
     team_clan_selection = team_clan;
     image = nullptr;
     event_click_done_cancel_random = false;

@@ -28,9 +28,10 @@
 #include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "continent.hpp"
-#include "inifile.hpp"
 #include "paths_manager.hpp"
 #include "randomizer.hpp"
+#include "resource_manager.hpp"
+#include "settings.hpp"
 #include "task_manager.hpp"
 #include "taskrepair.hpp"
 #include "tasktransport.hpp"
@@ -58,7 +59,7 @@ int32_t TaskAttack::GetCautionLevel(UnitInfo& unit) {
     int32_t result;
 
     if (unit.GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
-        ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+        ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
         if (unit.shots > 0) {
             result = CAUTION_LEVEL_AVOID_REACTION_FIRE;
 

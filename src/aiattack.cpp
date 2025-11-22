@@ -25,8 +25,9 @@
 #include "ai.hpp"
 #include "aiplayer.hpp"
 #include "game_manager.hpp"
-#include "inifile.hpp"
 #include "randomizer.hpp"
+#include "resource_manager.hpp"
+#include "settings.hpp"
 #include "task_manager.hpp"
 #include "taskattack.hpp"
 #include "taskfrontalattack.hpp"
@@ -347,7 +348,8 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
             } else {
                 int32_t attack_radius = attacker->GetBaseValues()->GetAttribute(ATTRIB_ATTACK_RADIUS);
 
-                if (attack_radius >= 1 && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE &&
+                if (attack_radius >= 1 &&
+                    ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE &&
                     attacker->shots > 0) {
                     ZoneWalker walker(Point(target->grid_x, target->grid_y), attack_radius);
                     Point site;
@@ -393,7 +395,7 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
                     if (target->GetOrder() == ORDER_DISABLE ||
                         (!(target->flags & STATIONARY) &&
                          UnitsManager_GetStealthChancePercentage(attacker, target, ORDER_AWAIT_STEAL_UNIT) >=
-                             ini_get_setting(INI_MAX_PERCENT))) {
+                             ResourceManager_GetSettings()->GetNumericValue("max_percent"))) {
                         UnitsManager_SetNewOrder(attacker, ORDER_AWAIT_STEAL_UNIT, ORDER_STATE_INIT);
 
                     } else {
@@ -457,7 +459,7 @@ bool AiAttack_FindAttackSupport(UnitInfo* unit, SmartList<UnitInfo>* units, uint
                     Point position((*it).grid_x, (*it).grid_y);
 
                     if (((*it).GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
-                         ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) ||
+                         ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) ||
                         (AiPlayer_Teams[team].GetDamagePotential(&*it, position, caution_level, true) < (*it).hits)) {
                         AiAttack_ProcessAttack(&*it, unit);
 
@@ -520,7 +522,7 @@ bool AiAttack_IsAttackProfitable(UnitInfo* friendly_unit, UnitInfo* enemy_unit, 
 }
 
 void AiAttack_GetTargetTeams(uint16_t team, bool* teams) {
-    if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE) {
+    if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
         int16_t target_team;
 
         memset(teams, 0, PLAYER_TEAM_MAX * sizeof(bool));
@@ -602,7 +604,8 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
                            unit->GetUnitType() == COMMANDO) &&
                           (!UnitsManager_IsUnitUnderWater(target_unit) || unit->GetUnitType() == CORVETTE))) &&
                         (target_unit->GetOrder() != ORDER_DISABLE || (target_unit->flags & STATIONARY) ||
-                         unit->GetUnitType() == COMMANDO || ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_EXPERT)) {
+                         unit->GetUnitType() == COMMANDO ||
+                         ResourceManager_GetSettings()->GetNumericValue("opponent") < OPPONENT_TYPE_EXPERT)) {
                         if (!target_unit->IsVisibleToTeam(unit_team) &&
                             UnitsManager_TeamInfo[unit_team]
                                 .heat_map_complete[ResourceManager_MapSize.x * unit_position.y + unit_position.x]) {
@@ -756,13 +759,15 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
                                 result = true;
 
                             } else {
-                                if (ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_APPRENTICE) {
+                                if (ResourceManager_GetSettings()->GetNumericValue("opponent") <
+                                    OPPONENT_TYPE_APPRENTICE) {
                                     mode = false;
                                 }
 
                                 if (mode && unit->speed > 0 &&
                                     (!unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) ||
-                                     ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_AVERAGE) &&
+                                     ResourceManager_GetSettings()->GetNumericValue("opponent") <
+                                         OPPONENT_TYPE_AVERAGE) &&
                                     (target->GetBaseValues()->GetAttribute(ATTRIB_TURNS) <
                                          unit->GetBaseValues()->GetAttribute(ATTRIB_TURNS) ||
                                      unit->shots * UnitsManager_GetAttackDamage(unit, target, 0) < target->hits)) {
@@ -847,7 +852,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
 
             if (unit_speed >= 1) {
                 if (!unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE) ||
-                    ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_AVERAGE) {
+                    ResourceManager_GetSettings()->GetNumericValue("opponent") < OPPONENT_TYPE_AVERAGE) {
                     caution_level = CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE;
                 }
 
@@ -868,7 +873,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                         result = AiAttack_EvaluateAttack(unit);
 
                     } else if ((target->GetOrder() != ORDER_DISABLE ||
-                                ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_EXPERT) &&
+                                ResourceManager_GetSettings()->GetNumericValue("opponent") < OPPONENT_TYPE_EXPERT) &&
                                (AiAttack_FindAttackSupport(target, &UnitsManager_MobileAirUnits, unit_team,
                                                            CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE) ||
                                 AiAttack_FindAttackSupport(target, &UnitsManager_MobileLandSeaUnits, unit_team,
@@ -961,7 +966,8 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                             attack_potential = attack_potential * unit_shots;
 
                             if (projected_damage > attack_potential || projected_damage >= unit->hits) {
-                                if (ini_get_setting(INI_OPPONENT) < OPPONENT_TYPE_APPRENTICE) {
+                                if (ResourceManager_GetSettings()->GetNumericValue("opponent") <
+                                    OPPONENT_TYPE_APPRENTICE) {
                                     AiAttack_SetAttackTargetCooldown(target);
 
                                     result = Task_RetreatIfNecessary(task, unit, Ai_DetermineCautionLevel(unit));

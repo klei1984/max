@@ -25,8 +25,8 @@
 #include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "builder.hpp"
-#include "inifile.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "task_manager.hpp"
 #include "taskobtainunits.hpp"
 #include "unit.hpp"
@@ -38,8 +38,10 @@ TaskExplore::TaskExplore(uint16_t team_, Point point_)
 
     obtain_requests[SCOUT] = 1;
     obtain_requests[AWAC] = Builder_IsBuildable(AWAC);
-    obtain_requests[SUBMARNE] = Builder_IsBuildable(SUBMARNE) && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE;
-    obtain_requests[COMMANDO] = Builder_IsBuildable(COMMANDO) && ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_EXPERT;
+    obtain_requests[SUBMARNE] = Builder_IsBuildable(SUBMARNE) &&
+                                ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE;
+    obtain_requests[COMMANDO] = Builder_IsBuildable(COMMANDO) &&
+                                ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_EXPERT;
 }
 
 TaskExplore::~TaskExplore() {}

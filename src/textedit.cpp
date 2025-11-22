@@ -77,7 +77,7 @@ TextEdit::~TextEdit() {
     delete[] text_before_cursor;
 }
 
-void TextEdit::SetEditedText(const char* text) { strcpy(edited_text, text); }
+void TextEdit::SetEditedText(const char* text) { SDL_utf8strlcpy(edited_text, text, buffer_size); }
 
 void TextEdit::LoadBgImage() { bg_image->Copy(&window); }
 

@@ -34,9 +34,9 @@
 #include "continent.hpp"
 #include "game_manager.hpp"
 #include "hash.hpp"
-#include "inifile.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "task_manager.hpp"
 #include "taskactivate.hpp"
 #include "taskgetmaterials.hpp"
@@ -144,7 +144,7 @@ bool TaskCreateBuilding::BuildRoad() {
 
     if (builder->GetUnitType() == ENGINEER && Task_IsReadyToTakeOrders(&*builder) && builder->speed == 0 &&
         (builder->grid_x != site.x || builder->grid_y != site.y)) {
-        if (ini_get_setting(INI_OPPONENT) >= MASTER || builder->storage >= 26) {
+        if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= MASTER || builder->storage >= 26) {
             if (GameManager_IsActiveTurn(m_team)) {
                 if (builder->storage >= 2 && Access_IsAccessible(ROAD, m_team, builder->grid_x, builder->grid_y,
                                                                  AccessModifier_EnemySameClassBlocks)) {
@@ -212,7 +212,8 @@ void TaskCreateBuilding::BeginBuilding() {
 
                                                 build_list.PushBack(&unit_type);
 
-                                                if (ini_get_setting(INI_OPPONENT) >= OPPONENT_TYPE_AVERAGE &&
+                                                if (ResourceManager_GetSettings()->GetNumericValue("opponent") >=
+                                                        OPPONENT_TYPE_AVERAGE &&
                                                     (unit_type == MININGST ||
                                                      ((builder->storage >=
                                                        builder->GetBaseValues()->GetAttribute(ATTRIB_STORAGE) - 2) &&

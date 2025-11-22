@@ -28,9 +28,11 @@
 #include "buildmenu.hpp"
 #include "game_manager.hpp"
 #include "hash.hpp"
-#include "inifile.hpp"
+#include "menu.hpp"
 #include "production_manager.hpp"
 #include "randomizer.hpp"
+#include "resource_manager.hpp"
+#include "settings.hpp"
 #include "task_manager.hpp"
 #include "taskautosurvey.hpp"
 #include "unit.hpp"
@@ -112,7 +114,7 @@ void Ai_SelectStartingPosition(uint16_t team) {
 }
 
 bool Ai_SetupStrategy(uint16_t team) {
-    ini_config.SetStringValue(static_cast<IniParameter>(INI_RED_TEAM_NAME + team), "Computer");
+    ResourceManager_GetSettings()->SetStringValue(menu_team_name_setting[team], "Computer");
 
     return AiPlayer_Teams[team].SelectStrategy();
 }
