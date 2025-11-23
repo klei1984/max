@@ -11,12 +11,6 @@ endif()
 
 find_package(Patch)
 
-if(NOT Patch_FOUND)
-	message(FATAL_ERROR "Patch tool is required.")
-endif()
-
-set(MINIAUDIO_PATCH ${Patch_EXECUTABLE} -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/patches/miniaudio.patch)
-
 FetchContent_Declare(
 	MINIAUDIO
 	TIMEOUT 60
@@ -24,7 +18,6 @@ FetchContent_Declare(
 	URL_HASH ${MINIAUDIO_HASH_TYPE}=${MINIAUDIO_HASH}
 	DOWNLOAD_EXTRACT_TIMESTAMP FALSE
 	OVERRIDE_FIND_PACKAGE
-	PATCH_COMMAND ${MINIAUDIO_PATCH}
 	UPDATE_DISCONNECTED TRUE
 )
 

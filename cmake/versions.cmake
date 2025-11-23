@@ -4,10 +4,10 @@ set(FREETYPE_URI https://download-mirror.savannah.gnu.org/releases/freetype/${FR
 set(FREETYPE_HASH d8c8b0c3a6d4c7ed4c90e1a8c7171887)
 set(FREETYPE_HASH_TYPE MD5)
 
-set(MINIAUDIO_VERSION 0.11.22)
+set(MINIAUDIO_VERSION 0.11.23)
 set(MINIAUDIO_FILE miniaudio-${MINIAUDIO_VERSION}.tar.gz)
 set(MINIAUDIO_URI https://github.com/mackron/miniaudio/archive/refs/tags/${MINIAUDIO_VERSION}.tar.gz)
-set(MINIAUDIO_HASH 4944268151ad037f148b089237566d05)
+set(MINIAUDIO_HASH 2c1cc57035c59a7c562e64e0f765857f)
 set(MINIAUDIO_HASH_TYPE MD5)
 
 set(SDL2_VERSION 2.32.10)

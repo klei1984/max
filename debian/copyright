@@ -13,7 +13,7 @@ License: FTL
  See license file at https://gitlab.freedesktop.org/freetype/freetype/-/blob/
                      VER-2-14-1/docs/FTL.TXT
 
-Files: dependencies/miniaudio-0.11.22.tar.gz
+Files: dependencies/miniaudio-0.11.23.tar.gz
 Copyright: 2025 David Reid
 License: MIT-0
 
