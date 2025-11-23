@@ -1,7 +1,7 @@
-set(FREETYPE_VERSION 2.13.3)
+set(FREETYPE_VERSION 2.14.1)
 set(FREETYPE_FILE freetype-${FREETYPE_VERSION}.tar.gz)
 set(FREETYPE_URI https://download-mirror.savannah.gnu.org/releases/freetype/${FREETYPE_FILE})
-set(FREETYPE_HASH ac1f0b517f62bd40d50bc995faa5741d)
+set(FREETYPE_HASH d8c8b0c3a6d4c7ed4c90e1a8c7171887)
 set(FREETYPE_HASH_TYPE MD5)
 
 set(MINIAUDIO_VERSION 0.11.22)

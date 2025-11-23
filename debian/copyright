@@ -7,17 +7,17 @@ Files: *
 Copyright: 2020-2025 M.A.X. Port Team
 License: MIT
 
-Files: dependencies/freetype-2.13.2.tar.gz
-Copyright: 2006-2023 by David Turner, Robert Wilhelm, and Werner Lemberg
+Files: dependencies/freetype-2.14.1.tar.gz
+Copyright: 2006-2025 by David Turner, Robert Wilhelm, and Werner Lemberg
 License: FTL
  See license file at https://gitlab.freedesktop.org/freetype/freetype/-/blob/
-                     920c5502cc3ddda88f6c7d85ee834ac611bb11cc/docs/FTL.TXT
+                     VER-2-14-1/docs/FTL.TXT
 
 Files: dependencies/miniaudio-0.11.22.tar.gz
 Copyright: 2025 David Reid
 License: MIT-0
 
-Files: dependencies/SDL2-2.32.6.tar.gz
+Files: dependencies/SDL2-2.32.10.tar.gz
 Copyright: 1997-2025 Sam Lantinga <slouken@libsdl.org>
 License: Zlib
 

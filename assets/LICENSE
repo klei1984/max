@@ -20,10 +20,10 @@ License:   MIT
  SOFTWARE.
 
 Files:     FreeType library
-Copyright: 2006-2023 by David Turner, Robert Wilhelm, and Werner Lemberg 
+Copyright: 2006-2025 by David Turner, Robert Wilhelm, and Werner Lemberg 
 License:   FreeType License (FTL)
  See license file at https://gitlab.freedesktop.org/freetype/freetype/-/blob/
-                     920c5502cc3ddda88f6c7d85ee834ac611bb11cc/docs/FTL.TXT
+                     VER-2-14-1/docs/FTL.TXT
 
 Files:     miniaudio library
 Copyright: 2025 David Reid
