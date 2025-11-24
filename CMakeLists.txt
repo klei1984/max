@@ -4,6 +4,12 @@ project(max LANGUAGES C CXX)
 
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+# Ensure BUILD_SHARED_LIBS defaults to OFF if not explicitly set
+# Some dependencies (like Lua) set it to ON by default, which would override the preference
+if(NOT DEFINED BUILD_SHARED_LIBS)
+	set(BUILD_SHARED_LIBS OFF)
+endif()
+
 option(MAX_BUILD_TESTS "Build unit tests by default" ON)
 option(MAX_ENABLE_UPNP "Use miniupnpc library" ON)
 

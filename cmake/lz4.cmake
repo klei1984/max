@@ -11,7 +11,13 @@ endif()
 
 set(LZ4_BUILD_CLI OFF CACHE BOOL "Do not build lz4 CLI program")
 set(LZ4_POSITION_INDEPENDENT_LIB ON CACHE BOOL "Use position independent code")
-set(BUILD_STATIC_LIBS ON CACHE BOOL "Always build static library")
+
+if(BUILD_SHARED_LIBS)
+	set(LZ4_BUNDLED_MODE OFF CACHE BOOL "Build lz4 as if it were a standalone project to enable shared libs")
+	set(BUILD_STATIC_LIBS OFF CACHE BOOL "Do not build static library when building shared")
+else()
+	set(BUILD_STATIC_LIBS ON CACHE BOOL "Build static library")
+endif()
 
 FetchContent_Declare(
 	LZ4
