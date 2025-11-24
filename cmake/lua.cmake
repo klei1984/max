@@ -1,11 +1,11 @@
 include(versions)
 include(FetchContent)
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${LUA_FILE})
-	file(${LUA_HASH_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${LUA_FILE} LUA_FILE_HASH)
+if(EXISTS ${PROJECT_SOURCE_DIR}/dependencies/${LUA_FILE})
+	file(${LUA_HASH_TYPE} ${PROJECT_SOURCE_DIR}/dependencies/${LUA_FILE} LUA_FILE_HASH)
 
 	if(${LUA_FILE_HASH} STREQUAL ${LUA_HASH})
-		set(LUA_URI file://${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${LUA_FILE})
+		set(LUA_URI file://${PROJECT_SOURCE_DIR}/dependencies/${LUA_FILE})
 	endif()
 endif()
 

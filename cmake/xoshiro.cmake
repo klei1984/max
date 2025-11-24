@@ -1,15 +1,15 @@
 include(versions)
 include(FetchContent)
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${XOSHIRO_FILE})
-	file(${XOSHIRO_HASH_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${XOSHIRO_FILE} XOSHIRO_FILE_HASH)
+if(EXISTS ${PROJECT_SOURCE_DIR}/dependencies/${XOSHIRO_FILE})
+	file(${XOSHIRO_HASH_TYPE} ${PROJECT_SOURCE_DIR}/dependencies/${XOSHIRO_FILE} XOSHIRO_FILE_HASH)
 
 	if(${XOSHIRO_FILE_HASH} STREQUAL ${XOSHIRO_HASH})
-		set(XOSHIRO_URI file://${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${XOSHIRO_FILE})
+		set(XOSHIRO_URI file://${PROJECT_SOURCE_DIR}/dependencies/${XOSHIRO_FILE})
 	endif()
 endif()
 
-set(XOSHIRO_PATCH ${Patch_EXECUTABLE} -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/patches/xoshiro.patch)
+set(XOSHIRO_PATCH ${Patch_EXECUTABLE} -p0 < ${PROJECT_SOURCE_DIR}/dependencies/patches/xoshiro.patch)
 
 FetchContent_Declare(
 	XOSHIRO

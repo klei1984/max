@@ -2,11 +2,11 @@ include(versions)
 include(FetchContent)
 
 if(ENET_RELEASE)
-	if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${ENET_FILE})
-		file(${ENET_HASH_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${ENET_FILE} ENET_FILE_HASH)
+	if(EXISTS ${PROJECT_SOURCE_DIR}/dependencies/${ENET_FILE})
+		file(${ENET_HASH_TYPE} ${PROJECT_SOURCE_DIR}/dependencies/${ENET_FILE} ENET_FILE_HASH)
 
 		if(${ENET_FILE_HASH} STREQUAL ${ENET_HASH})
-			set(ENET_URI file://${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${ENET_FILE})
+			set(ENET_URI file://${PROJECT_SOURCE_DIR}/dependencies/${ENET_FILE})
 		endif()
 	endif()
 

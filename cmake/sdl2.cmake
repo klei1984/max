@@ -1,11 +1,11 @@
 include(versions)
 include(FetchContent)
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${SDL2_FILE})
-	file(${SDL2_HASH_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${SDL2_FILE} SDL2_FILE_HASH)
+if(EXISTS ${PROJECT_SOURCE_DIR}/dependencies/${SDL2_FILE})
+	file(${SDL2_HASH_TYPE} ${PROJECT_SOURCE_DIR}/dependencies/${SDL2_FILE} SDL2_FILE_HASH)
 
 	if(${SDL2_FILE_HASH} STREQUAL ${SDL2_HASH})
-		set(SDL2_URI file://${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${SDL2_FILE})
+		set(SDL2_URI file://${PROJECT_SOURCE_DIR}/dependencies/${SDL2_FILE})
 	endif()
 endif()
 

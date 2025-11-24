@@ -1,11 +1,11 @@
 include(versions)
 include(FetchContent)
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${JSON_FILE})
-	file(${JSON_HASH_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${JSON_FILE} JSON_FILE_HASH)
+if(EXISTS ${PROJECT_SOURCE_DIR}/dependencies/${JSON_FILE})
+	file(${JSON_HASH_TYPE} ${PROJECT_SOURCE_DIR}/dependencies/${JSON_FILE} JSON_FILE_HASH)
 
 	if(${JSON_FILE_HASH} STREQUAL ${JSON_HASH})
-		set(JSON_URI file://${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${JSON_FILE})
+		set(JSON_URI file://${PROJECT_SOURCE_DIR}/dependencies/${JSON_FILE})
 	endif()
 endif()
 

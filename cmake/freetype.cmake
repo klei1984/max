@@ -1,11 +1,11 @@
 include(versions)
 include(FetchContent)
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${FREETYPE_FILE})
-	file(${FREETYPE_HASH_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${FREETYPE_FILE} FREETYPE_FILE_HASH)
-	
+if(EXISTS ${PROJECT_SOURCE_DIR}/dependencies/${FREETYPE_FILE})
+	file(${FREETYPE_HASH_TYPE} ${PROJECT_SOURCE_DIR}/dependencies/${FREETYPE_FILE} FREETYPE_FILE_HASH)
+
 	if(${FREETYPE_FILE_HASH} STREQUAL ${FREETYPE_HASH})
-		set(FREETYPE_URI file://${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${FREETYPE_FILE})
+		set(FREETYPE_URI file://${PROJECT_SOURCE_DIR}/dependencies/${FREETYPE_FILE})
 	endif()
 endif()
 

@@ -1,11 +1,11 @@
 include(versions)
 include(FetchContent)
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${LZ4_FILE})
-	file(${LZ4_HASH_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${LZ4_FILE} LZ4_FILE_HASH)
+if(EXISTS ${PROJECT_SOURCE_DIR}/dependencies/${LZ4_FILE})
+	file(${LZ4_HASH_TYPE} ${PROJECT_SOURCE_DIR}/dependencies/${LZ4_FILE} LZ4_FILE_HASH)
 
 	if(${LZ4_FILE_HASH} STREQUAL ${LZ4_HASH})
-		set(LZ4_URI file://${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${LZ4_FILE})
+		set(LZ4_URI file://${PROJECT_SOURCE_DIR}/dependencies/${LZ4_FILE})
 	endif()
 endif()
 

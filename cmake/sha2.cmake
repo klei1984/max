@@ -1,11 +1,11 @@
 include(versions)
 include(FetchContent)
 
-if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${SHA2_FILE})
-	file(${SHA2_HASH_TYPE} ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${SHA2_FILE} SHA2_FILE_HASH)
+if(EXISTS ${PROJECT_SOURCE_DIR}/dependencies/${SHA2_FILE})
+	file(${SHA2_HASH_TYPE} ${PROJECT_SOURCE_DIR}/dependencies/${SHA2_FILE} SHA2_FILE_HASH)
 
 	if(${SHA2_FILE_HASH} STREQUAL ${SHA2_HASH})
-		set(SHA2_URI file://${CMAKE_CURRENT_SOURCE_DIR}/dependencies/${SHA2_FILE})
+		set(SHA2_URI file://${PROJECT_SOURCE_DIR}/dependencies/${SHA2_FILE})
 	endif()
 endif()
 
