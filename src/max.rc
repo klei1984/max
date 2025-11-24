@@ -14,7 +14,7 @@ VS_VERSION_INFO VERSIONINFO
         {
             VALUE "CompanyName",        "\0"
             VALUE "FileDescription",    "M.A.X. Port\0"
-            VALUE "LegalCopyright",     "Copyright (c) 2024 M.A.X. Port Team\0"
+            VALUE "LegalCopyright",     "Copyright (c) 2025 M.A.X. Port Team\0"
             VALUE "OriginalFilename",   "max.exe\0"
             VALUE "ProductName",        "M.A.X. Port\0"
 #if !defined(CROSS)
