@@ -29,7 +29,7 @@ Files: dependencies/googletest-1.16.0.tar.gz
 Copyright: 2008 Google Inc.
 License: BSD-3-clause
 
-Files: dependencies/miniupnpc_2_3_2.tar.gz
+Files: dependencies/miniupnpc_2_3_3.tar.gz
 Copyright: 2005-2025 Thomas BERNARD
 License: BSD-3-clause
 

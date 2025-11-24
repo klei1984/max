@@ -66,7 +66,7 @@ static constexpr uint32_t TransportUdpDefault_Channels = TRANSPORT_CHANNEL_COUNT
 #if defined(MAX_ENABLE_UPNP)
 static constexpr uint32_t TransportUdpDefault_UpnpDeviceResponseTimeout = 3000;
 
-static_assert(MINIUPNPC_API_VERSION == 20, "API changes of MINIUPNP library shall be reviewed.");
+static_assert(MINIUPNPC_API_VERSION == 21, "API changes of MINIUPNP library shall be reviewed.");
 #endif
 
 static_assert(sizeof(NetAddress::host) == sizeof(ENetAddress::host));
