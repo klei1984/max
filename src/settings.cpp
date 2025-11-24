@@ -324,6 +324,10 @@ Settings::~Settings() {}
         }
     }
 
+    // Ensure the directory exists before writing the file
+    std::error_code ec;
+    std::filesystem::create_directories(m_filepath.parent_path(), ec);
+
     std::ofstream outfile(m_filepath.string());
 
     if (outfile) {

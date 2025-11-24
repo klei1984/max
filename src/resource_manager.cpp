@@ -353,13 +353,13 @@ bool ResourceManager_GetPrefPath(std::filesystem::path& path) {
 #endif /* SDL_VERSION_ATLEAST(2, 0, 1) */
     }
 
-    if (!std::filesystem::exists(local_path / "settings.json", ec) || ec) {
-        result = false;
-
-    } else {
+    if (std::filesystem::exists(local_path, ec) && !ec) {
         path = local_path;
 
         result = true;
+
+    } else {
+        result = false;
     }
 
     return result;
@@ -1575,8 +1575,10 @@ void ResourceManager_InitTeamInfo() {
         UnitsManager_TeamInfo[i].Reset();
 
         if (i < PLAYER_TEAM_MAX - 1) {
-            UnitsManager_TeamInfo[i].team_type = ResourceManager_GetSettings()->GetNumericValue(menu_team_player_setting[i]);
-            UnitsManager_TeamInfo[i].team_clan = ResourceManager_GetSettings()->GetNumericValue(menu_team_clan_setting[i]);
+            UnitsManager_TeamInfo[i].team_type =
+                ResourceManager_GetSettings()->GetNumericValue(menu_team_player_setting[i]);
+            UnitsManager_TeamInfo[i].team_clan =
+                ResourceManager_GetSettings()->GetNumericValue(menu_team_clan_setting[i]);
 
         } else {
             UnitsManager_TeamInfo[i].team_type = TEAM_TYPE_NONE;
@@ -2115,6 +2117,14 @@ void ResourceManager_InitSettings() {
     ResourceManager_Settings = std::make_shared<Settings>();
 
     if (ResourceManager_Settings && ResourceManager_Settings->Load()) {
+        // If settings.json didn't exist, save defaults to create it with all settings (including debug)
+        std::filesystem::path settings_path = ResourceManager_FilePathGamePref / "settings.json";
+        std::error_code ec;
+        if (!std::filesystem::exists(settings_path, ec) || ec) {
+            if (!ResourceManager_Settings->Save()) {
+                SDL_Log("Warning: Failed to create default settings file.\n");
+            }
+        }
     } else {
         SDL_Log("Warning: Failed to load settings definitions.\n");
     }
