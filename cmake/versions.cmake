@@ -58,10 +58,10 @@ set(UTF8PROC_URI https://github.com/JuliaStrings/utf8proc/archive/refs/tags/v${U
 set(UTF8PROC_HASH 98a792951dd10caec3dc242825eef3d5)
 set(UTF8PROC_HASH_TYPE MD5)
 
-set(LUA_VERSION 5.4.7)
+set(LUA_VERSION 5.4.8)
 set(LUA_FILE lua-${LUA_VERSION}.tar.gz)
 set(LUA_URI https://www.lua.org/ftp/${LUA_FILE})
-set(LUA_HASH fc3f3291353bbe6ee6dec85ee61331e8)
+set(LUA_HASH 81cf5265b8634967d8a7480d238168ce)
 set(LUA_HASH_TYPE MD5)
 
 set(XOSHIRO_VERSION 1.1)

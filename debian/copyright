@@ -53,7 +53,7 @@ License: MIT
  See license file at https://github.com/JuliaStrings/utf8proc/blob/
                      v2.11.2/LICENSE.md
 
-Files: dependencies/lua-5.4.7.tar.gz
+Files: dependencies/lua-5.4.8.tar.gz
 Copyright: Copyright © 1994–2025 Lua.org, PUC-Rio.
 License: MIT
 
