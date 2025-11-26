@@ -21,6 +21,8 @@
 
 #include "unittypeselector.hpp"
 
+#include <SDL3/SDL.h>
+
 #include "game_manager.hpp"
 #include "reportstats.hpp"
 #include "sound_manager.hpp"
@@ -70,7 +72,7 @@ UnitTypeSelector::UnitTypeSelector(Window* window, WindowInfo* window_info, Smar
                                              this->key_code + 2 + i, nullptr, nullptr, nullptr, 0x00));
     }
 
-    image = reinterpret_cast<struct ImageSimpleHeader*>(malloc(
+    image = reinterpret_cast<struct ImageSimpleHeader*>(SDL_malloc(
         width * height + sizeof(image->width) + sizeof(image->height) + sizeof(image->ulx) + sizeof(image->uly)));
 
     image->width = width;
@@ -82,7 +84,7 @@ UnitTypeSelector::UnitTypeSelector(Window* window, WindowInfo* window_info, Smar
                image->width);
 }
 
-UnitTypeSelector::~UnitTypeSelector() { free(image); }
+UnitTypeSelector::~UnitTypeSelector() { SDL_free(image); }
 
 ResourceID UnitTypeSelector::GetLast() {
     ResourceID unit_type;

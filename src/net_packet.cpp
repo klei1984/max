@@ -21,7 +21,7 @@
 
 #include "net_packet.hpp"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <algorithm>
 #include <new>

@@ -21,6 +21,8 @@
 
 #include "paths_manager.hpp"
 
+#include <cmath>
+
 #include "access.hpp"
 #include "accessmap.hpp"
 #include "ai.hpp"
@@ -403,7 +405,7 @@ bool PathsManager::Init(UnitInfo* unit) {
         }
 
         minimum_distance = request->GetMinimumDistance();
-        minimum_distance_sqrt = sqrt(minimum_distance);
+        minimum_distance_sqrt = std::sqrt(minimum_distance);
 
         result = false;
 

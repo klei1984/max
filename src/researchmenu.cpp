@@ -21,6 +21,8 @@
 
 #include "researchmenu.hpp"
 
+#include <cmath>
+
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "helpmenu.hpp"
@@ -116,8 +118,8 @@ void ResearchMenu_UpdateResearchProgress(uint16_t team, int32_t research_topic, 
 
     base = (static_cast<double>(topic->research_level) / 10.0) + 1.0;
 
-    turns_to_complete = ((pow(base + 0.1, 7.5) * 256.0) / static_cast<double>(topic_factor)) -
-                        ((pow(base, 7.5) * 256.0) / static_cast<double>(topic_factor));
+    turns_to_complete = ((std::pow(base + 0.1, 7.5) * 256.0) / static_cast<double>(topic_factor)) -
+                        ((std::pow(base, 7.5) * 256.0) / static_cast<double>(topic_factor));
 
     topic->allocation += allocation;
 

@@ -21,6 +21,8 @@
 
 #include "button.h"
 
+#include <SDL3/SDL.h>
+
 #include "gnw.h"
 
 static GNW_ButtonPtr button_create(WinID id, int32_t ulx, int32_t uly, int32_t width, int32_t length, intptr_t on_value,
@@ -83,10 +85,10 @@ ButtonID win_register_text_button(WinID id, int32_t ulx, int32_t uly, intptr_t o
         width = Text_GetWidth(name) + 16;
         length = Text_GetHeight() + 6;
 
-        up = (uint8_t*)malloc(length * width);
+        up = (uint8_t*)SDL_malloc(length * width);
 
         if (up) {
-            down = (uint8_t*)malloc(length * width);
+            down = (uint8_t*)SDL_malloc(length * width);
 
             if (down) {
                 if (w->color == 0x100 && GNW_texture) {
@@ -126,13 +128,13 @@ ButtonID win_register_text_button(WinID id, int32_t ulx, int32_t uly, intptr_t o
 
                     result = b->id;
                 } else {
-                    free(up);
-                    free(down);
+                    SDL_free(up);
+                    SDL_free(down);
 
                     result = -1;
                 }
             } else {
-                free(up);
+                SDL_free(up);
 
                 result = -1;
             }
@@ -299,7 +301,7 @@ GNW_ButtonPtr button_create(WinID id, int32_t ulx, int32_t uly, int32_t width, i
 
     if (w) {
         if ((ulx >= 0) && (uly >= 0) && ((width + ulx) <= win_width(id)) && ((length + uly) <= win_height(id))) {
-            b = (GNW_ButtonPtr)malloc(sizeof(struct GNW_buttondata));
+            b = (GNW_ButtonPtr)SDL_malloc(sizeof(struct GNW_buttondata));
 
             if (b) {
                 if (!(flags & 0x01)) {
@@ -899,27 +901,27 @@ int32_t win_delete_button(ButtonID bid) {
 void GNW_delete_button(GNW_ButtonPtr b) {
     if (!(b->flags & 0x10000)) {
         if (b->up) {
-            free(b->up);
+            SDL_free(b->up);
         }
 
         if (b->down) {
-            free(b->down);
+            SDL_free(b->down);
         }
 
         if (b->hover) {
-            free(b->hover);
+            SDL_free(b->hover);
         }
 
         if (b->dis_up) {
-            free(b->dis_up);
+            SDL_free(b->dis_up);
         }
 
         if (b->dis_down) {
-            free(b->dis_down);
+            SDL_free(b->dis_down);
         }
 
         if (b->dis_hover) {
-            free(b->dis_hover);
+            SDL_free(b->dis_hover);
         }
     }
 
@@ -932,12 +934,12 @@ void GNW_delete_button(GNW_ButtonPtr b) {
 
                 b->group->num_buttons--;
 
-                free(b);
+                SDL_free(b);
                 return;
             }
         }
     } else {
-        free(b);
+        SDL_free(b);
     }
 }
 

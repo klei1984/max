@@ -21,7 +21,7 @@
 
 #include "grbuf.h"
 
-#include <stdlib.h>
+#include <SDL3/SDL.h>
 #include <string.h>
 
 #include "gnw.h"
@@ -33,7 +33,7 @@ void draw_line(uint8_t* buffer, int32_t width, int32_t x1, int32_t y1, int32_t x
     int32_t offset_y;
     int32_t accum;
 
-    delta_x = 2 * abs(x2 - x1);
+    delta_x = 2 * SDL_abs(x2 - x1);
 
     if ((x2 - x1) >= 0) {
         offset_x = 1;
@@ -41,7 +41,7 @@ void draw_line(uint8_t* buffer, int32_t width, int32_t x1, int32_t y1, int32_t x
         offset_x = -1;
     }
 
-    delta_y = 2 * abs(y2 - y1);
+    delta_y = 2 * SDL_abs(y2 - y1);
 
     if ((y2 - y1) >= 0) {
         offset_y = 1;

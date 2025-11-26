@@ -22,7 +22,7 @@
 #ifndef SORTEDARRAY_HPP
 #define SORTEDARRAY_HPP
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "smartarray.hpp"
 

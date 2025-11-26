@@ -21,7 +21,7 @@
 
 #include "mission.hpp"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <algorithm>
 #include <fstream>

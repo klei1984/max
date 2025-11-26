@@ -21,8 +21,8 @@
 
 #include "transport_udp_default.hpp"
 
-#include <SDL.h>
-#include <SDL_thread.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_thread.h>
 #include <enet/enet.h>
 
 #if defined(MAX_ENABLE_UPNP)
@@ -264,13 +264,13 @@ const char* TransportUdpDefault::GetError() const {
 }
 
 bool TransportUdpDefault::TransmitPacket(NetPacket& packet) {
-    SDL_AtomicLock(&context->QueueLock);
+    SDL_LockSpinlock(&context->QueueLock);
     {
         NetPacket* local = new (std::nothrow) NetPacket(std::move(packet));
 
         context->TxPackets.PushBack(&local);
 
-        SDL_AtomicUnlock(&context->QueueLock);
+        SDL_UnlockSpinlock(&context->QueueLock);
 
         NETLOG(log, "Transmit");
         NETLOG_LOG(log, *local);
@@ -284,7 +284,7 @@ bool TransportUdpDefault::ReceivePacket(NetPacket& packet) {
 
     packet.Reset();
 
-    SDL_AtomicLock(&context->QueueLock);
+    SDL_LockSpinlock(&context->QueueLock);
     {
         if (context->RxPackets.GetCount() > 0) {
             NetPacket* local = *context->RxPackets[0];
@@ -296,7 +296,7 @@ bool TransportUdpDefault::ReceivePacket(NetPacket& packet) {
             result = true;
         }
 
-        SDL_AtomicUnlock(&context->QueueLock);
+        SDL_UnlockSpinlock(&context->QueueLock);
     }
 
     if (result) {
@@ -547,11 +547,11 @@ void TransportUdpDefault_ProcessApplPacket(struct TransportUdpDefault_Context* c
     packet->AddAddress(address);
     packet->Write(enet_packet->data, enet_packet->dataLength);
 
-    SDL_AtomicLock(&context->QueueLock);
+    SDL_LockSpinlock(&context->QueueLock);
     {
         context->RxPackets.PushBack(&packet);
 
-        SDL_AtomicUnlock(&context->QueueLock);
+        SDL_UnlockSpinlock(&context->QueueLock);
     }
 }
 
@@ -559,7 +559,7 @@ void TransportUdpDefault_TransmitApplPackets(struct TransportUdpDefault_Context*
     for (bool packets_pending = true; packets_pending;) {
         ENetPacket* enet_packet{nullptr};
 
-        SDL_AtomicLock(&context->QueueLock);
+        SDL_LockSpinlock(&context->QueueLock);
         {
             if (context->TxPackets.GetCount() > 0) {
                 NetPacket* local = *context->TxPackets[0];
@@ -572,7 +572,7 @@ void TransportUdpDefault_TransmitApplPackets(struct TransportUdpDefault_Context*
                 packets_pending = false;
             }
 
-            SDL_AtomicUnlock(&context->QueueLock);
+            SDL_UnlockSpinlock(&context->QueueLock);
         }
 
         if (enet_packet) {

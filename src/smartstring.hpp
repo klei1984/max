@@ -22,7 +22,7 @@
 #ifndef SMARTSTRING_HPP
 #define SMARTSTRING_HPP
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <cctype>
 #include <cstdio>

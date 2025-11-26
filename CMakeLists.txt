@@ -55,7 +55,7 @@ if(MAX_ENABLE_UPNP)
 endif()
 
 if(NOT BUILD_SHARED_LIBS)
-	set(${PROJECT_NAME}_deps SDL2::SDL2main utf8proc Freetype::Freetype Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::static lz4::static rectpack::rectpack Xoshiro::Xoshiro Enet::Enet SDL2::SDL2-static)
+	set(${PROJECT_NAME}_deps SDL3::SDL3-static utf8proc Freetype::Freetype Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::static lz4::static rectpack::rectpack Xoshiro::Xoshiro Enet::Enet)
 
 	if(MAX_ENABLE_UPNP)
 		list(APPEND ${PROJECT_NAME}_deps miniupnpc::miniupnpc)
@@ -64,7 +64,7 @@ if(NOT BUILD_SHARED_LIBS)
 	target_link_options(${PROJECT_NAME} PUBLIC -static -static-libgcc -static-libstdc++)
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 else()
-	set(${PROJECT_NAME}_deps SDL2::SDL2main utf8proc Freetype::Freetype Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::shared lz4::shared rectpack::rectpack Xoshiro::Xoshiro Enet::Enet SDL2::SDL2)
+	set(${PROJECT_NAME}_deps SDL3::SDL3-shared utf8proc Freetype::Freetype Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::shared lz4::shared rectpack::rectpack Xoshiro::Xoshiro Enet::Enet)
 
 	if(MAX_ENABLE_UPNP)
 		list(APPEND ${PROJECT_NAME}_deps miniupnpc::miniupnpc)
@@ -77,7 +77,7 @@ if(MINGW)
 	target_link_options(${PROJECT_NAME} PRIVATE -mwindows)
 endif()
 
-include(sdl2)
+include(sdl3)
 include(utf8proc)
 include(freetype)
 include(miniaudio)
@@ -152,7 +152,7 @@ if(UNIX)
 			PRE_EXCLUDE_REGEXES
 				 ".*"
 			PRE_INCLUDE_REGEXES
-				"^libSDL2.*$"
+				"^libSDL3.*$"
 				"^libfreetype.*$"
 				"^libminiupnpc.*$"
 				"^libnlohmann_json.*$"

@@ -21,6 +21,8 @@
 
 #include "saveloadmenu.hpp"
 
+#include <SDL3/SDL.h>
+
 #include <ctime>
 #include <filesystem>
 
@@ -580,7 +582,7 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
 
     if (flc) {
         flicsmgr_delete(flc);
-        free(flc);
+        SDL_free(flc);
     }
 
     MouseEvent::Clear();

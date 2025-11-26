@@ -21,6 +21,8 @@
 
 #include "rect.h"
 
+#include <SDL3/SDL.h>
+
 #include "gnw.h"
 
 static RectPtr rlist;
@@ -28,7 +30,7 @@ static RectPtr rlist;
 void GNW_rect_exit(void) {
     while (rlist) {
         RectPtr ptr = rlist->next;
-        free(rlist);
+        SDL_free(rlist);
         rlist = ptr;
     }
 }
@@ -129,7 +131,7 @@ RectPtr rect_malloc(void) {
         int32_t i = 0;
 
         do {
-            ptr = (RectPtr)malloc(sizeof(struct rectdata));
+            ptr = (RectPtr)SDL_malloc(sizeof(struct rectdata));
             if (!ptr) {
                 break;
             } else {

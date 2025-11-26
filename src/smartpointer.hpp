@@ -22,7 +22,7 @@
 #ifndef SMARTPOINTER_HPP
 #define SMARTPOINTER_HPP
 
-#include <SDL_assert.h>
+#include <SDL3/SDL_assert.h>
 
 #include <cstdint>
 #include <new>

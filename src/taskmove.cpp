@@ -21,6 +21,7 @@
 
 #include "taskmove.hpp"
 
+#include <cmath>
 #include <format>
 
 #include "access.hpp"
@@ -934,7 +935,7 @@ bool TaskMove::CheckAirPath() {
             int32_t line_distance_y = passenger_waypoint.y - passenger->grid_y;
             Point site;
             int32_t distance = line_distance_x * line_distance_x + line_distance_y * line_distance_y;
-            int32_t range_limit = sqrt(distance) * 4.0 + 0.5;
+            int32_t range_limit = std::sqrt(distance) * 4.0 + 0.5;
             int32_t unit_hits = passenger->hits;
 
             if (caution_level == CAUTION_LEVEL_AVOID_ALL_DAMAGE) {

@@ -21,7 +21,7 @@
 
 #include "utf8.hpp"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <utf8proc.h>
 
 #include <stdexcept>

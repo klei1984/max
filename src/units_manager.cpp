@@ -21,6 +21,8 @@
 
 #include "units_manager.hpp"
 
+#include <cmath>
+
 #include "access.hpp"
 #include "ai.hpp"
 #include "ailog.hpp"
@@ -4771,7 +4773,7 @@ bool UnitsManager_IsReactionPending(SmartList<UnitInfo>* units, UnitInfo* unit) 
 AirPath* UnitsManager_GetMissilePath(UnitInfo* unit) {
     int32_t distance_x = unit->fire_on_grid_x - unit->grid_x;
     int32_t distance_y = unit->fire_on_grid_y - unit->grid_y;
-    int32_t distance = sqrt(distance_x * distance_x + distance_y * distance_y) * 4.0 + 0.5;
+    int32_t distance = std::sqrt(distance_x * distance_x + distance_y * distance_y) * 4.0 + 0.5;
     AirPath* result;
 
     if (distance > 0) {

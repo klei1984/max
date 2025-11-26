@@ -21,6 +21,8 @@
 
 #include "game_manager.hpp"
 
+#include <SDL3/SDL.h>
+
 #include <ctime>
 #include <format>
 
@@ -6874,7 +6876,7 @@ void GameManager_ProcessInput() {
 void GameManager_MenuDeleteFlic() {
     if (GameManager_Flic.flc) {
         flicsmgr_delete(GameManager_Flic.flc);
-        free(GameManager_Flic.flc);
+        SDL_free(GameManager_Flic.flc);
         GameManager_Flic.flc = nullptr;
     }
 

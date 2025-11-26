@@ -19,7 +19,7 @@
  * SOFTWARE.
  */
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <gtest/gtest.h>
 
 int main(int argc, char **argv) {

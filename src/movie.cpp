@@ -21,6 +21,8 @@
 
 #include "movie.hpp"
 
+#include <SDL3/SDL.h>
+
 #include "cursor.hpp"
 #include "gnw.h"
 #include "mvelib32.h"
@@ -44,9 +46,9 @@ static uint32_t movie_music_level;
 
 static uint8_t* gfx_buf;
 
-void* mve_cb_alloc(size_t size) { return malloc(size); }
+void* mve_cb_alloc(size_t size) { return SDL_malloc(size); }
 
-void mve_cb_free(void* p) { free(p); }
+void mve_cb_free(void* p) { SDL_free(p); }
 
 int32_t mve_cb_read(FILE* handle, void* buf, size_t count) { return fread(buf, 1, count, handle); }
 
@@ -159,7 +161,7 @@ int32_t movie_run(ResourceID resource_id) {
 
         const int32_t gfx_buf_size = Svga_GetScreenWidth() * Svga_GetScreenHeight();
 
-        gfx_buf = (uint8_t*)malloc(Svga_GetScreenWidth() * Svga_GetScreenHeight());
+        gfx_buf = (uint8_t*)SDL_malloc(Svga_GetScreenWidth() * Svga_GetScreenHeight());
 
         memset(gfx_buf, 0, gfx_buf_size);
 
@@ -181,7 +183,7 @@ int32_t movie_run(ResourceID resource_id) {
             MVE_rmEndMovie();
         }
 
-        free(gfx_buf);
+        SDL_free(gfx_buf);
         gfx_buf = NULL;
 
         MVE_ReleaseMem();

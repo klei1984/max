@@ -23,6 +23,7 @@
 
 #include "ailog.hpp"
 #include "gnw.h"
+#include "input.h"
 #include "resource_manager.hpp"
 #include "settings.hpp"
 
@@ -42,38 +43,58 @@ static SDL_Surface* sdlWindowSurface;
 static SDL_Surface* sdlPaletteSurface;
 static SDL_Texture* sdlTexture;
 static uint32_t Svga_RenderTimer;
+static uint32_t Svga_BackgroundTimer;
 static int32_t sdl_win_init_flag;
 static bool Svga_PaletteChanged;
+static bool Svga_RenderDirty;
 
 static int32_t Svga_ScreenWidth;
 static int32_t Svga_ScreenHeight;
 static int32_t Svga_ScreenMode;
 static int32_t Svga_ScaleQuality;
 static int32_t Svga_DisplayIndex;
+static SDL_DisplayID Svga_DisplayID;
 static int32_t Svga_DisplayRefreshRate;
-static Uint32 Svga_DisplayPixelFormat;
+static SDL_PixelFormat Svga_DisplayPixelFormat;
 
 Rect scr_size;
 ScreenBlitFunc scr_blit;
 
 Uint32 Svga_SetupDisplayMode(SDL_Rect* bounds) {
     Uint32 flags = 0uL;
-    SDL_DisplayMode display_mode;
+    int display_count = 0;
     auto settings = ResourceManager_GetSettings();
-    
+
     Svga_DisplayIndex = settings->GetNumericValue("display_index");
 
-    if (SDL_GetCurrentDisplayMode(Svga_DisplayIndex, &display_mode)) {
+    SDL_DisplayID* displays = SDL_GetDisplays(&display_count);
+
+    if (displays && Svga_DisplayIndex < display_count) {
+        Svga_DisplayID = displays[Svga_DisplayIndex];
+
+    } else {
+        Svga_DisplayID = SDL_GetPrimaryDisplay();
+    }
+
+    SDL_free(displays);
+
+    const SDL_DisplayMode* detected_display_mode = SDL_GetCurrentDisplayMode(Svga_DisplayID);
+    SDL_DisplayMode display_mode;
+
+    if (detected_display_mode) {
+        display_mode = *detected_display_mode;
+
+    } else {
         AILOG(log, "SDL_GetCurrentDisplayMode failed: {}\n", SDL_GetError());
 
         display_mode.refresh_rate = SVGA_DEFAULT_REFRESH_RATE;
-        display_mode.format = SDL_PIXELFORMAT_RGB888;
+        display_mode.format = SDL_PIXELFORMAT_XRGB8888;
         display_mode.w = SVGA_DEFAULT_WIDTH;
         display_mode.h = SVGA_DEFAULT_HEIGHT;
     }
 
-    Svga_DisplayRefreshRate = display_mode.refresh_rate;
-    Svga_DisplayPixelFormat = display_mode.format;
+    Svga_DisplayRefreshRate = detected_display_mode->refresh_rate;
+    Svga_DisplayPixelFormat = detected_display_mode->format;
 
     Svga_ScreenMode = settings->GetNumericValue("screen_mode");
     Svga_ScaleQuality = settings->GetNumericValue("scale_quality");
@@ -93,8 +114,7 @@ Uint32 Svga_SetupDisplayMode(SDL_Rect* bounds) {
         } break;
 
         case WINDOW_MODE_BORDERLESS: {
-            flags |=
-                SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
+            flags |= SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS;
         } break;
 
         default: {
@@ -106,8 +126,9 @@ Uint32 Svga_SetupDisplayMode(SDL_Rect* bounds) {
         *bounds = {0, 0, Svga_ScreenWidth, Svga_ScreenHeight};
 
     } else {
-        if (SDL_GetDisplayBounds(Svga_DisplayIndex, bounds)) {
+        if (!SDL_GetDisplayBounds(Svga_DisplayID, bounds)) {
             AILOG(log, "SDL_GetDisplayBounds failed: {}\n", SDL_GetError());
+
             *bounds = {0, 0, Svga_ScreenWidth, Svga_ScreenHeight};
         }
     }
@@ -143,45 +164,49 @@ int32_t Svga_Init(void) {
     SDL_Rect bounds;
     Uint32 flags = Svga_SetupDisplayMode(&bounds);
 
-    if ((sdlWindow = SDL_CreateWindow(
-             "M.A.X.: Mechanized Assault & Exploration", SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex),
-             SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex), bounds.w, bounds.h, flags)) == nullptr) {
+    if ((sdlWindow = SDL_CreateWindow("M.A.X.: Mechanized Assault & Exploration", bounds.w, bounds.h, flags)) ==
+        nullptr) {
         AILOG(log, "SDL_CreateWindow failed: {}\n", SDL_GetError());
     }
 
-    if ((sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE)) ==
-        nullptr) {
+    if ((sdlRenderer = SDL_CreateRenderer(sdlWindow, nullptr)) == nullptr) {
         AILOG(log, "SDL_CreateRenderer failed: {}\n", SDL_GetError());
     }
 
+    if (!SDL_SetRenderLogicalPresentation(sdlRenderer, Svga_ScreenWidth, Svga_ScreenHeight,
+                                          SDL_LOGICAL_PRESENTATION_LETTERBOX)) {
+        AILOG(log, "SDL_SetRenderLogicalPresentation failed: {}\n", SDL_GetError());
+    }
+
+    sdlWindowSurface = SDL_CreateSurface(Svga_ScreenWidth, Svga_ScreenHeight, Svga_DisplayPixelFormat);
+    sdlPaletteSurface = SDL_CreateSurface(Svga_ScreenWidth, Svga_ScreenHeight, SDL_PIXELFORMAT_INDEX8);
+
+    SDL_Palette* palette = SDL_CreatePalette(PALETTE_SIZE);
+    if (palette) {
+        SDL_SetSurfacePalette(sdlPaletteSurface, palette);
+        SDL_DestroyPalette(palette);
+    }
+
+    sdlTexture = SDL_CreateTexture(sdlRenderer, Svga_DisplayPixelFormat, SDL_TEXTUREACCESS_STREAMING, Svga_ScreenWidth,
+                                   Svga_ScreenHeight);
+
     switch (Svga_ScaleQuality) {
         case 0: {
-            SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
+            SDL_SetTextureScaleMode(sdlTexture, SDL_SCALEMODE_NEAREST);
         } break;
 
         case 1: {
-            SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-
+            SDL_SetTextureScaleMode(sdlTexture, SDL_SCALEMODE_LINEAR);
         } break;
 
         case 2: {
-            SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
+            // SDL_SetTextureScaleMode(sdlTexture, SDL_SCALEMODE_PIXELART);
         } break;
 
-        default:
-            AILOG(log, "Unsupported scale quality: {}\n", Svga_ScaleQuality);
-            SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-            break;
+        default: {
+            // Linear/best quality will be set per-texture
+        } break;
     }
-
-    SDL_RenderSetLogicalSize(sdlRenderer, Svga_ScreenWidth, Svga_ScreenHeight);
-
-    sdlWindowSurface =
-        SDL_CreateRGBSurfaceWithFormat(0, Svga_ScreenWidth, Svga_ScreenHeight, 32, Svga_DisplayPixelFormat);
-    sdlPaletteSurface =
-        SDL_CreateRGBSurfaceWithFormat(0, Svga_ScreenWidth, Svga_ScreenHeight, 8, SDL_PIXELFORMAT_INDEX8);
-    sdlTexture = SDL_CreateTexture(sdlRenderer, Svga_DisplayPixelFormat, SDL_TEXTUREACCESS_STREAMING, Svga_ScreenWidth,
-                                   Svga_ScreenHeight);
 
     scr_blit = &Svga_Blit;
 
@@ -190,31 +215,63 @@ int32_t Svga_Init(void) {
     scr_size.ulx = 0;
     scr_size.uly = 0;
 
-    if (0 != SDL_RenderClear(sdlRenderer)) {
+    if (!SDL_RenderClear(sdlRenderer)) {
         AILOG(log, "SDL_RenderClear failed: {}\n", SDL_GetError());
     }
 
-    SDL_RenderPresent(sdlRenderer);
+    if (!SDL_RenderPresent(sdlRenderer)) {
+        AILOG(log, "SDL_RenderPresent failed: {}\n", SDL_GetError());
+    }
 
     if (sdlWindowSurface && sdlTexture && sdlPaletteSurface) {
         sdl_win_init_flag = 1;
+        Svga_BackgroundTimer = timer_get();
+
         return 0;
+
     } else {
         sdl_win_init_flag = 0;
+
         return -1;
     }
 }
 
 void Svga_Deinit(void) {
     if (sdl_win_init_flag) {
-        /// \todo Clean Up
+        remove_bk_process(Svga_BackgroundProcess);
+
+        if (sdlTexture) {
+            SDL_DestroyTexture(sdlTexture);
+            sdlTexture = nullptr;
+        }
+
+        if (sdlPaletteSurface) {
+            SDL_DestroySurface(sdlPaletteSurface);
+            sdlPaletteSurface = nullptr;
+        }
+
+        if (sdlWindowSurface) {
+            SDL_DestroySurface(sdlWindowSurface);
+            sdlWindowSurface = nullptr;
+        }
+
+        if (sdlRenderer) {
+            SDL_DestroyRenderer(sdlRenderer);
+            sdlRenderer = nullptr;
+        }
+
+        if (sdlWindow) {
+            SDL_DestroyWindow(sdlWindow);
+            sdlWindow = nullptr;
+        }
+
+        sdl_win_init_flag = 0;
     }
 }
 
 void Svga_Blit(uint8_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY, uint32_t subW,
                uint32_t subH, uint32_t dstX, uint32_t dstY) {
-    SDL_assert(sdlPaletteSurface && sdlPaletteSurface->format &&
-               sdlPaletteSurface->format->BytesPerPixel == sizeof(uint8_t));
+    SDL_assert(sdlPaletteSurface && SDL_BYTESPERPIXEL(sdlPaletteSurface->format) == sizeof(uint8_t));
 
     {
         buf_to_buf(&srcBuf[subX + srcW * subY], subW, subH, srcW,
@@ -235,7 +292,7 @@ void Svga_Blit(uint8_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uin
     }
 
     /* Blit 8-bit palette surface onto the window surface that's closer to the texture's format */
-    if (SDL_LowerBlit(sdlPaletteSurface, &bounds, sdlWindowSurface, &bounds) != 0) {
+    if (!SDL_BlitSurfaceUnchecked(sdlPaletteSurface, &bounds, sdlWindowSurface, &bounds)) {
         AILOG(log, "SDL_BlitSurface failed: {}\n", SDL_GetError());
     }
 
@@ -245,9 +302,6 @@ void Svga_Blit(uint8_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uin
         int32_t target_pitch = 0;
 
         if (SDL_LockTexture(sdlTexture, &bounds, &target_pixels, &target_pitch)) {
-            AILOG(log, "SDL_LockTexture failed: {}\n", SDL_GetError());
-
-        } else {
             for (int32_t h = 0; h < bounds.h; ++h) {
                 SDL_memcpy(target_pixels, source_pixels, bounds.w * sizeof(Uint32));
                 source_pixels += sdlWindowSurface->w;
@@ -255,22 +309,44 @@ void Svga_Blit(uint8_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uin
             }
 
             SDL_UnlockTexture(sdlTexture);
+
+        } else {
+            AILOG(log, "SDL_LockTexture failed: {}\n", SDL_GetError());
         }
 
     } else {
-        if (SDL_UpdateTexture(sdlTexture, &bounds,
-                              &((Uint32*)sdlWindowSurface->pixels)[bounds.x + sdlPaletteSurface->pitch * bounds.y],
-                              sdlWindowSurface->pitch) != 0) {
+        if (!SDL_UpdateTexture(sdlTexture, &bounds,
+                               &((Uint32*)sdlWindowSurface->pixels)[bounds.x + sdlPaletteSurface->pitch * bounds.y],
+                               sdlWindowSurface->pitch)) {
             AILOG(log, "SDL_UpdateTexture failed: {}\n", SDL_GetError());
         }
     }
 
     /* Make the modified texture visible by rendering it */
-    if (SDL_RenderCopy(sdlRenderer, sdlTexture, nullptr, nullptr) != 0) {
-        AILOG(log, "SDL_RenderCopy failed: {}\n", SDL_GetError());
+    if (!SDL_RenderTexture(sdlRenderer, sdlTexture, nullptr, nullptr)) {
+        AILOG(log, "SDL_RenderTexture failed: {}\n", SDL_GetError());
     }
 
-    SDL_RenderPresent(sdlRenderer);
+    Svga_RenderDirty = true;
+}
+
+void Svga_BackgroundProcess(void) {
+    uint32_t elapsed = timer_elapsed_time(Svga_BackgroundTimer);
+    bool should_present = Svga_RenderDirty || elapsed >= TIMER_FPS_TO_MS(SVGA_DEFAULT_REFRESH_RATE);
+
+    if (should_present) {
+        Svga_BackgroundTimer = timer_get();
+        Svga_RenderDirty = false;
+
+        // Ensure the current texture state is rendered before presenting
+        if (!SDL_RenderTexture(sdlRenderer, sdlTexture, nullptr, nullptr)) {
+            AILOG(log, "SDL_RenderTexture failed: {}\n", SDL_GetError());
+        }
+
+        if (!SDL_RenderPresent(sdlRenderer)) {
+            AILOG(log, "SDL_RenderPresent failed: {}\n", SDL_GetError());
+        }
+    }
 }
 
 int32_t Svga_WarpMouse(int32_t window_x, int32_t window_y) {
@@ -299,7 +375,9 @@ void Svga_RefreshSystemPalette(bool force) {
 }
 
 void Svga_SetPaletteColor(int32_t index, SDL_Color* color) {
-    if (SDL_SetPaletteColors(sdlPaletteSurface->format->palette, color, index, 1)) {
+    auto palette = SDL_GetSurfacePalette(sdlPaletteSurface);
+
+    if (!palette || !SDL_SetPaletteColors(palette, color, index, 1)) {
         AILOG(log, "SDL_SetPaletteColors failed: {}\n", SDL_GetError());
     }
 
@@ -307,14 +385,14 @@ void Svga_SetPaletteColor(int32_t index, SDL_Color* color) {
 }
 
 void Svga_SetPalette(SDL_Palette* palette) {
-    if (SDL_SetSurfacePalette(sdlPaletteSurface, palette)) {
+    if (!SDL_SetSurfacePalette(sdlPaletteSurface, palette)) {
         AILOG(log, "SDL_SetSurfacePalette failed: {}\n", SDL_GetError());
     }
 
     Svga_RefreshSystemPalette(true);
 }
 
-SDL_Palette* Svga_GetPalette(void) { return sdlPaletteSurface->format->palette; }
+SDL_Palette* Svga_GetPalette(void) { return SDL_GetSurfacePalette(sdlPaletteSurface); }
 
 int32_t Svga_GetScreenWidth(void) { return Svga_ScreenWidth; }
 
@@ -335,3 +413,5 @@ bool Svga_GetWindowFlags(uint32_t* flags) {
 
     return result;
 }
+
+SDL_Window* Svga_GetWindow(void) { return sdlWindow; }

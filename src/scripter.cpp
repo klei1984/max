@@ -21,7 +21,7 @@
 
 #include "scripter.hpp"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <unordered_map>
 
@@ -53,10 +53,10 @@ constexpr uint64_t TimeBudgetMinimum = 10uLL;
 constexpr uint64_t TimeBudgetTickRate = 1000uLL;
 
 static MaxRegistryType MaxRegistry;
-static SDL_mutex* MaxRegistryMutex;
+static SDL_Mutex* MaxRegistryMutex;
 
 static MaxRegistryFunctionMapType MaxRegistryFunctions;
-static SDL_mutex* MaxRegistryFunctionsMutex;
+static SDL_Mutex* MaxRegistryFunctionsMutex;
 
 static inline SmartList<UnitInfo>& GetRelevantUnits(ResourceID unit_type);
 static lua_Integer HasMaterials(const lua_Integer team, const lua_Integer cargo_type);
@@ -1133,7 +1133,7 @@ bool RunScript(void* const handle, const std::string script, const ScriptParamet
 
             ScriptArgsToLuaValues(context->m_lua, args);
 
-            context->m_timestamp = SDL_GetTicks64();
+            context->m_timestamp = SDL_GetTicks();
 
             if (lua_pcall(context->m_lua, args.size(), results.size(), 0) != LUA_OK) {
                 std::string local_error = lua_tostring(context->m_lua, -1);
@@ -1172,7 +1172,7 @@ bool RunScript(void* const handle, const std::string script, const ScriptParamet
 
 static void TimoutHook(lua_State* lua, lua_Debug* ar) {
     Context* const context = *static_cast<Context**>(lua_getextraspace(lua));
-    const auto timestamp = SDL_GetTicks64();
+    const auto timestamp = SDL_GetTicks();
 
     SDL_assert(context and context->m_lua == lua);
 

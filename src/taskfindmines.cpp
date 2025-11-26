@@ -21,6 +21,8 @@
 
 #include "taskfindmines.hpp"
 
+#include <cmath>
+
 #include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "resource_manager.hpp"
@@ -55,7 +57,7 @@ void TaskFindMines::BeginTurn() {
                 }
             }
 
-            valuable_sites = sqrt(valuable_sites) * 0.25;
+            valuable_sites = std::sqrt(valuable_sites) * 0.25;
 
             if (units.GetCount() < valuable_sites) {
                 ++requestors;

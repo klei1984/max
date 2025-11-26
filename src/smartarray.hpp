@@ -22,6 +22,7 @@
 #ifndef SMARTARRAY_HPP
 #define SMARTARRAY_HPP
 
+#include <algorithm>
 #include <cstdint>
 
 #include "smartpointer.hpp"

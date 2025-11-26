@@ -24,6 +24,7 @@
 #include "game_manager.hpp"
 #include "gfx.hpp"
 #include "helpmenu.hpp"
+#include "input.h"
 #include "resource_manager.hpp"
 
 #define WINDOW_RECT(ulx, uly, lrx, lry) {ulx, uly, lrx, lry}
@@ -507,6 +508,8 @@ int32_t WindowManager_Init() {
     if (win_init(Svga_Init, Svga_Deinit, 0)) {
         return EXIT_CODE_SCREEN_INIT_FAILED;
     }
+
+    add_bk_process(Svga_BackgroundProcess);
 
     WindowManager_WindowWidth = Svga_GetScreenWidth();
     WindowManager_WindowHeight = Svga_GetScreenHeight();

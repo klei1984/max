@@ -21,6 +21,8 @@
 
 #include "flicsmgr.hpp"
 
+#include <SDL3/SDL.h>
+
 #include "resource_manager.hpp"
 
 #define FLICSMGR_FLI_TYPE 0xAF11u
@@ -287,7 +289,7 @@ char Flicsmgr_load_frame(FILE* file, FlicFrame* frame) {
     FrameHeader flic_frame;
 
     if (frame->buffer) {
-        free(frame->buffer);
+        SDL_free(frame->buffer);
         frame->buffer = nullptr;
     }
 
@@ -303,13 +305,13 @@ char Flicsmgr_load_frame(FILE* file, FlicFrame* frame) {
 
     SDL_assert(frame->type == FLICSMGR_FRAME_TYPE);
 
-    frame->buffer = (char*)malloc(frame->size);
+    frame->buffer = (char*)SDL_malloc(frame->size);
 
     if (fread(frame->buffer, 1, frame->size, file)) {
         return 1;
     }
 
-    free(frame->buffer);
+    SDL_free(frame->buffer);
     frame->buffer = nullptr;
 
     return 0;
@@ -364,7 +366,7 @@ char flicsmgr_read(Flic* flc) {
 
     flicsmgr_decode_frame(&flc->frames[0], flc);
 
-    free(flc->frames[0].buffer);
+    SDL_free(flc->frames[0].buffer);
     flc->frames[0].buffer = nullptr;
 
     if (flc->frame_count > 1 && flc->animate) {
@@ -413,7 +415,7 @@ char flicsmgr_load(ResourceID id, Flic* flc) {
 
 Flic* flicsmgr_construct(ResourceID id, WindowInfo* w, int32_t width, int32_t ulx, int32_t uly, char animate,
                          char load_flic_palette) {
-    Flic* flc = static_cast<struct Flic*>(malloc(sizeof(struct Flic)));
+    Flic* flc = static_cast<struct Flic*>(SDL_malloc(sizeof(struct Flic)));
 
     flc->fp = nullptr;
 
@@ -432,7 +434,7 @@ Flic* flicsmgr_construct(ResourceID id, WindowInfo* w, int32_t width, int32_t ul
 
     if (flicsmgr_load(id, flc)) {
         if (!flc->animate) {
-            free(flc);
+            SDL_free(flc);
             flc = nullptr;
         }
 
@@ -450,7 +452,7 @@ Flic* flicsmgr_construct(ResourceID id, WindowInfo* w, int32_t width, int32_t ul
             win_draw_rect(w->id, &bound);
         }
 
-        free(flc);
+        SDL_free(flc);
         flc = nullptr;
     }
 
@@ -485,7 +487,7 @@ char flicsmgr_advance_animation(Flic* flc) {
 void flicsmgr_delete(Flic* flc) {
     for (int32_t i = 0; i < FLICSMGR_FRAME_BUFFER; i++) {
         if (flc->frames[i].buffer) {
-            free(flc->frames[i].buffer);
+            SDL_free(flc->frames[i].buffer);
             flc->frames[i].buffer = nullptr;
         }
     }

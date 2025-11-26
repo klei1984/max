@@ -419,7 +419,7 @@ int32_t TextEdit::ProcessKeyPress(int32_t key) {
             } break;
 
             default: {
-                /* Don't handle printable characters here - SDL_TEXTINPUT handles them */
+                /* Don't handle printable characters here - SDL_EVENT_TEXT_INPUT handles them */
                 /* This prevents double input: key press + text input event */
 
                 result = false;

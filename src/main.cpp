@@ -19,6 +19,8 @@
  * SOFTWARE.
  */
 
+#include <SDL3/SDL_main.h>
+
 #include "menu.hpp"
 #include "movie.hpp"
 #include "resource_manager.hpp"

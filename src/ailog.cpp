@@ -21,14 +21,14 @@
 
 #include "ailog.hpp"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <cstdarg>
 
 constexpr int32_t AILOG_FILE_LIMIT_DEFAULT = UINT16_MAX;
 
 std::ofstream AiLog::AiLog_File;
-SDL_mutex* AiLog::AiLog_Mutex = nullptr;
+SDL_Mutex* AiLog::AiLog_Mutex = nullptr;
 int32_t AiLog::AiLog_SectionCount = 0;
 int32_t AiLog::AiLog_EntryCount = 0;
 int32_t AiLog::AiLog_EntryLimit = AILOG_FILE_LIMIT_DEFAULT;

@@ -21,6 +21,8 @@
 
 #include "upgradecontrol.hpp"
 
+#include <cmath>
+
 #include "sound_manager.hpp"
 
 int32_t UpgradeControl_Factors[UPGRADE_CONTROL_COUNT] = {4, 4, 8, 2, 2, 2, 8, 4, 16};
@@ -212,9 +214,11 @@ int32_t UpgradeControl_CalculateCost(int32_t id, uint16_t current_value, uint16_
     int32_t result;
 
     if (id == UPGRADE_CONTROL_9) {
-        result = pow((double)base_value / (double)((int32_t)current_value - factor), 7.5) * UpgradeControl_Factors[id];
+        result =
+            std::pow((double)base_value / (double)((int32_t)current_value - factor), 7.5) * UpgradeControl_Factors[id];
     } else if (base_value > 0) {
-        result = pow((double)((int32_t)current_value - factor) / (double)base_value, 7.5) * UpgradeControl_Factors[id];
+        result =
+            std::pow((double)((int32_t)current_value - factor) / (double)base_value, 7.5) * UpgradeControl_Factors[id];
     } else {
         result = 0;
     }

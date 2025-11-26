@@ -21,9 +21,10 @@
 
 #include "mouse.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "gnw.h"
+#include "svga.h"
 
 #define GNW_MOUSE_BUTTON_LEFT 1
 #define GNW_MOUSE_BUTTON_RIGHT 2
@@ -33,7 +34,7 @@ static void mouse_anim(void);
 static void mouse_colorize(void);
 static void mouse_clip(void);
 
-static double mouse_sensitivity = 1.0;
+static float mouse_sensitivity = 1.f;
 static int32_t mouse_wheel_sensitivity = 3;
 static uint8_t or_mask[64] = {1,  1,  1,  1,  1,  1,  1,  0, 1, 15, 15, 15, 15, 15, 1,  0,  1, 15, 15, 15, 15, 1,
                               1,  0,  1,  15, 15, 15, 15, 1, 1, 0,  1,  15, 15, 15, 15, 15, 1, 1,  1,  15, 1,  1,
@@ -85,10 +86,10 @@ int32_t GNW_mouse_init(void) {
 
         if (result != -1) {
             if (mouse_lock == MOUSE_LOCK_LOCKED) {
-                SDL_ShowCursor(SDL_DISABLE);
+                SDL_HideCursor();
             }
 
-            if (SDL_SetRelativeMouseMode(window_flags & SDL_WINDOW_FULLSCREEN) != 0) {
+            if (!SDL_SetWindowRelativeMouseMode(Svga_GetWindow(), window_flags & SDL_WINDOW_FULLSCREEN)) {
                 result = -1;
             }
 
@@ -105,7 +106,7 @@ int32_t GNW_mouse_init(void) {
 
 void GNW_mouse_exit(void) {
     if (mouse_buf) {
-        free(mouse_buf);
+        SDL_free(mouse_buf);
         mouse_buf = NULL;
     }
 
@@ -157,7 +158,7 @@ int32_t mouse_set_shape(uint8_t* buf, int32_t width, int32_t length, int32_t ful
     if (width != mouse_width || length != mouse_length) {
         uint8_t* temp;
 
-        temp = (uint8_t*)malloc(length * width);
+        temp = (uint8_t*)SDL_malloc(length * width);
         if (!temp) {
             if (!mh) {
                 mouse_show();
@@ -167,7 +168,7 @@ int32_t mouse_set_shape(uint8_t* buf, int32_t width, int32_t length, int32_t ful
         }
 
         if (mouse_buf) {
-            free(mouse_buf);
+            SDL_free(mouse_buf);
         }
 
         mouse_buf = temp;
@@ -330,16 +331,16 @@ void mouse_info(void) {
     if (have_mouse && !mouse_is_hidden && !mouse_disabled) {
         uint32_t buttons = 0;
         uint32_t button_bitmask;
-        int delta_x;
-        int delta_y;
+        float delta_x;
+        float delta_y;
 
         SDL_PumpEvents();
 
-        if (SDL_GetRelativeMouseMode()) {
+        if (SDL_GetWindowRelativeMouseMode(Svga_GetWindow())) {
             button_bitmask = SDL_GetRelativeMouseState(&delta_x, &delta_y);
 
-            delta_x = (int32_t)((double)delta_x * mouse_sensitivity);
-            delta_y = (int32_t)((double)delta_y * mouse_sensitivity);
+            delta_x *= mouse_sensitivity;
+            delta_y *= mouse_sensitivity;
 
         } else {
             button_bitmask = SDL_GetMouseState(&delta_x, &delta_y);
@@ -348,15 +349,15 @@ void mouse_info(void) {
             delta_y -= mouse_hoty + mouse_y;
         }
 
-        if (SDL_BUTTON(SDL_BUTTON_LEFT) & button_bitmask) {
+        if (SDL_BUTTON_MASK(SDL_BUTTON_LEFT) & button_bitmask) {
             buttons |= GNW_MOUSE_BUTTON_LEFT;
         }
 
-        if (SDL_BUTTON(SDL_BUTTON_RIGHT) & button_bitmask) {
+        if (SDL_BUTTON_MASK(SDL_BUTTON_RIGHT) & button_bitmask) {
             buttons |= GNW_MOUSE_BUTTON_RIGHT;
         }
 
-        if (SDL_BUTTON(SDL_BUTTON_MIDDLE) & button_bitmask) {
+        if (SDL_BUTTON_MASK(SDL_BUTTON_MIDDLE) & button_bitmask) {
             buttons |= GNW_MOUSE_BUTTON_MIDDLE;
         }
 
@@ -364,7 +365,7 @@ void mouse_info(void) {
             mouse_lock = MOUSE_LOCK_LOCKED;
             buttons = 0;
 
-            SDL_ShowCursor(SDL_DISABLE);
+            SDL_HideCursor();
         }
 
         if (mouse_lock == MOUSE_LOCK_LOCKED) {
@@ -534,13 +535,13 @@ void mouse_enable(void) { mouse_disabled = 0; }
 
 int32_t mouse_is_disabled(void) { return mouse_disabled; }
 
-void mouse_set_sensitivity(double new_sensitivity) {
-    if (new_sensitivity > 0.0 && new_sensitivity < 2.0) {
+void mouse_set_sensitivity(float new_sensitivity) {
+    if (new_sensitivity > 0.f && new_sensitivity < 2.f) {
         mouse_sensitivity = new_sensitivity;
     }
 }
 
-double mouse_get_sensitivity(void) { return mouse_sensitivity; }
+float mouse_get_sensitivity(void) { return mouse_sensitivity; }
 
 int32_t mouse_get_lock(void) { return mouse_lock; }
 

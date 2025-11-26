@@ -21,7 +21,7 @@
 
 #include "unitvalues.hpp"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "ailog.hpp"
 #include "registerarray.hpp"

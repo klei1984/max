@@ -21,6 +21,9 @@
 
 #include "interface.h"
 
+#include <SDL3/SDL.h>
+#include <stdio.h>
+
 #include "gnw.h"
 
 typedef struct tm_item_s {
@@ -508,7 +511,7 @@ int32_t win_register_menu_bar(WinID wid, int32_t ulx, int32_t uly, int32_t width
 
     w = GNW_find(wid);
     if (GNW_win_init_flag && w && !w->menu && (width + ulx <= w->width) && (length + uly <= w->length)) {
-        w->menu = (GNW_Menu*)malloc(sizeof(GNW_Menu));
+        w->menu = (GNW_Menu*)SDL_malloc(sizeof(GNW_Menu));
 
         if (w->menu) {
             w->menu->wid = wid;
@@ -590,7 +593,7 @@ void win_delete_menu_bar(WinID wid) {
             win_fill(wid, w->menu->m.ulx, w->menu->m.uly, w->menu->m.lrx - w->menu->m.ulx + 1,
                      w->menu->m.lry - w->menu->m.uly + 1, w->color);
 
-            free(w->menu);
+            SDL_free(w->menu);
             w->menu = NULL;
         }
     }
@@ -699,7 +702,7 @@ int32_t calc_max_field_chars_wcursor(int32_t min, int32_t max) {
     int32_t len_max;
     int32_t r;
 
-    str_num = (char*)malloc(17);
+    str_num = (char*)SDL_malloc(17);
 
     if (str_num) {
         sprintf(str_num, "%d", min);
@@ -708,7 +711,7 @@ int32_t calc_max_field_chars_wcursor(int32_t min, int32_t max) {
         sprintf(str_num, "%d", max);
         len_max = strlen(str_num);
 
-        free(str_num);
+        SDL_free(str_num);
 
         if (len_max <= len_min) {
             r = len_min;

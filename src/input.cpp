@@ -21,13 +21,14 @@
 
 #include "input.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <string.h>
 
 #include <memory>
 #include <unordered_map>
 
 #include "gnw.h"
+#include "svga.h"
 
 #define GNW_INPUT_BUFFER_SIZE 40
 
@@ -80,7 +81,7 @@ static uint8_t* screendump_buf;
 static PauseWinFunc pause_win_func;
 static int32_t input_put;
 static UTF8InputFunc utf8_input_callback;
-static uint8_t input_key_states[SDL_NUM_SCANCODES];
+static uint8_t input_key_states[SDL_SCANCODE_COUNT];
 static bool game_paused;
 static bool bk_disabled;
 
@@ -108,32 +109,32 @@ int32_t GNW_input_init(void) {
         GNW_KB_KEY_MAP_ITEM(SDLK_SPACE, GNW_KB_KEY_SPACE, -1, -1, -1, -1),
 
         // Commands
-        GNW_KB_KEY_MAP_ITEM(SDLK_a, -1, -1, GNW_KB_KEY_LALT_A, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_b, -1, -1, GNW_KB_KEY_LALT_B, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_c, -1, -1, GNW_KB_KEY_LALT_C, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_d, -1, -1, GNW_KB_KEY_LALT_D, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_e, -1, -1, GNW_KB_KEY_LALT_E, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_f, -1, -1, GNW_KB_KEY_LALT_F, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_g, -1, -1, GNW_KB_KEY_LALT_G, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_h, -1, -1, GNW_KB_KEY_LALT_H, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_i, -1, -1, GNW_KB_KEY_LALT_I, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_j, -1, -1, GNW_KB_KEY_LALT_J, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_k, -1, -1, GNW_KB_KEY_LALT_K, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_l, -1, -1, GNW_KB_KEY_LALT_L, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_m, -1, -1, GNW_KB_KEY_LALT_M, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_n, -1, -1, GNW_KB_KEY_LALT_N, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_o, -1, -1, GNW_KB_KEY_LALT_O, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_p, -1, -1, GNW_KB_KEY_LALT_P, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_q, -1, -1, GNW_KB_KEY_LALT_Q, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_r, -1, -1, GNW_KB_KEY_LALT_R, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_s, -1, -1, GNW_KB_KEY_LALT_S, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_t, -1, -1, GNW_KB_KEY_LALT_T, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_u, -1, -1, GNW_KB_KEY_LALT_U, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_v, -1, -1, GNW_KB_KEY_LALT_V, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_w, -1, -1, GNW_KB_KEY_LALT_W, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_x, -1, -1, GNW_KB_KEY_LALT_X, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_y, -1, -1, GNW_KB_KEY_LALT_Y, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_z, -1, -1, GNW_KB_KEY_LALT_Z, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_A, -1, -1, GNW_KB_KEY_LALT_A, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_B, -1, -1, GNW_KB_KEY_LALT_B, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_C, -1, -1, GNW_KB_KEY_LALT_C, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_D, -1, -1, GNW_KB_KEY_LALT_D, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_E, -1, -1, GNW_KB_KEY_LALT_E, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_F, -1, -1, GNW_KB_KEY_LALT_F, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_G, -1, -1, GNW_KB_KEY_LALT_G, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_H, -1, -1, GNW_KB_KEY_LALT_H, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_I, -1, -1, GNW_KB_KEY_LALT_I, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_J, -1, -1, GNW_KB_KEY_LALT_J, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_K, -1, -1, GNW_KB_KEY_LALT_K, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_L, -1, -1, GNW_KB_KEY_LALT_L, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_M, -1, -1, GNW_KB_KEY_LALT_M, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_N, -1, -1, GNW_KB_KEY_LALT_N, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_O, -1, -1, GNW_KB_KEY_LALT_O, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_P, -1, -1, GNW_KB_KEY_LALT_P, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_Q, -1, -1, GNW_KB_KEY_LALT_Q, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_R, -1, -1, GNW_KB_KEY_LALT_R, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_S, -1, -1, GNW_KB_KEY_LALT_S, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_T, -1, -1, GNW_KB_KEY_LALT_T, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_U, -1, -1, GNW_KB_KEY_LALT_U, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_V, -1, -1, GNW_KB_KEY_LALT_V, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_W, -1, -1, GNW_KB_KEY_LALT_W, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_X, -1, -1, GNW_KB_KEY_LALT_X, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_Y, -1, -1, GNW_KB_KEY_LALT_Y, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_Z, -1, -1, GNW_KB_KEY_LALT_Z, -1, -1),
 
         // Function keys
         GNW_KB_KEY_MAP_ITEM(SDLK_F1, GNW_KB_KEY_F1, GNW_KB_KEY_SHIFT_F1, GNW_KB_KEY_LALT_F1, -1, GNW_KB_KEY_CTRL_F1),
@@ -173,17 +174,17 @@ int32_t GNW_input_init(void) {
         GNW_KB_KEY_MAP_ITEM(SDLK_DELETE, GNW_KB_KEY_DELETE, GNW_KB_KEY_SHIFT_DELETE, GNW_KB_KEY_LALT_DELETE, -1,
                             GNW_KB_KEY_CTRL_DELETE),
 
-        // Punctuation - handled by SDL_TEXTINPUT
+        // Punctuation - handled by SDL_EVENT_TEXT_INPUT
         GNW_KB_KEY_MAP_ITEM(SDLK_MINUS, -1, -1, -1, -1, -1),
         GNW_KB_KEY_MAP_ITEM(SDLK_EQUALS, -1, -1, -1, -1, -1),
         GNW_KB_KEY_MAP_ITEM(SDLK_LEFTBRACKET, -1, -1, -1, -1, -1),
         GNW_KB_KEY_MAP_ITEM(SDLK_RIGHTBRACKET, -1, -1, -1, -1, -1),
         GNW_KB_KEY_MAP_ITEM(SDLK_SEMICOLON, -1, -1, -1, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_QUOTE, -1, -1, -1, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_APOSTROPHE, -1, -1, -1, -1, -1),
         GNW_KB_KEY_MAP_ITEM(SDLK_COMMA, -1, -1, -1, -1, -1),
         GNW_KB_KEY_MAP_ITEM(SDLK_PERIOD, -1, -1, -1, -1, -1),
         GNW_KB_KEY_MAP_ITEM(SDLK_SLASH, -1, -1, -1, -1, -1),
-        GNW_KB_KEY_MAP_ITEM(SDLK_BACKQUOTE, -1, -1, -1, -1, -1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_GRAVE, -1, -1, -1, -1, -1),
         GNW_KB_KEY_MAP_ITEM(SDLK_BACKSLASH, -1, -1, -1, -1, GNW_KB_KEY_CTRL_BACKSLASH),
 
         // Keypad
@@ -205,7 +206,7 @@ int32_t GNW_input_init(void) {
         GNW_KB_KEY_MAP_ITEM(SDLK_KP_PERIOD, GNW_KB_KEY_DELETE, GNW_KB_KEY_SHIFT_DELETE, -1, -1, -1),
     });
 
-    SDL_StartTextInput();
+    SDL_StartTextInput(Svga_GetWindow());
 
     result = GNW_mouse_init();
 
@@ -227,7 +228,7 @@ void GNW_input_exit(void) {
 
     for (fp = bk_list; fp; fp = np) {
         np = fp->next;
-        free(fp);
+        SDL_free(fp);
     }
 
     bk_list = NULL;
@@ -246,11 +247,11 @@ void GNW_process_message(void) {
 
     while (SDL_PollEvent(&ev)) {
         switch (ev.type) {
-            case SDL_KEYUP:
-            case SDL_KEYDOWN: {
+            case SDL_EVENT_KEY_UP:
+            case SDL_EVENT_KEY_DOWN: {
                 GNW_process_key(&(ev.key));
             } break;
-            case SDL_TEXTINPUT: {
+            case SDL_EVENT_TEXT_INPUT: {
                 if (utf8_input_callback) {
                     utf8_input_callback(ev.text.text);
 
@@ -264,41 +265,35 @@ void GNW_process_message(void) {
                     }
                 }
             } break;
-            case SDL_MOUSEWHEEL: {
+            case SDL_EVENT_MOUSE_WHEEL: {
                 mouse_add_wheel_event(ev.wheel.x, ev.wheel.y);
             } break;
-            case SDL_WINDOWEVENT: {
-                if (!SDL_GetRelativeMouseMode()) {
-                    switch (ev.window.event) {
-                        case SDL_WINDOWEVENT_FOCUS_GAINED:
-                            if (mouse_get_lock() != MOUSE_LOCK_LOCKED) {
-                                mouse_set_lock(MOUSE_LOCK_FOCUSED);
-                            }
-                            break;
-                        case SDL_WINDOWEVENT_FOCUS_LOST:
-                            SDL_ShowCursor(SDL_ENABLE);
-                            mouse_set_lock(MOUSE_LOCK_UNLOCKED);
-                            break;
-                        case SDL_WINDOWEVENT_ENTER: {
-                        } break;
-                        case SDL_WINDOWEVENT_LEAVE:
-                            break;
-                        case SDL_WINDOWEVENT_CLOSE:
-                            break;
-                    }
+            case SDL_EVENT_WINDOW_FOCUS_GAINED: {
+                if (mouse_get_lock() != MOUSE_LOCK_LOCKED) {
+                    mouse_set_lock(MOUSE_LOCK_FOCUSED);
                 }
+            } break;
+            case SDL_EVENT_WINDOW_FOCUS_LOST: {
+                SDL_ShowCursor();
+                mouse_set_lock(MOUSE_LOCK_UNLOCKED);
+            } break;
+            case SDL_EVENT_WINDOW_MOUSE_ENTER: {
+            } break;
+            case SDL_EVENT_WINDOW_MOUSE_LEAVE: {
+            } break;
+            case SDL_EVENT_WINDOW_CLOSE_REQUESTED: {
             } break;
         }
     }
 }
 
 void GNW_process_key(SDL_KeyboardEvent* key_data) {
-    if (key_data->keysym.scancode < SDL_NUM_SCANCODES) {
-        input_key_states[key_data->keysym.scancode] = (key_data->type == SDL_KEYDOWN) ? 1 : 0;
+    if (key_data->scancode < SDL_SCANCODE_COUNT) {
+        input_key_states[key_data->scancode] = (key_data->type == SDL_EVENT_KEY_DOWN) ? 1 : 0;
     }
 
-    if (key_data->type == SDL_KEYDOWN) {
-        const int32_t game_key = input_sdl_to_game_key(key_data->keysym.sym, key_data->keysym.mod);
+    if (key_data->type == SDL_EVENT_KEY_DOWN) {
+        const int32_t game_key = input_sdl_to_game_key(key_data->key, key_data->mod);
 
         if (game_key != 0) {
             GNW_add_input_buffer(game_key);
@@ -411,7 +406,7 @@ void GNW_do_bk_process(void) {
 
             if (fp->flags & 1) {
                 *prev = fp->next;
-                free(fp);
+                SDL_free(fp);
 
             } else {
                 fp->f();
@@ -434,7 +429,7 @@ void add_bk_process(BackgroundProcess f) {
         }
     }
 
-    fp = (FuncPtr)malloc(sizeof(struct FuncData));
+    fp = (FuncPtr)SDL_malloc(sizeof(struct FuncData));
 
     if (fp) {
         fp->flags = 0;
@@ -532,7 +527,7 @@ void dump_screen(void) {
     width = scr_size.lrx - scr_size.ulx + 1;
     length = scr_size.lry - scr_size.uly + 1;
 
-    screendump_buf = (uint8_t*)malloc(length * width);
+    screendump_buf = (uint8_t*)SDL_malloc(length * width);
 
     if (screendump_buf) {
         old_scr_blit = scr_blit;
@@ -549,7 +544,7 @@ void dump_screen(void) {
 
         screendump_func(width, length, screendump_buf, pal);
 
-        free(screendump_buf);
+        SDL_free(screendump_buf);
         screendump_buf = NULL;
     }
 }
@@ -676,9 +671,9 @@ int32_t input_sdl_to_game_key(SDL_Keycode sdl_key, uint16_t sdl_mod) {
         auto it = input_key_map->find(sdl_key);
         if (it != input_key_map->end()) {
             const KeyMapping& mapping = it->second;
-            const bool is_shift_pressed = sdl_mod & KMOD_SHIFT;
-            const bool is_ctrl_pressed = sdl_mod & KMOD_CTRL;
-            const bool is_lalt_pressed = sdl_mod & KMOD_LALT;
+            const bool is_shift_pressed = sdl_mod & SDL_KMOD_SHIFT;
+            const bool is_ctrl_pressed = sdl_mod & SDL_KMOD_CTRL;
+            const bool is_lalt_pressed = sdl_mod & SDL_KMOD_LALT;
 
             if (is_shift_pressed && mapping.shift != -1) {
                 result = mapping.shift;

@@ -15,9 +15,9 @@ MINIAUDIO_VERSION=$(sed -nr 's/set\(MINIAUDIO_VERSION ([0-9]+\.[0-9]+\.[0-9]+)\)
 MINIAUDIO_FILE=$(eval echo $(sed -nr 's/set\(MINIAUDIO_FILE (.*)\)/\1/p' $maxport_configfile))
 MINIAUDIO_URI=$(eval echo $(sed -nr 's/set\(MINIAUDIO_URI (.*)\)/\1/p' $maxport_configfile))
 
-SDL2_VERSION=$(sed -nr 's/set\(SDL2_VERSION ([0-9]+\.[0-9]+\.[0-9]+)\)/\1/p' $maxport_configfile)
-SDL2_FILE=$(eval echo $(sed -nr 's/set\(SDL2_FILE (.*)\)/\1/p' $maxport_configfile))
-SDL2_URI=$(eval echo $(sed -nr 's/set\(SDL2_URI (.*)\)/\1/p' $maxport_configfile))
+SDL3_VERSION=$(sed -nr 's/set\(SDL3_VERSION ([0-9]+\.[0-9]+\.[0-9]+)\)/\1/p' $maxport_configfile)
+SDL3_FILE=$(eval echo $(sed -nr 's/set\(SDL3_FILE (.*)\)/\1/p' $maxport_configfile))
+SDL3_URI=$(eval echo $(sed -nr 's/set\(SDL3_URI (.*)\)/\1/p' $maxport_configfile))
 
 ENET_VERSION=$(sed -nr 's/set\(ENET_VERSION ([0-9]+\.[0-9]+\.[0-9]+)\)/\1/p' $maxport_configfile)
 ENET_FILE=$(eval echo $(sed -nr 's/set\(ENET_FILE (.*)\)/\1/p' $maxport_configfile))
@@ -65,7 +65,7 @@ RECTPACK2D_URI=$(eval echo $(sed -nr 's/set\(RECTPACK2D_URI (.*)\)/\1/p' $maxpor
 
 [ -f "dependencies/$FREETYPE_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$FREETYPE_FILE" "$FREETYPE_URI" | true
 [ -f "dependencies/$MINIAUDIO_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$MINIAUDIO_FILE" "$MINIAUDIO_URI" | true
-[ -f "dependencies/$SDL2_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$SDL2_FILE" "$SDL2_URI" | true
+[ -f "dependencies/$SDL3_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$SDL3_FILE" "$SDL3_URI" | true
 [ -f "dependencies/$ENET_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$ENET_FILE" "$ENET_URI" | true
 [ -f "dependencies/$MINIUPNP_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$MINIUPNP_FILE" "$MINIUPNP_URI" | true
 [ -f "dependencies/$GTEST_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$GTEST_FILE" "$GTEST_URI" | true

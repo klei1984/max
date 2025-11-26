@@ -21,6 +21,8 @@
 
 #include "resource_manager.hpp"
 
+#include <SDL3/SDL.h>
+
 #include <format>
 #include <fstream>
 #include <memory>
@@ -96,7 +98,7 @@ static std::shared_ptr<Settings> ResourceManager_Settings;
 static std::shared_ptr<Language> ResourceManager_LanguageManager;
 static std::shared_ptr<Help> ResourceManager_HelpManager;
 static std::unique_ptr<std::unordered_map<std::string, ResourceID>> ResourceManager_ResourceIDLUT;
-static std::unique_ptr<std::vector<SDL_mutex*>> ResourceManager_SDLMutexes;
+static std::unique_ptr<std::vector<SDL_Mutex*>> ResourceManager_SDLMutexes;
 static std::string ResourceManager_SystemLocale{"en-US"};
 
 FILE* res_file_handle_array[2];
@@ -224,15 +226,14 @@ bool ResourceManager_GetBasePath(std::filesystem::path& path) {
     std::filesystem::path local_path;
     std::error_code ec;
 
-    auto platform = SDL_GetPlatform();
+    const auto platform = SDL_GetPlatform();
 
     if (!std::strcmp(platform, "Windows")) {
-        auto base_path = SDL_GetBasePath();
+        const auto base_path = SDL_GetBasePath();
 
         // SDL_GetBasePath may fail if SDL is not initialized yet
         if (base_path) {
             local_path = std::filesystem::path(base_path).lexically_normal();
-            SDL_free(base_path);
         }
 
         if (!std::filesystem::exists(local_path, ec) || ec) {
@@ -240,7 +241,7 @@ bool ResourceManager_GetBasePath(std::filesystem::path& path) {
         }
 
     } else if (!std::strcmp(platform, "Linux")) {
-        auto xdg_data_dirs = SDL_getenv("XDG_DATA_DIRS");
+        const auto xdg_data_dirs = SDL_getenv("XDG_DATA_DIRS");
 
         if (xdg_data_dirs) {
             std::istringstream data(xdg_data_dirs);
@@ -260,7 +261,7 @@ bool ResourceManager_GetBasePath(std::filesystem::path& path) {
                 local_path = std::filesystem::path("/usr/local/share/max-port/").lexically_normal();
 
                 if (!std::filesystem::exists(local_path, ec) || ec) {
-                    auto xdg_data_home = SDL_getenv("XDG_DATA_HOME");
+                    const auto xdg_data_home = SDL_getenv("XDG_DATA_HOME");
 
                     if (xdg_data_home) {
                         local_path = (std::filesystem::path(xdg_data_home) / "max-port/").lexically_normal();
@@ -303,7 +304,7 @@ bool ResourceManager_GetPrefPath(std::filesystem::path& path) {
     std::filesystem::path local_path;
     std::error_code ec;
 
-    auto platform = SDL_GetPlatform();
+    const auto platform = SDL_GetPlatform();
 
     if (!std::strcmp(platform, "Windows")) {
         std::filesystem::path base_path;
@@ -325,7 +326,7 @@ bool ResourceManager_GetPrefPath(std::filesystem::path& path) {
             } else
 #endif /* SDL_VERSION_ATLEAST(2, 0, 1) */
             {
-                auto app_data = SDL_getenv("APPDATA");
+                const auto app_data = SDL_getenv("APPDATA");
 
                 if (app_data) {
                     local_path = (std::filesystem::path(app_data) / "M.A.X. Port/").lexically_normal();
@@ -334,7 +335,7 @@ bool ResourceManager_GetPrefPath(std::filesystem::path& path) {
         }
 
     } else if (!std::strcmp(platform, "Linux")) {
-        auto xdg_data_home = SDL_getenv("XDG_DATA_HOME");
+        const auto xdg_data_home = SDL_getenv("XDG_DATA_HOME");
 
         if (xdg_data_home) {
             local_path = (std::filesystem::path(xdg_data_home) / "max-port/").lexically_normal();
@@ -436,9 +437,9 @@ void ResourceManager_InitResources() {
 }
 
 void ResourceManager_InitSDL() {
-    SDL_LogSetOutputFunction(&ResourceManager_LogOutputHandler, nullptr);
+    SDL_SetLogOutputFunction(&ResourceManager_LogOutputHandler, nullptr);
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(438a), nullptr);
         SDL_Log("%s", _(438a));
         SDL_Log("%s", SDL_GetError());
@@ -534,7 +535,6 @@ void ResourceManager_ExitGame(int32_t error_code) {
 void ResourceManager_Exit() {
     SoundManager_Deinit();
     win_exit();
-    Svga_Deinit();
     ResourceManager_DestroyMutexes();
     SDL_Quit();
 
@@ -965,10 +965,10 @@ int32_t ResourceManager_BuildResourceTable(const std::filesystem::path filepath)
             if (!strncmp("RES0", header.id, sizeof(res_header::id))) {
                 if (ResourceManager_ResItemTable) {
                     ResourceManager_ResItemTable = static_cast<struct res_index*>(
-                        realloc(static_cast<void*>(ResourceManager_ResItemTable),
-                                header.size + ResourceManager_ResItemCount * sizeof(struct res_index)));
+                        SDL_realloc(static_cast<void*>(ResourceManager_ResItemTable),
+                                    header.size + ResourceManager_ResItemCount * sizeof(struct res_index)));
                 } else {
-                    ResourceManager_ResItemTable = static_cast<struct res_index*>(malloc(header.size));
+                    ResourceManager_ResItemTable = static_cast<struct res_index*>(SDL_malloc(header.size));
                 }
 
                 if (ResourceManager_ResItemTable) {
@@ -2024,12 +2024,12 @@ void ResourceManager_FixWorldFiles(const ResourceID world) {
 }
 
 void Resourcemanager_InitLocale() {
-    auto locales = SDL_GetPreferredLocales();
+    auto locales = SDL_GetPreferredLocales(NULL);
 
     if (locales) {
-        for (int i = 0; locales[i].language; i++) {
-            if (locales[i].language && locales[i].country) {
-                ResourceManager_SystemLocale = std::format("{}-{}", locales[i].language, locales[i].country);
+        for (int i = 0; locales[i]; ++i) {
+            if (locales[i]->language && locales[i]->country) {
+                ResourceManager_SystemLocale = std::format("{}-{}", locales[i]->language, locales[i]->country);
 
                 break;
             }
@@ -2176,9 +2176,9 @@ std::string ResourceManager_GetClanID(const TeamClanType clan_id) {
 
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager() { return ResourceManager_MissionManager; }
 
-[[nodiscard]] SDL_mutex* ResourceManager_CreateMutex() {
+[[nodiscard]] SDL_Mutex* ResourceManager_CreateMutex() {
     if (!ResourceManager_SDLMutexes) {
-        ResourceManager_SDLMutexes = std::make_unique<std::vector<SDL_mutex*>>();
+        ResourceManager_SDLMutexes = std::make_unique<std::vector<SDL_Mutex*>>();
 
         if (!ResourceManager_SDLMutexes) {
             ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
@@ -2195,7 +2195,7 @@ std::shared_ptr<MissionManager> ResourceManager_GetMissionManager() { return Res
 }
 
 void ResourceManager_DestroyMutexes() {
-    for (SDL_mutex*& mutex : *ResourceManager_SDLMutexes) {
+    for (SDL_Mutex*& mutex : *ResourceManager_SDLMutexes) {
         SDL_DestroyMutex(mutex);
 
         mutex = nullptr;

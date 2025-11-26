@@ -152,14 +152,14 @@ std::string ResourceManager_GetClanID(const TeamClanType clan_id);
 
 class ResourceManager_MutexLock {
 private:
-    SDL_mutex* m_mutex;
+    SDL_Mutex* m_mutex;
 
 public:
-    explicit ResourceManager_MutexLock(SDL_mutex* mutex) : m_mutex(mutex) { SDL_LockMutex(m_mutex); }
+    explicit ResourceManager_MutexLock(SDL_Mutex* mutex) : m_mutex(mutex) { SDL_LockMutex(m_mutex); }
     virtual ~ResourceManager_MutexLock() { SDL_UnlockMutex(m_mutex); }
 };
 
-[[nodiscard]] SDL_mutex* ResourceManager_CreateMutex();
+[[nodiscard]] SDL_Mutex* ResourceManager_CreateMutex();
 void ResourceManager_DestroyMutexes();
 std::vector<std::filesystem::path> ResourceManager_GetFileList(const std::filesystem::path& folder,
                                                                const std::string& extension);

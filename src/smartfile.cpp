@@ -21,7 +21,7 @@
 
 #include "smartfile.hpp"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "registerarray.hpp"
 

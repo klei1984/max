@@ -21,7 +21,8 @@
 
 #include "gnw.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
+#include <stdlib.h>
 
 static void win_free(WinID id);
 static void win_clip(GNW_Window* w, RectPtr* L, uint8_t* buf);
@@ -68,7 +69,7 @@ int32_t win_init(SetModeFunc set, ResetModeFunc reset, int32_t flags) {
     if (flags & 1) {
         size_t size = (scr_size.lry - scr_size.uly + 1) * (scr_size.lrx - scr_size.ulx + 1);
 
-        screen_buffer = (uint8_t*)malloc(size);
+        screen_buffer = (uint8_t*)SDL_malloc(size);
 
         if (!screen_buffer) {
             if (reset_mode_ptr) {
@@ -91,7 +92,7 @@ int32_t win_init(SetModeFunc set, ResetModeFunc reset, int32_t flags) {
             Svga_Deinit();
         }
         if (screen_buffer) {
-            free(screen_buffer);
+            SDL_free(screen_buffer);
         }
 
         return 2;
@@ -100,7 +101,7 @@ int32_t win_init(SetModeFunc set, ResetModeFunc reset, int32_t flags) {
     GNW_input_init();
     GNW_intr_init();
 
-    window[0] = (GNW_Window*)malloc(sizeof(GNW_Window));
+    window[0] = (GNW_Window*)SDL_malloc(sizeof(GNW_Window));
 
     if (window[0]) {
         window[0]->buf = NULL;
@@ -145,7 +146,7 @@ int32_t win_init(SetModeFunc set, ResetModeFunc reset, int32_t flags) {
         else
             Svga_Deinit();
         if (screen_buffer) {
-            free(screen_buffer);
+            SDL_free(screen_buffer);
         }
 
         result = 2;
@@ -172,10 +173,10 @@ int32_t win_reinit(SetModeFunc set) {
 
             if (!result && (window_flags & 1)) {
                 size_t size = (scr_size.lry - scr_size.uly + 1) * (scr_size.lrx - scr_size.ulx + 1);
-                uint8_t* buffer = (uint8_t*)malloc(size);
+                uint8_t* buffer = (uint8_t*)SDL_malloc(size);
 
                 if (buffer) {
-                    free(screen_buffer);
+                    SDL_free(screen_buffer);
                     screen_buffer = buffer;
                 } else {
                     result = 2;
@@ -230,11 +231,11 @@ void win_exit(void) {
             }
 
             if (GNW_texture) {
-                free(GNW_texture);
+                SDL_free(GNW_texture);
             }
 
             if (screen_buffer) {
-                free(screen_buffer);
+                SDL_free(screen_buffer);
             }
 
             if (reset_mode_ptr) {
@@ -262,12 +263,12 @@ WinID win_add(int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t c
 
     if (GNW_win_init_flag && (num_windows != 50) && ((scr_size.lrx - scr_size.ulx + 1) >= width) &&
         ((scr_size.lry - scr_size.uly + 1) >= length)) {
-        w = (GNW_Window*)malloc(sizeof(GNW_Window));
+        w = (GNW_Window*)SDL_malloc(sizeof(GNW_Window));
 
         if (w) {
             window[num_windows] = w;
 
-            w->buf = (uint8_t*)malloc(length * width);
+            w->buf = (uint8_t*)SDL_malloc(length * width);
 
             if (w->buf) {
                 for (id = 1; GNW_find(id); id++) {
@@ -330,7 +331,7 @@ WinID win_add(int32_t ulx, int32_t uly, int32_t width, int32_t length, int32_t c
 
                 result = id;
             } else {
-                free(w);
+                SDL_free(w);
                 result = -1;
             }
         } else {
@@ -375,15 +376,15 @@ void win_free(WinID id) {
     w = GNW_find(id);
 
     if (w) {
-        if (w->buf) free(w->buf);
-        if (w->menu) free(w->menu);
+        if (w->buf) SDL_free(w->buf);
+        if (w->menu) SDL_free(w->menu);
 
         for (bp = w->button_list; bp; bp = np) {
             np = bp->next;
             GNW_delete_button(bp);
         }
 
-        free(w);
+        SDL_free(w);
     }
 }
 
@@ -741,7 +742,7 @@ void GNW_win_refresh(GNW_Window* w, Rect* bound, uint8_t* scr_buf) {
                     GNW_button_refresh(w, (Rect*)L);
 
                     scr_blit(&screen_buffer[L->r.ulx - bound->ulx + (L->r.uly - bound->uly) * srcW], srcW,
-                             L->r.lrx - L->r.uly + 1, 0, 0, L->r.lrx - L->r.ulx + 1, L->r.lry - L->r.uly + 1, L->r.ulx,
+                             L->r.lry - L->r.uly + 1, 0, 0, L->r.lrx - L->r.ulx + 1, L->r.lry - L->r.uly + 1, L->r.ulx,
                              L->r.uly);
                     rect_free(L);
                 }
@@ -832,7 +833,7 @@ void GNW_win_refresh(GNW_Window* w, Rect* bound, uint8_t* scr_buf) {
                             srcW = L->r.lrx - L->r.ulx + 1;
                             srcH = L->r.lry - L->r.uly + 1;
 
-                            buf = (uint8_t*)malloc(srcH * srcW);
+                            buf = (uint8_t*)SDL_malloc(srcH * srcW);
 
                             if (buf) {
                                 buf_fill(buf, srcW, srcH, srcW, bk_color);
@@ -850,7 +851,7 @@ void GNW_win_refresh(GNW_Window* w, Rect* bound, uint8_t* scr_buf) {
                                     scr_blit(buf, srcW, srcH, 0, 0, srcW, srcH, L->r.ulx, L->r.uly);
                                 }
 
-                                free(buf);
+                                SDL_free(buf);
                             }
                         }
                     }

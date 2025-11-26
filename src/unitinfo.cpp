@@ -21,6 +21,8 @@
 
 #include "unitinfo.hpp"
 
+#include <cmath>
+
 #include "access.hpp"
 #include "ai.hpp"
 #include "ailog.hpp"
@@ -3493,7 +3495,7 @@ void UnitInfo::FollowUnit() {
 }
 
 int32_t UnitInfo::GetExperience() {
-    int32_t result = sqrt(experience * 10) - 2.0;
+    int32_t result = std::sqrt(experience * 10) - 2.0;
 
     if (result < 0) {
         result = 0;

@@ -22,7 +22,7 @@
 #ifndef AILOG_HPP
 #define AILOG_HPP
 
-#include <SDL_mutex.h>
+#include <SDL3/SDL_mutex.h>
 
 #include <chrono>
 #include <cstdarg>
@@ -38,7 +38,7 @@
 
 class AiLog {
     static std::ofstream AiLog_File;
-    static SDL_mutex* AiLog_Mutex;
+    static SDL_Mutex* AiLog_Mutex;
     static int32_t AiLog_SectionCount;
     static int32_t AiLog_EntryCount;
     static int32_t AiLog_EntryLimit;

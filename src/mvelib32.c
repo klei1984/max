@@ -21,6 +21,8 @@
 
 #include "mvelib32.h"
 
+#include <SDL3/SDL.h>
+
 #include "gnw.h"
 #include "miniaudio.h"
 
@@ -544,7 +546,7 @@ void sndDataSourceUninit(struct mve_data_source* data_source) { ma_data_source_u
 
 void sndMveSoundInit(struct mve_sound** sound, int32_t format, int32_t channels, int32_t sample_rate,
                      int32_t minimum_buffer_size) {
-    (*sound) = malloc(sizeof(struct mve_sound));
+    (*sound) = SDL_malloc(sizeof(struct mve_sound));
 
     if ((*sound)) {
         ma_result result;
@@ -557,7 +559,7 @@ void sndMveSoundInit(struct mve_sound** sound, int32_t format, int32_t channels,
 
         result = sndDataSourceInit(&(*sound)->data_source);
         if (result != MA_SUCCESS) {
-            free((*sound));
+            SDL_free((*sound));
             (*sound) = NULL;
         }
 
@@ -569,7 +571,7 @@ void sndMveSoundInit(struct mve_sound** sound, int32_t format, int32_t channels,
         result = ma_sound_init_ex(snd_hDriver, &soundConfig, &(*sound)->sound);
         if (result != MA_SUCCESS) {
             sndDataSourceUninit(&(*sound)->data_source);
-            free((*sound));
+            SDL_free((*sound));
             (*sound) = NULL;
         }
 
@@ -581,7 +583,7 @@ void sndMveSoundInit(struct mve_sound** sound, int32_t format, int32_t channels,
         if (result != MA_SUCCESS) {
             ma_sound_uninit(&(*sound)->sound);
             sndDataSourceUninit(&(*sound)->data_source);
-            free((*sound));
+            SDL_free((*sound));
             (*sound) = NULL;
         }
 
@@ -594,7 +596,7 @@ void sndMveSoundUninit(struct mve_sound** sound) {
         ma_sound_uninit(&(*sound)->sound);
         sndDataSourceUninit(&(*sound)->data_source);
         ma_pcm_rb_uninit(&(*sound)->rb);
-        free((*sound));
+        SDL_free((*sound));
         (*sound) = NULL;
     }
 }
