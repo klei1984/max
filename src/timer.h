@@ -24,12 +24,12 @@
 
 #include <stdint.h>
 
-#define TIMER_FPS_TO_MS(fps) ((uint32_t)(1000.f / (fps) + 0.5f))
+#define TIMER_FPS_TO_MS(fps) ((uint64_t)(1000.f / (fps) + 0.5f))
 
 int32_t timer_init(void);
 int32_t timer_close(void);
 void timer_wait(uint32_t ms);
-uint32_t timer_elapsed_time(uint32_t ms);
-uint32_t timer_get(void);
+uint64_t timer_elapsed_time(uint64_t ms);
+uint64_t timer_get(void);
 
 #endif /* TIMER_H */

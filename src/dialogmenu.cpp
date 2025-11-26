@@ -87,7 +87,7 @@ bool DialogMenu::ProcessKey(int32_t key) {
                 }
 
                 do {
-                    uint32_t time_Stamp = timer_get();
+                    uint64_t time_Stamp = timer_get();
 
                     --row_offset;
                     DrawText();
@@ -111,7 +111,7 @@ bool DialogMenu::ProcessKey(int32_t key) {
                 num_rows = row_offset + max_row_count;
 
                 do {
-                    uint32_t time_Stamp = timer_get();
+                    uint64_t time_Stamp = timer_get();
 
                     ++row_offset;
                     DrawText();

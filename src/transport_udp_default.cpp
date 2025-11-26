@@ -407,7 +407,7 @@ void TransportUdpDefault_RemovePeer(struct TransportUdpDefault_Context* const co
 
 void TransportUdpDefault_RemoveClients(struct TransportUdpDefault_Context* const context) {
     ENetEvent event;
-    const uint32_t time_stamp = SDL_GetTicks() + TransportUdpDefault_DisconnectResponseTimeout;
+    const uint64_t time_stamp = SDL_GetTicks() + TransportUdpDefault_DisconnectResponseTimeout;
     auto& peers = context->NetRole == TRANSPORT_SERVER ? context->Peers : context->RemotePeers;
 
     enet_host_flush(context->Host);

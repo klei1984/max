@@ -187,7 +187,7 @@ void GameSetupMenu::EventBriefingButton() {
     if (key == 14) {
         if (string_row_index) {
             int32_t row_index;
-            uint32_t time_stamp;
+            uint64_t time_stamp;
 
             row_index = string_row_index - rows_per_page;
 
@@ -210,7 +210,7 @@ void GameSetupMenu::EventBriefingButton() {
     } else {
         if (string_row_index + rows_per_page < string_row_count) {
             int32_t row_index;
-            uint32_t time_stamp;
+            uint64_t time_stamp;
 
             row_index = string_row_index + rows_per_page;
 

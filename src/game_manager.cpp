@@ -181,7 +181,7 @@ SmartList<UnitInfo> GameManager_LockedUnits;
 int32_t GameManager_TurnCounter;
 uint32_t GameManager_ArrowKeyFlags;
 int32_t GameManager_TurnTimerValue;
-uint32_t GameManager_FlicFrameTimeStamp;
+uint64_t GameManager_FlicFrameTimeStamp;
 bool GameManager_MaxSpy;
 int32_t GameManager_HumanPlayerCount;
 bool GameManager_RequestMenuExit;
@@ -254,8 +254,8 @@ struct ColorCycleData {
     uint16_t start_index;
     uint16_t end_index;
     uint8_t rotate_direction;
-    uint32_t time_limit;
-    uint32_t time_stamp;
+    uint64_t time_limit;
+    uint64_t time_stamp;
 };
 
 struct MenuFlic {
@@ -329,7 +329,7 @@ static struct MenuDisplayControl GameManager_MenuDisplayControls[] = {
 
 struct PopupButtons GameManager_PopupButtons;
 
-static uint32_t GameManager_NotifyTimeout;
+static uint64_t GameManager_NotifyTimeout;
 static struct MenuFlic GameManager_Flic;
 static TextEdit* GameManager_TextEditUnitName;
 static char GameManager_UnitName[30];
@@ -338,7 +338,7 @@ static bool GameManager_UpdateFlag;
 static uint8_t GameManager_MarkerColorUpdatePeriod = 5;
 static bool GameManager_IsSurveyorSelected;
 
-static uint32_t GameManager_ScrollTimeStamp;
+static uint64_t GameManager_ScrollTimeStamp;
 static float GameManager_ScrollRateLimit = 1.0f;
 static float GameManager_ScrollRate;
 
@@ -1651,8 +1651,8 @@ bool GameManager_UpdateMapDrawBounds(int32_t ulx, int32_t uly) {
 float GameManager_GetScrollRateLimit() { return GameManager_ScrollRateLimit; }
 
 float GameManager_UpdateScrollRateLimit() {
-    const uint32_t elapsed_time = timer_elapsed_time(GameManager_ScrollTimeStamp);
-    const uint32_t time_limit = TIMER_FPS_TO_MS(Svga_GetScreenRefreshRate());
+    const uint64_t elapsed_time = timer_elapsed_time(GameManager_ScrollTimeStamp);
+    const uint64_t time_limit = TIMER_FPS_TO_MS(Svga_GetScreenRefreshRate());
 
     GameManager_ScrollTimeStamp = timer_get();
 
@@ -1870,7 +1870,7 @@ void GameManager_GameSetup(int32_t game_state) {
     WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
     int32_t zoom_level;
     int32_t max_zoom_level;
-    uint32_t timestamp;
+    uint64_t timestamp;
 
     GameManager_InitUnitsAndGameState();
 
@@ -3276,7 +3276,7 @@ void GameManager_UpdateHumanPlayerCount() {
 void GameManager_MenuAnimateDisplayControls() {
     WindowInfo* top_window;
     WindowInfo* bottom_window;
-    uint32_t time_stamp;
+    uint64_t time_stamp;
 
     top_window = WindowManager_GetWindow(WINDOW_TOP_INSTRUMENTS_WINDOW);
     bottom_window = WindowManager_GetWindow(WINDOW_BOTTOM_INSTRUMENTS_WINDOW);
@@ -4980,8 +4980,8 @@ bool GameManager_SyncTurnTimer() {
     bool result;
 
     if (Remote_UpdatePauseTimer) {
-        uint32_t time_stamp;
-        uint32_t seconds_elapsed;
+        uint64_t time_stamp;
+        int32_t seconds_elapsed;
 
         time_stamp = timer_get();
 
@@ -5046,7 +5046,7 @@ void GameManager_ProcessState(bool process_tick, bool clear_mouse_events) {
 }
 
 bool GameManager_ProcessTick(bool render_screen) {
-    uint32_t time_stamp;
+    uint64_t time_stamp;
     bool result;
 
     if (render_screen) {
@@ -6942,7 +6942,7 @@ void GameManager_DrawFlic(Rect* bounds) {
 
 void GameManager_AdvanceFlic() {
     if (GameManager_Flic.flc && GameManager_PlayFlic && ResourceManager_GetSettings()->GetNumericValue("effects")) {
-        uint32_t time_stamp = timer_get();
+        uint64_t time_stamp = timer_get();
 
         if ((time_stamp - GameManager_FlicFrameTimeStamp) >= TIMER_FPS_TO_MS(15)) {
             GameManager_FlicFrameTimeStamp = time_stamp;

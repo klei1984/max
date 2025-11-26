@@ -110,8 +110,8 @@ bool Remote_UpdatePauseTimer;
 bool Remote_UnpauseGameEvent;
 bool Remote_SendSynchFrame;
 bool Remote_TimeoutPendingActive;
-uint32_t Remote_PauseTimeStamp;
-uint32_t Remote_TimeoutTimeStamp;
+uint64_t Remote_PauseTimeStamp;
+uint64_t Remote_TimeoutTimeStamp;
 uint32_t Remote_RngSeed;
 Transport* Remote_Transport;
 NetworkMenu* Remote_NetworkMenu;
@@ -1238,7 +1238,7 @@ void Remote_Synchronize(bool async_mode) {
         Remote_SendSynchFrame = true;
 
     } else {
-        uint32_t time_stamp = timer_get();
+        uint64_t time_stamp = timer_get();
         bool stay_in_loop = true;
         bool main_menu_state = GameManager_IsMainMenuEnabled;
 
@@ -1298,8 +1298,8 @@ void Remote_WaitBeginTurnAcknowledge() {
     Remote_SendNetPacket_Signal(REMOTE_PACKET_00, GameManager_PlayerTeam,
                                 Remote_FrameSyncCounter[GameManager_PlayerTeam]);
 
-    uint32_t time_stamp_timeout = timer_get();
-    uint32_t time_stamp_ping = timer_get();
+    uint64_t time_stamp_timeout = timer_get();
+    uint64_t time_stamp_ping = timer_get();
 
     bool stay_in_loop = true;
 
@@ -1342,8 +1342,8 @@ void Remote_WaitEndTurnAcknowledge() {
 
     Remote_SendNetPacket_Signal(REMOTE_PACKET_52, GameManager_PlayerTeam, Remote_TurnIndices[GameManager_PlayerTeam]);
 
-    uint32_t time_stamp_timeout = timer_get();
-    uint32_t time_stamp_ping = timer_get();
+    uint64_t time_stamp_timeout = timer_get();
+    uint64_t time_stamp_ping = timer_get();
 
     bool stay_in_loop = true;
 
@@ -1504,7 +1504,7 @@ void Remote_LeaveGame(uint16_t team, bool mode) {
 
     Remote_SendNetPacket_07(team, mode);
 
-    uint32_t time_stamp = timer_get();
+    uint64_t time_stamp = timer_get();
     bool stay_in_loop = true;
 
     while (stay_in_loop && Remote_IsNetworkGame) {
@@ -1537,8 +1537,8 @@ bool Remote_CheckDesync(uint16_t team, uint16_t crc_checksum) {
 
     Remote_SendNetPacket_45(team, Remote_NextTurnIndices[team], crc_checksum);
 
-    uint32_t time_stamp_timeout = timer_get();
-    uint32_t time_stamp_ping = timer_get();
+    uint64_t time_stamp_timeout = timer_get();
+    uint64_t time_stamp_ping = timer_get();
 
     bool stay_in_loop = true;
 

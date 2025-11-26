@@ -88,7 +88,7 @@ static ResourceID menu_portrait_id;
 
 static struct MenuButton* menu_button_items;
 static int32_t menu_button_items_count;
-uint32_t menu_turn_timer_value;
+uint64_t menu_turn_timer_value;
 
 static SmartString* menu_tips_strings;
 static Button* menu_tips_button_up;
@@ -393,7 +393,7 @@ void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_pl
         exit_loop = false;
 
         do {
-            uint32_t time_stamp = timer_get();
+            uint64_t time_stamp = timer_get();
 
             key = get_input();
 
@@ -625,9 +625,9 @@ void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int32_t 
     }
 }
 
-void menu_draw_logo(ResourceID resource_id, uint32_t time_limit) {
+void menu_draw_logo(ResourceID resource_id, uint64_t time_limit) {
     WindowInfo* window = WindowManager_GetWindow(WINDOW_MAIN_WINDOW);
-    uint32_t time_stamp;
+    uint64_t time_stamp;
 
     if (WindowManager_LoadBigImage(resource_id, window, window->width, true, false, -1, -1, true, true)) {
         Cursor_SetCursor(CURSOR_HIDDEN);
@@ -1184,7 +1184,7 @@ void menu_delete_tips() {
 void tips_on_click_up(WindowInfo* window) {
     if (menu_tips_current_row_index) {
         int32_t page_offset;
-        uint32_t time_stamp;
+        uint64_t time_stamp;
 
         page_offset = menu_tips_current_row_index - menu_tips_max_row_count_per_page;
 
@@ -1205,7 +1205,7 @@ void tips_on_click_up(WindowInfo* window) {
 
 void tips_on_click_down(WindowInfo* window) {
     int32_t page_offset;
-    uint32_t time_stamp;
+    uint64_t time_stamp;
 
     page_offset = menu_tips_current_row_index + menu_tips_max_row_count_per_page;
 
@@ -1338,7 +1338,7 @@ void menu_credits_menu_loop() {
     uint32_t line_index;
     uint8_t* image_buffer_position;
     uint8_t* window_buffer_position;
-    uint32_t time_stamp;
+    uint64_t time_stamp;
     constexpr int32_t scroll_rate{9};
     uint32_t scroll_speed{100};
 
@@ -2507,7 +2507,7 @@ bool DesyncMenu_Menu() {
 
 void main_menu() {
     WindowInfo* window;
-    uint32_t time_stamp;
+    uint64_t time_stamp;
     int16_t palette_from_image;
     bool exit_loop;
     bool event_release;

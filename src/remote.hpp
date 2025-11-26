@@ -135,7 +135,7 @@ extern uint8_t Remote_GameState;
 extern bool Remote_IsHostMode;
 extern bool Remote_IsNetworkGame;
 extern bool Remote_UpdatePauseTimer;
-extern uint32_t Remote_PauseTimeStamp;
+extern uint64_t Remote_PauseTimeStamp;
 extern uint32_t Remote_RngSeed;
 extern NetNodeArray Remote_Nodes;
 extern NetNodeArray Remote_Hosts;

@@ -39,7 +39,7 @@ int32_t MAXFloodFill::Fill(Point point) {
     ObjectArray<FloodRun> runs;
     int32_t runs_count;
     int32_t max_runs = 0;
-    uint32_t time_stamp = timer_get();
+    uint64_t time_stamp = timer_get();
 
     cell_count = 0;
 
@@ -143,7 +143,7 @@ int32_t MAXFloodFill::Fill(Point point) {
 
     ++bounds.lrx;
 
-    int32_t elapsed_time = timer_elapsed_time(time_stamp);
+    uint64_t elapsed_time = timer_elapsed_time(time_stamp);
 
     if (elapsed_time > 10 || max_runs > 10) {
         AILOG(log, "Flood fill, {} msecs, {} max depth.", elapsed_time, max_runs);

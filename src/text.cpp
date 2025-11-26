@@ -811,8 +811,8 @@ void Text_TypeWriter_TextBox(WindowInfo* window, const char* text, int32_t ulx, 
                              int32_t alignment) {
     int32_t width_text;
     int32_t text_position;
-    uint32_t initial_time_stamp;
-    uint32_t time_stamp;
+    uint64_t initial_time_stamp;
+    uint64_t time_stamp;
     char character[2];
 
     width_text = Text_GetWidth(text);

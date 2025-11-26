@@ -29,7 +29,7 @@ class MenuLandingSequence {
     WindowInfo* panel_bottom;
     Image* image_1;
     Image* image_2;
-    uint32_t time_stamp;
+    uint64_t time_stamp;
     int32_t step_size;
 
 public:

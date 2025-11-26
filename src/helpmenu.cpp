@@ -182,7 +182,7 @@ bool HelpMenu::ProcessKey(int32_t key) {
         case GNW_KB_KEY_PAGEUP: {
             if (string_row_index) {
                 int32_t row_index;
-                uint32_t time_stamp;
+                uint64_t time_stamp;
 
                 button_up->PlaySound();
 
@@ -210,7 +210,7 @@ bool HelpMenu::ProcessKey(int32_t key) {
         case GNW_KB_KEY_PAGEDOWN: {
             if ((string_row_index + rows_per_page) < string_row_count) {
                 int32_t row_index;
-                uint32_t time_stamp;
+                uint64_t time_stamp;
 
                 button_down->PlaySound();
 

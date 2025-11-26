@@ -27,7 +27,7 @@
 #include "gnw.h"
 
 typedef struct tm_item_s {
-    uint32_t created;
+    uint64_t created;
     WinID id;
     int32_t location;
 } tm_item;

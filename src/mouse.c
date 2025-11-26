@@ -241,7 +241,7 @@ int32_t mouse_set_anim_frames(uint8_t* frames, int32_t num_frames, int32_t start
 }
 
 void mouse_anim(void) {
-    static uint32_t ticker = 0;
+    static uint64_t ticker = 0;
 
     if (timer_elapsed_time(ticker) >= mouse_speed) {
         ticker = timer_get();
@@ -375,8 +375,8 @@ void mouse_info(void) {
 }
 
 void mouse_simulate_input(int32_t delta_x, int32_t delta_y, uint32_t buttons) {
-    static uint32_t right_time;
-    static uint32_t left_time;
+    static uint64_t right_time;
+    static uint64_t left_time;
     static int32_t old;
 
     if (!have_mouse || mouse_is_hidden) {

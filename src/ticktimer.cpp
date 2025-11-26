@@ -30,15 +30,15 @@
 
 static bool TickTimer_RequestUpdate;
 static bool TickTimer_IsInitialized;
-static uint32_t TickTimer_LastTimeStamp;
-static uint32_t TickTimer_TimeLimit{TIMER_FPS_TO_MS(30 / 1.1)};
+static uint64_t TickTimer_LastTimeStamp;
+static uint64_t TickTimer_TimeLimit{TIMER_FPS_TO_MS(30 / 1.1)};
 static uint8_t TickTimer_TimeBenchmarkNextIndex;
 static uint8_t TickTimer_TimeBenchmarkIndices[TICKTIMER_BENCHMARK_ARRAY_SIZE];
-static uint32_t TickTimer_TimeBenchmarkValues[TICKTIMER_BENCHMARK_ARRAY_SIZE];
+static uint64_t TickTimer_TimeBenchmarkValues[TICKTIMER_BENCHMARK_ARRAY_SIZE];
 
 bool TickTimer_HaveTimeToThink() noexcept { return (timer_get() - TickTimer_LastTimeStamp) <= TickTimer_TimeLimit; }
 
-bool TickTimer_HaveTimeToThink(uint32_t milliseconds) noexcept {
+bool TickTimer_HaveTimeToThink(uint64_t milliseconds) noexcept {
     return (timer_get() - TickTimer_LastTimeStamp) <= milliseconds;
 }
 
@@ -63,7 +63,7 @@ void TickTimer_UpdateTimeLimit() noexcept {
                          sizeof(TickTimer_TimeBenchmarkIndices[0]) * (TICKTIMER_BENCHMARK_ARRAY_SIZE - 1 - index));
         }
 
-        uint32_t elapsed_time = timer_get() - TickTimer_LastTimeStamp;
+        uint64_t elapsed_time = timer_get() - TickTimer_LastTimeStamp;
 
         if (elapsed_time > TIMER_FPS_TO_MS(1)) {
             elapsed_time = TIMER_FPS_TO_MS(1);
@@ -86,7 +86,7 @@ void TickTimer_UpdateTimeLimit() noexcept {
 
         TickTimer_TimeBenchmarkNextIndex = (TickTimer_TimeBenchmarkNextIndex + 1) % TICKTIMER_BENCHMARK_ARRAY_SIZE;
 
-        uint32_t time_budget = (elapsed_time * 3) / 2;
+        uint64_t time_budget = (elapsed_time * 3) / 2;
 
         time_budget = std::max(time_budget, TIMER_FPS_TO_MS(50));
         time_budget = std::min(time_budget, TIMER_FPS_TO_MS(30));
@@ -107,8 +107,8 @@ void TickTimer_UpdateTimeLimit() noexcept {
     }
 }
 
-uint32_t TickTimer_GetElapsedTime() noexcept { return timer_elapsed_time(TickTimer_LastTimeStamp); }
+uint64_t TickTimer_GetElapsedTime() noexcept { return timer_elapsed_time(TickTimer_LastTimeStamp); }
 
-uint32_t TickTimer_GetLastTimeStamp() noexcept { return TickTimer_LastTimeStamp; }
+uint64_t TickTimer_GetLastTimeStamp() noexcept { return TickTimer_LastTimeStamp; }
 
-void TickTimer_SetLastTimeStamp(const uint32_t time_stamp) noexcept { TickTimer_LastTimeStamp = time_stamp; }
+void TickTimer_SetLastTimeStamp(const uint64_t time_stamp) noexcept { TickTimer_LastTimeStamp = time_stamp; }

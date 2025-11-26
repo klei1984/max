@@ -25,11 +25,11 @@
 #include <cstdint>
 
 [[nodiscard]] bool TickTimer_HaveTimeToThink() noexcept;
-[[nodiscard]] bool TickTimer_HaveTimeToThink(uint32_t milliseconds) noexcept;
+[[nodiscard]] bool TickTimer_HaveTimeToThink(uint64_t milliseconds) noexcept;
 void TickTimer_RequestTimeLimitUpdate() noexcept;
 void TickTimer_UpdateTimeLimit() noexcept;
-[[nodiscard]] uint32_t TickTimer_GetElapsedTime() noexcept;
-[[nodiscard]] uint32_t TickTimer_GetLastTimeStamp() noexcept;
-void TickTimer_SetLastTimeStamp(const uint32_t time_stamp) noexcept;
+[[nodiscard]] uint64_t TickTimer_GetElapsedTime() noexcept;
+[[nodiscard]] uint64_t TickTimer_GetLastTimeStamp() noexcept;
+void TickTimer_SetLastTimeStamp(const uint64_t time_stamp) noexcept;
 
 #endif /* TICKTIMER_HPP */

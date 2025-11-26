@@ -319,7 +319,7 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
     Flic* flc;
     int32_t result;
     int32_t save_slot_index;
-    uint32_t time_stamp;
+    uint64_t time_stamp;
     bool exit_loop;
     int32_t key;
     const int32_t slot_count = sizeof(slots) / sizeof(SaveSlot);

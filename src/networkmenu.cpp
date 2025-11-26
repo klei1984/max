@@ -64,7 +64,7 @@
 
 bool NetworkMenu_MenuLoop(bool is_host_mode) {
     NetworkMenu network_menu;
-    uint32_t time_stamp;
+    uint64_t time_stamp;
     bool event_release;
 
     event_release = false;

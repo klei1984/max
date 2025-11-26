@@ -43,7 +43,7 @@ bool menu_check_end_game_conditions(int32_t turn_counter, int32_t turn_counter_s
 void menu_draw_menu_title(WindowInfo* window, MenuTitleItem* menu_item, int32_t color, bool horizontal_align = false,
                           bool vertical_align = true);
 
-void menu_draw_logo(ResourceID resource_id, uint32_t time_limit);
+void menu_draw_logo(ResourceID resource_id, uint64_t time_limit);
 
 int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t width);
 

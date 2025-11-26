@@ -44,7 +44,7 @@ class TextEdit {
     bool is_being_edited;
     uint16_t font_num;
     uint8_t mode;
-    uint32_t time_stamp;
+    uint64_t time_stamp;
 
     void DrawTillCursor();
     void Clear();

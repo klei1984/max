@@ -241,10 +241,10 @@ static int32_t gfx_curpage;
 static uint32_t gfx_page_y[2];
 
 static int32_t sync_active;
-static int32_t sync_wait_quanta;
+static int64_t sync_wait_quanta;
 static int32_t sync_late;
 static int32_t sync_FrameDropped;
-static int32_t sync_time;
+static int64_t sync_time;
 
 static void* snd_hDriver;
 static struct mve_sound* snd_SampleHandle;
@@ -333,10 +333,12 @@ int32_t syncWaitLevel(int32_t level) {
     int32_t result = 0;
 
     if (sync_active) {
-        result = sync_time + level + 1000 * timer_get();
+        int64_t elapsed = sync_time + level + 1000 * timer_get();
 
-        if (result < 0) {
-            timer_wait(-result / 1000);
+        result = (int32_t)elapsed;
+
+        if (elapsed < 0) {
+            timer_wait((uint32_t)(-elapsed / 1000));
         }
 
         sync_time += sync_wait_quanta;
@@ -352,10 +354,10 @@ void syncReset(int32_t level) {
 
 void syncSync(void) {
     if (sync_active) {
-        const int32_t time_to_wait = sync_time + 1000 * timer_get();
+        const int64_t time_to_wait = sync_time + 1000 * timer_get();
 
         if (time_to_wait < 0) {
-            timer_wait(-time_to_wait / 1000);
+            timer_wait((uint32_t)(-time_to_wait / 1000));
         }
     }
 }

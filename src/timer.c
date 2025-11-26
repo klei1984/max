@@ -29,9 +29,9 @@ int32_t timer_close(void) { return 0; }
 
 void timer_wait(uint32_t ms) { SDL_Delay(ms); }
 
-uint32_t timer_elapsed_time(uint32_t ms) {
-    uint32_t result;
-    uint32_t time_stamp = SDL_GetTicks();
+uint64_t timer_elapsed_time(uint64_t ms) {
+    uint64_t result;
+    uint64_t time_stamp = SDL_GetTicks();
 
     if (time_stamp > ms) {
         result = time_stamp - ms;
@@ -43,4 +43,4 @@ uint32_t timer_elapsed_time(uint32_t ms) {
     return result;
 }
 
-uint32_t timer_get(void) { return SDL_GetTicks(); }
+uint64_t timer_get(void) { return SDL_GetTicks(); }

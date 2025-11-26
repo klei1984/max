@@ -45,8 +45,8 @@ class PathsManager {
 
     SmartPointer<PathRequest> request;
     SmartList<PathRequest> requests;
-    uint32_t time_stamp;
-    uint32_t elapsed_time;
+    uint64_t time_stamp;
+    uint64_t elapsed_time;
     Searcher* forward_searcher;
     Searcher* backward_searcher;
 
@@ -245,7 +245,7 @@ void PathsManager::EvaluateTiles() {
                     if (Paths_DebugMode >= 1) {
                         char message[100];
 
-                        sprintf(message, "Debug: path generator evaluated %i tiles in %i msecs, max depth = %i",
+                        sprintf(message, "Debug: path generator evaluated %i tiles in %lli msecs, max depth = %i",
                                 Paths_EvaluatedTileCount, timer_elapsed_time(time_stamp), Paths_MaxDepth);
 
                         MessageManager_DrawMessage(message, 0, 0);

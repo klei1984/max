@@ -187,7 +187,7 @@ void PlanetSelectMenu::AnimateWorldChange(int32_t world1, int32_t world2, bool d
         int32_t height;
         Rect bounds;
         uint8_t* buffer_position;
-        uint32_t time_stamp;
+        uint64_t time_stamp;
         int32_t offset;
 
         width = image1_header->width;

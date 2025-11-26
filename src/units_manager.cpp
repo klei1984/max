@@ -235,7 +235,7 @@ bool UnitsManager_SelfDestructActiveMenu(WindowInfo* window) {
     bool event_release;
 
     for (uint16_t id = SLFDOPN1; id <= SLFDOPN6; ++id) {
-        uint32_t time_Stamp = timer_get();
+        uint64_t time_Stamp = timer_get();
 
         WindowManager_LoadSimpleImage(static_cast<ResourceID>(id), 13, 11, false, window);
         win_draw(window->id);
