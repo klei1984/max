@@ -297,6 +297,11 @@ void GNW_process_key(SDL_KeyboardEvent* key_data) {
     }
 
     if (key_data->type == SDL_EVENT_KEY_DOWN) {
+        if ((key_data->mod & SDL_KMOD_LALT) && (key_data->key == SDLK_RETURN || key_data->key == SDLK_KP_ENTER)) {
+            Svga_ToggleFullscreen();
+            return;
+        }
+
         const int32_t game_key = input_sdl_to_game_key(key_data->key, key_data->mod);
 
         if (game_key != 0) {

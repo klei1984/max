@@ -566,3 +566,23 @@ void mouse_set_wheel_sensitivity(int32_t new_sensitivity) {
 }
 
 int32_t mouse_get_wheel_sensitivity(void) { return mouse_wheel_sensitivity; }
+
+void mouse_set_fullscreen_mode(int32_t is_fullscreen) {
+    if (have_mouse) {
+        // Clip mouse position to screen bounds in case it was outside
+        mouse_clip();
+
+        if (is_fullscreen) {
+            // Flush any accumulated relative mouse deltas before enabling relative mode
+            float discard_x, discard_y;
+
+            SDL_GetRelativeMouseState(&discard_x, &discard_y);
+
+        } else {
+            // Warp SDL mouse to current logical position to prevent cursor jumping on next mouse_info() call
+            SDL_WarpMouseInWindow(Svga_GetWindow(), mouse_hotx + mouse_x, mouse_hoty + mouse_y);
+        }
+
+        SDL_SetWindowRelativeMouseMode(Svga_GetWindow(), is_fullscreen);
+    }
+}

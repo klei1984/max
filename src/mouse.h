@@ -81,5 +81,6 @@ void mouse_add_wheel_event(int32_t delta_x, int32_t delta_y);
 void mouse_get_wheel_delta(int32_t* delta_x, int32_t* delta_y);
 void mouse_set_wheel_sensitivity(int32_t new_sensitivity);
 int32_t mouse_get_wheel_sensitivity(void);
+void mouse_set_fullscreen_mode(int32_t is_fullscreen);
 
 #endif /* define MOUSE_H */

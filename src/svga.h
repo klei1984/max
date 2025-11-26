@@ -53,6 +53,7 @@ int32_t Svga_GetScreenRefreshRate(void);
 bool Svga_IsFullscreen(void);
 bool Svga_GetWindowFlags(uint32_t* flags);
 SDL_Window* Svga_GetWindow(void);
+void Svga_ToggleFullscreen(void);
 
 #ifdef __cplusplus
 }

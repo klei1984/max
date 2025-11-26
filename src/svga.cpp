@@ -415,3 +415,87 @@ bool Svga_GetWindowFlags(uint32_t* flags) {
 }
 
 SDL_Window* Svga_GetWindow(void) { return sdlWindow; }
+
+void Svga_ToggleFullscreen(void) {
+    if (sdlWindow) {
+        const int32_t initial_mode = ResourceManager_GetSettings()->GetNumericValue("screen_mode");
+        int32_t new_mode;
+        SDL_Rect bounds;
+
+        if (initial_mode == WINDOW_MODE_FULLSCREEN) {
+            new_mode = (Svga_ScreenMode == WINDOW_MODE_FULLSCREEN) ? WINDOW_MODE_WINDOWED : WINDOW_MODE_FULLSCREEN;
+
+        } else {
+            new_mode = (Svga_ScreenMode == WINDOW_MODE_WINDOWED) ? WINDOW_MODE_BORDERLESS : WINDOW_MODE_WINDOWED;
+        }
+
+        if (!SDL_GetDisplayBounds(Svga_DisplayID, &bounds)) {
+            AILOG(log, "SDL_GetDisplayBounds failed: {}\n", SDL_GetError());
+            return;
+        }
+
+        switch (new_mode) {
+            case WINDOW_MODE_WINDOWED: {
+                if (!SDL_SetWindowFullscreen(sdlWindow, false)) {
+                    AILOG(log, "SDL_SetWindowFullscreen(false) failed: {}\n", SDL_GetError());
+                    return;
+                }
+
+                // Ensure window has a border (might have been borderless)
+                if (!SDL_SetWindowBordered(sdlWindow, true)) {
+                    AILOG(log, "SDL_SetWindowBordered failed: {}\n", SDL_GetError());
+                }
+
+                // Set window size to logical resolution (aspect ratio corrected)
+                if (!SDL_SetWindowSize(sdlWindow, Svga_ScreenWidth, Svga_ScreenHeight)) {
+                    AILOG(log, "SDL_SetWindowSize failed: {}\n", SDL_GetError());
+                }
+
+                // Center the window on the display
+                if (!SDL_SetWindowPosition(sdlWindow, SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex),
+                                           SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex))) {
+                    AILOG(log, "SDL_SetWindowPosition failed: {}\n", SDL_GetError());
+                }
+            } break;
+
+            case WINDOW_MODE_FULLSCREEN: {
+                // Set window size to desktop resolution before going fullscreen
+                if (!SDL_SetWindowSize(sdlWindow, bounds.w, bounds.h)) {
+                    AILOG(log, "SDL_SetWindowSize failed: {}\n", SDL_GetError());
+                }
+
+                // Enter exclusive fullscreen mode
+                if (!SDL_SetWindowFullscreen(sdlWindow, true)) {
+                    AILOG(log, "SDL_SetWindowFullscreen(true) failed: {}\n", SDL_GetError());
+                    return;
+                }
+            } break;
+
+            case WINDOW_MODE_BORDERLESS: {
+                // Set window size to desktop resolution before going fullscreen
+                if (!SDL_SetWindowSize(sdlWindow, bounds.w, bounds.h)) {
+                    AILOG(log, "SDL_SetWindowSize failed: {}\n", SDL_GetError());
+                }
+
+                // Enter borderless fullscreen mode (uses SDL_WINDOW_FULLSCREEN in SDL3, but with borderless behavior)
+                if (!SDL_SetWindowFullscreen(sdlWindow, true)) {
+                    AILOG(log, "SDL_SetWindowFullscreen(true) failed: {}\n", SDL_GetError());
+                    return;
+                }
+            } break;
+
+            default: {
+                AILOG(log, "Svga_ToggleFullscreen: Unknown mode {}\n", new_mode);
+                return;
+            }
+        }
+
+        Svga_ScreenMode = new_mode;
+
+        // Update mouse mode for fullscreen state
+        mouse_set_fullscreen_mode(new_mode != WINDOW_MODE_WINDOWED);
+
+        // Force a full screen refresh to ensure proper display
+        Svga_RefreshSystemPalette(true);
+    }
+}
