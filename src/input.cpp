@@ -28,6 +28,8 @@
 #include <unordered_map>
 
 #include "gnw.h"
+#include "remote.hpp"
+#include "resource_manager.hpp"
 #include "svga.h"
 
 #define GNW_INPUT_BUFFER_SIZE 40
@@ -282,6 +284,8 @@ void GNW_process_message(void) {
             case SDL_EVENT_WINDOW_MOUSE_LEAVE: {
             } break;
             case SDL_EVENT_WINDOW_CLOSE_REQUESTED: {
+                Remote_Deinit();
+                ResourceManager_ExitGame(EXIT_CODE_THANKS);
             } break;
         }
     }
