@@ -8087,6 +8087,7 @@ void GameManager_DrawProximityZones() {
         GameManager_AddDrawBounds(&bounds);
 
         while (!GameManager_ProcessTick(false)) {
+            MouseEvent::ProcessInput();
         }
     }
 }
