@@ -27,6 +27,7 @@
 
 #include "enums.hpp"
 #include "game_manager.hpp"
+#include "gfx.hpp"
 #include "gnw.h"
 #include "miniaudio.h"
 #include "mvelib32.h"
@@ -194,6 +195,7 @@ private:
     void FreeVoice(const ResourceID id1, const ResourceID id2) noexcept;
     [[nodiscard]] bool IsVoiceGroupScheduled(const ResourceID id1, const ResourceID id2) noexcept;
     [[nodiscard]] static float GetPanning(int32_t distance, const bool reverse) noexcept;
+    [[nodiscard]] static float GetZoomAttenuation() noexcept;
     [[nodiscard]] bool PlayMusic(const ResourceID id) noexcept;
     int32_t LoadSound(SoundJob& job, SoundSample& sample) noexcept;
     void LoadLoopPoints(FILE* const fp, SoundSample& sample) noexcept;
@@ -542,8 +544,9 @@ void SoundManager::PlaySfx(UnitInfo* const unit, const Unit::SfxType sound, cons
             const float volume = static_cast<float>(sfx_info.volume) / 100.0f;
 
             job->volume_2 = volume;
-            job->volume_1 = job->volume_2 - job->volume_2 * std::max(grid_distance_x, grid_distance_y) /
-                                                std::max(ResourceManager_MapSize.x, ResourceManager_MapSize.y);
+            job->volume_1 = (job->volume_2 - job->volume_2 * std::max(grid_distance_x, grid_distance_y) /
+                                                 std::max(ResourceManager_MapSize.x, ResourceManager_MapSize.y)) *
+                            GetZoomAttenuation();
 
             job->panning = GetPanning(grid_distance_x, grid_offset_x < 0);
 
@@ -569,8 +572,9 @@ void SoundManager::UpdateSfxPosition() noexcept {
 
             ma_sound_set_pan(&(*it).sound, GetPanning(grid_distance_x, grid_offset_x < 0));
 
-            float sound_level = (*it).volume_2 - (*it).volume_2 * std::max(grid_distance_x, grid_distance_y) /
-                                                     std::max(ResourceManager_MapSize.x, ResourceManager_MapSize.y);
+            float sound_level = ((*it).volume_2 - (*it).volume_2 * std::max(grid_distance_x, grid_distance_y) /
+                                                      std::max(ResourceManager_MapSize.x, ResourceManager_MapSize.y)) *
+                                GetZoomAttenuation();
 
             ma_sound_set_volume(&(*it).sound, sound_level);
         }
@@ -593,8 +597,9 @@ void SoundManager::UpdateSfxPosition(UnitInfo* const unit) noexcept {
 
         ma_sound_set_pan(&sfx->sound, GetPanning(grid_distance_x, grid_offset_x < 0));
 
-        float sound_level = sfx->volume_2 - sfx->volume_2 * std::max(grid_distance_x, grid_distance_y) /
-                                                std::max(ResourceManager_MapSize.x, ResourceManager_MapSize.y);
+        float sound_level = (sfx->volume_2 - sfx->volume_2 * std::max(grid_distance_x, grid_distance_y) /
+                                                 std::max(ResourceManager_MapSize.x, ResourceManager_MapSize.y)) *
+                            GetZoomAttenuation();
 
         ma_sound_set_volume(&sfx->sound, sound_level);
     }
@@ -902,6 +907,19 @@ float SoundManager::GetPanning(int32_t distance, const bool reverse) noexcept {
     }
 
     return panning;
+}
+
+float SoundManager::GetZoomAttenuation() noexcept {
+    constexpr uint32_t no_attenuation_threshold = 32;
+    constexpr uint32_t minimum_zoom_level = 4;
+    const uint32_t zoom_level = Gfx_ZoomLevel;
+    float result = 1.f;
+
+    if (zoom_level < no_attenuation_threshold) {
+        result = 0.5f + 0.5f * (zoom_level - minimum_zoom_level) / (no_attenuation_threshold - minimum_zoom_level);
+    }
+
+    return result;
 }
 
 bool SoundManager::PlayMusic(const ResourceID id) noexcept {
