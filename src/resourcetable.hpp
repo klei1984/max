@@ -2040,7 +2040,9 @@ enum ResourceID : uint16_t {
     SC_D0003,
     SC_MIS_E,
     SCRIPT_E = SC_MIS_E,
-    RESOURCE_E = SCRIPT_E,
+    INTROSUB = SCRIPT_E,
+    SC_SCHEE,
+    RESOURCE_E,
     INVALID_ID = 0xFFFF
 };
 

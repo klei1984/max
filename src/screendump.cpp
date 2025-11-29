@@ -21,12 +21,13 @@
 
 #include "screendump.h"
 
-#include <cassert>
-#include <cstdio>
-
-#include "color.h"
 #include "resource_manager.hpp"
 #include "smartstring.hpp"
+#include "svga.h"
+
+int32_t screendump_key;
+static ScreenDumpFunc screendump_function;
+static uint8_t* screendump_buffer;
 
 typedef struct {
     uint8_t Identifier;
@@ -48,6 +49,8 @@ typedef struct {
     uint16_t VertScreenSize;
     uint8_t Reserved2[54];
 } PcxHeader;
+
+static int32_t screendump_default(int32_t width, int32_t length, uint8_t* buffer, uint8_t* palette);
 
 int32_t screendump_pcx(int32_t width, int32_t length, uint8_t* buffer, uint8_t* palette) {
     PcxHeader pcx_header;
@@ -121,4 +124,136 @@ int32_t screendump_pcx(int32_t width, int32_t length, uint8_t* buffer, uint8_t* 
     fclose(fp);
 
     return 0;
+}
+
+int32_t screendump_default(int32_t width, int32_t length, uint8_t* buffer, uint8_t* palette) {
+    uint8_t blue;
+    uint8_t reserved;
+    uint8_t red;
+    uint8_t green;
+
+    int32_t result;
+
+    int32_t i;
+    FILE* fp;
+    char fname[13];
+
+    int32_t temp_signed_32;
+    uint32_t temp_unsigned_32;
+    uint16_t temp_unsigned_16;
+
+    for (i = 0; i < 100000; ++i) {
+        sprintf(fname, "scr%.5d.bmp", i);
+        fp = fopen(fname, "rb");
+        if (!fp) break;
+        fclose(fp);
+    }
+
+    if (i != 100000 && (fp = fopen(fname, "wb")) != 0) {
+        temp_unsigned_16 = 'B' + ('M' << 8);
+        fwrite(&temp_unsigned_16, sizeof(temp_unsigned_16), 1, fp);
+
+        temp_unsigned_32 = length * width + 1078;
+        fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
+
+        temp_unsigned_16 = 0;
+        fwrite(&temp_unsigned_16, sizeof(temp_unsigned_16), 1, fp);
+
+        temp_unsigned_16 = 0;
+        fwrite(&temp_unsigned_16, sizeof(temp_unsigned_16), 1, fp);
+
+        temp_unsigned_32 = 1078;
+        fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
+
+        temp_unsigned_32 = 40;
+        fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
+
+        temp_signed_32 = width;
+        fwrite(&temp_signed_32, sizeof(temp_signed_32), 1, fp);
+
+        temp_signed_32 = length;
+        fwrite(&temp_signed_32, sizeof(temp_signed_32), 1, fp);
+
+        temp_unsigned_16 = 1;
+        fwrite(&temp_unsigned_16, sizeof(temp_unsigned_16), 1, fp);
+
+        temp_unsigned_16 = 8;
+        fwrite(&temp_unsigned_16, sizeof(temp_unsigned_16), 1, fp);
+
+        temp_unsigned_32 = 0;
+        fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
+
+        temp_unsigned_32 = 0;
+        fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
+
+        temp_signed_32 = 0;
+        fwrite(&temp_signed_32, sizeof(temp_signed_32), 1, fp);
+
+        temp_signed_32 = 0;
+        fwrite(&temp_signed_32, sizeof(temp_signed_32), 1, fp);
+
+        temp_unsigned_32 = 0;
+        fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
+
+        temp_unsigned_32 = 0;
+        fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
+
+        for (i = 0; i < PALETTE_SIZE; ++i) {
+            reserved = 0;
+            red = palette[PALETTE_STRIDE * i + 0] * 4;
+            green = palette[PALETTE_STRIDE * i + 1] * 4;
+            blue = palette[PALETTE_STRIDE * i + 2] * 4;
+
+            fwrite(&blue, 1, 1, fp);
+            fwrite(&green, 1, 1, fp);
+            fwrite(&red, 1, 1, fp);
+            fwrite(&reserved, 1, 1, fp);
+        }
+
+        for (i = length - 1; i >= 0; --i) {
+            fwrite(&buffer[width * i], sizeof(uint8_t), width, fp);
+        }
+
+        fflush(fp);
+        fclose(fp);
+
+        result = 0;
+    } else {
+        result = -1;
+    }
+
+    return result;
+}
+
+void screendump_register(int32_t new_screendump_key, ScreenDumpFunc new_screendump_func) {
+    screendump_key = new_screendump_key;
+
+    if (new_screendump_func) {
+        screendump_function = new_screendump_func;
+    } else {
+        screendump_function = screendump_default;
+    }
+}
+
+int32_t screendump_get_key() { return screendump_key; }
+
+void screendump_dump_screen(void) {
+    int32_t width;
+    int32_t length;
+
+    width = scr_size.lrx - scr_size.ulx + 1;
+    length = scr_size.lry - scr_size.uly + 1;
+
+    screendump_buffer = (uint8_t*)SDL_malloc(length * width);
+
+    if (screendump_buffer) {
+        uint8_t surface_palette[PALETTE_STRIDE * PALETTE_SIZE];
+
+        if (Svga_GetPaletteSurfaceData(screendump_buffer, length * width, surface_palette)) {
+            screendump_function(width, length, screendump_buffer, surface_palette);
+        }
+
+        SDL_free(screendump_buffer);
+        screendump_buffer = NULL;
+    }
 }

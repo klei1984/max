@@ -23,8 +23,11 @@
 
 #include <SDL3/SDL.h>
 
+#include <memory>
+
 #include "cursor.hpp"
 #include "gnw.h"
+#include "moviesubtitle.hpp"
 #include "mvelib32.h"
 #include "resource_manager.hpp"
 #include "settings.hpp"
@@ -40,11 +43,13 @@ static void movie_cb_show_frame(uint8_t* buffer, int32_t bufw, int32_t bufh, int
                                 int32_t h, int32_t dstx, int32_t dsty);
 static void movie_cb_set_palette(uint8_t* p, int32_t start, int32_t count);
 static void movie_init_palette(void);
-static int32_t movie_run(ResourceID resource_id);
+static int32_t movie_run(ResourceID resource_id, ResourceID subtitle_id = INVALID_ID);
 
-static uint32_t movie_music_level;
+static uint32_t movie_sound_volume;
 
 static uint8_t* gfx_buf;
+static std::unique_ptr<MovieSubtitle> movie_subtitle;
+static int32_t movie_frame_index;
 
 void* mve_cb_alloc(size_t size) { return SDL_malloc(size); }
 
@@ -88,7 +93,21 @@ void movie_cb_show_frame(uint8_t* buffer, int32_t bufw, int32_t bufh, int32_t sx
 
     cscale(buffer, bufw, bufh, bufw, gfx_buf, frame_width, frame_height, window_width);
 
-    Svga_Blit(gfx_buf, window_width, window_height, 0, 0, frame_width, frame_height, frame_offset_x, frame_offset_y);
+    // Blit indexed surface to RGB surface
+    Svga_BlitIndex8ToRGB(gfx_buf, window_width, window_height, 0, 0, frame_width, frame_height, frame_offset_x,
+                         frame_offset_y);
+
+    if (movie_subtitle && movie_subtitle->RenderSubtitle(frame_width, frame_height, movie_frame_index)) {
+        // Overlay RGBA subtitle onto RGB surface, then finalize the full frame
+        Svga_BlitRGBA(movie_subtitle->GetCacheBuffer(), movie_subtitle->GetCacheWidth(),
+                      movie_subtitle->GetCacheHeight(), 0, 0, movie_subtitle->GetCopyWidth(),
+                      movie_subtitle->GetCopyHeight(), frame_offset_x + movie_subtitle->GetDestX(),
+                      frame_offset_y + movie_subtitle->GetDestY(), frame_offset_x, frame_offset_y, frame_width,
+                      frame_height);
+    } else {
+        // No subtitle - just finalize
+        Svga_BlitFinalize(frame_offset_x, frame_offset_y, frame_width, frame_height);
+    }
 }
 
 void movie_cb_set_palette(uint8_t* p, int32_t start, int32_t count) {
@@ -124,7 +143,7 @@ static void movie_init_palette(void) {
     Svga_SetPaletteColor(PALETTE_SIZE - 1, &color);
 }
 
-int32_t movie_run(ResourceID resource_id) {
+int32_t movie_run(ResourceID resource_id, ResourceID subtitle_id) {
     int32_t result;
     uint8_t* palette;
 
@@ -139,6 +158,18 @@ int32_t movie_run(ResourceID resource_id) {
         Cursor_SetCursor(CURSOR_HIDDEN);
         mouse_show();
 
+        if (subtitle_id != INVALID_ID) {
+            movie_subtitle = std::make_unique<MovieSubtitle>(ResourceManager_GetSystemLocale());
+
+            if (!movie_subtitle->LoadFromResource(subtitle_id)) {
+                movie_subtitle.reset();
+
+                SDL_Log("movie_run: Failed to load subtitle resource %d", subtitle_id);
+            }
+        }
+
+        movie_frame_index = 0;
+
         MVE_memCallbacks(mve_cb_alloc, mve_cb_free);
         MVE_ioCallbacks(mve_cb_read);
         MVE_rmCallbacks(mve_cb_ctl);
@@ -147,17 +178,13 @@ int32_t movie_run(ResourceID resource_id) {
         movie_init_palette();
         MVE_palCallbacks(movie_cb_set_palette);
 
-        movie_music_level = (32767 * ResourceManager_GetSettings()->GetNumericValue("music_level")) / 100;
+        movie_sound_volume = (32767 * ResourceManager_GetSettings()->GetNumericValue("movie_level")) / 100;
 
-        if (ResourceManager_GetSettings()->GetNumericValue("disable_music")) {
-            movie_music_level = 0;
+        if (ResourceManager_GetSettings()->GetNumericValue("disable_movie")) {
+            movie_sound_volume = 0;
         }
 
-        MVE_sndVolume(movie_music_level);
-
-        if (ResourceManager_GetSettings()->GetNumericValue("movie_play")) {
-            MVE_rmFastMode(1);
-        }
+        MVE_sndVolume(movie_sound_volume);
 
         const int32_t gfx_buf_size = Svga_GetScreenWidth() * Svga_GetScreenHeight();
 
@@ -169,7 +196,6 @@ int32_t movie_run(ResourceID resource_id) {
 
         if (!MVE_rmPrepMovie(fp, -1, -1, 0)) {
             int32_t aborted = 0;
-            int32_t frame_index = 0;
 
             for (; (result = MVE_rmStepMovie()) == 0 && !aborted;) {
                 if (mve_cb_ctl()) {
@@ -177,7 +203,7 @@ int32_t movie_run(ResourceID resource_id) {
                     result = 1;
                 }
 
-                ++frame_index;
+                ++movie_frame_index;
             }
 
             MVE_rmEndMovie();
@@ -185,6 +211,8 @@ int32_t movie_run(ResourceID resource_id) {
 
         SDL_free(gfx_buf);
         gfx_buf = NULL;
+        movie_subtitle.reset();
+        movie_frame_index = 0;
 
         MVE_ReleaseMem();
 
@@ -209,6 +237,21 @@ int32_t movie_run(ResourceID resource_id) {
 
 int32_t Movie_PlayOemLogo(void) { return movie_run(LOGOFLIC); }
 
-int32_t Movie_PlayIntro(void) { return movie_run(INTROFLC); }
+int32_t Movie_PlayIntro(void) {
+    auto settings = ResourceManager_GetSettings();
+    int32_t intro_movie = settings->GetNumericValue("intro_movie");
+
+    if (intro_movie == 0) {
+        return 0;
+    }
+
+    int32_t result = movie_run(INTROFLC, INTROSUB);
+
+    if (intro_movie == 2) {
+        settings->SetNumericValue("intro_movie", 0);
+    }
+
+    return result;
+}
 
 int32_t Movie_Play(ResourceID resource_id) { return movie_run(resource_id); }

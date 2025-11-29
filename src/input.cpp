@@ -30,6 +30,7 @@
 #include "gnw.h"
 #include "remote.hpp"
 #include "resource_manager.hpp"
+#include "screendump.h"
 #include "svga.h"
 
 #define GNW_INPUT_BUFFER_SIZE 40
@@ -64,9 +65,6 @@ struct InputData {
 static int32_t get_input_buffer(void);
 static void pause_game(void);
 static WinID default_pause_window(void);
-static void buf_blit(uint8_t* buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy, uint32_t w, uint32_t h,
-                     uint32_t dstx, uint32_t dsty);
-static int32_t default_screendump(int32_t width, int32_t length, uint8_t* buffer, uint8_t* palette);
 static void GNW_process_key(SDL_KeyboardEvent* key_data);
 static int32_t input_sdl_to_game_key(SDL_Keycode sdl_key, uint16_t sdl_mod);
 
@@ -75,11 +73,8 @@ static InputData input_buffer[GNW_INPUT_BUFFER_SIZE];
 static int32_t input_mx;
 static int32_t input_my;
 static FuncPtr bk_list;
-static int32_t screendump_key;
 static int32_t pause_key;
-static ScreenDumpFunc screendump_func;
 static int32_t input_get;
-static uint8_t* screendump_buf;
 static PauseWinFunc pause_win_func;
 static int32_t input_put;
 static UTF8InputFunc utf8_input_callback;
@@ -218,8 +213,7 @@ int32_t GNW_input_init(void) {
     pause_key = GNW_KB_KEY_LALT_P;
     pause_win_func = default_pause_window;
 
-    screendump_key = GNW_KB_KEY_LALT_C;
-    screendump_func = default_screendump;
+    screendump_register(GNW_KB_KEY_LALT_C, nullptr);
 
     return result;
 }
@@ -351,8 +345,8 @@ void GNW_add_input_buffer(int32_t input) {
         if (input == pause_key) {
             pause_game();
 
-        } else if (input == screendump_key) {
-            dump_screen();
+        } else if (input == screendump_get_key()) {
+            screendump_dump_screen();
 
         } else if (input_put != input_get) {
             input_buffer[input_put].input = input;
@@ -522,154 +516,6 @@ void register_pause(int32_t new_pause_key, PauseWinFunc new_pause_win_func) {
 
     } else {
         pause_win_func = default_pause_window;
-    }
-}
-
-void dump_screen(void) {
-    ScreenBlitFunc old_scr_blit;
-    ScreenBlitFunc old_mouse_blit;
-
-    uint8_t* pal;
-    int32_t width;
-    int32_t length;
-
-    width = scr_size.lrx - scr_size.ulx + 1;
-    length = scr_size.lry - scr_size.uly + 1;
-
-    screendump_buf = (uint8_t*)SDL_malloc(length * width);
-
-    if (screendump_buf) {
-        old_scr_blit = scr_blit;
-        old_mouse_blit = mouse_blit;
-        scr_blit = buf_blit;
-        mouse_blit = buf_blit;
-
-        win_refresh_all(&scr_size);
-
-        mouse_blit = old_mouse_blit;
-        scr_blit = old_scr_blit;
-
-        pal = Color_GetSystemPalette();
-
-        screendump_func(width, length, screendump_buf, pal);
-
-        SDL_free(screendump_buf);
-        screendump_buf = NULL;
-    }
-}
-
-void buf_blit(uint8_t* buf, uint32_t bufw, uint32_t bufh, uint32_t sx, uint32_t sy, uint32_t w, uint32_t h,
-              uint32_t dstx, uint32_t dsty) {
-    buf_to_buf(&buf[sx] + bufw * sy, w, h, bufw, &screendump_buf[dstx] + (scr_size.lrx - scr_size.ulx + 1) * dsty,
-               scr_size.lrx - scr_size.ulx + 1);
-}
-
-int32_t default_screendump(int32_t width, int32_t length, uint8_t* buffer, uint8_t* palette) {
-    uint8_t blue;
-    uint8_t reserved;
-    uint8_t red;
-    uint8_t green;
-
-    int32_t result;
-
-    int32_t i;
-    FILE* fp;
-    char fname[13];
-
-    int32_t temp_signed_32;
-    uint32_t temp_unsigned_32;
-    uint16_t temp_unsigned_16;
-
-    for (i = 0; i < 100000; ++i) {
-        sprintf(fname, "scr%.5d.bmp", i);
-        fp = fopen(fname, "rb");
-        if (!fp) break;
-        fclose(fp);
-    }
-
-    if (i != 100000 && (fp = fopen(fname, "wb")) != 0) {
-        temp_unsigned_16 = 'B' + ('M' << 8);
-        fwrite(&temp_unsigned_16, sizeof(temp_unsigned_16), 1, fp);
-
-        temp_unsigned_32 = length * width + 1078;
-        fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
-
-        temp_unsigned_16 = 0;
-        fwrite(&temp_unsigned_16, sizeof(temp_unsigned_16), 1, fp);
-
-        temp_unsigned_16 = 0;
-        fwrite(&temp_unsigned_16, sizeof(temp_unsigned_16), 1, fp);
-
-        temp_unsigned_32 = 1078;
-        fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
-
-        temp_unsigned_32 = 40;
-        fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
-
-        temp_signed_32 = width;
-        fwrite(&temp_signed_32, sizeof(temp_signed_32), 1, fp);
-
-        temp_signed_32 = length;
-        fwrite(&temp_signed_32, sizeof(temp_signed_32), 1, fp);
-
-        temp_unsigned_16 = 1;
-        fwrite(&temp_unsigned_16, sizeof(temp_unsigned_16), 1, fp);
-
-        temp_unsigned_16 = 8;
-        fwrite(&temp_unsigned_16, sizeof(temp_unsigned_16), 1, fp);
-
-        temp_unsigned_32 = 0;
-        fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
-
-        temp_unsigned_32 = 0;
-        fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
-
-        temp_signed_32 = 0;
-        fwrite(&temp_signed_32, sizeof(temp_signed_32), 1, fp);
-
-        temp_signed_32 = 0;
-        fwrite(&temp_signed_32, sizeof(temp_signed_32), 1, fp);
-
-        temp_unsigned_32 = 0;
-        fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
-
-        temp_unsigned_32 = 0;
-        fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
-
-        for (i = 0; i < PALETTE_SIZE; ++i) {
-            reserved = 0;
-            red = palette[PALETTE_STRIDE * i + 0] * 4;
-            green = palette[PALETTE_STRIDE * i + 1] * 4;
-            blue = palette[PALETTE_STRIDE * i + 2] * 4;
-
-            fwrite(&blue, 1, 1, fp);
-            fwrite(&green, 1, 1, fp);
-            fwrite(&red, 1, 1, fp);
-            fwrite(&reserved, 1, 1, fp);
-        }
-
-        for (i = length - 1; i >= 0; --i) {
-            fwrite(&buffer[width * i], sizeof(uint8_t), width, fp);
-        }
-
-        fflush(fp);
-        fclose(fp);
-
-        result = 0;
-    } else {
-        result = -1;
-    }
-
-    return result;
-}
-
-void register_screendump(int32_t new_screendump_key, ScreenDumpFunc new_screendump_func) {
-    screendump_key = new_screendump_key;
-
-    if (new_screendump_func) {
-        screendump_func = new_screendump_func;
-    } else {
-        screendump_func = default_screendump;
     }
 }
 

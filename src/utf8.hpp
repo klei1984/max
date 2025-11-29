@@ -30,5 +30,6 @@ size_t utf8_strlen(const char* str);
 size_t utf8_byte_offset(const char* str, size_t codepoint_index);
 size_t utf8_prev_char_offset(const char* str, size_t byte_offset);
 size_t utf8_next_char_offset(const char* str, size_t byte_offset);
+bool utf8_is_blank(const std::string& input);
 
 #endif /* UTF8_HPP */

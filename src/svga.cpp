@@ -21,7 +21,6 @@
 
 #include "svga.h"
 
-#include "ailog.hpp"
 #include "gnw.h"
 #include "input.h"
 #include "resource_manager.hpp"
@@ -85,7 +84,7 @@ Uint32 Svga_SetupDisplayMode(SDL_Rect* bounds) {
         display_mode = *detected_display_mode;
 
     } else {
-        AILOG(log, "SDL_GetCurrentDisplayMode failed: {}\n", SDL_GetError());
+        SDL_Log("SDL_GetCurrentDisplayMode failed: %s\n", SDL_GetError());
 
         display_mode.refresh_rate = SVGA_DEFAULT_REFRESH_RATE;
         display_mode.format = SDL_PIXELFORMAT_XRGB8888;
@@ -118,7 +117,7 @@ Uint32 Svga_SetupDisplayMode(SDL_Rect* bounds) {
         } break;
 
         default: {
-            AILOG(log, "Unsupported screen mode: {}\n", Svga_ScreenMode);
+            SDL_Log("Unsupported screen mode: %d\n", Svga_ScreenMode);
         } break;
     }
 
@@ -127,7 +126,7 @@ Uint32 Svga_SetupDisplayMode(SDL_Rect* bounds) {
 
     } else {
         if (!SDL_GetDisplayBounds(Svga_DisplayID, bounds)) {
-            AILOG(log, "SDL_GetDisplayBounds failed: {}\n", SDL_GetError());
+            SDL_Log("SDL_GetDisplayBounds failed: %s\n", SDL_GetError());
 
             *bounds = {0, 0, Svga_ScreenWidth, Svga_ScreenHeight};
         }
@@ -166,16 +165,16 @@ int32_t Svga_Init(void) {
 
     if ((sdlWindow = SDL_CreateWindow("M.A.X.: Mechanized Assault & Exploration", bounds.w, bounds.h, flags)) ==
         nullptr) {
-        AILOG(log, "SDL_CreateWindow failed: {}\n", SDL_GetError());
+        SDL_Log("SDL_CreateWindow failed: %s\n", SDL_GetError());
     }
 
     if ((sdlRenderer = SDL_CreateRenderer(sdlWindow, nullptr)) == nullptr) {
-        AILOG(log, "SDL_CreateRenderer failed: {}\n", SDL_GetError());
+        SDL_Log("SDL_CreateRenderer failed: %s\n", SDL_GetError());
     }
 
     if (!SDL_SetRenderLogicalPresentation(sdlRenderer, Svga_ScreenWidth, Svga_ScreenHeight,
                                           SDL_LOGICAL_PRESENTATION_LETTERBOX)) {
-        AILOG(log, "SDL_SetRenderLogicalPresentation failed: {}\n", SDL_GetError());
+        SDL_Log("SDL_SetRenderLogicalPresentation failed: %s\n", SDL_GetError());
     }
 
     sdlWindowSurface = SDL_CreateSurface(Svga_ScreenWidth, Svga_ScreenHeight, Svga_DisplayPixelFormat);
@@ -216,11 +215,11 @@ int32_t Svga_Init(void) {
     scr_size.uly = 0;
 
     if (!SDL_RenderClear(sdlRenderer)) {
-        AILOG(log, "SDL_RenderClear failed: {}\n", SDL_GetError());
+        SDL_Log("SDL_RenderClear failed: %s\n", SDL_GetError());
     }
 
     if (!SDL_RenderPresent(sdlRenderer)) {
-        AILOG(log, "SDL_RenderPresent failed: {}\n", SDL_GetError());
+        SDL_Log("SDL_RenderPresent failed: %s\n", SDL_GetError());
     }
 
     if (sdlWindowSurface && sdlTexture && sdlPaletteSurface) {
@@ -269,41 +268,41 @@ void Svga_Deinit(void) {
     }
 }
 
-void Svga_Blit(uint8_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY, uint32_t subW,
-               uint32_t subH, uint32_t dstX, uint32_t dstY) {
-    SDL_assert(sdlPaletteSurface && SDL_BYTESPERPIXEL(sdlPaletteSurface->format) == sizeof(uint8_t));
+// Stage 1: Copy INDEX8 buffer to palette surface.
+static inline void svga_stage_index8_to_palette(uint8_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX,
+                                                uint32_t subY, uint32_t subW, uint32_t subH, uint32_t dstX,
+                                                uint32_t dstY) {
+    buf_to_buf(&srcBuf[subX + srcW * subY], subW, subH, srcW,
+               &((uint8_t*)sdlPaletteSurface->pixels)[dstX + sdlPaletteSurface->pitch * dstY],
+               sdlPaletteSurface->pitch);
+}
 
-    {
-        buf_to_buf(&srcBuf[subX + srcW * subY], subW, subH, srcW,
-                   &((uint8_t*)sdlPaletteSurface->pixels)[dstX + sdlPaletteSurface->pitch * dstY],
-                   sdlPaletteSurface->pitch);
-    }
-
-    SDL_Rect bounds = {static_cast<int32_t>(dstX), static_cast<int32_t>(dstY), static_cast<int32_t>(subW),
-                       static_cast<int32_t>(subH)};
-
+// Stage 2: Convert palette surface to RGB surface. Bounds may be extended if palette changed.
+static inline void svga_stage_palette_to_rgb(SDL_Rect* bounds) {
     if (Svga_PaletteChanged) {
         Svga_PaletteChanged = false;
 
-        bounds.x = 0;
-        bounds.y = 0;
-        bounds.w = sdlPaletteSurface->w;
-        bounds.h = sdlPaletteSurface->h;
+        bounds->x = 0;
+        bounds->y = 0;
+        bounds->w = sdlPaletteSurface->w;
+        bounds->h = sdlPaletteSurface->h;
     }
 
-    /* Blit 8-bit palette surface onto the window surface that's closer to the texture's format */
-    if (!SDL_BlitSurfaceUnchecked(sdlPaletteSurface, &bounds, sdlWindowSurface, &bounds)) {
-        AILOG(log, "SDL_BlitSurface failed: {}\n", SDL_GetError());
+    if (!SDL_BlitSurfaceUnchecked(sdlPaletteSurface, bounds, sdlWindowSurface, bounds)) {
+        SDL_Log("SDL_BlitSurface failed: %s\n", SDL_GetError());
     }
+}
 
+// Stage 3: Copy RGB surface region to texture.
+static inline void svga_stage_rgb_to_texture(const SDL_Rect* bounds) {
     if (SVGA_NO_TEXTURE_UPDATE) {
-        Uint32* source_pixels = &((Uint32*)sdlWindowSurface->pixels)[bounds.x + sdlWindowSurface->w * bounds.y];
+        Uint32* source_pixels = &((Uint32*)sdlWindowSurface->pixels)[bounds->x + sdlWindowSurface->w * bounds->y];
         void* target_pixels = nullptr;
         int32_t target_pitch = 0;
 
-        if (SDL_LockTexture(sdlTexture, &bounds, &target_pixels, &target_pitch)) {
-            for (int32_t h = 0; h < bounds.h; ++h) {
-                SDL_memcpy(target_pixels, source_pixels, bounds.w * sizeof(Uint32));
+        if (SDL_LockTexture(sdlTexture, bounds, &target_pixels, &target_pitch)) {
+            for (int32_t h = 0; h < bounds->h; ++h) {
+                SDL_memcpy(target_pixels, source_pixels, bounds->w * sizeof(Uint32));
                 source_pixels += sdlWindowSurface->w;
                 target_pixels = &(static_cast<Uint32*>(target_pixels)[target_pitch / sizeof(Uint32)]);
             }
@@ -311,23 +310,90 @@ void Svga_Blit(uint8_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uin
             SDL_UnlockTexture(sdlTexture);
 
         } else {
-            AILOG(log, "SDL_LockTexture failed: {}\n", SDL_GetError());
+            SDL_Log("SDL_LockTexture failed: %s\n", SDL_GetError());
         }
 
     } else {
-        if (!SDL_UpdateTexture(sdlTexture, &bounds,
-                               &((Uint32*)sdlWindowSurface->pixels)[bounds.x + sdlPaletteSurface->pitch * bounds.y],
+        if (!SDL_UpdateTexture(sdlTexture, bounds,
+                               &((Uint32*)sdlWindowSurface->pixels)[bounds->x + sdlPaletteSurface->pitch * bounds->y],
                                sdlWindowSurface->pitch)) {
-            AILOG(log, "SDL_UpdateTexture failed: {}\n", SDL_GetError());
+            SDL_Log("SDL_UpdateTexture failed: %s\n", SDL_GetError());
         }
     }
+}
 
-    /* Make the modified texture visible by rendering it */
+// Stage 4: Render texture to screen.
+static inline void svga_stage_render(void) {
     if (!SDL_RenderTexture(sdlRenderer, sdlTexture, nullptr, nullptr)) {
-        AILOG(log, "SDL_RenderTexture failed: {}\n", SDL_GetError());
+        SDL_Log("SDL_RenderTexture failed: %s\n", SDL_GetError());
     }
 
     Svga_RenderDirty = true;
+}
+
+void Svga_Blit(uint8_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY, uint32_t subW,
+               uint32_t subH, uint32_t dstX, uint32_t dstY) {
+    SDL_assert(sdlPaletteSurface && SDL_BYTESPERPIXEL(sdlPaletteSurface->format) == sizeof(uint8_t));
+
+    svga_stage_index8_to_palette(srcBuf, srcW, srcH, subX, subY, subW, subH, dstX, dstY);
+
+    SDL_Rect bounds = {static_cast<int32_t>(dstX), static_cast<int32_t>(dstY), static_cast<int32_t>(subW),
+                       static_cast<int32_t>(subH)};
+
+    svga_stage_palette_to_rgb(&bounds);
+    svga_stage_rgb_to_texture(&bounds);
+    svga_stage_render();
+}
+
+void Svga_BlitIndex8ToRGB(uint8_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY, uint32_t subW,
+                          uint32_t subH, uint32_t dstX, uint32_t dstY) {
+    SDL_assert(sdlPaletteSurface && SDL_BYTESPERPIXEL(sdlPaletteSurface->format) == sizeof(uint8_t));
+
+    svga_stage_index8_to_palette(srcBuf, srcW, srcH, subX, subY, subW, subH, dstX, dstY);
+
+    SDL_Rect bounds = {static_cast<int32_t>(dstX), static_cast<int32_t>(dstY), static_cast<int32_t>(subW),
+                       static_cast<int32_t>(subH)};
+
+    svga_stage_palette_to_rgb(&bounds);
+}
+
+void Svga_BlitRGBA(uint32_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY, uint32_t subW,
+                   uint32_t subH, uint32_t dstX, uint32_t dstY, uint32_t finalizeX, uint32_t finalizeY,
+                   uint32_t finalizeW, uint32_t finalizeH) {
+    SDL_assert(sdlWindowSurface);
+
+    uint32_t* src = &srcBuf[subX + srcW * subY];
+    uint32_t* dst = &((uint32_t*)sdlWindowSurface->pixels)[dstX + sdlWindowSurface->w * dstY];
+    const uint32_t dst_pitch = sdlWindowSurface->w;
+
+    for (uint32_t y = 0; y < subH; ++y) {
+        for (uint32_t x = 0; x < subW; ++x) {
+            uint32_t pixel = src[x];
+            uint8_t alpha = (pixel >> 24) & 0xFF;
+
+            if (alpha != 0) {
+                dst[x] = pixel;
+            }
+        }
+
+        src += srcW;
+        dst += dst_pitch;
+    }
+
+    // Finalize the full frame region (not just the overlay region)
+    SDL_Rect bounds = {static_cast<int32_t>(finalizeX), static_cast<int32_t>(finalizeY),
+                       static_cast<int32_t>(finalizeW), static_cast<int32_t>(finalizeH)};
+
+    svga_stage_rgb_to_texture(&bounds);
+    svga_stage_render();
+}
+
+void Svga_BlitFinalize(uint32_t dstX, uint32_t dstY, uint32_t width, uint32_t height) {
+    SDL_Rect bounds = {static_cast<int32_t>(dstX), static_cast<int32_t>(dstY), static_cast<int32_t>(width),
+                       static_cast<int32_t>(height)};
+
+    svga_stage_rgb_to_texture(&bounds);
+    svga_stage_render();
 }
 
 void Svga_BackgroundProcess(void) {
@@ -340,11 +406,11 @@ void Svga_BackgroundProcess(void) {
 
         // Ensure the current texture state is rendered before presenting
         if (!SDL_RenderTexture(sdlRenderer, sdlTexture, nullptr, nullptr)) {
-            AILOG(log, "SDL_RenderTexture failed: {}\n", SDL_GetError());
+            SDL_Log("SDL_RenderTexture failed: %s\n", SDL_GetError());
         }
 
         if (!SDL_RenderPresent(sdlRenderer)) {
-            AILOG(log, "SDL_RenderPresent failed: {}\n", SDL_GetError());
+            SDL_Log("SDL_RenderPresent failed: %s\n", SDL_GetError());
         }
     }
 }
@@ -378,7 +444,7 @@ void Svga_SetPaletteColor(int32_t index, SDL_Color* color) {
     auto palette = SDL_GetSurfacePalette(sdlPaletteSurface);
 
     if (!palette || !SDL_SetPaletteColors(palette, color, index, 1)) {
-        AILOG(log, "SDL_SetPaletteColors failed: {}\n", SDL_GetError());
+        SDL_Log("SDL_SetPaletteColors failed: %s\n", SDL_GetError());
     }
 
     Svga_RefreshSystemPalette(index == PALETTE_SIZE - 1);
@@ -386,7 +452,7 @@ void Svga_SetPaletteColor(int32_t index, SDL_Color* color) {
 
 void Svga_SetPalette(SDL_Palette* palette) {
     if (!SDL_SetSurfacePalette(sdlPaletteSurface, palette)) {
-        AILOG(log, "SDL_SetSurfacePalette failed: {}\n", SDL_GetError());
+        SDL_Log("SDL_SetSurfacePalette failed: %s\n", SDL_GetError());
     }
 
     Svga_RefreshSystemPalette(true);
@@ -416,6 +482,41 @@ bool Svga_GetWindowFlags(uint32_t* flags) {
 
 SDL_Window* Svga_GetWindow(void) { return sdlWindow; }
 
+bool Svga_GetPaletteSurfaceData(uint8_t* buffer, int32_t buffer_size, uint8_t* palette_out) {
+    if (!sdlPaletteSurface || !buffer) {
+        return false;
+    }
+
+    const int32_t required_size = sdlPaletteSurface->w * sdlPaletteSurface->h;
+
+    if (buffer_size < required_size) {
+        return false;
+    }
+
+    // Copy the palette surface pixels (indexed format)
+    const uint8_t* src = static_cast<uint8_t*>(sdlPaletteSurface->pixels);
+
+    for (int32_t y = 0; y < sdlPaletteSurface->h; ++y) {
+        SDL_memcpy(&buffer[y * sdlPaletteSurface->w], &src[y * sdlPaletteSurface->pitch], sdlPaletteSurface->w);
+    }
+
+    // Copy the palette if requested
+    if (palette_out) {
+        SDL_Palette* palette = SDL_GetSurfacePalette(sdlPaletteSurface);
+
+        if (palette && palette->colors) {
+            for (int32_t i = 0; i < PALETTE_SIZE && i < palette->ncolors; ++i) {
+                // Convert from SDL_Color (0-255) to the game's 6-bit palette format (0-63)
+                palette_out[PALETTE_STRIDE * i + 0] = palette->colors[i].r / 4;
+                palette_out[PALETTE_STRIDE * i + 1] = palette->colors[i].g / 4;
+                palette_out[PALETTE_STRIDE * i + 2] = palette->colors[i].b / 4;
+            }
+        }
+    }
+
+    return true;
+}
+
 void Svga_ToggleFullscreen(void) {
     if (sdlWindow) {
         const int32_t initial_mode = ResourceManager_GetSettings()->GetNumericValue("screen_mode");
@@ -430,43 +531,43 @@ void Svga_ToggleFullscreen(void) {
         }
 
         if (!SDL_GetDisplayBounds(Svga_DisplayID, &bounds)) {
-            AILOG(log, "SDL_GetDisplayBounds failed: {}\n", SDL_GetError());
+            SDL_Log("SDL_GetDisplayBounds failed: %s\n", SDL_GetError());
             return;
         }
 
         switch (new_mode) {
             case WINDOW_MODE_WINDOWED: {
                 if (!SDL_SetWindowFullscreen(sdlWindow, false)) {
-                    AILOG(log, "SDL_SetWindowFullscreen(false) failed: {}\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowFullscreen(false) failed: %s\n", SDL_GetError());
                     return;
                 }
 
                 // Ensure window has a border (might have been borderless)
                 if (!SDL_SetWindowBordered(sdlWindow, true)) {
-                    AILOG(log, "SDL_SetWindowBordered failed: {}\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowBordered failed: %s\n", SDL_GetError());
                 }
 
                 // Set window size to logical resolution (aspect ratio corrected)
                 if (!SDL_SetWindowSize(sdlWindow, Svga_ScreenWidth, Svga_ScreenHeight)) {
-                    AILOG(log, "SDL_SetWindowSize failed: {}\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowSize failed: %s\n", SDL_GetError());
                 }
 
                 // Center the window on the display
                 if (!SDL_SetWindowPosition(sdlWindow, SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex),
                                            SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex))) {
-                    AILOG(log, "SDL_SetWindowPosition failed: {}\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowPosition failed: %s\n", SDL_GetError());
                 }
             } break;
 
             case WINDOW_MODE_FULLSCREEN: {
                 // Set window size to desktop resolution before going fullscreen
                 if (!SDL_SetWindowSize(sdlWindow, bounds.w, bounds.h)) {
-                    AILOG(log, "SDL_SetWindowSize failed: {}\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowSize failed: %s\n", SDL_GetError());
                 }
 
                 // Enter exclusive fullscreen mode
                 if (!SDL_SetWindowFullscreen(sdlWindow, true)) {
-                    AILOG(log, "SDL_SetWindowFullscreen(true) failed: {}\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowFullscreen(true) failed: %s\n", SDL_GetError());
                     return;
                 }
             } break;
@@ -474,18 +575,18 @@ void Svga_ToggleFullscreen(void) {
             case WINDOW_MODE_BORDERLESS: {
                 // Set window size to desktop resolution before going fullscreen
                 if (!SDL_SetWindowSize(sdlWindow, bounds.w, bounds.h)) {
-                    AILOG(log, "SDL_SetWindowSize failed: {}\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowSize failed: %s\n", SDL_GetError());
                 }
 
                 // Enter borderless fullscreen mode (uses SDL_WINDOW_FULLSCREEN in SDL3, but with borderless behavior)
                 if (!SDL_SetWindowFullscreen(sdlWindow, true)) {
-                    AILOG(log, "SDL_SetWindowFullscreen(true) failed: {}\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowFullscreen(true) failed: %s\n", SDL_GetError());
                     return;
                 }
             } break;
 
             default: {
-                AILOG(log, "Svga_ToggleFullscreen: Unknown mode {}\n", new_mode);
+                SDL_Log("Svga_ToggleFullscreen: Unknown mode %d\n", new_mode);
                 return;
             }
         }

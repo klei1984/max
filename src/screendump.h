@@ -28,7 +28,12 @@
 extern "C" {
 #endif
 
+typedef int32_t (*ScreenDumpFunc)(int32_t width, int32_t length, uint8_t* buf, uint8_t* pal);
+
+void screendump_register(int32_t new_screendump_key, ScreenDumpFunc new_screendump_func);
 int32_t screendump_pcx(int32_t width, int32_t length, uint8_t* buffer, uint8_t* palette);
+int32_t screendump_get_key();
+void screendump_dump_screen(void);
 
 #ifdef __cplusplus
 }

@@ -55,6 +55,7 @@ public:
 private:
     [[nodiscard]] std::string LoadSchema();
     [[nodiscard]] bool LoadScript(const std::string& script);
+    void ValidateNames();
 
     std::filesystem::path m_filepath;
     std::unique_ptr<std::unordered_map<std::string, SettingValue>> m_loaded_settings;

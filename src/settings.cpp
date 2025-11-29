@@ -28,6 +28,7 @@
 #include <nlohmann/json.hpp>
 
 #include "resource_manager.hpp"
+#include "utf8.hpp"
 
 using json = nlohmann::ordered_json;
 using validator = nlohmann::json_schema::json_validator;
@@ -83,7 +84,7 @@ static const std::vector<std::pair<std::string, Settings::SettingDefinition>> se
     {"gray_strategy", {std::string("random"), "DEBUG"}},
     {"player_name", {std::string("Player 1"), "SETUP"}},
     {"player_clan", {0, "SETUP"}},
-    {"intro_movie", {0, "SETUP"}},
+    {"intro_movie", {1, "SETUP"}},
     {"ipx_socket", {0x51E7, "SETUP"}},
     {"music_level", {100, "SETUP"}},
     {"fx_sound_level", {100, "SETUP"}},
@@ -91,17 +92,21 @@ static const std::vector<std::pair<std::string, Settings::SettingDefinition>> se
     {"disable_music", {0, "SETUP"}},
     {"disable_fx", {0, "SETUP"}},
     {"disable_voice", {0, "SETUP"}},
+    {"disable_movie", {0, "SETUP"}},
     {"auto_save", {1, "SETUP"}},
     {"game_file_number", {1, "SETUP"}},
-    {"demo_turns", {0, "SETUP"}},
+    {"demo_turns", {5, "SETUP"}},
     {"enhanced_graphics", {1, "SETUP"}},
     {"last_campaign", {1, "SETUP"}},
-    {"movie_play", {0, "SETUP"}},
-    {"alt_movie_res", {0, "SETUP"}},
     {"language", {std::string("en-US"), "SETUP"}},
+    {"voiceover", {std::string("en-US"), "SETUP"}},
     {"game_data", {std::string("."), "SETUP"}},
     {"cheating_computer", {3, "SETUP"}},
     {"mouse_wheel_sensitivity", {3, "SETUP"}},
+    {"disable_subtitles", {0, "SETUP"}},
+    {"subtitle_text_color", {static_cast<int32_t>(0xFFFFFFFF), "SETUP"}},
+    {"subtitle_outline_color", {static_cast<int32_t>(0xFF000000), "SETUP"}},
+    {"subtitle_bg_color", {0x00000000, "SETUP"}},
     {"world", {0, "OPTIONS"}},
     {"timer", {180, "OPTIONS"}},
     {"endturn", {45, "OPTIONS"}},
@@ -215,6 +220,8 @@ Settings::~Settings() {}
         }
 
         result = true;
+
+        ValidateNames();
 
     } catch (const json::parse_error& e) {
         SDL_Log("\n%s\n", (std::string("JSON parse error: ") + e.what()).c_str());
@@ -391,5 +398,29 @@ void Settings::SetStringValue(const std::string& key, const std::string& value) 
 
     if (it != m_setting_definitions->end() && std::holds_alternative<std::string>(it->second.default_value)) {
         (*m_loaded_settings)[key] = value;
+    }
+}
+
+void Settings::ValidateNames() {
+    static const struct {
+        const char* key;
+        uint32_t default_name_key;
+    } name_settings[] = {
+        {"player_name", 0x0cb7},    {"red_team_name", 0xa18e},  {"green_team_name", 0xf3cd},
+        {"blue_team_name", 0x2b0e}, {"gray_team_name", 0x7e3b},
+    };
+
+    for (const auto& setting : name_settings) {
+        auto it = m_loaded_settings->find(setting.key);
+
+        if (it != m_loaded_settings->end() && std::holds_alternative<std::string>(it->second)) {
+            const auto& value = std::get<std::string>(it->second);
+
+            if (utf8_is_blank(value)) {
+                const auto& default_name = ResourceManager_GetLanguageEntry(setting.default_name_key);
+
+                (*m_loaded_settings)[setting.key] = default_name;
+            }
+        }
     }
 }

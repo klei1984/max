@@ -33,7 +33,6 @@ extern "C" {
 
 typedef void (*BackgroundProcess)(void);
 typedef WinID (*PauseWinFunc)(void);
-typedef int32_t (*ScreenDumpFunc)(int32_t width, int32_t length, uint8_t* buf, uint8_t* pal);
 typedef int32_t (*UTF8InputFunc)(const char* utf8_text);
 
 enum {
@@ -449,8 +448,6 @@ void remove_bk_process(BackgroundProcess f);
 void enable_bk(void);
 void disable_bk(void);
 void register_pause(int32_t new_pause_key, PauseWinFunc new_pause_win_func);
-void dump_screen(void);
-void register_screendump(int32_t new_screendump_key, ScreenDumpFunc new_screendump_func);
 void GNW_process_message(void);
 void GNW_register_utf8_input(UTF8InputFunc callback);
 void GNW_unregister_utf8_input(void);

@@ -42,6 +42,12 @@ int32_t Svga_Init(void);
 void Svga_Deinit(void);
 void Svga_Blit(uint8_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY, uint32_t subW,
                uint32_t subH, uint32_t dstX, uint32_t dstY);
+void Svga_BlitIndex8ToRGB(uint8_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY, uint32_t subW,
+                          uint32_t subH, uint32_t dstX, uint32_t dstY);
+void Svga_BlitRGBA(uint32_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY, uint32_t subW,
+                   uint32_t subH, uint32_t dstX, uint32_t dstY, uint32_t finalizeX, uint32_t finalizeY,
+                   uint32_t finalizeW, uint32_t finalizeH);
+void Svga_BlitFinalize(uint32_t dstX, uint32_t dstY, uint32_t width, uint32_t height);
 void Svga_BackgroundProcess(void);
 int32_t Svga_WarpMouse(int32_t window_x, int32_t window_y);
 void Svga_SetPaletteColor(int32_t index, SDL_Color* color);
@@ -53,6 +59,8 @@ int32_t Svga_GetScreenRefreshRate(void);
 bool Svga_IsFullscreen(void);
 bool Svga_GetWindowFlags(uint32_t* flags);
 SDL_Window* Svga_GetWindow(void);
+bool Svga_CaptureScreen(const char* filename);
+bool Svga_GetPaletteSurfaceData(uint8_t* buffer, int32_t buffer_size, uint8_t* palette_out);
 void Svga_ToggleFullscreen(void);
 
 #ifdef __cplusplus

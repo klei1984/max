@@ -21,6 +21,7 @@
 
 #include "menu.hpp"
 
+#include <algorithm>
 #include <ctime>
 
 #include "button.hpp"
@@ -550,7 +551,9 @@ bool menu_check_end_game_conditions(int32_t turn_counter, int32_t turn_counter_s
             continue;
         }
 
-        if (is_demo_mode && (turn_counter - turn_counter_session_start >= 5)) {
+        int32_t demo_turn_limit = std::min(ResourceManager_GetSettings()->GetNumericValue("demo_turns", 5), 5);
+
+        if (is_demo_mode && (turn_counter - turn_counter_session_start >= demo_turn_limit)) {
             GameManager_GameState = GAME_STATE_3_MAIN_MENU;
             return true;
 

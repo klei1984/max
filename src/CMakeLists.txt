@@ -15,6 +15,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/screendump.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/flicsmgr.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/movie.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/moviesubtitle.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/smartfile.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/complex.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/unitvalues.cpp

@@ -193,3 +193,33 @@ size_t utf8_next_char_offset(const char* str, size_t byte_offset) {
 
     return byte_offset + 1; /* Fallback: move one byte */
 }
+
+bool utf8_is_blank(const std::string& input) {
+    if (input.empty()) {
+        return true;
+    }
+
+    const auto data = reinterpret_cast<const utf8proc_uint8_t*>(input.data());
+    utf8proc_ssize_t length = input.size();
+
+    for (utf8proc_ssize_t i = 0; i < length;) {
+        utf8proc_int32_t codepoint;
+        utf8proc_ssize_t bytes_read = utf8proc_iterate(data + i, length - i, &codepoint);
+
+        if (bytes_read < 0) {
+            /* Invalid UTF-8 sequence, treat as non-blank */
+            return false;
+        }
+
+        utf8proc_category_t category = utf8proc_category(codepoint);
+
+        if (category != UTF8PROC_CATEGORY_ZS && category != UTF8PROC_CATEGORY_ZL && category != UTF8PROC_CATEGORY_ZP &&
+            category != UTF8PROC_CATEGORY_CC && category != UTF8PROC_CATEGORY_CF) {
+            return false;
+        }
+
+        i += bytes_read;
+    }
+
+    return true;
+}
