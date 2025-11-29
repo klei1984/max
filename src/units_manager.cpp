@@ -2592,7 +2592,7 @@ void UnitsManager_ProcessOrderMove(UnitInfo* unit) {
 
         case ORDER_STATE_NEW_ORDER: {
             if (unit->flags & MOBILE_AIR_UNIT) {
-                if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER && unit->GetUnitList()) {
+                if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_PLAYER && unit->GetUnitList()) {
                     UnitsManager_Unit = unit;
                 }
             }
