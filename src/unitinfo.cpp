@@ -4339,7 +4339,7 @@ void UnitInfo::PickUpMine() {
 }
 
 bool UnitInfo::ShakeWater() {
-    if (UnitsManager_byte_17947D) {
+    if (UnitsManager_ResetBobState) {
         bobbed = false;
     }
 
@@ -4361,7 +4361,7 @@ bool UnitInfo::ShakeWater() {
     }
 
     if (offset_x || offset_y) {
-        if (bobbed || !UnitsManager_EffectCounter) {
+        if (bobbed || !UnitsManager_BobEffectQuota) {
             return false;
         }
 
@@ -4383,7 +4383,7 @@ bool UnitInfo::ShakeWater() {
 }
 
 bool UnitInfo::ShakeAir() {
-    if (UnitsManager_byte_17947D) {
+    if (UnitsManager_ResetBobState) {
         bobbed = false;
     }
 
@@ -4405,7 +4405,7 @@ bool UnitInfo::ShakeAir() {
     }
 
     if (offset_x || offset_y) {
-        if (bobbed || !UnitsManager_EffectCounter) {
+        if (bobbed || !UnitsManager_BobEffectQuota) {
             return false;
         }
 

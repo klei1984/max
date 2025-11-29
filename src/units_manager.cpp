@@ -209,10 +209,10 @@ uint16_t UnitsManager_DelayedReactionsTeam;
 uint32_t UnitsManager_DelayedReactionsSyncCounter;
 
 bool UnitsManager_OrdersPending;
-bool UnitsManager_byte_179448;
+bool UnitsManager_CombatEffectsActive;
 
-int8_t UnitsManager_EffectCounter;
-int8_t UnitsManager_byte_17947D;
+int8_t UnitsManager_BobEffectQuota;
+bool UnitsManager_ResetBobState;
 
 const char* const UnitsManager_Orders[] = {
     "Awaiting",   "Transforming", "Moving",    "Firing",          "Building",  "Activate Order", "New Allocate Order",
@@ -1820,7 +1820,7 @@ void UnitsManager_ScaleUnit(UnitInfo* unit, const UnitOrderStateType state) {
 }
 
 void UnitsManager_ProcessOrders() {
-    UnitsManager_EffectCounter = 5;
+    UnitsManager_BobEffectQuota = 5;
 
     Ai_ClearTasksPendingFlags();
 
@@ -1829,7 +1829,7 @@ void UnitsManager_ProcessOrders() {
     }
 
     UnitsManager_OrdersPending = false;
-    UnitsManager_byte_179448 = false;
+    UnitsManager_CombatEffectsActive = false;
 
     UnitsManager_ProcessUnitOrders(&UnitsManager_GroundCoverUnits);
     UnitsManager_ProcessUnitOrders(&UnitsManager_MobileLandSeaUnits);
@@ -1894,7 +1894,7 @@ void UnitsManager_ProcessOrders() {
 
     UnitEvent_UnitEvents.Clear();
 
-    UnitsManager_byte_17947D = UnitsManager_EffectCounter;
+    UnitsManager_ResetBobState = UnitsManager_BobEffectQuota;
 }
 
 void UnitsManager_SetNewOrderInt(UnitInfo* unit, const UnitOrderType order, const UnitOrderStateType state) {
@@ -2608,7 +2608,7 @@ void UnitsManager_ProcessOrderMove(UnitInfo* unit) {
 void UnitsManager_ProcessOrderFire(UnitInfo* unit) {
     Ai_SetTasksPendingFlag("Firing");
 
-    UnitsManager_byte_179448 = true;
+    UnitsManager_CombatEffectsActive = true;
 
     switch (unit->GetOrderState()) {
         case ORDER_STATE_INIT: {
@@ -2976,7 +2976,7 @@ void UnitsManager_ProcessOrderAwaitScaling(UnitInfo* unit) {
     unit->RefreshScreen();
 
     if (unit->GetPriorOrder() == ORDER_AWAIT_DISABLE_UNIT || unit->GetPriorOrder() == ORDER_AWAIT_STEAL_UNIT) {
-        UnitsManager_byte_179448 = true;
+        UnitsManager_CombatEffectsActive = true;
     }
 
     switch (unit->GetOrderState()) {
@@ -3010,7 +3010,7 @@ void UnitsManager_ProcessOrderAwaitScaling(UnitInfo* unit) {
 void UnitsManager_ProcessOrderAwaitTapePositioning(UnitInfo* unit) { unit->PositionInTape(); }
 
 void UnitsManager_ProcessOrderAwaitDisableStealUnit(UnitInfo* unit) {
-    UnitsManager_byte_179448 = true;
+    UnitsManager_CombatEffectsActive = true;
 
     Ai_SetTasksPendingFlag("Disable/Steal");
 
@@ -3085,7 +3085,7 @@ void UnitsManager_ProcessOrder(UnitInfo* unit) {
 
     if ((unit->flags & MISSILE_UNIT) || unit->GetOrderState() == ORDER_STATE_DESTROY) {
         UnitsManager_OrdersPending = true;
-        UnitsManager_byte_179448 = true;
+        UnitsManager_CombatEffectsActive = true;
     }
 
     switch (unit->GetOrder()) {
@@ -3426,7 +3426,7 @@ void UnitsManager_Animate(UnitInfo* unit) {
                 bounds.lry += 3;
 
                 if (GameManager_IsInsideMapView(unit)) {
-                    --UnitsManager_EffectCounter;
+                    --UnitsManager_BobEffectQuota;
                 }
             }
 

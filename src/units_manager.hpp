@@ -50,11 +50,11 @@ extern SmartPointer<UnitInfo> UnitsManager_Unit;
 extern SmartList<UnitInfo> UnitsManager_DelayedAttackTargets[PLAYER_TEAM_MAX];
 
 extern bool UnitsManager_OrdersPending;
-extern bool UnitsManager_byte_179448;
+extern bool UnitsManager_CombatEffectsActive;
 extern bool UnitsManager_DelayedReactionsPending;
 
-extern int8_t UnitsManager_EffectCounter;
-extern int8_t UnitsManager_byte_17947D;
+extern int8_t UnitsManager_BobEffectQuota;
+extern bool UnitsManager_ResetBobState;
 
 extern CTInfo UnitsManager_TeamInfo[PLAYER_TEAM_MAX];
 

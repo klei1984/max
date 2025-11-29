@@ -44,7 +44,7 @@ static AiReactionStateType Ai_AiReactionState = AI_REACTION_STATE_IDLE;
 
 static bool Ai_IsValidStartingPosition(Rect* bounds);
 static bool Ai_IsSafeStartingPosition(int32_t grid_x, int32_t grid_y, uint16_t team);
-static bool Ai_AreThereParticles();
+static bool Ai_AreThereActiveCombatEffects();
 static bool Ai_AreThereMovingUnits();
 
 AiReactionStateType Ai_GetReactionState() { return Ai_AiReactionState; }
@@ -372,14 +372,14 @@ void Ai_CheckMines(UnitInfo* unit) {
     }
 }
 
-bool Ai_AreThereParticles() {
+bool Ai_AreThereActiveCombatEffects() {
     bool result;
 
     if (UnitsManager_ParticleUnits.GetCount() > 0 || UnitsManager_PendingAttacks.GetCount() > 0) {
         result = true;
 
     } else {
-        result = UnitsManager_byte_179448;
+        result = UnitsManager_CombatEffectsActive;
     }
 
     return result;
@@ -407,7 +407,7 @@ bool Ai_AreThereMovingUnits() {
 
 void Ai_CheckReactions() {
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
-        if (Ai_AreThereParticles()) {
+        if (Ai_AreThereActiveCombatEffects()) {
             Ai_AiReactionState = AI_REACTION_STATE_ANIMATIONS_ACTIVE;
 
         } else if (Ai_AiReactionState == AI_REACTION_STATE_ANIMATIONS_ACTIVE) {
