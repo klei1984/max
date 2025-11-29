@@ -162,7 +162,7 @@ Settings::Settings()
       m_setting_definitions(
           std::make_unique<std::vector<std::pair<std::string, SettingDefinition>>>(setting_defaults)) {}
 
-Settings::~Settings() {}
+Settings::~Settings() { (void)Save(); }
 
 [[nodiscard]] std::string Settings::LoadSchema() {
     uint32_t file_size = ResourceManager_GetResourceSize(SC_SCHES);
