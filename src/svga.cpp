@@ -172,6 +172,11 @@ int32_t Svga_Init(void) {
         SDL_Log("SDL_CreateRenderer failed: %s\n", SDL_GetError());
     }
 
+    // Disable VSync to prevent blocking the game loop.
+    if (!SDL_SetRenderVSync(sdlRenderer, 0)) {
+        SDL_Log("SDL_SetRenderVSync failed: %s\n", SDL_GetError());
+    }
+
     if (!SDL_SetRenderLogicalPresentation(sdlRenderer, Svga_ScreenWidth, Svga_ScreenHeight,
                                           SDL_LOGICAL_PRESENTATION_LETTERBOX)) {
         SDL_Log("SDL_SetRenderLogicalPresentation failed: %s\n", SDL_GetError());
