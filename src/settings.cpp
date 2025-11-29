@@ -87,6 +87,7 @@ static const std::vector<std::pair<std::string, Settings::SettingDefinition>> se
     {"intro_movie", {1, "SETUP"}},
     {"ipx_socket", {0x51E7, "SETUP"}},
     {"music_level", {100, "SETUP"}},
+    {"movie_level", {100, "SETUP"}},
     {"fx_sound_level", {100, "SETUP"}},
     {"voice_level", {100, "SETUP"}},
     {"disable_music", {0, "SETUP"}},

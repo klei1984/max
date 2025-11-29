@@ -1,13 +1,16 @@
 {
 	"$schema": "http://json-schema.org/draft-07/schema#",
 	"author": {
-		"en-US": ""
+		"en-US": "Interplay Productions",
+		"hu-HU": "M.A.X. Port Team"
 	},
 	"copyright": {
-		"en-US": ""
+		"en-US": "(c) 1996 Interplay Productions",
+		"hu-HU": "(c) 2025 M.A.X. Port Team"
 	},
 	"license": {
-		"en-US": ""
+		"en-US": "All rights reserved",
+		"hu-HU": "MIT-0"
 	},
 	"subtitle": {
 		"en-US": [
@@ -123,13 +126,8 @@
 			},
 			{
 				"start": 3856,
-				"end": 3918,
-				"caption": "M.A.X. Commanders ordered factories intended to build terraformers and eco-constructors"
-			},
-			{
-				"start": 3919,
 				"end": 3957,
-				"caption": "to build the machinery of war."
+				"caption": "M.A.X. Commanders ordered factories intended to build terraformers and eco-constructors to build the machinery of war."
 			},
 			{
 				"start": 4203,
@@ -140,6 +138,133 @@
 				"start": 4281,
 				"end": 4340,
 				"caption": "of humanity is to fight for and win these planets."
+			}
+		],
+		"hu-HU": [
+			{
+				"start": 144,
+				"end": 245,
+				"caption": "Ők voltak a kitaszítottak. Kultuszok, vallási szekták, akár még egész kormányok is."
+			},
+			{
+				"start": 249,
+				"end": 322,
+				"caption": "A Konkordként ismert idegen uralkodók közbenjárásával kiemelték őket"
+			},
+			{
+				"start": 328,
+				"end": 406,
+				"caption": "az ellenséges földi környezetből, és új esélyt kaptak: egy új világot, ahol felvirágozhatnak."
+			},
+			{
+				"start": 410,
+				"end": 475,
+				"caption": "Minden idegen hajó mélyén egy-egy frakció teljes népessége szunnyad."
+			},
+			{
+				"start": 488,
+				"end": 558,
+				"caption": "Idegen támogatóik új otthont ígértek nekik, ahol boldogulhatnak."
+			},
+			{
+				"start": 559,
+				"end": 599,
+				"caption": "Mindössze harcolniuk kell érte."
+			},
+			{
+				"start": 710,
+				"end": 791,
+				"caption": "Míg népük java sztázisban pihent a kolonizáció pillanatáig,"
+			},
+			{
+				"start": 793,
+				"end": 868,
+				"caption": "a gondosan kiválasztott vezetők irányítása alá kerültek a robothadseregek,"
+			},
+			{
+				"start": 869,
+				"end": 913,
+				"caption": "melyek megvetik lábukat az új világon."
+			},
+			{
+				"start": 1003,
+				"end": 1078,
+				"caption": "Ám az emberi test nem viseli el a hipertér gyötrelmeit."
+			},
+			{
+				"start": 1079,
+				"end": 1168,
+				"caption": "A kiválasztottak idegrendszerét eltávolították, és idegen tervezésű védőkapszulába helyezték."
+			},
+			{
+				"start": 1170,
+				"end": 1249,
+				"caption": "Csak a legedzettebb és legönfeláldozóbb menekültek voltak képesek túlélni ezt a beavatkozást."
+			},
+			{
+				"start": 1255,
+				"end": 1294,
+				"caption": "Így születtek meg a M.A.X. Parancsnokok."
+			},
+			{
+				"start": 1552,
+				"end": 1627,
+				"caption": "A menekültek másik része - idegen irányítás alatt - megépítette a rajhajókat,"
+			},
+			{
+				"start": 1628,
+				"end": 1702,
+				"caption": "melyek elszállítják a M.A.X. Parancsnokot és gondosan összeválogatott előőrsét a célhoz."
+			},
+			{
+				"start": 2313,
+				"end": 2397,
+				"caption": "A M.A.X. Parancsnok – egy emberi agy, biztonságban a hipertér borzalmaitól –"
+			},
+			{
+				"start": 2398,
+				"end": 2473,
+				"caption": "gépi interfészekhez kapcsolva irányítja a rajhajókat a hipertéren át,"
+			},
+			{
+				"start": 2474,
+				"end": 2524,
+				"caption": "és biztosítja a klán győzelmét az új bolygón."
+			},
+			{
+				"start": 3076,
+				"end": 3108,
+				"caption": "Kijelölték a megfelelő bolygókat."
+			},
+			{
+				"start": 3109,
+				"end": 3205,
+				"caption": "A rajhajók elszakadtak a hatalmas kolóniahajóktól, és új otthonuk felé száguldottak."
+			},
+			{
+				"start": 3677,
+				"end": 3753,
+				"caption": "Az új naprendszerbe érkezve minden klán más rajhajókra bukkant."
+			},
+			{
+				"start": 3754,
+				"end": 3855,
+				"caption": "A rendszer megszerzéséért harcolniuk kell – idegen uraik bábjaként –, hogy eldőljön, kié lesz a bolygó."
+			},
+			{
+				"start": 3856,
+				"end": 3957,
+				"caption": "A M.A.X. Parancsnokok a terraformálásra és építésre szánt gyárakat a háború gépezetévé alakították."
+			},
+			{
+				"start": 4203,
+				"end": 4280,
+				"caption": "A Konkord hatalmi játékainak foglyaként az emberiség klánjai számára"
+			},
+			{
+				"start": 4281,
+				"end": 4340,
+				"caption": "az egyetlen túlélési esély: harcolni a bolygókért és győzelmet aratni."
 			}
 		]
 	}
