@@ -322,14 +322,8 @@ static inline void svga_stage_rgb_to_texture(const SDL_Rect* bounds) {
     }
 }
 
-// Stage 4: Render texture to screen.
-static inline void svga_stage_render(void) {
-    if (!SDL_RenderTexture(sdlRenderer, sdlTexture, nullptr, nullptr)) {
-        SDL_Log("SDL_RenderTexture failed: %s\n", SDL_GetError());
-    }
-
-    Svga_RenderDirty = true;
-}
+// Stage 4: Mark render as dirty (actual rendering happens in BackgroundProcess).
+static inline void svga_stage_render(void) { Svga_RenderDirty = true; }
 
 void Svga_Blit(uint8_t* srcBuf, uint32_t srcW, uint32_t srcH, uint32_t subX, uint32_t subY, uint32_t subW,
                uint32_t subH, uint32_t dstX, uint32_t dstY) {
