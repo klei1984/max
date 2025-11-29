@@ -1217,7 +1217,7 @@ void Access_GroupAttackOrder(UnitInfo* unit, bool mode) {
 
                         if (friendly->flags & MOBILE_AIR_UNIT) {
                             UnitsManager_SetNewOrder(friendly, ORDER_MOVE, ORDER_STATE_NEW_ORDER);
-                            UnitsManager_Unit = friendly;
+                            UnitsManager_PendingAirGroupLeader = friendly;
 
                         } else if (Paths_RequestPath(friendly, AccessModifier_EnemySameClassBlocks)) {
                             UnitsManager_SetNewOrder(friendly, ORDER_MOVE, ORDER_STATE_NEW_ORDER);

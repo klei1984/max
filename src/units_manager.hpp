@@ -45,7 +45,7 @@ extern SmartList<UnitInfo> UnitsManager_PendingAttacks;
 
 extern const char* const UnitsManager_Orders[];
 
-extern SmartPointer<UnitInfo> UnitsManager_Unit;
+extern SmartPointer<UnitInfo> UnitsManager_PendingAirGroupLeader;
 
 extern SmartList<UnitInfo> UnitsManager_DelayedAttackTargets[PLAYER_TEAM_MAX];
 

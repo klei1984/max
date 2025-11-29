@@ -198,7 +198,7 @@ SmartList<UnitInfo> UnitsManager_StationaryUnits;
 SmartList<UnitInfo> UnitsManager_MobileAirUnits;
 SmartList<UnitInfo> UnitsManager_PendingAttacks;
 
-SmartPointer<UnitInfo> UnitsManager_Unit;
+SmartPointer<UnitInfo> UnitsManager_PendingAirGroupLeader;
 
 SmartPointer<UnitInfo> UnitsManager_Units[PLAYER_TEAM_MAX];
 
@@ -1884,8 +1884,8 @@ void UnitsManager_ProcessOrders() {
         }
     }
 
-    if (UnitsManager_Unit && Access_ProcessNewGroupOrder(&*UnitsManager_Unit)) {
-        UnitsManager_Unit = nullptr;
+    if (UnitsManager_PendingAirGroupLeader && Access_ProcessNewGroupOrder(UnitsManager_PendingAirGroupLeader.Get())) {
+        UnitsManager_PendingAirGroupLeader = nullptr;
     }
 
     for (SmartList<UnitEvent>::Iterator it = UnitEvent_UnitEvents.Begin(); it != UnitEvent_UnitEvents.End(); ++it) {
@@ -2593,7 +2593,7 @@ void UnitsManager_ProcessOrderMove(UnitInfo* unit) {
         case ORDER_STATE_NEW_ORDER: {
             if (unit->flags & MOBILE_AIR_UNIT) {
                 if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_PLAYER && unit->GetUnitList()) {
-                    UnitsManager_Unit = unit;
+                    UnitsManager_PendingAirGroupLeader = unit;
                 }
             }
 
