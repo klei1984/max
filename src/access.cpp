@@ -2136,7 +2136,7 @@ bool Access_AreTaskEventsPending() {
                 ((*it).GetOrder() == ORDER_MOVE_TO_ATTACK && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER) ||
                 (*it).GetOrderState() == ORDER_STATE_INIT) {
                 if ((*it).GetOrderState() == ORDER_STATE_NEW_ORDER && (*it).team == GameManager_PlayerTeam &&
-                    !PathsManager_HasRequest(&*it)) {
+                    !ResourceManager_GetPathsManager().HasRequest(&*it)) {
                     if ((*it).path != nullptr) {
                         if ((*it).GetFirstFromUnitList()) {
                             Access_ProcessNewGroupOrder(&*it);

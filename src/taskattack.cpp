@@ -24,11 +24,11 @@
 #include <format>
 
 #include "access.hpp"
+#include "accessmap.hpp"
 #include "aiattack.hpp"
 #include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "continent.hpp"
-#include "paths_manager.hpp"
 #include "randomizer.hpp"
 #include "resource_manager.hpp"
 #include "settings.hpp"
@@ -674,7 +674,7 @@ bool TaskAttack::EvaluateLandAttack() {
             for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
                 for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                     if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * y + x] == SURFACE_TYPE_LAND) {
-                        access_map.GetMapColumn(x)[y] = 2;
+                        access_map(x, y) = 2;
                     }
                 }
             }
@@ -682,7 +682,7 @@ bool TaskAttack::EvaluateLandAttack() {
             for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
                  it != UnitsManager_GroundCoverUnits.End(); ++it) {
                 if ((*it).GetUnitType() != BRIDGE && (*it).IsVisibleToTeam(m_team)) {
-                    access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] = 2;
+                    access_map((*it).grid_x, (*it).grid_y) = 2;
                 }
             }
 
@@ -692,7 +692,7 @@ bool TaskAttack::EvaluateLandAttack() {
                 if (spotted_unit) {
                     position = spotted_unit->GetLastPosition();
 
-                    if (access_map.GetMapColumn(position.x)[position.y] == 2) {
+                    if (access_map(position.x, position.y) == 2) {
                         SmartPointer<Continent> continent(new (std::nothrow)
                                                               Continent(access_map.GetMap(), 3, position, 0));
                         continent->GetBounds(bounds);
@@ -710,7 +710,7 @@ bool TaskAttack::EvaluateLandAttack() {
                 if ((*it).team == m_team && (*it).hits > 0 && (*it).ammo > 0 &&
                     (*it).ammo >= (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) &&
                     !((*it).flags & MOBILE_AIR_UNIT) &&
-                    (((*it).flags & MOBILE_SEA_UNIT) || access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] == 3) &&
+                    (((*it).flags & MOBILE_SEA_UNIT) || access_map((*it).grid_x, (*it).grid_y) == 3) &&
                     ((*it).GetOrder() == ORDER_AWAIT || (*it).GetOrder() == ORDER_SENTRY ||
                      (*it).GetOrder() == ORDER_MOVE || (*it).GetOrder() == ORDER_MOVE_TO_UNIT)) {
                     bool is_relevant = false;
@@ -746,7 +746,7 @@ bool TaskAttack::EvaluateLandAttack() {
                     if ((*it).team == m_team && (*it).GetUnitType() == LANDPLT) {
                         stationary_unit_present = true;
 
-                        if (access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] == 3) {
+                        if (access_map((*it).grid_x, (*it).grid_y) == 3) {
                             return true;
                         }
                     }
@@ -755,7 +755,7 @@ bool TaskAttack::EvaluateLandAttack() {
                 if (!stationary_unit_present) {
                     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
                          it != UnitsManager_StationaryUnits.End(); ++it) {
-                        if ((*it).team == m_team && access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] == 3) {
+                        if ((*it).team == m_team && access_map((*it).grid_x, (*it).grid_y) == 3) {
                             return true;
                         }
                     }
@@ -1187,7 +1187,7 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
 
                         for (int32_t direction = 0; direction < 8; direction += 2) {
                             for (int32_t range = 0; range < i * 2; ++range) {
-                                position += Paths_8DirPointsArray[direction];
+                                position += DIRECTION_OFFSETS[direction];
 
                                 if (Access_IsInsideBounds(&bounds, &position) &&
                                     damage_potential_map[position.x][position.y] < unit_hits &&
@@ -1317,7 +1317,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
             if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * site.y + site.x] == surface_type) {
                 if (!is_there_time_to_prepare || !heat_map ||
                     heat_map[ResourceManager_MapSize.x * site.y + site.x] == 0) {
-                    map.GetMapColumn(site.x)[site.y] = 2;
+                    map(site.x, site.y) = 2;
                 }
             }
         }
@@ -1329,14 +1329,14 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
                 if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * site.y + site.x] == SURFACE_TYPE_WATER) {
                     if (!is_there_time_to_prepare || !heat_map ||
                         heat_map[ResourceManager_MapSize.x * site.y + site.x] == 0) {
-                        map.GetMapColumn(site.x)[site.y] = 2;
+                        map(site.x, site.y) = 2;
                     }
                 }
             }
         }
     }
 
-    PathsManager_ApplyCautionLevel(map.GetMap(), unit, caution_level);
+    map.GetMap().ApplyCautionLevel(unit, caution_level);
 
     SmartPointer<Continent> continent(new (std::nothrow) Continent(map.GetMap(), 0x03, best_site));
 
@@ -1352,9 +1352,9 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
 
         for (int32_t direction = 0; direction < 8; direction += 2) {
             for (int32_t range = 0; range < i * 2; ++range) {
-                site += Paths_8DirPointsArray[direction];
+                site += DIRECTION_OFFSETS[direction];
 
-                if (Access_IsInsideBounds(&bounds, &site) && map.GetMapColumn(site.x)[site.y] == 3) {
+                if (Access_IsInsideBounds(&bounds, &site) && map(site.x, site.y) == 3) {
                     distance = (Access_GetApproximateDistance(site, target_position) / 2) +
                                (Access_GetApproximateDistance(site, unit_position) / 6);
 
@@ -1641,12 +1641,12 @@ void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
     auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
     int32_t caution_level = unit->ammo > 0 ? CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE : CAUTION_LEVEL_AVOID_ALL_DAMAGE;
 
-    PathsManager_InitAccessMap(unit, access_map.GetMap(), 0x01, caution_level);
+    access_map.GetMap().Init(unit, 0x01, caution_level);
 
     for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
         for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End(); ++it2) {
             if ((&*it2) != unit) {
-                access_map.GetMapColumn((*it2).attack_site.x)[(*it2).attack_site.y] = 0;
+                access_map((*it2).attack_site.x, (*it2).attack_site.y) = 0;
             }
         }
     }
@@ -1655,13 +1655,13 @@ void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
         for (SmartList<UnitInfo>::Iterator it = support_attack_task->GetUnits().Begin();
              it != support_attack_task->GetUnits().End(); ++it) {
             if ((&*it) != unit) {
-                access_map.GetMapColumn((*it).attack_site.x)[(*it).attack_site.y] = 0;
+                access_map((*it).attack_site.x, (*it).attack_site.y) = 0;
             }
         }
     }
 
     if (recon_unit && recon_unit != unit) {
-        access_map.GetMapColumn(recon_unit->attack_site.x)[recon_unit->attack_site.y] = 0;
+        access_map(recon_unit->attack_site.x, recon_unit->attack_site.y) = 0;
     }
 
     Point position;
@@ -1677,8 +1677,8 @@ void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
 
     for (int32_t i = 1; i < minimum_distance / 100; ++i) {
         direction1 = (unit_angle + 2) & 0x7;
-        position.x = destination.x + Paths_8DirPointsArray[direction1].x * i;
-        position.y = destination.y + Paths_8DirPointsArray[direction1].y * i;
+        position.x = destination.x + DIRECTION_OFFSETS[direction1].x * i;
+        position.y = destination.y + DIRECTION_OFFSETS[direction1].y * i;
 
         direction1 = (unit_angle + 3) & 0x6;
         direction2 = unit_angle & 0x01;
@@ -1705,7 +1705,7 @@ void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
 
             for (int32_t j = 0; j < limit; ++j) {
                 if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
-                    position.y < ResourceManager_MapSize.y && access_map.GetMapColumn(position.x)[position.y] > 0 &&
+                    position.y < ResourceManager_MapSize.y && access_map(position.x, position.y) > 0 &&
                     (!info_map || !(info_map[position.x][position.y] & INFO_MAP_CLEAR_OUT_ZONE))) {
                     distance = 50 * Access_GetApproximateDistance(position, destination) +
                                Access_GetApproximateDistance(position, site);
@@ -1716,7 +1716,7 @@ void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
                     }
                 }
 
-                position += Paths_8DirPointsArray[direction1];
+                position += DIRECTION_OFFSETS[direction1];
             }
 
             direction1 = (unit_angle + 2) & 0x7;

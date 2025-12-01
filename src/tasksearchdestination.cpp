@@ -129,7 +129,7 @@ void TaskSearchDestination::SearchNextCircle() {
     while (field_61) {
         direction = UnitsManager_GetTargetAngle(point3.x - point2.x, point3.y - point2.y);
 
-        point2 += Paths_8DirPointsArray[direction];
+        point2 += DIRECTION_OFFSETS[direction];
 
         if (point2 == point3) {
             point3.x = point3.x * 2 - position.x;
@@ -199,7 +199,7 @@ bool TaskSearchDestination::Search() {
             directions[index] = (directions[index] + field_59) & 0x7;
 
             site = points[index];
-            site += Paths_8DirPointsArray[directions[index]];
+            site += DIRECTION_OFFSETS[directions[index]];
 
             if (direction++ < 8) {
                 if (Access_GetApproximateDistance(site, position) / 2 == radius) {
@@ -265,7 +265,7 @@ void TaskSearchDestination::SearchTrySite() {
     site = points[index];
     best_site = site;
 
-    site += Paths_8DirPointsArray[direction];
+    site += DIRECTION_OFFSETS[direction];
 
     for (int32_t i = search_radius;
          i > 0 && Access_IsInsideBounds(&bounds, &site) &&
@@ -273,7 +273,7 @@ void TaskSearchDestination::SearchTrySite() {
          sub_3DFCF(&*unit, site);
          --i) {
         best_site = site;
-        site += Paths_8DirPointsArray[direction];
+        site += DIRECTION_OFFSETS[direction];
     }
 
     if (unit->flags & MOBILE_AIR_UNIT) {

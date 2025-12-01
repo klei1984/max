@@ -317,7 +317,7 @@ void DrawMap_RedrawUnit(UnitInfo* unit, void (*callback)(int32_t ulx, int32_t ul
 
                 for (int32_t i = 0; i < 8; i += 2) {
                     for (int32_t j = 0; j < limit; ++j) {
-                        point += Paths_8DirPointsArray[i];
+                        point += DIRECTION_OFFSETS[i];
 
                         if (Access_IsAccessible(unit->GetUnitType(), GameManager_PlayerTeam, point.x, point.y,
                                                 AccessModifier_SameClassBlocks)) {

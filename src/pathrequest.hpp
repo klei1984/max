@@ -60,7 +60,7 @@ public:
 
     void CreateTransport(ResourceID unit_type);
 
-    virtual bool PathRequest_Vfunc1();
+    virtual bool TryUseCachedPath();
     virtual void Cancel();
     virtual void Finish(GroundPath* path);
 };

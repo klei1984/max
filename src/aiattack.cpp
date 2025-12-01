@@ -138,7 +138,7 @@ bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site
 
     for (int32_t direction = 0; direction < 8; direction += 2) {
         for (int32_t i = 0; i < range; ++i) {
-            position += Paths_8DirPointsArray[direction];
+            position += DIRECTION_OFFSETS[direction];
 
             if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
                 position.y < ResourceManager_MapSize.y) {
@@ -1168,7 +1168,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_priority)
 
             for (int32_t direction = 0; direction < 8; direction += 2) {
                 for (int32_t j = 0; j < i; ++j) {
-                    unit_position += Paths_8DirPointsArray[direction];
+                    unit_position += DIRECTION_OFFSETS[direction];
 
                     if (unit_position.x >= 0 && unit_position.x < ResourceManager_MapSize.x && unit_position.y >= 0 &&
                         unit_position.y < ResourceManager_MapSize.y) {

@@ -26,13 +26,14 @@
 
 struct FloodRun {
     int16_t grid_x;
-    int16_t uly;
-    int16_t lry;
+    int16_t run_top;
+    int16_t run_bottom;
 };
 
-MAXFloodFill::MAXFloodFill(Rect bounds, bool mode) : mode(mode), target_bounds(bounds), cell_count(0) {}
+MAXFloodFill::MAXFloodFill(Rect search_bounds, bool diagonal_expansion)
+    : m_diagonal_expansion(diagonal_expansion), m_search_bounds(search_bounds), m_cell_count(0) {}
 
-Rect* MAXFloodFill::GetBounds() { return &bounds; }
+Rect* MAXFloodFill::GetBounds() { return &m_filled_bounds; }
 
 int32_t MAXFloodFill::Fill(Point point) {
     FloodRun run;
@@ -41,20 +42,20 @@ int32_t MAXFloodFill::Fill(Point point) {
     int32_t max_runs = 0;
     uint64_t time_stamp = timer_get();
 
-    cell_count = 0;
+    m_cell_count = 0;
 
-    bounds.ulx = point.x;
-    bounds.uly = point.y;
-    bounds.lrx = point.x;
-    bounds.lry = point.y;
+    m_filled_bounds.ulx = point.x;
+    m_filled_bounds.uly = point.y;
+    m_filled_bounds.lrx = point.x;
+    m_filled_bounds.lry = point.y;
 
-    run.uly = Vfunc0(point, target_bounds.uly);
-    run.lry = Vfunc1(point, target_bounds.lry);
+    run.run_top = FindRunTop(point, m_search_bounds.uly);
+    run.run_bottom = FindRunBottom(point, m_search_bounds.lry);
     run.grid_x = point.x;
 
-    cell_count += run.lry - run.uly;
+    m_cell_count += run.run_bottom - run.run_top;
 
-    Vfunc3(point.x, run.uly, run.lry);
+    MarkRun(point.x, run.run_top, run.run_bottom);
 
     runs.Append(&run);
 
@@ -69,71 +70,71 @@ int32_t MAXFloodFill::Fill(Point point) {
 
         runs.Remove(runs_count - 1);
 
-        if (run.uly < bounds.uly) {
-            bounds.uly = run.uly;
+        if (run.run_top < m_filled_bounds.uly) {
+            m_filled_bounds.uly = run.run_top;
         }
 
-        if (run.grid_x < bounds.ulx) {
-            bounds.ulx = run.grid_x;
+        if (run.grid_x < m_filled_bounds.ulx) {
+            m_filled_bounds.ulx = run.grid_x;
         }
 
-        if (run.grid_x >= bounds.lrx) {
-            bounds.lrx = run.grid_x;
+        if (run.grid_x >= m_filled_bounds.lrx) {
+            m_filled_bounds.lrx = run.grid_x;
         }
 
-        if (run.lry > bounds.lry) {
-            bounds.lry = run.lry;
+        if (run.run_bottom > m_filled_bounds.lry) {
+            m_filled_bounds.lry = run.run_bottom;
         }
 
-        if (mode) {
-            run.uly = std::max(target_bounds.uly, run.uly - 1);
-            run.lry = std::min(target_bounds.lry, run.lry + 1);
+        if (m_diagonal_expansion) {
+            run.run_top = std::max(m_search_bounds.uly, run.run_top - 1);
+            run.run_bottom = std::min(m_search_bounds.lry, run.run_bottom + 1);
         }
 
-        if (run.grid_x > target_bounds.ulx) {
+        if (run.grid_x > m_search_bounds.ulx) {
             point.x = run.grid_x - 1;
-            point.y = run.uly;
+            point.y = run.run_top;
 
-            while (point.y < run.lry) {
-                point.y = Vfunc2(point, run.lry);
+            while (point.y < run.run_bottom) {
+                point.y = FindNextFillable(point, run.run_bottom);
 
-                if (point.y < run.lry) {
+                if (point.y < run.run_bottom) {
                     FloodRun inner_run;
 
                     inner_run.grid_x = point.x;
 
-                    inner_run.uly = Vfunc0(point, target_bounds.uly);
-                    inner_run.lry = Vfunc1(point, target_bounds.lry);
-                    point.y = inner_run.lry;
+                    inner_run.run_top = FindRunTop(point, m_search_bounds.uly);
+                    inner_run.run_bottom = FindRunBottom(point, m_search_bounds.lry);
+                    point.y = inner_run.run_bottom;
 
-                    cell_count += inner_run.lry - inner_run.uly;
+                    m_cell_count += inner_run.run_bottom - inner_run.run_top;
 
-                    Vfunc3(inner_run.grid_x, inner_run.uly, inner_run.lry);
+                    MarkRun(inner_run.grid_x, inner_run.run_top, inner_run.run_bottom);
 
                     runs.Append(&inner_run);
                 }
             }
         }
 
-        if (run.grid_x < target_bounds.lrx - 1) {
+        if (run.grid_x < m_search_bounds.lrx - 1) {
             point.x = run.grid_x + 1;
-            point.y = run.uly;
+            point.y = run.run_top;
 
-            while (point.y < run.lry) {
-                point.y = Vfunc2(point, run.lry);
+            while (point.y < run.run_bottom) {
+                point.y = FindNextFillable(point, run.run_bottom);
 
-                if (point.y < run.lry) {
+                if (point.y < run.run_bottom) {
                     FloodRun inner_run;
 
                     inner_run.grid_x = point.x;
 
-                    inner_run.uly = Vfunc0(point, target_bounds.uly);
-                    inner_run.lry = Vfunc1(point, target_bounds.lry);
-                    point.y = inner_run.lry;
+                    inner_run.run_top = FindRunTop(point, m_search_bounds.uly);
+                    inner_run.run_bottom = FindRunBottom(point, m_search_bounds.lry);
+                    point.y = inner_run.run_bottom;
 
-                    cell_count += inner_run.lry - inner_run.uly;
+                    m_cell_count += inner_run.run_bottom - inner_run.run_top;
 
-                    Vfunc3(inner_run.grid_x, inner_run.uly, inner_run.lry);
+                    MarkRun(inner_run.grid_x, inner_run.run_top, inner_run.run_bottom);
 
                     runs.Append(&inner_run);
                 }
@@ -141,7 +142,7 @@ int32_t MAXFloodFill::Fill(Point point) {
         }
     }
 
-    ++bounds.lrx;
+    ++m_filled_bounds.lrx;
 
     uint64_t elapsed_time = timer_elapsed_time(time_stamp);
 
@@ -149,5 +150,5 @@ int32_t MAXFloodFill::Fill(Point point) {
         AILOG(log, "Flood fill, {} msecs, {} max depth.", elapsed_time, max_runs);
     }
 
-    return cell_count;
+    return m_cell_count;
 }

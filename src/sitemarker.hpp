@@ -24,19 +24,38 @@
 
 #include "maxfloodfill.hpp"
 
+/**
+ * \class SiteMarker
+ * \brief Flood fill implementation for marking connected site regions with unique identifiers.
+ *
+ * Used to identify and label distinct site areas on the map. Cells with value 9 are considered unfilled/fillable, and
+ * the fill operation replaces them with a unique marker value to identify the connected region.
+ */
 class SiteMarker : public MAXFloodFill {
-    uint16_t** map;
-    uint16_t marker;
+    uint16_t** m_map;
+    uint16_t m_marker;
 
 public:
+    /**
+     * \brief Constructs a SiteMarker for the given site map.
+     *
+     * \param map The site map to fill (will be modified by marking regions).
+     */
     SiteMarker(uint16_t** map);
 
-    int32_t Vfunc0(Point point, int32_t uly);
-    int32_t Vfunc1(Point point, int32_t lry);
-    int32_t Vfunc2(Point point, int32_t lry);
-    void Vfunc3(int32_t ulx, int32_t uly, int32_t lry);
+    int32_t FindRunTop(Point point, int32_t upper_bound) override;
+    int32_t FindRunBottom(Point point, int32_t lower_bound) override;
+    int32_t FindNextFillable(Point point, int32_t lower_bound) override;
+    void MarkRun(int32_t grid_x, int32_t run_top, int32_t run_bottom) override;
 
+    /**
+     * \brief Performs flood fill starting from the given point, marking cells with the specified value.
+     *
+     * \param point The seed point to start the fill from.
+     * \param value The marker value to assign to all filled cells.
+     * \return The total number of cells filled.
+     */
     int32_t Fill(Point point, int32_t value);
 };
 
-#endif /* sitemarker_HPP */
+#endif /* SITEMARKER_HPP */

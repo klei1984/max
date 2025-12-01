@@ -24,7 +24,6 @@
 #include "access.hpp"
 #include "accessmap.hpp"
 #include "aiplayer.hpp"
-#include "paths_manager.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"
 #include "units_manager.hpp"
@@ -39,7 +38,7 @@ void TaskMoveHome::MoveFinishedCallback(Task* task, UnitInfo* unit, char result)
     TaskManager.RemoveTask(*task);
 }
 
-void TaskMoveHome::PopulateTeamZones(uint8_t** map) {
+void TaskMoveHome::PopulateTeamZones(AccessMap& map) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == m_team) {
@@ -55,14 +54,14 @@ void TaskMoveHome::PopulateTeamZones(uint8_t** map) {
 
             for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
                 for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
-                    map[site.x][site.y] = 1;
+                    map(site.x, site.y) = 1;
                 }
             }
         }
     }
 }
 
-void TaskMoveHome::PopulateDefenses(uint8_t** map, ResourceID unit_type) {
+void TaskMoveHome::PopulateDefenses(AccessMap& map, ResourceID unit_type) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).team == m_team && (*it).GetUnitType() == unit_type && (*it).GetOrder() != ORDER_IDLE &&
@@ -76,14 +75,14 @@ void TaskMoveHome::PopulateDefenses(uint8_t** map, ResourceID unit_type) {
                                            (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK);
 
                 do {
-                    uint8_t* map_site = &map[walker.GetGridX()][walker.GetGridY()];
+                    uint8_t& map_site = map(walker.GetGridX(), walker.GetGridY());
 
-                    if (map_site[0]) {
-                        if (map_site[0] + damage_potential < 0x1F) {
-                            map_site[0] += damage_potential;
+                    if (map_site) {
+                        if (map_site + damage_potential < 0x1F) {
+                            map_site += damage_potential;
 
                         } else {
-                            map_site[0] = 0x1F;
+                            map_site = 0x1F;
                         }
                     }
 
@@ -93,7 +92,7 @@ void TaskMoveHome::PopulateDefenses(uint8_t** map, ResourceID unit_type) {
     }
 }
 
-void TaskMoveHome::PopulateOccupiedSites(uint8_t** map, SmartList<UnitInfo>* units) {
+void TaskMoveHome::PopulateOccupiedSites(AccessMap& map, SmartList<UnitInfo>* units) {
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).GetOrder() != ORDER_IDLE && (&*it) != &*unit) {
             Point site;
@@ -103,7 +102,7 @@ void TaskMoveHome::PopulateOccupiedSites(uint8_t** map, SmartList<UnitInfo>* uni
 
             for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
                 for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
-                    map[site.x][site.y] = 0;
+                    map(site.x, site.y) = 0;
                 }
             }
         }
@@ -155,17 +154,17 @@ bool TaskMoveHome::Execute(UnitInfo& unit_) {
             Point site;
             auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
             int32_t safety;
-            int32_t maximum_safety = map1.GetMapColumn(unit->grid_x)[unit->grid_y];
+            int32_t maximum_safety = map1(unit->grid_x, unit->grid_y);
             int32_t distance;
             int32_t minimum_distance = 0;
 
-            PathsManager_InitAccessMap(&*unit, map2.GetMap(), 2, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
+            map2.GetMap().Init(&*unit, 2, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
             for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
                 for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
-                    safety = map1.GetMapColumn(site.x)[site.y];
+                    safety = map1(site.x, site.y);
 
-                    if (safety >= maximum_safety && map2.GetMapColumn(site.x)[site.y] > 0) {
+                    if (safety >= maximum_safety && map2(site.x, site.y) > 0) {
                         if (!(info_map[site.x][site.y] & INFO_MAP_CLEAR_OUT_ZONE)) {
                             distance = Access_GetApproximateDistance(unit->grid_x - site.x, unit->grid_y - site.y);
 

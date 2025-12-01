@@ -1929,7 +1929,7 @@ void UnitsManager_SetNewOrderInt(UnitInfo* unit, const UnitOrderType order, cons
         }
 
         if (delete_path) {
-            PathsManager_RemoveRequest(unit);
+            ResourceManager_GetPathsManager().RemoveRequest(unit);
         }
     }
 }
@@ -2147,7 +2147,7 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
     AILOG(log, "{} at [{},{}] destroyed.", ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(),
           unit->grid_x + 1, unit->grid_y + 1);
 
-    PathsManager_RemoveRequest(unit);
+    ResourceManager_GetPathsManager().RemoveRequest(unit);
 
     if (unit_to_destroy == GameManager_SelectedUnit) {
         SoundManager_PlaySfx(unit, Unit::SFX_TYPE_INVALID);
@@ -5031,6 +5031,57 @@ bool UnitsManager_IssueBuildOrder(UnitInfo* unit, int16_t* grid_x, int16_t* grid
         }
 
         Hash_MapHash.Add(unit);
+    }
+
+    return result;
+}
+
+bool UnitsManager_LoadUnit(UnitInfo* unit) {
+    UnitInfo* shop;
+    bool result;
+
+    shop = Access_GetReceiverUnit(unit, unit->grid_x, unit->grid_y);
+
+    if (shop) {
+        if (shop->GetUnitType() == LANDPAD && !Access_GetUnit2(unit->grid_x, unit->grid_y, unit->team)) {
+            unit->SetParent(nullptr);
+            unit->SetOrder(ORDER_LAND);
+            unit->SetOrderState(ORDER_STATE_INIT);
+
+            result = true;
+
+        } else if (shop->GetUnitType() == HANGAR && unit->GetOrder() == ORDER_MOVE_TO_UNIT) {
+            const int32_t stored_units = Access_GetStoredUnitCount(shop);
+            const int32_t storable_units = shop->GetBaseValues()->GetAttribute(ATTRIB_STORAGE);
+
+            SDL_assert(stored_units <= storable_units && shop->storage == stored_units);
+
+            if (stored_units == storable_units) {
+                unit->SetOrder(ORDER_AWAIT);
+                unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
+
+                if (GameManager_SelectedUnit == unit) {
+                    MessageManager_DrawMessage(_(7c8d), 1, unit, Point(unit->grid_x, unit->grid_y));
+                }
+
+            } else {
+                unit->SetParent(shop);
+                unit->SetOrder(ORDER_LAND);
+                unit->SetOrderState(ORDER_STATE_INIT);
+
+                if (GameManager_SelectedUnit == unit) {
+                    GameManager_MenuUnitSelect(shop);
+                }
+            }
+
+            result = true;
+
+        } else {
+            result = false;
+        }
+
+    } else {
+        result = false;
     }
 
     return result;

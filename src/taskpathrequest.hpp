@@ -35,7 +35,7 @@ public:
     TaskPathRequest(UnitInfo* unit, int32_t mode, Point point);
     ~TaskPathRequest();
 
-    bool PathRequest_Vfunc1();
+    bool TryUseCachedPath();
     void Cancel();
     void Finish(GroundPath* path);
 

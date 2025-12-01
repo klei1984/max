@@ -1755,8 +1755,8 @@ void UnitInfo::Move() {
 
         moved += unit_velocity;
 
-        int32_t step_x = Paths_8DirPointsArrayX[angle];
-        int32_t step_y = Paths_8DirPointsArrayY[angle];
+        int32_t step_x = DIRECTION_OFFSETS[angle].x;
+        int32_t step_y = DIRECTION_OFFSETS[angle].y;
 
         int32_t distance_x = step_x * unit_velocity;
         int32_t distance_y = step_y * unit_velocity;
@@ -1782,7 +1782,7 @@ void UnitInfo::Move() {
             if (path) {
                 GroundPath* ground_path = dynamic_cast<GroundPath*>(&*path);
                 SmartObjectArray<PathStep> path_steps = ground_path->GetSteps();
-                uint32_t path_step_index = ground_path->GetPathStepIndex();
+                uint32_t path_step_index = ground_path->GetStepIndex();
 
                 path_steps[path_step_index]->x -= offset_x;
                 path_steps[path_step_index]->y -= offset_y;
@@ -3213,8 +3213,8 @@ bool UnitInfo::AttemptSideStep(int32_t grid_x, int32_t grid_y, int32_t angle) {
 
                 for (int32_t direction = 0; direction < 8; ++direction) {
                     for (int32_t scan_range = 0; scan_range < 2; ++scan_range) {
-                        position.x = this->grid_x + Paths_8DirPointsArray[direction].x;
-                        position.y = this->grid_y + Paths_8DirPointsArray[direction].y;
+                        position.x = this->grid_x + DIRECTION_OFFSETS[direction].x;
+                        position.y = this->grid_y + DIRECTION_OFFSETS[direction].y;
 
                         unit_angle = (direction - angle + 8) & 0x03;
 
@@ -3855,8 +3855,7 @@ void UnitInfo::StepMoveUnit(Point position) {
 
         for (int32_t direction = 0; direction < 8; direction += 2) {
             for (int32_t i = 0; i < range_limit; ++i) {
-                position += Paths_8DirPointsArray[direction];
-
+                position += DIRECTION_OFFSETS[direction];
                 if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
                     position.y < ResourceManager_MapSize.y &&
                     Access_IsAccessible(unit_type, team, position.x, position.y,
@@ -4239,7 +4238,7 @@ void UnitInfo::PositionInTape() {
         if (moved || !Paths_UpdateAngle(this, target_angle)) {
             ++moved;
 
-            OffsetDrawZones(Paths_8DirPointsArrayX[target_angle] * 8, Paths_8DirPointsArrayY[target_angle] * 8);
+            OffsetDrawZones(DIRECTION_OFFSETS[target_angle].x * 8, DIRECTION_OFFSETS[target_angle].y * 8);
 
             RefreshScreen();
         }
@@ -4349,14 +4348,14 @@ bool UnitInfo::ShakeWater() {
 
     if (moved >= distance * GFX_MAP_TILE_SIZE + GFX_MAP_TILE_SIZE / 2) {
         if ((moved & 0x1F) == 0) {
-            offset_x = -Paths_8DirPointsArrayX[distance];
-            offset_y = -Paths_8DirPointsArrayY[distance];
+            offset_x = -DIRECTION_OFFSETS[distance].x;
+            offset_y = -DIRECTION_OFFSETS[distance].y;
         }
 
     } else {
         if ((moved & 0x1F) == 0) {
-            offset_x = Paths_8DirPointsArrayX[distance];
-            offset_y = Paths_8DirPointsArrayY[distance];
+            offset_x = DIRECTION_OFFSETS[distance].x;
+            offset_y = DIRECTION_OFFSETS[distance].y;
         }
     }
 
@@ -4393,14 +4392,14 @@ bool UnitInfo::ShakeAir() {
 
     if (moved >= distance * 8 + 4) {
         if ((moved & 0x01) == 0) {
-            offset_x = -Paths_8DirPointsArrayX[distance];
-            offset_y = -Paths_8DirPointsArrayY[distance];
+            offset_x = -DIRECTION_OFFSETS[distance].x;
+            offset_y = -DIRECTION_OFFSETS[distance].y;
         }
 
     } else {
         if ((moved & 0x01) == 0) {
-            offset_x = Paths_8DirPointsArrayX[distance];
-            offset_y = Paths_8DirPointsArrayY[distance];
+            offset_x = DIRECTION_OFFSETS[distance].x;
+            offset_y = DIRECTION_OFFSETS[distance].y;
         }
     }
 
@@ -4432,8 +4431,8 @@ void UnitInfo::ShakeSabotage() {
     shake_effect_state &= 0x0F;
 
     if (!(flags & BUILDING)) {
-        int32_t offset_x = Paths_8DirPointsArrayX[shake_effect_state / 2];
-        int32_t offset_y = Paths_8DirPointsArrayY[shake_effect_state / 2];
+        int32_t offset_x = DIRECTION_OFFSETS[shake_effect_state / 2].x;
+        int32_t offset_y = DIRECTION_OFFSETS[shake_effect_state / 2].y;
 
         RefreshScreen();
 
@@ -4604,7 +4603,7 @@ void UnitInfo::ChangeTeam(uint16_t target_team) {
     uint16_t old_team = team;
 
     if (target_team != old_team) {
-        PathsManager_RemoveRequest(this);
+        ResourceManager_GetPathsManager().RemoveRequest(this);
     }
 
     UnitsManager_DelayedAttackTargets[team].Remove(*this);

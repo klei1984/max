@@ -24,6 +24,7 @@
 
 #include "taskcreate.hpp"
 
+class AccessMap;
 class TaskManageBuildings;
 
 class TaskCreateBuilding : public TaskCreate {
@@ -49,12 +50,12 @@ class TaskCreateBuilding : public TaskCreate {
     bool CheckMaterials();
     void BuildBoardwalks();
     void BuildBridges();
-    void MarkBridgeAreas(uint8_t** map);
-    void PopulateMap(uint8_t** map);
-    bool FindBridgePath(uint8_t** map, int32_t value);
+    void MarkBridgeAreas(AccessMap& map);
+    void PopulateMap(AccessMap& map);
+    bool FindBridgePath(AccessMap& map, int32_t value);
 
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
-    static bool SearchPathStep(uint8_t** map, Point position, int32_t* direction, uint16_t* best_unit_count,
+    static bool SearchPathStep(AccessMap& map, Point position, int32_t* direction, uint16_t* best_unit_count,
                                int32_t value);
 
 public:

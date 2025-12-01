@@ -84,7 +84,7 @@ void TaskActivate::Activate() {
 
                                 for (int32_t direction = 0; direction < 8; direction += 2) {
                                     for (int32_t range = 0; range < unit_size + 1; ++range) {
-                                        position += Paths_8DirPointsArray[direction];
+                                        position += DIRECTION_OFFSETS[direction];
 
                                         if (Access_IsAccessible(unit_to_activate->GetUnitType(), m_team, position.x,
                                                                 position.y, AccessModifier_SameClassBlocks)) {
@@ -137,7 +137,7 @@ void TaskActivate::Activate() {
                                 /* request to clear out at least one friendly unit */
                                 for (int32_t direction = 0; direction < 8; direction += 2) {
                                     for (int32_t range = 0; range < unit_size + 1; ++range) {
-                                        position += Paths_8DirPointsArray[direction];
+                                        position += DIRECTION_OFFSETS[direction];
 
                                         if (Access_IsAccessible(unit_to_activate->GetUnitType(), m_team, position.x,
                                                                 position.y, AccessModifier_EnemySameClassBlocks)) {

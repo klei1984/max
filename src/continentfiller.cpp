@@ -23,12 +23,12 @@
 
 #include "resource_manager.hpp"
 
-ContinentFiller::ContinentFiller(uint8_t** map, uint8_t filler)
-    : MAXFloodFill({0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y}, true), map(map), filler(filler) {}
+ContinentFiller::ContinentFiller(AccessMap& map, uint8_t filler)
+    : MAXFloodFill({0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y}, true), m_map(map), m_filler(filler) {}
 
-int32_t ContinentFiller::Vfunc0(Point point, int32_t uly) {
-    for (; point.y > uly; --point.y) {
-        if (map[point.x][point.y - 1] != 2) {
+int32_t ContinentFiller::FindRunTop(Point point, int32_t upper_bound) {
+    for (; point.y > upper_bound; --point.y) {
+        if (m_map(point.x, point.y - 1) != 2) {
             break;
         }
     }
@@ -36,9 +36,9 @@ int32_t ContinentFiller::Vfunc0(Point point, int32_t uly) {
     return point.y;
 }
 
-int32_t ContinentFiller::Vfunc1(Point point, int32_t lry) {
-    for (; point.y < lry; ++point.y) {
-        if (map[point.x][point.y] != 2) {
+int32_t ContinentFiller::FindRunBottom(Point point, int32_t lower_bound) {
+    for (; point.y < lower_bound; ++point.y) {
+        if (m_map(point.x, point.y) != 2) {
             break;
         }
     }
@@ -46,9 +46,9 @@ int32_t ContinentFiller::Vfunc1(Point point, int32_t lry) {
     return point.y;
 }
 
-int32_t ContinentFiller::Vfunc2(Point point, int32_t lry) {
-    for (; point.y < lry; ++point.y) {
-        if (map[point.x][point.y] == 2) {
+int32_t ContinentFiller::FindNextFillable(Point point, int32_t lower_bound) {
+    for (; point.y < lower_bound; ++point.y) {
+        if (m_map(point.x, point.y) == 2) {
             break;
         }
     }
@@ -56,8 +56,8 @@ int32_t ContinentFiller::Vfunc2(Point point, int32_t lry) {
     return point.y;
 }
 
-void ContinentFiller::Vfunc3(int32_t ulx, int32_t uly, int32_t lry) {
-    for (; uly < lry; ++uly) {
-        map[ulx][uly] = filler;
+void ContinentFiller::MarkRun(int32_t grid_x, int32_t run_top, int32_t run_bottom) {
+    for (; run_top < run_bottom; ++run_top) {
+        m_map(grid_x, run_top) = m_filler;
     }
 }

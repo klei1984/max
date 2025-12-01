@@ -71,7 +71,7 @@ void TaskReload::SelectOperator() {
 
             for (int32_t direction = 0; direction < 8; direction += 2) {
                 for (int32_t i = 0; i < range; ++i) {
-                    site += Paths_8DirPointsArray[direction];
+                    site += DIRECTION_OFFSETS[direction];
 
                     if (Access_IsInsideBounds(&bounds, &site)) {
                         surface_type = Access_GetModifiedSurfaceType(site.x, site.y);

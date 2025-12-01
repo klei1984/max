@@ -822,7 +822,7 @@ void RepairShopMenu_OnClick_ActivateAll(ButtonID bid, intptr_t value) {
 
     for (int32_t i = 0; i < 8 && units.GetCount() > 0; i += 2) {
         for (int32_t j = 0; j < limit && units.GetCount() > 0; ++j) {
-            point += Paths_8DirPointsArray[i];
+            point += DIRECTION_OFFSETS[i];
 
             if (Access_IsInsideBounds(&bounds, &point)) {
                 SmartList<UnitInfo>::Iterator it = units.Begin();

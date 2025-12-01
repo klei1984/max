@@ -43,6 +43,8 @@
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
+#include "paths.hpp"
+#include "paths_manager.hpp"
 #include "randomizer.hpp"
 #include "screendump.h"
 #include "scripter.hpp"
@@ -97,6 +99,7 @@ static std::unique_ptr<Units> ResourceManager_Units;
 static std::shared_ptr<Settings> ResourceManager_Settings;
 static std::shared_ptr<Language> ResourceManager_LanguageManager;
 static std::shared_ptr<Help> ResourceManager_HelpManager;
+static std::unique_ptr<PathsManager> ResourceManager_PathsManager;
 static std::unique_ptr<std::unordered_map<std::string, ResourceID>> ResourceManager_ResourceIDLUT;
 static std::unique_ptr<std::vector<SDL_Mutex*>> ResourceManager_SDLMutexes;
 static std::string ResourceManager_SystemLocale{"en-US"};
@@ -191,6 +194,7 @@ static void ResourceManager_InitUnitAttributes();
 static void ResourceManager_InitClans();
 static void ResourceManager_InitSettings();
 static void ResourceManager_InitUnits();
+static void ResourceManager_InitPathsManager();
 static void ResourceManager_ResetUnitsSprites();
 static std::filesystem::path ResourceManager_GetFileResourcePath(const std::string& string,
                                                                  std::filesystem::path& path);
@@ -428,6 +432,8 @@ void ResourceManager_InitResources() {
     // MAX clan definitions are available
     ResourceManager_InitUnits();
     // MAX unit definitions are available
+    ResourceManager_InitPathsManager();
+    // PathsManager is available
     Randomizer_Init();
     Scripter::Init();
     ResourceManager_InitInternals();
@@ -536,6 +542,8 @@ void ResourceManager_Exit() {
     SoundManager_Deinit();
     win_exit();
     ResourceManager_DestroyMutexes();
+    ResourceManager_PathsManager.reset();
+    Paths_ClearSiteReservations();
     SDL_Quit();
 
     exit(0);
@@ -2138,6 +2146,10 @@ void ResourceManager_InitUnits() {
         SDL_Log("Warning: Failed to load unit definitions.\n");
     }
 }
+
+void ResourceManager_InitPathsManager() { ResourceManager_PathsManager = std::make_unique<PathsManager>(); }
+
+PathsManager& ResourceManager_GetPathsManager() { return *ResourceManager_PathsManager; }
 
 std::shared_ptr<Clans> ResourceManager_GetClans() { return ResourceManager_Clans; }
 

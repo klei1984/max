@@ -23,14 +23,12 @@
 
 #include "resource_manager.hpp"
 
-PathFill::PathFill(uint8_t** map)
-    : MAXFloodFill({0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y}, true), map(map) {}
+PathFill::PathFill(AccessMap& map)
+    : MAXFloodFill({0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y}, true), m_map(map) {}
 
-int32_t PathFill::Vfunc0(Point point, int32_t uly) {
-    for (; point.y > uly; --point.y) {
-        uint8_t value;
-
-        value = map[point.x][point.y - 1];
+int32_t PathFill::FindRunTop(Point point, int32_t upper_bound) {
+    for (; point.y > upper_bound; --point.y) {
+        uint8_t value = m_map(point.x, point.y - 1);
 
         if (!(value & 0x1F) || (value & 0x20)) {
             break;
@@ -40,11 +38,9 @@ int32_t PathFill::Vfunc0(Point point, int32_t uly) {
     return point.y;
 }
 
-int32_t PathFill::Vfunc1(Point point, int32_t lry) {
-    for (; point.y < lry; ++point.y) {
-        uint8_t value;
-
-        value = map[point.x][point.y];
+int32_t PathFill::FindRunBottom(Point point, int32_t lower_bound) {
+    for (; point.y < lower_bound; ++point.y) {
+        uint8_t value = m_map(point.x, point.y);
 
         if (!(value & 0x1F) || (value & 0x20)) {
             break;
@@ -54,11 +50,9 @@ int32_t PathFill::Vfunc1(Point point, int32_t lry) {
     return point.y;
 }
 
-int32_t PathFill::Vfunc2(Point point, int32_t lry) {
-    for (; point.y < lry; ++point.y) {
-        uint8_t value;
-
-        value = map[point.x][point.y];
+int32_t PathFill::FindNextFillable(Point point, int32_t lower_bound) {
+    for (; point.y < lower_bound; ++point.y) {
+        uint8_t value = m_map(point.x, point.y);
 
         if ((value & 0x1F) && !(value & 0x20)) {
             break;
@@ -68,8 +62,8 @@ int32_t PathFill::Vfunc2(Point point, int32_t lry) {
     return point.y;
 }
 
-void PathFill::Vfunc3(int32_t ulx, int32_t uly, int32_t lry) {
-    for (; uly < lry; ++uly) {
-        map[ulx][uly] |= 0x20;
+void PathFill::MarkRun(int32_t grid_x, int32_t run_top, int32_t run_bottom) {
+    for (; run_top < run_bottom; ++run_top) {
+        m_map(grid_x, run_top) |= 0x20;
     }
 }

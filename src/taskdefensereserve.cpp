@@ -60,7 +60,7 @@ bool TaskDefenseReserve::IsAdjacentToWater(UnitInfo* unit) {
 
     for (int32_t direction = 0; direction < 8; direction += 2) {
         for (int32_t range = 0; range < unit_size + 1; ++range) {
-            position += Paths_8DirPointsArray[direction];
+            position += DIRECTION_OFFSETS[direction];
 
             if (Access_IsInsideBounds(&bounds, &position) &&
                 Access_GetModifiedSurfaceType(position.x, position.y) == SURFACE_TYPE_WATER) {

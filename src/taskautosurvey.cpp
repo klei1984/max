@@ -85,7 +85,7 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
             while (TickTimer_HaveTimeToThink() || loop_count < 20) {
                 ++loop_count;
 
-                position += Paths_8DirPointsArray[direction];
+                position += DIRECTION_OFFSETS[direction];
                 ++current_radius;
 
                 if (current_radius >= radius * 2) {
@@ -151,7 +151,7 @@ bool TaskAutoSurvey::Execute(UnitInfo& unit_) {
                                 direction_difference = UnitsManager_GetTargetAngle(position.x - central_site.x,
                                                                                    position.y - central_site.y);
 
-                                backup_position += Paths_8DirPointsArray[direction_difference];
+                                backup_position += DIRECTION_OFFSETS[direction_difference];
 
                                 if (backup_position.x >= 0 && backup_position.x < ResourceManager_MapSize.x &&
                                     backup_position.y >= 0 && backup_position.y < ResourceManager_MapSize.y) {

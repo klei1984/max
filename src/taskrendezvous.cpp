@@ -50,7 +50,7 @@ bool TaskRendezvous_SearchMap(UnitInfo* unit1, UnitInfo* unit2, Point* site, cha
 
     for (int32_t direction = 0; direction < 8; direction += 2) {
         for (int32_t i = 0; i < range; ++i) {
-            position2 += Paths_8DirPointsArray[direction];
+            position2 += DIRECTION_OFFSETS[direction];
 
             distance = Access_GetApproximateDistance(position1, position2);
 

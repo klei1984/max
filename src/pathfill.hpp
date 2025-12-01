@@ -22,18 +22,36 @@
 #ifndef PATHFILL_HPP
 #define PATHFILL_HPP
 
+#include "accessmap.hpp"
 #include "maxfloodfill.hpp"
 
+/**
+ * \class PathFill
+ * \brief Flood fill implementation for marking connected pathable regions.
+ *
+ * Used by the pathfinding system to identify contiguous areas that a unit can traverse. Cells are considered fillable
+ * if they have a non-zero traversal cost (bits 0-4) and have not been visited (bit 5 clear). The fill marks visited
+ * cells by setting bit 5.
+ *
+ * Map cell format:
+ * - Bits 0-4: Traversal cost (0 = impassable, 1-31 = passable with cost)
+ * - Bit 5 (0x20): Visited/filled marker
+ */
 class PathFill : public MAXFloodFill {
-    uint8_t** map;
+    AccessMap& m_map;
 
 public:
-    PathFill(uint8_t** map);
+    /**
+     * \brief Constructs a PathFill for the given access map.
+     *
+     * \param map The access map to fill (will be modified by setting visited bits).
+     */
+    explicit PathFill(AccessMap& map);
 
-    int32_t Vfunc0(Point point, int32_t uly);
-    int32_t Vfunc1(Point point, int32_t lry);
-    int32_t Vfunc2(Point point, int32_t lry);
-    void Vfunc3(int32_t ulx, int32_t uly, int32_t lry);
+    int32_t FindRunTop(Point point, int32_t upper_bound) override;
+    int32_t FindRunBottom(Point point, int32_t lower_bound) override;
+    int32_t FindNextFillable(Point point, int32_t lower_bound) override;
+    void MarkRun(int32_t grid_x, int32_t run_top, int32_t run_bottom) override;
 };
 
 #endif /* PATHFILL_HPP */

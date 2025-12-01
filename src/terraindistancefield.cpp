@@ -196,7 +196,7 @@ uint32_t TerrainDistanceField::ComputeDistanceToNearestTraversable(std::vector<u
                 // Walk around the ring in 4 cardinal directions
                 for (int32_t direction = 0; direction < 8; direction += 2) {
                     for (uint32_t j = 0; j < i * 2; ++j) {
-                        position += Paths_8DirPointsArray[direction];
+                        position += DIRECTION_OFFSETS[direction];
 
                         if (position.x >= 0 && position.x < m_dimensions.x && position.y >= 0 &&
                             position.y < m_dimensions.y) {
@@ -275,7 +275,7 @@ void TerrainDistanceField::AddAnchorAndPropagate(std::vector<uint32_t>& range_fi
 
                     for (int32_t direction = 0; direction < 8; direction += 2) {
                         for (int32_t j = 0; j < i * 2; ++j) {
-                            position += Paths_8DirPointsArray[direction];
+                            position += DIRECTION_OFFSETS[direction];
 
                             if (position.x >= 0 && position.x < m_dimensions.x && position.y >= 0 &&
                                 position.y < m_dimensions.y) {
@@ -351,7 +351,7 @@ void TerrainDistanceField::RemoveAnchorAndInvalidate(std::vector<uint32_t>& rang
 
                     for (int32_t direction = 0; direction < 8; direction += 2) {
                         for (int32_t j = 0; j < i * 2; ++j) {
-                            position += Paths_8DirPointsArray[direction];
+                            position += DIRECTION_OFFSETS[direction];
 
                             if (position.x >= 0 && position.x < m_dimensions.x && position.y >= 0 &&
                                 position.y < m_dimensions.y) {

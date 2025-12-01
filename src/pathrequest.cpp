@@ -53,7 +53,7 @@ Point PathRequest::GetDestination() const { return point; }
 
 uint8_t PathRequest::GetCautionLevel() const { return caution_level; }
 
-bool PathRequest::PathRequest_Vfunc1() { return false; }
+bool PathRequest::TryUseCachedPath() { return false; }
 
 void PathRequest::Cancel() {
     if (client->hits &&

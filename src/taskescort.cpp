@@ -83,7 +83,7 @@ bool TaskEscort::IssueOrders(UnitInfo* unit) {
 
                 for (int32_t direction = 0; direction < 8; direction += 2) {
                     for (int32_t index = 0; index < range * 2; ++index) {
-                        position += Paths_8DirPointsArray[direction];
+                        position += DIRECTION_OFFSETS[direction];
 
                         if (Access_IsInsideBounds(&bounds, &position) &&
                             damage_potential_map[position.x][position.y] < unit_hits) {

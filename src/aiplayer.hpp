@@ -32,6 +32,8 @@
 #include "unitinfo.hpp"
 #include "weighttable.hpp"
 
+class AccessMap;
+
 struct BuildOrder {
     uint8_t primary_attribute;
     ResourceID unit_type;
@@ -116,7 +118,7 @@ class AiPlayer {
     bool IsKeyFacility(ResourceID unit_type);
     void DetermineResearchProjects();
     bool IsPotentialSpotter(uint16_t team, UnitInfo* unit);
-    void UpdateAccessMap(Point point1, Point point2, uint8_t** access_map);
+    void UpdateAccessMap(Point point1, Point point2, AccessMap& access_map);
     bool CheckAttacks();
     void RegisterReadyAndAbleUnits(SmartList<UnitInfo>* units);
     bool AreActionsPending();

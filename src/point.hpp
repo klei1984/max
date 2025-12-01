@@ -34,17 +34,17 @@ struct Point {
     int16_t x;
     int16_t y;
 
-    Point() : x(0), y(0) {}
-    Point(int32_t x, int32_t y) : x(x), y(y) {}
+    constexpr Point() : x(0), y(0) {}
+    constexpr Point(int32_t x, int32_t y) : x(x), y(y) {}
 
-    Point& operator+=(const Point& other) {
+    constexpr Point& operator+=(const Point& other) {
         x += other.x;
         y += other.y;
 
         return *this;
     }
 
-    Point& operator-=(const Point& other) {
+    constexpr Point& operator-=(const Point& other) {
         x -= other.x;
         y -= other.y;
 
@@ -54,16 +54,16 @@ struct Point {
 
 static_assert(std::is_trivially_copyable<struct Point>::value, "Point is required to be a trivially copyable type.");
 
-inline bool operator==(const Point& lhs, const Point& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y; }
+constexpr bool operator==(const Point& lhs, const Point& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y; }
 
-inline bool operator!=(const Point& lhs, const Point& rhs) { return !(lhs == rhs); }
+constexpr bool operator!=(const Point& lhs, const Point& rhs) { return !(lhs == rhs); }
 
-inline Point operator+(Point lhs, const Point& rhs) {
+constexpr Point operator+(Point lhs, const Point& rhs) {
     lhs += rhs;
     return lhs;
 }
 
-inline Point operator-(Point lhs, const Point& rhs) {
+constexpr Point operator-(Point lhs, const Point& rhs) {
     lhs -= rhs;
     return lhs;
 }

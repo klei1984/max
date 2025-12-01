@@ -1828,7 +1828,7 @@ Point GameManager_GetStartPositionMiningStation(uint16_t team) {
 
             for (int32_t direction = 0; direction < 8; direction += 2) {
                 for (int32_t i = 0; i < 2 * range; ++i) {
-                    point += Paths_8DirPointsArray[direction];
+                    point += DIRECTION_OFFSETS[direction];
 
                     if (GameManager_IsValidStartingPosition(point.x, point.y)) {
                         Survey_GetTotalResourcesInArea(point.x, point.y, 1, &cargo_raw, &cargo_gold, &cargo_fuel, true,
@@ -1853,7 +1853,7 @@ Point GameManager_GetStartingPositionPowerGenerator(Point point, uint16_t team) 
 
     for (int32_t direction = 0; direction < 8; direction += 2) {
         for (int32_t i = 0; i < 2; ++i) {
-            point += Paths_8DirPointsArray[direction];
+            point += DIRECTION_OFFSETS[direction];
 
             if (Access_IsAccessible(POWGEN, team, point.x, point.y, AccessModifier_SameClassBlocks)) {
                 return point;
@@ -1886,7 +1886,8 @@ void GameManager_GameSetup(int32_t game_state) {
 
     Ai_Init();
 
-    PathsManager_Clear();
+    ResourceManager_GetPathsManager().Clear();
+    Paths_ClearSiteReservations();
 
     if (game_state == GAME_STATE_6_GAME_SETUP) {
         const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
@@ -3332,7 +3333,8 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
 
         Ai_Init();
 
-        PathsManager_Clear();
+        ResourceManager_GetPathsManager().Clear();
+        Paths_ClearSiteReservations();
 
         GameManager_LockedUnits.Clear();
 
@@ -4528,7 +4530,7 @@ void GameManager_PathBuild(UnitInfo* unit) {
         (unit->grid_x != unit->move_to_grid_x || unit->grid_y != unit->move_to_grid_y)) {
         unit->path = new (std::nothrow) GroundPath(unit->move_to_grid_x, unit->move_to_grid_y);
 
-        unit->path->Path_vfunc17(unit->move_to_grid_x - unit->grid_x, unit->move_to_grid_y - unit->grid_y);
+        unit->path->AppendLinearSteps(unit->move_to_grid_x - unit->grid_x, unit->move_to_grid_y - unit->grid_y);
 
         if (Remote_IsNetworkGame) {
             Remote_SendNetPacket_38(unit);
@@ -4661,8 +4663,7 @@ void GameManager_FindValidStartingPosition(Point* position) {
 
             for (int32_t direction = 0; direction < 8; direction += 2) {
                 for (int32_t i = 0; i < range; ++i) {
-                    *position += Paths_8DirPointsArray[direction];
-
+                    *position += DIRECTION_OFFSETS[direction];
                     if (GameManager_IsValidStartingPosition(position->x, position->y)) {
                         return;
                     }
@@ -4712,7 +4713,7 @@ void GameManager_FindSpot(Point* point) {
 
         for (int32_t direction = 0; direction < 8; direction += 2) {
             for (int32_t i = 0; i < range; ++i) {
-                *point += Paths_8DirPointsArray[direction];
+                *point += DIRECTION_OFFSETS[direction];
 
                 if (point->x >= 1 && point->y >= 1 && point->x + 3 < ResourceManager_MapSize.x &&
                     point->y + 3 < ResourceManager_MapSize.y) {
@@ -4768,8 +4769,7 @@ void GameManager_SpawnAlienDerelicts(Point point, int32_t alien_unit_value) {
 
     for (int32_t direction = 0; direction < 8; direction += 2) {
         for (int32_t step_count = 0; step_count < 3; ++step_count) {
-            position += Paths_8DirPointsArray[direction];
-
+            position += DIRECTION_OFFSETS[direction];
             if (Access_IsInsideBounds(&bounds, &position)) {
                 surface_type = Access_GetSurfaceType(position.x, position.y);
 
@@ -4800,7 +4800,7 @@ void GameManager_SpawnAlienDerelicts(Point point, int32_t alien_unit_value) {
 
             for (int32_t direction = 0; direction < 8; direction += 2) {
                 for (int32_t step_count = 0; step_count < 2 * offset + 1; ++step_count) {
-                    position += Paths_8DirPointsArray[direction];
+                    position += DIRECTION_OFFSETS[direction];
 
                     if (Access_IsInsideBounds(&bounds, &position)) {
                         surface_type = Access_GetModifiedSurfaceType(position.x, position.y);
@@ -5026,8 +5026,9 @@ void GameManager_ProcessState(bool process_tick, bool clear_mouse_events) {
             TickTimer_RequestTimeLimitUpdate();
         }
 
+        ResourceManager_GetPathsManager().PollResults();
         TickTimer_UpdateTimeLimit();
-        PathsManager_EvaluateTiles();
+        ResourceManager_GetPathsManager().DispatchJobs();
         Ai_CheckReactions();
 
     } else {
@@ -5074,6 +5075,9 @@ bool GameManager_ProcessTick(bool render_screen) {
 
     time_stamp = timer_get();
 
+    // Always poll path results regardless of frame budget
+    ResourceManager_GetPathsManager().PollResults();
+
     if (!TickTimer_HaveTimeToThink(TIMER_FPS_TO_MS(24))) {
         if (GameManager_IsCheater && GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
             GameManager_PunishCheater();
@@ -5101,7 +5105,7 @@ bool GameManager_ProcessTick(bool render_screen) {
 
             GameManager_UpdateFlag = !GameManager_UpdateFlag;
 
-            PathsManager_EvaluateTiles();
+            ResourceManager_GetPathsManager().DispatchJobs();
             Ai_CheckReactions();
             Ai_CheckEndTurn();
         }
@@ -5488,16 +5492,6 @@ void GameManager_ProcessKey() {
                     MessageManager_DrawMessage(_(10eb), 0, 0);
                 }
             }
-        } break;
-
-        case GNW_KB_KEY_LALT_F1: {
-#if !defined(NDEBUG)
-            PathsManager_SetPathDebugMode();
-#endif /* !defined(NDEBUG) */
-        } break;
-
-        case GNW_KB_KEY_LALT_F2: {
-            /// Debug logs
         } break;
 
         case GNW_KB_KEY_LALT_F3: {

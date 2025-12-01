@@ -437,7 +437,7 @@ void TaskMove::FindWaypointUsingTransport() {
 
         for (int32_t direction = 0; direction < 8; direction += 2) {
             for (int32_t range = 0; range < range_limit; ++range) {
-                site += Paths_8DirPointsArray[direction];
+                site += DIRECTION_OFFSETS[direction];
 
                 if (Access_IsInsideBounds(&bounds, &site)) {
                     keep_searching = true;

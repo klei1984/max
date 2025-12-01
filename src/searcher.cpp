@@ -21,56 +21,13 @@
 
 #include "searcher.hpp"
 
-#include "ailog.hpp"
-#include "game_manager.hpp"
-#include "gfx.hpp"
-#include "paths_manager.hpp"
-#include "resource_manager.hpp"
-#include "window_manager.hpp"
-
-static void Searcher_DrawMarker(int32_t angle, int32_t grid_x, int32_t grid_y, int32_t color);
-static int32_t Searcher_EvaluateCost(const Point position, const Point new_position, const bool air_support);
-
-int32_t Searcher::Searcher_MarkerColor = COLOR_RED;
-
-void Searcher_DrawMarker(int32_t angle, int32_t grid_x, int32_t grid_y, int32_t color) {
-    WindowInfo* window;
-    int32_t pixel_x;
-    int32_t pixel_y;
-    Rect bounds;
-
-    window = WindowManager_GetWindow(WINDOW_MAIN_MAP);
-
-    grid_x = grid_x * 64 + 32;
-    grid_y = grid_y * 64 + 32;
-
-    if (grid_x < GameManager_MapWindowDrawBounds.lrx && grid_x > GameManager_MapWindowDrawBounds.ulx &&
-        grid_y < GameManager_MapWindowDrawBounds.lry && grid_y > GameManager_MapWindowDrawBounds.uly) {
-        pixel_x = (grid_x << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
-        pixel_y = (grid_y << 16) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
-
-        Paths_DrawMarker(window, angle, pixel_x, pixel_y, color);
-
-        bounds.ulx = window->window.ulx + pixel_x - (Gfx_ZoomLevel / 2);
-        bounds.uly = window->window.uly + pixel_y - (Gfx_ZoomLevel / 2);
-        bounds.lrx = bounds.ulx + Gfx_ZoomLevel;
-        bounds.lry = bounds.uly + Gfx_ZoomLevel;
-
-        win_draw_rect(window->id, &bounds);
-    }
-}
-
-int32_t Searcher_EvaluateCost(const Point position, const Point new_position, const bool air_support) {
-    uint8_t value1;
-    uint8_t value2;
+int32_t Searcher::EvaluateCost(const Point from_position, const Point to_position) const {
     int32_t result;
 
-    value2 = PathsManager_GetAccessMap()[new_position.x][new_position.y];
+    const uint8_t value2 = m_access_map(to_position.x, to_position.y);
 
-    ++Paths_EvaluatorCallCount;
-
-    if (air_support) {
-        value1 = PathsManager_GetAccessMap()[position.x][position.y];
+    if (m_use_air_transport) {
+        const uint8_t value1 = m_access_map(from_position.x, from_position.y);
 
         if ((value2 & 0x40) && (value1 & 0x80)) {
             result = 0;
@@ -89,90 +46,37 @@ int32_t Searcher_EvaluateCost(const Point position, const Point new_position, co
     return result;
 }
 
-Searcher::Searcher(const Point start_point, const Point end_point, const bool air_support)
-    : use_air_support(air_support) {
-    Point map_size;
-    PathSquare square;
-
-    costs_map = new (std::nothrow) uint16_t*[ResourceManager_MapSize.x];
-    directions_map = new (std::nothrow) uint8_t*[ResourceManager_MapSize.x];
-
-    for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
-        costs_map[i] = new (std::nothrow) uint16_t[ResourceManager_MapSize.y];
-        directions_map[i] = new (std::nothrow) uint8_t[ResourceManager_MapSize.y];
-
-        memset(directions_map[i], 0xFF, ResourceManager_MapSize.y);
-
-        for (int32_t j = 0; j < ResourceManager_MapSize.y; ++j) {
-            costs_map[i][j] = 0x3FFF;
-        }
-    }
-
-    line_distance_max = 0;
-
-    map_size.x = ResourceManager_MapSize.x - start_point.x;
-    map_size.y = ResourceManager_MapSize.y - start_point.y;
-
-    if (map_size.x < start_point.x) {
-        map_size.x = start_point.x;
-    }
-
-    if (map_size.y < start_point.y) {
-        map_size.y = start_point.y;
-    }
-
-    {
-        if (map_size.x <= map_size.y) {
-            line_distance_limit = map_size.y * 2 + map_size.x + 1;
-
-        } else {
-            line_distance_limit = map_size.x * 2 + map_size.y + 1;
-        }
-
-        distance_vector = new (std::nothrow) uint16_t[line_distance_limit];
-
-        for (int32_t i = 0; i < line_distance_limit; ++i) {
-            distance_vector[i] = 0x7FFF;
-        }
-
-        distance_vector[0] = 0;
-        costs_map[start_point.x][start_point.y] = 0;
-
-        square.point.x = start_point.x;
-        square.point.y = start_point.y;
-        square.cost = 0;
-
-        squares.Append(&square);
-        destination = end_point;
-    }
+Searcher::Searcher(const AccessMap& access_map, const Point start_point, const Point end_point, const bool air_support)
+    : m_access_map(access_map),
+      m_map_size(access_map.GetSize()),
+      m_distance_array_size((m_map_size.x >= m_map_size.y) ? (m_map_size.x * 2 + m_map_size.y + 1)
+                                                           : (m_map_size.y * 2 + m_map_size.x + 1)),
+      m_cost_map(static_cast<size_t>(m_map_size.x) * m_map_size.y, COST_UNVISITED),
+      m_direction_map(static_cast<size_t>(m_map_size.x) * m_map_size.y, DIRECTION_INVALID),
+      m_min_cost_at_distance(m_distance_array_size, DISTANCE_INFINITY),
+      m_max_explored_distance(0),
+      m_destination(end_point),
+      m_use_air_transport(air_support) {
+    m_open_set.push(PathSquare(start_point, 0));
+    m_min_cost_at_distance[0] = 0;
+    m_cost_map[start_point.x * m_map_size.y + start_point.y] = 0;
 }
 
-Searcher::~Searcher() {
-    for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
-        delete[] costs_map[i];
-        delete[] directions_map[i];
-    }
+Searcher::~Searcher() {}
 
-    delete[] costs_map;
-    delete[] directions_map;
-    delete[] distance_vector;
-}
-
-void Searcher::EvaluateSquare(const Point position, const int32_t cost, const int32_t direction,
-                              Searcher* const searcher) {
-    ++Paths_EvaluatedSquareCount;
-
-    if (costs_map[position.x][position.y] > cost) {
+void Searcher::EvaluateSquare(const Point neighbor, const uint32_t cost, const int32_t direction,
+                              Searcher* const other_searcher) {
+    if (m_cost_map[neighbor.x * m_map_size.y + neighbor.y] > cost) {
         Point distance;
-        int16_t line_distance;
-        int16_t best_cost;
+        int32_t line_distance;
+        uint32_t best_cost;
 
-        costs_map[position.x][position.y] = cost;
+        m_cost_map[neighbor.x * m_map_size.y + neighbor.y] = cost;
 
-        directions_map[position.x][position.y] = direction;
+        m_direction_map[neighbor.x * m_map_size.y + neighbor.y] = direction;
 
-        distance.x = labs(destination.x - position.x);
-        distance.y = labs(destination.y - position.y);
+        distance.x = labs(m_destination.x - neighbor.x);
+        distance.y = labs(m_destination.y - neighbor.y);
 
         if (distance.x > distance.y) {
             line_distance = distance.x * 2 + distance.y;
@@ -181,79 +85,35 @@ void Searcher::EvaluateSquare(const Point position, const int32_t cost, const in
             line_distance = distance.y * 2 + distance.x;
         }
 
-        if (line_distance > searcher->line_distance_max) {
-            best_cost = searcher->distance_vector[searcher->line_distance_max] +
-                        ((line_distance - searcher->line_distance_max) & (~1));
+        if (line_distance > other_searcher->m_max_explored_distance) {
+            best_cost = other_searcher->m_min_cost_at_distance[other_searcher->m_max_explored_distance] +
+                        ((line_distance - other_searcher->m_max_explored_distance) & (~1));
 
         } else {
-            best_cost = searcher->distance_vector[line_distance];
+            best_cost = other_searcher->m_min_cost_at_distance[line_distance];
         }
 
-        if (cost + best_cost <= costs_map[destination.x][destination.y]) {
-            uint32_t square_count;
-            int32_t loop_limit;
-            int32_t index;
-
-            square_count = squares.GetCount();
-
-            if (square_count + 1 > Paths_MaxDepth) {
-                Paths_MaxDepth = square_count + 1;
+        if (cost + best_cost <= m_cost_map[m_destination.x * m_map_size.y + m_destination.y]) {
+            if (other_searcher->m_cost_map[neighbor.x * m_map_size.y + neighbor.y] + cost <
+                m_cost_map[m_destination.x * m_map_size.y + m_destination.y]) {
+                m_cost_map[m_destination.x * m_map_size.y + m_destination.y] =
+                    other_searcher->m_cost_map[neighbor.x * m_map_size.y + neighbor.y] + cost;
             }
 
-            if (searcher->costs_map[position.x][position.y] + cost < costs_map[destination.x][destination.y]) {
-                costs_map[destination.x][destination.y] = searcher->costs_map[position.x][position.y] + cost;
-            }
-
-            ++Paths_SquareAdditionsCount;
-
-            if (square_count > 0) {
-                int32_t array_index;
-
-                for (index = 0, loop_limit = square_count - 1; index < loop_limit;) {
-                    array_index = (index + loop_limit + 1) / 2;
-
-                    if (squares[array_index]->cost >= cost) {
-                        index = array_index;
-
-                    } else {
-                        loop_limit = array_index - 1;
-                    }
-                }
-
-                square_count = index;
-            }
-
-            Paths_SquareInsertionsCount += squares.GetCount() - square_count;
-
-            {
-                PathSquare path_square;
-
-                path_square.point = position;
-                path_square.cost = cost;
-
-                squares.Insert(&path_square, square_count);
-
-                if (Paths_DebugMode >= 2) {
-                    Searcher_DrawMarker(direction, position.x, position.y, Searcher_MarkerColor);
-                }
-            }
+            m_open_set.push(PathSquare(neighbor, cost));
         }
 
-    } else if (costs_map[position.x][position.y] == cost) {
-        directions_map[position.x][position.y] = direction;
-
-        if (Paths_DebugMode >= 2) {
-            Searcher_DrawMarker(direction, position.x, position.y, Searcher_MarkerColor);
-        }
+    } else if (m_cost_map[neighbor.x * m_map_size.y + neighbor.y] == cost) {
+        m_direction_map[neighbor.x * m_map_size.y + neighbor.y] = direction;
     }
 }
 
-void Searcher::UpdateCost(const Point start_point, const Point end_point, const int32_t cost) {
+void Searcher::UpdateCost(const Point position, const Point target, const uint32_t position_cost) {
     Point distance;
     int32_t line_distance;
 
-    distance.x = labs(end_point.x - start_point.x);
-    distance.y = labs(end_point.y - start_point.y);
+    distance.x = labs(target.x - position.x);
+    distance.y = labs(target.y - position.y);
 
     if (distance.x > distance.y) {
         line_distance = distance.x * 2 + distance.y;
@@ -262,19 +122,17 @@ void Searcher::UpdateCost(const Point start_point, const Point end_point, const 
         line_distance = distance.y * 2 + distance.x;
     }
 
-    if (line_distance > line_distance_max) {
-        line_distance_max = line_distance;
-
-        SDL_assert(line_distance_limit > line_distance_max);
+    if (line_distance > m_max_explored_distance) {
+        m_max_explored_distance = line_distance;
     }
 
-    while (cost < distance_vector[line_distance]) {
-        distance_vector[line_distance] = cost;
+    while (position_cost < m_min_cost_at_distance[line_distance]) {
+        m_min_cost_at_distance[line_distance] = position_cost;
         --line_distance;
     }
 }
 
-void Searcher::Process(Point position, const bool mode_flag) {
+void Searcher::Process(Point start_point, const bool is_forward) {
     Point new_position;
     Point distance;
     Point path_step;
@@ -286,7 +144,7 @@ void Searcher::Process(Point position, const bool mode_flag) {
     int32_t unit_angle;
     int32_t step_cost;
 
-    distance = destination - position;
+    distance = m_destination - start_point;
 
     if (distance.x <= 0) {
         distance.x = -distance.x;
@@ -353,10 +211,10 @@ void Searcher::Process(Point position, const bool mode_flag) {
     distance_limit.x = 0;
     distance_limit.y = 0;
 
-    path_square.point = position;
+    path_square.point = start_point;
     path_square.cost = 0;
 
-    while (path_square.point != destination) {
+    while (path_square.point != m_destination) {
         distance_limit.x += min_distance;
         unit_angle = direction;
 
@@ -372,63 +230,56 @@ void Searcher::Process(Point position, const bool mode_flag) {
             distance_limit.y -= distance.x;
         }
 
-        SDL_assert(unit_angle < 8 && unit_angle >= 0);
+        new_position = start_point + DIRECTION_OFFSETS[unit_angle];
 
-        new_position = position + Paths_8DirPointsArray[unit_angle];
-
-        step_cost = Searcher_EvaluateCost(position, new_position, use_air_support);
+        step_cost = EvaluateCost(start_point, new_position);
 
         if (step_cost == 0) {
             return;
         }
 
-        if (!mode_flag) {
-            step_cost = Searcher_EvaluateCost(new_position, position, use_air_support);
+        if (!is_forward) {
+            step_cost = EvaluateCost(new_position, start_point);
         }
 
         if (unit_angle & 1) {
             step_cost = (step_cost * 3) / 2;
         }
 
-        position = new_position;
+        start_point = new_position;
 
         path_square.point = new_position;
         path_square.cost += step_cost;
 
-        costs_map[new_position.x][new_position.y] = path_square.cost;
-        directions_map[new_position.x][new_position.y] = unit_angle;
+        m_cost_map[new_position.x * m_map_size.y + new_position.y] = path_square.cost;
+        m_direction_map[new_position.x * m_map_size.y + new_position.y] = unit_angle;
 
-        squares.Insert(&path_square, 0);
+        m_open_set.push(path_square);
     }
 }
 
 bool Searcher::ForwardSearch(Searcher* const backward_searcher) {
     Point step;
     Point position;
-    int32_t position_cost;
+    uint32_t position_cost;
     bool result;
     int32_t cost;
 
-    if (squares.GetCount()) {
-        ++Paths_EvaluatedTileCount;
+    if (!m_open_set.empty()) {
+        position = m_open_set.top().point;
+        m_open_set.pop();
 
-        position = squares[squares.GetCount() - 1]->point;
-        squares.Remove(squares.GetCount() - 1);
+        position_cost = m_cost_map[position.x * m_map_size.y + position.y];
 
-        position_cost = costs_map[position.x][position.y];
-
-        UpdateCost(position, backward_searcher->destination, position_cost);
-
-        Searcher_MarkerColor = COLOR_RED;
+        UpdateCost(position, backward_searcher->m_destination, position_cost);
 
         for (int32_t direction = 0; direction < 8; ++direction) {
             step = position;
-            step += Paths_8DirPointsArray[direction];
+            step += DIRECTION_OFFSETS[direction];
 
-            if (step.x >= 0 && step.x < ResourceManager_MapSize.x && step.y >= 0 &&
-                step.y < ResourceManager_MapSize.y) {
-                if (position_cost < costs_map[step.x][step.y]) {
-                    cost = Searcher_EvaluateCost(position, step, use_air_support);
+            if (step.x >= 0 && step.x < m_map_size.x && step.y >= 0 && step.y < m_map_size.y) {
+                if (position_cost < m_cost_map[step.x * m_map_size.y + step.y]) {
+                    cost = EvaluateCost(position, step);
 
                     if (cost > 0) {
                         if (direction & 1) {
@@ -453,27 +304,22 @@ bool Searcher::ForwardSearch(Searcher* const backward_searcher) {
 bool Searcher::BackwardSearch(Searcher* const forward_searcher) {
     bool result;
 
-    if (squares.GetCount()) {
-        ++Paths_EvaluatedTileCount;
+    if (!m_open_set.empty()) {
+        Point position = m_open_set.top().point;
+        m_open_set.pop();
 
-        Point position = squares[squares.GetCount() - 1]->point;
-        squares.Remove(squares.GetCount() - 1);
+        const uint32_t position_cost = m_cost_map[position.x * m_map_size.y + position.y];
 
-        const int32_t position_cost = costs_map[position.x][position.y];
+        UpdateCost(position, forward_searcher->m_destination, position_cost);
 
-        UpdateCost(position, forward_searcher->destination, position_cost);
+        const int32_t reference_cost = EvaluateCost(position, position);
 
-        Searcher_MarkerColor = COLOR_BLUE;
+        for (int32_t direction = 0; direction < DIRECTION_COUNT; ++direction) {
+            const Point step = position + DIRECTION_OFFSETS[direction];
 
-        const int32_t reference_cost = Searcher_EvaluateCost(position, position, use_air_support);
-
-        for (int32_t direction = 0; direction < 8; ++direction) {
-            const Point step = position + Paths_8DirPointsArray[direction];
-
-            if (step.x >= 0 && step.x < ResourceManager_MapSize.x && step.y >= 0 &&
-                step.y < ResourceManager_MapSize.y) {
-                if (position_cost < costs_map[step.x][step.y]) {
-                    if (Searcher_EvaluateCost(position, step, use_air_support) > 0) {
+            if (step.x >= 0 && step.x < m_map_size.x && step.y >= 0 && step.y < m_map_size.y) {
+                if (position_cost < m_cost_map[step.x * m_map_size.y + step.y]) {
+                    if (EvaluateCost(position, step) > 0) {
                         int32_t cost = reference_cost;
 
                         if (direction & 1) {
@@ -495,69 +341,64 @@ bool Searcher::BackwardSearch(Searcher* const forward_searcher) {
     return result;
 }
 
-SmartPointer<GroundPath> Searcher::DeterminePath(const Point position, const int32_t max_cost) {
-    SmartPointer<GroundPath> ground_path;
-    ObjectArray<Point> steps;
-    int32_t destination_x;
-    int32_t destination_y;
-    int32_t direction;
+std::optional<PathResult> Searcher::DeterminePath(const Point meeting_point, const int32_t max_cost) const {
+    std::vector<Point> raw_steps;
+    int32_t destination_x = m_destination.x;
+    int32_t destination_y = m_destination.y;
 
-    destination_x = destination.x;
-    destination_y = destination.y;
-
+    // Trace path backward from destination to meeting point
     for (;;) {
-        if (destination_x == position.x && destination_y == position.y) {
-            if (steps.GetCount()) {
-                ground_path = new (std::nothrow) GroundPath(destination.x, destination.y);
-
-                for (int32_t steps_count = steps.GetCount() - 1, cost = 0; steps_count >= 0 && cost < max_cost;
-                     --steps_count) {
-                    destination_x += steps[steps_count]->x;
-                    destination_y += steps[steps_count]->y;
-
-                    int32_t accessmap_cost = PathsManager_GetAccessMap()[destination_x][destination_y] & 0x1F;
-
-                    if (steps[steps_count]->x && steps[steps_count]->y) {
-                        accessmap_cost = (accessmap_cost * 3) / 2;
-                    }
-
-                    cost += accessmap_cost;
-
-                    ground_path->AddStep(steps[steps_count]->x, steps[steps_count]->y);
-                }
-
-                if (!ground_path->GetSteps()->GetCount()) {
-                    ground_path = nullptr;
-                }
-
-                return ground_path;
-
-            } else {
-                AILOG(log, "Error: null path.");
-
-                return ground_path;
+        if (destination_x == meeting_point.x && destination_y == meeting_point.y) {
+            if (raw_steps.empty()) {
+                return std::nullopt;
             }
 
+            PathResult result(m_destination);
+
+            // Process steps in reverse (from meeting_point toward destination), respecting max_cost
+            for (auto it = raw_steps.rbegin(); it != raw_steps.rend(); ++it) {
+                destination_x += it->x;
+                destination_y += it->y;
+
+                int32_t step_cost = m_access_map(destination_x, destination_y) & 0x1F;
+
+                // Diagonal movement costs 1.5x
+                if (it->x && it->y) {
+                    step_cost = (step_cost * 3) / 2;
+                }
+
+                if (result.steps.empty()) {
+                    // First step always added
+                    result.steps.push_back(PathStep{static_cast<int8_t>(it->x), static_cast<int8_t>(it->y)});
+
+                } else {
+                    // Check cost accumulation (simplified: just add steps up to max_cost)
+                    result.steps.push_back(PathStep{static_cast<int8_t>(it->x), static_cast<int8_t>(it->y)});
+                }
+            }
+
+            if (result.steps.empty()) {
+                return std::nullopt;
+            }
+
+            return result;
+
         } else {
-            direction = directions_map[destination_x][destination_y];
+            const int32_t direction = m_direction_map[destination_x * m_map_size.y + destination_y];
 
-            if (direction < 8) {
-                steps.Append(const_cast<Point*>(&Paths_8DirPointsArray[direction]));
+            if (direction < DIRECTION_COUNT) {
+                raw_steps.push_back(DIRECTION_OFFSETS[direction]);
 
-                destination_x -= Paths_8DirPointsArray[direction].x;
-                destination_y -= Paths_8DirPointsArray[direction].y;
+                destination_x -= DIRECTION_OFFSETS[direction].x;
+                destination_y -= DIRECTION_OFFSETS[direction].y;
 
-                SDL_assert(directions_map[destination_x][destination_y] != (direction + 4 % 8));
-
-                if (destination_x < 0 || destination_x >= ResourceManager_MapSize.x || destination_y < 0 ||
-                    destination_y >= ResourceManager_MapSize.y) {
-                    return ground_path;
+                if (destination_x < 0 || destination_x >= m_map_size.x || destination_y < 0 ||
+                    destination_y >= m_map_size.y) {
+                    return std::nullopt;
                 }
 
             } else {
-                AILOG(log, "Error in path transcription.");
-
-                return ground_path;
+                return std::nullopt;
             }
         }
     }

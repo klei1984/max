@@ -63,8 +63,8 @@ void TaskFindPath::Init() {
           ResourceManager_GetUnit(path_request->GetClient()->GetUnitType()).GetSingularName().data());
 
     path_request->GetClient()->AddTask(this);
-    PathsManager_RemoveRequest(path_request->GetClient());
-    PathsManager_PushBack(*path_request);
+    ResourceManager_GetPathsManager().RemoveRequest(path_request->GetClient());
+    ResourceManager_GetPathsManager().PushBack(*path_request);
 }
 
 void TaskFindPath::EndTurn() {}
@@ -74,7 +74,7 @@ void TaskFindPath::RemoveSelf() {
         AILOG(log, "Task find path for {}: parent complete.",
               ResourceManager_GetUnit(path_request->GetClient()->GetUnitType()).GetSingularName().data());
 
-        PathsManager_RemoveRequest(&*path_request);
+        ResourceManager_GetPathsManager().RemoveRequest(&*path_request);
 
         path_request = nullptr;
     }

@@ -22,19 +22,33 @@
 #ifndef CONTINENTFILLER_HPP
 #define CONTINENTFILLER_HPP
 
+#include "accessmap.hpp"
 #include "maxfloodfill.hpp"
 
+/**
+ * \class ContinentFiller
+ * \brief Flood fill implementation for marking connected land/continent regions.
+ *
+ * Used to identify and label distinct landmass areas on the map. Cells with value 2 are considered unfilled land, and
+ * the fill operation replaces them with a filler value to identify the connected continent.
+ */
 class ContinentFiller : public MAXFloodFill {
-    uint8_t** map;
-    uint8_t filler;
+    AccessMap& m_map;
+    uint8_t m_filler;
 
 public:
-    ContinentFiller(uint8_t** map, uint8_t filler);
+    /**
+     * \brief Constructs a ContinentFiller for the given terrain map.
+     *
+     * \param map The terrain map to fill (will be modified by marking continents).
+     * \param filler The value to write to filled cells.
+     */
+    ContinentFiller(AccessMap& map, uint8_t filler);
 
-    int32_t Vfunc0(Point point, int32_t uly);
-    int32_t Vfunc1(Point point, int32_t lry);
-    int32_t Vfunc2(Point point, int32_t lry);
-    void Vfunc3(int32_t ulx, int32_t uly, int32_t lry);
+    int32_t FindRunTop(Point point, int32_t upper_bound) override;
+    int32_t FindRunBottom(Point point, int32_t lower_bound) override;
+    int32_t FindNextFillable(Point point, int32_t lower_bound) override;
+    void MarkRun(int32_t grid_x, int32_t run_top, int32_t run_bottom) override;
 };
 
 #endif /* CONTINENTFILLER_HPP */

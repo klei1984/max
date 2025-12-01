@@ -49,7 +49,7 @@ bool Continent::IsDangerousProximity(int32_t grid_x, int32_t grid_y, uint16_t te
 bool Continent::IsViableSite(bool test_proximity, uint16_t team, Point site) {
     bool result;
 
-    if (map[site.x][site.y] == filler) {
+    if (map(site.x, site.y) == filler) {
         if (test_proximity) {
             if (IsDangerousProximity(site.x, site.y, team,
                                      ResourceManager_GetSettings()->GetNumericValue("proximity_range") + 4)) {
@@ -59,7 +59,7 @@ bool Continent::IsViableSite(bool test_proximity, uint16_t team, Point site) {
 
         for (int32_t i = site.x; i < site.x + 4; ++i) {
             for (int32_t j = site.y; j < site.y + 4; ++j) {
-                if (map[i][j] != filler) {
+                if (map(i, j) != filler) {
                     return false;
                 }
             }
@@ -74,14 +74,13 @@ bool Continent::IsViableSite(bool test_proximity, uint16_t team, Point site) {
     return result;
 }
 
-Continent::Continent(uint8_t** map, uint16_t filler, Point point, uint8_t value) {
+Continent::Continent(AccessMap& map, uint16_t filler, Point point, uint8_t value) : map(map) {
     ContinentFiller continent_filler(map, filler);
 
     this->point = point;
     field_35 = value;
     this->filler = filler;
     continent_size = 0;
-    this->map = map;
     is_isolated = false;
 
     continent_size = continent_filler.Fill(point);
@@ -93,8 +92,8 @@ Continent::~Continent() {
     if (field_35) {
         for (int32_t x = bounds.ulx; x < bounds.lrx; ++x) {
             for (int32_t y = bounds.uly; y < bounds.lry - 3; ++y) {
-                if (map[x][y] == filler) {
-                    map[x][y] = 0;
+                if (map(x, y) == filler) {
+                    map(x, y) = 0;
                 }
             }
         }
@@ -160,12 +159,12 @@ void Continent::TestIsolated() {
 
         for (position.x = zone.ulx; position.x < zone.lrx; ++position.x) {
             for (position.y = zone.uly; position.y < zone.lry; ++position.y) {
-                if (map[position.x][position.y] == filler) {
+                if (map(position.x, position.y) == filler) {
                     points.Append(&position);
-                    access_map.GetMapColumn(position.x)[position.y] = 0x00;
+                    access_map(position.x, position.y) = 0x00;
 
                 } else {
-                    access_map.GetMapColumn(position.x)[position.y] = 0x7F;
+                    access_map(position.x, position.y) = 0x7F;
                 }
             }
         }
@@ -182,13 +181,13 @@ void Continent::TestIsolated() {
                 position = *points[points.GetCount() - 1];
                 points.Remove(points.GetCount() - 1);
 
-                value = access_map.GetMapColumn(position.x)[position.y] | 0x01;
-                access_map.GetMapColumn(position.x)[position.y] = value;
+                value = access_map(position.x, position.y) | 0x01;
+                access_map(position.x, position.y) = value;
 
                 for (int32_t direction = 0; direction < 8; ++direction) {
                     position2 = position;
 
-                    position2 += Paths_8DirPointsArray[direction];
+                    position2 += DIRECTION_OFFSETS[direction];
 
                     if (Access_IsInsideBounds(&zone2, &position2)) {
                         if (direction & 1) {
@@ -198,18 +197,18 @@ void Continent::TestIsolated() {
                             value2 = value + 4;
                         }
 
-                        if (value2 <= 24 && value2 < access_map.GetMapColumn(position2.x)[position2.y]) {
-                            if (map[position2.x][position2.y] >= 3 && map[position2.x][position2.y] != filler) {
+                        if (value2 <= 24 && value2 < access_map(position2.x, position2.y)) {
+                            if (map(position2.x, position2.y) >= 3 && map(position2.x, position2.y) != filler) {
                                 return;
                             }
 
                             value2 &= 0xFE;
 
-                            if ((access_map.GetMapColumn(position2.x)[position2.y] & 0x01) && value2 <= 20) {
+                            if ((access_map(position2.x, position2.y) & 0x01) && value2 <= 20) {
                                 points.Append(&position2);
                             }
 
-                            access_map.GetMapColumn(position2.x)[position2.y] = value2;
+                            access_map(position2.x, position2.y) = value2;
                         }
                     }
                 }

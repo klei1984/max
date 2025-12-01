@@ -464,7 +464,7 @@ void TaskClearZone::SearchMap() {
 
         for (int32_t direction = 0; direction < 8 && state == CLEARZONE_STATE_SEARCHING_MAP; ++direction) {
             position = zone_square.point;
-            position += Paths_8DirPointsArray[direction];
+            position += DIRECTION_OFFSETS[direction];
 
             if (Access_IsInsideBounds(&bounds, &position) && IsNewSite(position)) {
                 EvaluateSite(&zone_square, position);

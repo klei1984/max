@@ -1095,9 +1095,9 @@ void TaskCreateBuilding::BuildBoardwalks() {
 
         AILOG(log, "Create boardwalks around unit.");
 
-        MarkBridgeAreas(map.GetMap());
+        MarkBridgeAreas(map);
 
-        PopulateMap(map.GetMap());
+        PopulateMap(map);
 
         GetBounds(&bounds);
 
@@ -1108,11 +1108,11 @@ void TaskCreateBuilding::BuildBoardwalks() {
 
         for (int32_t direction = 0; direction < 8; direction += 2) {
             for (int32_t range = 0; range < range_limit; ++range) {
-                position += Paths_8DirPointsArray[direction];
+                position += DIRECTION_OFFSETS[direction];
 
                 if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
                     position.y < ResourceManager_MapSize.y) {
-                    if (map.GetMapColumn(position.x)[position.y] == 1) {
+                    if (map(position.x, position.y) == 1) {
                         AILOG_LOG(log, "Create boardwalk at [{},{}].", position.x + 1, position.y + 1);
 
                         SmartPointer<TaskCreateBuilding> create_building_task = new (std::nothrow) TaskCreateBuilding(
@@ -1130,7 +1130,7 @@ void TaskCreateBuilding::BuildBoardwalks() {
                 }
             }
 
-            position += Paths_8DirPointsArray[direction];
+            position += DIRECTION_OFFSETS[direction];
         }
     }
 }
@@ -1142,7 +1142,7 @@ void TaskCreateBuilding::BuildBridges() {
 
     AILOG(log, "Building bridges.");
 
-    MarkBridgeAreas(map.GetMap());
+    MarkBridgeAreas(map);
 
     spot_found = false;
 
@@ -1154,11 +1154,10 @@ void TaskCreateBuilding::BuildBridges() {
 
             for (int32_t direction = 0; direction < 8 && !spot_found; direction += 2) {
                 for (int32_t range = 0; range < 3 && !spot_found; ++range) {
-                    position += Paths_8DirPointsArray[direction];
-
+                    position += DIRECTION_OFFSETS[direction];
                     if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
                         position.y < ResourceManager_MapSize.y) {
-                        if (map.GetMapColumn(position.x)[position.y] == 2) {
+                        if (map(position.x, position.y) == 2) {
                             spot_found = true;
                         }
                     }
@@ -1172,12 +1171,12 @@ void TaskCreateBuilding::BuildBridges() {
     }
 
     if (spot_found) {
-        PopulateMap(map.GetMap());
+        PopulateMap(map);
 
-        SmartPointer<Continent> continent(new (std::nothrow) Continent(map.GetMap(), 3, position, 0));
+        SmartPointer<Continent> continent(new (std::nothrow) Continent(map, 3, position, 0));
 
-        if (!FindBridgePath(map.GetMap(), 3)) {
-            FindBridgePath(map.GetMap(), 4);
+        if (!FindBridgePath(map, 3)) {
+            FindBridgePath(map, 4);
         }
 
     } else {
@@ -1185,7 +1184,7 @@ void TaskCreateBuilding::BuildBridges() {
     }
 }
 
-void TaskCreateBuilding::MarkBridgeAreas(uint8_t** map) {
+void TaskCreateBuilding::MarkBridgeAreas(AccessMap& map) {
     int16_t** damage_potential_map;
 
     AILOG(log, "Marking bridge areas.");
@@ -1194,16 +1193,16 @@ void TaskCreateBuilding::MarkBridgeAreas(uint8_t** map) {
         for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
             switch (ResourceManager_MapSurfaceMap[y * ResourceManager_MapSize.x + x]) {
                 case SURFACE_TYPE_LAND: {
-                    map[x][y] = 2;
+                    map(x, y) = 2;
                 } break;
 
                 case SURFACE_TYPE_WATER:
                 case SURFACE_TYPE_COAST: {
-                    map[x][y] = 1;
+                    map(x, y) = 1;
                 } break;
 
                 default: {
-                    map[x][y] = 0;
+                    map(x, y) = 0;
                 } break;
             }
         }
@@ -1218,7 +1217,7 @@ void TaskCreateBuilding::MarkBridgeAreas(uint8_t** map) {
 
             for (int32_t x = bounds.ulx; x < bounds.lrx; ++x) {
                 for (int32_t y = bounds.uly; y < bounds.lry; ++y) {
-                    map[x][y] = 4;
+                    map(x, y) = 4;
                 }
             }
         }
@@ -1229,7 +1228,7 @@ void TaskCreateBuilding::MarkBridgeAreas(uint8_t** map) {
     for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
         for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
             if (damage_potential_map[x][y] > 0) {
-                map[x][y] = 0;
+                map(x, y) = 0;
             }
         }
     }
@@ -1246,7 +1245,7 @@ void TaskCreateBuilding::MarkBridgeAreas(uint8_t** map) {
                 create_building_task->GetUnitType() != CNCT_4W) {
                 for (int32_t x = bounds.ulx; x < bounds.lrx; ++x) {
                     for (int32_t y = bounds.uly; y < bounds.lry; ++y) {
-                        map[x][y] = 4;
+                        map(x, y) = 4;
                     }
                 }
             }
@@ -1254,11 +1253,11 @@ void TaskCreateBuilding::MarkBridgeAreas(uint8_t** map) {
     }
 }
 
-void TaskCreateBuilding::PopulateMap(uint8_t** map) {
+void TaskCreateBuilding::PopulateMap(AccessMap& map) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
          it != UnitsManager_GroundCoverUnits.End(); ++it) {
         if ((*it).GetUnitType() == BRIDGE && (*it).IsVisibleToTeam(m_team)) {
-            map[(*it).grid_x][(*it).grid_y] = 2;
+            map((*it).grid_x, (*it).grid_y) = 2;
         }
     }
 
@@ -1271,8 +1270,8 @@ void TaskCreateBuilding::PopulateMap(uint8_t** map) {
             create_building_task->GetBounds(&bounds);
 
             if (create_building_task->GetUnitType() == BRIDGE) {
-                if (map[bounds.ulx][bounds.uly] == 1) {
-                    map[bounds.ulx][bounds.uly] = 2;
+                if (map(bounds.ulx, bounds.uly) == 1) {
+                    map(bounds.ulx, bounds.uly) = 2;
                 }
             }
         }
@@ -1281,15 +1280,15 @@ void TaskCreateBuilding::PopulateMap(uint8_t** map) {
     for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
         for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
             if ((ResourceManager_CargoMap[y * ResourceManager_MapSize.x + x] & 0x1F) >= 8) {
-                if (map[x][y] == 1) {
-                    map[x][y] = 0;
+                if (map(x, y) == 1) {
+                    map(x, y) = 0;
                 }
             }
         }
     }
 }
 
-bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
+bool TaskCreateBuilding::FindBridgePath(AccessMap& map, int32_t value) {
     Point position;
     Point start_position;
     bool is_found = false;
@@ -1312,11 +1311,11 @@ bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
 
     for (int32_t direction = 0; direction < 8; direction += 2) {
         for (int32_t range = 0; range < range_limit; ++range) {
-            position += Paths_8DirPointsArray[direction];
+            position += DIRECTION_OFFSETS[direction];
 
             if (position.x >= 0 && position.x < ResourceManager_MapSize.x && position.y >= 0 &&
                 position.y < ResourceManager_MapSize.y) {
-                if (map[position.x][position.y] == value) {
+                if (map(position.x, position.y) == value) {
                     AILOG_LOG(log, "Unit is already connected.");
 
                     return true;
@@ -1345,7 +1344,7 @@ bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
         position = start_position;
 
         while (bridge_count > 0) {
-            if (map[position.x][position.y] == 1) {
+            if (map(position.x, position.y) == 1) {
                 AILOG_LOG(log, "Create bridge at [{},{}].", position.x + 1, position.y + 1);
 
                 create_building_task = new (std::nothrow)
@@ -1363,7 +1362,7 @@ bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
                 }
             }
 
-            position += Paths_8DirPointsArray[direction2];
+            position += DIRECTION_OFFSETS[direction2];
 
             SearchPathStep(map, position, &direction2, &bridge_count, value);
         }
@@ -1375,7 +1374,7 @@ bool TaskCreateBuilding::FindBridgePath(uint8_t** map, int32_t value) {
     return is_found;
 }
 
-bool TaskCreateBuilding::SearchPathStep(uint8_t** map, Point position, int32_t* direction, uint16_t* best_unit_count,
+bool TaskCreateBuilding::SearchPathStep(AccessMap& map, Point position, int32_t* direction, uint16_t* best_unit_count,
                                         int32_t value) {
     Point site1;
     Point site2;
@@ -1392,8 +1391,8 @@ bool TaskCreateBuilding::SearchPathStep(uint8_t** map, Point position, int32_t* 
         site2 = position;
         site3 = position;
 
-        site2 += Paths_8DirPointsArray[(local_direction + 2) & 7];
-        site3 += Paths_8DirPointsArray[(local_direction + 6) & 7];
+        site2 += DIRECTION_OFFSETS[(local_direction + 2) & 7];
+        site3 += DIRECTION_OFFSETS[(local_direction + 6) & 7];
 
         if (site2.x < 0 || site2.x >= ResourceManager_MapSize.x || site2.y < 0 ||
             site2.y >= ResourceManager_MapSize.x) {
@@ -1407,22 +1406,22 @@ bool TaskCreateBuilding::SearchPathStep(uint8_t** map, Point position, int32_t* 
 
         while (site1.x >= 0 && site1.x < ResourceManager_MapSize.x && site1.y >= 0 &&
                site1.y < ResourceManager_MapSize.y && unit_count < *best_unit_count) {
-            if (map[site1.x][site1.y] == value || map[site2.x][site2.y] == value || map[site3.x][site3.y] == value) {
+            if (map(site1.x, site1.y) == value || map(site2.x, site2.y) == value || map(site3.x, site3.y) == value) {
                 is_found = true;
                 break;
             }
 
-            if (map[site1.x][site1.y] == 1) {
+            if (map(site1.x, site1.y) == 1) {
                 ++unit_count;
             }
 
-            if (map[site1.x][site1.y] == 0) {
+            if (map(site1.x, site1.y) == 0) {
                 break;
             }
 
-            site1 += Paths_8DirPointsArray[local_direction];
-            site2 += Paths_8DirPointsArray[local_direction];
-            site3 += Paths_8DirPointsArray[local_direction];
+            site1 += DIRECTION_OFFSETS[local_direction];
+            site2 += DIRECTION_OFFSETS[local_direction];
+            site3 += DIRECTION_OFFSETS[local_direction];
         }
 
         if (is_found) {

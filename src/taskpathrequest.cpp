@@ -29,7 +29,7 @@ TaskPathRequest::TaskPathRequest(UnitInfo* unit, int32_t mode, Point point)
 
 TaskPathRequest::~TaskPathRequest() {}
 
-bool TaskPathRequest::PathRequest_Vfunc1() {
+bool TaskPathRequest::TryUseCachedPath() {
     bool result;
 
     if (field_30 && find_path != nullptr && AiPlayer_Teams[find_path->GetTeam()].MatchPath(this)) {

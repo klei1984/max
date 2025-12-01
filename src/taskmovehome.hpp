@@ -22,6 +22,7 @@
 #ifndef TASKMOVEHOME_HPP
 #define TASKMOVEHOME_HPP
 
+#include "accessmap.hpp"
 #include "task.hpp"
 
 class TaskMoveHome : public Task {
@@ -29,9 +30,9 @@ class TaskMoveHome : public Task {
 
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
-    void PopulateTeamZones(uint8_t** map);
-    void PopulateDefenses(uint8_t** map, ResourceID unit_type);
-    void PopulateOccupiedSites(uint8_t** map, SmartList<UnitInfo>* units);
+    void PopulateTeamZones(AccessMap& map);
+    void PopulateDefenses(AccessMap& map, ResourceID unit_type);
+    void PopulateOccupiedSites(AccessMap& map, SmartList<UnitInfo>* units);
 
 public:
     TaskMoveHome(UnitInfo* unit, Task* task);

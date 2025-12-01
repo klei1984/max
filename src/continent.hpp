@@ -22,6 +22,7 @@
 #ifndef CONTINENT_HPP
 #define CONTINENT_HPP
 
+#include "accessmap.hpp"
 #include "gnw.h"
 #include "point.hpp"
 #include "smartpointer.hpp"
@@ -32,14 +33,14 @@ class Continent : public SmartObject {
     uint16_t continent_size;
     Rect bounds;
     Point point;
-    uint8_t** map;
+    AccessMap& map;
     uint8_t field_35;
 
     bool IsDangerousProximity(int32_t grid_x, int32_t grid_y, uint16_t team, int32_t proximity_range);
     bool IsViableSite(bool test_proximity, uint16_t team, Point site);
 
 public:
-    Continent(uint8_t** map, uint16_t filler, Point point, uint8_t value = 1);
+    Continent(AccessMap& map, uint16_t filler, Point point, uint8_t value = 1);
     ~Continent();
 
     void GetBounds(Rect& bounds) const;

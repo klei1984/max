@@ -164,6 +164,10 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskpathrequest.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/adjustrequest.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/paths.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/unitpath.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/groundpath.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/airpath.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/builderpath.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ai.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/aiattack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/aiplayer.cpp

@@ -367,7 +367,7 @@ bool AiPlayer::IsPotentialSpotter(uint16_t team, UnitInfo* unit) {
     return false;
 }
 
-void AiPlayer::UpdateAccessMap(Point point1, Point point2, uint8_t** access_map) {
+void AiPlayer::UpdateAccessMap(Point point1, Point point2, AccessMap& access_map) {
     Point site(point1);
     Point distance;
     int32_t surface_type = Access_GetSurfaceType(point1.x, point1.y);
@@ -393,7 +393,7 @@ void AiPlayer::UpdateAccessMap(Point point1, Point point2, uint8_t** access_map)
                 y -= distance.x;
             }
 
-            if (!access_map[site.x][site.y]) {
+            if (!access_map(site.x, site.y)) {
                 surface_type = Access_GetSurfaceType(site.x, site.y);
             }
 
@@ -419,7 +419,7 @@ void AiPlayer::UpdateAccessMap(Point point1, Point point2, uint8_t** access_map)
                 x -= distance.y;
             }
 
-            if (!access_map[site.x][site.y]) {
+            if (!access_map(site.x, site.y)) {
                 surface_type = Access_GetSurfaceType(site.x, site.y);
             }
 
@@ -1104,7 +1104,7 @@ void AiPlayer::AddThreatToMineMap(int32_t grid_x, int32_t grid_y, int32_t range,
 
     for (int32_t direction = 0; direction < 8; direction += 2) {
         for (int32_t i = 0; i < range; ++i) {
-            position += Paths_8DirPointsArray[direction];
+            position += DIRECTION_OFFSETS[direction];
 
             if (Access_IsInsideBounds(&bounds, &position)) {
                 int8_t mine_value = mine_map[position.x][position.y];
@@ -2745,7 +2745,7 @@ void AiPlayer::GuessEnemyAttackDirections() {
             ZoneWalker walker(Point((*it).grid_x, (*it).grid_y), (*it).GetBaseValues()->GetAttribute(ATTRIB_SCAN) + 8);
 
             do {
-                access_map.GetMapColumn(walker.GetGridX())[walker.GetGridY()] = 0x01;
+                access_map(walker.GetGridX(), walker.GetGridY()) = 0x01;
             } while (walker.FindNext());
         }
 
@@ -2755,7 +2755,7 @@ void AiPlayer::GuessEnemyAttackDirections() {
                     for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
                         if (UnitsManager_TeamInfo[team]
                                 .heat_map_complete[site.y * ResourceManager_MapSize.x + site.x]) {
-                            access_map.GetMapColumn(site.x)[site.y] = 0x00;
+                            access_map(site.x, site.y) = 0x00;
                         }
                     }
                 }
@@ -2767,7 +2767,7 @@ void AiPlayer::GuessEnemyAttackDirections() {
                                        (*it).GetBaseValues()->GetAttribute(ATTRIB_SCAN) + 10);
 
             do {
-                if (!access_map.GetMapColumn(walker.GetGridX())[walker.GetGridY()]) {
+                if (!access_map(walker.GetGridX(), walker.GetGridY())) {
                     UpdateAccessMap(*walker.GetGridXY(), Point((*it).grid_x, (*it).grid_y), access_map.GetMap());
                 }
             } while (walker.FindNext());
@@ -2790,7 +2790,7 @@ void AiPlayer::PlanMinefields() {
 
                     do {
                         if (Access_GetSurfaceType(walker.GetGridX(), walker.GetGridY()) == surface_type) {
-                            access_map.GetMapColumn(walker.GetGridX())[walker.GetGridY()] = 0x01;
+                            access_map(walker.GetGridX(), walker.GetGridY()) = 0x01;
                         }
 
                     } while (walker.FindNext());
@@ -2801,7 +2801,7 @@ void AiPlayer::PlanMinefields() {
 
                     do {
                         if (Access_GetSurfaceType(walker.GetGridX(), walker.GetGridY()) == surface_type) {
-                            access_map.GetMapColumn(walker.GetGridX())[walker.GetGridY()] = 0x01;
+                            access_map(walker.GetGridX(), walker.GetGridY()) = 0x01;
                         }
 
                     } while (walker.FindNext());
@@ -2822,7 +2822,7 @@ void AiPlayer::PlanMinefields() {
 
                         do {
                             if (Access_GetSurfaceType(walker.GetGridX(), walker.GetGridY()) == surface_type) {
-                                access_map.GetMapColumn(walker.GetGridX())[walker.GetGridY()] = 0x01;
+                                access_map(walker.GetGridX(), walker.GetGridY()) = 0x01;
                             }
 
                         } while (walker.FindNext());
@@ -2850,7 +2850,7 @@ void AiPlayer::PlanMinefields() {
 
                         for (int32_t x = bounds.ulx; x < 0; ++x) {
                             for (int32_t y = bounds.uly; y < 0; ++y) {
-                                access_map.GetMapColumn(x)[y] = 0x00;
+                                access_map(x, y) = 0x00;
                             }
                         }
                     }
@@ -2873,7 +2873,7 @@ void AiPlayer::PlanMinefields() {
 
                 for (int32_t x = bounds.ulx; x < 0; ++x) {
                     for (int32_t y = bounds.uly; y < 0; ++y) {
-                        access_map.GetMapColumn(x)[y] = 0x00;
+                        access_map(x, y) = 0x00;
                     }
                 }
             }
@@ -2885,7 +2885,7 @@ void AiPlayer::PlanMinefields() {
                     for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
                         for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                             if (UnitsManager_TeamInfo[team].heat_map_complete[y * ResourceManager_MapSize.x + x]) {
-                                access_map.GetMapColumn(x)[y] = 0x00;
+                                access_map(x, y) = 0x00;
                             }
                         }
                     }
@@ -2899,13 +2899,13 @@ void AiPlayer::PlanMinefields() {
 
         for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
             for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
-                if (access_map.GetMapColumn(x)[y]) {
+                if (access_map(x, y)) {
                     ++counter1;
 
                     if (info_map[x][y] & INFO_MAP_MINE_FIELD) {
                         ++counter2;
 
-                        access_map.GetMapColumn(x)[y] = 0x00;
+                        access_map(x, y) = 0x00;
                     }
 
                 } else {
@@ -2916,11 +2916,11 @@ void AiPlayer::PlanMinefields() {
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
              it != UnitsManager_GroundCoverUnits.End(); ++it) {
             if ((*it).team == player_team && ((*it).GetUnitType() == LANDMINE || (*it).GetUnitType() == SEAMINE)) {
-                if (access_map.GetMapColumn((*it).grid_x)[(*it).grid_y]) {
+                if (access_map((*it).grid_x, (*it).grid_y)) {
                     ++counter3;
 
                     info_map[(*it).grid_x][(*it).grid_y] &= ~INFO_MAP_MINE_FIELD;
-                    access_map.GetMapColumn((*it).grid_x)[(*it).grid_y] = 0x00;
+                    access_map((*it).grid_x, (*it).grid_y) = 0x00;
                 }
             }
         }
@@ -2936,7 +2936,7 @@ void AiPlayer::PlanMinefields() {
         if (probability > 0) {
             for (int32_t x = 0; x < ResourceManager_MapSize.x && probability; ++x) {
                 for (int32_t y = 0; y < ResourceManager_MapSize.y && probability; ++y) {
-                    if (access_map.GetMapColumn(x)[y]) {
+                    if (access_map(x, y)) {
                         if (Randomizer_Generate(counter1) + 1 <= probability) {
                             info_map[x][y] |= INFO_MAP_MINE_FIELD;
                             --probability;
@@ -4215,16 +4215,16 @@ bool AiPlayer::SelectStrategy() {
         for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
             switch (Access_GetSurfaceType(site.x, site.y)) {
                 case SURFACE_TYPE_LAND: {
-                    access_map.GetMapColumn(site.x)[site.y] = 0x02;
+                    access_map(site.x, site.y) = 0x02;
                 } break;
 
                 case SURFACE_TYPE_WATER:
                 case SURFACE_TYPE_COAST: {
-                    access_map.GetMapColumn(site.x)[site.y] = 0x01;
+                    access_map(site.x, site.y) = 0x01;
                 } break;
 
                 default: {
-                    access_map.GetMapColumn(site.x)[site.y] = 0x00;
+                    access_map(site.x, site.y) = 0x00;
                 } break;
             }
         }
@@ -4232,7 +4232,7 @@ bool AiPlayer::SelectStrategy() {
 
     for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
         for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
-            if (access_map.GetMapColumn(site.x)[site.y] == 0x02) {
+            if (access_map(site.x, site.y) == 0x02) {
                 SmartPointer<Continent> continent(new (std::nothrow)
                                                       Continent(access_map.GetMap(), continents.GetCount() + 3, site));
 
@@ -4471,9 +4471,8 @@ bool AiPlayer::SelectStrategy() {
         if (continents.GetCount() > 1 && team != player_team &&
             UnitsManager_TeamMissionSupplies[team].units.GetCount() > 0 &&
             UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
-            uint8_t filler = access_map.GetMapColumn(
-                UnitsManager_TeamMissionSupplies[team]
-                    .starting_position.x)[UnitsManager_TeamMissionSupplies[team].starting_position.y];
+            uint8_t filler = access_map(UnitsManager_TeamMissionSupplies[team].starting_position.x,
+                                        UnitsManager_TeamMissionSupplies[team].starting_position.y);
 
             for (int64_t i = static_cast<int64_t>(continents.GetCount()) - 1; i >= 0 && continents.GetCount() > 1;
                  --i) {

@@ -21,8 +21,8 @@
 
 #include "transportermap.hpp"
 
+#include "accessmap.hpp"
 #include "pathfill.hpp"
-#include "paths_manager.hpp"
 #include "resource_manager.hpp"
 #include "unitinfo.hpp"
 
@@ -42,22 +42,22 @@ bool TransporterMap::Search(Point site) {
     if (!is_initialized) {
         PathFill filler(map.GetMap());
 
-        PathsManager_InitAccessMap(&*unit, map.GetMap(), flags, caution_level);
+        map.GetMap().Init(&*unit, flags, caution_level);
 
         if (unit_type != INVALID_ID && (unit->flags & MOBILE_LAND_UNIT)) {
             AccessMap access_map;
             SmartPointer<UnitInfo> transporter(new (std::nothrow) UnitInfo(unit_type, unit->team, 0xFFFF));
-            PathsManager_InitAccessMap(&*transporter, access_map.GetMap(), 0x01, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
+            access_map.GetMap().Init(&*transporter, 0x01, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
             for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
                 for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
-                    if (access_map.GetMapColumn(x)[y]) {
-                        if (map.GetMapColumn(x)[y] == 0) {
-                            map.GetMapColumn(x)[y] = (access_map.GetMapColumn(x)[y] * 3) | 0x80;
+                    if (access_map(x, y)) {
+                        if (map(x, y) == 0) {
+                            map(x, y) = (access_map(x, y) * 3) | 0x80;
                         }
 
                     } else {
-                        map.GetMapColumn(x)[y] |= 0x40;
+                        map(x, y) |= 0x40;
                     }
                 }
             }
@@ -68,7 +68,7 @@ bool TransporterMap::Search(Point site) {
         is_initialized = true;
     }
 
-    if ((map.GetMapColumn(site.x)[site.y] & 0x20) && !(map.GetMapColumn(site.x)[site.y] & 0x80)) {
+    if ((map(site.x, site.y) & 0x20) && !(map(site.x, site.y) & 0x80)) {
         result = true;
 
     } else {
@@ -84,9 +84,9 @@ void TransporterMap::UpdateSite(Point site, bool mode) {
     }
 
     if (mode) {
-        map.GetMapColumn(site.x)[site.y] = 0x20;
+        map(site.x, site.y) = 0x20;
 
     } else {
-        map.GetMapColumn(site.x)[site.y] = 0x00;
+        map(site.x, site.y) = 0x00;
     }
 }

@@ -96,5 +96,6 @@ void UnitsManager_SetUnitSpriteFrameAfterTransport(UnitInfo* unit, int32_t grid_
 int32_t UnitsManager_GetAttackDamage(UnitInfo* attacker, UnitInfo* target, int32_t attack_potential);
 bool UnitsManager_IsAccessible(uint16_t team, ResourceID unit_type, int32_t grid_x, int32_t grid_y);
 bool UnitsManager_IssueBuildOrder(UnitInfo* unit, int16_t* grid_x, int16_t* grid_y, ResourceID unit_type);
+bool UnitsManager_LoadUnit(UnitInfo* unit);
 
 #endif /* UNITS_MANAGER_HPP */

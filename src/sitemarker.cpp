@@ -24,11 +24,11 @@
 #include "resource_manager.hpp"
 
 SiteMarker::SiteMarker(uint16_t** map)
-    : MAXFloodFill({0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y}, false), map(map), marker(0) {}
+    : MAXFloodFill({0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y}, false), m_map(map), m_marker(0) {}
 
-int32_t SiteMarker::Vfunc0(Point point, int32_t uly) {
-    for (; point.y > uly; --point.y) {
-        if (map[point.x][point.y - 1] != 9) {
+int32_t SiteMarker::FindRunTop(Point point, int32_t upper_bound) {
+    for (; point.y > upper_bound; --point.y) {
+        if (m_map[point.x][point.y - 1] != 9) {
             break;
         }
     }
@@ -36,9 +36,9 @@ int32_t SiteMarker::Vfunc0(Point point, int32_t uly) {
     return point.y;
 }
 
-int32_t SiteMarker::Vfunc1(Point point, int32_t lry) {
-    for (; point.y < lry; ++point.y) {
-        if (map[point.x][point.y] != 9) {
+int32_t SiteMarker::FindRunBottom(Point point, int32_t lower_bound) {
+    for (; point.y < lower_bound; ++point.y) {
+        if (m_map[point.x][point.y] != 9) {
             break;
         }
     }
@@ -46,9 +46,9 @@ int32_t SiteMarker::Vfunc1(Point point, int32_t lry) {
     return point.y;
 }
 
-int32_t SiteMarker::Vfunc2(Point point, int32_t lry) {
-    for (; point.y < lry; ++point.y) {
-        if (map[point.x][point.y] == 9) {
+int32_t SiteMarker::FindNextFillable(Point point, int32_t lower_bound) {
+    for (; point.y < lower_bound; ++point.y) {
+        if (m_map[point.x][point.y] == 9) {
             break;
         }
     }
@@ -56,14 +56,14 @@ int32_t SiteMarker::Vfunc2(Point point, int32_t lry) {
     return point.y;
 }
 
-void SiteMarker::Vfunc3(int32_t ulx, int32_t uly, int32_t lry) {
-    for (; uly < lry; ++uly) {
-        map[ulx][uly] = marker;
+void SiteMarker::MarkRun(int32_t grid_x, int32_t run_top, int32_t run_bottom) {
+    for (; run_top < run_bottom; ++run_top) {
+        m_map[grid_x][run_top] = m_marker;
     }
 }
 
 int32_t SiteMarker::Fill(Point point, int32_t value) {
-    marker = value;
+    m_marker = value;
 
     return MAXFloodFill::Fill(point);
 }

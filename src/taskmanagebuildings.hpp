@@ -25,6 +25,8 @@
 #include "cargo.hpp"
 #include "taskcreatebuilding.hpp"
 
+class AccessMap;
+
 class TaskManageBuildings : public Task {
     Point building_site;
     SmartList<UnitInfo> units;
@@ -66,21 +68,21 @@ class TaskManageBuildings : public Task {
     void UpdateMiningNeeds();
     void MakeConnectors(int32_t ulx, int32_t uly, int32_t lrx, int32_t lry, Task* task);
     bool CheckNeeds();
-    void ClearAreasNearBuildings(uint8_t** access_map, int32_t area_expanse, TaskCreateBuilding* task);
-    void EvaluateDangers(uint8_t** access_map);
-    void MarkDefenseSites(uint16_t** construction_map, uint8_t** access_map, TaskCreateBuilding* task, int32_t value);
-    void ClearDefenseSites(uint8_t** access_map, ResourceID unit_type, TaskCreateBuilding* task,
+    void ClearAreasNearBuildings(AccessMap& access_map, int32_t area_expanse, TaskCreateBuilding* task);
+    void EvaluateDangers(AccessMap& access_map);
+    void MarkDefenseSites(uint16_t** construction_map, AccessMap& access_map, TaskCreateBuilding* task, int32_t value);
+    void ClearDefenseSites(AccessMap& access_map, ResourceID unit_type, TaskCreateBuilding* task,
                            uint16_t task_priority);
     bool IsSiteWithinRadarRange(Point site, int32_t unit_range, TaskCreateBuilding* task);
-    void UpdateAccessMap(uint8_t** access_map, TaskCreateBuilding* task);
-    bool EvaluateNeedForRadar(uint8_t** access_map, TaskCreateBuilding* task);
-    bool MarkBuildings(uint8_t** access_map, Point& site);
-    void MarkConnections(uint8_t** access_map, Point site, int32_t value);
-    void UpdateConnectors(uint8_t** access_map, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry);
-    int32_t GetConnectionDistance(uint8_t** access_map, Point& site1, Point site2, uint16_t team, int32_t value);
-    bool ConnectBuilding(uint8_t** access_map, Point site, int32_t value);
-    bool ReconnectBuilding(uint8_t** access_map, Rect* bounds, int32_t value);
-    static bool FindMarkedSite(uint8_t** access_map, Rect* bounds);
+    void UpdateAccessMap(AccessMap& access_map, TaskCreateBuilding* task);
+    bool EvaluateNeedForRadar(AccessMap& access_map, TaskCreateBuilding* task);
+    bool MarkBuildings(AccessMap& access_map, Point& site);
+    void MarkConnections(AccessMap& access_map, Point site, int32_t value);
+    void UpdateConnectors(AccessMap& access_map, int32_t ulx, int32_t uly, int32_t lrx, int32_t lry);
+    int32_t GetConnectionDistance(AccessMap& access_map, Point& site1, Point site2, uint16_t team, int32_t value);
+    bool ConnectBuilding(AccessMap& access_map, Point site, int32_t value);
+    bool ReconnectBuilding(AccessMap& access_map, Rect* bounds, int32_t value);
+    static bool FindMarkedSite(AccessMap& access_map, Rect* bounds);
 
 public:
     TaskManageBuildings(uint16_t team, Point site);

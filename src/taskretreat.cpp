@@ -142,7 +142,7 @@ void TaskRetreat::Search() {
                 field_31 = 0;
             }
 
-            position += Paths_8DirPointsArray[direction];
+            position += DIRECTION_OFFSETS[direction];
 
             ++index;
 

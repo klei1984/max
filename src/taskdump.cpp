@@ -112,7 +112,7 @@ void TaskDump::Search() {
             steps_counter = steps_limit;
         }
 
-        destination += Paths_8DirPointsArray[direction];
+        destination += DIRECTION_OFFSETS[direction];
 
         if (Access_IsInsideBounds(&bounds, &destination)) {
             keep_searching = true;
