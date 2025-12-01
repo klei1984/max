@@ -76,7 +76,8 @@
 			"scale_quality": 1,
 			"window_width": 640,
 			"window_height": 480,
-			"dialog_center_mode": 0
+			"dialog_center_mode": 0,
+			"max_frame_rate": 0
 		},
 		"NETWORK_SETTINGS": {
 			"transport": "udp_default",

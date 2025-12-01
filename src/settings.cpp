@@ -152,6 +152,7 @@ static const std::vector<std::pair<std::string, Settings::SettingDefinition>> se
     {"window_width", {640, "GRAPHICS_SETTINGS"}},
     {"window_height", {480, "GRAPHICS_SETTINGS"}},
     {"dialog_center_mode", {0, "GRAPHICS_SETTINGS"}},
+    {"max_frame_rate", {0, "GRAPHICS_SETTINGS"}},
     {"transport", {std::string("udp_default"), "NETWORK_SETTINGS"}},
     {"host_address", {std::string("127.0.0.1"), "NETWORK_SETTINGS"}},
     {"host_port", {31554, "NETWORK_SETTINGS"}},

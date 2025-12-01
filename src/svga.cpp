@@ -92,7 +92,17 @@ Uint32 Svga_SetupDisplayMode(SDL_Rect* bounds) {
         display_mode.h = SVGA_DEFAULT_HEIGHT;
     }
 
-    Svga_DisplayRefreshRate = detected_display_mode->refresh_rate;
+    {
+        int32_t max_frame_rate = settings->GetNumericValue("max_frame_rate");
+
+        if (max_frame_rate > 0) {
+            Svga_DisplayRefreshRate = max_frame_rate;
+
+        } else {
+            Svga_DisplayRefreshRate = detected_display_mode->refresh_rate;
+        }
+    }
+
     Svga_DisplayPixelFormat = detected_display_mode->format;
 
     Svga_ScreenMode = settings->GetNumericValue("screen_mode");
@@ -397,7 +407,7 @@ void Svga_BlitFinalize(uint32_t dstX, uint32_t dstY, uint32_t width, uint32_t he
 
 void Svga_BackgroundProcess(void) {
     uint32_t elapsed = timer_elapsed_time(Svga_BackgroundTimer);
-    bool should_present = Svga_RenderDirty || elapsed >= TIMER_FPS_TO_MS(SVGA_DEFAULT_REFRESH_RATE);
+    bool should_present = Svga_RenderDirty || elapsed >= TIMER_FPS_TO_MS(Svga_DisplayRefreshRate);
 
     if (should_present) {
         Svga_BackgroundTimer = timer_get();
@@ -429,7 +439,7 @@ int32_t Svga_WarpMouse(int32_t window_x, int32_t window_y) {
 }
 
 void Svga_RefreshSystemPalette(bool force) {
-    if (force || (timer_elapsed_time(Svga_RenderTimer) >= TIMER_FPS_TO_MS(SVGA_DEFAULT_REFRESH_RATE))) {
+    if (force || (timer_elapsed_time(Svga_RenderTimer) >= TIMER_FPS_TO_MS(Svga_DisplayRefreshRate))) {
         Svga_RenderTimer = timer_get();
         Svga_PaletteChanged = true;
 
