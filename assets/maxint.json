@@ -2,15 +2,18 @@
 	"$schema": "http://json-schema.org/draft-07/schema#",
 	"author": {
 		"en-US": "Interplay Productions",
-		"hu-HU": "M.A.X. Port Team"
+		"hu-HU": "M.A.X. Port Team",
+		"fr-FR": "Interplay Productions"
 	},
 	"copyright": {
 		"en-US": "(c) 1996 Interplay Productions",
-		"hu-HU": "(c) 2025 M.A.X. Port Team"
+		"hu-HU": "(c) 2025 M.A.X. Port Team",
+		"fr-FR": "(c) 1996 Interplay Productions"
 	},
 	"license": {
 		"en-US": "All rights reserved",
-		"hu-HU": "MIT-0"
+		"hu-HU": "MIT-0",
+		"fr-FR": "All rights reserved"
 	},
 	"subtitle": {
 		"en-US": [
@@ -265,6 +268,133 @@
 				"start": 4281,
 				"end": 4340,
 				"caption": "az egyetlen túlélési esély: harcolni a bolygókért és győzelmet aratni."
+			}
+		],
+		"fr-FR": [
+			{
+				"start": 144,
+				"end": 245,
+				"caption": "Ils étaient les indésirables, cultes, factions religieuses et même états entiers."
+			},
+			{
+				"start": 249,
+				"end": 322,
+				"caption": "Par l'intervention des dirigeants aliens appelés la Concorde, on les avait arrachés"
+			},
+			{
+				"start": 328,
+				"end": 406,
+				"caption": "à une Terre hostile et on leur avait donné l'espoir de gagner un monde nouveau sur lequel prospérer."
+			},
+			{
+				"start": 410,
+				"end": 475,
+				"caption": "Au sein de chaque vaisseau alien hibernait la population entière d'une faction."
+			},
+			{
+				"start": 488,
+				"end": 558,
+				"caption": "Leurs protecteurs aliens leur ont promis un nouveau monde sur lequel ils pourraient revivre."
+			},
+			{
+				"start": 559,
+				"end": 599,
+				"caption": "Il ne leur restait qu'à se battre pour ça."
+			},
+			{
+				"start": 710,
+				"end": 791,
+				"caption": "Tandis que la majorité de leur peuple vivait au ralenti, attendant l'appel de la colonisation,"
+			},
+			{
+				"start": 793,
+				"end": 868,
+				"caption": "des membres spécialement choisis dans chaque groupe devenaient les chefs des forces robotisées"
+			},
+			{
+				"start": 869,
+				"end": 913,
+				"caption": "qui allaient établir la tête de pont dans le nouveau monde."
+			},
+			{
+				"start": 1003,
+				"end": 1078,
+				"caption": "Mais les humains ne peuvent résister aux rigueurs de l'hyperespace sans une opération radicale."
+			},
+			{
+				"start": 1079,
+				"end": 1168,
+				"caption": "Le système nerveux central de cette élite fut retiré et placé dans une capsule protectrice de conception alien."
+			},
+			{
+				"start": 1170,
+				"end": 1249,
+				"caption": "Seuls les plus endurcis et les plus altruistes des réfugiés purent supporter cette procédure radicale."
+			},
+			{
+				"start": 1255,
+				"end": 1294,
+				"caption": "Le résultat fut le commandant M.A.X."
+			},
+			{
+				"start": 1552,
+				"end": 1627,
+				"caption": "D'autres réfugiés, sous direction alien, fabriquèrent les vaisseaux arches"
+			},
+			{
+				"start": 1628,
+				"end": 1702,
+				"caption": "qui conduiraient à destination le commandant M.A.X. et ses troupes de débarquement soigneusement choisies."
+			},
+			{
+				"start": 2313,
+				"end": 2397,
+				"caption": "Le commandant M.A.X., un cerveau humain solidement immunisé contre les terreurs de l'hyperespace,"
+			},
+			{
+				"start": 2398,
+				"end": 2473,
+				"caption": "relié aux interfaces robotisées qui contrôleraient les vaisseaux arches pendant leur voyage à travers l'hyperespace"
+			},
+			{
+				"start": 2474,
+				"end": 2524,
+				"caption": "et qui permettraient aux clans de coloniser la planète."
+			},
+			{
+				"start": 3076,
+				"end": 3108,
+				"caption": "Les planètes appropriées furent choisies."
+			},
+			{
+				"start": 3109,
+				"end": 3205,
+				"caption": "Les vaisseaux arches jaillirent des gigantesques vaisseaux de colonisation, fonçant vers leur nouveau foyer."
+			},
+			{
+				"start": 3677,
+				"end": 3753,
+				"caption": "En arrivant dans le nouveau système, chaque clan trouva d'autres vaisseaux arches déjà sur place."
+			},
+			{
+				"start": 3754,
+				"end": 3855,
+				"caption": "Pour s'emparer du système, ils doivent combattre pour le compte des protecteurs aliens afin de décider du nouveau maître de la planète."
+			},
+			{
+				"start": 3856,
+				"end": 3957,
+				"caption": "Les commandants M.A.X. ordonnèrent aux usines destinées à fabriquer des terraformeurs et des éco-constructeurs de fabriquer les machines de guerre."
+			},
+			{
+				"start": 4203,
+				"end": 4280,
+				"caption": "Engagés dans les jeux de pouvoir de la Concorde, la seule chance de survie pour les clans"
+			},
+			{
+				"start": 4281,
+				"end": 4340,
+				"caption": "de l'humanité est de se battre pour conquérir ces planètes."
 			}
 		]
 	}
