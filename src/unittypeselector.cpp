@@ -223,8 +223,10 @@ bool UnitTypeSelector::ProcessKeys(int32_t key_press) {
             }
 
             Draw();
+            process_bk();
 
             while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(48)) {
+                SDL_Delay(1);
             }
         }
 
@@ -237,8 +239,10 @@ bool UnitTypeSelector::ProcessKeys(int32_t key_press) {
             --page_min_index;
 
             Draw();
+            process_bk();
 
             while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(48)) {
+                SDL_Delay(1);
             }
         }
 

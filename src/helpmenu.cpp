@@ -197,8 +197,10 @@ bool HelpMenu::ProcessKey(int32_t key) {
 
                     --string_row_index;
                     DrawText();
+                    process_bk();
 
                     while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(96)) {
+                        SDL_Delay(1);
                     }
 
                 } while (string_row_index != row_index);
@@ -221,8 +223,10 @@ bool HelpMenu::ProcessKey(int32_t key) {
 
                     ++string_row_index;
                     DrawText();
+                    process_bk();
 
                     while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(96)) {
+                        SDL_Delay(1);
                     }
 
                 } while (string_row_index != row_index);

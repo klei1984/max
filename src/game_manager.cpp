@@ -1936,6 +1936,7 @@ void GameManager_GameSetup(int32_t game_state) {
             GameManager_ProcessTick(false);
 
             while ((timer_get() - timestamp) < TIMER_FPS_TO_MS(48)) {
+                SDL_Delay(1);
             }
 
             zoom_level *= 2;
@@ -3297,6 +3298,7 @@ void GameManager_MenuAnimateDisplayControls() {
         process_bk();
 
         while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(24)) {
+            SDL_Delay(1);
         }
     }
 }

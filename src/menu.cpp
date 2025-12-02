@@ -406,6 +406,7 @@ void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_pl
             }
 
             while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(24)) {
+                SDL_Delay(1);
             }
 
             win_draw(window->id);
@@ -845,6 +846,7 @@ void menu_draw_mission_story_screen(const Mission::Story& story) {
             }
 
             while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(24)) {
+                SDL_Delay(1);
             }
 
         } while (!exit_loop);
@@ -1199,6 +1201,7 @@ void tips_on_click_up(WindowInfo* window) {
             time_stamp = timer_get();
             --menu_tips_current_row_index;
             menu_draw_tips_frame(window);
+            process_bk();
 
             while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(96)) {
             }
@@ -1217,6 +1220,7 @@ void tips_on_click_down(WindowInfo* window) {
             time_stamp = timer_get();
             ++menu_tips_current_row_index;
             menu_draw_tips_frame(window);
+            process_bk();
 
             while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(96)) {
             }

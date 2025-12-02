@@ -91,8 +91,10 @@ bool DialogMenu::ProcessKey(int32_t key) {
 
                     --row_offset;
                     DrawText();
+                    process_bk();
 
                     while (timer_get() - time_Stamp < TIMER_FPS_TO_MS(96)) {
+                        SDL_Delay(1);
                     }
                 } while (num_rows != row_offset);
             }
@@ -115,8 +117,10 @@ bool DialogMenu::ProcessKey(int32_t key) {
 
                     ++row_offset;
                     DrawText();
+                    process_bk();
 
                     while (timer_get() - time_Stamp < TIMER_FPS_TO_MS(96)) {
+                        SDL_Delay(1);
                     }
                 } while (num_rows != row_offset);
             }

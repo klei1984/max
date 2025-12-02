@@ -105,6 +105,7 @@ void MenuLandingSequence::AnimateStep(int32_t offset) {
     process_bk();
 
     while ((timer_get() - time_stamp) < TIMER_FPS_TO_MS(24)) {
+        SDL_Delay(1);
     }
 }
 

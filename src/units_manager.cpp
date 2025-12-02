@@ -242,6 +242,7 @@ bool UnitsManager_SelfDestructActiveMenu(WindowInfo* window) {
         GameManager_ProcessState(true);
 
         while (timer_get() - time_Stamp < TIMER_FPS_TO_MS(48)) {
+            SDL_Delay(1);
         }
     }
 

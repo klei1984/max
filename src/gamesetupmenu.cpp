@@ -200,8 +200,10 @@ void GameSetupMenu::EventBriefingButton() {
 
                 --string_row_index;
                 DrawDescriptionPanel();
+                process_bk();
 
                 while (timer_get() - time_stamp < TIMER_FPS_TO_MS(96)) {
+                    SDL_Delay(1);
                 }
 
             } while (string_row_index != row_index);
@@ -219,8 +221,10 @@ void GameSetupMenu::EventBriefingButton() {
 
                 ++string_row_index;
                 DrawDescriptionPanel();
+                process_bk();
 
                 while (timer_get() - time_stamp < TIMER_FPS_TO_MS(96)) {
+                    SDL_Delay(1);
                 }
 
             } while (string_row_index != row_index);
