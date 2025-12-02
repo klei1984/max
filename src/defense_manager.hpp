@@ -40,9 +40,9 @@ public:
     bool IsUnitUsable(UnitInfo* unit);
     bool AddUnit(UnitInfo* unit);
     bool RemoveUnit(UnitInfo* unit);
-    void AddRule(ResourceID unit_type, int32_t weight);
+    void AddRule(uint16_t team, ResourceID unit_type, int32_t weight);
     void MaintainDefences(Task* task);
-    void EvaluateNeeds(int32_t* unit_counts);
+    void EvaluateNeeds(uint16_t team, int32_t* unit_counts);
     void PlanDefenses(int32_t asset_value_goal, TaskObtainUnits* task, int32_t* unit_counts);
 };
 

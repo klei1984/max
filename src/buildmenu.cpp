@@ -237,7 +237,7 @@ AbstractBuildMenu::AbstractBuildMenu(ResourceID resource_id, UnitInfo* unit)
 
     build_rate = unit->GetBuildRate();
 
-    for (const auto buildable_unit : Builder_GetBuildableUnits(unit->GetUnitType())) {
+    for (const auto buildable_unit : Builder_GetBuildableUnits(unit->team, unit->GetUnitType())) {
         unit_types.PushBack(&buildable_unit);
     }
 
@@ -877,7 +877,7 @@ void MobileBuildMenu::Build() {
 
     unit_type = selector->GetLast();
 
-    if (Builder_IsBuildable(unit_type)) {
+    if (Builder_IsBuildable(unit->team, unit_type)) {
         int16_t grid_x;
         int16_t grid_y;
 
@@ -1241,7 +1241,7 @@ void FactoryBuildMenu::AddSelection() {
 
     unit_type = selector->GetLast();
 
-    if (Builder_IsBuildable(unit_type)) {
+    if (Builder_IsBuildable(unit->team, unit_type)) {
         cargo_selector->Add(unit_type, cargo_selector->GetPageMaxIndex() + 1);
     }
 }

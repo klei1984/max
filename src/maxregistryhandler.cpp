@@ -21,8 +21,11 @@
 
 #include "maxregistryhandler.hpp"
 
+#include "aiplayer.hpp"
 #include "game_manager.hpp"
+#include "resource_manager.hpp"
 #include "scripter.hpp"
+#include "settings.hpp"
 #include "units_manager.hpp"
 
 namespace MaxRegistryHandler {}
@@ -62,6 +65,98 @@ void MaxRegistryHandler::Init() {
 
     Scripter::MaxRegistryRegister("TeamTurnValue", []() -> std::variant<bool, int64_t, double, std::string> {
         return static_cast<int64_t>(GameManager_TurnCounter);
+    });
+
+    // Team types
+    Scripter::MaxRegistryRegister("RedTeamType", []() -> std::variant<bool, int64_t, double, std::string> {
+        return static_cast<int64_t>(UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_type);
+    });
+
+    Scripter::MaxRegistryRegister("GreenTeamType", []() -> std::variant<bool, int64_t, double, std::string> {
+        return static_cast<int64_t>(UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].team_type);
+    });
+
+    Scripter::MaxRegistryRegister("BlueTeamType", []() -> std::variant<bool, int64_t, double, std::string> {
+        return static_cast<int64_t>(UnitsManager_TeamInfo[PLAYER_TEAM_BLUE].team_type);
+    });
+
+    Scripter::MaxRegistryRegister("GrayTeamType", []() -> std::variant<bool, int64_t, double, std::string> {
+        return static_cast<int64_t>(UnitsManager_TeamInfo[PLAYER_TEAM_GRAY].team_type);
+    });
+
+    // Team clans
+    Scripter::MaxRegistryRegister("RedTeamClan", []() -> std::variant<bool, int64_t, double, std::string> {
+        return static_cast<int64_t>(UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_clan);
+    });
+
+    Scripter::MaxRegistryRegister("GreenTeamClan", []() -> std::variant<bool, int64_t, double, std::string> {
+        return static_cast<int64_t>(UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].team_clan);
+    });
+
+    Scripter::MaxRegistryRegister("BlueTeamClan", []() -> std::variant<bool, int64_t, double, std::string> {
+        return static_cast<int64_t>(UnitsManager_TeamInfo[PLAYER_TEAM_BLUE].team_clan);
+    });
+
+    Scripter::MaxRegistryRegister("GrayTeamClan", []() -> std::variant<bool, int64_t, double, std::string> {
+        return static_cast<int64_t>(UnitsManager_TeamInfo[PLAYER_TEAM_GRAY].team_clan);
+    });
+
+    // Team strategies (human players get AI_STRATEGY_RANDOM)
+    Scripter::MaxRegistryRegister("RedTeamStrategy", []() -> std::variant<bool, int64_t, double, std::string> {
+        if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_type == TEAM_TYPE_COMPUTER) {
+            return static_cast<int64_t>(AiPlayer_Teams[PLAYER_TEAM_RED].GetStrategy());
+        }
+        return static_cast<int64_t>(AI_STRATEGY_RANDOM);
+    });
+
+    Scripter::MaxRegistryRegister("GreenTeamStrategy", []() -> std::variant<bool, int64_t, double, std::string> {
+        if (UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].team_type == TEAM_TYPE_COMPUTER) {
+            return static_cast<int64_t>(AiPlayer_Teams[PLAYER_TEAM_GREEN].GetStrategy());
+        }
+        return static_cast<int64_t>(AI_STRATEGY_RANDOM);
+    });
+
+    Scripter::MaxRegistryRegister("BlueTeamStrategy", []() -> std::variant<bool, int64_t, double, std::string> {
+        if (UnitsManager_TeamInfo[PLAYER_TEAM_BLUE].team_type == TEAM_TYPE_COMPUTER) {
+            return static_cast<int64_t>(AiPlayer_Teams[PLAYER_TEAM_BLUE].GetStrategy());
+        }
+        return static_cast<int64_t>(AI_STRATEGY_RANDOM);
+    });
+
+    Scripter::MaxRegistryRegister("GrayTeamStrategy", []() -> std::variant<bool, int64_t, double, std::string> {
+        if (UnitsManager_TeamInfo[PLAYER_TEAM_GRAY].team_type == TEAM_TYPE_COMPUTER) {
+            return static_cast<int64_t>(AiPlayer_Teams[PLAYER_TEAM_GRAY].GetStrategy());
+        }
+        return static_cast<int64_t>(AI_STRATEGY_RANDOM);
+    });
+
+    // Team difficulty levels (human players get OPPONENT_TYPE_GOD)
+    Scripter::MaxRegistryRegister("RedTeamDifficulty", []() -> std::variant<bool, int64_t, double, std::string> {
+        if (UnitsManager_TeamInfo[PLAYER_TEAM_RED].team_type == TEAM_TYPE_COMPUTER) {
+            return static_cast<int64_t>(ResourceManager_GetSettings()->GetNumericValue("opponent"));
+        }
+        return static_cast<int64_t>(OPPONENT_TYPE_GOD);
+    });
+
+    Scripter::MaxRegistryRegister("GreenTeamDifficulty", []() -> std::variant<bool, int64_t, double, std::string> {
+        if (UnitsManager_TeamInfo[PLAYER_TEAM_GREEN].team_type == TEAM_TYPE_COMPUTER) {
+            return static_cast<int64_t>(ResourceManager_GetSettings()->GetNumericValue("opponent"));
+        }
+        return static_cast<int64_t>(OPPONENT_TYPE_GOD);
+    });
+
+    Scripter::MaxRegistryRegister("BlueTeamDifficulty", []() -> std::variant<bool, int64_t, double, std::string> {
+        if (UnitsManager_TeamInfo[PLAYER_TEAM_BLUE].team_type == TEAM_TYPE_COMPUTER) {
+            return static_cast<int64_t>(ResourceManager_GetSettings()->GetNumericValue("opponent"));
+        }
+        return static_cast<int64_t>(OPPONENT_TYPE_GOD);
+    });
+
+    Scripter::MaxRegistryRegister("GrayTeamDifficulty", []() -> std::variant<bool, int64_t, double, std::string> {
+        if (UnitsManager_TeamInfo[PLAYER_TEAM_GRAY].team_type == TEAM_TYPE_COMPUTER) {
+            return static_cast<int64_t>(ResourceManager_GetSettings()->GetNumericValue("opponent"));
+        }
+        return static_cast<int64_t>(OPPONENT_TYPE_GOD);
     });
 
     Update();

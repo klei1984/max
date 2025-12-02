@@ -24,14 +24,14 @@
 #include "missionmanager.hpp"
 #include "resource_manager.hpp"
 
-ResourceID Builder_GetBuilderType(ResourceID unit_type) {
-    return ResourceManager_GetMissionManager()->GetGameRulesHandler()->GetBuilderType(unit_type);
+ResourceID Builder_GetBuilderType(uint16_t team, ResourceID unit_type) {
+    return ResourceManager_GetMissionManager()->GetGameRulesHandler()->GetBuilderType(team, unit_type);
 }
 
-bool Builder_IsBuildable(ResourceID unit_type) {
-    return ResourceManager_GetMissionManager()->GetGameRulesHandler()->IsBuildable(unit_type);
+bool Builder_IsBuildable(uint16_t team, ResourceID unit_type) {
+    return ResourceManager_GetMissionManager()->GetGameRulesHandler()->IsBuildable(team, unit_type);
 }
 
-std::vector<ResourceID> Builder_GetBuildableUnits(ResourceID unit_type) {
-    return ResourceManager_GetMissionManager()->GetGameRulesHandler()->GetBuildableUnits(unit_type);
+std::vector<ResourceID> Builder_GetBuildableUnits(uint16_t team, ResourceID unit_type) {
+    return ResourceManager_GetMissionManager()->GetGameRulesHandler()->GetBuildableUnits(team, unit_type);
 }

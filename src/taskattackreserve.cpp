@@ -141,7 +141,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
                 WeightTable table = AiPlayer_Teams[m_team].GetFilteredWeightTable(INVALID_ID, 3);
 
                 for (uint32_t i = 0; i < table.GetCount(); ++i) {
-                    const auto builder_type = Builder_GetBuilderType(table[i].unit_type);
+                    const auto builder_type = Builder_GetBuilderType(m_team, table[i].unit_type);
                     if (builder_type == INVALID_ID || builder_type != unit.GetUnitType() ||
                         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[m_team], table[i].unit_type)
                                 ->GetAttribute(ATTRIB_TURNS) > turns_till_mission_end) {
@@ -192,15 +192,15 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
                         continue;
                     }
 
-                    unit_type = Builder_GetBuilderType(table[i].unit_type);
+                    unit_type = Builder_GetBuilderType(m_team, table[i].unit_type);
 
-                    if (unit_type == INVALID_ID ||
-                        (unit_type != unit.GetUnitType() && Builder_GetBuilderType(unit_type) != unit.GetUnitType())) {
+                    if (unit_type == INVALID_ID || (unit_type != unit.GetUnitType() &&
+                                                    Builder_GetBuilderType(m_team, unit_type) != unit.GetUnitType())) {
                         table[i].weight = 0;
                     }
 
                     if (builders_needed) {
-                        const auto builder_type = Builder_GetBuilderType(table[i].unit_type);
+                        const auto builder_type = Builder_GetBuilderType(m_team, table[i].unit_type);
 
                         if (builder_type != INVALID_ID &&
                             (ResourceManager_GetUnit(table[i].unit_type).GetFlags() &
@@ -214,7 +214,7 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
                 unit_type = table.RollUnitType();
 
                 if (unit_type != INVALID_ID) {
-                    const auto builder_type = Builder_GetBuilderType(unit_type);
+                    const auto builder_type = Builder_GetBuilderType(m_team, unit_type);
 
                     if (builder_type != unit.GetUnitType()) {
                         unit_type = builder_type;

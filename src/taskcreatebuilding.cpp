@@ -110,7 +110,7 @@ int32_t TaskCreateBuilding::EstimateBuildTime() {
 void TaskCreateBuilding::RequestBuilder() {
     AILOG(log, "Task Create Building: Request Builder");
 
-    const auto builder_type = Builder_GetBuilderType(unit_type);
+    const auto builder_type = Builder_GetBuilderType(m_team, unit_type);
 
     op_state = CREATE_BUILDING_STATE_GETTING_BUILDER;
 
@@ -557,7 +557,7 @@ void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
                 TaskCreateBuilding* create_building = dynamic_cast<TaskCreateBuilding*>(m_parent.Get());
 
                 if (create_building->op_state == CREATE_BUILDING_STATE_WAITING_FOR_PLATFORM &&
-                    Builder_GetBuilderType(create_building->GetUnitType()) == builder->GetUnitType()) {
+                    Builder_GetBuilderType(m_team, create_building->GetUnitType()) == builder->GetUnitType()) {
                     SmartPointer<UnitInfo> backup(builder);
 
                     backup->RemoveTasks();
@@ -574,7 +574,7 @@ void TaskCreateBuilding::AddUnit(UnitInfo& unit) {
 
             Finish();
 
-        } else if (unit.GetUnitType() == Builder_GetBuilderType(unit_type)) {
+        } else if (unit.GetUnitType() == Builder_GetBuilderType(m_team, unit_type)) {
             if (!builder) {
                 if (op_state < CREATE_BUILDING_STATE_BUILDING) {
                     op_state = CREATE_BUILDING_STATE_GETTING_MATERIALS;
@@ -1041,7 +1041,7 @@ bool TaskCreateBuilding::CheckMaterials() {
                 BuildMenu_GetTurnsToBuild(unit_type, m_team) * Cargo_GetRawConsumptionRate(builder->GetUnitType(), 1);
 
             if (TaskCreateBuilding_DetermineMapSurfaceRequirements(unit_type, site) == 2 &&
-                Builder_GetBuilderType(WTRPLTFM) == builder->GetUnitType()) {
+                Builder_GetBuilderType(m_team, WTRPLTFM) == builder->GetUnitType()) {
                 resource_demand += BuildMenu_GetTurnsToBuild(WTRPLTFM, m_team) *
                                    Cargo_GetRawConsumptionRate(builder->GetUnitType(), 1);
             }

@@ -990,7 +990,7 @@ int32_t TaskManageBuildings::GetHighestGreenHouseCount(uint16_t team_) {
 }
 
 bool TaskManageBuildings::CreateBuildings(int32_t building_demand, ResourceID unit_type, uint16_t task_priority) {
-    if (Builder_IsBuildable(unit_type)) {
+    if (Builder_IsBuildable(m_team, unit_type)) {
         building_demand -= GetUnitCount(unit_type, task_priority);
 
         for (int32_t i = 0; i < building_demand; ++i) {
@@ -1251,7 +1251,7 @@ void TaskManageBuildings::UpdateMiningNeeds() {
     cargo_demand.raw = (cargo_demand.raw - 50) / 10;
     cargo_demand.fuel -= 5;
 
-    if (Builder_IsBuildable(COMMTWR)) {
+    if (Builder_IsBuildable(m_team, COMMTWR)) {
         cargo_demand.gold -= Cargo_GetGoldConsumptionRate(COMMTWR);
     }
 
@@ -2179,7 +2179,7 @@ void TaskManageBuildings::AddUnit(UnitInfo& unit) {
 
 void TaskManageBuildings::Init() {
     if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
-        if (Builder_IsBuildable(ANTIAIR)) {
+        if (Builder_IsBuildable(m_team, ANTIAIR)) {
             SmartPointer<TaskDefenseAssistant> task(new (std::nothrow) TaskDefenseAssistant(this, ANTIAIR));
 
             TaskManager.AppendTask(*task);
@@ -2187,7 +2187,7 @@ void TaskManageBuildings::Init() {
     }
 
     if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_APPRENTICE) {
-        if (Builder_IsBuildable(GUNTURRT)) {
+        if (Builder_IsBuildable(m_team, GUNTURRT)) {
             SmartPointer<TaskDefenseAssistant> task(new (std::nothrow) TaskDefenseAssistant(this, GUNTURRT));
 
             TaskManager.AppendTask(*task);
@@ -2195,7 +2195,7 @@ void TaskManageBuildings::Init() {
     }
 
     if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
-        if (Builder_IsBuildable(ANTIMSSL)) {
+        if (Builder_IsBuildable(m_team, ANTIMSSL)) {
             SmartPointer<TaskDefenseAssistant> task(new (std::nothrow) TaskDefenseAssistant(this, ANTIMSSL));
 
             TaskManager.AppendTask(*task);
@@ -2214,7 +2214,7 @@ void TaskManageBuildings::Init() {
         TaskManager.AppendTask(*task);
     }
 
-    if (Builder_IsBuildable(HABITAT)) {
+    if (Builder_IsBuildable(m_team, HABITAT)) {
         SmartPointer<TaskHabitatAssistant> task(new (std::nothrow) TaskHabitatAssistant(this));
 
         TaskManager.AppendTask(*task);
@@ -2330,7 +2330,7 @@ void TaskManageBuildings::EndTurn() {
     }
 
     if (gold_mining_max > 0 && (cargo.gold >= (capacity.gold * 3) / 4) && capacity.gold < 500 &&
-        Builder_IsBuildable(GOLDSM)) {
+        Builder_IsBuildable(m_team, GOLDSM)) {
         CreateBuilding(GOLDSM, this, TASK_PRIORITY_BUILDING_DUMP);
     }
 }
@@ -2354,7 +2354,7 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
 
     AILOG(log, "Manager: Create {}", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
-    if (Builder_IsBuildable(unit_type)) {
+    if (Builder_IsBuildable(m_team, unit_type)) {
         if (Task_EstimateTurnsTillMissionEnd() >=
             UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[m_team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
             uint32_t unit_counters[UNIT_END];
@@ -2367,7 +2367,7 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
                 }
             }
 
-            const auto builder_type = Builder_GetBuilderType(unit_type);
+            const auto builder_type = Builder_GetBuilderType(m_team, unit_type);
             int64_t builder_count = 0;
             int64_t unit_count = 0;
 
@@ -2378,7 +2378,7 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
                 }
             }
 
-            for (const auto unit : Builder_GetBuildableUnits(builder_type)) {
+            for (const auto unit : Builder_GetBuildableUnits(m_team, builder_type)) {
                 unit_count += unit_counters[unit];
             }
 

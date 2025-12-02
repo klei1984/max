@@ -161,7 +161,7 @@ void TaskCreateUnit::EndTurn() {
     AILOG(log, "Create {}: End Turn.", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
     if (op_state == CREATE_UNIT_STATE_INITIALIZING) {
-        const auto builder_type = Builder_GetBuilderType(unit_type);
+        const auto builder_type = Builder_GetBuilderType(m_team, unit_type);
 
         if (builder_type != INVALID_ID) {
             SmartPointer<TaskObtainUnits> task_obtain_units = new (std::nothrow) TaskObtainUnits(this, site);

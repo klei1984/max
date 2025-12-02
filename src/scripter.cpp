@@ -122,6 +122,10 @@ static lua_Integer GetBaseUnitAttribute(const lua_Integer team, const lua_Intege
                                         const lua_Integer attribute);
 static int LuaGetBaseUnitAttribute(lua_State* lua);
 static void RegisterGetBaseUnitAttribute(lua_State* lua);
+static void GetSurveyedResource(const lua_Integer team, const lua_Integer grid_x, const lua_Integer grid_y,
+                                lua_Integer* const cargo_type, lua_Integer* const cargo_amount);
+static int LuaGetSurveyedResource(lua_State* lua);
+static void RegisterGetSurveyedResource(lua_State* lua);
 static void TimoutHook(lua_State* lua, lua_Debug* ar);
 static int LuaPrintRedirect(lua_State* lua);
 static inline void AddEnum(lua_State* lua, const char* global_name, const MaxEnumType& fields);
@@ -1079,6 +1083,67 @@ static void RegisterGetBaseUnitAttribute(lua_State* lua) {
     lua_register(lua, "max_get_base_unit_attribute", LuaGetBaseUnitAttribute);
 }
 
+static void GetSurveyedResource(const lua_Integer team, const lua_Integer grid_x, const lua_Integer grid_y,
+                                lua_Integer* const cargo_type, lua_Integer* const cargo_amount) {
+    *cargo_type = Unit::CargoType::CARGO_TYPE_NONE;
+    *cargo_amount = 0;
+
+    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
+        uint16_t value = ResourceManager_CargoMap[ResourceManager_MapSize.x * grid_y + grid_x];
+        uint16_t team_hash_id = UnitsManager_TeamInfo[team].team_units->hash_team_id;
+
+        // Only report resources if the team has surveyed this cell
+        if (value & team_hash_id) {
+            if (value & CARGO_GOLD) {
+                *cargo_type = Unit::CargoType::CARGO_TYPE_GOLD;
+                *cargo_amount = value & CARGO_MASK;
+            } else if (value & CARGO_FUEL) {
+                *cargo_type = Unit::CargoType::CARGO_TYPE_FUEL;
+                *cargo_amount = value & CARGO_MASK;
+            } else if (value & CARGO_MATERIALS) {
+                *cargo_type = Unit::CargoType::CARGO_TYPE_RAW;
+                *cargo_amount = value & CARGO_MASK;
+            }
+        }
+    }
+}
+
+static int LuaGetSurveyedResource(lua_State* lua) {
+    if (lua_gettop(lua) < 3) {
+        return luaL_error(lua, "[max_get_surveyed_resource] Error: 3 arguments required: MAX_TEAM, grid_x, grid_y");
+    }
+
+    auto team = luaL_checkinteger(lua, 1);
+    auto grid_x = luaL_checkinteger(lua, 2);
+    auto grid_y = luaL_checkinteger(lua, 3);
+
+    if (team >= PLAYER_TEAM_MAX or team < PLAYER_TEAM_RED) {
+        return luaL_error(lua, "[max_get_surveyed_resource] Error: Invalid MAX_TEAM (%d)", team);
+    }
+
+    if (grid_x < 0 or grid_x >= ResourceManager_MapSize.x) {
+        return luaL_error(lua, "[max_get_surveyed_resource] Error: Invalid grid_x (%d)", grid_x);
+    }
+
+    if (grid_y < 0 or grid_y >= ResourceManager_MapSize.y) {
+        return luaL_error(lua, "[max_get_surveyed_resource] Error: Invalid grid_y (%d)", grid_y);
+    }
+
+    lua_Integer cargo_type = Unit::CargoType::CARGO_TYPE_NONE;
+    lua_Integer cargo_amount = 0;
+
+    GetSurveyedResource(team, grid_x, grid_y, &cargo_type, &cargo_amount);
+
+    lua_pushinteger(lua, cargo_type);
+    lua_pushinteger(lua, cargo_amount);
+
+    return 2;
+}
+
+static void RegisterGetSurveyedResource(lua_State* lua) {
+    lua_register(lua, "max_get_surveyed_resource", LuaGetSurveyedResource);
+}
+
 bool TestScript(const std::string script, std::string* error) {
     auto lua = luaL_newstate();
     bool result;
@@ -1789,6 +1854,60 @@ void* CreateContext(const ScriptType type) {
             }
 
             {
+                AddEnum(lua, "MAX_TEAM_TYPE",
+                        {
+                            {"NONE", TEAM_TYPE_NONE},
+                            {"PLAYER", TEAM_TYPE_PLAYER},
+                            {"COMPUTER", TEAM_TYPE_COMPUTER},
+                            {"REMOTE", TEAM_TYPE_REMOTE},
+                            {"ELIMINATED", TEAM_TYPE_ELIMINATED},
+                        });
+            }
+
+            {
+                AddEnum(lua, "MAX_TEAM_CLAN",
+                        {
+                            {"RANDOM", TEAM_CLAN_RANDOM},
+                            {"THE_CHOSEN", TEAM_CLAN_THE_CHOSEN},
+                            {"CRIMSON_PATH", TEAM_CLAN_CRIMSON_PATH},
+                            {"VON_GRIFFIN", TEAM_CLAN_VON_GRIFFIN},
+                            {"AYERS_HAND", TEAM_CLAN_AYERS_HAND},
+                            {"MUSASHI", TEAM_CLAN_MUSASHI},
+                            {"SACRED_EIGHTS", TEAM_CLAN_SACRED_EIGHTS},
+                            {"SEVEN_KNIGHTS", TEAM_CLAN_7_KNIGHTS},
+                            {"AXIS_INC", TEAM_CLAN_AXIS_INC},
+                        });
+            }
+
+            {
+                AddEnum(lua, "MAX_AI_STRATEGY",
+                        {
+                            {"RANDOM", AI_STRATEGY_RANDOM},
+                            {"DEFENSIVE", AI_STRATEGY_DEFENSIVE},
+                            {"MISSILES", AI_STRATEGY_MISSILES},
+                            {"AIR", AI_STRATEGY_AIR},
+                            {"SEA", AI_STRATEGY_SEA},
+                            {"SCOUT_HORDE", AI_STRATEGY_SCOUT_HORDE},
+                            {"TANK_HORDE", AI_STRATEGY_TANK_HORDE},
+                            {"FAST_ATTACK", AI_STRATEGY_FAST_ATTACK},
+                            {"COMBINED_ARMS", AI_STRATEGY_COMBINED_ARMS},
+                            {"ESPIONAGE", AI_STRATEGY_ESPIONAGE},
+                        });
+            }
+
+            {
+                AddEnum(lua, "MAX_OPPONENT_TYPE",
+                        {
+                            {"CLUELESS", OPPONENT_TYPE_CLUELESS},
+                            {"APPRENTICE", OPPONENT_TYPE_APPRENTICE},
+                            {"AVERAGE", OPPONENT_TYPE_AVERAGE},
+                            {"EXPERT", OPPONENT_TYPE_EXPERT},
+                            {"MASTER", OPPONENT_TYPE_MASTER},
+                            {"GOD", OPPONENT_TYPE_GOD},
+                        });
+            }
+
+            {
                 RegisterMaxRegistry(lua);
 
                 if (type == WINLOSS_CONDITIONS) {
@@ -1819,11 +1938,13 @@ void* CreateContext(const ScriptType type) {
                     RegisterGetResearchLevel(lua);
                     RegisterGetCurrentUnitAttribute(lua);
                     RegisterGetBaseUnitAttribute(lua);
+                    RegisterGetSurveyedResource(lua);
                 }
 
                 if (type == GAME_RULES) {
                     RegisterGetCurrentUnitAttribute(lua);
                     RegisterGetBaseUnitAttribute(lua);
+                    RegisterGetSurveyedResource(lua);
                 }
             }
 

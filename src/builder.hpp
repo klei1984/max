@@ -24,8 +24,8 @@
 
 #include "unitinfo.hpp"
 
-ResourceID Builder_GetBuilderType(ResourceID unit_type);
-bool Builder_IsBuildable(ResourceID unit_type);
-std::vector<ResourceID> Builder_GetBuildableUnits(ResourceID unit_type);
+ResourceID Builder_GetBuilderType(uint16_t team, ResourceID unit_type);
+bool Builder_IsBuildable(uint16_t team, ResourceID unit_type);
+std::vector<ResourceID> Builder_GetBuildableUnits(uint16_t team, ResourceID unit_type);
 
 #endif /* BUILDER_HPP */

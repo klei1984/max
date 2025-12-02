@@ -253,7 +253,7 @@ bool TaskKillUnit::GetNewUnits() {
 
                     SmartPointer<TaskObtainUnits> obtain_units_task;
                     SmartPointer<UnitInfo> unit;
-                    WeightTable table(weight_table, true);
+                    WeightTable table(weight_table);
                     int32_t turns_till_mission_end = Task_EstimateTurnsTillMissionEnd();
                     int32_t remaining_hits;
                     ResourceID unit_type;

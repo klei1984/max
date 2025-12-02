@@ -37,10 +37,10 @@ TaskExplore::TaskExplore(uint16_t team_, Point point_)
     memset(obtain_requests, 0, sizeof(obtain_requests));
 
     obtain_requests[SCOUT] = 1;
-    obtain_requests[AWAC] = Builder_IsBuildable(AWAC);
-    obtain_requests[SUBMARNE] = Builder_IsBuildable(SUBMARNE) &&
+    obtain_requests[AWAC] = Builder_IsBuildable(m_team, AWAC);
+    obtain_requests[SUBMARNE] = Builder_IsBuildable(m_team, SUBMARNE) &&
                                 ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE;
-    obtain_requests[COMMANDO] = Builder_IsBuildable(COMMANDO) &&
+    obtain_requests[COMMANDO] = Builder_IsBuildable(m_team, COMMANDO) &&
                                 ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_EXPERT;
 }
 

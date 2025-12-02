@@ -73,8 +73,9 @@ static uint8_t* UnitStats_DrawCommon(uint8_t* buffer, int32_t screen_width, Unit
 static uint8_t* UnitStats_DrawSpeed(uint8_t* buffer, int32_t screen_width, UnitValues* unit_values1,
                                     UnitValues* unit_values2, int32_t image_width);
 
-static void UnitStats_DrawCost(uint8_t* buffer, int32_t screen_width, ResourceID unit_type, int32_t value1,
-                               int32_t value2, ResourceID id_normal, ResourceID id_empty, int32_t image_width);
+static void UnitStats_DrawCost(uint8_t* buffer, int32_t screen_width, ResourceID unit_type, uint16_t team,
+                               int32_t value1, int32_t value2, ResourceID id_normal, ResourceID id_empty,
+                               int32_t image_width);
 
 void UnitStats_DrawImage(uint8_t* buffer, int32_t window_width, struct ImageSimpleHeader* image) {
     const uint8_t transparent_pixel = image->transparent_color;
@@ -114,7 +115,7 @@ void UnitStats_DrawStats(uint8_t* buffer, int32_t window_width, ResourceID unit_
     }
 
     if (unit_values2->GetAttribute(ATTRIB_TURNS)) {
-        UnitStats_DrawCost(buffer, window_width, unit_type, unit_values2->GetAttribute(ATTRIB_TURNS),
+        UnitStats_DrawCost(buffer, window_width, unit_type, team, unit_values2->GetAttribute(ATTRIB_TURNS),
                            unit_values.GetAttribute(ATTRIB_TURNS), icon_full, icon_empty, image_width);
     }
 }
@@ -434,13 +435,13 @@ uint8_t* UnitStats_DrawSpeed(uint8_t* buffer, int32_t screen_width, UnitValues* 
     return buffer;
 }
 
-void UnitStats_DrawCost(uint8_t* buffer, int32_t screen_width, ResourceID unit_type, int32_t value1, int32_t value2,
-                        ResourceID id_normal, ResourceID id_empty, int32_t image_width) {
+void UnitStats_DrawCost(uint8_t* buffer, int32_t screen_width, ResourceID unit_type, uint16_t team, int32_t value1,
+                        int32_t value2, ResourceID id_normal, ResourceID id_empty, int32_t image_width) {
     int32_t level1;
     int32_t level2;
 
-    level1 = Cargo_GetRawConsumptionRate(Builder_GetBuilderType(unit_type), 1) * value1;
-    level2 = Cargo_GetRawConsumptionRate(Builder_GetBuilderType(unit_type), 1) * value2;
+    level1 = Cargo_GetRawConsumptionRate(Builder_GetBuilderType(team, unit_type), 1) * value1;
+    level2 = Cargo_GetRawConsumptionRate(Builder_GetBuilderType(team, unit_type), 1) * value2;
 
     if (level1 < 1) {
         level1 = 1;

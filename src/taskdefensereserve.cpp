@@ -102,81 +102,81 @@ TaskDefenseReserve::TaskDefenseReserve(uint16_t team_, Point site_)
     int32_t ai_strategy = AiPlayer_Teams[m_team].GetStrategy();
     site = site_;
 
-    managers[DEFENSE_TYPE_BASIC_LAND].AddRule(ALNTANK, 1);
-    managers[DEFENSE_TYPE_BASIC_LAND].AddRule(GUNTURRT, 1);
+    managers[DEFENSE_TYPE_BASIC_LAND].AddRule(m_team, ALNTANK, 1);
+    managers[DEFENSE_TYPE_BASIC_LAND].AddRule(m_team, GUNTURRT, 1);
 
     if (ai_strategy != AI_STRATEGY_AIR && ai_strategy != AI_STRATEGY_FAST_ATTACK &&
         ai_strategy != AI_STRATEGY_SCOUT_HORDE) {
-        managers[DEFENSE_TYPE_BASIC_LAND].AddRule(TANK, 12);
+        managers[DEFENSE_TYPE_BASIC_LAND].AddRule(m_team, TANK, 12);
     }
 
     if (ai_strategy == AI_STRATEGY_ESPIONAGE) {
-        managers[DEFENSE_TYPE_BASIC_LAND].AddRule(COMMANDO, 4);
+        managers[DEFENSE_TYPE_BASIC_LAND].AddRule(m_team, COMMANDO, 4);
     }
 
     if (ai_strategy != AI_STRATEGY_TANK_HORDE) {
-        managers[DEFENSE_TYPE_BASIC_LAND].AddRule(BOMBER, 6);
+        managers[DEFENSE_TYPE_BASIC_LAND].AddRule(m_team, BOMBER, 6);
     }
 
-    managers[DEFENSE_TYPE_ADVANCED_LAND].AddRule(ALNASGUN, 1);
-    managers[DEFENSE_TYPE_ADVANCED_LAND].AddRule(ARTYTRRT, 1);
-    managers[DEFENSE_TYPE_ADVANCED_LAND].AddRule(ANTIMSSL, 1);
+    managers[DEFENSE_TYPE_ADVANCED_LAND].AddRule(m_team, ALNASGUN, 1);
+    managers[DEFENSE_TYPE_ADVANCED_LAND].AddRule(m_team, ARTYTRRT, 1);
+    managers[DEFENSE_TYPE_ADVANCED_LAND].AddRule(m_team, ANTIMSSL, 1);
 
     if (ai_strategy != AI_STRATEGY_MISSILES) {
-        managers[DEFENSE_TYPE_ADVANCED_LAND].AddRule(ARTILLRY, 4);
+        managers[DEFENSE_TYPE_ADVANCED_LAND].AddRule(m_team, ARTILLRY, 4);
     }
 
     if (ai_strategy != AI_STRATEGY_FAST_ATTACK && ai_strategy != AI_STRATEGY_SCOUT_HORDE) {
-        managers[DEFENSE_TYPE_ADVANCED_LAND].AddRule(ROCKTLCH, 5);
-        managers[DEFENSE_TYPE_ADVANCED_LAND].AddRule(MISSLLCH, 10);
+        managers[DEFENSE_TYPE_ADVANCED_LAND].AddRule(m_team, ROCKTLCH, 5);
+        managers[DEFENSE_TYPE_ADVANCED_LAND].AddRule(m_team, MISSLLCH, 10);
     }
 
-    managers[DEFENSE_TYPE_LAND_ANTIAIR].AddRule(ANTIAIR, 1);
+    managers[DEFENSE_TYPE_LAND_ANTIAIR].AddRule(m_team, ANTIAIR, 1);
 
     if (ai_strategy != AI_STRATEGY_FAST_ATTACK) {
-        managers[DEFENSE_TYPE_LAND_ANTIAIR].AddRule(FIGHTER, 12);
+        managers[DEFENSE_TYPE_LAND_ANTIAIR].AddRule(m_team, FIGHTER, 12);
     }
 
     if (ai_strategy != AI_STRATEGY_AIR) {
-        managers[DEFENSE_TYPE_LAND_ANTIAIR].AddRule(SP_FLAK, 6);
+        managers[DEFENSE_TYPE_LAND_ANTIAIR].AddRule(m_team, SP_FLAK, 6);
     }
 
-    managers[DEFENSE_TYPE_LAND_ANTIAIR].AddRule(ALNPLANE, 1);
+    managers[DEFENSE_TYPE_LAND_ANTIAIR].AddRule(m_team, ALNPLANE, 1);
 
-    managers[DEFENSE_TYPE_SEA_STEALTH].AddRule(CORVETTE, 12);
+    managers[DEFENSE_TYPE_SEA_STEALTH].AddRule(m_team, CORVETTE, 12);
 
     if (ai_strategy != AI_STRATEGY_AIR && ai_strategy != AI_STRATEGY_FAST_ATTACK &&
         ai_strategy != AI_STRATEGY_SCOUT_HORDE) {
         if (ai_strategy != AI_STRATEGY_TANK_HORDE) {
-            managers[DEFENSE_TYPE_BASIC_SEA].AddRule(SUBMARNE, 6);
+            managers[DEFENSE_TYPE_BASIC_SEA].AddRule(m_team, SUBMARNE, 6);
         }
 
-        managers[DEFENSE_TYPE_BASIC_SEA].AddRule(BATTLSHP, 6);
+        managers[DEFENSE_TYPE_BASIC_SEA].AddRule(m_team, BATTLSHP, 6);
     }
 
-    managers[DEFENSE_TYPE_BASIC_SEA].AddRule(GUNTURRT, 1);
-    managers[DEFENSE_TYPE_BASIC_SEA].AddRule(JUGGRNT, 1);
+    managers[DEFENSE_TYPE_BASIC_SEA].AddRule(m_team, GUNTURRT, 1);
+    managers[DEFENSE_TYPE_BASIC_SEA].AddRule(m_team, JUGGRNT, 1);
 
     if (ai_strategy != AI_STRATEGY_SEA && ai_strategy != AI_STRATEGY_TANK_HORDE) {
-        managers[DEFENSE_TYPE_BASIC_SEA].AddRule(BOMBER, 6);
+        managers[DEFENSE_TYPE_BASIC_SEA].AddRule(m_team, BOMBER, 6);
     }
 
-    managers[DEFENSE_TYPE_ADVANCED_SEA].AddRule(MSSLBOAT, 20);
-    managers[DEFENSE_TYPE_ADVANCED_SEA].AddRule(ARTYTRRT, 1);
-    managers[DEFENSE_TYPE_ADVANCED_SEA].AddRule(ANTIMSSL, 1);
+    managers[DEFENSE_TYPE_ADVANCED_SEA].AddRule(m_team, MSSLBOAT, 20);
+    managers[DEFENSE_TYPE_ADVANCED_SEA].AddRule(m_team, ARTYTRRT, 1);
+    managers[DEFENSE_TYPE_ADVANCED_SEA].AddRule(m_team, ANTIMSSL, 1);
 
-    managers[DEFENSE_TYPE_SEA_ANTIAIR].AddRule(ANTIAIR, 1);
+    managers[DEFENSE_TYPE_SEA_ANTIAIR].AddRule(m_team, ANTIAIR, 1);
 
     if (ai_strategy != AI_STRATEGY_AIR) {
-        managers[DEFENSE_TYPE_SEA_ANTIAIR].AddRule(FASTBOAT, 6);
+        managers[DEFENSE_TYPE_SEA_ANTIAIR].AddRule(m_team, FASTBOAT, 6);
     }
 
     if (ai_strategy != AI_STRATEGY_SEA && ai_strategy != AI_STRATEGY_FAST_ATTACK &&
         ai_strategy != AI_STRATEGY_SCOUT_HORDE) {
-        managers[DEFENSE_TYPE_SEA_ANTIAIR].AddRule(FIGHTER, 12);
+        managers[DEFENSE_TYPE_SEA_ANTIAIR].AddRule(m_team, FIGHTER, 12);
     }
 
-    managers[DEFENSE_TYPE_SEA_ANTIAIR].AddRule(ALNPLANE, 1);
+    managers[DEFENSE_TYPE_SEA_ANTIAIR].AddRule(m_team, ALNPLANE, 1);
 }
 
 TaskDefenseReserve::~TaskDefenseReserve() {}
@@ -263,7 +263,7 @@ void TaskDefenseReserve::EndTurn() {
     ++unit_counts[TRAINHAL];
 
     for (int32_t i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
-        managers[i].EvaluateNeeds(unit_counts);
+        managers[i].EvaluateNeeds(m_team, unit_counts);
     }
 
     if (total_assets_land + total_assets_sea > 0) {

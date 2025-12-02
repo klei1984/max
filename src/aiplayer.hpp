@@ -148,7 +148,8 @@ class AiPlayer {
     bool AddUnitToTeamMissionSupplies(ResourceID unit_type, uint16_t supplies);
     static int32_t GetVictoryConditionsFactor();
     void RollTeamMissionSupplies(int32_t clan);
-    static void AddBuildOrder(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type, int32_t attribute);
+    static void AddBuildOrder(SmartObjectArray<BuildOrder>* build_orders, uint16_t team, ResourceID unit_type,
+                              int32_t attribute);
     static void CheckReconnaissanceNeeds(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type,
                                          uint16_t team, uint16_t enemy_team, bool mode);
     SmartObjectArray<BuildOrder> ChooseStrategicBuildOrders(bool mode);

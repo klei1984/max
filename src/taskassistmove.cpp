@@ -91,7 +91,7 @@ void TaskAssistMove::AddUnit(UnitInfo& unit) {
 }
 
 void TaskAssistMove::BeginTurn() {
-    if (Builder_IsBuildable(AIRTRANS)) {
+    if (Builder_IsBuildable(m_team, AIRTRANS)) {
         int32_t unit_count_transport{0};
         int32_t unit_count_client{0};
         bool is_found{false};
@@ -132,7 +132,7 @@ void TaskAssistMove::BeginTurn() {
         }
     }
 
-    if (Builder_IsBuildable(CLNTRANS)) {
+    if (Builder_IsBuildable(m_team, CLNTRANS)) {
         int32_t unit_count_transport{0};
         int32_t unit_count_client{0};
         bool is_found{false};

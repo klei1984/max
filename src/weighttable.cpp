@@ -21,98 +21,94 @@
 
 #include "weighttable.hpp"
 
+#include <algorithm>
+
 #include "builder.hpp"
 #include "gnw.h"
 #include "randomizer.hpp"
 
-UnitWeight::UnitWeight() : unit_type(INVALID_ID), weight(0) {}
-
-UnitWeight::UnitWeight(ResourceID unit_type_, uint16_t weight_) {
-    if (Builder_IsBuildable(unit_type_)) {
-        unit_type = unit_type_;
-        weight = weight_;
-
-    } else {
-        unit_type = INVALID_ID;
-        weight = 0;
-    }
-}
-
-WeightTable::WeightTable() {}
-
-WeightTable::~WeightTable() {}
-
-WeightTable::WeightTable(const WeightTable& other, bool deep_copy) : weight_table(other.weight_table, deep_copy) {}
-
 WeightTable& WeightTable::operator=(WeightTable const& other) {
-    weight_table = other.weight_table;
+    if (this != &other) {
+        m_entries = other.m_entries;
+        m_team = other.m_team;
+    }
+
     return *this;
 }
 
 WeightTable& WeightTable::operator+=(WeightTable const& other) {
-    ResourceID unit_type;
-    uint32_t index;
+    for (const auto& entry : other.m_entries) {
+        // Find existing entry with same unit_type
+        auto it = std::find_if(m_entries.begin(), m_entries.end(),
+                               [&entry](const UnitWeight& e) { return e.unit_type == entry.unit_type; });
 
-    for (uint32_t i = 0; i < other.weight_table.GetCount(); ++i) {
-        unit_type = other.weight_table[i]->unit_type;
-
-        for (index = 0; index < weight_table.GetCount() && unit_type != weight_table[index]->unit_type; ++index) {
-            ;
+        if (it != m_entries.end()) {
+            it->weight += entry.weight;
+        } else {
+            m_entries.push_back(entry);
         }
-
-        if (index == weight_table.GetCount()) {
-            UnitWeight unit_weight(unit_type, 0);
-
-            weight_table.PushBack(&unit_weight);
-        }
-
-        weight_table[index]->weight += other.weight_table[i]->weight;
     }
 
     return *this;
 }
 
-UnitWeight& WeightTable::operator[](uint16_t position) { return *weight_table[position]; }
-
-uint32_t WeightTable::GetCount() const { return weight_table.GetCount(); }
-
-ResourceID WeightTable::RollUnitType() const {
-    int32_t weight = 0;
-    ResourceID unit_type = INVALID_ID;
-
-    for (uint32_t i = 0; i < weight_table.GetCount(); ++i) {
-        weight += weight_table[i]->weight;
+bool WeightTable::Add(ResourceID unit_type, uint16_t weight) {
+    if (Builder_IsBuildable(m_team, unit_type)) {
+        m_entries.emplace_back(unit_type, weight);
+        return true;
     }
 
-    if (weight > 0) {
-        weight = Randomizer_Generate(weight) + 1;
+    return false;
+}
 
-        for (uint32_t i = 0; i < weight_table.GetCount(); ++i) {
-            weight -= weight_table[i]->weight;
+void WeightTable::PushBack(const UnitWeight& entry) { m_entries.push_back(entry); }
 
-            if (weight <= 0) {
-                unit_type = weight_table[i]->unit_type;
-                break;
+void WeightTable::Disable(uint32_t index) {
+    if (index < m_entries.size()) {
+        if (index < m_entries.size() - 1) {
+            std::swap(m_entries[index], m_entries.back());
+        }
+
+        m_entries.pop_back();
+    }
+}
+
+void WeightTable::Compact() {
+    m_entries.erase(std::remove_if(m_entries.begin(), m_entries.end(),
+                                   [](const UnitWeight& e) { return e.weight == 0 || e.unit_type == INVALID_ID; }),
+                    m_entries.end());
+}
+
+void WeightTable::Clear() { m_entries.clear(); }
+
+ResourceID WeightTable::RollUnitType() const {
+    int32_t total_weight = 0;
+
+    for (const auto& entry : m_entries) {
+        total_weight += entry.weight;
+    }
+
+    if (total_weight > 0) {
+        int32_t roll = Randomizer_Generate(total_weight) + 1;
+
+        for (const auto& entry : m_entries) {
+            roll -= entry.weight;
+
+            if (roll <= 0) {
+                return entry.unit_type;
             }
         }
     }
 
-    return unit_type;
+    return INVALID_ID;
 }
 
-void WeightTable::PushBack(UnitWeight& object) { weight_table.PushBack(&object); }
-
-void WeightTable::Clear() { weight_table.Clear(); }
-
 int32_t WeightTable::GetWeight(ResourceID unit_type) const {
-    int32_t weight = 0;
-
-    for (uint32_t i = 0; i < weight_table.GetCount(); ++i) {
-        if (unit_type == weight_table[i]->unit_type) {
-            weight = weight_table[i]->weight;
-            break;
+    for (const auto& entry : m_entries) {
+        if (entry.unit_type == unit_type) {
+            return entry.weight;
         }
     }
 
-    return weight;
+    return 0;
 }

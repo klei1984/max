@@ -297,7 +297,7 @@ void TaskObtainUnits::RequestUnits(ResourceID unit_type, uint16_t team, int32_t 
     if (Task_EstimateTurnsTillMissionEnd() >=
         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[task_team], unit_type)->GetAttribute(ATTRIB_TURNS)) {
         uint32_t unit_counters[UNIT_END];
-        const auto builder_type = Builder_GetBuilderType(unit_type);
+        const auto builder_type = Builder_GetBuilderType(m_team, unit_type);
         int64_t builder_count = 0;
         int64_t buildable_count;
         uint32_t unit_count = 0;
@@ -319,7 +319,7 @@ void TaskObtainUnits::RequestUnits(ResourceID unit_type, uint16_t team, int32_t 
             }
         }
 
-        for (const auto unit : Builder_GetBuildableUnits(builder_type)) {
+        for (const auto unit : Builder_GetBuildableUnits(m_team, builder_type)) {
             unit_count += unit_counters[unit];
         }
 

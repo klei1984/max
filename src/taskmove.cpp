@@ -393,7 +393,7 @@ void TaskMove::AttemptTransport() {
             }
         }
 
-        if (Builder_IsBuildable(AIRTRANS) && FindUnit(&UnitsManager_MobileAirUnits, m_team, AIRTRANS)) {
+        if (Builder_IsBuildable(m_team, AIRTRANS) && FindUnit(&UnitsManager_MobileAirUnits, m_team, AIRTRANS)) {
             AttemptTransportType(AIRTRANS);
 
         } else {
@@ -529,7 +529,8 @@ void TaskMove::PathResultCallback(Task* task, PathRequest* path_request, Point d
         move->TranscribeTransportPath(destination_, path);
 
     } else {
-        if (path_request->GetTransporter()->GetUnitType() != AIRTRANS && Builder_IsBuildable(AIRTRANS) &&
+        if (path_request->GetTransporter()->GetUnitType() != AIRTRANS &&
+            Builder_IsBuildable(move->GetTeam(), AIRTRANS) &&
             (FindUnit(&UnitsManager_MobileAirUnits, move->GetTeam(), AIRTRANS) ||
              FindUnit(&UnitsManager_StationaryUnits, move->GetTeam(), AIRPLT))) {
             move->AttemptTransportType(AIRTRANS);

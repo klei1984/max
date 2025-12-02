@@ -120,17 +120,10 @@ void AiPlayer::UpdateWeightTables() {
         } break;
 
         case AI_STRATEGY_SCOUT_HORDE: {
-            UnitWeight weight1(SCOUT, 1);
-            weight_table_tanks.PushBack(weight1);
-
-            UnitWeight weight2(SCOUT, 2);
-            weight_table_assault_guns.PushBack(weight2);
-
-            UnitWeight weight3(SCOUT, 1);
-            weight_table_ground_defense.PushBack(weight3);
-
-            UnitWeight weight4(SCOUT, 1);
-            weight_table_missile_launcher.PushBack(weight4);
+            weight_table_tanks.Add(SCOUT, 1);
+            weight_table_assault_guns.Add(SCOUT, 2);
+            weight_table_ground_defense.Add(SCOUT, 1);
+            weight_table_missile_launcher.Add(SCOUT, 1);
 
             RebuildWeightTables(SCOUT, 10);
         } break;
@@ -1304,7 +1297,7 @@ bool AiPlayer::AddUnitToTeamMissionSupplies(ResourceID unit_type, uint16_t suppl
     int32_t build_cost = Ai_GetNormalRateBuildCost(unit_type, player_team);
     bool result;
 
-    if (Builder_IsBuildable(unit_type) && mission_supplies->units.GetCount() < 20) {
+    if (Builder_IsBuildable(player_team, unit_type) && mission_supplies->units.GetCount() < 20) {
         if (build_cost <= mission_supplies->team_gold) {
             if (supplies > (mission_supplies->team_gold - build_cost) * 5) {
                 supplies = (mission_supplies->team_gold - build_cost) * 5;
@@ -1689,8 +1682,9 @@ void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
     ChooseInitialUpgrades(mission_supplies->team_gold);
 }
 
-void AiPlayer::AddBuildOrder(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type, int32_t attribute) {
-    if (Builder_IsBuildable(unit_type)) {
+void AiPlayer::AddBuildOrder(SmartObjectArray<BuildOrder>* build_orders, uint16_t team, ResourceID unit_type,
+                             int32_t attribute) {
+    if (Builder_IsBuildable(team, unit_type)) {
         BuildOrder order(attribute, unit_type);
 
         (*build_orders).PushBack(&order);
@@ -1720,7 +1714,7 @@ void AiPlayer::CheckReconnaissanceNeeds(SmartObjectArray<BuildOrder>* build_orde
 
     if (unit_range_max >
         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_SCAN)) {
-        AddBuildOrder(build_orders, unit_type, ATTRIB_SCAN);
+        AddBuildOrder(build_orders, team, unit_type, ATTRIB_SCAN);
     }
 }
 
@@ -1767,14 +1761,14 @@ SmartObjectArray<BuildOrder> AiPlayer::ChooseStrategicBuildOrders(bool mode) {
                     ->GetAttribute(ATTRIB_SCAN) >=
                 UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[player_team], COMMANDO)
                     ->GetAttribute(ATTRIB_SCAN)) {
-                AddBuildOrder(&build_orders, COMMANDO, ATTRIB_SCAN);
+                AddBuildOrder(&build_orders, player_team, COMMANDO, ATTRIB_SCAN);
             }
 
             if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[target_team], CORVETTE)
                     ->GetAttribute(ATTRIB_SCAN) >=
                 UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[player_team], SUBMARNE)
                     ->GetAttribute(ATTRIB_SCAN)) {
-                AddBuildOrder(&build_orders, SUBMARNE, ATTRIB_SCAN);
+                AddBuildOrder(&build_orders, player_team, SUBMARNE, ATTRIB_SCAN);
             }
 
             ProcessBuildOrders(build_orders);
@@ -1784,186 +1778,186 @@ SmartObjectArray<BuildOrder> AiPlayer::ChooseStrategicBuildOrders(bool mode) {
     if (!build_orders->GetCount()) {
         switch (strategy) {
             case AI_STRATEGY_DEFENSIVE: {
-                AddBuildOrder(&build_orders, ANTIMSSL, ATTRIB_RANGE);
-                AddBuildOrder(&build_orders, ANTIMSSL, ATTRIB_ATTACK);
+                AddBuildOrder(&build_orders, player_team, ANTIMSSL, ATTRIB_RANGE);
+                AddBuildOrder(&build_orders, player_team, ANTIMSSL, ATTRIB_ATTACK);
 
                 if (!mode) {
-                    AddBuildOrder(&build_orders, RADAR, ATTRIB_SCAN);
+                    AddBuildOrder(&build_orders, player_team, RADAR, ATTRIB_SCAN);
 
-                    AddBuildOrder(&build_orders, GUNTURRT, ATTRIB_ATTACK);
-                    AddBuildOrder(&build_orders, GUNTURRT, ATTRIB_ROUNDS);
-                    AddBuildOrder(&build_orders, GUNTURRT, ATTRIB_ARMOR);
-                    AddBuildOrder(&build_orders, GUNTURRT, ATTRIB_HITS);
-                    AddBuildOrder(&build_orders, GUNTURRT, ATTRIB_RANGE);
+                    AddBuildOrder(&build_orders, player_team, GUNTURRT, ATTRIB_ATTACK);
+                    AddBuildOrder(&build_orders, player_team, GUNTURRT, ATTRIB_ROUNDS);
+                    AddBuildOrder(&build_orders, player_team, GUNTURRT, ATTRIB_ARMOR);
+                    AddBuildOrder(&build_orders, player_team, GUNTURRT, ATTRIB_HITS);
+                    AddBuildOrder(&build_orders, player_team, GUNTURRT, ATTRIB_RANGE);
 
-                    AddBuildOrder(&build_orders, ANTIAIR, ATTRIB_ROUNDS);
-                    AddBuildOrder(&build_orders, ANTIAIR, ATTRIB_RANGE);
-                    AddBuildOrder(&build_orders, ANTIAIR, ATTRIB_ATTACK);
+                    AddBuildOrder(&build_orders, player_team, ANTIAIR, ATTRIB_ROUNDS);
+                    AddBuildOrder(&build_orders, player_team, ANTIAIR, ATTRIB_RANGE);
+                    AddBuildOrder(&build_orders, player_team, ANTIAIR, ATTRIB_ATTACK);
                 }
 
             } break;
 
             case AI_STRATEGY_MISSILES: {
-                AddBuildOrder(&build_orders, MISSLLCH, ATTRIB_RANGE);
+                AddBuildOrder(&build_orders, player_team, MISSLLCH, ATTRIB_RANGE);
 
                 if (!mode) {
-                    AddBuildOrder(&build_orders, SCANNER, ATTRIB_SCAN);
+                    AddBuildOrder(&build_orders, player_team, SCANNER, ATTRIB_SCAN);
 
-                    AddBuildOrder(&build_orders, MISSLLCH, ATTRIB_ATTACK);
+                    AddBuildOrder(&build_orders, player_team, MISSLLCH, ATTRIB_ATTACK);
 
-                    AddBuildOrder(&build_orders, SCANNER, ATTRIB_SPEED);
+                    AddBuildOrder(&build_orders, player_team, SCANNER, ATTRIB_SPEED);
 
-                    AddBuildOrder(&build_orders, MISSLLCH, ATTRIB_SPEED);
+                    AddBuildOrder(&build_orders, player_team, MISSLLCH, ATTRIB_SPEED);
 
-                    AddBuildOrder(&build_orders, MSSLBOAT, ATTRIB_RANGE);
-                    AddBuildOrder(&build_orders, MSSLBOAT, ATTRIB_ATTACK);
-                    AddBuildOrder(&build_orders, MSSLBOAT, ATTRIB_SPEED);
+                    AddBuildOrder(&build_orders, player_team, MSSLBOAT, ATTRIB_RANGE);
+                    AddBuildOrder(&build_orders, player_team, MSSLBOAT, ATTRIB_ATTACK);
+                    AddBuildOrder(&build_orders, player_team, MSSLBOAT, ATTRIB_SPEED);
 
-                    AddBuildOrder(&build_orders, FASTBOAT, ATTRIB_SCAN);
-                    AddBuildOrder(&build_orders, FASTBOAT, ATTRIB_SPEED);
+                    AddBuildOrder(&build_orders, player_team, FASTBOAT, ATTRIB_SCAN);
+                    AddBuildOrder(&build_orders, player_team, FASTBOAT, ATTRIB_SPEED);
                 }
             } break;
 
             case AI_STRATEGY_AIR: {
-                AddBuildOrder(&build_orders, FIGHTER, ATTRIB_ATTACK);
-                AddBuildOrder(&build_orders, FIGHTER, ATTRIB_RANGE);
+                AddBuildOrder(&build_orders, player_team, FIGHTER, ATTRIB_ATTACK);
+                AddBuildOrder(&build_orders, player_team, FIGHTER, ATTRIB_RANGE);
 
-                AddBuildOrder(&build_orders, BOMBER, ATTRIB_ATTACK);
+                AddBuildOrder(&build_orders, player_team, BOMBER, ATTRIB_ATTACK);
 
                 if (!mode) {
-                    AddBuildOrder(&build_orders, FIGHTER, ATTRIB_ROUNDS);
-                    AddBuildOrder(&build_orders, FIGHTER, ATTRIB_HITS);
-                    AddBuildOrder(&build_orders, FIGHTER, ATTRIB_ARMOR);
+                    AddBuildOrder(&build_orders, player_team, FIGHTER, ATTRIB_ROUNDS);
+                    AddBuildOrder(&build_orders, player_team, FIGHTER, ATTRIB_HITS);
+                    AddBuildOrder(&build_orders, player_team, FIGHTER, ATTRIB_ARMOR);
 
-                    AddBuildOrder(&build_orders, AWAC, ATTRIB_SCAN);
+                    AddBuildOrder(&build_orders, player_team, AWAC, ATTRIB_SCAN);
 
-                    AddBuildOrder(&build_orders, BOMBER, ATTRIB_ROUNDS);
-                    AddBuildOrder(&build_orders, BOMBER, ATTRIB_HITS);
-                    AddBuildOrder(&build_orders, BOMBER, ATTRIB_ARMOR);
+                    AddBuildOrder(&build_orders, player_team, BOMBER, ATTRIB_ROUNDS);
+                    AddBuildOrder(&build_orders, player_team, BOMBER, ATTRIB_HITS);
+                    AddBuildOrder(&build_orders, player_team, BOMBER, ATTRIB_ARMOR);
                 }
 
             } break;
 
             case AI_STRATEGY_SEA: {
-                AddBuildOrder(&build_orders, BATTLSHP, ATTRIB_ATTACK);
-                AddBuildOrder(&build_orders, BATTLSHP, ATTRIB_ARMOR);
-                AddBuildOrder(&build_orders, BATTLSHP, ATTRIB_HITS);
+                AddBuildOrder(&build_orders, player_team, BATTLSHP, ATTRIB_ATTACK);
+                AddBuildOrder(&build_orders, player_team, BATTLSHP, ATTRIB_ARMOR);
+                AddBuildOrder(&build_orders, player_team, BATTLSHP, ATTRIB_HITS);
 
-                AddBuildOrder(&build_orders, MSSLBOAT, ATTRIB_RANGE);
+                AddBuildOrder(&build_orders, player_team, MSSLBOAT, ATTRIB_RANGE);
 
                 if (!mode) {
-                    AddBuildOrder(&build_orders, SUBMARNE, ATTRIB_ATTACK);
-                    AddBuildOrder(&build_orders, SUBMARNE, ATTRIB_SCAN);
+                    AddBuildOrder(&build_orders, player_team, SUBMARNE, ATTRIB_ATTACK);
+                    AddBuildOrder(&build_orders, player_team, SUBMARNE, ATTRIB_SCAN);
 
-                    AddBuildOrder(&build_orders, BATTLSHP, ATTRIB_ROUNDS);
+                    AddBuildOrder(&build_orders, player_team, BATTLSHP, ATTRIB_ROUNDS);
 
-                    AddBuildOrder(&build_orders, MSSLBOAT, ATTRIB_ATTACK);
+                    AddBuildOrder(&build_orders, player_team, MSSLBOAT, ATTRIB_ATTACK);
 
-                    AddBuildOrder(&build_orders, FASTBOAT, ATTRIB_ATTACK);
-                    AddBuildOrder(&build_orders, FASTBOAT, ATTRIB_ROUNDS);
-                    AddBuildOrder(&build_orders, FASTBOAT, ATTRIB_RANGE);
-                    AddBuildOrder(&build_orders, FASTBOAT, ATTRIB_SPEED);
-                    AddBuildOrder(&build_orders, FASTBOAT, ATTRIB_SCAN);
+                    AddBuildOrder(&build_orders, player_team, FASTBOAT, ATTRIB_ATTACK);
+                    AddBuildOrder(&build_orders, player_team, FASTBOAT, ATTRIB_ROUNDS);
+                    AddBuildOrder(&build_orders, player_team, FASTBOAT, ATTRIB_RANGE);
+                    AddBuildOrder(&build_orders, player_team, FASTBOAT, ATTRIB_SPEED);
+                    AddBuildOrder(&build_orders, player_team, FASTBOAT, ATTRIB_SCAN);
 
-                    AddBuildOrder(&build_orders, CORVETTE, ATTRIB_ATTACK);
-                    AddBuildOrder(&build_orders, CORVETTE, ATTRIB_ROUNDS);
-                    AddBuildOrder(&build_orders, CORVETTE, ATTRIB_SPEED);
-                    AddBuildOrder(&build_orders, CORVETTE, ATTRIB_SCAN);
+                    AddBuildOrder(&build_orders, player_team, CORVETTE, ATTRIB_ATTACK);
+                    AddBuildOrder(&build_orders, player_team, CORVETTE, ATTRIB_ROUNDS);
+                    AddBuildOrder(&build_orders, player_team, CORVETTE, ATTRIB_SPEED);
+                    AddBuildOrder(&build_orders, player_team, CORVETTE, ATTRIB_SCAN);
                 }
 
             } break;
 
             case AI_STRATEGY_SCOUT_HORDE: {
-                AddBuildOrder(&build_orders, SCOUT, ATTRIB_ATTACK);
-                AddBuildOrder(&build_orders, SCOUT, ATTRIB_ARMOR);
-                AddBuildOrder(&build_orders, SCOUT, ATTRIB_HITS);
-                AddBuildOrder(&build_orders, SCOUT, ATTRIB_SPEED);
+                AddBuildOrder(&build_orders, player_team, SCOUT, ATTRIB_ATTACK);
+                AddBuildOrder(&build_orders, player_team, SCOUT, ATTRIB_ARMOR);
+                AddBuildOrder(&build_orders, player_team, SCOUT, ATTRIB_HITS);
+                AddBuildOrder(&build_orders, player_team, SCOUT, ATTRIB_SPEED);
             } break;
 
             case AI_STRATEGY_TANK_HORDE: {
-                AddBuildOrder(&build_orders, SCOUT, ATTRIB_SPEED);
+                AddBuildOrder(&build_orders, player_team, SCOUT, ATTRIB_SPEED);
 
-                AddBuildOrder(&build_orders, TANK, ATTRIB_ATTACK);
-                AddBuildOrder(&build_orders, TANK, ATTRIB_ROUNDS);
-                AddBuildOrder(&build_orders, TANK, ATTRIB_HITS);
-                AddBuildOrder(&build_orders, TANK, ATTRIB_ARMOR);
-                AddBuildOrder(&build_orders, TANK, ATTRIB_SPEED);
+                AddBuildOrder(&build_orders, player_team, TANK, ATTRIB_ATTACK);
+                AddBuildOrder(&build_orders, player_team, TANK, ATTRIB_ROUNDS);
+                AddBuildOrder(&build_orders, player_team, TANK, ATTRIB_HITS);
+                AddBuildOrder(&build_orders, player_team, TANK, ATTRIB_ARMOR);
+                AddBuildOrder(&build_orders, player_team, TANK, ATTRIB_SPEED);
 
                 if (!mode) {
-                    AddBuildOrder(&build_orders, TANK, ATTRIB_RANGE);
+                    AddBuildOrder(&build_orders, player_team, TANK, ATTRIB_RANGE);
                 }
             } break;
 
             case AI_STRATEGY_FAST_ATTACK: {
-                AddBuildOrder(&build_orders, SCOUT, ATTRIB_SCAN);
+                AddBuildOrder(&build_orders, player_team, SCOUT, ATTRIB_SCAN);
 
-                AddBuildOrder(&build_orders, ARTILLRY, ATTRIB_ATTACK);
-                AddBuildOrder(&build_orders, ARTILLRY, ATTRIB_ROUNDS);
-                AddBuildOrder(&build_orders, ARTILLRY, ATTRIB_RANGE);
+                AddBuildOrder(&build_orders, player_team, ARTILLRY, ATTRIB_ATTACK);
+                AddBuildOrder(&build_orders, player_team, ARTILLRY, ATTRIB_ROUNDS);
+                AddBuildOrder(&build_orders, player_team, ARTILLRY, ATTRIB_RANGE);
 
                 if (!mode) {
-                    AddBuildOrder(&build_orders, ARTILLRY, ATTRIB_SPEED);
+                    AddBuildOrder(&build_orders, player_team, ARTILLRY, ATTRIB_SPEED);
 
-                    AddBuildOrder(&build_orders, SCOUT, ATTRIB_ATTACK);
-                    AddBuildOrder(&build_orders, SCOUT, ATTRIB_SPEED);
+                    AddBuildOrder(&build_orders, player_team, SCOUT, ATTRIB_ATTACK);
+                    AddBuildOrder(&build_orders, player_team, SCOUT, ATTRIB_SPEED);
 
-                    AddBuildOrder(&build_orders, SP_FLAK, ATTRIB_ATTACK);
-                    AddBuildOrder(&build_orders, SP_FLAK, ATTRIB_ROUNDS);
-                    AddBuildOrder(&build_orders, SP_FLAK, ATTRIB_RANGE);
-                    AddBuildOrder(&build_orders, SP_FLAK, ATTRIB_SPEED);
+                    AddBuildOrder(&build_orders, player_team, SP_FLAK, ATTRIB_ATTACK);
+                    AddBuildOrder(&build_orders, player_team, SP_FLAK, ATTRIB_ROUNDS);
+                    AddBuildOrder(&build_orders, player_team, SP_FLAK, ATTRIB_RANGE);
+                    AddBuildOrder(&build_orders, player_team, SP_FLAK, ATTRIB_SPEED);
 
-                    AddBuildOrder(&build_orders, BOMBER, ATTRIB_ATTACK);
+                    AddBuildOrder(&build_orders, player_team, BOMBER, ATTRIB_ATTACK);
 
-                    AddBuildOrder(&build_orders, FASTBOAT, ATTRIB_ATTACK);
-                    AddBuildOrder(&build_orders, FASTBOAT, ATTRIB_ROUNDS);
-                    AddBuildOrder(&build_orders, FASTBOAT, ATTRIB_RANGE);
-                    AddBuildOrder(&build_orders, FASTBOAT, ATTRIB_SPEED);
-                    AddBuildOrder(&build_orders, FASTBOAT, ATTRIB_SCAN);
+                    AddBuildOrder(&build_orders, player_team, FASTBOAT, ATTRIB_ATTACK);
+                    AddBuildOrder(&build_orders, player_team, FASTBOAT, ATTRIB_ROUNDS);
+                    AddBuildOrder(&build_orders, player_team, FASTBOAT, ATTRIB_RANGE);
+                    AddBuildOrder(&build_orders, player_team, FASTBOAT, ATTRIB_SPEED);
+                    AddBuildOrder(&build_orders, player_team, FASTBOAT, ATTRIB_SCAN);
 
-                    AddBuildOrder(&build_orders, CORVETTE, ATTRIB_RANGE);
-                    AddBuildOrder(&build_orders, CORVETTE, ATTRIB_ROUNDS);
-                    AddBuildOrder(&build_orders, CORVETTE, ATTRIB_ATTACK);
-                    AddBuildOrder(&build_orders, CORVETTE, ATTRIB_SPEED);
-                    AddBuildOrder(&build_orders, CORVETTE, ATTRIB_SCAN);
+                    AddBuildOrder(&build_orders, player_team, CORVETTE, ATTRIB_RANGE);
+                    AddBuildOrder(&build_orders, player_team, CORVETTE, ATTRIB_ROUNDS);
+                    AddBuildOrder(&build_orders, player_team, CORVETTE, ATTRIB_ATTACK);
+                    AddBuildOrder(&build_orders, player_team, CORVETTE, ATTRIB_SPEED);
+                    AddBuildOrder(&build_orders, player_team, CORVETTE, ATTRIB_SCAN);
                 }
             } break;
 
             case AI_STRATEGY_COMBINED_ARMS: {
-                AddBuildOrder(&build_orders, MISSLLCH, ATTRIB_RANGE);
+                AddBuildOrder(&build_orders, player_team, MISSLLCH, ATTRIB_RANGE);
 
-                AddBuildOrder(&build_orders, TANK, ATTRIB_ATTACK);
-                AddBuildOrder(&build_orders, TANK, ATTRIB_ARMOR);
-                AddBuildOrder(&build_orders, TANK, ATTRIB_HITS);
+                AddBuildOrder(&build_orders, player_team, TANK, ATTRIB_ATTACK);
+                AddBuildOrder(&build_orders, player_team, TANK, ATTRIB_ARMOR);
+                AddBuildOrder(&build_orders, player_team, TANK, ATTRIB_HITS);
 
                 if (!mode) {
-                    AddBuildOrder(&build_orders, SCANNER, ATTRIB_SCAN);
-                    AddBuildOrder(&build_orders, SCANNER, ATTRIB_SPEED);
+                    AddBuildOrder(&build_orders, player_team, SCANNER, ATTRIB_SCAN);
+                    AddBuildOrder(&build_orders, player_team, SCANNER, ATTRIB_SPEED);
 
-                    AddBuildOrder(&build_orders, MISSLLCH, ATTRIB_ATTACK);
-                    AddBuildOrder(&build_orders, MISSLLCH, ATTRIB_SPEED);
+                    AddBuildOrder(&build_orders, player_team, MISSLLCH, ATTRIB_ATTACK);
+                    AddBuildOrder(&build_orders, player_team, MISSLLCH, ATTRIB_SPEED);
 
-                    AddBuildOrder(&build_orders, TANK, ATTRIB_ROUNDS);
-                    AddBuildOrder(&build_orders, TANK, ATTRIB_SPEED);
+                    AddBuildOrder(&build_orders, player_team, TANK, ATTRIB_ROUNDS);
+                    AddBuildOrder(&build_orders, player_team, TANK, ATTRIB_SPEED);
                 }
             } break;
 
             case AI_STRATEGY_ESPIONAGE: {
-                AddBuildOrder(&build_orders, COMMANDO, ATTRIB_SCAN);
-                AddBuildOrder(&build_orders, COMMANDO, ATTRIB_SPEED);
+                AddBuildOrder(&build_orders, player_team, COMMANDO, ATTRIB_SCAN);
+                AddBuildOrder(&build_orders, player_team, COMMANDO, ATTRIB_SPEED);
 
-                AddBuildOrder(&build_orders, MISSLLCH, ATTRIB_RANGE);
+                AddBuildOrder(&build_orders, player_team, MISSLLCH, ATTRIB_RANGE);
 
                 if (!mode) {
-                    AddBuildOrder(&build_orders, SUBMARNE, ATTRIB_ATTACK);
-                    AddBuildOrder(&build_orders, SUBMARNE, ATTRIB_SCAN);
+                    AddBuildOrder(&build_orders, player_team, SUBMARNE, ATTRIB_ATTACK);
+                    AddBuildOrder(&build_orders, player_team, SUBMARNE, ATTRIB_SCAN);
 
-                    AddBuildOrder(&build_orders, SCANNER, ATTRIB_SCAN);
+                    AddBuildOrder(&build_orders, player_team, SCANNER, ATTRIB_SCAN);
 
-                    AddBuildOrder(&build_orders, AWAC, ATTRIB_SCAN);
+                    AddBuildOrder(&build_orders, player_team, AWAC, ATTRIB_SCAN);
 
-                    AddBuildOrder(&build_orders, MSSLBOAT, ATTRIB_RANGE);
+                    AddBuildOrder(&build_orders, player_team, MSSLBOAT, ATTRIB_RANGE);
 
-                    AddBuildOrder(&build_orders, CLNTRANS, ATTRIB_SPEED);
+                    AddBuildOrder(&build_orders, player_team, CLNTRANS, ATTRIB_SPEED);
                 }
             } break;
         }
@@ -2013,84 +2007,84 @@ void AiPlayer::ProcessBuildOrders(SmartObjectArray<BuildOrder> build_orders) {
 SmartObjectArray<BuildOrder> AiPlayer::ChooseGenericBuildOrders() {
     SmartObjectArray<BuildOrder> result;
 
-    AddBuildOrder(&result, ANTIMSSL, ATTRIB_RANGE);
-    AddBuildOrder(&result, ANTIMSSL, ATTRIB_ATTACK);
-    AddBuildOrder(&result, ANTIMSSL, ATTRIB_ROUNDS);
+    AddBuildOrder(&result, player_team, ANTIMSSL, ATTRIB_RANGE);
+    AddBuildOrder(&result, player_team, ANTIMSSL, ATTRIB_ATTACK);
+    AddBuildOrder(&result, player_team, ANTIMSSL, ATTRIB_ROUNDS);
 
-    AddBuildOrder(&result, RADAR, ATTRIB_SCAN);
+    AddBuildOrder(&result, player_team, RADAR, ATTRIB_SCAN);
 
-    AddBuildOrder(&result, GUNTURRT, ATTRIB_ATTACK);
-    AddBuildOrder(&result, GUNTURRT, ATTRIB_ROUNDS);
-    AddBuildOrder(&result, GUNTURRT, ATTRIB_ARMOR);
-    AddBuildOrder(&result, GUNTURRT, ATTRIB_HITS);
-    AddBuildOrder(&result, GUNTURRT, ATTRIB_RANGE);
+    AddBuildOrder(&result, player_team, GUNTURRT, ATTRIB_ATTACK);
+    AddBuildOrder(&result, player_team, GUNTURRT, ATTRIB_ROUNDS);
+    AddBuildOrder(&result, player_team, GUNTURRT, ATTRIB_ARMOR);
+    AddBuildOrder(&result, player_team, GUNTURRT, ATTRIB_HITS);
+    AddBuildOrder(&result, player_team, GUNTURRT, ATTRIB_RANGE);
 
-    AddBuildOrder(&result, ANTIAIR, ATTRIB_ROUNDS);
-    AddBuildOrder(&result, ANTIAIR, ATTRIB_RANGE);
-    AddBuildOrder(&result, ANTIAIR, ATTRIB_ATTACK);
+    AddBuildOrder(&result, player_team, ANTIAIR, ATTRIB_ROUNDS);
+    AddBuildOrder(&result, player_team, ANTIAIR, ATTRIB_RANGE);
+    AddBuildOrder(&result, player_team, ANTIAIR, ATTRIB_ATTACK);
 
-    AddBuildOrder(&result, MISSLLCH, ATTRIB_RANGE);
-    AddBuildOrder(&result, MISSLLCH, ATTRIB_ATTACK);
-    AddBuildOrder(&result, MISSLLCH, ATTRIB_ROUNDS);
+    AddBuildOrder(&result, player_team, MISSLLCH, ATTRIB_RANGE);
+    AddBuildOrder(&result, player_team, MISSLLCH, ATTRIB_ATTACK);
+    AddBuildOrder(&result, player_team, MISSLLCH, ATTRIB_ROUNDS);
 
-    AddBuildOrder(&result, SCANNER, ATTRIB_SCAN);
+    AddBuildOrder(&result, player_team, SCANNER, ATTRIB_SCAN);
 
-    AddBuildOrder(&result, MSSLBOAT, ATTRIB_RANGE);
-    AddBuildOrder(&result, MSSLBOAT, ATTRIB_ATTACK);
-    AddBuildOrder(&result, MSSLBOAT, ATTRIB_ROUNDS);
+    AddBuildOrder(&result, player_team, MSSLBOAT, ATTRIB_RANGE);
+    AddBuildOrder(&result, player_team, MSSLBOAT, ATTRIB_ATTACK);
+    AddBuildOrder(&result, player_team, MSSLBOAT, ATTRIB_ROUNDS);
 
-    AddBuildOrder(&result, FASTBOAT, ATTRIB_SCAN);
-    AddBuildOrder(&result, FASTBOAT, ATTRIB_ATTACK);
-    AddBuildOrder(&result, FASTBOAT, ATTRIB_ROUNDS);
-    AddBuildOrder(&result, FASTBOAT, ATTRIB_RANGE);
+    AddBuildOrder(&result, player_team, FASTBOAT, ATTRIB_SCAN);
+    AddBuildOrder(&result, player_team, FASTBOAT, ATTRIB_ATTACK);
+    AddBuildOrder(&result, player_team, FASTBOAT, ATTRIB_ROUNDS);
+    AddBuildOrder(&result, player_team, FASTBOAT, ATTRIB_RANGE);
 
-    AddBuildOrder(&result, FIGHTER, ATTRIB_ATTACK);
-    AddBuildOrder(&result, FIGHTER, ATTRIB_ROUNDS);
-    AddBuildOrder(&result, FIGHTER, ATTRIB_RANGE);
-    AddBuildOrder(&result, FIGHTER, ATTRIB_HITS);
-    AddBuildOrder(&result, FIGHTER, ATTRIB_ARMOR);
+    AddBuildOrder(&result, player_team, FIGHTER, ATTRIB_ATTACK);
+    AddBuildOrder(&result, player_team, FIGHTER, ATTRIB_ROUNDS);
+    AddBuildOrder(&result, player_team, FIGHTER, ATTRIB_RANGE);
+    AddBuildOrder(&result, player_team, FIGHTER, ATTRIB_HITS);
+    AddBuildOrder(&result, player_team, FIGHTER, ATTRIB_ARMOR);
 
-    AddBuildOrder(&result, BOMBER, ATTRIB_ATTACK);
-    AddBuildOrder(&result, BOMBER, ATTRIB_ROUNDS);
-    AddBuildOrder(&result, BOMBER, ATTRIB_HITS);
-    AddBuildOrder(&result, BOMBER, ATTRIB_ARMOR);
+    AddBuildOrder(&result, player_team, BOMBER, ATTRIB_ATTACK);
+    AddBuildOrder(&result, player_team, BOMBER, ATTRIB_ROUNDS);
+    AddBuildOrder(&result, player_team, BOMBER, ATTRIB_HITS);
+    AddBuildOrder(&result, player_team, BOMBER, ATTRIB_ARMOR);
 
-    AddBuildOrder(&result, AWAC, ATTRIB_SCAN);
+    AddBuildOrder(&result, player_team, AWAC, ATTRIB_SCAN);
 
-    AddBuildOrder(&result, BATTLSHP, ATTRIB_ATTACK);
-    AddBuildOrder(&result, BATTLSHP, ATTRIB_ARMOR);
-    AddBuildOrder(&result, BATTLSHP, ATTRIB_RANGE);
-    AddBuildOrder(&result, BATTLSHP, ATTRIB_HITS);
-    AddBuildOrder(&result, BATTLSHP, ATTRIB_ROUNDS);
+    AddBuildOrder(&result, player_team, BATTLSHP, ATTRIB_ATTACK);
+    AddBuildOrder(&result, player_team, BATTLSHP, ATTRIB_ARMOR);
+    AddBuildOrder(&result, player_team, BATTLSHP, ATTRIB_RANGE);
+    AddBuildOrder(&result, player_team, BATTLSHP, ATTRIB_HITS);
+    AddBuildOrder(&result, player_team, BATTLSHP, ATTRIB_ROUNDS);
 
-    AddBuildOrder(&result, SUBMARNE, ATTRIB_ATTACK);
-    AddBuildOrder(&result, SUBMARNE, ATTRIB_SCAN);
-    AddBuildOrder(&result, SUBMARNE, ATTRIB_ROUNDS);
+    AddBuildOrder(&result, player_team, SUBMARNE, ATTRIB_ATTACK);
+    AddBuildOrder(&result, player_team, SUBMARNE, ATTRIB_SCAN);
+    AddBuildOrder(&result, player_team, SUBMARNE, ATTRIB_ROUNDS);
 
-    AddBuildOrder(&result, CORVETTE, ATTRIB_ATTACK);
-    AddBuildOrder(&result, CORVETTE, ATTRIB_ROUNDS);
-    AddBuildOrder(&result, CORVETTE, ATTRIB_SCAN);
-    AddBuildOrder(&result, CORVETTE, ATTRIB_RANGE);
+    AddBuildOrder(&result, player_team, CORVETTE, ATTRIB_ATTACK);
+    AddBuildOrder(&result, player_team, CORVETTE, ATTRIB_ROUNDS);
+    AddBuildOrder(&result, player_team, CORVETTE, ATTRIB_SCAN);
+    AddBuildOrder(&result, player_team, CORVETTE, ATTRIB_RANGE);
 
-    AddBuildOrder(&result, SCOUT, ATTRIB_SPEED);
-    AddBuildOrder(&result, SCOUT, ATTRIB_SCAN);
+    AddBuildOrder(&result, player_team, SCOUT, ATTRIB_SPEED);
+    AddBuildOrder(&result, player_team, SCOUT, ATTRIB_SCAN);
 
-    AddBuildOrder(&result, TANK, ATTRIB_ATTACK);
-    AddBuildOrder(&result, TANK, ATTRIB_ROUNDS);
-    AddBuildOrder(&result, TANK, ATTRIB_HITS);
-    AddBuildOrder(&result, TANK, ATTRIB_ARMOR);
+    AddBuildOrder(&result, player_team, TANK, ATTRIB_ATTACK);
+    AddBuildOrder(&result, player_team, TANK, ATTRIB_ROUNDS);
+    AddBuildOrder(&result, player_team, TANK, ATTRIB_HITS);
+    AddBuildOrder(&result, player_team, TANK, ATTRIB_ARMOR);
 
-    AddBuildOrder(&result, ARTILLRY, ATTRIB_ATTACK);
-    AddBuildOrder(&result, ARTILLRY, ATTRIB_ROUNDS);
-    AddBuildOrder(&result, ARTILLRY, ATTRIB_RANGE);
-    AddBuildOrder(&result, ARTILLRY, ATTRIB_SPEED);
+    AddBuildOrder(&result, player_team, ARTILLRY, ATTRIB_ATTACK);
+    AddBuildOrder(&result, player_team, ARTILLRY, ATTRIB_ROUNDS);
+    AddBuildOrder(&result, player_team, ARTILLRY, ATTRIB_RANGE);
+    AddBuildOrder(&result, player_team, ARTILLRY, ATTRIB_SPEED);
 
-    AddBuildOrder(&result, SP_FLAK, ATTRIB_ATTACK);
-    AddBuildOrder(&result, SP_FLAK, ATTRIB_ROUNDS);
-    AddBuildOrder(&result, SP_FLAK, ATTRIB_RANGE);
+    AddBuildOrder(&result, player_team, SP_FLAK, ATTRIB_ATTACK);
+    AddBuildOrder(&result, player_team, SP_FLAK, ATTRIB_ROUNDS);
+    AddBuildOrder(&result, player_team, SP_FLAK, ATTRIB_RANGE);
 
-    AddBuildOrder(&result, COMMANDO, ATTRIB_SCAN);
-    AddBuildOrder(&result, COMMANDO, ATTRIB_SPEED);
+    AddBuildOrder(&result, player_team, COMMANDO, ATTRIB_SCAN);
+    AddBuildOrder(&result, player_team, COMMANDO, ATTRIB_SPEED);
 
     ProcessBuildOrders(result);
 
@@ -3087,674 +3081,357 @@ void AiPlayer::Init(uint16_t team) {
     int32_t opponent = ResourceManager_GetSettings()->GetNumericValue("opponent");
 
     weight_table_ground_defense.Clear();
+    weight_table_ground_defense.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_EXPERT) {
-        UnitWeight weight1(COMMANDO, 2);
-        weight_table_ground_defense.PushBack(weight1);
+        weight_table_ground_defense.Add(COMMANDO, 2);
     }
 
-    UnitWeight weight2(TANK, 1);
-    weight_table_ground_defense.PushBack(weight2);
-
-    UnitWeight weight3(ARTILLRY, 1);
-    weight_table_ground_defense.PushBack(weight3);
-
-    UnitWeight weight4(ROCKTLCH, 1);
-    weight_table_ground_defense.PushBack(weight4);
-
-    UnitWeight weight5(MISSLLCH, 2);
-    weight_table_ground_defense.PushBack(weight5);
-
-    UnitWeight weight6(BATTLSHP, 1);
-    weight_table_ground_defense.PushBack(weight6);
-
-    UnitWeight weight7(MSSLBOAT, 2);
-    weight_table_ground_defense.PushBack(weight7);
-
-    UnitWeight weight8(BOMBER, 2);
-    weight_table_ground_defense.PushBack(weight8);
-
-    UnitWeight weight9(JUGGRNT, 1);
-    weight_table_ground_defense.PushBack(weight9);
-
-    UnitWeight weight10(ALNTANK, 1);
-    weight_table_ground_defense.PushBack(weight10);
-
-    UnitWeight weight11(ALNASGUN, 1);
-    weight_table_ground_defense.PushBack(weight11);
-
-    UnitWeight weight12(ALNPLANE, 1);
-    weight_table_ground_defense.PushBack(weight12);
+    weight_table_ground_defense.Add(TANK, 1);
+    weight_table_ground_defense.Add(ARTILLRY, 1);
+    weight_table_ground_defense.Add(ROCKTLCH, 1);
+    weight_table_ground_defense.Add(MISSLLCH, 2);
+    weight_table_ground_defense.Add(BATTLSHP, 1);
+    weight_table_ground_defense.Add(MSSLBOAT, 2);
+    weight_table_ground_defense.Add(BOMBER, 2);
+    weight_table_ground_defense.Add(JUGGRNT, 1);
+    weight_table_ground_defense.Add(ALNTANK, 1);
+    weight_table_ground_defense.Add(ALNASGUN, 1);
+    weight_table_ground_defense.Add(ALNPLANE, 1);
 
     weight_table_scout.Clear();
+    weight_table_scout.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_EXPERT) {
-        UnitWeight weight13(COMMANDO, 1);
-        weight_table_scout.PushBack(weight13);
+        weight_table_scout.Add(COMMANDO, 1);
     }
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight14(ARTYTRRT, 1);
-        weight_table_scout.PushBack(weight14);
-
-        UnitWeight weight15(ANTIMSSL, 1);
-        weight_table_scout.PushBack(weight15);
+        weight_table_scout.Add(ARTYTRRT, 1);
+        weight_table_scout.Add(ANTIMSSL, 1);
     }
 
     if (opponent >= OPPONENT_TYPE_APPRENTICE) {
-        UnitWeight weight16(GUNTURRT, 1);
-        weight_table_scout.PushBack(weight16);
+        weight_table_scout.Add(GUNTURRT, 1);
     }
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight17(SUBMARNE, 1);
-        weight_table_scout.PushBack(weight17);
+        weight_table_scout.Add(SUBMARNE, 1);
     }
 
-    UnitWeight weight18(SCOUT, 2);
-    weight_table_scout.PushBack(weight18);
-
-    UnitWeight weight19(TANK, 1);
-    weight_table_scout.PushBack(weight19);
-
-    UnitWeight weight20(ARTILLRY, 2);
-    weight_table_scout.PushBack(weight20);
-
-    UnitWeight weight21(ROCKTLCH, 1);
-    weight_table_scout.PushBack(weight21);
-
-    UnitWeight weight22(MISSLLCH, 2);
-    weight_table_scout.PushBack(weight22);
-
-    UnitWeight weight23(BATTLSHP, 2);
-    weight_table_scout.PushBack(weight23);
-
-    UnitWeight weight24(MSSLBOAT, 2);
-    weight_table_scout.PushBack(weight24);
-
-    UnitWeight weight25(BOMBER, 3);
-    weight_table_scout.PushBack(weight25);
-
-    UnitWeight weight26(JUGGRNT, 1);
-    weight_table_scout.PushBack(weight26);
-
-    UnitWeight weight27(ALNTANK, 1);
-    weight_table_scout.PushBack(weight27);
-
-    UnitWeight weight28(ALNASGUN, 1);
-    weight_table_scout.PushBack(weight28);
-
-    UnitWeight weight29(ALNPLANE, 1);
-    weight_table_scout.PushBack(weight29);
+    weight_table_scout.Add(SCOUT, 2);
+    weight_table_scout.Add(TANK, 1);
+    weight_table_scout.Add(ARTILLRY, 2);
+    weight_table_scout.Add(ROCKTLCH, 1);
+    weight_table_scout.Add(MISSLLCH, 2);
+    weight_table_scout.Add(BATTLSHP, 2);
+    weight_table_scout.Add(MSSLBOAT, 2);
+    weight_table_scout.Add(BOMBER, 3);
+    weight_table_scout.Add(JUGGRNT, 1);
+    weight_table_scout.Add(ALNTANK, 1);
+    weight_table_scout.Add(ALNASGUN, 1);
+    weight_table_scout.Add(ALNPLANE, 1);
 
     weight_table_tanks.Clear();
+    weight_table_tanks.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_APPRENTICE) {
-        UnitWeight weight30(GUNTURRT, 1);
-        weight_table_tanks.PushBack(weight30);
+        weight_table_tanks.Add(GUNTURRT, 1);
     }
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight31(ANTIMSSL, 1);
-        weight_table_tanks.PushBack(weight31);
+        weight_table_tanks.Add(ANTIMSSL, 1);
     }
 
     if (opponent >= OPPONENT_TYPE_EXPERT) {
-        UnitWeight weight32(COMMANDO, 1);
-        weight_table_tanks.PushBack(weight32);
+        weight_table_tanks.Add(COMMANDO, 1);
     }
 
-    UnitWeight weight33(TANK, 2);
-    weight_table_tanks.PushBack(weight33);
-
-    UnitWeight weight34(ARTILLRY, 1);
-    weight_table_tanks.PushBack(weight34);
-
-    UnitWeight weight35(ROCKTLCH, 1);
-    weight_table_tanks.PushBack(weight35);
-
-    UnitWeight weight36(MISSLLCH, 2);
-    weight_table_tanks.PushBack(weight36);
-
-    UnitWeight weight37(BATTLSHP, 2);
-    weight_table_tanks.PushBack(weight37);
-
-    UnitWeight weight38(MSSLBOAT, 2);
-    weight_table_tanks.PushBack(weight38);
-
-    UnitWeight weight39(BOMBER, 3);
-    weight_table_tanks.PushBack(weight39);
-
-    UnitWeight weight40(JUGGRNT, 1);
-    weight_table_tanks.PushBack(weight40);
-
-    UnitWeight weight41(ALNTANK, 1);
-    weight_table_tanks.PushBack(weight41);
-
-    UnitWeight weight42(ALNASGUN, 1);
-    weight_table_tanks.PushBack(weight42);
-
-    UnitWeight weight43(ALNPLANE, 1);
-    weight_table_tanks.PushBack(weight43);
+    weight_table_tanks.Add(TANK, 2);
+    weight_table_tanks.Add(ARTILLRY, 1);
+    weight_table_tanks.Add(ROCKTLCH, 1);
+    weight_table_tanks.Add(MISSLLCH, 2);
+    weight_table_tanks.Add(BATTLSHP, 2);
+    weight_table_tanks.Add(MSSLBOAT, 2);
+    weight_table_tanks.Add(BOMBER, 3);
+    weight_table_tanks.Add(JUGGRNT, 1);
+    weight_table_tanks.Add(ALNTANK, 1);
+    weight_table_tanks.Add(ALNASGUN, 1);
+    weight_table_tanks.Add(ALNPLANE, 1);
 
     weight_table_assault_guns.Clear();
+    weight_table_assault_guns.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_EXPERT) {
-        UnitWeight weight44(COMMANDO, 1);
-        weight_table_assault_guns.PushBack(weight44);
+        weight_table_assault_guns.Add(COMMANDO, 1);
     }
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight45(ANTIMSSL, 1);
-        weight_table_assault_guns.PushBack(weight45);
+        weight_table_assault_guns.Add(ANTIMSSL, 1);
     }
 
     if (opponent >= OPPONENT_TYPE_APPRENTICE) {
-        UnitWeight weight46(GUNTURRT, 1);
-        weight_table_assault_guns.PushBack(weight46);
+        weight_table_assault_guns.Add(GUNTURRT, 1);
     }
 
-    UnitWeight weight47(TANK, 2);
-    weight_table_assault_guns.PushBack(weight47);
-
-    UnitWeight weight48(ARTILLRY, 1);
-    weight_table_assault_guns.PushBack(weight48);
-
-    UnitWeight weight49(ROCKTLCH, 1);
-    weight_table_assault_guns.PushBack(weight49);
-
-    UnitWeight weight50(MISSLLCH, 2);
-    weight_table_assault_guns.PushBack(weight50);
-
-    UnitWeight weight51(BATTLSHP, 2);
-    weight_table_assault_guns.PushBack(weight51);
-
-    UnitWeight weight52(MSSLBOAT, 2);
-    weight_table_assault_guns.PushBack(weight52);
-
-    UnitWeight weight53(BOMBER, 3);
-    weight_table_assault_guns.PushBack(weight53);
-
-    UnitWeight weight54(JUGGRNT, 1);
-    weight_table_assault_guns.PushBack(weight54);
-
-    UnitWeight weight55(ALNTANK, 1);
-    weight_table_assault_guns.PushBack(weight55);
-
-    UnitWeight weight56(ALNASGUN, 1);
-    weight_table_assault_guns.PushBack(weight56);
-
-    UnitWeight weight57(ALNPLANE, 1);
-    weight_table_assault_guns.PushBack(weight57);
+    weight_table_assault_guns.Add(TANK, 2);
+    weight_table_assault_guns.Add(ARTILLRY, 1);
+    weight_table_assault_guns.Add(ROCKTLCH, 1);
+    weight_table_assault_guns.Add(MISSLLCH, 2);
+    weight_table_assault_guns.Add(BATTLSHP, 2);
+    weight_table_assault_guns.Add(MSSLBOAT, 2);
+    weight_table_assault_guns.Add(BOMBER, 3);
+    weight_table_assault_guns.Add(JUGGRNT, 1);
+    weight_table_assault_guns.Add(ALNTANK, 1);
+    weight_table_assault_guns.Add(ALNASGUN, 1);
+    weight_table_assault_guns.Add(ALNPLANE, 1);
 
     weight_table_missile_launcher.Clear();
+    weight_table_missile_launcher.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_EXPERT) {
-        UnitWeight weight58(COMMANDO, 1);
-        weight_table_missile_launcher.PushBack(weight58);
+        weight_table_missile_launcher.Add(COMMANDO, 1);
     }
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight59(ANTIMSSL, 1);
-        weight_table_missile_launcher.PushBack(weight59);
+        weight_table_missile_launcher.Add(ANTIMSSL, 1);
     }
 
-    UnitWeight weight60(TANK, 1);
-    weight_table_missile_launcher.PushBack(weight60);
-
-    UnitWeight weight61(ARTILLRY, 1);
-    weight_table_missile_launcher.PushBack(weight61);
-
-    UnitWeight weight62(ROCKTLCH, 1);
-    weight_table_missile_launcher.PushBack(weight62);
-
-    UnitWeight weight63(MISSLLCH, 2);
-    weight_table_missile_launcher.PushBack(weight63);
-
-    UnitWeight weight64(BATTLSHP, 1);
-    weight_table_missile_launcher.PushBack(weight64);
-
-    UnitWeight weight65(MSSLBOAT, 2);
-    weight_table_missile_launcher.PushBack(weight65);
-
-    UnitWeight weight66(BOMBER, 3);
-    weight_table_missile_launcher.PushBack(weight66);
-
-    UnitWeight weight67(JUGGRNT, 1);
-    weight_table_missile_launcher.PushBack(weight67);
-
-    UnitWeight weight68(ALNTANK, 1);
-    weight_table_missile_launcher.PushBack(weight68);
-
-    UnitWeight weight69(ALNASGUN, 1);
-    weight_table_missile_launcher.PushBack(weight69);
-
-    UnitWeight weight70(ALNPLANE, 1);
-    weight_table_missile_launcher.PushBack(weight70);
+    weight_table_missile_launcher.Add(TANK, 1);
+    weight_table_missile_launcher.Add(ARTILLRY, 1);
+    weight_table_missile_launcher.Add(ROCKTLCH, 1);
+    weight_table_missile_launcher.Add(MISSLLCH, 2);
+    weight_table_missile_launcher.Add(BATTLSHP, 1);
+    weight_table_missile_launcher.Add(MSSLBOAT, 2);
+    weight_table_missile_launcher.Add(BOMBER, 3);
+    weight_table_missile_launcher.Add(JUGGRNT, 1);
+    weight_table_missile_launcher.Add(ALNTANK, 1);
+    weight_table_missile_launcher.Add(ALNASGUN, 1);
+    weight_table_missile_launcher.Add(ALNPLANE, 1);
 
     weight_table_air_defense.Clear();
+    weight_table_air_defense.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_EXPERT) {
-        UnitWeight weight71(COMMANDO, 2);
-        weight_table_air_defense.PushBack(weight71);
+        weight_table_air_defense.Add(COMMANDO, 2);
     }
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight72(ANTIMSSL, 1);
-        weight_table_air_defense.PushBack(weight72);
+        weight_table_air_defense.Add(ANTIMSSL, 1);
     }
 
     if (opponent >= OPPONENT_TYPE_APPRENTICE) {
-        UnitWeight weight73(GUNTURRT, 1);
-        weight_table_air_defense.PushBack(weight73);
+        weight_table_air_defense.Add(GUNTURRT, 1);
     }
 
-    UnitWeight weight74(SCOUT, 1);
-    weight_table_air_defense.PushBack(weight74);
-
-    UnitWeight weight75(TANK, 1);
-    weight_table_air_defense.PushBack(weight75);
-
-    UnitWeight weight76(ARTILLRY, 1);
-    weight_table_air_defense.PushBack(weight76);
-
-    UnitWeight weight77(ROCKTLCH, 1);
-    weight_table_air_defense.PushBack(weight77);
-
-    UnitWeight weight78(MISSLLCH, 1);
-    weight_table_air_defense.PushBack(weight78);
-
-    UnitWeight weight79(BATTLSHP, 1);
-    weight_table_air_defense.PushBack(weight79);
-
-    UnitWeight weight80(MSSLBOAT, 1);
-    weight_table_air_defense.PushBack(weight80);
-
-    UnitWeight weight81(JUGGRNT, 1);
-    weight_table_air_defense.PushBack(weight81);
-
-    UnitWeight weight82(ALNTANK, 1);
-    weight_table_air_defense.PushBack(weight82);
-
-    UnitWeight weight83(ALNASGUN, 1);
-    weight_table_air_defense.PushBack(weight83);
+    weight_table_air_defense.Add(SCOUT, 1);
+    weight_table_air_defense.Add(TANK, 1);
+    weight_table_air_defense.Add(ARTILLRY, 1);
+    weight_table_air_defense.Add(ROCKTLCH, 1);
+    weight_table_air_defense.Add(MISSLLCH, 1);
+    weight_table_air_defense.Add(BATTLSHP, 1);
+    weight_table_air_defense.Add(MSSLBOAT, 1);
+    weight_table_air_defense.Add(JUGGRNT, 1);
+    weight_table_air_defense.Add(ALNTANK, 1);
+    weight_table_air_defense.Add(ALNASGUN, 1);
 
     weight_table_aircrafts.Clear();
+    weight_table_aircrafts.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight84(ANTIAIR, 3);
-        weight_table_aircrafts.PushBack(weight84);
+        weight_table_aircrafts.Add(ANTIAIR, 3);
     }
 
-    UnitWeight weight85(SP_FLAK, 3);
-    weight_table_aircrafts.PushBack(weight85);
-
-    UnitWeight weight86(FASTBOAT, 3);
-    weight_table_aircrafts.PushBack(weight86);
-
-    UnitWeight weight87(FIGHTER, 1);
-    weight_table_aircrafts.PushBack(weight87);
-
-    UnitWeight weight88(ALNPLANE, 1);
-    weight_table_aircrafts.PushBack(weight88);
+    weight_table_aircrafts.Add(SP_FLAK, 3);
+    weight_table_aircrafts.Add(FASTBOAT, 3);
+    weight_table_aircrafts.Add(FIGHTER, 1);
+    weight_table_aircrafts.Add(ALNPLANE, 1);
 
     weight_table_bomber.Clear();
+    weight_table_bomber.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight89(ANTIAIR, 1);
-        weight_table_bomber.PushBack(weight89);
+        weight_table_bomber.Add(ANTIAIR, 1);
     }
 
-    UnitWeight weight90(SP_FLAK, 1);
-    weight_table_bomber.PushBack(weight90);
+    weight_table_bomber.Add(SP_FLAK, 1);
+    weight_table_bomber.Add(FASTBOAT, 1);
+    weight_table_bomber.Add(FIGHTER, 3);
 
-    UnitWeight weight91(FASTBOAT, 1);
-    weight_table_bomber.PushBack(weight91);
-
-    UnitWeight weight92(FIGHTER, 3);
-    weight_table_bomber.PushBack(weight92);
-
-    UnitWeight weight93(ALNPLANE, 3);
-    weight_table_bomber.PushBack(weight93);
+    weight_table_bomber.Add(ALNPLANE, 3);
 
     weight_table_9.Clear();
+    weight_table_9.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight94(ANTIAIR, 1);
-        weight_table_9.PushBack(weight94);
+        weight_table_9.Add(ANTIAIR, 1);
     }
 
-    UnitWeight weight95(SP_FLAK, 1);
-    weight_table_9.PushBack(weight95);
-
-    UnitWeight weight96(FASTBOAT, 1);
-    weight_table_9.PushBack(weight96);
-
-    UnitWeight weight97(FIGHTER, 1);
-    weight_table_9.PushBack(weight97);
-
-    UnitWeight weight98(ALNPLANE, 1);
-    weight_table_9.PushBack(weight98);
+    weight_table_9.Add(SP_FLAK, 1);
+    weight_table_9.Add(FASTBOAT, 1);
+    weight_table_9.Add(FIGHTER, 1);
+    weight_table_9.Add(ALNPLANE, 1);
 
     weight_table_fastboat.Clear();
+    weight_table_fastboat.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight99(ARTYTRRT, 1);
-        weight_table_fastboat.PushBack(weight99);
-
-        UnitWeight weight100(ANTIMSSL, 1);
-        weight_table_fastboat.PushBack(weight100);
-
-        UnitWeight weight101(SUBMARNE, 1);
-        weight_table_fastboat.PushBack(weight101);
+        weight_table_fastboat.Add(ARTYTRRT, 1);
+        weight_table_fastboat.Add(ANTIMSSL, 1);
+        weight_table_fastboat.Add(SUBMARNE, 1);
     }
 
-    UnitWeight weight102(ARTILLRY, 1);
-    weight_table_fastboat.PushBack(weight102);
-
-    UnitWeight weight103(ROCKTLCH, 1);
-    weight_table_fastboat.PushBack(weight103);
-
-    UnitWeight weight104(MISSLLCH, 1);
-    weight_table_fastboat.PushBack(weight104);
-
-    UnitWeight weight105(CORVETTE, 1);
-    weight_table_fastboat.PushBack(weight105);
-
-    UnitWeight weight106(BATTLSHP, 1);
-    weight_table_fastboat.PushBack(weight106);
-
-    UnitWeight weight107(MSSLBOAT, 1);
-    weight_table_fastboat.PushBack(weight107);
-
-    UnitWeight weight108(JUGGRNT, 1);
-    weight_table_fastboat.PushBack(weight108);
-
-    UnitWeight weight109(ALNTANK, 1);
-    weight_table_fastboat.PushBack(weight109);
-
-    UnitWeight weight110(ALNASGUN, 1);
-    weight_table_fastboat.PushBack(weight110);
+    weight_table_fastboat.Add(ARTILLRY, 1);
+    weight_table_fastboat.Add(ROCKTLCH, 1);
+    weight_table_fastboat.Add(MISSLLCH, 1);
+    weight_table_fastboat.Add(CORVETTE, 1);
+    weight_table_fastboat.Add(BATTLSHP, 1);
+    weight_table_fastboat.Add(MSSLBOAT, 1);
+    weight_table_fastboat.Add(JUGGRNT, 1);
+    weight_table_fastboat.Add(ALNTANK, 1);
+    weight_table_fastboat.Add(ALNASGUN, 1);
 
     weight_table_corvette.Clear();
+    weight_table_corvette.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight111(ARTYTRRT, 1);
-        weight_table_corvette.PushBack(weight111);
-
-        UnitWeight weight112(ANTIMSSL, 1);
-        weight_table_corvette.PushBack(weight112);
+        weight_table_corvette.Add(ARTYTRRT, 1);
+        weight_table_corvette.Add(ANTIMSSL, 1);
     }
 
-    UnitWeight weight113(ARTILLRY, 1);
-    weight_table_corvette.PushBack(weight113);
-
-    UnitWeight weight114(ROCKTLCH, 1);
-    weight_table_corvette.PushBack(weight114);
-
-    UnitWeight weight115(MISSLLCH, 1);
-    weight_table_corvette.PushBack(weight115);
-
-    UnitWeight weight116(CORVETTE, 1);
-    weight_table_corvette.PushBack(weight116);
-
-    UnitWeight weight117(BATTLSHP, 2);
-    weight_table_corvette.PushBack(weight117);
-
-    UnitWeight weight118(MSSLBOAT, 2);
-    weight_table_corvette.PushBack(weight118);
-
-    UnitWeight weight119(BOMBER, 3);
-    weight_table_corvette.PushBack(weight119);
-
-    UnitWeight weight120(JUGGRNT, 1);
-    weight_table_corvette.PushBack(weight120);
-
-    UnitWeight weight121(ALNASGUN, 1);
-    weight_table_corvette.PushBack(weight121);
-
-    UnitWeight weight122(ALNPLANE, 1);
-    weight_table_corvette.PushBack(weight122);
+    weight_table_corvette.Add(ARTILLRY, 1);
+    weight_table_corvette.Add(ROCKTLCH, 1);
+    weight_table_corvette.Add(MISSLLCH, 1);
+    weight_table_corvette.Add(CORVETTE, 1);
+    weight_table_corvette.Add(BATTLSHP, 2);
+    weight_table_corvette.Add(MSSLBOAT, 2);
+    weight_table_corvette.Add(BOMBER, 3);
+    weight_table_corvette.Add(JUGGRNT, 1);
+    weight_table_corvette.Add(ALNASGUN, 1);
+    weight_table_corvette.Add(ALNPLANE, 1);
 
     weight_table_submarine.Clear();
-
-    UnitWeight weight123(CORVETTE, 1);
-    weight_table_submarine.PushBack(weight123);
+    weight_table_submarine.SetTeam(player_team);
+    weight_table_submarine.Add(CORVETTE, 1);
 
     weight_table_battleships.Clear();
+    weight_table_battleships.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight124(SUBMARNE, 3);
-        weight_table_battleships.PushBack(weight124);
-
-        UnitWeight weight125(ANTIMSSL, 1);
-        weight_table_battleships.PushBack(weight125);
+        weight_table_battleships.Add(SUBMARNE, 3);
+        weight_table_battleships.Add(ANTIMSSL, 1);
     }
 
-    UnitWeight weight126(ARTILLRY, 1);
-    weight_table_battleships.PushBack(weight126);
+    weight_table_battleships.Add(ARTILLRY, 1);
 
-    UnitWeight weight127(ROCKTLCH, 1);
-    weight_table_battleships.PushBack(weight127);
-
-    UnitWeight weight128(MISSLLCH, 1);
-    weight_table_battleships.PushBack(weight128);
-
-    UnitWeight weight129(CORVETTE, 1);
-    weight_table_battleships.PushBack(weight129);
-
-    UnitWeight weight130(BATTLSHP, 2);
-    weight_table_battleships.PushBack(weight130);
-
-    UnitWeight weight131(MSSLBOAT, 1);
-    weight_table_battleships.PushBack(weight131);
-
-    UnitWeight weight132(BOMBER, 3);
-    weight_table_battleships.PushBack(weight132);
-
-    UnitWeight weight133(JUGGRNT, 1);
-    weight_table_battleships.PushBack(weight133);
-
-    UnitWeight weight134(ALNASGUN, 1);
-    weight_table_battleships.PushBack(weight134);
-
-    UnitWeight weight135(ALNPLANE, 1);
-    weight_table_battleships.PushBack(weight135);
+    weight_table_battleships.Add(ROCKTLCH, 1);
+    weight_table_battleships.Add(MISSLLCH, 1);
+    weight_table_battleships.Add(CORVETTE, 1);
+    weight_table_battleships.Add(BATTLSHP, 2);
+    weight_table_battleships.Add(MSSLBOAT, 1);
+    weight_table_battleships.Add(BOMBER, 3);
+    weight_table_battleships.Add(JUGGRNT, 1);
+    weight_table_battleships.Add(ALNASGUN, 1);
+    weight_table_battleships.Add(ALNPLANE, 1);
 
     weight_table_support_ships.Clear();
+    weight_table_support_ships.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_APPRENTICE) {
-        UnitWeight weight136(GUNTURRT, 1);
-        weight_table_support_ships.PushBack(weight136);
+        weight_table_support_ships.Add(GUNTURRT, 1);
     }
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight137(ARTYTRRT, 1);
-        weight_table_support_ships.PushBack(weight137);
-
-        UnitWeight weight138(ANTIMSSL, 1);
-        weight_table_support_ships.PushBack(weight138);
-
-        UnitWeight weight139(SUBMARNE, 1);
-        weight_table_support_ships.PushBack(weight139);
+        weight_table_support_ships.Add(ARTYTRRT, 1);
+        weight_table_support_ships.Add(ANTIMSSL, 1);
+        weight_table_support_ships.Add(SUBMARNE, 1);
     }
 
-    UnitWeight weight140(SCOUT, 1);
-    weight_table_support_ships.PushBack(weight140);
-
-    UnitWeight weight141(TANK, 1);
-    weight_table_support_ships.PushBack(weight141);
-
-    UnitWeight weight142(ARTILLRY, 1);
-    weight_table_support_ships.PushBack(weight142);
-
-    UnitWeight weight143(ROCKTLCH, 1);
-    weight_table_support_ships.PushBack(weight143);
-
-    UnitWeight weight144(MISSLLCH, 1);
-    weight_table_support_ships.PushBack(weight144);
-
-    UnitWeight weight145(SP_FLAK, 1);
-    weight_table_support_ships.PushBack(weight145);
-
-    UnitWeight weight146(CORVETTE, 1);
-    weight_table_support_ships.PushBack(weight146);
-
-    UnitWeight weight147(BATTLSHP, 1);
-    weight_table_support_ships.PushBack(weight147);
-
-    UnitWeight weight148(MSSLBOAT, 1);
-    weight_table_support_ships.PushBack(weight148);
-
-    UnitWeight weight149(BOMBER, 1);
-    weight_table_support_ships.PushBack(weight149);
-
-    UnitWeight weight150(JUGGRNT, 1);
-    weight_table_support_ships.PushBack(weight150);
-
-    UnitWeight weight151(ALNTANK, 1);
-    weight_table_support_ships.PushBack(weight151);
-
-    UnitWeight weight152(ALNASGUN, 1);
-    weight_table_support_ships.PushBack(weight152);
-
-    UnitWeight weight153(ALNPLANE, 1);
-    weight_table_support_ships.PushBack(weight153);
+    weight_table_support_ships.Add(SCOUT, 1);
+    weight_table_support_ships.Add(TANK, 1);
+    weight_table_support_ships.Add(ARTILLRY, 1);
+    weight_table_support_ships.Add(ROCKTLCH, 1);
+    weight_table_support_ships.Add(MISSLLCH, 1);
+    weight_table_support_ships.Add(SP_FLAK, 1);
+    weight_table_support_ships.Add(CORVETTE, 1);
+    weight_table_support_ships.Add(BATTLSHP, 1);
+    weight_table_support_ships.Add(MSSLBOAT, 1);
+    weight_table_support_ships.Add(BOMBER, 1);
+    weight_table_support_ships.Add(JUGGRNT, 1);
+    weight_table_support_ships.Add(ALNTANK, 1);
+    weight_table_support_ships.Add(ALNASGUN, 1);
+    weight_table_support_ships.Add(ALNPLANE, 1);
 
     weight_table_missileboat.Clear();
+    weight_table_missileboat.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight154(ANTIMSSL, 1);
-        weight_table_missileboat.PushBack(weight154);
+        weight_table_missileboat.Add(ANTIMSSL, 1);
     }
 
-    UnitWeight weight155(MISSLLCH, 1);
-    weight_table_missileboat.PushBack(weight155);
-
-    UnitWeight weight156(CORVETTE, 1);
-    weight_table_missileboat.PushBack(weight156);
-
-    UnitWeight weight157(BATTLSHP, 1);
-    weight_table_missileboat.PushBack(weight157);
+    weight_table_missileboat.Add(MISSLLCH, 1);
+    weight_table_missileboat.Add(CORVETTE, 1);
+    weight_table_missileboat.Add(BATTLSHP, 1);
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight158(SUBMARNE, 3);
-        weight_table_missileboat.PushBack(weight158);
+        weight_table_missileboat.Add(SUBMARNE, 3);
     }
 
-    UnitWeight weight159(MSSLBOAT, 1);
-    weight_table_missileboat.PushBack(weight159);
-
-    UnitWeight weight160(BOMBER, 3);
-    weight_table_missileboat.PushBack(weight160);
-
-    UnitWeight weight161(JUGGRNT, 1);
-    weight_table_missileboat.PushBack(weight161);
-
-    UnitWeight weight162(ALNPLANE, 1);
-    weight_table_missileboat.PushBack(weight162);
+    weight_table_missileboat.Add(MSSLBOAT, 1);
+    weight_table_missileboat.Add(BOMBER, 3);
+    weight_table_missileboat.Add(JUGGRNT, 1);
+    weight_table_missileboat.Add(ALNPLANE, 1);
 
     weight_table_commando.Clear();
-
-    UnitWeight weight163(INFANTRY, 1);
-    weight_table_commando.PushBack(weight163);
+    weight_table_commando.SetTeam(player_team);
+    weight_table_commando.Add(INFANTRY, 1);
 
     weight_table_infantry.Clear();
+    weight_table_infantry.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_AVERAGE) {
-        UnitWeight weight164(ANTIMSSL, 1);
-        weight_table_infantry.PushBack(weight164);
+        weight_table_infantry.Add(ANTIMSSL, 1);
     }
 
     if (opponent >= OPPONENT_TYPE_APPRENTICE) {
-        UnitWeight weight165(GUNTURRT, 1);
-        weight_table_infantry.PushBack(weight165);
+        weight_table_infantry.Add(GUNTURRT, 1);
     }
 
-    UnitWeight weight166(TANK, 1);
-    weight_table_infantry.PushBack(weight166);
+    weight_table_infantry.Add(TANK, 1);
 
-    UnitWeight weight167(ARTILLRY, 1);
-    weight_table_infantry.PushBack(weight167);
-
-    UnitWeight weight168(ROCKTLCH, 1);
-    weight_table_infantry.PushBack(weight168);
-
-    UnitWeight weight169(MISSLLCH, 1);
-    weight_table_infantry.PushBack(weight169);
-
-    UnitWeight weight170(SP_FLAK, 1);
-    weight_table_infantry.PushBack(weight170);
-
-    UnitWeight weight171(INFANTRY, 1);
-    weight_table_infantry.PushBack(weight171);
-
-    UnitWeight weight172(BATTLSHP, 1);
-    weight_table_infantry.PushBack(weight172);
-
-    UnitWeight weight173(MSSLBOAT, 1);
-    weight_table_infantry.PushBack(weight173);
-
-    UnitWeight weight174(BOMBER, 1);
-    weight_table_infantry.PushBack(weight174);
-
-    UnitWeight weight175(JUGGRNT, 1);
-    weight_table_infantry.PushBack(weight175);
-
-    UnitWeight weight176(ALNTANK, 1);
-    weight_table_infantry.PushBack(weight176);
-
-    UnitWeight weight177(ALNASGUN, 1);
-    weight_table_infantry.PushBack(weight177);
-
-    UnitWeight weight178(ALNPLANE, 1);
-    weight_table_infantry.PushBack(weight178);
+    weight_table_infantry.Add(ARTILLRY, 1);
+    weight_table_infantry.Add(ROCKTLCH, 1);
+    weight_table_infantry.Add(MISSLLCH, 1);
+    weight_table_infantry.Add(SP_FLAK, 1);
+    weight_table_infantry.Add(INFANTRY, 1);
+    weight_table_infantry.Add(BATTLSHP, 1);
+    weight_table_infantry.Add(MSSLBOAT, 1);
+    weight_table_infantry.Add(BOMBER, 1);
+    weight_table_infantry.Add(JUGGRNT, 1);
+    weight_table_infantry.Add(ALNTANK, 1);
+    weight_table_infantry.Add(ALNASGUN, 1);
+    weight_table_infantry.Add(ALNPLANE, 1);
 
     weight_table_generic.Clear();
+    weight_table_generic.SetTeam(player_team);
 
     if (opponent >= OPPONENT_TYPE_EXPERT) {
-        UnitWeight weight179(COMMANDO, 1);
-        weight_table_generic.PushBack(weight179);
-
-        UnitWeight weight180(INFANTRY, 1);
-        weight_table_generic.PushBack(weight180);
+        weight_table_generic.Add(COMMANDO, 1);
+        weight_table_generic.Add(INFANTRY, 1);
     }
 
-    UnitWeight weight181(SCOUT, 1);
-    weight_table_generic.PushBack(weight181);
-
-    UnitWeight weight182(TANK, 1);
-    weight_table_generic.PushBack(weight182);
-
-    UnitWeight weight183(ARTILLRY, 1);
-    weight_table_generic.PushBack(weight183);
-
-    UnitWeight weight184(ROCKTLCH, 1);
-    weight_table_generic.PushBack(weight184);
-
-    UnitWeight weight185(MISSLLCH, 1);
-    weight_table_generic.PushBack(weight185);
-
-    UnitWeight weight186(BATTLSHP, 1);
-    weight_table_generic.PushBack(weight186);
-
-    UnitWeight weight187(MSSLBOAT, 1);
-    weight_table_generic.PushBack(weight187);
-
-    UnitWeight weight188(BOMBER, 1);
-    weight_table_generic.PushBack(weight188);
-
-    UnitWeight weight189(JUGGRNT, 1);
-    weight_table_generic.PushBack(weight189);
-
-    UnitWeight weight190(ALNTANK, 1);
-    weight_table_generic.PushBack(weight190);
-
-    UnitWeight weight191(ALNASGUN, 1);
-    weight_table_generic.PushBack(weight191);
-
-    UnitWeight weight192(ALNPLANE, 1);
-    weight_table_generic.PushBack(weight192);
+    weight_table_generic.Add(SCOUT, 1);
+    weight_table_generic.Add(TANK, 1);
+    weight_table_generic.Add(ARTILLRY, 1);
+    weight_table_generic.Add(ROCKTLCH, 1);
+    weight_table_generic.Add(MISSLLCH, 1);
+    weight_table_generic.Add(BATTLSHP, 1);
+    weight_table_generic.Add(MSSLBOAT, 1);
+    weight_table_generic.Add(BOMBER, 1);
+    weight_table_generic.Add(JUGGRNT, 1);
+    weight_table_generic.Add(ALNTANK, 1);
+    weight_table_generic.Add(ALNASGUN, 1);
+    weight_table_generic.Add(ALNPLANE, 1);
 }
 
 int32_t AiPlayer::GetPredictedAttack(UnitInfo* unit, int32_t caution_level) {
@@ -3838,7 +3515,7 @@ void AiPlayer::ClearZone(Zone* zone) {
 }
 
 WeightTable AiPlayer::GetFilteredWeightTable(ResourceID unit_type, uint16_t flags) {
-    WeightTable table(GetWeightTable(unit_type), true);
+    WeightTable table(GetWeightTable(unit_type));
 
     if (flags & 0x01) {
         for (uint32_t i = 0; i < table.GetCount(); ++i) {
@@ -3917,10 +3594,7 @@ WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, uint8_t flags) {
     if (target->team == PLAYER_TEAM_ALIEN &&
         ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_EXPERT) {
         table.Clear();
-
-        UnitWeight unit_weight(COMMANDO, 1);
-
-        table.PushBack(unit_weight);
+        table.Add(COMMANDO, 1);
 
     } else {
         if (target->team == PLAYER_TEAM_ALIEN) {
@@ -3942,15 +3616,11 @@ WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, uint8_t flags) {
             }
 
             if (is_water_present) {
-                UnitWeight unit_weight(CORVETTE, 1);
-
-                table.PushBack(unit_weight);
+                table.Add(CORVETTE, 1);
             }
 
             if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
-                UnitWeight unit_weight(SUBMARNE, 1);
-
-                table.PushBack(unit_weight);
+                table.Add(SUBMARNE, 1);
             }
         }
 

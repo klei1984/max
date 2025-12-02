@@ -89,8 +89,8 @@ bool GameRulesHandler::LoadScript(const Mission& mission) {
     return result;
 }
 
-ResourceID GameRulesHandler::GetBuilderType(const ResourceID unit_type) {
-    Scripter::ScriptParameters args{static_cast<int64_t>(unit_type)};
+ResourceID GameRulesHandler::GetBuilderType(const uint16_t team, const ResourceID unit_type) {
+    Scripter::ScriptParameters args{static_cast<int64_t>(team), static_cast<int64_t>(unit_type)};
     Scripter::ScriptParameters results{static_cast<int64_t>(0)};
     std::string error;
     ResourceID result{INVALID_ID};
@@ -123,8 +123,8 @@ ResourceID GameRulesHandler::GetBuilderType(const ResourceID unit_type) {
     return result;
 }
 
-bool GameRulesHandler::IsBuildable(const ResourceID unit_type) {
-    Scripter::ScriptParameters args{static_cast<int64_t>(unit_type)};
+bool GameRulesHandler::IsBuildable(const uint16_t team, const ResourceID unit_type) {
+    Scripter::ScriptParameters args{static_cast<int64_t>(team), static_cast<int64_t>(unit_type)};
     Scripter::ScriptParameters results{false};
     std::string error;
     ResourceID result{false};
@@ -145,10 +145,10 @@ bool GameRulesHandler::IsBuildable(const ResourceID unit_type) {
     return result;
 }
 
-std::vector<ResourceID> GameRulesHandler::GetBuildableUnits(const ResourceID unit_type) {
+std::vector<ResourceID> GameRulesHandler::GetBuildableUnits(const uint16_t team, const ResourceID unit_type) {
     std::vector<ResourceID> result;
 
-    Scripter::ScriptParameters args{static_cast<int64_t>(unit_type)};
+    Scripter::ScriptParameters args{static_cast<int64_t>(team), static_cast<int64_t>(unit_type)};
     Scripter::ScriptParameters results{Scripter::ScriptTable{}};
     std::string error;
 

@@ -375,7 +375,7 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
     upgrade_control_next_uly = static_cast<uint16_t>(cost_background->GetULY());
     button_background->Write(&window1);
 
-    if (unit_type != INVALID_ID && Builder_IsBuildable(unit_type)) {
+    if (unit_type != INVALID_ID && Builder_IsBuildable(team, unit_type)) {
         AddUpgradeMilitary(unit_type);
         AdjustRowStorage(unit_type);
         AdjustRowConsumptions(unit_type);
@@ -681,7 +681,7 @@ bool AbstractUpgradeMenu::IsUnitFiltered(ResourceID unit_type) {
 
     flags = ResourceManager_GetUnit(unit_type).GetFlags();
 
-    if ((flags & UPGRADABLE) && Builder_IsBuildable(unit_type)) {
+    if ((flags & UPGRADABLE) && Builder_IsBuildable(team, unit_type)) {
         if (((flags & MOBILE_LAND_UNIT) && button_ground_rest_state) ||
             ((flags & MOBILE_AIR_UNIT) && button_air_rest_state) ||
             ((flags & MOBILE_SEA_UNIT) && button_sea_rest_state) ||

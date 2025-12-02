@@ -46,9 +46,9 @@ public:
 
     [[nodiscard]] bool LoadScript(const Mission& mission);
     [[nodiscard]] void* GetInterpreter() const { return m_interpreter; }
-    [[nodiscard]] ResourceID GetBuilderType(const ResourceID unit_type);
-    [[nodiscard]] bool IsBuildable(const ResourceID unit_type);
-    [[nodiscard]] std::vector<ResourceID> GetBuildableUnits(const ResourceID unit_type);
+    [[nodiscard]] ResourceID GetBuilderType(const uint16_t team, const ResourceID unit_type);
+    [[nodiscard]] bool IsBuildable(const uint16_t team, const ResourceID unit_type);
+    [[nodiscard]] std::vector<ResourceID> GetBuildableUnits(const uint16_t team, const ResourceID unit_type);
     [[nodiscard]] bool GetMissionLoadout(const uint16_t team, const std::string& clan_id,
                                          TeamMissionSupplies& supplies);
 };

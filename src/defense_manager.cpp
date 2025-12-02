@@ -105,12 +105,9 @@ bool DefenseManager::RemoveUnit(UnitInfo* unit) {
     return result;
 }
 
-void DefenseManager::AddRule(ResourceID unit_type, int32_t weight) {
-    if (Builder_IsBuildable(unit_type)) {
-        UnitWeight unit_weight(unit_type, weight);
-        SDL_assert(unit_weight.unit_type != INVALID_ID);
-        weight_table.PushBack(unit_weight);
-    }
+void DefenseManager::AddRule(uint16_t team, ResourceID unit_type, int32_t weight) {
+    weight_table.SetTeam(team);
+    weight_table.Add(unit_type, static_cast<uint16_t>(weight));
 }
 
 void DefenseManager::MaintainDefences(Task* task) {
@@ -139,9 +136,9 @@ void DefenseManager::MaintainDefences(Task* task) {
     }
 }
 
-void DefenseManager::EvaluateNeeds(int32_t* unit_counts) {
+void DefenseManager::EvaluateNeeds(uint16_t team, int32_t* unit_counts) {
     for (uint32_t i = 0; i < unit_types.GetCount(); ++i) {
-        auto unit_type = Builder_GetBuilderType(*unit_types[i]);
+        auto unit_type = Builder_GetBuilderType(team, *unit_types[i]);
 
         if (unit_type != INVALID_ID) {
             if (unit_counts[unit_type] > 0) {
@@ -155,7 +152,7 @@ void DefenseManager::PlanDefenses(int32_t asset_value_goal_, TaskObtainUnits* ta
     TeamUnits* team_units = UnitsManager_TeamInfo[task->GetTeam()].team_units;
     int32_t build_costs = 0;
     int32_t turns_till_mission_end = Task_EstimateTurnsTillMissionEnd();
-    WeightTable table(weight_table, true);
+    WeightTable table(weight_table);
 
     if (table.GetCount()) {
         asset_value_goal = asset_value_goal_;
@@ -168,7 +165,7 @@ void DefenseManager::PlanDefenses(int32_t asset_value_goal_, TaskObtainUnits* ta
             SDL_assert(weight_table[i].unit_type != INVALID_ID);
 
             UnitValues* unit_values = team_units->GetCurrentUnitValues(weight_table[i].unit_type);
-            const auto builder_type = Builder_GetBuilderType(weight_table[i].unit_type);
+            const auto builder_type = Builder_GetBuilderType(task->GetTeam(), weight_table[i].unit_type);
 
             if (unit_values->GetAttribute(ATTRIB_TURNS) > turns_till_mission_end ||
                 unit_values->GetAttribute(ATTRIB_SPEED) == 0 ||
@@ -182,14 +179,15 @@ void DefenseManager::PlanDefenses(int32_t asset_value_goal_, TaskObtainUnits* ta
             auto unit_type = table.RollUnitType();
 
             if (unit_type != INVALID_ID) {
-                const auto builder_type = Builder_GetBuilderType(unit_type);
+                const auto builder_type = Builder_GetBuilderType(task->GetTeam(), unit_type);
 
                 if (builder_type != INVALID_ID) {
                     --unit_counts[builder_type];
 
                     if (unit_counts[builder_type] == 0) {
                         for (uint32_t i = 0; i < table.GetCount(); ++i) {
-                            if (table[i].weight && Builder_GetBuilderType(table[i].unit_type) == builder_type) {
+                            if (table[i].weight &&
+                                Builder_GetBuilderType(task->GetTeam(), table[i].unit_type) == builder_type) {
                                 table[i].weight = 0;
                             }
                         }
