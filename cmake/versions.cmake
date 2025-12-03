@@ -10,10 +10,10 @@ set(MINIAUDIO_URI https://github.com/mackron/miniaudio/archive/refs/tags/${MINIA
 set(MINIAUDIO_HASH 2c1cc57035c59a7c562e64e0f765857f)
 set(MINIAUDIO_HASH_TYPE MD5)
 
-set(SDL3_VERSION 3.2.26)
+set(SDL3_VERSION 3.2.28)
 set(SDL3_FILE SDL3-${SDL3_VERSION}.tar.gz)
 set(SDL3_URI https://github.com/libsdl-org/SDL/releases/download/release-${SDL3_VERSION}/${SDL3_FILE})
-set(SDL3_HASH 54acc3f1cb528c26259c32bb29173753)
+set(SDL3_HASH 7eedab7982f37bfdf342dc6d2dbd24ce)
 set(SDL3_HASH_TYPE MD5)
 
 set(ENET_VERSION 1.3.18)
