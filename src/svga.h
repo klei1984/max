@@ -59,9 +59,12 @@ int32_t Svga_GetScreenRefreshRate(void);
 bool Svga_IsFullscreen(void);
 bool Svga_GetWindowFlags(uint32_t* flags);
 SDL_Window* Svga_GetWindow(void);
+SDL_Renderer* Svga_GetRenderer(void);
 bool Svga_CaptureScreen(const char* filename);
 bool Svga_GetPaletteSurfaceData(uint8_t* buffer, int32_t buffer_size, uint8_t* palette_out);
 void Svga_ToggleFullscreen(void);
+void Svga_WindowToLogicalCoordinates(float window_x, float window_y, float* logical_x, float* logical_y);
+void Svga_LogicalToWindowCoordinates(float logical_x, float logical_y, float* window_x, float* window_y);
 
 #ifdef __cplusplus
 }

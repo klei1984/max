@@ -21,6 +21,7 @@
 
 #include "svga.h"
 
+#include "cursor.hpp"
 #include "gnw.h"
 #include "input.h"
 #include "resource_manager.hpp"
@@ -424,10 +425,15 @@ void Svga_BackgroundProcess(void) {
     }
 }
 
-int32_t Svga_WarpMouse(int32_t window_x, int32_t window_y) {
+int32_t Svga_WarpMouse(int32_t logical_x, int32_t logical_y) {
     int32_t result;
 
     if (mouse_get_lock() == MOUSE_LOCK_LOCKED) {
+        float window_x, window_y;
+
+        Svga_LogicalToWindowCoordinates(static_cast<float>(logical_x), static_cast<float>(logical_y), &window_x,
+                                        &window_y);
+
         SDL_WarpMouseInWindow(sdlWindow, window_x, window_y);
         result = true;
 
@@ -490,6 +496,36 @@ bool Svga_GetWindowFlags(uint32_t* flags) {
 }
 
 SDL_Window* Svga_GetWindow(void) { return sdlWindow; }
+
+SDL_Renderer* Svga_GetRenderer(void) { return sdlRenderer; }
+
+void Svga_WindowToLogicalCoordinates(float window_x, float window_y, float* logical_x, float* logical_y) {
+    if (sdlRenderer && logical_x && logical_y) {
+        if (!SDL_RenderCoordinatesFromWindow(sdlRenderer, window_x, window_y, logical_x, logical_y)) {
+            // just pass through the coordinates as a fallback
+            *logical_x = window_x;
+            *logical_y = window_y;
+        }
+
+    } else if (logical_x && logical_y) {
+        *logical_x = window_x;
+        *logical_y = window_y;
+    }
+}
+
+void Svga_LogicalToWindowCoordinates(float logical_x, float logical_y, float* window_x, float* window_y) {
+    if (sdlRenderer && window_x && window_y) {
+        if (!SDL_RenderCoordinatesToWindow(sdlRenderer, logical_x, logical_y, window_x, window_y)) {
+            // just pass through the coordinates as a fallback
+            *window_x = logical_x;
+            *window_y = logical_y;
+        }
+
+    } else if (window_x && window_y) {
+        *window_x = logical_x;
+        *window_y = logical_y;
+    }
+}
 
 bool Svga_GetPaletteSurfaceData(uint8_t* buffer, int32_t buffer_size, uint8_t* palette_out) {
     if (!sdlPaletteSurface || !buffer) {
@@ -604,6 +640,9 @@ void Svga_ToggleFullscreen(void) {
 
         // Update mouse mode for fullscreen state
         mouse_set_fullscreen_mode(new_mode != WINDOW_MODE_WINDOWED);
+
+        // Regenerate hardware cursors at new scale
+        Cursor_UpdateScale();
 
         // Force a full screen refresh to ensure proper display
         Svga_RefreshSystemPalette(true);

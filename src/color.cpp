@@ -21,6 +21,7 @@
 
 #include "color.h"
 
+#include "cursor.hpp"
 #include "resource_manager.hpp"
 
 static constexpr uint32_t RGB555_COLOR_COUNT{1 << 15};
@@ -66,6 +67,8 @@ void Color_SetSystemPalette(uint8_t* palette) {
         Color_SetSystemPaletteEntry(i, palette[PALETTE_STRIDE * i + 0], palette[PALETTE_STRIDE * i + 1],
                                     palette[PALETTE_STRIDE * i + 2]);
     }
+
+    Cursor_MarkDirty();
 }
 
 uint8_t* Color_GetSystemPalette(void) { return Color_SystemPalette; }

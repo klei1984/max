@@ -23,6 +23,7 @@
 
 #include <SDL3/SDL.h>
 
+#include "cursor.h"
 #include "gnw.h"
 #include "svga.h"
 
@@ -30,35 +31,22 @@
 #define GNW_MOUSE_BUTTON_RIGHT 2
 #define GNW_MOUSE_BUTTON_MIDDLE 4
 
-static void mouse_anim(void);
-static void mouse_colorize(void);
 static void mouse_clip(void);
 
 static float mouse_sensitivity = 1.f;
 static int32_t mouse_wheel_sensitivity = 3;
-static uint8_t or_mask[64] = {1,  1,  1,  1,  1,  1,  1,  0, 1, 15, 15, 15, 15, 15, 1,  0,  1, 15, 15, 15, 15, 1,
-                              1,  0,  1,  15, 15, 15, 15, 1, 1, 0,  1,  15, 15, 15, 15, 15, 1, 1,  1,  15, 1,  1,
-                              15, 15, 15, 1,  1,  1,  1,  1, 1, 15, 15, 1,  0,  0,  0,  0,  1, 1,  1,  1};
 static uint32_t last_buttons;
-static uint8_t* mouse_fptr;
-static uint8_t* mouse_shape;
 static int32_t mouse_is_hidden;
-static int32_t mouse_length;
 static int32_t mouse_disabled;
 static int32_t mouse_buttons;
-static uint32_t mouse_speed;
-static int32_t mouse_curr_frame;
-static uint8_t* mouse_buf;
-static int32_t mouse_full;
-static int32_t mouse_num_frames;
 static int32_t mouse_hotx;
 static int32_t mouse_hoty;
 static int32_t mouse_x;
 static int32_t mouse_y;
 static int32_t have_mouse;
 static int32_t mouse_width;
+static int32_t mouse_length;
 static int32_t mouse_lock;
-static char mouse_trans;
 static int32_t mouse_wheel_x;
 static int32_t mouse_wheel_y;
 
@@ -70,6 +58,7 @@ int32_t GNW_mouse_init(void) {
 
     if (!Svga_GetWindowFlags(&window_flags)) {
         result = -1;
+
     } else {
         have_mouse = 0;
         mouse_disabled = 0;
@@ -77,277 +66,55 @@ int32_t GNW_mouse_init(void) {
         mouse_lock = (window_flags & SDL_WINDOW_FULLSCREEN) ? MOUSE_LOCK_LOCKED : MOUSE_LOCK_UNLOCKED;
         mouse_wheel_x = 0;
         mouse_wheel_y = 0;
-
+        mouse_width = 1;
+        mouse_length = 1;
+        mouse_hotx = 0;
+        mouse_hoty = 0;
         mouse_blit = scr_blit;
-
-        mouse_colorize();
-
-        result = mouse_set_shape(NULL, 0, 0, 0, 0, 0, 0);
-
-        if (result != -1) {
-            if (mouse_lock == MOUSE_LOCK_LOCKED) {
-                SDL_HideCursor();
-            }
-
-            if (!SDL_SetWindowRelativeMouseMode(Svga_GetWindow(), window_flags & SDL_WINDOW_FULLSCREEN)) {
-                result = -1;
-            }
-
-            mouse_x = scr_size.ulx / 2;
-            mouse_y = scr_size.uly / 2;
-
-            have_mouse = 1;
-            result = 0;
-        }
-    }
-
-    return result;
-}
-
-void GNW_mouse_exit(void) {
-    if (mouse_buf) {
-        SDL_free(mouse_buf);
-        mouse_buf = NULL;
-    }
-
-    if (mouse_fptr) {
-        remove_bk_process(mouse_anim);
-        mouse_fptr = NULL;
-    }
-}
-
-void mouse_colorize(void) {
-    for (int32_t i = 0; i < 64; i++) {
-        if (or_mask[i] == 15) {
-            or_mask[i] = Color_RGB2Color(0x7FFF);
-        } else if (or_mask[i] == 1) {
-            or_mask[i] = Color_RGB2Color(0x2108);
-        } else if (!or_mask[i]) {
-            or_mask[i] = Color_RGB2Color(0);
-        }
-    }
-}
-
-int32_t mouse_get_shape(uint8_t** buf, int32_t* width, int32_t* length, int32_t* full, int32_t* hotx, int32_t* hoty,
-                        char* trans) {
-    *buf = mouse_shape;
-    *width = mouse_width;
-    *length = mouse_length;
-    *full = mouse_full;
-    *hotx = mouse_hotx;
-    *hoty = mouse_hoty;
-    *trans = mouse_trans;
-
-    return 0;
-}
-
-int32_t mouse_set_shape(uint8_t* buf, int32_t width, int32_t length, int32_t full, int32_t hotx, int32_t hoty,
-                        char trans) {
-    int32_t mh;
-
-    if (!buf) {
-        return mouse_set_shape(or_mask, 8, 8, 8, 1, 1, Color_RGB2Color(0));
-    }
-
-    mh = mouse_is_hidden;
-
-    if (!mouse_is_hidden) {
-        mouse_hide();
-    }
-
-    if (width != mouse_width || length != mouse_length) {
-        uint8_t* temp;
-
-        temp = (uint8_t*)SDL_malloc(length * width);
-        if (!temp) {
-            if (!mh) {
-                mouse_show();
-            }
-
-            return -1;
-        }
-
-        if (mouse_buf) {
-            SDL_free(mouse_buf);
-        }
-
-        mouse_buf = temp;
-    }
-
-    mouse_shape = buf;
-    mouse_width = width;
-    mouse_length = length;
-    mouse_full = full;
-    mouse_trans = trans;
-
-    if (mouse_fptr) {
-        remove_bk_process(mouse_anim);
-    }
-
-    mouse_fptr = NULL;
-
-    mouse_x += mouse_hotx - hotx;
-    mouse_y += mouse_hoty - hoty;
-    mouse_hotx = hotx;
-    mouse_hoty = hoty;
-
-    mouse_clip();
-
-    if (!mh) {
-        mouse_show();
-    }
-
-    return 0;
-}
-
-int32_t mouse_get_anim(uint8_t** frames, int32_t* num_frames, int32_t* width, int32_t* length, int32_t* hotx,
-                       int32_t* hoty, char* trans, uint32_t* speed) {
-    int32_t result;
-
-    if (mouse_fptr) {
-        *frames = mouse_fptr;
-        *num_frames = mouse_num_frames;
-        *width = mouse_width;
-        *length = mouse_length;
-        *hotx = mouse_hotx;
-        *hoty = mouse_hoty;
-        *trans = mouse_trans;
-        *speed = mouse_speed;
-        result = 0;
-    } else {
-        result = -1;
-    }
-
-    return result;
-}
-
-int32_t mouse_set_anim_frames(uint8_t* frames, int32_t num_frames, int32_t start_frame, int32_t width, int32_t length,
-                              int32_t hotx, int32_t hoty, char trans, uint32_t speed) {
-    int32_t result;
-
-    result = mouse_set_shape(&frames[length * width * start_frame], width, length, width, hotx, hoty, trans);
-
-    if (result != -1) {
-        mouse_fptr = frames;
-        mouse_num_frames = num_frames;
-        mouse_speed = speed;
-        mouse_curr_frame = start_frame;
-        add_bk_process(mouse_anim);
+        mouse_x = scr_size.ulx / 2;
+        mouse_y = scr_size.uly / 2;
+        have_mouse = 1;
 
         result = 0;
     }
 
     return result;
-}
-
-void mouse_anim(void) {
-    static uint64_t ticker = 0;
-
-    if (timer_elapsed_time(ticker) >= mouse_speed) {
-        ticker = timer_get();
-
-        mouse_curr_frame++;
-
-        if (mouse_curr_frame == mouse_num_frames) {
-            mouse_curr_frame = 0;
-        }
-
-        mouse_shape = &mouse_fptr[mouse_width * mouse_length * mouse_curr_frame];
-
-        if (!mouse_is_hidden) {
-            mouse_show();
-        }
-    }
 }
 
 void mouse_show(void) {
-    int32_t xlen;
-    int32_t ylen;
-    int32_t xoff;
-    int32_t yoff;
-
-    if (have_mouse) {
-        win_get_mouse_buf(mouse_buf);
-
-        yoff = 0;
-        xoff = 0;
-
-        for (int32_t i = 0; i < mouse_length; i++) {
-            for (int32_t j = 0; j < mouse_width; j++) {
-                if (mouse_shape[j + yoff] != mouse_trans) {
-                    mouse_buf[xoff] = mouse_shape[j + yoff];
-                }
-
-                xoff++;
-            }
-            yoff += mouse_full;
-        }
-
-        if (mouse_x >= scr_size.ulx) {
-            if (mouse_width + mouse_x - 1 <= scr_size.lrx) {
-                xoff = 0;
-                xlen = mouse_width;
-            } else {
-                xoff = 0;
-                xlen = scr_size.lrx - mouse_x + 1;
-            }
-        } else {
-            xoff = scr_size.ulx - mouse_x;
-            xlen = mouse_width - (scr_size.ulx - mouse_x);
-        }
-
-        if (mouse_y >= scr_size.uly) {
-            if (mouse_length + mouse_y - 1 <= scr_size.lry) {
-                yoff = 0;
-                ylen = mouse_length;
-            } else {
-                yoff = 0;
-                ylen = scr_size.lry - mouse_y + 1;
-            }
-        } else {
-            yoff = scr_size.uly - mouse_y;
-            ylen = mouse_length - (scr_size.uly - mouse_y);
-        }
-
-        mouse_blit(mouse_buf, mouse_width, mouse_length, xoff, yoff, xlen, ylen, xoff + mouse_x, yoff + mouse_y);
-
+    if (have_mouse && mouse_is_hidden) {
         mouse_is_hidden = 0;
+        Cursor_Show();
     }
 }
 
 void mouse_hide(void) {
-    Rect rect;
-
-    if (have_mouse) {
-        if (!mouse_is_hidden) {
-            mouse_is_hidden = 1;
-            mouse_get_rect(&rect);
-            win_refresh_all(&rect);
-        }
+    if (have_mouse && !mouse_is_hidden) {
+        mouse_is_hidden = 1;
+        Cursor_Hide();
     }
 }
 
 void mouse_info(void) {
-    if (have_mouse && !mouse_is_hidden && !mouse_disabled) {
+    if (have_mouse && !mouse_disabled) {
         uint32_t buttons = 0;
         uint32_t button_bitmask;
-        float delta_x;
-        float delta_y;
+        float window_x;
+        float window_y;
+        float logical_x;
+        float logical_y;
 
         SDL_PumpEvents();
 
-        if (SDL_GetWindowRelativeMouseMode(Svga_GetWindow())) {
-            button_bitmask = SDL_GetRelativeMouseState(&delta_x, &delta_y);
+        // Get mouse position in window coordinates
+        button_bitmask = SDL_GetMouseState(&window_x, &window_y);
 
-            delta_x *= mouse_sensitivity;
-            delta_y *= mouse_sensitivity;
+        // Convert window coordinates to logical coordinates (handles fullscreen scaling)
+        Svga_WindowToLogicalCoordinates(window_x, window_y, &logical_x, &logical_y);
 
-        } else {
-            button_bitmask = SDL_GetMouseState(&delta_x, &delta_y);
-
-            delta_x -= mouse_hotx + mouse_x;
-            delta_y -= mouse_hoty + mouse_y;
-        }
+        // Calculate delta from current mouse position
+        float delta_x = logical_x - (mouse_hotx + mouse_x);
+        float delta_y = logical_y - (mouse_hoty + mouse_y);
 
         if (SDL_BUTTON_MASK(SDL_BUTTON_LEFT) & button_bitmask) {
             buttons |= GNW_MOUSE_BUTTON_LEFT;
@@ -364,8 +131,6 @@ void mouse_info(void) {
         if (mouse_lock == MOUSE_LOCK_FOCUSED && buttons) {
             mouse_lock = MOUSE_LOCK_LOCKED;
             buttons = 0;
-
-            SDL_HideCursor();
         }
 
         if (mouse_lock == MOUSE_LOCK_LOCKED) {
@@ -379,7 +144,7 @@ void mouse_simulate_input(int32_t delta_x, int32_t delta_y, uint32_t buttons) {
     static uint64_t left_time;
     static int32_t old;
 
-    if (!have_mouse || mouse_is_hidden) {
+    if (!have_mouse) {
         return;
     }
 
@@ -421,19 +186,10 @@ void mouse_simulate_input(int32_t delta_x, int32_t delta_y, uint32_t buttons) {
     }
 
     if (delta_x || delta_y) {
-        Rect rect;
-
-        rect.ulx = mouse_x;
-        rect.uly = mouse_y;
-        rect.lrx = mouse_width + mouse_x - 1;
-        rect.lry = mouse_length + mouse_y - 1;
-
         mouse_x += delta_x;
         mouse_y += delta_y;
 
         mouse_clip();
-        win_refresh_all(&rect);
-        mouse_show();
     }
 }
 
@@ -511,20 +267,12 @@ void mouse_get_hotspot(int32_t* hotx, int32_t* hoty) {
 }
 
 void mouse_set_hotspot(int32_t hotx, int32_t hoty) {
-    if (!mouse_is_hidden) {
-        mouse_hide();
-    }
-
     mouse_x += mouse_hotx - hotx;
     mouse_y += mouse_hoty - hoty;
     mouse_hotx = hotx;
     mouse_hoty = hoty;
 
     Svga_WarpMouse(mouse_x, mouse_y);
-
-    if (!mouse_is_hidden) {
-        mouse_show();
-    }
 }
 
 int32_t mouse_query_exist(void) { return have_mouse; }
@@ -569,20 +317,16 @@ int32_t mouse_get_wheel_sensitivity(void) { return mouse_wheel_sensitivity; }
 
 void mouse_set_fullscreen_mode(int32_t is_fullscreen) {
     if (have_mouse) {
+        float window_x, window_y;
+
         // Clip mouse position to screen bounds in case it was outside
         mouse_clip();
 
-        if (is_fullscreen) {
-            // Flush any accumulated relative mouse deltas before enabling relative mode
-            float discard_x, discard_y;
+        // Convert logical coordinates to window coordinates for SDL
+        Svga_LogicalToWindowCoordinates((float)(mouse_hotx + mouse_x), (float)(mouse_hoty + mouse_y), &window_x,
+                                        &window_y);
 
-            SDL_GetRelativeMouseState(&discard_x, &discard_y);
-
-        } else {
-            // Warp SDL mouse to current logical position to prevent cursor jumping on next mouse_info() call
-            SDL_WarpMouseInWindow(Svga_GetWindow(), mouse_hotx + mouse_x, mouse_hoty + mouse_y);
-        }
-
-        SDL_SetWindowRelativeMouseMode(Svga_GetWindow(), is_fullscreen);
+        // Warp SDL mouse to current logical position to prevent cursor jumping on next mouse_info() call
+        SDL_WarpMouseInWindow(Svga_GetWindow(), window_x, window_y);
     }
 }

@@ -732,24 +732,10 @@ void GNW_win_refresh(GNW_Window* w, Rect* bound, uint8_t* scr_buf) {
             srcW = bound->lrx - bound->ulx + 1;
             srcH = bound->lry - bound->uly + 1;
 
-            if (!mouse_hidden() && mouse_in(bound->ulx, bound->uly, bound->lrx, bound->lry)) {
-                mouse_show();
-                mouse_get_rect(&m);
+            GNW_button_refresh(w, bound);
 
-                for (L = rect_clip(bound, &m); L; L = N) {
-                    N = L->next;
+            scr_blit(screen_buffer, srcW, srcH, 0, 0, srcW, srcH, bound->ulx, bound->uly);
 
-                    GNW_button_refresh(w, (Rect*)L);
-
-                    scr_blit(&screen_buffer[L->r.ulx - bound->ulx + (L->r.uly - bound->uly) * srcW], srcW,
-                             L->r.lry - L->r.uly + 1, 0, 0, L->r.lrx - L->r.ulx + 1, L->r.lry - L->r.uly + 1, L->r.ulx,
-                             L->r.uly);
-                    rect_free(L);
-                }
-            } else {
-                GNW_button_refresh(w, bound);
-                scr_blit(screen_buffer, srcW, srcH, 0, 0, srcW, srcH, bound->ulx, bound->uly);
-            }
         } else {
             rp = rect_malloc();
 
@@ -868,10 +854,6 @@ void GNW_win_refresh(GNW_Window* w, Rect* bound, uint8_t* scr_buf) {
                         rect_free(L);
                     }
 
-                    if (!doing_refresh_all && !scr_buf && !mouse_hidden() &&
-                        mouse_in(bound->ulx, bound->uly, bound->lrx, bound->lry)) {
-                        mouse_show();
-                    }
                 } else {
                     rect_free(rp);
                 }
@@ -1006,12 +988,6 @@ void refresh_all(Rect* bound, uint8_t* buf) {
     }
 
     doing_refresh_all = 0;
-
-    if (!buf && !mouse_hidden()) {
-        if (mouse_in(bound->ulx, bound->uly, bound->lrx, bound->lry)) {
-            mouse_show();
-        }
-    }
 }
 
 GNW_Window* GNW_find(WinID id) {

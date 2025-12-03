@@ -864,7 +864,7 @@ int32_t ResourceManager_GetFileOffset(ResourceID id) {
 }
 
 void ResourceManager_FreeResources() {
-    mouse_hide();
+    Cursor_Hide();
 
     for (int16_t i = 0; i < MEM_END; ++i) {
         if (ResourceManager_ResMetaTable[i].resource_buffer) {
@@ -879,7 +879,7 @@ void ResourceManager_FreeResources() {
 
     Cursor_Init();
     Cursor_SetCursor(CURSOR_HAND);
-    mouse_show();
+    Cursor_Show();
 }
 
 int32_t ResourceManager_BuildColorTables() {

@@ -27,6 +27,7 @@
 #include <memory>
 #include <unordered_map>
 
+#include "cursor.hpp"
 #include "gnw.h"
 #include "remote.hpp"
 #include "resource_manager.hpp"
@@ -230,8 +231,6 @@ void GNW_input_exit(void) {
     bk_list = NULL;
 
     input_key_map.reset();
-
-    GNW_mouse_exit();
 }
 
 void GNW_register_utf8_input(UTF8InputFunc callback) { utf8_input_callback = callback; }
@@ -270,8 +269,11 @@ void GNW_process_message(void) {
                 }
             } break;
             case SDL_EVENT_WINDOW_FOCUS_LOST: {
-                SDL_ShowCursor();
                 mouse_set_lock(MOUSE_LOCK_UNLOCKED);
+            } break;
+            case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+            case SDL_EVENT_WINDOW_RESIZED: {
+                Cursor_UpdateScale();
             } break;
             case SDL_EVENT_WINDOW_MOUSE_ENTER: {
             } break;

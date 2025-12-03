@@ -46,15 +46,6 @@ enum {
 extern ScreenBlitFunc mouse_blit;
 
 int32_t GNW_mouse_init(void);
-void GNW_mouse_exit(void);
-int32_t mouse_get_shape(uint8_t** buf, int32_t* width, int32_t* length, int32_t* full, int32_t* hotx, int32_t* hoty,
-                        char* trans);
-int32_t mouse_set_shape(uint8_t* buf, int32_t width, int32_t length, int32_t full, int32_t hotx, int32_t hoty,
-                        char trans);
-int32_t mouse_get_anim(uint8_t** frames, int32_t* num_frames, int32_t* width, int32_t* length, int32_t* hotx,
-                       int32_t* hoty, char* trans, uint32_t* speed);
-int32_t mouse_set_anim_frames(uint8_t* frames, int32_t num_frames, int32_t start_frame, int32_t width, int32_t length,
-                              int32_t hotx, int32_t hoty, char trans, uint32_t speed);
 void mouse_show(void);
 void mouse_hide(void);
 void mouse_info(void);

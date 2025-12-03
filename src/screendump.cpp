@@ -21,6 +21,7 @@
 
 #include "screendump.h"
 
+#include "cursor.hpp"
 #include "resource_manager.hpp"
 #include "smartstring.hpp"
 #include "svga.h"
@@ -250,6 +251,7 @@ void screendump_dump_screen(void) {
         uint8_t surface_palette[PALETTE_STRIDE * PALETTE_SIZE];
 
         if (Svga_GetPaletteSurfaceData(screendump_buffer, length * width, surface_palette)) {
+            Cursor_RenderToBuffer(screendump_buffer, width, length);
             screendump_function(width, length, screendump_buffer, surface_palette);
         }
 
