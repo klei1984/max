@@ -238,7 +238,7 @@ void ResearchMenu_NewTurn(uint16_t team) {
                 ResearchMenu_ApplyUpgrades(team, i);
 
                 if (team == GameManager_PlayerTeam) {
-                    SoundManager_PlayVoice(V_M093, V_F093);
+                    ResourceManager_GetSoundManager().PlayVoice(V_M093, V_F093);
                 }
             }
         }

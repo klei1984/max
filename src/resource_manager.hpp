@@ -38,6 +38,7 @@
 class MissionManager;
 class PathsManager;
 class Settings;
+class SoundManager;
 
 struct __attribute__((packed)) ImageSimpleHeader {
     int16_t width;
@@ -146,6 +147,7 @@ std::string ResourceManager_GetHelpEntry(const std::string& section, const int32
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager();
 std::shared_ptr<Clans> ResourceManager_GetClans();
 std::shared_ptr<Settings> ResourceManager_GetSettings();
+SoundManager& ResourceManager_GetSoundManager();
 PathsManager& ResourceManager_GetPathsManager();
 Unit& ResourceManager_GetUnit(const ResourceID unit_type);
 Units& ResourceManager_GetUnits();

@@ -324,7 +324,7 @@ void OptionsMenu::UpdateSlider(int32_t id) {
 }
 
 void OptionsMenu::SetVolume(int32_t id, int32_t audio_type, int32_t value) {
-    SoundManager_SetVolume(audio_type, static_cast<float>(value) / 100);
+    ResourceManager_GetSoundManager().SetVolume(audio_type, static_cast<float>(value) / 100);
     ResourceManager_GetSettings()->SetNumericValue(options_menu_buttons[id].setting_key, value);
 }
 
@@ -575,13 +575,13 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
                         SetVolume(i, AUDIO_TYPE_VOICE, last_value);
                     } else if (strcmp(setting_key.c_str(), "disable_music") == 0) {
                         ResourceManager_GetSettings()->SetNumericValue("disable_music", last_value);
-                        SoundManager_HaltMusicPlayback(last_value);
+                        ResourceManager_GetSoundManager().HaltMusicPlayback(last_value);
                     } else if (strcmp(setting_key.c_str(), "disable_fx") == 0) {
                         ResourceManager_GetSettings()->SetNumericValue("disable_fx", last_value);
-                        SoundManager_HaltSfxPlayback(last_value);
+                        ResourceManager_GetSoundManager().HaltSfxPlayback(last_value);
                     } else if (strcmp(setting_key.c_str(), "disable_voice") == 0) {
                         ResourceManager_GetSettings()->SetNumericValue("disable_voice", last_value);
-                        SoundManager_HaltVoicePlayback(last_value);
+                        ResourceManager_GetSoundManager().HaltVoicePlayback(last_value);
                     }
                 }
             }
@@ -615,11 +615,11 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
                             ResourceManager_GetSettings()->SetNumericValue(setting_key, value);
 
                             if (strcmp(setting_key.c_str(), "disable_music") == 0) {
-                                SoundManager_HaltMusicPlayback(value);
+                                ResourceManager_GetSoundManager().HaltMusicPlayback(value);
                             } else if (strcmp(setting_key.c_str(), "disable_fx") == 0) {
-                                SoundManager_HaltSfxPlayback(value);
+                                ResourceManager_GetSoundManager().HaltSfxPlayback(value);
                             } else if (strcmp(setting_key.c_str(), "disable_voice") == 0) {
-                                SoundManager_HaltVoicePlayback(value);
+                                ResourceManager_GetSoundManager().HaltVoicePlayback(value);
                             }
 
                         } else if (options_menu_buttons[key].type == OPTIONS_TYPE_SLIDER) {

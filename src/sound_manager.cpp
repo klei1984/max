@@ -139,70 +139,6 @@ public:
     }
 };
 
-class SoundManager {
-public:
-    SoundManager() noexcept;
-    ~SoundManager() noexcept;
-
-    void Init() noexcept;
-    void Deinit() noexcept;
-
-    void SetVolume(const int32_t type, const float volume) noexcept;
-
-    void PlayMusic(const ResourceID id, const bool shuffle) noexcept;
-    void PlayVoice(const ResourceID id1, const ResourceID id2, const int16_t priority = 0) noexcept;
-    void PlaySfx(const ResourceID id) noexcept;
-    void PlaySfx(UnitInfo* const unit, const Unit::SfxType sound, const bool mode = false) noexcept;
-
-    void HaltMusicPlayback(const bool disable) noexcept;
-    void HaltVoicePlayback(const bool disable) noexcept;
-    void HaltSfxPlayback(const bool disable) noexcept;
-
-    void UpdateSfxPosition() noexcept;
-    void UpdateSfxPosition(UnitInfo* const unit) noexcept;
-
-    void FreeMusic() noexcept;
-    void FreeAllSamples() noexcept;
-
-    void ProcessJobs() noexcept;
-
-private:
-    SDL_AudioDeviceID device_id{0};
-    ma_engine* engine{nullptr};
-    SoundGroup* music_group{nullptr};
-    SoundGroup* voice_group{nullptr};
-    SoundGroup* sfx_group{nullptr};
-    bool is_audio_enabled{false};
-
-    ResourceID current_music_played{INVALID_ID};
-    ResourceID last_music_played{INVALID_ID};
-    ResourceID voice_played{INVALID_ID};
-
-    bool shuffle_music{false};
-    bool music_playlist[BKG9_MSC - MAIN_MSC + 1];
-
-    SmartList<SoundJob> jobs;
-
-    SmartPointer<SoundSample> music;
-    SmartPointer<SoundSample> voice;
-    SmartPointer<SoundSample> sfx;
-
-    void AddJob(SoundJob& job) noexcept;
-    int32_t ProcessJob(SoundJob& job) noexcept;
-    void FreeSample(SmartPointer<SoundSample> sample) noexcept;
-    void UpdateMusic() noexcept;
-    void FreeSfx(UnitInfo* const unit) noexcept;
-    void FreeVoice(const ResourceID id1, const ResourceID id2) noexcept;
-    [[nodiscard]] bool IsVoiceGroupScheduled(const ResourceID id1, const ResourceID id2) noexcept;
-    [[nodiscard]] static float GetPanning(int32_t distance, const bool reverse) noexcept;
-    [[nodiscard]] static float GetZoomAttenuation() noexcept;
-    [[nodiscard]] bool PlayMusic(const ResourceID id) noexcept;
-    int32_t LoadSound(SoundJob& job, SoundSample& sample) noexcept;
-    void LoadLoopPoints(FILE* const fp, SoundSample& sample) noexcept;
-};
-
-static SoundManager SoundManager_Manager;
-
 static const int16_t SoundManager_VoicePriorities[V_END - V_START + 1] = {
     0,  10, 10, 10, 10, 10, 10, 10, 10, 20, 20, 20, 20, 35, 35, 30, 30, 40, 40, 40, 40, 0,  0,  45, 45, 45, 45, 10,
     10, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 50,
@@ -213,123 +149,121 @@ static const int16_t SoundManager_VoicePriorities[V_END - V_START + 1] = {
     0,  0,  10, 10, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 5,  5,  5,  5,  5,  5,  5,  5,
     5,  5,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
 
-static void SoundManager_BackgroundProcess(void) noexcept { SoundManager_Manager.ProcessJobs(); }
+static void SoundManager_BackgroundProcess(void) noexcept { ResourceManager_GetSoundManager().ProcessJobs(); }
 
-SoundManager::SoundManager() noexcept { SDL_zero(music_playlist); }
+SoundManager::SoundManager() noexcept {
+    SDL_zero(m_music_playlist);
 
-SoundManager::~SoundManager() noexcept { Deinit(); }
-
-void SoundManager::Init() noexcept {
     ma_engine_config engineConfig = ma_engine_config_init();
 
     engineConfig.channels = SOUND_MANAGER_CHANNELS;
     engineConfig.sampleRate = SOUND_MANAGER_SAMPLE_RATE;
 
-    engine = new (std::nothrow) ma_engine;
+    m_engine = new (std::nothrow) ma_engine;
 
-    if (ma_engine_init(&engineConfig, engine) != MA_SUCCESS) {
-        delete engine;
-        engine = nullptr;
+    if (ma_engine_init(&engineConfig, m_engine) != MA_SUCCESS) {
+        delete m_engine;
+        m_engine = nullptr;
 
         SDL_Log("%s", _(37d9));
-        is_audio_enabled = false;
+        m_is_audio_enabled = false;
 
     } else {
-        MVE_sndInit(engine);
+        MVE_sndInit(m_engine);
 
-        music_group = new (std::nothrow) SoundGroup;
-        voice_group = new (std::nothrow) SoundGroup;
-        sfx_group = new (std::nothrow) SoundGroup;
+        m_music_group = new (std::nothrow) SoundGroup;
+        m_voice_group = new (std::nothrow) SoundGroup;
+        m_sfx_group = new (std::nothrow) SoundGroup;
 
-        music_group->Init(engine, MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_STREAM);
-        voice_group->Init(engine, MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE);
-        sfx_group->Init(engine, MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE);
+        m_music_group->Init(m_engine, MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_STREAM);
+        m_voice_group->Init(m_engine, MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE);
+        m_sfx_group->Init(m_engine, MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE);
 
         auto settings = ResourceManager_GetSettings();
 
-        ma_sound_group_set_volume(music_group->GetGroup(),
+        ma_sound_group_set_volume(m_music_group->GetGroup(),
                                   std::min<float>(settings->GetNumericValue("music_level"), 100) / 100);
 
-        ma_sound_group_set_volume(sfx_group->GetGroup(),
+        ma_sound_group_set_volume(m_sfx_group->GetGroup(),
                                   std::min<float>(settings->GetNumericValue("fx_sound_level"), 100) / 100);
 
-        ma_sound_group_set_volume(voice_group->GetGroup(),
+        ma_sound_group_set_volume(m_voice_group->GetGroup(),
                                   std::min<float>(settings->GetNumericValue("voice_level"), 100) / 100);
 
-        is_audio_enabled = true;
+        m_is_audio_enabled = true;
 
         add_bk_process(SoundManager_BackgroundProcess);
         enable_bk();
     }
 }
 
-void SoundManager::Deinit() noexcept {
-    if (is_audio_enabled) {
-        music = nullptr;
-        voice = nullptr;
-        sfx = nullptr;
+SoundManager::~SoundManager() noexcept {
+    if (m_is_audio_enabled) {
+        m_music = nullptr;
+        m_voice = nullptr;
+        m_sfx = nullptr;
 
-        delete music_group;
-        music_group = nullptr;
+        delete m_music_group;
+        m_music_group = nullptr;
 
-        delete voice_group;
-        voice_group = nullptr;
+        delete m_voice_group;
+        m_voice_group = nullptr;
 
-        delete sfx_group;
-        sfx_group = nullptr;
+        delete m_sfx_group;
+        m_sfx_group = nullptr;
 
-        ma_engine_uninit(engine);
-        delete engine;
-        engine = nullptr;
+        ma_engine_uninit(m_engine);
+        delete m_engine;
+        m_engine = nullptr;
 
         MVE_sndInit(nullptr);
 
-        is_audio_enabled = false;
+        m_is_audio_enabled = false;
     }
 
-    jobs.Clear();
+    m_jobs.Clear();
 }
 
 void SoundManager::UpdateMusic() noexcept {
-    if (music && !ma_sound_is_playing(&music->sound)) {
-        if (shuffle_music) {
+    if (m_music && !ma_sound_is_playing(&m_music->sound)) {
+        if (m_shuffle_music) {
             ResourceID resource_id;
             uint32_t index;
 
             /* if all tracks were played from the list, reset list state */
-            for (index = 0; (index < std::size(music_playlist)) && (music_playlist[index] != true); ++index) {
+            for (index = 0; (index < std::size(m_music_playlist)) && (m_music_playlist[index] != true); ++index) {
                 ;
             }
 
-            if (index == std::size(music_playlist)) {
-                for (auto& item : music_playlist) {
+            if (index == std::size(m_music_playlist)) {
+                for (auto& item : m_music_playlist) {
                     item = true;
                 }
             }
 
             for (;;) {
                 do {
-                    index = Randomizer_Generate(std::size(music_playlist));
+                    index = Randomizer_Generate(std::size(m_music_playlist));
                     resource_id = (ResourceID)(index + MAIN_MSC);
-                } while (!music_playlist[index]);
+                } while (!m_music_playlist[index]);
 
-                music_playlist[index] = false;
+                m_music_playlist[index] = false;
 
                 if (PlayMusic(resource_id)) {
                     return;
                 }
 
-                for (index = 0; (index < std::size(music_playlist)) && (music_playlist[index] != true); ++index) {
+                for (index = 0; (index < std::size(m_music_playlist)) && (m_music_playlist[index] != true); ++index) {
                     ;
                 }
 
-                if (index == std::size(music_playlist)) {
-                    SmartPointer<SoundSample> sample(music_group->GetSamples()->Begin()->Get());
+                if (index == std::size(m_music_playlist)) {
+                    SmartPointer<SoundSample> sample(m_music_group->GetSamples()->Begin()->Get());
 
                     if (sample) {
                         ma_sound_start(&sample->sound);
 
-                        current_music_played = resource_id;
+                        m_current_music_played = resource_id;
                     }
 
                     return;
@@ -337,83 +271,83 @@ void SoundManager::UpdateMusic() noexcept {
             }
 
         } else {
-            SmartPointer<SoundSample> sample(music_group->GetSamples()->Begin()->Get());
+            SmartPointer<SoundSample> sample(m_music_group->GetSamples()->Begin()->Get());
 
             if (sample) {
                 ma_sound_start(&sample->sound);
 
-                current_music_played = sample->id;
+                m_current_music_played = sample->id;
             }
         }
     }
 }
 
 void SoundManager::FreeSfx(UnitInfo* const unit) noexcept {
-    if (sfx) {
-        if (sfx->fade_out < SOUND_MANAGER_REQUEST_FADING) {
-            sfx->fade_out = SOUND_MANAGER_REQUEST_FADING;
+    if (m_sfx) {
+        if (m_sfx->fade_out < SOUND_MANAGER_REQUEST_FADING) {
+            m_sfx->fade_out = SOUND_MANAGER_REQUEST_FADING;
         }
     }
 
-    sfx = nullptr;
+    m_sfx = nullptr;
 
     const uint16_t unit_id = unit->GetId();
 
     unit->SetSfxType(Unit::SFX_TYPE_INVALID);
 
-    for (auto it = jobs.Begin(), it_end = jobs.End(); it != it_end; ++it) {
+    for (auto it = m_jobs.Begin(), it_end = m_jobs.End(); it != it_end; ++it) {
         if ((*it).unit_id == unit_id && (*it).type == JOB_TYPE_SFX0) {
-            jobs.Remove(it);
+            m_jobs.Remove(it);
         }
     }
 }
 
 void SoundManager::FreeSample(SmartPointer<SoundSample> sample) noexcept {
-    if (is_audio_enabled) {
+    if (m_is_audio_enabled) {
         if (ma_sound_is_playing(&sample->sound)) {
             ma_sound_stop(&sample->sound);
         }
 
         if (sample->type == JOB_TYPE_MUSIC) {
-            music_group->GetSamples()->Remove(*sample);
+            m_music_group->GetSamples()->Remove(*sample);
 
-            if (music == sample) {
-                music = nullptr;
+            if (m_music == sample) {
+                m_music = nullptr;
             }
 
-            current_music_played = INVALID_ID;
+            m_current_music_played = INVALID_ID;
 
         } else if (sample->type >= JOB_TYPE_SFX0 && sample->type <= JOB_TYPE_SFX2) {
-            sfx_group->GetSamples()->Remove(*sample);
+            m_sfx_group->GetSamples()->Remove(*sample);
 
-            if (sfx == sample) {
-                sfx = nullptr;
+            if (m_sfx == sample) {
+                m_sfx = nullptr;
             }
 
         } else if (sample->type == JOB_TYPE_VOICE) {
-            voice_group->GetSamples()->Remove(*sample);
+            m_voice_group->GetSamples()->Remove(*sample);
 
-            if (voice == sample) {
-                voice = nullptr;
+            if (m_voice == sample) {
+                m_voice = nullptr;
             }
 
-            voice_played = INVALID_ID;
+            m_voice_played = INVALID_ID;
         }
     }
 }
 
 void SoundManager::PlayMusic(const ResourceID id, const bool shuffle) noexcept {
-    if ((id != INVALID_ID) && (id != current_music_played)) {
+    if ((id != INVALID_ID) && (id != m_current_music_played)) {
         if (ResourceManager_GetSettings()->GetNumericValue("disable_music")) {
-            last_music_played = id;
+            m_last_music_played = id;
 
         } else {
             FreeMusic();
 
-            shuffle_music = shuffle;
+            m_shuffle_music = shuffle;
 
-            if ((shuffle_music) && ((id < MAIN_MSC) || (id > BKG9_MSC))) {
-                for (auto& item : music_playlist) {
+            if ((m_shuffle_music) && ((id < MAIN_MSC) || (id > BKG9_MSC))) {
+                for (auto& item : m_music_playlist) {
                     item = true;
                 }
             }
@@ -439,17 +373,17 @@ void SoundManager::PlayMusic(const ResourceID id, const bool shuffle) noexcept {
 
 void SoundManager::HaltMusicPlayback(const bool disable) noexcept {
     if (disable) {
-        last_music_played = current_music_played;
+        m_last_music_played = m_current_music_played;
         FreeMusic();
 
     } else {
-        PlayMusic(last_music_played, shuffle_music);
+        PlayMusic(m_last_music_played, m_shuffle_music);
     }
 }
 
 void SoundManager::FreeMusic() noexcept {
-    if (music) {
-        FreeSample(music);
+    if (m_music) {
+        FreeSample(m_music);
     }
 }
 
@@ -498,7 +432,7 @@ void SoundManager::PlaySfx(UnitInfo* const unit, const Unit::SfxType sound, cons
             return;
         }
 
-        if (!ResourceManager_GetSettings()->GetNumericValue("disable_fx") && is_audio_enabled) {
+        if (!ResourceManager_GetSettings()->GetNumericValue("disable_fx") && m_is_audio_enabled) {
             if (sound >= Unit::SFX_TYPE_IDLE && sound <= Unit::SFX_TYPE_STOP &&
                 (unit->flags & (MOBILE_LAND_UNIT | MOBILE_SEA_UNIT)) == (MOBILE_LAND_UNIT | MOBILE_SEA_UNIT) &&
                 unit->image_base == 8) {
@@ -562,7 +496,7 @@ void SoundManager::UpdateSfxPosition() noexcept {
     const int32_t grid_center_x = (GameManager_MapView.ulx + GameManager_MapView.lrx) / 2;
     const int32_t grid_center_y = (GameManager_MapView.uly + GameManager_MapView.lry) / 2;
 
-    for (auto it = sfx_group->GetSamples()->Begin(), it_end = sfx_group->GetSamples()->End(); it != it_end; ++it) {
+    for (auto it = m_sfx_group->GetSamples()->Begin(), it_end = m_sfx_group->GetSamples()->End(); it != it_end; ++it) {
         if (ma_sound_is_playing(&(*it).sound) && (*it).type <= JOB_TYPE_SFX1) {
             const int32_t grid_offset_x = (*it).grid_x - grid_center_x;
             const int32_t grid_offset_y = (*it).grid_y - grid_center_y;
@@ -582,32 +516,33 @@ void SoundManager::UpdateSfxPosition() noexcept {
 }
 
 void SoundManager::UpdateSfxPosition(UnitInfo* const unit) noexcept {
-    if (sfx && ma_sound_is_playing(&sfx->sound)) {
-        sfx->grid_x = unit->grid_x;
-        sfx->grid_y = unit->grid_y;
+    if (m_sfx && ma_sound_is_playing(&m_sfx->sound)) {
+        m_sfx->grid_x = unit->grid_x;
+        m_sfx->grid_y = unit->grid_y;
 
         const int32_t grid_center_x = (GameManager_MapView.ulx + GameManager_MapView.lrx) / 2;
         const int32_t grid_center_y = (GameManager_MapView.uly + GameManager_MapView.lry) / 2;
 
-        const int32_t grid_offset_x = sfx->grid_x - grid_center_x;
-        const int32_t grid_offset_y = sfx->grid_y - grid_center_y;
+        const int32_t grid_offset_x = m_sfx->grid_x - grid_center_x;
+        const int32_t grid_offset_y = m_sfx->grid_y - grid_center_y;
 
         const int32_t grid_distance_x = labs(grid_offset_x);
         const int32_t grid_distance_y = labs(grid_offset_y);
 
-        ma_sound_set_pan(&sfx->sound, GetPanning(grid_distance_x, grid_offset_x < 0));
+        ma_sound_set_pan(&m_sfx->sound, GetPanning(grid_distance_x, grid_offset_x < 0));
 
-        float sound_level = (sfx->volume_2 - sfx->volume_2 * std::max(grid_distance_x, grid_distance_y) /
-                                                 std::max(ResourceManager_MapSize.x, ResourceManager_MapSize.y)) *
+        float sound_level = (m_sfx->volume_2 - m_sfx->volume_2 * std::max(grid_distance_x, grid_distance_y) /
+                                                   std::max(ResourceManager_MapSize.x, ResourceManager_MapSize.y)) *
                             GetZoomAttenuation();
 
-        ma_sound_set_volume(&sfx->sound, sound_level);
+        ma_sound_set_volume(&m_sfx->sound, sound_level);
     }
 }
 
 void SoundManager::HaltSfxPlayback(const bool disable) noexcept {
     if (disable) {
-        for (auto it = sfx_group->GetSamples()->Begin(), it_end = sfx_group->GetSamples()->End(); it != it_end; ++it) {
+        for (auto it = m_sfx_group->GetSamples()->Begin(), it_end = m_sfx_group->GetSamples()->End(); it != it_end;
+             ++it) {
             FreeSample(it->Get());
         }
 
@@ -633,7 +568,7 @@ void SoundManager::PlayVoice(const ResourceID id1, const ResourceID id2, const i
             randomized_voice_id = 2 * Randomizer_Generate((id2 - id1) / 2 + 1) + 1 + id1;
             SDL_assert(randomized_voice_id != id1 && randomized_voice_id <= id2);
 
-            for (auto it = jobs.Begin(), it_end = jobs.End(); it != it_end; ++it) {
+            for (auto it = m_jobs.Begin(), it_end = m_jobs.End(); it != it_end; ++it) {
                 if ((*it).type == JOB_TYPE_VOICE) {
                     if (priority_value >= (*it).priority) {
                         (*it).id = static_cast<ResourceID>(randomized_voice_id);
@@ -668,25 +603,26 @@ void SoundManager::PlayVoice(const ResourceID id1, const ResourceID id2, const i
 
 void SoundManager::HaltVoicePlayback(const bool disable) noexcept {
     if (disable) {
-        if (voice) {
-            FreeSample(voice);
+        if (m_voice) {
+            FreeSample(m_voice);
         }
     }
 }
 
 void SoundManager::FreeAllSamples() noexcept {
-    if (is_audio_enabled) {
-        for (auto it = music_group->GetSamples()->Begin(), it_end = music_group->GetSamples()->End(); it != it_end;
+    if (m_is_audio_enabled) {
+        for (auto it = m_music_group->GetSamples()->Begin(), it_end = m_music_group->GetSamples()->End(); it != it_end;
              ++it) {
             FreeSample(it->Get());
         }
 
-        for (auto it = voice_group->GetSamples()->Begin(), it_end = voice_group->GetSamples()->End(); it != it_end;
+        for (auto it = m_voice_group->GetSamples()->Begin(), it_end = m_voice_group->GetSamples()->End(); it != it_end;
              ++it) {
             FreeSample(it->Get());
         }
 
-        for (auto it = sfx_group->GetSamples()->Begin(), it_end = sfx_group->GetSamples()->End(); it != it_end; ++it) {
+        for (auto it = m_sfx_group->GetSamples()->Begin(), it_end = m_sfx_group->GetSamples()->End(); it != it_end;
+             ++it) {
             FreeSample(it->Get());
         }
     }
@@ -694,30 +630,31 @@ void SoundManager::FreeAllSamples() noexcept {
 
 void SoundManager::SetVolume(const int32_t type, const float volume) noexcept {
     if (type == AUDIO_TYPE_MUSIC) {
-        ma_sound_group_set_volume(music_group->GetGroup(), volume);
+        ma_sound_group_set_volume(m_music_group->GetGroup(), volume);
 
     } else if (type >= AUDIO_TYPE_SFX0 && type <= AUDIO_TYPE_SFX2) {
-        ma_sound_group_set_volume(sfx_group->GetGroup(), volume);
+        ma_sound_group_set_volume(m_sfx_group->GetGroup(), volume);
 
     } else if (type == AUDIO_TYPE_VOICE) {
-        ma_sound_group_set_volume(voice_group->GetGroup(), volume);
+        ma_sound_group_set_volume(m_voice_group->GetGroup(), volume);
     }
 }
 
 void SoundManager::ProcessJobs() noexcept {
-    if (is_audio_enabled) {
+    if (m_is_audio_enabled) {
         UpdateMusic();
 
-        for (auto it = jobs.Begin(), it_end = jobs.End(); it != it_end; ++it) {
+        for (auto it = m_jobs.Begin(), it_end = m_jobs.End(); it != it_end; ++it) {
             if (0 == ProcessJob(*it)) {
-                jobs.Remove(it);
+                m_jobs.Remove(it);
             }
         }
 
-        for (auto it = sfx_group->GetSamples()->Begin(), it_end = sfx_group->GetSamples()->End(); it != it_end; ++it) {
+        for (auto it = m_sfx_group->GetSamples()->Begin(), it_end = m_sfx_group->GetSamples()->End(); it != it_end;
+             ++it) {
             if (ma_sound_is_playing(&(*it).sound)) {
                 if ((*it).fade_out == SOUND_MANAGER_REQUEST_FADING) {
-                    float volume = ma_sound_group_get_volume(sfx_group->GetGroup()) * 100;
+                    float volume = ma_sound_group_get_volume(m_sfx_group->GetGroup()) * 100;
                     ma_uint64 time{0};
 
                     while (static_cast<int32_t>(volume) > 0) {
@@ -738,9 +675,9 @@ void SoundManager::ProcessJobs() noexcept {
 }
 
 void SoundManager::AddJob(SoundJob& job) noexcept {
-    if ((is_audio_enabled) && (job.id != INVALID_ID)) {
+    if ((m_is_audio_enabled) && (job.id != INVALID_ID)) {
         if (job.type <= JOB_TYPE_SFX2) {
-            for (auto it = jobs.Begin(), it_end = jobs.End(); it != it_end; ++it) {
+            for (auto it = m_jobs.Begin(), it_end = m_jobs.End(); it != it_end; ++it) {
                 if ((*it).id == job.id) {
                     if (job.volume_1 > (*it).volume_1) {
                         (*it).volume_1 = job.volume_1;
@@ -757,8 +694,8 @@ void SoundManager::AddJob(SoundJob& job) noexcept {
             }
 
             if (job.type == JOB_TYPE_SFX2) {
-                for (auto it = sfx_group->GetSamples()->Begin(), it_end = sfx_group->GetSamples()->End(); it != it_end;
-                     ++it) {
+                for (auto it = m_sfx_group->GetSamples()->Begin(), it_end = m_sfx_group->GetSamples()->End();
+                     it != it_end; ++it) {
                     if (job.id == (*it).id && ma_sound_is_playing(&(*it).sound)) {
                         return;
                     }
@@ -767,27 +704,28 @@ void SoundManager::AddJob(SoundJob& job) noexcept {
         }
 
         if (job.priority > 0) {
-            for (auto it = jobs.Begin(), it_end = jobs.End(); it != it_end; ++it) {
+            for (auto it = m_jobs.Begin(), it_end = m_jobs.End(); it != it_end; ++it) {
                 if (job.priority > (*it).priority) {
-                    jobs.InsertBefore(it, job);
+                    m_jobs.InsertBefore(it, job);
 
                     return;
                 }
             }
         }
 
-        jobs.PushBack(job);
+        m_jobs.PushBack(job);
     }
 }
 
 int32_t SoundManager::ProcessJob(SoundJob& job) noexcept {
     int32_t result;
 
-    if (job.type == JOB_TYPE_VOICE && voice && ma_sound_is_playing(&voice->sound)) {
+    if (job.type == JOB_TYPE_VOICE && m_voice && ma_sound_is_playing(&m_voice->sound)) {
         result = 11;
 
     } else {
-        for (auto it = sfx_group->GetSamples()->Begin(), it_end = sfx_group->GetSamples()->End(); it != it_end; ++it) {
+        for (auto it = m_sfx_group->GetSamples()->Begin(), it_end = m_sfx_group->GetSamples()->End(); it != it_end;
+             ++it) {
             if (!ma_sound_is_playing(&(*it).sound)) {
                 FreeSample(*it);
             }
@@ -837,25 +775,25 @@ int32_t SoundManager::ProcessJob(SoundJob& job) noexcept {
             ma_sound_start(&sample->sound);
 
             if (job.type >= JOB_TYPE_SFX0 && job.type <= JOB_TYPE_SFX2) {
-                sfx_group->GetSamples()->PushBack(*sample);
+                m_sfx_group->GetSamples()->PushBack(*sample);
 
                 if (job.type == JOB_TYPE_SFX1) {
-                    if (sfx && (&sfx->sound != &sample->sound)) {
-                        sfx->fade_out = SOUND_MANAGER_REQUEST_FADING;
+                    if (m_sfx && (&m_sfx->sound != &sample->sound)) {
+                        m_sfx->fade_out = SOUND_MANAGER_REQUEST_FADING;
                     }
 
-                    sfx = sample;
+                    m_sfx = sample;
                 }
 
             } else if (job.type == JOB_TYPE_VOICE) {
-                voice_group->GetSamples()->PushBack(*sample);
-                voice = sample;
-                voice_played = job.id;
+                m_voice_group->GetSamples()->PushBack(*sample);
+                m_voice = sample;
+                m_voice_played = job.id;
 
             } else if (job.type == JOB_TYPE_MUSIC) {
-                music_group->GetSamples()->PushBack(*sample);
-                music = sample;
-                current_music_played = job.id;
+                m_music_group->GetSamples()->PushBack(*sample);
+                m_music = sample;
+                m_current_music_played = job.id;
             }
         }
     }
@@ -864,23 +802,23 @@ int32_t SoundManager::ProcessJob(SoundJob& job) noexcept {
 }
 
 void SoundManager::FreeVoice(const ResourceID id1, const ResourceID id2) noexcept {
-    if (voice && voice_played >= id1 && voice_played <= id2) {
-        FreeSample(voice);
+    if (m_voice && m_voice_played >= id1 && m_voice_played <= id2) {
+        FreeSample(m_voice);
     }
 
-    for (auto it = jobs.Begin(), it_end = jobs.End(); it != it_end; ++it) {
+    for (auto it = m_jobs.Begin(), it_end = m_jobs.End(); it != it_end; ++it) {
         if ((*it).type == JOB_TYPE_VOICE && (*it).id >= id1 && (*it).id <= id2) {
-            jobs.Remove(it);
+            m_jobs.Remove(it);
         }
     }
 }
 
 bool SoundManager::IsVoiceGroupScheduled(const ResourceID id1, const ResourceID id2) noexcept {
-    if (voice_played >= id1 && voice_played <= id2 && voice && ma_sound_is_playing(&voice->sound)) {
+    if (m_voice_played >= id1 && m_voice_played <= id2 && m_voice && ma_sound_is_playing(&m_voice->sound)) {
         return true;
     }
 
-    for (auto it = jobs.Begin(), it_end = jobs.End(); it != it_end; ++it) {
+    for (auto it = m_jobs.Begin(), it_end = m_jobs.End(); it != it_end; ++it) {
         if ((*it).type == JOB_TYPE_VOICE && (*it).id >= id1 && (*it).id <= id2) {
             return true;
         }
@@ -925,18 +863,18 @@ float SoundManager::GetZoomAttenuation() noexcept {
 bool SoundManager::PlayMusic(const ResourceID id) noexcept {
     bool result{false};
 
-    if (music && music->id == id) {
-        ma_sound_start(&music->sound);
-        current_music_played = id;
+    if (m_music && m_music->id == id) {
+        ma_sound_start(&m_music->sound);
+        m_current_music_played = id;
         result = true;
 
     } else {
-        SmartPointer<SoundSample> sample = music_group->GetSound(id, true);
+        SmartPointer<SoundSample> sample = m_music_group->GetSound(id, true);
 
         if (sample) {
-            music = sample;
+            m_music = sample;
             ma_sound_start(&sample->sound);
-            current_music_played = id;
+            m_current_music_played = id;
             result = true;
 
         } else {
@@ -949,17 +887,17 @@ bool SoundManager::PlayMusic(const ResourceID id) noexcept {
                 SmartPointer<SoundSample> new_sample(new (std::nothrow) SoundSample);
 
                 if (ma_sound_init_from_file(
-                        engine, filepath.string().c_str(),
+                        m_engine, filepath.string().c_str(),
                         MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_STREAM,
-                        music_group->GetGroup(), nullptr, &new_sample->sound) == MA_SUCCESS) {
+                        m_music_group->GetGroup(), nullptr, &new_sample->sound) == MA_SUCCESS) {
                     new_sample->initialized = true;
                     new_sample->id = id;
                     new_sample->type = JOB_TYPE_MUSIC;
 
-                    music_group->GetSamples()->PushFront(*new_sample);
-                    music = new_sample;
-                    ma_sound_start(&music->sound);
-                    current_music_played = id;
+                    m_music_group->GetSamples()->PushFront(*new_sample);
+                    m_music = new_sample;
+                    ma_sound_start(&m_music->sound);
+                    m_current_music_played = id;
                     result = true;
                 }
             }
@@ -978,15 +916,15 @@ int32_t SoundManager::LoadSound(SoundJob& job, SoundSample& sample) noexcept {
     SDL_memset(&sample.sound, 0, sizeof(sample.sound));
 
     if (JOB_TYPE_MUSIC == job.type) {
-        group = music_group->GetGroup();
+        group = m_music_group->GetGroup();
         flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_STREAM;
 
     } else if (JOB_TYPE_VOICE == job.type) {
-        group = voice_group->GetGroup();
+        group = m_voice_group->GetGroup();
         flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE;
 
     } else {
-        group = sfx_group->GetGroup();
+        group = m_sfx_group->GetGroup();
         flags = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLAG_DECODE;
     }
 
@@ -996,7 +934,7 @@ int32_t SoundManager::LoadSound(SoundJob& job, SoundSample& sample) noexcept {
         LoadLoopPoints(fp, sample);
         fclose(fp);
 
-        if (ma_sound_init_from_file(engine, filepath.string().c_str(), flags, group, nullptr, &sample.sound) ==
+        if (ma_sound_init_from_file(m_engine, filepath.string().c_str(), flags, group, nullptr, &sample.sound) ==
             MA_SUCCESS) {
             sample.initialized = true;
             result = 0;
@@ -1087,40 +1025,4 @@ void SoundManager::LoadLoopPoints(FILE* const fp, SoundSample& sample) noexcept 
             }
         }
     }
-}
-
-void SoundManager_Init() noexcept { SoundManager_Manager.Init(); }
-
-void SoundManager_Deinit() noexcept { SoundManager_Manager.Deinit(); }
-
-void SoundManager_PlayMusic(const ResourceID id, const bool shuffle) noexcept {
-    SoundManager_Manager.PlayMusic(id, shuffle);
-}
-
-void SoundManager_HaltMusicPlayback(const bool disable) noexcept { SoundManager_Manager.HaltMusicPlayback(disable); }
-
-void SoundManager_FreeMusic() noexcept { SoundManager_Manager.FreeMusic(); }
-
-void SoundManager_PlaySfx(const ResourceID id) noexcept { SoundManager_Manager.PlaySfx(id); }
-
-void SoundManager_PlaySfx(UnitInfo* const unit, const Unit::SfxType sound, const bool mode) noexcept {
-    SoundManager_Manager.PlaySfx(unit, sound, mode);
-}
-
-void SoundManager_UpdateSfxPosition() noexcept { SoundManager_Manager.UpdateSfxPosition(); }
-
-void SoundManager_UpdateSfxPosition(UnitInfo* const unit) noexcept { SoundManager_Manager.UpdateSfxPosition(unit); }
-
-void SoundManager_HaltSfxPlayback(const bool disable) noexcept { SoundManager_Manager.HaltSfxPlayback(disable); }
-
-void SoundManager_PlayVoice(const ResourceID id1, const ResourceID id2, const int16_t priority) noexcept {
-    SoundManager_Manager.PlayVoice(id1, id2, priority);
-}
-
-void SoundManager_HaltVoicePlayback(const bool disable) noexcept { SoundManager_Manager.HaltVoicePlayback(disable); }
-
-void SoundManager_FreeAllSamples() noexcept { SoundManager_Manager.FreeAllSamples(); }
-
-void SoundManager_SetVolume(const int32_t type, const float volume) noexcept {
-    SoundManager_Manager.SetVolume(type, volume);
 }

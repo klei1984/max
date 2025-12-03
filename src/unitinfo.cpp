@@ -1693,7 +1693,7 @@ void UnitInfo::Build() {
             SetParent(nullptr);
 
             ClearBuildListAndPath();
-            SoundManager_PlaySfx(this, Unit::SFX_TYPE_IDLE);
+            ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_IDLE);
         }
 
     } else {
@@ -1728,11 +1728,11 @@ void UnitInfo::Move() {
         if (GameManager_SelectedUnit == this) {
             if (speed > 0 && !path->IsEndStep()) {
                 if (GetSfxType() != Unit::SFX_TYPE_DRIVE && GetSfxType() != Unit::SFX_TYPE_STOP) {
-                    SoundManager_PlaySfx(this, Unit::SFX_TYPE_DRIVE);
+                    ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_DRIVE);
                 }
 
             } else {
-                SoundManager_PlaySfx(this, Unit::SFX_TYPE_STOP);
+                ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_STOP);
             }
         }
 
@@ -1827,7 +1827,7 @@ void UnitInfo::Move() {
             }
 
             if (GameManager_SelectedUnit == this) {
-                SoundManager_UpdateSfxPosition(this);
+                ResourceManager_GetSoundManager().UpdateSfxPosition(this);
             }
 
             Ai_MarkMineMapPoint(Point(grid_x, grid_y), team);
@@ -2665,10 +2665,10 @@ void UnitInfo::Attack(int32_t grid_x, int32_t grid_y) {
                     UnitsManager_DeployUnit(HITEXPLD, team, nullptr, grid_x, grid_y, 0, true);
 
                 if (Access_GetModifiedSurfaceType(grid_x, grid_y) == SURFACE_TYPE_LAND) {
-                    SoundManager_PlaySfx(&*explosion, Unit::SFX_TYPE_HIT);
+                    ResourceManager_GetSoundManager().PlaySfx(&*explosion, Unit::SFX_TYPE_HIT);
 
                 } else {
-                    SoundManager_PlaySfx(&*explosion, Unit::SFX_TYPE_EXPLOAD);
+                    ResourceManager_GetSoundManager().PlaySfx(&*explosion, Unit::SFX_TYPE_EXPLOAD);
                 }
             }
         }
@@ -2721,7 +2721,7 @@ void UnitInfo::StartBuilding() {
         if (GameManager_SelectedUnit == this) {
             GameManager_UpdateInfoDisplay(&*GameManager_SelectedUnit);
 
-            SoundManager_PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_START);
+            ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_START);
         }
 
     } else {
@@ -2784,7 +2784,7 @@ void UnitInfo::SpotByTeam(uint16_t team) {
             RadarPing();
 
         } else if (unit_type == SUBMARNE && this->team == GameManager_PlayerTeam) {
-            SoundManager_PlayVoice(V_M201, V_F201);
+            ResourceManager_GetSoundManager().PlayVoice(V_M201, V_F201);
         }
     }
 }
@@ -2872,7 +2872,7 @@ void UnitInfo::UpdateProduction() {
         team_units->SetGold(Cargo_GetGoldConsumptionRate(unit_type) + gold_reserves);
 
         if (!gold_reserves && GameManager_PlayerTeam == team && team_units->GetGold() > 0) {
-            SoundManager_PlayVoice(V_M276, V_F276);
+            ResourceManager_GetSoundManager().PlayVoice(V_M276, V_F276);
         }
     }
 
@@ -2881,8 +2881,8 @@ void UnitInfo::UpdateProduction() {
         ++UnitsManager_TeamInfo[team].team_points;
 
         if (GameManager_PlayerTeam != team && UnitsManager_TeamInfo[team].team_points == 1) {
-            SoundManager_PlayVoice(static_cast<ResourceID>(V_M098 + team * 2),
-                                   static_cast<ResourceID>(V_M098 + team * 2 + 1));
+            ResourceManager_GetSoundManager().PlayVoice(static_cast<ResourceID>(V_M098 + team * 2),
+                                                        static_cast<ResourceID>(V_M098 + team * 2 + 1));
         }
     }
 
@@ -2891,7 +2891,7 @@ void UnitInfo::UpdateProduction() {
             shots = ammo;
 
             if (GameManager_SelectedUnit == this && GameManager_PlayerTeam == team) {
-                SoundManager_PlayVoice(V_M270, V_F271);
+                ResourceManager_GetSoundManager().PlayVoice(V_M270, V_F271);
             }
 
         } else {
@@ -3377,7 +3377,7 @@ void UnitInfo::SpawnNewUnit() {
         SetParent(nullptr);
 
         if (GameManager_SelectedUnit == this) {
-            SoundManager_PlaySfx(this, Unit::SFX_TYPE_IDLE);
+            ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_IDLE);
         }
 
     } else {
@@ -3417,7 +3417,7 @@ void UnitInfo::SpawnNewUnit() {
             int32_t position_y = this->grid_y;
 
             if (GameManager_SelectedUnit == this) {
-                SoundManager_PlaySfx(this, Unit::SFX_TYPE_IDLE);
+                ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_IDLE);
             }
 
             utility_unit = Access_GetConstructionUtility(team, position_x, position_y);
@@ -3532,7 +3532,7 @@ void UnitInfo::MoveFinished(bool mode) {
     if (GameManager_SelectedUnit == this) {
         GameManager_UpdateInfoDisplay(this);
         GameManager_AutoSelectNext(this);
-        SoundManager_PlaySfx(this, Unit::SFX_TYPE_IDLE);
+        ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_IDLE);
     }
 
     velocity = 0;
@@ -3577,7 +3577,7 @@ void UnitInfo::MoveFinished(bool mode) {
 void UnitInfo::RadarPing() {
     if (orders != ORDER_BUILD && orders != ORDER_CLEAR &&
         (!(flags & STATIONARY) || unit_type == LANDMINE || unit_type == SEAMINE) && (flags & SELECTABLE)) {
-        SoundManager_PlaySfx(RADRPING);
+        ResourceManager_GetSoundManager().PlaySfx(RADRPING);
         GameManager_NotifyEvent(this, 0);
     }
 }
@@ -3692,7 +3692,7 @@ bool UnitInfo::Land() {
     bool result;
 
     if (moved == 0 && GameManager_SelectedUnit == this) {
-        SoundManager_PlaySfx(this, Unit::SFX_TYPE_LAND);
+        ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_LAND);
     }
 
     RefreshScreen();
@@ -3725,7 +3725,7 @@ bool UnitInfo::Take() {
     bool result;
 
     if (moved == 0 && GameManager_SelectedUnit == this) {
-        SoundManager_PlaySfx(this, Unit::SFX_TYPE_TAKE);
+        ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_TAKE);
     }
 
     RefreshScreen();
@@ -4036,7 +4036,7 @@ void UnitInfo::CancelBuilding() {
         }
 
         if (GameManager_SelectedUnit == this) {
-            SoundManager_PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_END);
+            ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_END);
 
             GameManager_UpdateInfoDisplay(this);
         }
@@ -4073,7 +4073,7 @@ void UnitInfo::CancelBuilding() {
         }
 
         if (GameManager_SelectedUnit == this) {
-            SoundManager_PlaySfx(this, Unit::SFX_TYPE_IDLE);
+            ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_IDLE);
         }
     }
 }
@@ -4103,7 +4103,7 @@ void UnitInfo::Reload(UnitInfo* parent) {
 
     if (need_action) {
         if (GameManager_SelectedUnit == this) {
-            SoundManager_PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_START, true);
+            ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_START, true);
         }
 
         parent->ammo = parent->GetBaseValues()->GetAttribute(ATTRIB_AMMO);
@@ -4300,7 +4300,7 @@ void UnitInfo::PlaceMine() {
             if (GameManager_SelectedUnit == this) {
                 GameManager_UpdateInfoDisplay(this);
 
-                SoundManager_PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_START, true);
+                ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_START, true);
             }
         }
     }
@@ -4332,7 +4332,7 @@ void UnitInfo::PickUpMine() {
                 if (GameManager_SelectedUnit == this) {
                     GameManager_UpdateInfoDisplay(this);
 
-                    SoundManager_PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_END, true);
+                    ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_END, true);
                 }
             }
         }
@@ -4464,7 +4464,7 @@ void UnitInfo::PrepareFire() {
 
     if (team_visibility || UnitsManager_TeamInfo[GameManager_PlayerTeam]
                                .heat_map_complete[fire_on_grid_y * ResourceManager_MapSize.x + fire_on_grid_x]) {
-        SoundManager_PlaySfx(this, Unit::SFX_TYPE_FIRE);
+        ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_FIRE);
     }
 
     if (flags & HAS_FIRING_SPRITE) {
@@ -4853,7 +4853,7 @@ void UnitInfo::PowerDown() {
     Ai_SetTasksPendingFlag("Power Down");
 
     if (GameManager_SelectedUnit == this) {
-        SoundManager_PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_END);
+        ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_END);
     }
 
     PowerUp(1);
@@ -4987,7 +4987,7 @@ void UnitInfo::ProcessRepair() {
     SmartPointer<UnitInfo> parent(GetParent());
 
     if (GameManager_SelectedUnit == this) {
-        SoundManager_PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_START, true);
+        ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_START, true);
     }
 
     if (GetComplex()) {

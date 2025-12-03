@@ -182,7 +182,7 @@ void PathRequest::Finish(GroundPath* path) {
             }
 
             if (GameManager_SelectedUnit == client) {
-                SoundManager_PlayVoice(V_M094, V_F095);
+                ResourceManager_GetSoundManager().PlayVoice(V_M094, V_F095);
             }
 
         } else {

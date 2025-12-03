@@ -548,7 +548,8 @@ void Remote_ResponseTimeout(uint16_t team, bool mode) {
 
         sprintf(message, _(9a28), menu_team_names[team]);
 
-        SoundManager_PlayVoice(static_cast<ResourceID>(V_M025 + team * 4), static_cast<ResourceID>(V_F026 + team * 4));
+        ResourceManager_GetSoundManager().PlayVoice(static_cast<ResourceID>(V_M025 + team * 4),
+                                                    static_cast<ResourceID>(V_F026 + team * 4));
     }
 
     if (GameManager_GameState != GAME_STATE_3_MAIN_MENU) {
@@ -1660,8 +1661,8 @@ void Remote_ReceiveNetPacket_06(NetPacket& packet) {
 
             MessageManager_DrawMessage(message, 1, 0);
 
-            SoundManager_PlayVoice(static_cast<ResourceID>(V_M279 + entity_id * 2),
-                                   static_cast<ResourceID>(V_F279 + entity_id * 2));
+            ResourceManager_GetSoundManager().PlayVoice(static_cast<ResourceID>(V_M279 + entity_id * 2),
+                                                        static_cast<ResourceID>(V_F279 + entity_id * 2));
         }
     }
 }

@@ -111,7 +111,7 @@ void MenuLandingSequence::AnimateStep(int32_t offset) {
 
 void MenuLandingSequence::OpenPanel() {
     DeleteButtons();
-    SoundManager_PlaySfx(IOPEN0);
+    ResourceManager_GetSoundManager().PlaySfx(IOPEN0);
 
     for (int32_t i = 0; i < PANEL_STEP_COUNT; ++i) {
         time_stamp = timer_get();
@@ -145,7 +145,7 @@ void MenuLandingSequence::ClosePanel() {
 
         GameManager_MenuDeinitButtons();
 
-        SoundManager_PlaySfx(ICLOS0);
+        ResourceManager_GetSoundManager().PlaySfx(ICLOS0);
 
         for (int32_t i = 0; i < PANEL_STEP_COUNT; ++i) {
             time_stamp = timer_get();

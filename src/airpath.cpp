@@ -212,7 +212,7 @@ bool AirPath::Execute(UnitInfo* unit) {
                     m_delta_y >>= 1;
 
                 } else if (GameManager_SelectedUnit == unit && unit->GetSfxType() != Unit::SFX_TYPE_DRIVE) {
-                    SoundManager_PlaySfx(unit, Unit::SFX_TYPE_DRIVE);
+                    ResourceManager_GetSoundManager().PlaySfx(unit, Unit::SFX_TYPE_DRIVE);
                 }
             }
 
@@ -263,7 +263,7 @@ bool AirPath::Execute(UnitInfo* unit) {
                     Access_UpdateMapStatus(&*target_unit, false);
 
                     if (GameManager_SelectedUnit == unit && m_length == 1) {
-                        SoundManager_PlaySfx(unit, Unit::SFX_TYPE_STOP);
+                        ResourceManager_GetSoundManager().PlaySfx(unit, Unit::SFX_TYPE_STOP);
                     }
                 }
 

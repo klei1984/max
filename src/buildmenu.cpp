@@ -926,7 +926,7 @@ void MobileBuildMenu::Build() {
                     MessageManager_DrawMessage(_(06cb), 0, 0);
 
                     if (mission_category == MISSION_CATEGORY_TRAINING) {
-                        SoundManager_PlayVoice(V_M049, V_F050);
+                        ResourceManager_GetSoundManager().PlayVoice(V_M049, V_F050);
                     }
 
                 } else {

@@ -262,7 +262,7 @@ bool UnitsManager_SelfDestructActiveMenu(WindowInfo* window) {
             if (key == GNW_INPUT_PRESS + GNW_KB_KEY_RETURN) {
                 button_destruct->PlaySound();
             } else {
-                SoundManager_PlaySfx(NCANC0);
+                ResourceManager_GetSoundManager().PlaySfx(NCANC0);
             }
 
             event_release = true;
@@ -1771,7 +1771,8 @@ int32_t UnitsManager_GetFiringAngle(int32_t distance_x, int32_t distance_y) {
 
 void UnitsManager_ScaleUnit(UnitInfo* unit, const UnitOrderStateType state) {
     if (GameManager_PlayerTeam == unit->team) {
-        SoundManager_PlaySfx(unit, state == ORDER_STATE_EXPAND ? Unit::SFX_TYPE_EXPAND : Unit::SFX_TYPE_SHRINK);
+        ResourceManager_GetSoundManager().PlaySfx(
+            unit, state == ORDER_STATE_EXPAND ? Unit::SFX_TYPE_EXPAND : Unit::SFX_TYPE_SHRINK);
     }
 
     UnitsManager_SetNewOrderInt(unit, ORDER_AWAIT_SCALING, state);
@@ -2110,7 +2111,7 @@ void UnitsManager_DestroyUnit(UnitInfo* unit) {
     ResourceManager_GetPathsManager().RemoveRequest(unit);
 
     if (unit_to_destroy == GameManager_SelectedUnit) {
-        SoundManager_PlaySfx(unit, Unit::SFX_TYPE_INVALID);
+        ResourceManager_GetSoundManager().PlaySfx(unit, Unit::SFX_TYPE_INVALID);
         GameManager_SelectedUnit = nullptr;
 
         if (GameManager_IsMainMenuEnabled) {
@@ -2342,7 +2343,7 @@ void UnitsManager_FinishUnitScaling(UnitInfo* unit) {
         }
 
         if (GameManager_SelectedUnit == unit) {
-            SoundManager_PlaySfx(unit, Unit::SFX_TYPE_INVALID);
+            ResourceManager_GetSoundManager().PlaySfx(unit, Unit::SFX_TYPE_INVALID);
 
             GameManager_UpdateInfoDisplay(unit);
             GameManager_AutoSelectNext(unit);
@@ -2605,7 +2606,7 @@ void UnitsManager_ProcessOrderFire(UnitInfo* unit) {
             unit->SetOrderState(ORDER_STATE_IN_PROGRESS);
 
             if (GameManager_SelectedUnit == unit) {
-                SoundManager_PlaySfx(unit, Unit::SFX_TYPE_TURRET);
+                ResourceManager_GetSoundManager().PlaySfx(unit, Unit::SFX_TYPE_TURRET);
             }
 
             UnitsManager_OrdersPending = true;
@@ -2655,7 +2656,7 @@ void UnitsManager_ProcessOrderBuild(UnitInfo* unit) {
             }
 
             if (GameManager_SelectedUnit == unit) {
-                SoundManager_PlaySfx(unit, Unit::SFX_TYPE_BUILDING);
+                ResourceManager_GetSoundManager().PlaySfx(unit, Unit::SFX_TYPE_BUILDING);
             }
         } break;
 
@@ -2734,7 +2735,7 @@ void UnitsManager_ProcessOrderPowerOn(UnitInfo* unit) {
         Ai_SetTasksPendingFlag("Power up");
 
         if (GameManager_SelectedUnit == unit) {
-            SoundManager_PlaySfx(unit, Unit::SFX_TYPE_POWER_CONSUMPTION_START);
+            ResourceManager_GetSoundManager().PlaySfx(unit, Unit::SFX_TYPE_POWER_CONSUMPTION_START);
         }
 
         unit->PowerUp(-1);
@@ -3647,14 +3648,14 @@ void UnitsManager_StartExplosion(UnitInfo* unit) {
     unit->RefreshScreen();
 
     if (unit->hits > 0) {
-        SoundManager_PlaySfx(unit, Unit::SFX_TYPE_HIT);
+        ResourceManager_GetSoundManager().PlaySfx(unit, Unit::SFX_TYPE_HIT);
 
     } else {
         if (GameManager_SelectedUnit == unit) {
-            SoundManager_PlaySfx(unit, Unit::SFX_TYPE_INVALID);
+            ResourceManager_GetSoundManager().PlaySfx(unit, Unit::SFX_TYPE_INVALID);
         }
 
-        SoundManager_PlaySfx(unit, Unit::SFX_TYPE_EXPLOAD);
+        ResourceManager_GetSoundManager().PlaySfx(unit, Unit::SFX_TYPE_EXPLOAD);
     }
 
     if ((unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY) && unit->hits == 0) {
@@ -3759,7 +3760,7 @@ void UnitsManager_ProgressExplosion(UnitInfo* unit) {
 void UnitsManager_ProgressUnloading(UnitInfo* unit) {
     if (unit->Land()) {
         if (GameManager_SelectedUnit == unit) {
-            SoundManager_PlaySfx(unit, Unit::SFX_TYPE_POWER_CONSUMPTION_END, true);
+            ResourceManager_GetSoundManager().PlaySfx(unit, Unit::SFX_TYPE_POWER_CONSUMPTION_END, true);
         }
 
         SmartPointer<UnitInfo> client(unit->GetParent());
@@ -3829,7 +3830,7 @@ void UnitsManager_StartClearing(UnitInfo* unit) {
     unit->DrawSpriteFrame(unit->GetImageIndex() + 8);
 
     if (GameManager_SelectedUnit == unit) {
-        SoundManager_PlaySfx(unit, Unit::SFX_TYPE_BUILDING);
+        ResourceManager_GetSoundManager().PlaySfx(unit, Unit::SFX_TYPE_BUILDING);
     }
 }
 
@@ -3841,7 +3842,7 @@ void UnitsManager_ProgressLoading(UnitInfo* unit) {
         if (parent->hits > 0 && parent->GetOrder() != ORDER_FIRE && parent->GetOrder() != ORDER_EXPLODE &&
             parent->GetOrderState() != ORDER_STATE_DESTROY) {
             if (GameManager_SelectedUnit == unit) {
-                SoundManager_PlaySfx(unit, Unit::SFX_TYPE_POWER_CONSUMPTION_START, true);
+                ResourceManager_GetSoundManager().PlaySfx(unit, Unit::SFX_TYPE_POWER_CONSUMPTION_START, true);
             }
 
             parent->path = nullptr;
@@ -4010,7 +4011,7 @@ bool UnitsManager_AttemptStealthAction(UnitInfo* unit) {
                         MessageManager_DrawMessage(_(a939), 1, unit, Point(unit->grid_x, unit->grid_y));
                     }
 
-                    SoundManager_PlayVoice(V_M007, V_F012);
+                    ResourceManager_GetSoundManager().PlayVoice(V_M007, V_F012);
                 }
 
                 UnitsManager_AddToDelayedReactionList(unit);
@@ -4033,7 +4034,7 @@ void UnitsManager_CaptureUnit(UnitInfo* unit) {
 
     } else if (GameManager_PlayerTeam == old_team) {
         MessageManager_DrawMessage(_(8c00), 0, &*parent, Point(parent->grid_x, parent->grid_y));
-        SoundManager_PlayVoice(V_M239, V_F242);
+        ResourceManager_GetSoundManager().PlayVoice(V_M239, V_F242);
     }
 
     if (parent->GetOrder() == ORDER_BUILD || parent->GetOrder() == ORDER_CLEAR) {
@@ -4087,7 +4088,7 @@ void UnitsManager_DisableUnit(UnitInfo* unit) {
             MessageManager_DrawMessage(message.GetCStr(), 0, &*parent, position);
         }
 
-        SoundManager_PlayVoice(V_M244, V_F244);
+        ResourceManager_GetSoundManager().PlayVoice(V_M244, V_F244);
     }
 
     switch (parent->GetOrder()) {
@@ -4343,7 +4344,7 @@ bool UnitsManager_CheckReaction(UnitInfo* unit1, UnitInfo* unit2) {
 
         if (GameManager_PlayerTeam == unit1->team && GameManager_SelectedUnit == unit1 &&
             !GameManager_IsInsideMapView(unit1)) {
-            SoundManager_PlayVoice(V_M250, V_F251);
+            ResourceManager_GetSoundManager().PlayVoice(V_M250, V_F251);
         }
 
         result = true;
@@ -4520,7 +4521,7 @@ bool UnitsManager_CheckDelayedReactions(uint16_t team) {
 
             if (GameManager_PlayerTeam == unit1->team && GameManager_SelectedUnit == unit1 &&
                 !GameManager_IsInsideMapView(unit1)) {
-                SoundManager_PlayVoice(V_M250, V_F251);
+                ResourceManager_GetSoundManager().PlayVoice(V_M250, V_F251);
             }
 
             if (GameManager_SelectedUnit == unit1) {

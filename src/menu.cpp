@@ -431,7 +431,7 @@ void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter,
         is_winner = status.team_status[GameManager_PlayerTeam] == VICTORY_STATE_WON;
     }
 
-    SoundManager_PlayVoice(V_START, V_END, -1);
+    ResourceManager_GetSoundManager().PlayVoice(V_START, V_END, -1);
 
     if (Remote_IsNetworkGame) {
         Remote_WaitBeginTurnAcknowledge();
@@ -452,7 +452,7 @@ void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter,
 
         Remote_UpdatePauseTimer = false;
 
-        SoundManager_FreeAllSamples();
+        ResourceManager_GetSoundManager().FreeAllSamples();
 
         GameManager_DeinitPopupButtons(false);
 
@@ -470,18 +470,18 @@ void menu_wrap_up_game(const WinLoss_Status& status, const int32_t turn_counter,
         window.FillWindowInfo(&window_info);
 
         if (is_winner) {
-            SoundManager_PlayMusic(WINR_MSC, false);
+            ResourceManager_GetSoundManager().PlayMusic(WINR_MSC, false);
 
         } else {
-            SoundManager_PlayMusic(LOSE_MSC, false);
+            ResourceManager_GetSoundManager().PlayMusic(LOSE_MSC, false);
         }
 
         if (mission_category != MISSION_CATEGORY_HOT_SEAT) {
             if (is_winner) {
-                SoundManager_PlayVoice(V_M283, V_F283);
+                ResourceManager_GetSoundManager().PlayVoice(V_M283, V_F283);
 
             } else {
-                SoundManager_PlayVoice(V_M010, V_F010);
+                ResourceManager_GetSoundManager().PlayVoice(V_M010, V_F010);
             }
         }
 
@@ -806,7 +806,7 @@ void menu_draw_mission_story_screen(const Mission::Story& story) {
         bool exit_loop;
 
         if (bg_music_id != INVALID_ID) {
-            SoundManager_PlayMusic(bg_music_id, false);
+            ResourceManager_GetSoundManager().PlayMusic(bg_music_id, false);
         }
 
         briefing_window.SetFlags(WINDOW_MODAL);
@@ -2557,7 +2557,7 @@ void main_menu() {
         draw_copyright_label(window);
         menu_draw_main_menu_buttons(main_menu_buttons, sizeof(main_menu_buttons) / sizeof(struct MenuButton));
         mouse_show();
-        SoundManager_PlayMusic(MAIN_MSC, false);
+        ResourceManager_GetSoundManager().PlayMusic(MAIN_MSC, false);
         Cursor_SetCursor(CURSOR_HAND);
         mouse_show();
         palette_from_image = 0;

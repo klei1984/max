@@ -397,7 +397,7 @@ void Button::SetRestState(bool rest_state) {
     }
 }
 
-void Button::PlaySound() const { SoundManager_PlaySfx(sfx); }
+void Button::PlaySound() const { ResourceManager_GetSoundManager().PlaySfx(sfx); }
 
 void Button::SetSfx(ResourceID id) { sfx = id; }
 

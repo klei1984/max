@@ -100,6 +100,7 @@ static std::shared_ptr<Settings> ResourceManager_Settings;
 static std::shared_ptr<Language> ResourceManager_LanguageManager;
 static std::shared_ptr<Help> ResourceManager_HelpManager;
 static std::unique_ptr<PathsManager> ResourceManager_PathsManager;
+static std::unique_ptr<SoundManager> ResourceManager_SoundManager;
 static std::unique_ptr<std::unordered_map<std::string, ResourceID>> ResourceManager_ResourceIDLUT;
 static std::unique_ptr<std::vector<SDL_Mutex*>> ResourceManager_SDLMutexes;
 static std::string ResourceManager_SystemLocale{"en-US"};
@@ -195,6 +196,8 @@ static void ResourceManager_InitClans();
 static void ResourceManager_InitSettings();
 static void ResourceManager_InitUnits();
 static void ResourceManager_InitPathsManager();
+static void ResourceManager_InitSoundManager();
+static void ResourceManager_DeinitSoundManager();
 static void ResourceManager_ResetUnitsSprites();
 static std::filesystem::path ResourceManager_GetFileResourcePath(const std::string& string,
                                                                  std::filesystem::path& path);
@@ -513,7 +516,7 @@ void ResourceManager_InitInternals() {
 
     ResourceManager_DisableEnhancedGraphics = !ResourceManager_GetSettings()->GetNumericValue("enhanced_graphics");
 
-    SoundManager_Init();
+    ResourceManager_InitSoundManager();
     register_pause(-1, nullptr);
     screendump_register(GNW_KB_KEY_LALT_C, screendump_pcx);
 }
@@ -539,7 +542,7 @@ void ResourceManager_ExitGame(int32_t error_code) {
 }
 
 void ResourceManager_Exit() {
-    SoundManager_Deinit();
+    ResourceManager_DeinitSoundManager();
     win_exit();
     ResourceManager_DestroyMutexes();
     ResourceManager_PathsManager.reset();
@@ -1142,7 +1145,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     delete[] ResourceManager_MinimapBgImage;
     ResourceManager_MinimapBgImage = nullptr;
 
-    SoundManager_FreeMusic();
+    ResourceManager_GetSoundManager().FreeMusic();
 
     WindowManager_LoadBigImage(FRAMEPIC, window, window->width, true, false, -1, -1, false, true);
 
@@ -2150,6 +2153,12 @@ void ResourceManager_InitUnits() {
 void ResourceManager_InitPathsManager() { ResourceManager_PathsManager = std::make_unique<PathsManager>(); }
 
 PathsManager& ResourceManager_GetPathsManager() { return *ResourceManager_PathsManager; }
+
+void ResourceManager_InitSoundManager() { ResourceManager_SoundManager = std::make_unique<SoundManager>(); }
+
+void ResourceManager_DeinitSoundManager() { ResourceManager_SoundManager.reset(); }
+
+SoundManager& ResourceManager_GetSoundManager() { return *ResourceManager_SoundManager; }
 
 std::shared_ptr<Clans> ResourceManager_GetClans() { return ResourceManager_Clans; }
 

@@ -328,7 +328,7 @@ void HelpMenu_Menu(const std::string& section, const int32_t window_index, const
             }
 
             if (mouse_event.buttons & MOUSE_RELEASE_LEFT) {
-                SoundManager_PlaySfx(KCARG0);
+                ResourceManager_GetSoundManager().PlaySfx(KCARG0);
 
                 if (section == "GAME_SCREEN_SETUP" && HelpMenu_UnitReport(mouse_event.point.x, mouse_event.point.y)) {
                     break;

@@ -98,11 +98,9 @@ static Button* SaveLoadMenu_CreateButton(WinID wid, ResourceID up, ResourceID do
 static void SaveLoadMenu_Init(const MissionCategory mission_category, SaveSlot* slots, int32_t num_buttons,
                               Button* buttons[], Flic** flc, bool is_saving_allowed, int32_t first_slot_on_page,
                               bool mode);
-static void SaveLoadMenu_PlaySfx(ResourceID id);
 static void SaveLoadMenu_EventLoadSlotClick(SaveSlot* slots, int32_t* save_slot_index, int32_t key,
                                             int32_t is_saving_allowed);
 static void SaveLoadMenu_EventSaveLoadSlotClick(SaveSlot* slots, int32_t save_slot_index, int32_t is_saving_allowed);
-static bool SaveLoadMenu_RunPlausibilityTests();
 
 Button* SaveLoadMenu_CreateButton(WinID wid, ResourceID up, ResourceID down, int32_t ulx, int32_t uly,
                                   const char* caption, int32_t r_value) {
@@ -153,8 +151,6 @@ void SaveLoadMenu_DrawSaveSlotResource(uint8_t* image, int32_t width, ResourceID
 
     delete[] image_header;
 }
-
-void SaveLoadMenu_PlaySfx(ResourceID id) { SoundManager_PlaySfx(id); }
 
 void SaveLoadMenu_Init(const MissionCategory mission_category, SaveSlot* slots, int32_t num_buttons, Button* buttons[],
                        Flic** flc, bool is_saving_allowed, int32_t first_slot_on_page, bool mode) {
@@ -283,7 +279,7 @@ void SaveLoadMenu_Init(const MissionCategory mission_category, SaveSlot* slots, 
 
 void SaveLoadMenu_EventLoadSlotClick(SaveSlot* slots, int32_t* save_slot_index, int32_t key,
                                      int32_t is_saving_allowed) {
-    SaveLoadMenu_PlaySfx(KCARG0);
+    ResourceManager_GetSoundManager().PlaySfx(KCARG0);
 
     if (*save_slot_index >= 0) {
         slots[*save_slot_index].SetImageUpForTextEdit();
@@ -304,7 +300,7 @@ void SaveLoadMenu_EventLoadSlotClick(SaveSlot* slots, int32_t* save_slot_index, 
 }
 
 void SaveLoadMenu_EventSaveLoadSlotClick(SaveSlot* slots, int32_t save_slot_index, int32_t is_saving_allowed) {
-    SaveLoadMenu_PlaySfx(KCARG0);
+    ResourceManager_GetSoundManager().PlaySfx(KCARG0);
     win_set_button_rest_state(slots[save_slot_index].bid, 1, 0);
 
     if (is_saving_allowed) {
@@ -375,7 +371,7 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
             switch (key) {
                 case GNW_KB_KEY_PAGEUP:
                 case GNW_KB_KEY_PAGEDOWN: {
-                    SaveLoadMenu_PlaySfx(KCARG0);
+                    ResourceManager_GetSoundManager().PlaySfx(KCARG0);
 
                     if ((key != GNW_KB_KEY_PAGEUP || SaveLoadMenu_FirstSaveSlotOnPage != 1) &&
                         (key != GNW_KB_KEY_PAGEDOWN ||
@@ -411,7 +407,7 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
                 } break;
 
                 case 1022: {
-                    SaveLoadMenu_PlaySfx(FSAVE);
+                    ResourceManager_GetSoundManager().PlaySfx(FSAVE);
 
                     if (save_slot_index >= 0) {
                         slots[save_slot_index].text_edit->ProcessKeyPress(GNW_KB_KEY_RETURN);
@@ -447,12 +443,12 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
                 } break;
 
                 case 1000: {
-                    SaveLoadMenu_PlaySfx(FCANC);
+                    ResourceManager_GetSoundManager().PlaySfx(FCANC);
                     exit_loop = true;
                 } break;
 
                 case 1021: {
-                    SaveLoadMenu_PlaySfx(FHELP);
+                    ResourceManager_GetSoundManager().PlaySfx(FHELP);
                     if (is_saving_allowed) {
                         HelpMenu_Menu("SAVELOAD_SETUP", WINDOW_MAIN_WINDOW, Remote_IsNetworkGame == false);
                     } else {
@@ -461,7 +457,7 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
                 } break;
 
                 case 1023: {
-                    SaveLoadMenu_PlaySfx(FLOAD);
+                    ResourceManager_GetSoundManager().PlaySfx(FLOAD);
                     if (is_saving_allowed && Remote_IsNetworkGame) {
                         int32_t game_state;
 
@@ -527,7 +523,7 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
                 } break;
 
                 case 1024: {
-                    SaveLoadMenu_PlaySfx(FQUIT);
+                    ResourceManager_GetSoundManager().PlaySfx(FQUIT);
                     GameManager_GameState = GAME_STATE_3_MAIN_MENU;
                     exit_loop = true;
                 } break;
@@ -624,7 +620,7 @@ void SaveLoadMenu_Save(const char* file_name, const char* save_name, bool play_v
 
     if (SaveLoad_Save(filepath, save_name, rng_seed)) {
         if (play_voice) {
-            SoundManager_PlayVoice(V_M013, V_F013);
+            ResourceManager_GetSoundManager().PlayVoice(V_M013, V_F013);
         }
     }
 

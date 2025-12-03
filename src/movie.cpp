@@ -147,7 +147,7 @@ int32_t movie_run(ResourceID resource_id, ResourceID subtitle_id) {
     int32_t result;
     uint8_t* palette;
 
-    SoundManager_FreeMusic();
+    ResourceManager_GetSoundManager().FreeMusic();
 
     WindowManager_ClearWindow();
 
