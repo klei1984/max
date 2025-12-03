@@ -28,6 +28,7 @@
 #include "ailog.hpp"
 #include "builder.hpp"
 #include "buildmenu.hpp"
+#include "cargo.hpp"
 #include "cursor.hpp"
 #include "game_manager.hpp"
 #include "gfx.hpp"
@@ -38,6 +39,7 @@
 #include "randomizer.hpp"
 #include "registerarray.hpp"
 #include "remote.hpp"
+#include "researchmenu.hpp"
 #include "resource_manager.hpp"
 #include "settings.hpp"
 #include "sound_manager.hpp"
@@ -1592,7 +1594,7 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int32_t attack_potential, int32_t dir
             MessageManager_DrawMessage(message.GetCStr(), 0, this, position);
         }
 
-        UnitsManager_CheckIfUnitDestroyed(this);
+        CheckIfDestroyed();
 
         if (hits == 0 || (orders != ORDER_EXPLODE && state != ORDER_STATE_DESTROY)) {
             UnitsManager_SetNewOrderInt(this, ORDER_EXPLODE, ORDER_STATE_INIT);
@@ -2767,7 +2769,7 @@ void UnitInfo::SpotByTeam(uint16_t team) {
         RefreshScreen();
 
         if (unit_type == COMMANDO && orders == ORDER_AWAIT) {
-            UnitsManager_DrawBustedCommando(this);
+            DrawBustedCommando();
         }
 
         if (unit_type == SUBMARNE || unit_type == CLNTRANS) {
@@ -3465,7 +3467,7 @@ void UnitInfo::SpawnNewUnit() {
                     state = ORDER_STATE_EXECUTING_ORDER;
                 }
 
-                UnitsManager_SetUnitSpriteFrameAfterTransport(this, grid_x, grid_y);
+                SetSpriteFrameForTerrain(grid_x, grid_y);
 
                 if (GetTask()) {
                     GetTask()->AddUnit(*utility_unit);
@@ -3543,7 +3545,7 @@ void UnitInfo::MoveFinished(bool mode) {
 
     } else if (unit_type == COMMANDO) {
         UpdateSpriteFrame(0, image_index_max);
-        UnitsManager_TestBustedCommando(this);
+        TestBustedVisibility();
     }
 
     if (IsVisibleToTeam(GameManager_PlayerTeam)) {
@@ -3810,7 +3812,7 @@ void UnitInfo::UpgradeInt() {
         static_cast<int32_t>(hits) + values->GetAttribute(ATTRIB_HITS) - base_values->GetAttribute(ATTRIB_HITS);
     hits = std::max<int32_t>(0, std::min<int32_t>(new_hits, UINT16_MAX));
 
-    UnitsManager_CheckIfUnitDestroyed(this);
+    CheckIfDestroyed();
 
     base_values = values;
     base_values->SetUnitsBuilt(1);
@@ -4005,7 +4007,7 @@ int32_t UnitInfo::Repair(int32_t materials) {
     int32_t new_hits = static_cast<int32_t>(hits) + hits_damage_level;
     hits = std::min<int32_t>(new_hits, UINT16_MAX);
 
-    UnitsManager_CheckIfUnitDestroyed(this);
+    CheckIfDestroyed();
 
     return repair_cost;
 }
@@ -4577,7 +4579,7 @@ void UnitInfo::ProgressFire() {
             }
 
             if (unit_type == COMMANDO) {
-                UnitsManager_TestBustedCommando(this);
+                TestBustedVisibility();
             }
         }
 
@@ -4710,4 +4712,398 @@ UnitOrderStateType UnitInfo::SetPriorOrderState(const UnitOrderStateType order_s
     this->prior_state = order_state;
 
     return previous_order_state;
+}
+
+void UnitInfo::CheckIfDestroyed() {
+    if (hits == 0) {
+        engine = 0;
+        weapon = 0;
+    }
+}
+
+void UnitInfo::UpdateGridPosition(int32_t new_grid_x, int32_t new_grid_y) {
+    grid_x = new_grid_x;
+    grid_y = new_grid_y;
+
+    int32_t pixel_x = new_grid_x * 64 + 32;
+    int32_t pixel_y = new_grid_y * 64 + 32;
+
+    if (flags & BUILDING) {
+        pixel_x += 31;
+        pixel_y += 31;
+    }
+
+    pixel_x -= x;
+    pixel_y -= y;
+
+    OffsetDrawZones(pixel_x, pixel_y);
+}
+
+void UnitInfo::DrawBustedCommando() { DrawSpriteFrame(angle + 200); }
+
+void UnitInfo::TestBustedVisibility() {
+    for (int32_t team_index = PLAYER_TEAM_RED; team_index < PLAYER_TEAM_MAX - 1; ++team_index) {
+        if (team != team_index) {
+            if (IsVisibleToTeam(team_index)) {
+                DrawBustedCommando();
+            }
+        }
+    }
+}
+
+void UnitInfo::SetSpriteFrameForTerrain(int32_t target_grid_x, int32_t target_grid_y) {
+    if ((flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
+        const auto surface_type = Access_GetModifiedSurfaceType(target_grid_x, target_grid_y);
+
+        if (GetUnitType() == CLNTRANS) {
+            if (surface_type == SURFACE_TYPE_WATER) {
+                image_base = 0;
+
+            } else {
+                image_base = 8;
+            }
+
+        } else {
+            if (surface_type == SURFACE_TYPE_WATER) {
+                image_base = 8;
+
+            } else {
+                image_base = 0;
+            }
+
+            firing_image_base = image_base + 16;
+        }
+
+        DrawSpriteFrame(image_base + angle);
+
+    } else if (GetUnitType() == COMMANDO) {
+        image_base = 0;
+        DrawSpriteFrame(image_base + angle);
+    }
+}
+
+void UnitInfo::Animate() {
+    if (ResourceManager_GetSettings()->GetNumericValue("effects")) {
+        bool is_unit_moved = false;
+
+        if (flags & HOVERING) {
+            is_unit_moved = ShakeAir();
+        }
+
+        if (((flags & MOBILE_SEA_UNIT) || GetUnitType() == SEAMINE) &&
+            Access_GetModifiedSurfaceType(grid_x, grid_y) == SURFACE_TYPE_WATER) {
+            is_unit_moved = ShakeWater();
+        }
+
+        if (GameManager_SelectedUnit == this || is_unit_moved) {
+            int32_t unit_size = (flags & BUILDING) ? 63 : 31;
+            Rect bounds;
+
+            bounds.ulx = x - unit_size;
+            bounds.uly = y - unit_size;
+            bounds.lrx = bounds.ulx + 1 + unit_size * 2;
+            bounds.lry = bounds.uly + 1 + unit_size * 2;
+
+            if (is_unit_moved) {
+                bounds.ulx -= 3;
+                bounds.uly -= 3;
+                bounds.lrx += 3;
+                bounds.lry += 3;
+
+                if (GameManager_IsInsideMapView(this)) {
+                    --UnitsManager_BobEffectQuota;
+                }
+            }
+
+            GameManager_AddDrawBounds(&bounds);
+        }
+    }
+}
+
+void UnitInfo::PowerUp(int32_t factor) {
+    Cargo_UpdateResourceLevels(this, factor);
+
+    SetOrderState(ORDER_STATE_EXECUTING_ORDER);
+
+    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
+        GameManager_OptimizeProduction(team, GetComplex(), false, true);
+
+        if (IsVisibleToTeam(GameManager_PlayerTeam)) {
+            RefreshScreen();
+        }
+
+        if (GameManager_SelectedUnit == this) {
+            GameManager_UpdateInfoDisplay(this);
+        }
+
+    } else {
+        if (GameManager_SelectedUnit == this) {
+            GameManager_UpdateInfoDisplay(this);
+
+            if (GameManager_PlayerTeam == team) {
+                GameManager_OptimizeProduction(team, GetComplex(), true, true);
+            }
+
+            GameManager_AutoSelectNext(this);
+        }
+    }
+}
+
+void UnitInfo::PowerDown() {
+    Ai_SetTasksPendingFlag("Power Down");
+
+    if (GameManager_SelectedUnit == this) {
+        SoundManager_PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_END);
+    }
+
+    PowerUp(1);
+
+    DrawSpriteFrame(image_base);
+
+    if (GetUnitType() == RESEARCH) {
+        ResearchMenu_UpdateResearchProgress(team, research_topic, -1);
+    }
+}
+
+void UnitInfo::ProcessLanding() {
+    if (Land()) {
+        if (GetParent()) {
+            SetOrder(ORDER_IDLE);
+            SetOrderState(ORDER_STATE_STORE);
+
+            UnitsManager_ScaleUnit(this, ORDER_STATE_SHRINK);
+
+        } else {
+            UnitsManager_RemoveUnitFromUnitLists(this);
+            AddToDrawList();
+
+            SetOrder(ORDER_AWAIT);
+            SetOrderState(ORDER_STATE_EXECUTING_ORDER);
+        }
+
+        if (IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy) {
+            RefreshScreen();
+        }
+    }
+}
+
+void UnitInfo::ProcessLoading() {
+    if (Take()) {
+        SmartPointer<UnitInfo> parent = GetParent();
+        const Unit& base_unit = ResourceManager_GetUnit(parent->GetUnitType());
+
+        SetOrder(ORDER_AWAIT);
+        SetOrderState(ORDER_STATE_EXECUTING_ORDER);
+        SetParent(nullptr);
+
+        if (GetTask()) {
+            GetTask()->EventUnitLoaded(*this, *parent);
+        }
+
+        if (GameManager_SelectedUnit == this) {
+            char message[400];
+
+            sprintf(message, _(c15c), base_unit.GetSingularName().data(), parent->unit_id);
+
+            MessageManager_DrawMessage(message, 0, 0);
+        }
+    }
+}
+
+void UnitInfo::ProcessUnloading() {
+    if (Take()) {
+        SmartPointer<UnitInfo> parent = GetParent();
+        const Unit& base_unit = ResourceManager_GetUnit(parent->GetUnitType());
+
+        SetOrder(ORDER_AWAIT);
+        SetOrderState(ORDER_STATE_EXECUTING_ORDER);
+        SetParent(nullptr);
+
+        if (GetTask()) {
+            GetTask()->EventUnitUnloaded(*this, *parent);
+        }
+
+        if (GameManager_SelectedUnit == this) {
+            char message[400];
+
+            sprintf(message, _(60f3), base_unit.GetSingularName().data(), parent->unit_id);
+
+            MessageManager_DrawMessage(message, 0, 0);
+        }
+    }
+}
+
+bool UnitInfo::AimAtTarget() {
+    bool result;
+    int32_t unit_angle;
+
+    if (flags & TURRET_SPRITE) {
+        unit_angle = turret_angle;
+
+    } else {
+        unit_angle = angle;
+    }
+
+    int32_t distance_x = fire_on_grid_x - grid_x;
+    int32_t distance_y = fire_on_grid_y - grid_y;
+    int32_t target_angle = UnitsManager_GetTargetAngle(distance_x, distance_y);
+
+    if (unit_angle == target_angle) {
+        SetOrderState(ORDER_STATE_READY_TO_FIRE);
+
+        for (int32_t team_index = PLAYER_TEAM_RED; team_index < PLAYER_TEAM_MAX - 1; ++team_index) {
+            if (team != team_index && UnitsManager_TeamInfo[team_index].team_type != TEAM_TYPE_NONE &&
+                UnitsManager_TeamInfo[team_index].heat_map_complete[grid_y * ResourceManager_MapSize.x + grid_x]) {
+                SpotByTeam(team_index);
+            }
+        }
+
+        result = true;
+
+    } else {
+        if (((target_angle - unit_angle + 8) & 0x07) > 4) {
+            target_angle = -1;
+
+        } else {
+            target_angle = 1;
+        }
+
+        unit_angle = ((unit_angle + target_angle) & 0x07);
+
+        if (flags & TURRET_SPRITE) {
+            UpdateTurretAngle(unit_angle, true);
+
+        } else {
+            UpdateAngle(unit_angle);
+        }
+
+        result = false;
+    }
+
+    return result;
+}
+
+void UnitInfo::ProcessRepair() {
+    SmartPointer<UnitInfo> parent(GetParent());
+
+    if (GameManager_SelectedUnit == this) {
+        SoundManager_PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_START, true);
+    }
+
+    if (GetComplex()) {
+        Cargo materials;
+        Cargo capacity;
+
+        GetComplex()->GetCargoInfo(materials, capacity);
+
+        int32_t repair_cost = parent->Repair(materials.raw);
+
+        GetComplex()->Transfer(-repair_cost, 0, 0);
+
+    } else {
+        int32_t repair_cost = parent->Repair(storage);
+
+        storage -= repair_cost;
+    }
+
+    if (parent->IsVisibleToTeam(GameManager_PlayerTeam)) {
+        parent->RefreshScreen();
+    }
+
+    RestoreOrders();
+
+    if (GameManager_SelectedUnit == this) {
+        GameManager_UpdateInfoDisplay(this);
+    }
+
+    parent->ScheduleDelayedTasks(true);
+}
+
+void UnitInfo::ProcessTransfer() {
+    SmartPointer<UnitInfo> source(this);
+    SmartPointer<UnitInfo> target(GetParent());
+    Unit::CargoType cargo_type = ResourceManager_GetUnit(GetUnitType()).GetCargoType();
+    int32_t transfer_amount = transfer_cargo;
+
+    if (transfer_amount < 0) {
+        source = target;
+        target = this;
+
+        transfer_amount = labs(transfer_amount);
+    }
+
+    if (cargo_type == Unit::CargoType::CARGO_TYPE_RAW) {
+        target->TransferRaw(transfer_amount);
+
+        if (source->GetComplex()) {
+            source->GetComplex()->material -= transfer_amount;
+        }
+
+        if (source->storage >= transfer_amount) {
+            source->storage -= transfer_amount;
+
+        } else {
+            SDL_assert(source->GetComplex());
+
+            transfer_amount -= source->storage;
+            source->storage = 0;
+
+            source->GetComplex()->Transfer(-transfer_amount, 0, 0);
+            source->GetComplex()->material += transfer_amount;
+        }
+
+    } else if (cargo_type == Unit::CargoType::CARGO_TYPE_FUEL) {
+        target->TransferFuel(transfer_amount);
+
+        if (source->GetComplex()) {
+            source->GetComplex()->fuel -= transfer_amount;
+        }
+
+        if (source->storage >= transfer_amount) {
+            source->storage -= transfer_amount;
+
+        } else {
+            transfer_amount -= source->storage;
+            source->storage = 0;
+
+            source->GetComplex()->Transfer(0, -transfer_amount, 0);
+            source->GetComplex()->fuel += transfer_amount;
+        }
+
+    } else {
+        SDL_assert(cargo_type == Unit::CargoType::CARGO_TYPE_GOLD);
+
+        target->TransferGold(transfer_amount);
+
+        if (source->GetComplex()) {
+            source->GetComplex()->gold -= transfer_amount;
+        }
+
+        if (source->storage >= transfer_amount) {
+            source->storage -= transfer_amount;
+
+        } else {
+            transfer_amount -= source->storage;
+            source->storage = 0;
+
+            source->GetComplex()->Transfer(0, 0, -transfer_amount);
+            source->GetComplex()->gold += transfer_amount;
+        }
+    }
+
+    RestoreOrders();
+
+    if (GameManager_SelectedUnit == source) {
+        GameManager_UpdateInfoDisplay(&*source);
+    }
+
+    if (GameManager_SelectedUnit == target) {
+        GameManager_UpdateInfoDisplay(&*target);
+    }
+
+    target = GetParent();
+
+    if (target->GetTask()) {
+        target->GetTask()->EventCargoTransfer(*target);
+    }
 }

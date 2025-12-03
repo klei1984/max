@@ -353,9 +353,23 @@ public:
     void ChangeTeam(uint16_t target_team);
     bool AttemptSideStep(int32_t grid_x, int32_t grid_y, int32_t angle);
     int32_t GetTurnsToBuild(ResourceID unit_type, int32_t build_speed_multiplier, int32_t* turns_to_build);
+    void DrawBustedCommando();
+    void TestBustedVisibility();
+    void SetSpriteFrameForTerrain(int32_t grid_x, int32_t grid_y);
     void Init();
     [[nodiscard]] UnitInfo* GetParent() const noexcept;
     void SetParent(UnitInfo* const parent) noexcept;
+    void CheckIfDestroyed();
+    void UpdateGridPosition(int32_t grid_x, int32_t grid_y);
+    void Animate();
+    void PowerUp(int32_t factor);
+    void PowerDown();
+    void ProcessLanding();
+    void ProcessLoading();
+    void ProcessUnloading();
+    bool AimAtTarget();
+    void ProcessRepair();
+    void ProcessTransfer();
 
     struct PopupFunctions* popup;
     uint32_t flags;
