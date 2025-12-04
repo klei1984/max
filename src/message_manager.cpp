@@ -45,8 +45,9 @@ int16_t MessageManager_MessageBox_Height;
 ColorIndex* MessageManager_MessageBox_BgColor;
 bool MessageManager_MessageBox_IsActive;
 
-ColorIndex** MessageManager_MessageBox_BgColorArray[] = {
-    &ResourceManager_ColorIndexTable12, &ResourceManager_ColorIndexTable10, &ResourceManager_ColorIndexTable06};
+ColorIndex** MessageManager_MessageBox_BgColorArray[] = {&ResourceManager_DarkeningColorIndexTable,
+                                                         &ResourceManager_WorldTintColorIndexTable,
+                                                         &ResourceManager_RedTintColorIndexTable};
 
 SmartList<MessageLogEntry> MessageManager_TeamMessageLog[PLAYER_TEAM_MAX - 1];
 

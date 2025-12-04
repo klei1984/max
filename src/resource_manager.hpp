@@ -87,14 +87,10 @@ extern ColorIndex* ResourceManager_TeamGreenColorIndexTable;
 extern ColorIndex* ResourceManager_TeamBlueColorIndexTable;
 extern ColorIndex* ResourceManager_TeamGrayColorIndexTable;
 extern ColorIndex* ResourceManager_TeamDerelictColorIndexTable;
-extern ColorIndex* ResourceManager_ColorIndexTable06;
-extern ColorIndex* ResourceManager_ColorIndexTable07;
-extern ColorIndex* ResourceManager_ColorIndexTable08;
-extern ColorIndex* ResourceManager_ColorIndexTable09;
-extern ColorIndex* ResourceManager_ColorIndexTable10;
-extern ColorIndex* ResourceManager_ColorIndexTable11;
-extern ColorIndex* ResourceManager_ColorIndexTable12;
-extern ColorIndex* ResourceManager_ColorIndexTable13x8;
+extern ColorIndex* ResourceManager_RedTintColorIndexTable;
+extern ColorIndex* ResourceManager_WorldTintColorIndexTable;
+extern ColorIndex* ResourceManager_DarkeningColorIndexTable;
+extern ColorIndex* ResourceManager_BrightnessColorIndexTable;
 
 extern uint8_t* ResourceManager_Minimap;
 extern uint8_t* ResourceManager_MinimapUnits;

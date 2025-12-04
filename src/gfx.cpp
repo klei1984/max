@@ -126,7 +126,7 @@ void Gfx_DecodeMapTile(const Rect* const pixel_bounds, const uint32_t tile_size,
     if (pixel_bounds->lry - 1 > pixel_bounds->uly && pixel_bounds->lrx - 1 > pixel_bounds->ulx) {
         const uint32_t map_tile_zoom_factor{(((tile_size - 1) << GFX_SCALE_BASE) / (Gfx_ZoomLevel - 1)) + 8};
 
-        const ColorIndex* color_table{&ResourceManager_ColorIndexTable13x8[(Gfx_MapBrightness & (~31)) * 8]};
+        const ColorIndex* color_table{&ResourceManager_BrightnessColorIndexTable[(Gfx_MapBrightness & (~31)) * 8]};
 
         const Rect clipped_bounds = {.ulx = pixel_bounds->ulx & (~63),
                                      .uly = pixel_bounds->uly & (~63),
@@ -208,7 +208,7 @@ void Gfx_DecodeMapTile(const Rect* const pixel_bounds, const uint32_t tile_size,
 }
 
 void Gfx_DecodeSprite() {
-    const ColorIndex* color_table{&ResourceManager_ColorIndexTable13x8[(Gfx_UnitBrightnessBase & (~31)) * 8]};
+    const ColorIndex* color_table{&ResourceManager_BrightnessColorIndexTable[(Gfx_UnitBrightnessBase & (~31)) * 8]};
 
     for (uint32_t Gfx_SpriteRowIndex = Gfx_ScaledOffset.y * Gfx_ScalingFactorHeight;;
          Gfx_SpriteRowIndex += Gfx_ScalingFactorHeight) {
@@ -421,7 +421,7 @@ void Gfx_DecodeShadow() {
             }
 
             {
-                ColorIndex* index_table = &ResourceManager_ColorIndexTable13x8[5 * PALETTE_SIZE];
+                ColorIndex* index_table = &ResourceManager_BrightnessColorIndexTable[5 * PALETTE_SIZE];
                 uint8_t* window_buffer = &Gfx_MapWindowBuffer[offset];
 
                 for (int32_t i = 0; i < rescaled_pixel_count; ++i) {

@@ -124,14 +124,10 @@ ColorIndex* ResourceManager_TeamGreenColorIndexTable;
 ColorIndex* ResourceManager_TeamBlueColorIndexTable;
 ColorIndex* ResourceManager_TeamGrayColorIndexTable;
 ColorIndex* ResourceManager_TeamDerelictColorIndexTable;
-ColorIndex* ResourceManager_ColorIndexTable06;
-ColorIndex* ResourceManager_ColorIndexTable07;
-ColorIndex* ResourceManager_ColorIndexTable08;
-ColorIndex* ResourceManager_ColorIndexTable09;
-ColorIndex* ResourceManager_ColorIndexTable10;
-ColorIndex* ResourceManager_ColorIndexTable11;
-ColorIndex* ResourceManager_ColorIndexTable12;
-ColorIndex* ResourceManager_ColorIndexTable13x8;
+ColorIndex* ResourceManager_RedTintColorIndexTable;
+ColorIndex* ResourceManager_WorldTintColorIndexTable;
+ColorIndex* ResourceManager_DarkeningColorIndexTable;
+ColorIndex* ResourceManager_BrightnessColorIndexTable;
 
 uint8_t* ResourceManager_Minimap;
 uint8_t* ResourceManager_MinimapUnits;
@@ -889,7 +885,7 @@ int32_t ResourceManager_BuildColorTables() {
     int32_t result;
     ColorIndex* aligned_buffer;
 
-    color_animation_buffer = new (std::nothrow) ColorIndex[20 * PALETTE_SIZE + PALETTE_SIZE];
+    color_animation_buffer = new (std::nothrow) ColorIndex[16 * PALETTE_SIZE + PALETTE_SIZE];
     aligned_buffer =
         reinterpret_cast<ColorIndex*>(((reinterpret_cast<intptr_t>(color_animation_buffer) + PALETTE_SIZE) >> 8) << 8);
 
@@ -899,17 +895,13 @@ int32_t ResourceManager_BuildColorTables() {
         ResourceManager_TeamBlueColorIndexTable = &aligned_buffer[2 * PALETTE_SIZE];
         ResourceManager_TeamGrayColorIndexTable = &aligned_buffer[3 * PALETTE_SIZE];
         ResourceManager_TeamDerelictColorIndexTable = &aligned_buffer[4 * PALETTE_SIZE];
-        ResourceManager_ColorIndexTable06 = &aligned_buffer[5 * PALETTE_SIZE];
-        ResourceManager_ColorIndexTable07 = &aligned_buffer[6 * PALETTE_SIZE];
-        ResourceManager_ColorIndexTable08 = &aligned_buffer[7 * PALETTE_SIZE];
-        ResourceManager_ColorIndexTable09 = &aligned_buffer[8 * PALETTE_SIZE];
-        ResourceManager_ColorIndexTable10 = &aligned_buffer[9 * PALETTE_SIZE];
-        ResourceManager_ColorIndexTable11 = &aligned_buffer[10 * PALETTE_SIZE];
-        ResourceManager_ColorIndexTable12 = &aligned_buffer[11 * PALETTE_SIZE];
-        ResourceManager_ColorIndexTable13x8 = &aligned_buffer[12 * PALETTE_SIZE];
+        ResourceManager_RedTintColorIndexTable = &aligned_buffer[5 * PALETTE_SIZE];
+        ResourceManager_WorldTintColorIndexTable = &aligned_buffer[6 * PALETTE_SIZE];
+        ResourceManager_DarkeningColorIndexTable = &aligned_buffer[7 * PALETTE_SIZE];
+        ResourceManager_BrightnessColorIndexTable = &aligned_buffer[8 * PALETTE_SIZE];
 
         {
-            ColorIndex* buffer = &aligned_buffer[19 * PALETTE_SIZE];
+            ColorIndex* buffer = &aligned_buffer[15 * PALETTE_SIZE];
 
             for (int32_t i = 0; i < PALETTE_SIZE; ++i) {
                 ResourceManager_TeamDerelictColorIndexTable[i] = i;
@@ -1336,35 +1328,23 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     load_bar.SetValue(progress_bar_value);
 
     if (world >= SNOW_1 && world <= SNOW_6) {
-        Color_GenerateIntensityTable3(WindowManager_ColorPalette, 63, 0, 0, 63, ResourceManager_ColorIndexTable06);
-        Color_GenerateIntensityTable3(WindowManager_ColorPalette, 0, 63, 0, 63, ResourceManager_ColorIndexTable07);
-        Color_GenerateIntensityTable3(WindowManager_ColorPalette, 0, 0, 63, 63, ResourceManager_ColorIndexTable08);
+        Color_GenerateIntensityTable3(WindowManager_ColorPalette, 63, 0, 0, 63, ResourceManager_RedTintColorIndexTable);
 
     } else {
-        Color_GenerateIntensityTable3(WindowManager_ColorPalette, 63, 0, 0, 31, ResourceManager_ColorIndexTable06);
-        Color_GenerateIntensityTable3(WindowManager_ColorPalette, 0, 63, 0, 31, ResourceManager_ColorIndexTable07);
-        Color_GenerateIntensityTable3(WindowManager_ColorPalette, 0, 0, 63, 31, ResourceManager_ColorIndexTable08);
+        Color_GenerateIntensityTable3(WindowManager_ColorPalette, 63, 0, 0, 31, ResourceManager_RedTintColorIndexTable);
     }
 
     if (world >= CRATER_1 && world <= CRATER_6) {
-        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 63, ResourceManager_ColorIndexTable10);
-        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 0, 63, 0, ResourceManager_ColorIndexTable11);
-        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 0, ResourceManager_ColorIndexTable09);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 63, ResourceManager_WorldTintColorIndexTable);
 
     } else if (world >= GREEN_1 && world <= GREEN_6) {
-        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 63, ResourceManager_ColorIndexTable10);
-        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 0, 0, 31, ResourceManager_ColorIndexTable11);
-        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 0, ResourceManager_ColorIndexTable09);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 63, ResourceManager_WorldTintColorIndexTable);
 
     } else if (world >= DESERT_1 && world <= DESERT_6) {
-        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 63, ResourceManager_ColorIndexTable10);
-        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 0, 0, 31, ResourceManager_ColorIndexTable11);
-        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 0, ResourceManager_ColorIndexTable09);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 63, ResourceManager_WorldTintColorIndexTable);
 
     } else if (world >= SNOW_1 && world <= SNOW_6) {
-        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 0, 0, ResourceManager_ColorIndexTable10);
-        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 0, 0, 63, ResourceManager_ColorIndexTable11);
-        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 63, 0, ResourceManager_ColorIndexTable09);
+        Color_GenerateIntensityTable2(WindowManager_ColorPalette, 63, 0, 0, ResourceManager_WorldTintColorIndexTable);
     }
 
     for (int32_t i = 0, j = 0; i < PALETTE_STRIDE * PALETTE_SIZE; i += PALETTE_STRIDE, ++j) {
@@ -1384,7 +1364,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
         g = (std::max(factor, g) * 31) / 63;
         b = (std::max(factor, b) * 31) / 63;
 
-        ResourceManager_ColorIndexTable12[j] = Color_MapColor(WindowManager_ColorPalette, r, g, b, false);
+        ResourceManager_DarkeningColorIndexTable[j] = Color_MapColor(WindowManager_ColorPalette, r, g, b, false);
     }
 
     progress_bar_value += 3;
@@ -1394,14 +1374,14 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     for (int32_t i = 0, l = 0; i < 7 * 32; i += 32, ++l) {
         for (int32_t j = 0, k = 0; j < PALETTE_STRIDE * PALETTE_SIZE; j += PALETTE_STRIDE, ++k) {
             if (j == PALETTE_STRIDE * 31) {
-                ResourceManager_ColorIndexTable13x8[l * PALETTE_SIZE + k] = 31;
+                ResourceManager_BrightnessColorIndexTable[l * PALETTE_SIZE + k] = 31;
 
             } else {
                 int32_t r = (WindowManager_ColorPalette[j] * i) / (7 * 32);
                 int32_t g = (WindowManager_ColorPalette[j + 1] * i) / (7 * 32);
                 int32_t b = (WindowManager_ColorPalette[j + 2] * i) / (7 * 32);
 
-                ResourceManager_ColorIndexTable13x8[l * PALETTE_SIZE + k] =
+                ResourceManager_BrightnessColorIndexTable[l * PALETTE_SIZE + k] =
                     Color_MapColor(WindowManager_ColorPalette, r, g, b, false);
             }
         }

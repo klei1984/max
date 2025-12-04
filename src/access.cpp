@@ -653,7 +653,7 @@ void Access_UpdateMapStatusRemoveUnit(UnitInfo* unit, int32_t grid_x, int32_t gr
 
         if (team == GameManager_PlayerTeam) {
             ResourceManager_MinimapFov[map_offset] =
-                ResourceManager_ColorIndexTable12[ResourceManager_Minimap[map_offset]];
+                ResourceManager_DarkeningColorIndexTable[ResourceManager_Minimap[map_offset]];
         }
 
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
@@ -891,7 +891,7 @@ void Access_UpdateMinimapFogOfWar(uint16_t team, bool all_visible, bool ignore_t
     if (!all_visible) {
         for (uint32_t i = 0; i < map_cell_count; ++i) {
             if (UnitsManager_TeamInfo[team].heat_map_complete[i] == 0 || ignore_team_heat_map) {
-                ResourceManager_MinimapFov[i] = ResourceManager_ColorIndexTable12[ResourceManager_MinimapFov[i]];
+                ResourceManager_MinimapFov[i] = ResourceManager_DarkeningColorIndexTable[ResourceManager_MinimapFov[i]];
             }
         }
     }
