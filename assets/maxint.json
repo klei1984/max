@@ -3,17 +3,29 @@
 	"author": {
 		"en-US": "Interplay Productions",
 		"hu-HU": "M.A.X. Port Team",
-		"fr-FR": "Interplay Productions"
+		"fr-FR": "Interplay Productions",
+		"it-IT": "M.A.X. Port Team",
+		"de-DE": "Interplay Productions",
+		"es-ES": "Interplay Productions",
+		"ru-RU": "M.A.X. Port Team"
 	},
 	"copyright": {
 		"en-US": "(c) 1996 Interplay Productions",
 		"hu-HU": "(c) 2025 M.A.X. Port Team",
-		"fr-FR": "(c) 1996 Interplay Productions"
+		"fr-FR": "(c) 1996 Interplay Productions",
+		"it-IT": "(c) 2025 M.A.X. Port Team",
+		"de-DE": "(c) 1996 Interplay Productions",
+		"es-ES": "(c) 1996 Interplay Productions",
+		"ru-RU": "(c) 2025 M.A.X. Port Team"
 	},
 	"license": {
 		"en-US": "All rights reserved",
 		"hu-HU": "MIT-0",
-		"fr-FR": "All rights reserved"
+		"fr-FR": "All rights reserved",
+		"it-IT": "MIT-0",
+		"de-DE": "All rights reserved",
+		"es-ES": "All rights reserved",
+		"ru-RU": "MIT-0"
 	},
 	"subtitle": {
 		"en-US": [
@@ -395,6 +407,519 @@
 				"start": 4281,
 				"end": 4340,
 				"caption": "de l'humanité est de se battre pour conquérir ces planètes."
+			}
+		],
+		"it-IT": [
+			{
+				"start": 144,
+				"end": 245,
+				"caption": "Erano gli indesiderati. Sette, fazioni religiose, persino interi governi."
+			},
+			{
+				"start": 249,
+				"end": 322,
+				"caption": "Grazie all'intervento dei dominatori alieni noti come la Concordia, furono strappati"
+			},
+			{
+				"start": 328,
+				"end": 406,
+				"caption": "a una Terra ostile e ricevettero una nuova possibilità: conquistare un mondo su cui prosperare."
+			},
+			{
+				"start": 410,
+				"end": 475,
+				"caption": "In ogni astronave aliena giace l'intera popolazione di una fazione."
+			},
+			{
+				"start": 488,
+				"end": 558,
+				"caption": "I loro padroni alieni promisero loro un nuovo mondo su cui costruire il proprio futuro."
+			},
+			{
+				"start": 559,
+				"end": 599,
+				"caption": "Devono solo combattere per ottenerlo."
+			},
+			{
+				"start": 710,
+				"end": 791,
+				"caption": "Mentre la maggior parte della popolazione riposava in stasi in attesa della colonizzazione,"
+			},
+			{
+				"start": 793,
+				"end": 868,
+				"caption": "i membri scelti di ogni fazione divennero i comandanti delle forze robotiche"
+			},
+			{
+				"start": 869,
+				"end": 913,
+				"caption": "destinate a stabilire la testa di ponte sul nuovo mondo."
+			},
+			{
+				"start": 1003,
+				"end": 1078,
+				"caption": "Ma gli esseri umani non possono sopravvivere ai rigori dell'iperspazio senza un intervento radicale."
+			},
+			{
+				"start": 1079,
+				"end": 1168,
+				"caption": "Il sistema nervoso dei prescelti fu estratto e sigillato in capsule protettive di tecnologia aliena."
+			},
+			{
+				"start": 1170,
+				"end": 1249,
+				"caption": "Solo i più resistenti e coraggiosi tra i rifugiati poterono sopportare questa procedura estrema."
+			},
+			{
+				"start": 1255,
+				"end": 1294,
+				"caption": "Il risultato: il Comandante M.A.X."
+			},
+			{
+				"start": 1552,
+				"end": 1627,
+				"caption": "Altri rifugiati, sotto la guida aliena, costruirono i vascelli d'assalto"
+			},
+			{
+				"start": 1628,
+				"end": 1702,
+				"caption": "che avrebbero trasportato il Comandante M.A.X. e la sua forza d'avanguardia verso la destinazione."
+			},
+			{
+				"start": 2313,
+				"end": 2397,
+				"caption": "Il Comandante M.A.X. – un cervello umano isolato dagli orrori dell'iperspazio –"
+			},
+			{
+				"start": 2398,
+				"end": 2473,
+				"caption": "collegato a interfacce robotiche per guidare i vascelli attraverso il salto iperspaziale"
+			},
+			{
+				"start": 2474,
+				"end": 2524,
+				"caption": "e garantire la colonizzazione del pianeta al proprio Clan."
+			},
+			{
+				"start": 3076,
+				"end": 3108,
+				"caption": "I pianeti adatti furono individuati."
+			},
+			{
+				"start": 3109,
+				"end": 3205,
+				"caption": "I vascelli d'assalto si lanciarono dalle immense navi colonia, diretti verso la loro nuova patria."
+			},
+			{
+				"start": 3677,
+				"end": 3753,
+				"caption": "Giunti nel nuovo sistema, ogni Clan scoprì che altri vascelli erano già arrivati."
+			},
+			{
+				"start": 3754,
+				"end": 3855,
+				"caption": "Per conquistare il sistema, dovranno combattere come pedine dei Signori delle Stelle per stabilire il padrone del pianeta."
+			},
+			{
+				"start": 3856,
+				"end": 3957,
+				"caption": "I Comandanti M.A.X. ordinarono alle fabbriche, progettate per terraformare, di produrre le macchine da guerra."
+			},
+			{
+				"start": 4203,
+				"end": 4280,
+				"caption": "Intrappolati nei giochi di potere della Concordia, l'unica speranza di sopravvivenza per i Clan"
+			},
+			{
+				"start": 4281,
+				"end": 4340,
+				"caption": "dell'umanità è combattere per questi pianeti. E vincere."
+			}
+		],
+		"de-DE": [
+			{
+				"start": 144,
+				"end": 245,
+				"caption": "Sie waren die Ausgestoßenen. Kulte, religiöse Gruppen, sogar ganze Regierungen."
+			},
+			{
+				"start": 249,
+				"end": 322,
+				"caption": "Durch die Vermittlung der Alien-Machthaber, genannt Concord, wurden sie von einer"
+			},
+			{
+				"start": 328,
+				"end": 406,
+				"caption": "feindlichen Erde heruntergenommen und erhielten die Chance, eine neue Welt zu finden, auf der sie aufblühen konnten."
+			},
+			{
+				"start": 410,
+				"end": 475,
+				"caption": "In jedem der von den Aliens versorgten Schiffe befindet sich die gesamte Bevölkerung einer Gemeinschaft im Tiefschlaf."
+			},
+			{
+				"start": 488,
+				"end": 558,
+				"caption": "Ihre Alien-Wohltäter versprachen ihnen eine neue Welt, auf der sie gedeihen kann."
+			},
+			{
+				"start": 559,
+				"end": 599,
+				"caption": "Alles, was sie tun mussten, ist dafür zu kämpfen."
+			},
+			{
+				"start": 710,
+				"end": 791,
+				"caption": "Während die meisten der Bevölkerung im Tiefschlaf wuchten, wie sie zur Kolonisierung aufgerufen werden,"
+			},
+			{
+				"start": 793,
+				"end": 868,
+				"caption": "wurden speziell ausgewählte Mitglieder jeder Gruppe zu Anführern der Roboterarme gemacht, die"
+			},
+			{
+				"start": 869,
+				"end": 913,
+				"caption": "den Landekopf in der neuen Welt bilden sollten."
+			},
+			{
+				"start": 1003,
+				"end": 1078,
+				"caption": "Aber ohne radikale Chirurgie können Menschen die Härten des Hyperraums nicht überstehen."
+			},
+			{
+				"start": 1079,
+				"end": 1168,
+				"caption": "Das zentrale Nervensystem der Ausgewählten wurde entfernt und die Verschützende von den Aliens entwickelte Kapsel verlagert."
+			},
+			{
+				"start": 1170,
+				"end": 1249,
+				"caption": "Nur die härtesten, den selbstlosesten der Flüchtlinge konnten diese drastische Maßnahme überstehen."
+			},
+			{
+				"start": 1255,
+				"end": 1294,
+				"caption": "Das Ergebnis war der M.A.X.-Kommandant."
+			},
+			{
+				"start": 1552,
+				"end": 1627,
+				"caption": "Andere Flüchtlinge stellten unter Aufsicht der Aliens die Archen her, die den"
+			},
+			{
+				"start": 1628,
+				"end": 1702,
+				"caption": "M.A.X.-Kommandanten und seine sorgfältig ausgewählte Landekopfarmee an ihr Ziel bringen würden."
+			},
+			{
+				"start": 2313,
+				"end": 2397,
+				"caption": "Der MEC-Kommandant, ein menschliches, sicher vor den Scheußlichkeiten des Hyperraums geschütztes Gehirn,"
+			},
+			{
+				"start": 2398,
+				"end": 2473,
+				"caption": "an Roboter angeschlossenes, das die Archen auf ihrer Reise durch den Hyperraum steuert"
+			},
+			{
+				"start": 2474,
+				"end": 2524,
+				"caption": "und die Kolonisierung des Clans auf dem Planeten sicherstellt."
+			},
+			{
+				"start": 3076,
+				"end": 3108,
+				"caption": "Geeignete Planeten wurden ausgewählt."
+			},
+			{
+				"start": 3109,
+				"end": 3205,
+				"caption": "Die Archen verließen die gigantischen Kolonieschiffe und eilten ihrer zukünftigen neuen Heimat entgegen."
+			},
+			{
+				"start": 3677,
+				"end": 3753,
+				"caption": "Bei der Ankunft im neuen System fand jeder Clan bereits andere Archen vor."
+			},
+			{
+				"start": 3754,
+				"end": 3855,
+				"caption": "Um das System einzunehmen, müssen sie als Stellvertreter der Aliens-Wohltäter kämpfen, um den neuen Herrscher des Planeten zu bestimmen."
+			},
+			{
+				"start": 3856,
+				"end": 3918,
+				"caption": "MEC-Kommandanten lassen Fabriken bauen, in der Absicht Terraformer und Öko-Konstrukteure herzustellen,"
+			},
+			{
+				"start": 3919,
+				"end": 3957,
+				"caption": "um die Kriegsmaschinerie aufzubauen."
+			},
+			{
+				"start": 4203,
+				"end": 4280,
+				"caption": "In die Machtspiele der Concord verwickelt ist die einzige Überlebenschancen der Clans"
+			},
+			{
+				"start": 4281,
+				"end": 4340,
+				"caption": "der Menschheit zu kämpfen und diese Planeten zu gewinnen."
+			}
+		],
+		"es-ES": [
+			{
+				"start": 144,
+				"end": 245,
+				"caption": "Ellos eran los indeseados, cultos, facciones religiosas, incluso gobiernos enteros."
+			},
+			{
+				"start": 249,
+				"end": 322,
+				"caption": "Gracias a la intercesión de los jefes alienígenas, llamados la Concordia, habían sido sacados"
+			},
+			{
+				"start": 328,
+				"end": 406,
+				"caption": "de una Tierra hostil y se les había dado la oportunidad de ganar un nuevo mundo en el cual prosperar."
+			},
+			{
+				"start": 410,
+				"end": 475,
+				"caption": "Dentro de cada nave alienígena hibernaba la población entera de una facción."
+			},
+			{
+				"start": 488,
+				"end": 558,
+				"caption": "Sus protectores alienígenas les habían prometido un nuevo mundo donde prosperar."
+			},
+			{
+				"start": 559,
+				"end": 599,
+				"caption": "Todo lo que tenían que hacer era luchar por él."
+			},
+			{
+				"start": 710,
+				"end": 791,
+				"caption": "Al tiempo que la mayor parte de su población descansaba en estasis hasta ser llamados para colonizar,"
+			},
+			{
+				"start": 793,
+				"end": 868,
+				"caption": "miembros selectos de cada grupo se iban convirtiendo en los líderes de las fuerzas robóticas que"
+			},
+			{
+				"start": 869,
+				"end": 913,
+				"caption": "organizarían la cabeza de playa en el nuevo mundo."
+			},
+			{
+				"start": 1003,
+				"end": 1078,
+				"caption": "Pero los humanos no pueden resistir los rigores del hiperespacio sin una operación quirúrgica radical."
+			},
+			{
+				"start": 1079,
+				"end": 1168,
+				"caption": "Los sistemas nerviosos centrales de los seleccionados eran extraídos y conservados en una cápsula protectora de diseño alienígena."
+			},
+			{
+				"start": 1170,
+				"end": 1249,
+				"caption": "Sólo los refugiados más robustos y altruistas podían tolerar este drástico proceso."
+			},
+			{
+				"start": 1255,
+				"end": 1294,
+				"caption": "El resultado era el Comandante M.A.X."
+			},
+			{
+				"start": 1552,
+				"end": 1627,
+				"caption": "Otros refugiados, bajo las directrices de los alienígenas, construían las naves Semilla que"
+			},
+			{
+				"start": 1628,
+				"end": 1702,
+				"caption": "llevarían al Comandante M.A.X. y a su selecto grupo de cabeza de playa a su destino."
+			},
+			{
+				"start": 2313,
+				"end": 2397,
+				"caption": "El Comandante M.A.X., un cerebro humano meticulosamente aislado de los terrores del hiperespacio,"
+			},
+			{
+				"start": 2398,
+				"end": 2473,
+				"caption": "conectado con interfaces robotizados que controlarían las naves Semilla a través del viaje por"
+			},
+			{
+				"start": 2474,
+				"end": 2524,
+				"caption": "el hiperespacio y que permitirían a los clanes colonizar el planeta."
+			},
+			{
+				"start": 3076,
+				"end": 3108,
+				"caption": "Se escogieron los planetas apropiados."
+			},
+			{
+				"start": 3109,
+				"end": 3205,
+				"caption": "Las naves Semilla emergieron de las gigantescas naves coloniales en la búsqueda frenética de un nuevo hogar."
+			},
+			{
+				"start": 3677,
+				"end": 3753,
+				"caption": "Al llegar al nuevo sistema, cada clan encontró otras naves Semilla ya en el lugar."
+			},
+			{
+				"start": 3754,
+				"end": 3855,
+				"caption": "Para tomar el sistema, tendrán que luchar como paladines de sus protectores alienígenas a fin de decidir el nuevo señor del planeta."
+			},
+			{
+				"start": 3856,
+				"end": 3957,
+				"caption": "Los Comandantes M.A.X. tendrán control de las factorías destinadas a producir terraformers y ecoconstructores que construirán la maquinaria bélica."
+			},
+			{
+				"start": 4203,
+				"end": 4280,
+				"caption": "Sumergidos en los juegos de poder de la Concordia, la única oportunidad de supervivencia para los clanes"
+			},
+			{
+				"start": 4281,
+				"end": 4340,
+				"caption": "de la humanidad es luchar para conquistar estos planetas."
+			}
+		],
+		"ru-RU": [
+			{
+				"start": 144,
+				"end": 245,
+				"caption": "Они были изгоями — культы, религиозные секты, даже целые правительства."
+			},
+			{
+				"start": 249,
+				"end": 322,
+				"caption": "Благодаря вмешательству инопланетных правителей, называемых Конкорд, их забрали"
+			},
+			{
+				"start": 328,
+				"end": 406,
+				"caption": "с враждебной Земли и дали новый шанс обрести мир, в котором они смогут процветать."
+			},
+			{
+				"start": 410,
+				"end": 475,
+				"caption": "Внутри каждого инопланетного корабля находится всё население фракции."
+			},
+			{
+				"start": 488,
+				"end": 558,
+				"caption": "Их инопланетные покровители обещали им новый мир, в котором они смогут процветать."
+			},
+			{
+				"start": 559,
+				"end": 599,
+				"caption": "Всё, что им нужно сделать — это сражаться за него."
+			},
+			{
+				"start": 710,
+				"end": 791,
+				"caption": "Пока большая часть населения находилась в стазисе до начала колонизации,"
+			},
+			{
+				"start": 793,
+				"end": 868,
+				"caption": "специально отобранные члены каждой группы становились лидерами роботизированных сил,"
+			},
+			{
+				"start": 869,
+				"end": 913,
+				"caption": "которые создадут плацдарм на новом мире."
+			},
+			{
+				"start": 1003,
+				"end": 1078,
+				"caption": "Но люди не могут выдержать суровость гиперпространства без радикальной хирургии."
+			},
+			{
+				"start": 1079,
+				"end": 1168,
+				"caption": "Избранные нервные системы были извлечены и помещены в защитную капсулу инопланетного дизайна."
+			},
+			{
+				"start": 1170,
+				"end": 1249,
+				"caption": "Только самые выносливые и самоотверженные из беженцев могли перенести эту радикальную процедуру."
+			},
+			{
+				"start": 1255,
+				"end": 1294,
+				"caption": "Результатом стал Командир M.A.X."
+			},
+			{
+				"start": 1552,
+				"end": 1627,
+				"caption": "Другие беженцы, действуя под руководством инопланетян, создали корабли-семена,"
+			},
+			{
+				"start": 1628,
+				"end": 1702,
+				"caption": "которые доставят Командира M.A.X. и его тщательно отобранный десант к месту назначения."
+			},
+			{
+				"start": 2313,
+				"end": 2397,
+				"caption": "Командир M.A.X. — человеческий мозг, надёжно защищённый от ужасов гиперпространства,"
+			},
+			{
+				"start": 2398,
+				"end": 2473,
+				"caption": "подключённый к роботизированным интерфейсам, которые управляли кораблями-семенами"
+			},
+			{
+				"start": 2474,
+				"end": 2524,
+				"caption": "на протяжении гиперпространственного путешествия и обеспечивали колонизацию планеты кланом."
+			},
+			{
+				"start": 3076,
+				"end": 3108,
+				"caption": "Были выбраны подходящие планеты."
+			},
+			{
+				"start": 3109,
+				"end": 3205,
+				"caption": "Корабли-семена устремились с гигантских кораблей-колоний к своему новому дому."
+			},
+			{
+				"start": 3677,
+				"end": 3753,
+				"caption": "Прибыв в новую систему, каждый клан обнаружил, что другие корабли-семена уже там."
+			},
+			{
+				"start": 3754,
+				"end": 3855,
+				"caption": "Чтобы захватить систему, они должны сражаться как представители своих инопланетных покровителей за право владеть планетой."
+			},
+			{
+				"start": 3856,
+				"end": 3957,
+				"caption": "Командиры M.A.X. приказали фабрикам, предназначенным для терраформеров и эко-конструкторов, строить машины войны."
+			},
+			{
+				"start": 4203,
+				"end": 4280,
+				"caption": "Втянутые в игры власти Конкорда, единственный шанс на выживание для кланов"
+			},
+			{
+				"start": 4281,
+				"end": 4340,
+				"caption": "человечества — сражаться за эти планеты и победить."
 			}
 		]
 	}
