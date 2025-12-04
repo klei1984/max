@@ -298,6 +298,13 @@ void Cursor_RegenerateCache(float new_scale) {
         new_scale = 1.0f;
     }
 
+    // Hide cursor during regeneration to avoid visual artifacts
+    bool was_visible = Cursor_IsVisible;
+
+    if (was_visible) {
+        SDL_HideCursor();
+    }
+
     // Destroy existing hardware cursors
     for (int32_t i = 0; i < CURSOR_CURSOR_COUNT; ++i) {
         Cursor_DestroyHardwareCursor(&Cursor_HardwareCursors[i]);
@@ -338,13 +345,15 @@ void Cursor_RegenerateCache(float new_scale) {
     Cursor_NeedsRegeneration = false;
     Cursor_CacheInitialized = true;
 
-    // Re-apply active cursor at new scale
-    if (Cursor_ActiveCursorIndex < CURSOR_CURSOR_COUNT && Cursor_IsVisible) {
+    // Restore cursor visibility and apply the new cursor
+    if (was_visible && Cursor_ActiveCursorIndex < CURSOR_CURSOR_COUNT) {
         HardwareCursor* hw = &Cursor_HardwareCursors[Cursor_ActiveCursorIndex];
 
         if (hw->cursor) {
             SDL_SetCursor(hw->cursor);
         }
+
+        SDL_ShowCursor();
     }
 }
 
@@ -456,6 +465,11 @@ static void Cursor_AnimationTick() {
 
     if (!Cursor_IsVisible || Cursor_ActiveCursorIndex >= CURSOR_CURSOR_COUNT) {
         return;
+    }
+
+    // Regenerate cursors if palette changed while cursor was visible
+    if (Cursor_NeedsRegeneration) {
+        Cursor_UpdateScale();
     }
 
     HardwareCursor* hw = &Cursor_HardwareCursors[Cursor_ActiveCursorIndex];
