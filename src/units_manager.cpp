@@ -4129,7 +4129,7 @@ void UnitsManager_DisableUnit(UnitInfo* unit) {
     UnitsManager_SetNewOrderInt(&*parent, ORDER_DISABLE, ORDER_STATE_EXECUTING_ORDER);
 
     parent->RemoveTasks();
-    parent->recoil_delay = turns_disabled;
+    parent->disabled_turns_remaining = turns_disabled;
 
     Access_UpdateMapStatus(&*parent, true);
     Access_UpdateMapStatus(&*unit_copy, false);

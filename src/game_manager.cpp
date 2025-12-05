@@ -7455,11 +7455,11 @@ SmartString GameManager_GetUnitStatusMessage(UnitInfo* unit) {
         _(7bcd), _(5f83), _(8115), _(e843), _(7508), _(d80d), _(85f8), _(1925), _(bc06), _(c331)};
 
     if (unit->GetOrder() == ORDER_DISABLE && unit->team != PLAYER_TEAM_ALIEN) {
-        if (unit->recoil_delay == 1) {
+        if (unit->disabled_turns_remaining == 1) {
             message = _(54ba);
 
         } else {
-            message.Sprintf(25, _(45e4), unit->recoil_delay);
+            message.Sprintf(25, _(45e4), unit->disabled_turns_remaining);
         }
 
     } else {
@@ -7775,7 +7775,7 @@ void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
 void GameManager_DrawDisabledUnitStatusMessage(UnitInfo* unit) {
     SmartString string;
 
-    string.Sprintf(200, _(bda4), unit->recoil_delay);
+    string.Sprintf(200, _(bda4), unit->disabled_turns_remaining);
 
     MessageManager_DrawMessage(string.GetCStr(), 0, 0);
 }

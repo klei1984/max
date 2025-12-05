@@ -420,7 +420,8 @@ public:
     uint8_t targeting_mode;
     uint8_t enter_mode;
     uint8_t cursor;
-    int8_t recoil_delay;
+    uint8_t firing_recoil_frames;
+    uint8_t disabled_turns_remaining;
     uint8_t delayed_reaction;
     bool damaged_this_turn;
     bool disabled_reaction_fire;

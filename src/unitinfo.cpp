@@ -136,7 +136,8 @@ UnitInfo::UnitInfo()
       targeting_mode(0),
       enter_mode(0),
       cursor(CURSOR_HIDDEN),
-      recoil_delay(0),
+      firing_recoil_frames(0),
+      disabled_turns_remaining(0),
       delayed_reaction(0),
       damaged_this_turn(false),
       disabled_reaction_fire(false),
@@ -221,7 +222,8 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
       targeting_mode(0),
       enter_mode(0),
       cursor(CURSOR_HIDDEN),
-      recoil_delay(0),
+      firing_recoil_frames(0),
+      disabled_turns_remaining(0),
       delayed_reaction(0),
       damaged_this_turn(false),
       disabled_reaction_fire(false),
@@ -365,7 +367,8 @@ UnitInfo::UnitInfo(const UnitInfo& other)
       targeting_mode(other.targeting_mode),
       enter_mode(other.enter_mode),
       cursor(other.cursor),
-      recoil_delay(other.recoil_delay),
+      firing_recoil_frames(other.firing_recoil_frames),
+      disabled_turns_remaining(other.disabled_turns_remaining),
       delayed_reaction(other.delayed_reaction),
       damaged_this_turn(other.damaged_this_turn),
       disabled_reaction_fire(other.disabled_reaction_fire),
@@ -2425,11 +2428,28 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
     file.Read(targeting_mode);
     file.Read(enter_mode);
     file.Read(cursor);
-    file.Read(recoil_delay);
 
-    /* correct negative values */
-    if (recoil_delay < 0) {
-        recoil_delay = 0;
+    if (file.GetFormat() == SmartFileFormat::V70) {
+        int8_t recoil_delay;
+
+        file.Read(recoil_delay);
+
+        if (recoil_delay < 0) {
+            recoil_delay = 0;
+        }
+
+        if (orders == ORDER_DISABLE) {
+            disabled_turns_remaining = static_cast<uint8_t>(recoil_delay);
+            firing_recoil_frames = 0;
+
+        } else {
+            firing_recoil_frames = static_cast<uint8_t>(recoil_delay);
+            disabled_turns_remaining = 0;
+        }
+
+    } else {
+        file.Read(firing_recoil_frames);
+        file.Read(disabled_turns_remaining);
     }
 
     file.Read(delayed_reaction);
@@ -2563,7 +2583,8 @@ void UnitInfo::FileSave(SmartFileWriter& file) noexcept {
     file.Write(targeting_mode);
     file.Write(enter_mode);
     file.Write(cursor);
-    file.Write(recoil_delay);
+    file.Write(firing_recoil_frames);
+    file.Write(disabled_turns_remaining);
     file.Write(delayed_reaction);
     file.Write(damaged_this_turn);
     file.Write(research_topic);
@@ -2911,12 +2932,10 @@ void UnitInfo::UpdateProduction() {
 
     if (orders == ORDER_DISABLE || (orders == ORDER_IDLE && prior_orders == ORDER_DISABLE)) {
         if (team != PLAYER_TEAM_ALIEN) {
-            --recoil_delay;
+            --disabled_turns_remaining;
 
-            if (recoil_delay <= 0) {
+            if (disabled_turns_remaining == 0) {
                 SmartPointer<UnitInfo> unit_copy = MakeCopy();
-
-                recoil_delay = 0;
 
                 if (orders == ORDER_IDLE) {
                     prior_orders = ORDER_AWAIT;
@@ -4453,13 +4472,13 @@ void UnitInfo::PrepareFire() {
     int32_t unit_angle = angle;
     bool team_visibility = IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy;
 
-    recoil_delay = 3;
+    firing_recoil_frames = 3;
 
     if (unit_type == ANTIAIR) {
-        recoil_delay *= 5;
+        firing_recoil_frames *= 5;
 
     } else if (unit_type == SP_FLAK || unit_type == FASTBOAT) {
-        recoil_delay *= 2;
+        firing_recoil_frames *= 2;
     }
 
     if (team_visibility ||
@@ -4474,12 +4493,12 @@ void UnitInfo::PrepareFire() {
 
         } else if (unit_type == COMMANDO || unit_type == INFANTRY) {
             if (unit_type == COMMANDO) {
-                recoil_delay = 8;
+                firing_recoil_frames = 8;
 
                 DrawSpriteFrame(unit_angle + 104);
 
             } else {
-                recoil_delay = 8;
+                firing_recoil_frames = 8;
 
                 DrawSpriteFrame(unit_angle + 104);
             }
@@ -4560,11 +4579,11 @@ void UnitInfo::PrepareFire() {
 }
 
 void UnitInfo::ProgressFire() {
-    --recoil_delay;
+    --firing_recoil_frames;
 
-    if (recoil_delay) {
+    if (firing_recoil_frames) {
         if (unit_type == ANTIAIR || unit_type == SP_FLAK || unit_type == FASTBOAT) {
-            DrawSpriteTurretFrame(turret_image_index + ((recoil_delay & 1) ? -8 : 8));
+            DrawSpriteTurretFrame(turret_image_index + ((firing_recoil_frames & 1) ? -8 : 8));
 
         } else if (unit_type == COMMANDO || unit_type == INFANTRY) {
             DrawSpriteFrame(image_index + 8);
@@ -4635,7 +4654,7 @@ void UnitInfo::ChangeTeam(uint16_t target_team) {
     if (orders == ORDER_DISABLE) {
         RestoreOrders();
 
-        recoil_delay = 0;
+        disabled_turns_remaining = 0;
     }
 
     Access_UpdateMapStatus(this, true);
