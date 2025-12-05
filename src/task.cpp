@@ -149,7 +149,8 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
                 if ((unit->GetUnitType() == SUBMARNE || unit->GetUnitType() == CLNTRANS) &&
                     Access_GetModifiedSurfaceType(site.x, site.y) == SURFACE_TYPE_WATER &&
                     !unit->IsDetectedByTeam(team)) {
-                    if (UnitsManager_TeamInfo[team].heat_map_stealth_sea[ResourceManager_MapSize.x * site.y + site.x]) {
+                    if (UnitsManager_TeamInfo[team].heat_map &&
+                        UnitsManager_TeamInfo[team].heat_map->GetStealthSea(site.x, site.y)) {
                         relevant_teams[team] = true;
 
                     } else {
@@ -157,8 +158,8 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
                     }
 
                 } else if (unit->GetUnitType() == COMMANDO && !unit->IsDetectedByTeam(team)) {
-                    if (UnitsManager_TeamInfo[team]
-                            .heat_map_stealth_land[ResourceManager_MapSize.x * site.y + site.x]) {
+                    if (UnitsManager_TeamInfo[team].heat_map &&
+                        UnitsManager_TeamInfo[team].heat_map->GetStealthLand(site.x, site.y)) {
                         relevant_teams[team] = true;
 
                     } else {
@@ -166,7 +167,8 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
                     }
 
                 } else {
-                    if (UnitsManager_TeamInfo[team].heat_map_complete[ResourceManager_MapSize.x * site.y + site.x]) {
+                    if (UnitsManager_TeamInfo[team].heat_map &&
+                        UnitsManager_TeamInfo[team].heat_map->GetComplete(site.x, site.y)) {
                         relevant_teams[team] = true;
 
                     } else {

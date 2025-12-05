@@ -1542,21 +1542,22 @@ void ResourceManager_InitClanUnitValues(uint16_t team) {
 
 void ResourceManager_InitHeatMaps(uint16_t team) {
     if (UnitsManager_TeamInfo[team].team_type) {
-        const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
+        HeatMapCallouts callouts;
+        auto sea_qualifier = [](const UnitInfo* unit) { return unit->GetUnitType() == CORVETTE; };
+        auto land_qualifier = [](const UnitInfo* unit) {
+            return unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY;
+        };
 
-        UnitsManager_TeamInfo[team].heat_map_complete = new (std::nothrow) int8_t[map_cell_count];
-        memset(UnitsManager_TeamInfo[team].heat_map_complete, 0, map_cell_count);
+        callouts.on_cell_revealed = Access_OnCellRevealed;
+        callouts.on_cell_hidden = Access_OnCellHidden;
+        callouts.on_sea_revealed = Access_OnSeaStealthRevealed;
+        callouts.on_land_revealed = Access_OnLandStealthRevealed;
 
-        UnitsManager_TeamInfo[team].heat_map_stealth_sea = new (std::nothrow) int8_t[map_cell_count];
-        memset(UnitsManager_TeamInfo[team].heat_map_stealth_sea, 0, map_cell_count);
-
-        UnitsManager_TeamInfo[team].heat_map_stealth_land = new (std::nothrow) int8_t[map_cell_count];
-        memset(UnitsManager_TeamInfo[team].heat_map_stealth_land, 0, map_cell_count);
+        UnitsManager_TeamInfo[team].heat_map = std::make_unique<HeatMap>(
+            ResourceManager_MapSize.x, ResourceManager_MapSize.y, team, sea_qualifier, land_qualifier, callouts);
 
     } else {
-        UnitsManager_TeamInfo[team].heat_map_complete = nullptr;
-        UnitsManager_TeamInfo[team].heat_map_stealth_sea = nullptr;
-        UnitsManager_TeamInfo[team].heat_map_stealth_land = nullptr;
+        UnitsManager_TeamInfo[team].heat_map.reset();
     }
 }
 

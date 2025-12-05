@@ -28,6 +28,7 @@
 #include "buildmenu.hpp"
 #include "game_manager.hpp"
 #include "hash.hpp"
+#include "heatmap.hpp"
 #include "paths_manager.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
@@ -317,8 +318,6 @@ void Access_InitUnitStealthStatus(SmartList<UnitInfo>& units) {
 }
 
 void Access_InitStealthMaps() {
-    const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
-
     Access_InitUnitStealthStatus(UnitsManager_GroundCoverUnits);
     Access_InitUnitStealthStatus(UnitsManager_MobileLandSeaUnits);
     Access_InitUnitStealthStatus(UnitsManager_MobileAirUnits);
@@ -326,10 +325,8 @@ void Access_InitStealthMaps() {
     Access_InitUnitStealthStatus(UnitsManager_StationaryUnits);
 
     for (uint16_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-            memset(UnitsManager_TeamInfo[team].heat_map_complete, 0, map_cell_count);
-            memset(UnitsManager_TeamInfo[team].heat_map_stealth_sea, 0, map_cell_count);
-            memset(UnitsManager_TeamInfo[team].heat_map_stealth_land, 0, map_cell_count);
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE && UnitsManager_TeamInfo[team].heat_map) {
+            UnitsManager_TeamInfo[team].heat_map->Clear();
         }
     }
 }
@@ -532,96 +529,140 @@ uint32_t Access_GetAttackTargetGroup(UnitInfo* unit) {
 }
 
 bool Access_IsVisibleOnHeatMap(UnitInfo* const unit, const uint16_t team) {
-    bool result = false;
+    return UnitsManager_TeamInfo[team].heat_map && UnitsManager_TeamInfo[team].heat_map->IsVisible(unit);
+}
 
-    if (unit && UnitsManager_TeamInfo[team].heat_map_complete) {
-        const int32_t map_offset = ResourceManager_MapSize.x * unit->grid_y + unit->grid_x;
+void Access_OnCellRevealed(const UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
+    const uint16_t team = unit->team;
+    const int32_t map_offset = ResourceManager_MapSize.x * grid_y + grid_x;
 
-        if (unit->flags & BUILDING) {
-            result = UnitsManager_TeamInfo[team].heat_map_complete[map_offset] ||
-                     UnitsManager_TeamInfo[team].heat_map_complete[map_offset + 1] ||
-                     UnitsManager_TeamInfo[team].heat_map_complete[map_offset + ResourceManager_MapSize.x] ||
-                     UnitsManager_TeamInfo[team].heat_map_complete[map_offset + ResourceManager_MapSize.x + 1];
+    Ai_SetInfoMapPoint(Point(grid_x, grid_y), team);
 
-        } else {
-            result = UnitsManager_TeamInfo[team].heat_map_complete[map_offset];
-        }
+    if (team == GameManager_PlayerTeam) {
+        ResourceManager_MinimapFov[map_offset] = ResourceManager_Minimap[map_offset];
     }
 
-    return result;
+    // Spot all units at this cell
+    const auto units = Hash_MapHash[Point(grid_x, grid_y)];
+
+    if (units) {
+        // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            if (!(*it).IsVisibleToTeam(team)) {
+                (*it).DrawStealth(team);
+            }
+        }
+    }
+}
+
+void Access_OnCellHidden(const UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
+    const uint16_t team = unit->team;
+    const int32_t map_offset = ResourceManager_MapSize.x * grid_y + grid_x;
+
+    Ai_UpdateMineMap(Point(grid_x, grid_y), team);
+
+    if (team == GameManager_PlayerTeam) {
+        ResourceManager_MinimapFov[map_offset] =
+            ResourceManager_DarkeningColorIndexTable[ResourceManager_Minimap[map_offset]];
+    }
+
+    const auto units = Hash_MapHash[Point(grid_x, grid_y)];
+
+    if (units) {
+        // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+        auto it = units->Begin();
+        auto end = units->End();
+
+        if (it != end) {
+            if ((GameManager_DisplayButtonRange || GameManager_DisplayButtonScan) &&
+                GameManager_LockedUnits.GetCount()) {
+                GameManager_UpdateDrawBounds();
+            }
+
+            for (; it != end; ++it) {
+                if (!Access_IsVisibleOnHeatMap(it->Get(), team)) {
+                    (*it).Draw(team);
+                }
+            }
+        }
+    }
+}
+
+void Access_OnSeaStealthRevealed(const UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
+    const uint16_t team = unit->team;
+    const auto units = Hash_MapHash[Point(grid_x, grid_y)];
+
+    if (units) {
+        // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            if (UnitsManager_IsUnitUnderWater(&*it)) {
+                (*it).SpotByTeam(team);
+            }
+        }
+    }
+}
+
+void Access_OnLandStealthRevealed(const UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
+    const uint16_t team = unit->team;
+    const auto units = Hash_MapHash[Point(grid_x, grid_y)];
+
+    if (units) {
+        // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            if ((*it).GetUnitType() == COMMANDO) {
+                (*it).SpotByTeam(team);
+            }
+        }
+    }
 }
 
 uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
-    uint32_t result;
-    uint16_t team;
-    int32_t map_offset;
+    uint32_t result = TARGET_CLASS_NONE;
+    const uint16_t team = unit->team;
+    HeatMap* heat_map = UnitsManager_TeamInfo[team].heat_map.get();
 
-    team = unit->team;
-    map_offset = ResourceManager_MapSize.x * grid_y + grid_x;
-    result = TARGET_CLASS_NONE;
+    // Check stealth states before Add() to detect transitions for target class accumulation
+    const bool sea_stealth_was_zero = (heat_map->GetStealthSea(grid_x, grid_y) == 0);
+    const bool land_stealth_was_zero = (heat_map->GetStealthLand(grid_x, grid_y) == 0);
+    const bool complete_was_zero = (heat_map->GetComplete(grid_x, grid_y) == 0);
 
-    if (unit->GetUnitType() == CORVETTE) {
-        ++UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset];
+    // Add() handles all increment logic and invokes callouts for side effects
+    heat_map->Add(unit, grid_x, grid_y);
 
-        if (UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset] == 1) {
-            const auto units = Hash_MapHash[Point(grid_x, grid_y)];
-
-            if (units) {
-                // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-                for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-                    if (UnitsManager_IsUnitUnderWater(&*it)) {
-                        (*it).SpotByTeam(team);
-
-                        if (unit->team != (*it).team) {
-                            result |= Access_GetAttackTargetGroup(&*it);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    if (unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY) {
-        ++UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset];
-
-        if (UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset] == 1) {
-            const auto units = Hash_MapHash[Point(grid_x, grid_y)];
-
-            if (units) {
-                // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-                for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-                    if ((*it).GetUnitType() == COMMANDO) {
-                        (*it).SpotByTeam(team);
-
-                        if (unit->team != (*it).team) {
-                            result |= Access_GetAttackTargetGroup(&*it);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    ++UnitsManager_TeamInfo[team].heat_map_complete[map_offset];
-
-    if (UnitsManager_TeamInfo[team].heat_map_complete[map_offset] == 1) {
-        Ai_SetInfoMapPoint(Point(grid_x, grid_y), team);
-
-        if (team == GameManager_PlayerTeam) {
-            ResourceManager_MinimapFov[map_offset] = ResourceManager_Minimap[map_offset];
-        }
-
+    // Accumulate target classes for sea stealth transition (callout already spotted units)
+    if (unit->GetUnitType() == CORVETTE && sea_stealth_was_zero) {
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
             for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-                if (!(*it).IsVisibleToTeam(team)) {
-                    (*it).DrawStealth(team);
+                if (UnitsManager_IsUnitUnderWater(&*it) && unit->team != (*it).team) {
+                    result |= Access_GetAttackTargetGroup(&*it);
+                }
+            }
+        }
+    }
 
-                    if ((*it).IsVisibleToTeam(team) && (*it).team != unit->team) {
-                        result |= Access_GetAttackTargetGroup(&*it);
-                    }
+    // Accumulate target classes for land stealth transition (callout already spotted units)
+    if ((unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY) && land_stealth_was_zero) {
+        const auto units = Hash_MapHash[Point(grid_x, grid_y)];
+
+        if (units) {
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                if ((*it).GetUnitType() == COMMANDO && unit->team != (*it).team) {
+                    result |= Access_GetAttackTargetGroup(&*it);
+                }
+            }
+        }
+    }
+
+    // Accumulate target classes for complete map transition (callout already spotted units)
+    if (complete_was_zero) {
+        const auto units = Hash_MapHash[Point(grid_x, grid_y)];
+
+        if (units) {
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                if ((*it).IsVisibleToTeam(team) && (*it).team != unit->team) {
+                    result |= Access_GetAttackTargetGroup(&*it);
                 }
             }
         }
@@ -631,57 +672,13 @@ uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t g
 }
 
 void Access_UpdateMapStatusRemoveUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
-    const auto team = unit->team;
-    const int32_t map_offset = ResourceManager_MapSize.x * grid_y + grid_x;
+    HeatMap* heat_map = UnitsManager_TeamInfo[unit->team].heat_map.get();
 
-    if (unit->GetUnitType() == CORVETTE) {
-        --UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset];
-    }
-
-    if (unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY) {
-        --UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset];
-    }
-
-    --UnitsManager_TeamInfo[team].heat_map_complete[map_offset];
-
-    SDL_assert(UnitsManager_TeamInfo[team].heat_map_complete[map_offset] >= 0);
-    SDL_assert(UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset] >= 0);
-    SDL_assert(UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset] >= 0);
-
-    if (0 == UnitsManager_TeamInfo[team].heat_map_complete[map_offset]) {
-        Ai_UpdateMineMap(Point(grid_x, grid_y), team);
-
-        if (team == GameManager_PlayerTeam) {
-            ResourceManager_MinimapFov[map_offset] =
-                ResourceManager_DarkeningColorIndexTable[ResourceManager_Minimap[map_offset]];
-        }
-
-        const auto units = Hash_MapHash[Point(grid_x, grid_y)];
-
-        if (units) {
-            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            auto it = units->Begin();
-            auto end = units->End();
-
-            if (it != end) {
-                if ((GameManager_DisplayButtonRange || GameManager_DisplayButtonScan) &&
-                    GameManager_LockedUnits.GetCount()) {
-                    GameManager_UpdateDrawBounds();
-                }
-
-                for (; it != end; ++it) {
-                    if (!Access_IsVisibleOnHeatMap(it->Get(), team)) {
-                        (*it).Draw(team);
-                    }
-                }
-            }
-        }
-    }
+    // Remove() handles all decrement logic and invokes callouts for side effects
+    heat_map->Remove(unit, grid_x, grid_y);
 }
 
 void Access_DrawUnit(UnitInfo* unit) {
-    const int32_t map_offset{ResourceManager_MapSize.x * unit->grid_y + unit->grid_x};
-
     if (GameManager_AllVisible) {
         for (uint16_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
@@ -691,13 +688,15 @@ void Access_DrawUnit(UnitInfo* unit) {
     }
 
     for (uint16_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-            if (UnitsManager_TeamInfo[team].heat_map_stealth_sea[map_offset] && UnitsManager_IsUnitUnderWater(unit)) {
+        if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE && UnitsManager_TeamInfo[team].heat_map) {
+            HeatMap* heat_map = UnitsManager_TeamInfo[team].heat_map.get();
+
+            if (heat_map->GetStealthSea(unit->grid_x, unit->grid_y) && UnitsManager_IsUnitUnderWater(unit)) {
                 unit->SpotByTeam(team);
             }
 
             if (unit->GetUnitType() == COMMANDO) {
-                if (UnitsManager_TeamInfo[team].heat_map_stealth_land[map_offset]) {
+                if (heat_map->GetStealthLand(unit->grid_x, unit->grid_y)) {
                     unit->SpotByTeam(team);
                 }
             }
@@ -888,9 +887,11 @@ void Access_UpdateMinimapFogOfWar(uint16_t team, bool all_visible, bool ignore_t
 
     memcpy(ResourceManager_MinimapFov, ResourceManager_Minimap, map_cell_count);
 
-    if (!all_visible) {
+    if (!all_visible && UnitsManager_TeamInfo[team].heat_map) {
+        const auto& cells = UnitsManager_TeamInfo[team].heat_map->GetCells();
+
         for (uint32_t i = 0; i < map_cell_count; ++i) {
-            if (UnitsManager_TeamInfo[team].heat_map_complete[i] == 0 || ignore_team_heat_map) {
+            if (cells[i].complete == 0 || ignore_team_heat_map) {
                 ResourceManager_MinimapFov[i] = ResourceManager_DarkeningColorIndexTable[ResourceManager_MinimapFov[i]];
             }
         }

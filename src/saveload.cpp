@@ -27,6 +27,7 @@
 #include "ai.hpp"
 #include "game_manager.hpp"
 #include "hash.hpp"
+#include "heatmap.hpp"
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
@@ -697,13 +698,9 @@ bool SaveLoad_Save(const std::filesystem::path& filepath, const char* const save
         {
             for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
                 if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-                    SDL_assert(UnitsManager_TeamInfo[team].heat_map_complete != nullptr);
-                    SDL_assert(UnitsManager_TeamInfo[team].heat_map_stealth_sea != nullptr);
-                    SDL_assert(UnitsManager_TeamInfo[team].heat_map_stealth_land != nullptr);
+                    SDL_assert(UnitsManager_TeamInfo[team].heat_map != nullptr);
 
-                    file.Write(UnitsManager_TeamInfo[team].heat_map_complete, map_cell_count);
-                    file.Write(UnitsManager_TeamInfo[team].heat_map_stealth_sea, map_cell_count);
-                    file.Write(UnitsManager_TeamInfo[team].heat_map_stealth_land, map_cell_count);
+                    UnitsManager_TeamInfo[team].heat_map->Save(file);
                 }
             }
         }
@@ -980,9 +977,7 @@ bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission
             ResourceManager_InitHeatMaps(team);
 
             if (team_info->team_type != TEAM_TYPE_NONE) {
-                file.Read(team_info->heat_map_complete, map_cell_count);
-                file.Read(team_info->heat_map_stealth_sea, map_cell_count);
-                file.Read(team_info->heat_map_stealth_land, map_cell_count);
+                team_info->heat_map->LoadV70(file, map_cell_count);
 
             } else {
                 char* temp_buffer;
@@ -1311,20 +1306,11 @@ bool SaveLoad_LoadFormatV71(SmartFileReader& file, const MissionCategory mission
             ResourceManager_InitHeatMaps(team);
 
             if (team_info->team_type != TEAM_TYPE_NONE) {
-                file.Read(team_info->heat_map_complete, map_cell_count);
-                file.Read(team_info->heat_map_stealth_sea, map_cell_count);
-                file.Read(team_info->heat_map_stealth_land, map_cell_count);
+                team_info->heat_map->Load(file);
 
             } else {
-                char* temp_buffer;
-
-                temp_buffer = new (std::nothrow) char[map_cell_count];
-
-                file.Read(temp_buffer, map_cell_count);
-                file.Read(temp_buffer, map_cell_count);
-                file.Read(temp_buffer, map_cell_count);
-
-                delete[] temp_buffer;
+                // Load and discard heat map data for non-active team
+                HeatMap(file, ResourceManager_MapSize.x, ResourceManager_MapSize.y, team, nullptr, nullptr);
 
                 SaveLoad_TeamClearUnitList(UnitsManager_GroundCoverUnits, team);
                 SaveLoad_TeamClearUnitList(UnitsManager_MobileLandSeaUnits, team);

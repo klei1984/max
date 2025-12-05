@@ -101,4 +101,10 @@ void Access_UpdateMultiSelection(UnitInfo* unit);
 bool Access_IsGroupOrderInterrupted(UnitInfo* unit);
 bool Access_IsInsideBounds(Rect* bounds, Point* point);
 
+// Heat map transition callout functions for use by HeatMap class
+void Access_OnCellRevealed(const UnitInfo* unit, int32_t grid_x, int32_t grid_y);
+void Access_OnCellHidden(const UnitInfo* unit, int32_t grid_x, int32_t grid_y);
+void Access_OnSeaStealthRevealed(const UnitInfo* unit, int32_t grid_x, int32_t grid_y);
+void Access_OnLandStealthRevealed(const UnitInfo* unit, int32_t grid_x, int32_t grid_y);
+
 #endif /* ACCESS_HPP */

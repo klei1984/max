@@ -864,28 +864,23 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
         }
 
         int32_t team_count = 0;
-        int16_t enemies[PLAYER_TEAM_MAX];
-        int8_t* heat_maps_stealth_sea[PLAYER_TEAM_MAX];
+        HeatMap* heat_maps[PLAYER_TEAM_MAX];
 
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
             if (team != player_team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-                enemies[team_count] = team;
+                heat_maps[team_count] = UnitsManager_TeamInfo[team].heat_map.get();
                 ++team_count;
             }
         }
 
         if (risk_level == 7) {
-            for (int32_t team = 0; team < team_count; ++team) {
-                heat_maps_stealth_sea[team] = UnitsManager_TeamInfo[enemies[team]].heat_map_stealth_sea;
-            }
-
             for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
                 for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                     if (ResourceManager_MapSurfaceMap[y * ResourceManager_MapSize.x + x] == SURFACE_TYPE_WATER) {
                         bool is_found = false;
 
                         for (int32_t team = 0; team < team_count; ++team) {
-                            if (heat_maps_stealth_sea[team][y * ResourceManager_MapSize.x + x]) {
+                            if (heat_maps[team] && heat_maps[team]->GetStealthSea(x, y)) {
                                 is_found = true;
                                 break;
                             }
@@ -900,18 +895,21 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
         }
 
         for (int32_t team = 0; team < team_count; ++team) {
-            int8_t* active_heat_map = UnitsManager_TeamInfo[enemies[team]].heat_map_complete;
-
-            if (risk_level == 6) {
-                active_heat_map = UnitsManager_TeamInfo[enemies[team]].heat_map_stealth_sea;
-
-            } else if (risk_level == 5 || risk_level == 4) {
-                active_heat_map = UnitsManager_TeamInfo[enemies[team]].heat_map_stealth_land;
-            }
-
             for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
                 for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
-                    if (active_heat_map && active_heat_map[y * ResourceManager_MapSize.x + x]) {
+                    bool is_visible = false;
+
+                    if (heat_maps[team]) {
+                        if (risk_level == 6) {
+                            is_visible = heat_maps[team]->GetStealthSea(x, y) > 0;
+                        } else if (risk_level == 5 || risk_level == 4) {
+                            is_visible = heat_maps[team]->GetStealthLand(x, y) > 0;
+                        } else {
+                            is_visible = heat_maps[team]->GetComplete(x, y) > 0;
+                        }
+                    }
+
+                    if (is_visible) {
                         AiPlayer_ThreatMaps[index].damage_potential_map[x][y] |= 0x8000;
                     }
                 }
@@ -2426,7 +2424,8 @@ void AiPlayer::BeginTurn() {
 
             for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
                 for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
-                    if (UnitsManager_TeamInfo[player_team].heat_map_complete[y * ResourceManager_MapSize.x + x]) {
+                    if (UnitsManager_TeamInfo[player_team].heat_map &&
+                        UnitsManager_TeamInfo[player_team].heat_map->GetComplete(x, y)) {
                         info_map[x][y] = INFO_MAP_EXPLORED;
                     }
                 }
@@ -2747,8 +2746,8 @@ void AiPlayer::GuessEnemyAttackDirections() {
             if (team != player_team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                 for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
                     for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
-                        if (UnitsManager_TeamInfo[team]
-                                .heat_map_complete[site.y * ResourceManager_MapSize.x + site.x]) {
+                        if (UnitsManager_TeamInfo[team].heat_map &&
+                            UnitsManager_TeamInfo[team].heat_map->GetComplete(site.x, site.y)) {
                             access_map(site.x, site.y) = 0x00;
                         }
                     }
@@ -2878,7 +2877,8 @@ void AiPlayer::PlanMinefields() {
                 if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                     for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
                         for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
-                            if (UnitsManager_TeamInfo[team].heat_map_complete[y * ResourceManager_MapSize.x + x]) {
+                            if (UnitsManager_TeamInfo[team].heat_map &&
+                                UnitsManager_TeamInfo[team].heat_map->GetComplete(x, y)) {
                                 access_map(x, y) = 0x00;
                             }
                         }

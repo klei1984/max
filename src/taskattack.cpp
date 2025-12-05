@@ -38,6 +38,22 @@
 #include "unit.hpp"
 #include "units_manager.hpp"
 
+static inline uint32_t GetHeatMapValue(UnitInfo* unit, HeatMap* heat_map, int32_t x, int32_t y) {
+    if (!heat_map) {
+        return 0;
+    }
+
+    if (unit->GetUnitType() == COMMANDO) {
+        return heat_map->GetStealthLand(x, y);
+
+    } else if (UnitsManager_IsUnitUnderWater(unit)) {
+        return heat_map->GetStealthSea(x, y);
+
+    } else {
+        return heat_map->GetComplete(x, y);
+    }
+}
+
 TaskAttack::TaskAttack(SpottedUnit* spotted_unit, uint16_t task_priority)
     : Task(spotted_unit->GetTeam(), nullptr, task_priority) {
     op_state = ATTACK_STATE_INIT;
@@ -1158,20 +1174,10 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
             if (!Task_RetreatFromDanger(this, unit, caution_level)) {
                 if (secondary_targets[0].GetUnitSpotted()) {
                     uint16_t unit_team = secondary_targets[0].GetUnitSpotted()->team;
-                    int8_t* heat_map;
+                    HeatMap* heat_map = UnitsManager_TeamInfo[unit_team].heat_map.get();
                     int32_t minimum_distance;
                     int32_t unit_hits;
                     int32_t distance;
-
-                    if (unit->GetUnitType() == COMMANDO) {
-                        heat_map = UnitsManager_TeamInfo[unit_team].heat_map_stealth_land;
-
-                    } else if (UnitsManager_IsUnitUnderWater(unit)) {
-                        heat_map = UnitsManager_TeamInfo[unit_team].heat_map_stealth_sea;
-
-                    } else {
-                        heat_map = UnitsManager_TeamInfo[unit_team].heat_map_complete;
-                    }
 
                     minimum_distance = Access_GetApproximateDistance(target_position, site) / 2;
 
@@ -1191,8 +1197,8 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
 
                                 if (Access_IsInsideBounds(&bounds, &position) &&
                                     damage_potential_map[position.x][position.y] < unit_hits &&
-                                    (!is_there_time_to_prepare || !heat_map ||
-                                     heat_map[ResourceManager_MapSize.x * position.y + position.x] == 0)) {
+                                    (!is_there_time_to_prepare ||
+                                     GetHeatMapValue(unit, heat_map, position.x, position.y) == 0)) {
                                     distance = (Access_GetApproximateDistance(position, site) / 2) +
                                                (Access_GetApproximateDistance(unit->grid_x - position.x,
                                                                               unit->grid_y - position.y) /
@@ -1288,7 +1294,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
     bool is_there_time_to_prepare = IsThereTimeToPrepare();
     int32_t surface_type;
     uint16_t unit_team = secondary_targets[0].GetUnitSpotted()->team;
-    int8_t* heat_map;
+    HeatMap* heat_map = UnitsManager_TeamInfo[unit_team].heat_map.get();
     Rect bounds;
     int32_t distance;
     int32_t minimum_distance;
@@ -1302,21 +1308,10 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
         surface_type = SURFACE_TYPE_WATER;
     }
 
-    if (unit->GetUnitType() == COMMANDO) {
-        heat_map = UnitsManager_TeamInfo[unit_team].heat_map_stealth_land;
-
-    } else if (UnitsManager_IsUnitUnderWater(unit)) {
-        heat_map = UnitsManager_TeamInfo[unit_team].heat_map_stealth_sea;
-
-    } else {
-        heat_map = UnitsManager_TeamInfo[unit_team].heat_map_complete;
-    }
-
     for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
         for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
             if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * site.y + site.x] == surface_type) {
-                if (!is_there_time_to_prepare || !heat_map ||
-                    heat_map[ResourceManager_MapSize.x * site.y + site.x] == 0) {
+                if (!is_there_time_to_prepare || GetHeatMapValue(unit, heat_map, site.x, site.y) == 0) {
                     map(site.x, site.y) = 2;
                 }
             }
@@ -1327,8 +1322,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
         for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
             for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
                 if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * site.y + site.x] == SURFACE_TYPE_WATER) {
-                    if (!is_there_time_to_prepare || !heat_map ||
-                        heat_map[ResourceManager_MapSize.x * site.y + site.x] == 0) {
+                    if (!is_there_time_to_prepare || GetHeatMapValue(unit, heat_map, site.x, site.y) == 0) {
                         map(site.x, site.y) = 2;
                     }
                 }

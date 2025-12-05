@@ -334,16 +334,14 @@ bool GroundPath::Execute(UnitInfo* unit) {
                     if (surface_type == SURFACE_TYPE_WATER) {
                         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
                             if (unit->team != team && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
-                                if (UnitsManager_TeamInfo[team]
-                                        .heat_map_stealth_sea[target_grid_y * ResourceManager_MapSize.x +
-                                                              target_grid_x]) {
+                                if (UnitsManager_TeamInfo[team].heat_map &&
+                                    UnitsManager_TeamInfo[team].heat_map->GetStealthSea(target_grid_x, target_grid_y)) {
                                     image_index = 8;
                                     break;
 
-                                } else if (unit->IsDetectedByTeam(team) &&
-                                           UnitsManager_TeamInfo[team]
-                                               .heat_map_complete[target_grid_y * ResourceManager_MapSize.x +
-                                                                  target_grid_x]) {
+                                } else if (unit->IsDetectedByTeam(team) && UnitsManager_TeamInfo[team].heat_map &&
+                                           UnitsManager_TeamInfo[team].heat_map->GetComplete(target_grid_x,
+                                                                                             target_grid_y)) {
                                     image_index = 8;
                                     break;
                                 }

@@ -377,9 +377,9 @@ void TaskMove::AttemptTransport() {
             for (team_id = PLAYER_TEAM_RED; team_id < PLAYER_TEAM_MAX - 1; ++team_id) {
                 if (UnitsManager_TeamInfo[team_id].team_type != TEAM_TYPE_NONE) {
                     if (team_id != m_team) {
-                        if (UnitsManager_TeamInfo[team_id]
-                                .heat_map_complete[ResourceManager_MapSize.x * passenger->grid_y + passenger->grid_x] >
-                            0) {
+                        if (UnitsManager_TeamInfo[team_id].heat_map &&
+                            UnitsManager_TeamInfo[team_id].heat_map->GetComplete(passenger->grid_x, passenger->grid_y) >
+                                0) {
                             break;
                         }
                     }

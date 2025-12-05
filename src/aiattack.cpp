@@ -606,9 +606,8 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
                         (target_unit->GetOrder() != ORDER_DISABLE || (target_unit->flags & STATIONARY) ||
                          unit->GetUnitType() == COMMANDO ||
                          ResourceManager_GetSettings()->GetNumericValue("opponent") < OPPONENT_TYPE_EXPERT)) {
-                        if (!target_unit->IsVisibleToTeam(unit_team) &&
-                            UnitsManager_TeamInfo[unit_team]
-                                .heat_map_complete[ResourceManager_MapSize.x * unit_position.y + unit_position.x]) {
+                        if (!target_unit->IsVisibleToTeam(unit_team) && UnitsManager_TeamInfo[unit_team].heat_map &&
+                            UnitsManager_TeamInfo[unit_team].heat_map->GetComplete(unit_position.x, unit_position.y)) {
                             (*it).UpdatePosition();
                             unit_position = (*it).GetLastPosition();
                         }

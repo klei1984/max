@@ -22,6 +22,9 @@
 #ifndef CTINFO_HPP
 #define CTINFO_HPP
 
+#include <memory>
+
+#include "heatmap.hpp"
 #include "teamunits.hpp"
 #include "unitinfo.hpp"
 
@@ -37,7 +40,7 @@ struct ScreenLocation {
 };
 
 struct CTInfo {
-    CTInfo() : heat_map_complete(nullptr), heat_map_stealth_sea(nullptr), heat_map_stealth_land(nullptr) { Reset(); }
+    CTInfo() { Reset(); }
 
     void Reset() noexcept {
         team_type = TEAM_TYPE_NONE;
@@ -93,14 +96,7 @@ struct CTInfo {
             casualty = 0;
         }
 
-        delete[] heat_map_complete;
-        heat_map_complete = nullptr;
-
-        delete[] heat_map_stealth_sea;
-        heat_map_stealth_sea = nullptr;
-
-        delete[] heat_map_stealth_land;
-        heat_map_stealth_land = nullptr;
+        heat_map.reset();
     }
 
     uint8_t team_type;
@@ -133,9 +129,7 @@ struct CTInfo {
     uint32_t stats_gold_spent_on_upgrades;
     int16_t score_graph[50];
     uint32_t casualties[UNIT_END];
-    int8_t* heat_map_complete;
-    int8_t* heat_map_stealth_sea;
-    int8_t* heat_map_stealth_land;
+    std::unique_ptr<HeatMap> heat_map;
 };
 
 #endif /* CTINFO_HPP */

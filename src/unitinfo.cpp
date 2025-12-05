@@ -2824,10 +2824,10 @@ void UnitInfo::DrawStealth(uint16_t team) {
                                   unit_type != LANDMINE && unit_type != SEAMINE)) {
         SpotByTeam(team);
 
-    } else if ((UnitsManager_IsUnitUnderWater(this) &&
-                !UnitsManager_TeamInfo[team].heat_map_stealth_sea[grid_y * ResourceManager_MapSize.x + grid_x]) ||
-               (unit_type == COMMANDO &&
-                !UnitsManager_TeamInfo[team].heat_map_stealth_land[grid_y * ResourceManager_MapSize.x + grid_x])) {
+    } else if ((UnitsManager_IsUnitUnderWater(this) && UnitsManager_TeamInfo[team].heat_map &&
+                !UnitsManager_TeamInfo[team].heat_map->GetStealthSea(grid_x, grid_y)) ||
+               (unit_type == COMMANDO && UnitsManager_TeamInfo[team].heat_map &&
+                !UnitsManager_TeamInfo[team].heat_map->GetStealthLand(grid_x, grid_y))) {
         Draw(team);
     }
 }
@@ -4462,8 +4462,9 @@ void UnitInfo::PrepareFire() {
         recoil_delay *= 2;
     }
 
-    if (team_visibility || UnitsManager_TeamInfo[GameManager_PlayerTeam]
-                               .heat_map_complete[fire_on_grid_y * ResourceManager_MapSize.x + fire_on_grid_x]) {
+    if (team_visibility ||
+        (UnitsManager_TeamInfo[GameManager_PlayerTeam].heat_map &&
+         UnitsManager_TeamInfo[GameManager_PlayerTeam].heat_map->GetComplete(fire_on_grid_x, fire_on_grid_y))) {
         ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_FIRE);
     }
 
@@ -4618,9 +4619,8 @@ void UnitInfo::ChangeTeam(uint16_t target_team) {
     Ai_RemoveUnit(this);
     Access_UpdateMapStatus(this, true);
 
-    if (UnitsManager_TeamInfo[team].heat_map_complete) {
-        visible_to_team[team] =
-            UnitsManager_TeamInfo[team].heat_map_complete[grid_y * ResourceManager_MapSize.x + grid_x];
+    if (UnitsManager_TeamInfo[team].heat_map) {
+        visible_to_team[team] = UnitsManager_TeamInfo[team].heat_map->GetComplete(grid_x, grid_y) > 0;
 
     } else {
         visible_to_team[team] = false;
@@ -4953,7 +4953,8 @@ bool UnitInfo::AimAtTarget() {
 
         for (int32_t team_index = PLAYER_TEAM_RED; team_index < PLAYER_TEAM_MAX - 1; ++team_index) {
             if (team != team_index && UnitsManager_TeamInfo[team_index].team_type != TEAM_TYPE_NONE &&
-                UnitsManager_TeamInfo[team_index].heat_map_complete[grid_y * ResourceManager_MapSize.x + grid_x]) {
+                UnitsManager_TeamInfo[team_index].heat_map &&
+                UnitsManager_TeamInfo[team_index].heat_map->GetComplete(grid_x, grid_y)) {
                 SpotByTeam(team_index);
             }
         }
