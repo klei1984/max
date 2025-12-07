@@ -2401,7 +2401,7 @@ void UnitsManager_ProcessOrderAwait(UnitInfo* unit) {
         switch (unit->GetOrderState()) {
             case ORDER_STATE_EXECUTING_ORDER: {
                 if (unit->GetUnitType() == BRIDGE && unit->IsBridgeElevated()) {
-                    if (!Access_GetUnit3(unit->grid_x, unit->grid_y, MOBILE_SEA_UNIT)) {
+                    if (!Access_GetActiveUnitWithFlags(unit->grid_x, unit->grid_y, MOBILE_SEA_UNIT)) {
                         UnitsManager_SetNewOrderInt(unit, ORDER_MOVE, ORDER_STATE_LOWER);
                     }
                 }
@@ -2425,7 +2425,7 @@ void UnitsManager_ProcessOrderAwait(UnitInfo* unit) {
                 }
 
                 if (unit->GetUnitType() == BRIDGE && unit->IsBridgeElevated() &&
-                    !Access_GetUnit3(unit->grid_x, unit->grid_y, MOBILE_SEA_UNIT)) {
+                    !Access_GetActiveUnitWithFlags(unit->grid_x, unit->grid_y, MOBILE_SEA_UNIT)) {
                     UnitsManager_SetNewOrderInt(unit, ORDER_MOVE, ORDER_STATE_LOWER);
                 }
 
@@ -2536,7 +2536,7 @@ void UnitsManager_ProcessOrderMove(UnitInfo* unit) {
         } break;
 
         case ORDER_STATE_LOWER: {
-            if (Access_GetUnit3(unit->grid_x, unit->grid_y, MOBILE_SEA_UNIT)) {
+            if (Access_GetActiveUnitWithFlags(unit->grid_x, unit->grid_y, MOBILE_SEA_UNIT)) {
                 UnitsManager_SetNewOrderInt(unit, ORDER_MOVE, ORDER_STATE_ELEVATE);
 
             } else {
@@ -3607,7 +3607,7 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
             client->SetSpriteFrameForTerrain(unit->move_to_grid_x, unit->move_to_grid_y);
 
             if ((client->flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == MOBILE_SEA_UNIT) {
-                UnitInfo* bridge_unit = Access_GetUnit1(unit->move_to_grid_x, unit->move_to_grid_y);
+                UnitInfo* bridge_unit = Access_GetBridge(unit->move_to_grid_x, unit->move_to_grid_y);
 
                 if (bridge_unit) {
                     UnitsManager_SetNewOrderInt(bridge_unit, ORDER_MOVE, ORDER_STATE_ELEVATE);

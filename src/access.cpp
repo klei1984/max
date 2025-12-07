@@ -1074,7 +1074,7 @@ UnitInfo* Access_GetSelectableUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_
     Hash_MapHash.Remove(unit);
     Hash_MapHash.Add(unit, true);
 
-    unit2 = Access_GetUnit3(grid_x, grid_y, SELECTABLE);
+    unit2 = Access_GetActiveUnitWithFlags(grid_x, grid_y, SELECTABLE);
 
     if (unit2) {
         if (unit2->GetOrder() == ORDER_IDLE || (unit2->flags & GROUND_COVER)) {
@@ -1480,7 +1480,7 @@ UnitInfo* Access_GetQuickBuilderUnit(int32_t grid_x, int32_t grid_y) {
     return unit;
 }
 
-UnitInfo* Access_GetUnit3(int32_t grid_x, int32_t grid_y, uint32_t flags) {
+UnitInfo* Access_GetActiveUnitWithFlags(int32_t grid_x, int32_t grid_y, uint32_t flags) {
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
         SmartPointer<UnitInfo> unit;
         SmartList<UnitInfo>::Iterator it, end;
@@ -1518,7 +1518,7 @@ UnitInfo* Access_GetUnit3(int32_t grid_x, int32_t grid_y, uint32_t flags) {
     return nullptr;
 }
 
-UnitInfo* Access_GetUnit1(int32_t grid_x, int32_t grid_y) {
+UnitInfo* Access_GetBridge(int32_t grid_x, int32_t grid_y) {
     UnitInfo* unit;
 
     unit = nullptr;
