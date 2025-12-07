@@ -59,7 +59,8 @@ bool UnitInfoGroup::IsRelevant(UnitInfo* unit, UnitInfoGroup* group) {
     bool result;
 
     if ((unit->IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy) &&
-        (Gfx_ZoomLevel >= 8 || !(unit->flags & GROUND_COVER)) && (unit->GetOrder() != ORDER_IDLE)) {
+        (Gfx_ZoomLevel >= 8 || !(unit->flags & GROUND_COVER)) &&
+        (unit->GetOrder() != ORDER_IDLE || unit == GameManager_QuickBuilderUnit)) {
         result = unit->IsInGroupZone(group);
     } else {
         result = false;

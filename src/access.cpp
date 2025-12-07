@@ -1438,11 +1438,40 @@ UnitInfo* Access_GetQuickBuilderUnit(int32_t grid_x, int32_t grid_y) {
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            // Check for alien units
             for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-                if (((*it).flags & GROUND_COVER) || (*it).GetUnitType() == HARVSTER) {
-                    unit = &*it;
+                // Skip the quick builder preview unit that follows the mouse cursor
+                if (it->Get() == GameManager_QuickBuilderUnit.Get()) {
+                    continue;
+                }
+
+                const auto unit_type = (*it).GetUnitType();
+
+                if ((*it).team == PLAYER_TEAM_ALIEN) {
+                    unit = it->Get();
                     break;
+                }
+
+                if (unit_type == SHIELDGN || unit_type == SUPRTPLT || unit_type == RECCENTR || unit_type == ALNTANK ||
+                    unit_type == ALNASGUN || unit_type == ALNPLANE) {
+                    unit = it->Get();
+                    break;
+                }
+            }
+
+            if (!unit) {
+                // If no neutral units found, try ground cover units
+                for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                    // Skip the quick builder preview unit that follows the mouse cursor
+                    if (it->Get() == GameManager_QuickBuilderUnit.Get()) {
+                        continue;
+                    }
+
+                    if (((*it).flags & GROUND_COVER) || (*it).GetUnitType() == HARVSTER ||
+                        (*it).GetUnitType() == WALDO) {
+                        unit = it->Get();
+                        break;
+                    }
                 }
             }
         }
