@@ -1959,10 +1959,6 @@ void GameManager_GameSetup(int32_t game_state) {
 
         GameManager_GameState = GAME_STATE_10_LOAD_GAME;
 
-        if (mission_category != MISSION_CATEGORY_CAMPAIGN) {
-            SaveLoadMenu_SaveSlot = ResourceManager_GetSettings()->GetNumericValue("game_file_number");
-        }
-
         if (SaveLoad_Load(filepath, mission_category, !Remote_IsNetworkGame, Remote_IsNetworkGame)) {
             GameManager_UpdateDrawBounds();
             Access_UpdateVisibilityStatus(GameManager_AllVisible);
@@ -3049,7 +3045,7 @@ void GameManager_InitUnitsAndGameState() {
 
     GameManager_LockedUnits.Clear();
 
-    SaveLoadMenu_SaveSlot = -1;
+    SaveLoadMenu_SaveSlot = 10;
 }
 
 bool GameManager_InitGame() {
@@ -3362,6 +3358,9 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
                 Access_UpdateVisibilityStatus(GameManager_AllVisible);
 
                 load_successful = true;
+
+                // Update human player count to properly detect hot-seat and multi-player games
+                GameManager_UpdateHumanPlayerCount();
 
                 if (GameManager_IsCheater) {
                     bool is_multiplayer_game = Remote_IsNetworkGame;
@@ -4013,6 +4012,10 @@ void GameManager_FlicButtonRFunction(ButtonID bid, intptr_t value) {
 }
 
 void GameManager_SaveLoadGame(bool save_load_mode) {
+    if (SaveLoadMenu_SaveSlot == -1) {
+        SaveLoadMenu_SaveSlot = 10;
+    }
+
     if (SaveLoadMenu_SaveSlot != -1) {
         SaveFileInfo save_file_info;
         SmartString string;
@@ -4039,9 +4042,17 @@ void GameManager_SaveLoadGame(bool save_load_mode) {
                     Color* palette_buffer;
 
                     palette_buffer = GameManager_MenuFadeOut();
+
+                    // Update mission path to point to the save file before loading
+                    ResourceManager_GetMissionManager()->GetMission()->SetMission(save_file_info.file_path);
+
                     GameManager_LoadGame(SaveLoadMenu_SaveSlot, palette_buffer);
                 }
             }
+
+        } else {
+            // Save file doesn't exist in this slot, open the menu instead
+            GameManager_MenuClickFileButton(save_load_mode);
         }
 
     } else {
