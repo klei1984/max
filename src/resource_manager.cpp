@@ -390,12 +390,17 @@ void ResourceManager_InitBasePath() {
         exit(EXIT_FAILURE);
     }
 }
+
 void ResourceManager_InitPrefPath() {
     if (!ResourceManager_GetPrefPath(ResourceManager_FilePathGamePref)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(416b), nullptr);
         exit(EXIT_FAILURE);
+
+    } else {
+        SDL_SetLogOutputFunction(&ResourceManager_LogOutputHandler, nullptr);
     }
 }
+
 void ResourceManager_InitGameDataPath() {
     if (!ResourceManager_GetGameDataPath(ResourceManager_FilePathGameData)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(0f72), nullptr);
@@ -413,7 +418,7 @@ void ResourceManager_InitResources() {
     // localized strings are available
     ResourceManager_InitBasePath();
     ResourceManager_InitPrefPath();
-    // resource file system base and pref paths are available
+    // SDL file logging, resource file system base and pref paths are available
     ResourceManager_InitSettings();
     // game settings are available
     ResourceManager_InitGameDataPath();
@@ -442,8 +447,6 @@ void ResourceManager_InitResources() {
 }
 
 void ResourceManager_InitSDL() {
-    SDL_SetLogOutputFunction(&ResourceManager_LogOutputHandler, nullptr);
-
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(438a), nullptr);
         SDL_Log("%s", _(438a));
@@ -2117,8 +2120,10 @@ void ResourceManager_InitSettings() {
                 SDL_Log("Warning: Failed to create default settings file.\n");
             }
         }
+
     } else {
-        SDL_Log("Warning: Failed to load settings definitions.\n");
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), "Failed to load settings definitions.", nullptr);
+        exit(EXIT_FAILURE);
     }
 }
 

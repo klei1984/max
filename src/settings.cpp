@@ -198,7 +198,8 @@ Settings::~Settings() { (void)Save(); }
             validator.validate(jscript);
 
         } catch (const std::exception& e) {
-            SDL_Log("Warning: Settings validation failed: %s\n", e.what());
+            SDL_Log("Error: Settings validation failed: %s\n", e.what());
+            return false;
         }
 
         const auto& settings_object = jscript["settings"];
