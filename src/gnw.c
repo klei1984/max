@@ -884,13 +884,6 @@ void win_clip(GNW_Window* w, RectPtr* L, uint8_t* buf) {
 
         rect_clip_list(L, &window[i]->w);
     }
-
-    if ((buf == screen_buffer || !buf) && !mouse_hidden()) {
-        Rect m;
-
-        mouse_get_rect(&m);
-        rect_clip_list(L, &m);
-    }
 }
 
 void win_drag(WinID id) {
