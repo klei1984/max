@@ -667,6 +667,15 @@ bool SaveLoad_Save(const std::filesystem::path& filepath, const char* const save
             error |= !file.Write(game_state);
         }
 
+        // cheater flag and team (sticky - once set, cannot be unset)
+        {
+            uint32_t is_cheater = GameManager_IsCheater ? 1 : 0;
+            uint32_t cheater_team = GameManager_CheaterTeam;
+
+            error |= !file.Write(is_cheater);
+            error |= !file.Write(cheater_team);
+        }
+
         // team units
         {
             ResourceManager_TeamUnitsRed.FileSave(file);
@@ -1237,6 +1246,18 @@ bool SaveLoad_LoadFormatV71(SmartFileReader& file, const MissionCategory mission
         file.Read(game_state);
 
         SaveLoadMenu_GameState = game_state;
+    }
+
+    {
+        uint32_t is_cheater = 0;
+        uint32_t cheater_team = 0;
+
+        if (file.Read(is_cheater) && file.Read(cheater_team)) {
+            if (is_cheater != 0) {
+                GameManager_IsCheater = true;
+                GameManager_CheaterTeam = static_cast<uint8_t>(cheater_team);
+            }
+        }
     }
 
     ResourceManager_TeamUnitsRed.FileLoad(file);

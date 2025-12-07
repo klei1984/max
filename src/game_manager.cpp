@@ -2787,7 +2787,8 @@ void GameManager_ProcessCheatCodes() {
             GameManager_IsCheater = true;
             GameManager_CheaterTeam = GameManager_PlayerTeam;
         }
-    } else {
+
+    } else if (!GameManager_IsCheater) {
         switch (cheat_index) {
             case CHEAT_CODE_MAXSPY: {
                 GameManager_MaxSpy = !GameManager_MaxSpy;
@@ -3318,6 +3319,9 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
 
     load_successful = false;
 
+    GameManager_MaxSpy = false;
+    GameManager_MaxSurvey = false;
+
     if (save_slot) {
         if (GameManager_SelectedUnit != nullptr) {
             ResourceManager_GetSoundManager().PlaySfx(&*GameManager_SelectedUnit, Unit::SFX_TYPE_INVALID);
@@ -3358,6 +3362,22 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
                 Access_UpdateVisibilityStatus(GameManager_AllVisible);
 
                 load_successful = true;
+
+                if (GameManager_IsCheater) {
+                    bool is_multiplayer_game = Remote_IsNetworkGame;
+
+                    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+                        if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER &&
+                            team != GameManager_PlayerTeam) {
+                            is_multiplayer_game = true;
+                            break;
+                        }
+                    }
+
+                    if (is_multiplayer_game) {
+                        MessageManager_DrawMessage(_(abd7), 2, 0);
+                    }
+                }
 
             } else {
                 load_successful = false;

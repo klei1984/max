@@ -80,6 +80,8 @@ extern int32_t GameManager_HumanPlayerCount;
 extern bool GameManager_AllVisible;
 extern bool GameManager_RealTime;
 extern bool GameManager_RequestMenuExit;
+extern bool GameManager_IsCheater;
+extern uint8_t GameManager_CheaterTeam;
 extern bool GameManager_DisplayControlsInitialized;
 extern bool GameManager_RenderMinimapDisplay;
 extern bool GameManager_PlayFlic;
