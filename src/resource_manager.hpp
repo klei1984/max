@@ -39,6 +39,7 @@ class MissionManager;
 class PathsManager;
 class Settings;
 class SoundManager;
+class World;
 
 struct __attribute__((packed)) ImageSimpleHeader {
     int16_t width;
@@ -97,9 +98,6 @@ extern uint8_t* ResourceManager_MinimapUnits;
 extern uint8_t* ResourceManager_MinimapFov;
 extern uint8_t* ResourceManager_MinimapBgImage;
 
-extern uint16_t* ResourceManager_MapTileIds;
-extern uint8_t* ResourceManager_MapTileBuffer;
-extern uint8_t* ResourceManager_MapSurfaceMap;
 extern uint16_t* ResourceManager_CargoMap;
 
 extern Point ResourceManager_MapSize;
@@ -149,6 +147,7 @@ Unit& ResourceManager_GetUnit(const ResourceID unit_type);
 Units& ResourceManager_GetUnits();
 TeamClanType ResourceManager_GetClanID(const std::string clan_id);
 std::string ResourceManager_GetClanID(const TeamClanType clan_id);
+[[nodiscard]] World* ResourceManager_GetActiveWorld();
 
 class ResourceManager_MutexLock {
 private:

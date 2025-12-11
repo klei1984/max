@@ -37,13 +37,14 @@
 #include "ticktimer.hpp"
 #include "unit.hpp"
 #include "units_manager.hpp"
+#include "world.hpp"
 
 PathsManager::PathsManager() : m_next_job_id(0) { m_worker.Start("PathWorker"); }
 
 PathsManager::~PathsManager() {
     m_worker.Stop();
 
-    m_access_map = AccessMap();
+    m_access_map.reset();
     m_pending_requests.Clear();
     m_dispatched_requests.clear();
     m_cancelled_job_ids.clear();
@@ -54,7 +55,7 @@ void PathsManager::PushBack(PathRequest& object) { m_pending_requests.PushBack(o
 void PathsManager::Clear() {
     m_worker.Stop();
 
-    m_access_map = AccessMap();
+    m_access_map.reset();
     m_pending_requests.Clear();
     m_dispatched_requests.clear();
     m_cancelled_job_ids.clear();
@@ -219,28 +220,29 @@ void PathsManager::CompleteRequest(SmartPointer<PathRequest>& request, GroundPat
 
 bool PathsManager::BuildAccessMap(UnitInfo* unit, PathRequest* request) {
     bool result;
+    const World* world = ResourceManager_GetActiveWorld();
 
     // Ensure m_access_map is sized for current map
-    if (m_access_map.GetSize() != ResourceManager_MapSize) {
-        m_access_map = AccessMap();  // Reconstructs with current ResourceManager_MapSize
+    if (!m_access_map || m_access_map->GetSize() != world->GetMapSize()) {
+        m_access_map = std::make_unique<AccessMap>(world);
     }
 
-    m_access_map.Init(unit, request->GetFlags(), request->GetCautionLevel());
+    m_access_map->Init(unit, request->GetFlags(), request->GetCautionLevel());
 
     if (request->GetTransporter()) {
-        AccessMap local_access_map;
+        AccessMap local_access_map(world);
 
         local_access_map.Init(request->GetTransporter(), request->GetFlags(), CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
-        for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
-            for (int32_t j = 0; j < ResourceManager_MapSize.y; ++j) {
+        for (int32_t i = 0; i < world->GetMapSize().x; ++i) {
+            for (int32_t j = 0; j < world->GetMapSize().y; ++j) {
                 if (local_access_map(i, j)) {
-                    if (m_access_map(i, j) == 0x00) {
-                        m_access_map(i, j) = (local_access_map(i, j) * 3) | 0x80;
+                    if ((*m_access_map)(i, j) == 0x00) {
+                        (*m_access_map)(i, j) = (local_access_map(i, j) * 3) | 0x80;
                     }
 
                 } else {
-                    m_access_map(i, j) |= 0x40;
+                    (*m_access_map)(i, j) |= 0x40;
                 }
             }
         }
@@ -257,7 +259,7 @@ bool PathsManager::BuildAccessMap(UnitInfo* unit, PathRequest* request) {
         int32_t limit;
         int32_t limit2;
 
-        m_access_map(point1.x, point1.y) = 2;
+        (*m_access_map)(point1.x, point1.y) = 2;
 
         if (request->GetBoardTransport()) {
             SmartPointer<UnitInfo> receiver_unit;
@@ -268,12 +270,12 @@ bool PathsManager::BuildAccessMap(UnitInfo* unit, PathRequest* request) {
                 int32_t grid_x = receiver_unit->grid_x;
                 int32_t grid_y = receiver_unit->grid_y;
 
-                m_access_map(grid_x, grid_y) = 2;
+                (*m_access_map)(grid_x, grid_y) = 2;
 
                 if (receiver_unit->flags & BUILDING) {
-                    m_access_map(grid_x + 1, grid_y) = 2;
-                    m_access_map(grid_x, grid_y + 1) = 2;
-                    m_access_map(grid_x + 1, grid_y + 1) = 2;
+                    (*m_access_map)(grid_x + 1, grid_y) = 2;
+                    (*m_access_map)(grid_x, grid_y + 1) = 2;
+                    (*m_access_map)(grid_x + 1, grid_y + 1) = 2;
                 }
             }
         }
@@ -284,7 +286,7 @@ bool PathsManager::BuildAccessMap(UnitInfo* unit, PathRequest* request) {
         result = false;
 
         if (minimum_distance_sqrt == 0) {
-            uint8_t value = m_access_map(point2.x, point2.y);
+            uint8_t value = (*m_access_map)(point2.x, point2.y);
 
             if (value && !(value & 0x80)) {
                 result = true;
@@ -306,19 +308,19 @@ bool PathsManager::BuildAccessMap(UnitInfo* unit, PathRequest* request) {
                 distance_x = point2.x * 2 - i;
                 distance_y = point2.y * 2 - j;
 
-                if (m_access_map.IsProcessed(i, j)) {
+                if (m_access_map->IsProcessed(i, j)) {
                     result = true;
                 }
 
-                if (m_access_map.IsProcessed(i, distance_y)) {
+                if (m_access_map->IsProcessed(i, distance_y)) {
                     result = true;
                 }
 
-                if (m_access_map.IsProcessed(distance_x, j)) {
+                if (m_access_map->IsProcessed(distance_x, j)) {
                     result = true;
                 }
 
-                if (m_access_map.IsProcessed(distance_x, distance_y)) {
+                if (m_access_map->IsProcessed(distance_x, distance_y)) {
                     result = true;
                 }
             }
@@ -339,11 +341,11 @@ bool PathsManager::BuildAccessMap(UnitInfo* unit, PathRequest* request) {
 
             for (; j <= limit; ++j) {
                 if (limit2 >= 0) {
-                    m_access_map(limit2, j) = 2 | 0x40;
+                    (*m_access_map)(limit2, j) = 2 | 0x40;
                 }
 
                 if (distance_x < ResourceManager_MapSize.x) {
-                    m_access_map(distance_x, j) = 2 | 0x40;
+                    (*m_access_map)(distance_x, j) = 2 | 0x40;
                 }
             }
         }
@@ -421,11 +423,11 @@ bool PathsManager::PrepareAndDispatchJob(SmartPointer<PathRequest> request) {
     AILOG_LOG(log, "Checking if destination is reachable.");
 
     // Check reachability with PathFill
-    PathFill path_fill(m_access_map);
+    PathFill path_fill(*m_access_map);
 
     path_fill.Fill(position);
 
-    if (!(m_access_map(destination.x, destination.y) & 0x20)) {
+    if (!((*m_access_map)(destination.x, destination.y) & 0x20)) {
         AILOG_LOG(log, "Path not found.");
 
         CompleteRequest(request, nullptr);
@@ -434,7 +436,7 @@ bool PathsManager::PrepareAndDispatchJob(SmartPointer<PathRequest> request) {
     }
 
     // Create search context with COPY of access map (worker will own this)
-    auto context = std::make_unique<PathSearchContext>(m_access_map, position, destination, use_air_transport,
+    auto context = std::make_unique<PathSearchContext>(*m_access_map, position, destination, use_air_transport,
                                                        request->GetMaxCost());
 
     // Assign job ID and dispatch to worker

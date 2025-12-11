@@ -88,6 +88,7 @@
 #include "taskupdateterrain.hpp"
 #include "ticktimer.hpp"
 #include "units_manager.hpp"
+#include "world.hpp"
 
 TerrainDistanceField::TerrainDistanceField(const Point dimensions) : m_dimensions(dimensions) {
     // Initialize both fields with DISTANCE_UNEVALUATED (lazy evaluation - will compute on first query)
@@ -97,16 +98,18 @@ TerrainDistanceField::TerrainDistanceField(const Point dimensions) : m_dimension
     // Step 1: Process base terrain from map data
     // LAND cells → Traversable for land units (no range calculation needed)
     // WATER cells → Traversable for sea units (no range calculation needed)
+    const World* world = ResourceManager_GetActiveWorld();
+
     for (int32_t i = 0; i < m_dimensions.x; ++i) {
         for (int32_t j = 0; j < m_dimensions.y; ++j) {
             const uint32_t field_offset = i + j * m_dimensions.x;
 
-            if (ResourceManager_MapSurfaceMap[field_offset] == SURFACE_TYPE_LAND) {
+            if (world->GetSurfaceType(i, j) == SURFACE_TYPE_LAND) {
                 // This is land - traversable for land units
                 m_land_unit_range_field[field_offset] = TRAVERSABLE_UNEVALUATED;
             }
 
-            if (ResourceManager_MapSurfaceMap[field_offset] == SURFACE_TYPE_WATER) {
+            if (world->GetSurfaceType(i, j) == SURFACE_TYPE_WATER) {
                 // This is water - traversable for sea units
                 m_water_unit_range_field[field_offset] = TRAVERSABLE_UNEVALUATED;
             }

@@ -23,6 +23,7 @@
 
 #include "resource_manager.hpp"
 #include "window_manager.hpp"
+#include "world.hpp"
 
 struct RowMeta {
     uint8_t* buffer;
@@ -169,8 +170,9 @@ void Gfx_DecodeMapTile(const Rect* const pixel_bounds, const uint32_t tile_size,
             map_buffer = &map_buffer[WindowManager_WindowWidth * tile_stride_y];
 
             for (int32_t x{tile_count_x}; x > 0; --x) {
-                uint8_t* const tile_buffer{
-                    &ResourceManager_MapTileBuffer[ResourceManager_MapTileIds[tile_base + tile_position] << quotient]};
+                const World* world = ResourceManager_GetActiveWorld();
+                uint8_t* const tile_buffer{const_cast<uint8_t*>(
+                    &world->GetTileBuffer()[world->GetTileIds()[tile_base + tile_position] << quotient])};
                 uint8_t* map_tile_buffer = &tile_buffer[(offset_y >> GFX_SCALE_BASE) << (quotient >> 1)];
 
                 uint32_t tile_stride_x{Gfx_ZoomLevel};

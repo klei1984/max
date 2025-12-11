@@ -45,6 +45,7 @@
 #include "taskremovemines.hpp"
 #include "unit.hpp"
 #include "units_manager.hpp"
+#include "world.hpp"
 
 enum {
     CREATE_BUILDING_STATE_INITIALIZING,
@@ -1089,7 +1090,8 @@ void TaskCreateBuilding::BuildBoardwalks() {
     if (unit_type != WTRPLTFM && unit_type != BRIDGE && unit_type != CNCT_4W && unit_type != SHIPYARD &&
         unit_type != DOCK && (ResourceManager_GetUnit(unit_type).GetFlags() & BUILDING)) {
         Point position;
-        AccessMap map;
+        const World* world = ResourceManager_GetActiveWorld();
+        AccessMap map(world);
         Rect bounds;
         int32_t range_limit;
 
@@ -1136,7 +1138,8 @@ void TaskCreateBuilding::BuildBoardwalks() {
 }
 
 void TaskCreateBuilding::BuildBridges() {
-    AccessMap map;
+    const World* world = ResourceManager_GetActiveWorld();
+    AccessMap map(world);
     bool spot_found;
     Point position;
 
@@ -1189,9 +1192,11 @@ void TaskCreateBuilding::MarkBridgeAreas(AccessMap& map) {
 
     AILOG(log, "Marking bridge areas.");
 
+    auto world = ResourceManager_GetActiveWorld();
+
     for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
         for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
-            switch (ResourceManager_MapSurfaceMap[y * ResourceManager_MapSize.x + x]) {
+            switch (world->GetSurfaceType(x, y)) {
                 case SURFACE_TYPE_LAND: {
                     map(x, y) = 2;
                 } break;

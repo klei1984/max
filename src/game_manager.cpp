@@ -67,6 +67,7 @@
 #include "units_manager.hpp"
 #include "unitstats.hpp"
 #include "window_manager.hpp"
+#include "world.hpp"
 
 #define MENU_QUICK_BUILD_GUI_ITEM_DEF(id1, id2, ulx, uly, width, height, r_value) \
     {(r_value), (id1), (id2), (ulx), (uly), (width), (height), (0), (0)}
@@ -251,28 +252,11 @@ static int32_t GameManager_GridStepOffset;
 
 MenuLandingSequence GameManager_LandingSequence;
 
-struct ColorCycleData {
-    uint16_t start_index;
-    uint16_t end_index;
-    uint8_t rotate_direction;
-    uint64_t time_limit;
-    uint64_t time_stamp;
-};
-
 struct MenuFlic {
     WindowInfo sw;
     WindowInfo dw;
     Flic* flc;
     int32_t text_height;
-};
-
-static struct ColorCycleData GameManager_ColorCycleTable[] = {
-    COLOR_CYCLE_DATA(9, 12, 0, TIMER_FPS_TO_MS(9), 0),     COLOR_CYCLE_DATA(13, 16, 1, TIMER_FPS_TO_MS(6), 0),
-    COLOR_CYCLE_DATA(17, 20, 1, TIMER_FPS_TO_MS(9), 0),    COLOR_CYCLE_DATA(21, 24, 1, TIMER_FPS_TO_MS(6), 0),
-    COLOR_CYCLE_DATA(25, 30, 1, TIMER_FPS_TO_MS(2), 0),    COLOR_CYCLE_DATA(31, 31, 1, TIMER_FPS_TO_MS(6), 0),
-    COLOR_CYCLE_DATA(96, 102, 1, TIMER_FPS_TO_MS(8), 0),   COLOR_CYCLE_DATA(103, 109, 1, TIMER_FPS_TO_MS(8), 0),
-    COLOR_CYCLE_DATA(110, 116, 1, TIMER_FPS_TO_MS(10), 0), COLOR_CYCLE_DATA(117, 122, 1, TIMER_FPS_TO_MS(6), 0),
-    COLOR_CYCLE_DATA(123, 127, 1, TIMER_FPS_TO_MS(6), 0),
 };
 
 static struct QuickBuildMenuGuiItem GameManager_QuickBuildMenuItems[] = {
@@ -1127,7 +1111,7 @@ void GameManager_RenderMinimap() {
 void GameManager_RenderMap() {
     bool is_message_box_active;
 
-    if (ResourceManager_MapTileIds == nullptr || GameManager_DisableMapRendering) {
+    if (ResourceManager_GetActiveWorld() == nullptr || GameManager_DisableMapRendering) {
         return;
     }
 
@@ -2030,16 +2014,6 @@ void GameManager_GameLoopCleanup() {
 
     GameManager_SelectedUnit = nullptr;
 
-    delete[] ResourceManager_MapTileIds;
-    ResourceManager_MapTileIds = nullptr;
-
-    delete[] ResourceManager_MapTileBuffer;
-    ResourceManager_MapTileBuffer = nullptr;
-
-    delete[] ResourceManager_MapSurfaceMap;
-    ResourceManager_MapSurfaceMap = nullptr;
-
-    delete[] ResourceManager_CargoMap;
     ResourceManager_CargoMap = nullptr;
 
     delete GameManager_TurnTimerImageNormal;
@@ -5099,15 +5073,8 @@ bool GameManager_ProcessTick(bool render_screen) {
 
     time_stamp = timer_get();
 
-    for (int32_t i = sizeof(GameManager_ColorCycleTable) / sizeof(struct ColorCycleData) - 1; i >= 0; --i) {
-        ColorCycleData* data;
-        data = &GameManager_ColorCycleTable[i];
-
-        if ((time_stamp - data->time_stamp) >= data->time_limit) {
-            data->time_stamp = time_stamp;
-
-            GameManager_ColorEffect(data);
-        }
+    if (World* world = ResourceManager_GetActiveWorld(); world && world->IsFullyLoaded()) {
+        world->UpdateColorAnimations(time_stamp);
     }
 
     time_stamp = timer_get();

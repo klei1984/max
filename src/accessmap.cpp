@@ -31,13 +31,13 @@
 #include "resource_manager.hpp"
 #include "unitinfo.hpp"
 #include "units_manager.hpp"
+#include "world.hpp"
 #include "zonewalker.hpp"
 
-AccessMap::AccessMap()
-    : m_data(static_cast<size_t>(ResourceManager_MapSize.x) * ResourceManager_MapSize.y, 0),
-      m_size(ResourceManager_MapSize) {}
-
-AccessMap::AccessMap(Point size) : m_data(static_cast<size_t>(size.x) * size.y, 0), m_size(size) {}
+AccessMap::AccessMap(const World* world)
+    : m_world(world),
+      m_data(static_cast<size_t>(world->GetMapSize().x) * world->GetMapSize().y, 0),
+      m_size(world->GetMapSize()) {}
 
 void AccessMap::Fill(uint8_t value) { std::memset(m_data.data(), value, m_data.size()); }
 
@@ -93,9 +93,9 @@ void AccessMap::ProcessMobileUnits(SmartList<UnitInfo>* units, UnitInfo* unit, u
 }
 
 void AccessMap::ProcessMapSurface(int32_t surface_type, uint8_t value) {
-    for (int32_t index_x = 0; index_x < ResourceManager_MapSize.x; ++index_x) {
-        for (int32_t index_y = 0; index_y < ResourceManager_MapSize.y; ++index_y) {
-            if (ResourceManager_MapSurfaceMap[index_y * ResourceManager_MapSize.x + index_x] == surface_type) {
+    for (int32_t index_x = 0; index_x < m_size.x; ++index_x) {
+        for (int32_t index_y = 0; index_y < m_size.y; ++index_y) {
+            if (m_world->GetSurfaceType(index_x, index_y) == surface_type) {
                 (*this)(index_x, index_y) = value;
             }
         }
@@ -218,7 +218,7 @@ void AccessMap::ProcessSurface(UnitInfo* unit) {
         ZoneWalker walker(position, range);
 
         do {
-            if (ResourceManager_MapSurfaceMap[walker.GetGridY() * ResourceManager_MapSize.x + walker.GetGridX()] &
+            if (m_world->GetSurfaceType(walker.GetGridX(), walker.GetGridY()) &
                 (SURFACE_TYPE_WATER | SURFACE_TYPE_COAST)) {
                 (*this)(walker.GetGridX(), walker.GetGridY()) = 0;
             }
@@ -233,7 +233,7 @@ void AccessMap::ProcessSurface(UnitInfo* unit) {
         range_square = range * range;
 
         point3.x = std::max(position.x - range, 0);
-        point4.x = std::min(position.x + range, ResourceManager_MapSize.x - 1);
+        point4.x = std::min(position.x + range, m_size.x - 1);
 
         for (; point3.x <= point4.x; ++point3.x) {
             distance_square = (point3.x - position.x) * (point3.x - position.x);
@@ -242,7 +242,7 @@ void AccessMap::ProcessSurface(UnitInfo* unit) {
                  --point3.y) {
             }
 
-            point4.y = std::min(position.y + point3.y, ResourceManager_MapSize.y - 1);
+            point4.y = std::min(position.y + point3.y, m_size.y - 1);
             point3.y = std::max(position.y - point3.y, 0);
 
             if (point4.y >= point3.y) {
@@ -315,8 +315,8 @@ void AccessMap::ApplyCautionLevel(UnitInfo* unit, int32_t caution_level) {
                     unit_hits = 1;
                 }
 
-                for (int32_t i = 0; i < ResourceManager_MapSize.x; ++i) {
-                    for (int32_t j = 0; j < ResourceManager_MapSize.y; ++j) {
+                for (int32_t i = 0; i < m_size.x; ++i) {
+                    for (int32_t j = 0; j < m_size.y; ++j) {
                         if (damage_potential_map[i][j] >= unit_hits) {
                             (*this)(i, j) = 0;
                         }

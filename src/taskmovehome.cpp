@@ -130,8 +130,9 @@ bool TaskMoveHome::Execute(UnitInfo& unit_) {
     bool result;
 
     if (unit == unit_ && unit->IsReadyForOrders(this) && unit->speed > 0) {
-        AccessMap map1;
-        AccessMap map2;
+        const World* world = ResourceManager_GetActiveWorld();
+        AccessMap map1(world);
+        AccessMap map2(world);
 
         PopulateTeamZones(map1.GetMap());
 

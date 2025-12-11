@@ -148,7 +148,8 @@ void Continent::TestIsolated() {
         Rect zone;
         Point position;
         ObjectArray<Point> points;
-        AccessMap access_map;
+        const World* world = ResourceManager_GetActiveWorld();
+        AccessMap access_map(world);
 
         zone = bounds;
 

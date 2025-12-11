@@ -29,13 +29,14 @@
 #include "smartlist.hpp"
 
 class UnitInfo;
+class World;
 
 /**
  * \class AccessMap
  * \brief Terrain accessibility map using contiguous row-major storage.
  *
  * Stores traversal costs for each map cell. Uses row-major std::vector for cache efficiency.
- * The map is automatically sized to match ResourceManager_MapSize on construction.
+ * The map is automatically sized to match the provided World instance's map dimensions on construction.
  *
  * Cell format:
  * - Bits 0-4: Traversal cost (0 = impassable, 1-31 = passable with cost)
@@ -44,6 +45,7 @@ class UnitInfo;
  * - Bit 7 (0x80): Air transport passable flag
  */
 class AccessMap {
+    const World* m_world;
     std::vector<uint8_t> m_data;
     Point m_size;
 
@@ -67,18 +69,14 @@ class AccessMap {
 
 public:
     /**
-     * \brief Constructs an AccessMap sized to the current map dimensions.
+     * \brief Constructs an AccessMap sized to match the World instance's map dimensions.
      *
-     * Allocates storage for ResourceManager_MapSize and initializes all cells to zero.
-     */
-    AccessMap();
-
-    /**
-     * \brief Constructs an AccessMap with the specified dimensions.
+     * Allocates storage based on the provided World's map size and initializes all cells to zero. The World pointer
+     * must remain valid for the entire lifetime of this AccessMap instance.
      *
-     * \param size The dimensions of the map.
+     * \param world Non-null pointer to the active World instance. The World must outlive this AccessMap object.
      */
-    explicit AccessMap(Point size);
+    explicit AccessMap(const World* world);
 
     ~AccessMap() = default;
 

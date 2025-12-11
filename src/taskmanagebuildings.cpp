@@ -43,6 +43,7 @@
 #include "taskradarassistant.hpp"
 #include "unit.hpp"
 #include "units_manager.hpp"
+#include "world.hpp"
 #include "zonewalker.hpp"
 
 enum AreaMapMarkers {
@@ -379,9 +380,11 @@ void TaskManageBuildings::ClearPlannedBuildings(uint16_t** construction_map, Tas
         needs_land_access = false;
     }
 
+    auto world = ResourceManager_GetActiveWorld();
+
     for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
         for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
-            int32_t surface_type = ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * y + x];
+            int32_t surface_type = world->GetSurfaceType(x, y);
             int32_t marker_type;
 
             switch (surface_type) {
@@ -2433,7 +2436,8 @@ bool TaskManageBuildings::ReconnectBuildings() {
     bool result;
 
     if (units.GetCount() > 0 || tasks.GetCount() > 0) {
-        AccessMap access_map;
+        const World* world = ResourceManager_GetActiveWorld();
+        AccessMap access_map(world);
         Point site;
 
         if (MarkBuildings(access_map, site)) {
@@ -2614,7 +2618,8 @@ bool TaskManageBuildings::CheckPower() {
 }
 
 bool TaskManageBuildings::FindSiteForRadar(TaskCreateBuilding* task, Point& site) {
-    AccessMap access_map;
+    const World* world = ResourceManager_GetActiveWorld();
+    AccessMap access_map(world);
     bool is_found;
     bool result;
 
@@ -2670,7 +2675,8 @@ bool TaskManageBuildings::FindDefenseSite(ResourceID unit_type, TaskCreateBuildi
         uint16_t** construction_map = CreateMap();
         bool is_site_found = false;
         Point location;
-        AccessMap access_map;
+        const World* world = ResourceManager_GetActiveWorld();
+        AccessMap access_map(world);
         Point target_location = AiPlayer_Teams[m_team].GetTargetLocation();
         int32_t access_map_value;
         int32_t best_access_map_value = 1;

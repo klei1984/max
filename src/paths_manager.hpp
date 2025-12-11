@@ -45,8 +45,8 @@
  * their results discarded when they arrive from the worker.
  */
 class PathsManager {
-    /// Temporary AccessMap used during job preparation (reused to avoid allocations).
-    AccessMap m_access_map;
+    /// Temporary AccessMap used during job preparation (created on demand).
+    std::unique_ptr<AccessMap> m_access_map;
 
     /// Requests waiting to be processed (AccessMap not yet built).
     SmartList<PathRequest> m_pending_requests;
@@ -85,7 +85,7 @@ public:
     void DispatchJobs();
     [[nodiscard]] bool HasRequest(UnitInfo* unit) const;
 
-    [[nodiscard]] AccessMap& GetAccessMap() { return m_access_map; }
+    [[nodiscard]] AccessMap& GetAccessMap() { return *m_access_map; }
 };
 
 #endif /* PATHS_MANAGER_HPP */

@@ -37,6 +37,7 @@
 #include "settings.hpp"
 #include "smartfile.hpp"
 #include "units_manager.hpp"
+#include "world.hpp"
 
 /// \todo
 extern uint16_t SaveLoadMenu_TurnTimer;
@@ -570,9 +571,11 @@ bool SaveLoad_Save(const std::filesystem::path& filepath, const char* const save
 
         // surface map (pass table)
         {
-            SDL_assert(ResourceManager_MapSurfaceMap != nullptr);
+            auto world = ResourceManager_GetActiveWorld();
 
-            error |= !file.Write(ResourceManager_MapSurfaceMap, map_cell_count * sizeof(uint8_t));
+            SDL_assert(world && world->GetSurfaceMap() != nullptr);
+
+            error |= !file.Write(world->GetSurfaceMap(), map_cell_count * sizeof(uint8_t));
         }
 
         // cargo map (survey map)
@@ -811,7 +814,8 @@ bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission
 
     const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
 
-    file.Read(ResourceManager_MapSurfaceMap, map_cell_count * sizeof(uint8_t));
+    file.Read(const_cast<uint8_t*>(ResourceManager_GetActiveWorld()->GetSurfaceMap()),
+              map_cell_count * sizeof(uint8_t));
     file.Read(ResourceManager_CargoMap, map_cell_count * sizeof(uint16_t));
 
     ResourceManager_InitTeamInfo();
@@ -1168,7 +1172,8 @@ bool SaveLoad_LoadFormatV71(SmartFileReader& file, const MissionCategory mission
 
     const uint32_t map_cell_count{static_cast<uint32_t>(ResourceManager_MapSize.x * ResourceManager_MapSize.y)};
 
-    file.Read(ResourceManager_MapSurfaceMap, map_cell_count * sizeof(uint8_t));
+    file.Read(const_cast<uint8_t*>(ResourceManager_GetActiveWorld()->GetSurfaceMap()),
+              map_cell_count * sizeof(uint8_t));
     file.Read(ResourceManager_CargoMap, map_cell_count * sizeof(uint16_t));
 
     ResourceManager_InitTeamInfo();

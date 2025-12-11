@@ -54,6 +54,7 @@
 #include "taskupdateterrain.hpp"
 #include "unit.hpp"
 #include "units_manager.hpp"
+#include "world.hpp"
 #include "zonewalker.hpp"
 
 #define AIPLAYER_THREAT_MAP_CACHE_ENTRIES 10
@@ -570,10 +571,11 @@ void AiPlayer::UpdateThreatMaps(ThreatMap* threat_map, UnitInfo* unit, Point pos
 
     if (damage_potential > 0) {
         if (unit->GetUnitType() == SUBMARNE || unit->GetUnitType() == CORVETTE) {
+            auto world = ResourceManager_GetActiveWorld();
             ZoneWalker walker(position, range);
 
             do {
-                if (ResourceManager_MapSurfaceMap[walker.GetGridY() * ResourceManager_MapSize.x + walker.GetGridX()] &
+                if (world->GetSurfaceType(walker.GetGridX(), walker.GetGridY()) &
                     (SURFACE_TYPE_WATER | SURFACE_TYPE_COAST)) {
                     threat_map->damage_potential_map[walker.GetGridX()][walker.GetGridY()] += damage_potential;
                     threat_map->shots_map[walker.GetGridX()][walker.GetGridY()] += shots;
@@ -874,9 +876,11 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
         }
 
         if (risk_level == 7) {
+            auto world = ResourceManager_GetActiveWorld();
+
             for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
                 for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
-                    if (ResourceManager_MapSurfaceMap[y * ResourceManager_MapSize.x + x] == SURFACE_TYPE_WATER) {
+                    if (world->GetSurfaceType(x, y) == SURFACE_TYPE_WATER) {
                         bool is_found = false;
 
                         for (int32_t team = 0; team < team_count; ++team) {
@@ -2703,7 +2707,8 @@ void AiPlayer::BeginTurn() {
 
 void AiPlayer::GuessEnemyAttackDirections() {
     if (info_map) {
-        AccessMap access_map;
+        const World* world = ResourceManager_GetActiveWorld();
+        AccessMap access_map(world);
         SmartList<UnitInfo> units;
         Point site;
 
@@ -2770,7 +2775,8 @@ void AiPlayer::GuessEnemyAttackDirections() {
 
 void AiPlayer::PlanMinefields() {
     if (info_map && field_7 > 0) {
-        AccessMap access_map;
+        const World* world = ResourceManager_GetActiveWorld();
+        AccessMap access_map(world);
 
         for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
              it != UnitsManager_StationaryUnits.End(); ++it) {
@@ -3604,12 +3610,13 @@ WeightTable AiPlayer::GetExtendedWeightTable(UnitInfo* target, uint8_t flags) {
         if (target->flags & STATIONARY) {
             bool is_water_present = false;
             Rect bounds;
+            auto world = ResourceManager_GetActiveWorld();
 
             target->GetBounds(&bounds);
 
             for (int32_t x = bounds.ulx; x < bounds.lrx; ++x) {
                 for (int32_t y = bounds.uly; y < bounds.lry; ++y) {
-                    if (ResourceManager_MapSurfaceMap[y * ResourceManager_MapSize.x + x] == SURFACE_TYPE_WATER) {
+                    if (world->GetSurfaceType(x, y) == SURFACE_TYPE_WATER) {
                         is_water_present = true;
                     }
                 }
@@ -3876,7 +3883,8 @@ bool AiPlayer::MatchPath(TaskPathRequest* request) {
 
 bool AiPlayer::SelectStrategy() {
     SmartArray<Continent> continents;
-    AccessMap access_map;
+    const World* world = ResourceManager_GetActiveWorld();
+    AccessMap access_map(world);
     Point site;
     int32_t continent_size = 0;
     uint16_t strategy_scores[AI_STRATEGY_MAX];

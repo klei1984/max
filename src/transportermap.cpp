@@ -26,7 +26,8 @@
 #include "resource_manager.hpp"
 #include "unitinfo.hpp"
 
-TransporterMap::TransporterMap(UnitInfo* unit_, uint8_t flags_, uint8_t caution_level_, ResourceID unit_type_) {
+TransporterMap::TransporterMap(UnitInfo* unit_, uint8_t flags_, uint8_t caution_level_, ResourceID unit_type_)
+    : map(ResourceManager_GetActiveWorld()) {
     unit = unit_;
     flags = flags_;
     caution_level = caution_level_;
@@ -45,7 +46,8 @@ bool TransporterMap::Search(Point site) {
         map.GetMap().Init(&*unit, flags, caution_level);
 
         if (unit_type != INVALID_ID && (unit->flags & MOBILE_LAND_UNIT)) {
-            AccessMap access_map;
+            const World* world = ResourceManager_GetActiveWorld();
+            AccessMap access_map(world);
             SmartPointer<UnitInfo> transporter(new (std::nothrow) UnitInfo(unit_type, unit->team, 0xFFFF));
             access_map.GetMap().Init(&*transporter, 0x01, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 

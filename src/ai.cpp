@@ -37,6 +37,7 @@
 #include "taskautosurvey.hpp"
 #include "unit.hpp"
 #include "units_manager.hpp"
+#include "world.hpp"
 
 #define AI_SAFE_ENEMY_DISTANCE 400
 
@@ -302,9 +303,11 @@ void Ai_RemoveUnit(UnitInfo* unit) {
 
         unit->GetBounds(&bounds);
 
+        auto world = ResourceManager_GetActiveWorld();
+
         for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
             for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {
-                surface_type = ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * site.y + site.x];
+                surface_type = world->GetSurfaceType(site.x, site.y);
 
                 const auto units = Hash_MapHash[Point(site.x, site.y)];
 

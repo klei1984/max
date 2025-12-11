@@ -31,6 +31,7 @@
 #include "taskobtainunits.hpp"
 #include "unit.hpp"
 #include "units_manager.hpp"
+#include "world.hpp"
 
 TaskExplore::TaskExplore(uint16_t team_, Point point_)
     : TaskAbstractSearch(team_, nullptr, TASK_PRIORITY_EXPLORE, point_) {
@@ -106,13 +107,14 @@ void TaskExplore::TaskAbstractSearch_vfunc28(UnitInfo& unit) {
 
 bool TaskExplore::IsVisited(UnitInfo& unit, Point point) {
     auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
+    auto world = ResourceManager_GetActiveWorld();
 
     if (unit.GetUnitType() == FASTBOAT || unit.GetUnitType() == SUBMARNE) {
-        if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * point.y + point.x] != SURFACE_TYPE_WATER) {
+        if (world->GetSurfaceType(point.x, point.y) != SURFACE_TYPE_WATER) {
             return true;
         }
 
-    } else if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * point.y + point.x] != SURFACE_TYPE_LAND) {
+    } else if (world->GetSurfaceType(point.x, point.y) != SURFACE_TYPE_LAND) {
         return true;
     }
 

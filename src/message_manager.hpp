@@ -25,6 +25,8 @@
 #include "smartfile.hpp"
 #include "unitinfo.hpp"
 
+class World;
+
 void MessageManager_AddMessage(const char* text, ResourceID id);
 void MessageManager_DrawMessage(const char* text, uint8_t type, UnitInfo* unit, Point point);
 void MessageManager_DrawMessage(const char* text, uint8_t type, int32_t mode, bool flag1 = false,
@@ -36,6 +38,14 @@ void MessageManager_DrawTextMessage(WindowInfo* window, uint8_t* buffer, int32_t
 void MessageManager_LoadMessageLogs(SmartFileReader& file);
 void MessageManager_SaveMessageLogs(SmartFileWriter& file);
 void MessageManager_ClearMessageLogs();
+
+/**
+ * \brief Generates color lookup tables for semi-transparent message box backgrounds using tileset-specific RGB weights
+ * from World instance.
+ *
+ * \param world Pointer to fully loaded World instance.
+ */
+void MessageManager_BuildMessageBoxColorTables(const World* world);
 
 class MessageLogEntry : public SmartObject {
     ResourceID id;

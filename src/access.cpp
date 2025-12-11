@@ -37,6 +37,7 @@
 #include "unit.hpp"
 #include "unitevents.hpp"
 #include "units_manager.hpp"
+#include "world.hpp"
 
 enum {
     TARGET_CLASS_NONE = 0x0,
@@ -925,8 +926,10 @@ void Access_UpdateResourcesTotal(Complex* complex) {
 uint8_t Access_GetSurfaceType(int32_t grid_x, int32_t grid_y) {
     uint8_t result;
 
-    if (ResourceManager_MapSurfaceMap) {
-        result = ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * grid_y + grid_x];
+    auto world = ResourceManager_GetActiveWorld();
+
+    if (world) {
+        result = world->GetSurfaceType(grid_x, grid_y);
     } else {
         result = SURFACE_TYPE_NONE;
     }

@@ -23,11 +23,13 @@
 
 #include <algorithm>
 
+#include "color.h"
 #include "dialogmenu.hpp"
 #include "game_manager.hpp"
 #include "resource_manager.hpp"
 #include "text.hpp"
 #include "window_manager.hpp"
+#include "world.hpp"
 
 static_assert(sizeof(Point) == 4, "It is expected that Point is exactly 2+2 bytes int32_t.");
 static_assert(sizeof(bool) == 1, "It is expected that bool is exactly 1 byte int8_t.");
@@ -70,6 +72,20 @@ void MessageManager_WrapText(const char* text, int16_t width) {
     delete[] strings;
 
     SDL_assert(MessageManager_MessageBuffer_Length < sizeof(MessageManager_MessageBuffer));
+}
+
+void MessageManager_BuildMessageBoxColorTables(const World* world) {
+    uint8_t r_level, g_level, b_level, factor;
+
+    SDL_assert(world != nullptr);
+
+    world->GetRedTintParameters(r_level, g_level, b_level, factor);
+    Color_GenerateIntensityTable3(WindowManager_ColorPalette, r_level, g_level, b_level, factor,
+                                  ResourceManager_RedTintColorIndexTable);
+
+    world->GetWorldTintParameters(r_level, g_level, b_level);
+    Color_GenerateIntensityTable2(WindowManager_ColorPalette, r_level, g_level, b_level,
+                                  ResourceManager_WorldTintColorIndexTable);
 }
 
 void MessageManager_DrawMessageBoxText(uint8_t* buffer, int32_t width, int32_t left_margin, int32_t top_margin,

@@ -37,6 +37,7 @@
 #include "tasktransport.hpp"
 #include "unit.hpp"
 #include "units_manager.hpp"
+#include "world.hpp"
 
 static inline uint32_t GetHeatMapValue(UnitInfo* unit, HeatMap* heat_map, int32_t x, int32_t y) {
     if (!heat_map) {
@@ -678,7 +679,8 @@ bool TaskAttack::EvaluateLandAttack() {
         }
 
         if (sea_unit_present) {
-            AccessMap access_map;
+            auto world = ResourceManager_GetActiveWorld();
+            AccessMap access_map(world);
             bool stationary_unit_present = false;
             Point position;
             Rect bounds;
@@ -689,7 +691,7 @@ bool TaskAttack::EvaluateLandAttack() {
 
             for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
                 for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
-                    if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * y + x] == SURFACE_TYPE_LAND) {
+                    if (world->GetSurfaceType(x, y) == SURFACE_TYPE_LAND) {
                         access_map(x, y) = 2;
                     }
                 }
@@ -1290,7 +1292,8 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
     Point unit_position(unit->grid_x, unit->grid_y);
     Point best_site(unit_position);
     Point site;
-    AccessMap map;
+    const World* world = ResourceManager_GetActiveWorld();
+    AccessMap map(world);
     bool is_there_time_to_prepare = IsThereTimeToPrepare();
     int32_t surface_type;
     uint16_t unit_team = secondary_targets[0].GetUnitSpotted()->team;
@@ -1310,7 +1313,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
 
     for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
         for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
-            if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * site.y + site.x] == surface_type) {
+            if (world->GetSurfaceType(site.x, site.y) == surface_type) {
                 if (!is_there_time_to_prepare || GetHeatMapValue(unit, heat_map, site.x, site.y) == 0) {
                     map(site.x, site.y) = 2;
                 }
@@ -1321,7 +1324,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
     if ((unit->flags & MOBILE_LAND_UNIT) && (unit->flags & MOBILE_SEA_UNIT)) {
         for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
             for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
-                if (ResourceManager_MapSurfaceMap[ResourceManager_MapSize.x * site.y + site.x] == SURFACE_TYPE_WATER) {
+                if (world->GetSurfaceType(site.x, site.y) == SURFACE_TYPE_WATER) {
                     if (!is_there_time_to_prepare || GetHeatMapValue(unit, heat_map, site.x, site.y) == 0) {
                         map(site.x, site.y) = 2;
                     }
@@ -1631,7 +1634,8 @@ Point TaskAttack::GetLeaderDestination() {
 }
 
 void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
-    AccessMap access_map;
+    const World* world = ResourceManager_GetActiveWorld();
+    AccessMap access_map(world);
     auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
     int32_t caution_level = unit->ammo > 0 ? CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE : CAUTION_LEVEL_AVOID_ALL_DAMAGE;
 
