@@ -320,7 +320,7 @@ static TextEdit* GameManager_TextEditUnitName;
 static char GameManager_UnitName[30];
 static uint8_t GameManager_ColorCycleStep;
 static bool GameManager_UpdateFlag;
-static uint8_t GameManager_MarkerColorUpdatePeriod = 5;
+static uint64_t GameManager_MarkerColorUpdateTimestamp = 0;
 static bool GameManager_IsSurveyorSelected;
 
 static uint64_t GameManager_ScrollTimeStamp;
@@ -1200,11 +1200,11 @@ void GameManager_RenderMap() {
             GameManager_RenderFlag2 = false;
 
         } else {
-            --GameManager_MarkerColorUpdatePeriod;
+            const uint64_t current_time = timer_get();
 
-            if (GameManager_MarkerColorUpdatePeriod == 0) {
+            if (timer_elapsed_time(GameManager_MarkerColorUpdateTimestamp) >= TIMER_FPS_TO_MS(24) * 5) {
                 GameManager_MarkerColor ^= 0xFF;
-                GameManager_MarkerColorUpdatePeriod = 5;
+                GameManager_MarkerColorUpdateTimestamp = current_time;
             }
 
             DrawMap_RenderUnits();
