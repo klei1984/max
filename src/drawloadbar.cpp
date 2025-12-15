@@ -27,7 +27,8 @@
 #include "text.hpp"
 #include "window_manager.hpp"
 
-DrawLoadBar::DrawLoadBar(const char* text) : Window(DIALGPIC, GameManager_GetDialogWindowCenterMode()) {
+DrawLoadBar::DrawLoadBar(const char* text)
+    : Window(DIALGPIC, GameManager_GetDialogWindowCenterMode()), window{}, loadbar(nullptr) {
     Text_SetFont(GNW_TEXT_FONT_5);
     Add();
     FillWindowInfo(&window);
@@ -49,7 +50,7 @@ void DrawLoadBar::SetValue(int16_t value) {
     loadbar->SetValue(value);
     loadbar->RefreshScreen();
 
-    if (value <= 80) {
+    if (value <= 80 && value > 0) {
         int32_t length = ResourceManager_MapSize.y * value / 75;
 
         if (length > ResourceManager_MapSize.y) {
@@ -60,8 +61,10 @@ void DrawLoadBar::SetValue(int16_t value) {
         const int32_t window_height{window.window.lry - window.window.uly + 1 - 99};
 
         if (ResourceManager_MapSize.x == window_width && ResourceManager_MapSize.y == window_height) {
-            buf_to_buf(ResourceManager_MinimapFov, ResourceManager_MapSize.x, length, ResourceManager_MapSize.x,
-                       &window.buffer[window.width * 21 + 37], window.width);
+            if (length > 0) {
+                buf_to_buf(ResourceManager_MinimapFov, ResourceManager_MapSize.x, length, ResourceManager_MapSize.x,
+                           &window.buffer[window.width * 21 + 37], window.width);
+            }
 
         } else {
             int32_t output_length = window_height * value / 75;
@@ -70,8 +73,10 @@ void DrawLoadBar::SetValue(int16_t value) {
                 output_length = window_height;
             }
 
-            cscale(ResourceManager_MinimapFov, ResourceManager_MapSize.x, length, ResourceManager_MapSize.x,
-                   &window.buffer[window.width * 21 + 37], window_width, output_length, window.width);
+            if (length > 0 && output_length > 0) {
+                cscale(ResourceManager_MinimapFov, ResourceManager_MapSize.x, length, ResourceManager_MapSize.x,
+                       &window.buffer[window.width * 21 + 37], window_width, output_length, window.width);
+            }
         }
     }
 

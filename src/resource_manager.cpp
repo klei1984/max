@@ -1160,6 +1160,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     memcpy(ResourceManager_Minimap, ResourceManager_MinimapFov, map_cell_count);
 
     DrawLoadBar load_bar(_(df4f));
+
     if (!ResourceManager_ActiveWorld->LoadFullMap(&load_bar)) {
         SDL_Log("ResourceManager: Failed to load full World data");
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
