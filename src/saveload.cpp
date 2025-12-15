@@ -774,7 +774,7 @@ bool SaveLoad_LoadFormatV70(SmartFileReader& file, const MissionCategory mission
     int32_t backup_fuel_resource;
     int32_t backup_gold_resource;
     int32_t backup_alien_derelicts;
-    uint16_t selected_unit_ids[PLAYER_TEAM_MAX - 1];
+    uint16_t selected_unit_ids[PLAYER_TEAM_MAX];
     uint16_t game_state;
 
     if (!is_remote_game) {
@@ -1107,7 +1107,7 @@ bool SaveLoad_LoadFormatV71(SmartFileReader& file, const MissionCategory mission
     int32_t backup_fuel_resource;
     int32_t backup_gold_resource;
     int32_t backup_alien_derelicts;
-    uint16_t selected_unit_ids[PLAYER_TEAM_MAX - 1];
+    uint16_t selected_unit_ids[PLAYER_TEAM_MAX];
 
     if (!is_remote_game) {
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
