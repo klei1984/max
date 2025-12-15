@@ -188,10 +188,15 @@ uint32_t TerrainDistanceField::ComputeDistanceToNearestTraversable(std::vector<u
         // Range not yet computed - do lazy evaluation
         auto position = location;
         uint32_t shortest_distance = DISTANCE_UNEVALUATED;
+        const uint32_t max_map_distance =
+            (m_dimensions.x - 1) * (m_dimensions.x - 1) + (m_dimensions.y - 1) * (m_dimensions.y - 1);
 
         if (TickTimer_HaveTimeToThink()) {
+            // Stop when ring radius² exceeds both current shortest distance AND maximum map distance
+            const uint32_t search_limit = std::min(shortest_distance, max_map_distance);
+
             // Expanding ring search: Check cells at increasing distances
-            for (uint32_t i = 1; i * i < shortest_distance; ++i) {
+            for (uint32_t i = 1; i * i < search_limit; ++i) {
                 // Start position for this ring (south-west corner)
                 --position.x;
                 ++position.y;

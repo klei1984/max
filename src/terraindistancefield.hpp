@@ -33,13 +33,13 @@
 #ifndef TERRAINDISTANCEFIELD_HPP
 #define TERRAINDISTANCEFIELD_HPP
 
-#include <climits>
+#include <cstdint>
 #include <vector>
 
 #include "point.hpp"
 
 class TerrainDistanceField {
-    static constexpr uint32_t DISTANCE_UNEVALUATED = static_cast<uint32_t>(INT_MAX);
+    static constexpr uint32_t DISTANCE_UNEVALUATED = INT32_MAX;
     static constexpr uint32_t TRAVERSABLE_BIT = DISTANCE_UNEVALUATED + 1uL;
     static constexpr uint32_t TRAVERSABLE_UNEVALUATED = (TRAVERSABLE_BIT | DISTANCE_UNEVALUATED);
 
