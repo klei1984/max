@@ -32,7 +32,51 @@
 
 #include "resourcetable.hpp"
 
-struct ClanObject;
+struct ClanResource {
+    std::filesystem::path file;
+    ResourceID id;
+};
+
+struct ClanMedia {
+    ClanResource resource;
+    std::string copyright;
+    std::string license;
+};
+
+struct ClanScriptBlock {
+    std::string script;
+};
+
+using ClanTextBlock = std::unordered_map<std::string, std::string>;
+
+struct UnitTradedoffs {
+    int32_t turns_to_build;
+    int32_t hit_points;
+    int32_t armor_rating;
+    int32_t attack_rating;
+    int32_t move_and_fire;
+    int32_t movement_points;
+    int32_t attack_range;
+    int32_t shots_per_turn;
+    int32_t scan_range;
+    int32_t storage_capacity;
+    int32_t ammunition;
+    int32_t blast_radius;
+    int32_t experience;
+};
+
+struct ClanObject {
+    std::string script;
+    std::string author;
+    std::string copyright;
+    std::string license;
+    ClanTextBlock name;
+    ClanTextBlock description;
+    ClanMedia logo;
+    ClanScriptBlock loadout_rules;
+    int32_t credits;
+    std::unordered_map<ResourceID, UnitTradedoffs> tradeoffs;
+};
 
 class Clans {
     std::unique_ptr<std::unordered_map<std::string, ClanObject>> m_clans;
