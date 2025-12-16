@@ -3826,34 +3826,36 @@ void UnitInfo::FindTarget(int32_t grid_x, int32_t grid_y, SmartList<UnitInfo>* u
 
 void UnitInfo::UpgradeInt() {
     SmartPointer<UnitValues> team_values(UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type));
-    SmartPointer<UnitValues> best_values(new (std::nothrow) UnitValues(*base_values));
-    SmartPointer<UnitValues> new_values;
+    SmartPointer<UnitValues> best_values(new (std::nothrow) UnitValues(*team_values));
     SmartPointer<UnitInfo> copy = MakeCopy();
 
     // Calculate best possible values by merging unit's current values with team values
     for (char attr = ATTRIB_ATTACK; attr < ATTRIB_COUNT; ++attr) {
-        const int32_t current_val = base_values->GetAttribute(attr);
-        const int32_t team_val = team_values->GetAttribute(attr);
+        const int32_t current_value = base_values->GetAttribute(attr);
+        const int32_t team_value = team_values->GetAttribute(attr);
 
         if (attr == ATTRIB_TURNS) {
-            best_values->SetAttribute(attr, std::max(1, std::min(current_val, team_val)));
+            best_values->SetAttribute(attr, std::max(1, std::min(current_value, team_value)));
 
         } else {
-            best_values->SetAttribute(attr, std::max(current_val, team_val));
+            best_values->SetAttribute(attr, std::max(current_value, team_value));
         }
     }
 
     if (*best_values == *team_values) {
-        new_values = team_values;
+        // use team values instance
+        best_values = team_values;
 
     } else {
-        new_values = best_values;
-        new_values->SetVersion(std::max(base_values->GetVersion(), team_values->GetVersion()));
+        // update unique unit version
+        best_values->SetVersion(base_values->GetVersion() + 1);
     }
+
+    best_values->SetUnitsBuilt(1);
 
     // Update current hits proportionally based on max hits change
     const int32_t new_hits =
-        static_cast<int32_t>(hits) + new_values->GetAttribute(ATTRIB_HITS) - base_values->GetAttribute(ATTRIB_HITS);
+        static_cast<int32_t>(hits) + best_values->GetAttribute(ATTRIB_HITS) - base_values->GetAttribute(ATTRIB_HITS);
 
     SDL_assert(new_hits >= 0);
 
@@ -3861,8 +3863,7 @@ void UnitInfo::UpgradeInt() {
 
     CheckIfDestroyed();
 
-    base_values = new_values;
-    base_values->SetUnitsBuilt(1);
+    base_values = best_values;
 
     Access_UpdateMapStatus(this, true);
     Access_UpdateMapStatus(&*copy, false);
