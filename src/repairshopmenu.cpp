@@ -642,23 +642,16 @@ bool RepairShopMenu::IsRepairViable(UnitInfo* target_unit) {
 }
 
 bool RepairShopMenu::IsUpgradeViable(UnitInfo* target_unit) {
-    bool result;
-
-    if (target_unit->GetBaseValues() !=
-            UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[target_unit->team], target_unit->GetUnitType()) &&
-        !(target_unit->flags & REGENERATING_UNIT)) {
-        Cargo materials;
-        Cargo capacity;
-
-        repairshop->GetComplex()->GetCargoInfo(materials, capacity);
-
-        result = materials.raw >= (target_unit->GetNormalRateBuildCost() / 4);
-
-    } else {
-        result = false;
+    if ((target_unit->flags & REGENERATING_UNIT) || !target_unit->HasUpgradeableAttributes()) {
+        return false;
     }
 
-    return result;
+    Cargo materials;
+    Cargo capacity;
+
+    repairshop->GetComplex()->GetCargoInfo(materials, capacity);
+
+    return materials.raw >= (target_unit->GetNormalRateBuildCost() / 4);
 }
 
 bool RepairShopMenu::IsActivateViable(UnitInfo* target_unit) {

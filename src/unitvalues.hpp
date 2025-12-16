@@ -55,6 +55,7 @@ public:
     void AddAttribute(char attribute, int32_t value);
     void UpdateVersion();
     int32_t GetVersion() const;
+    void SetVersion(int32_t value);
     int32_t GetAgentSkill() const;
     void SetUnitsBuilt(uint8_t count);
 

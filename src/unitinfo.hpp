@@ -309,6 +309,7 @@ public:
     SmartObjectArray<ResourceID> GetBuildList();
     ResourceID GetConstructedUnitType() const;
     void CancelBuilding();
+    bool HasUpgradeableAttributes() const;
     bool IsUpgradeAvailable();
     void DeployConstructionSiteUtilities(ResourceID unit_type);
     int32_t GetMaxAllowedBuildRate();

@@ -325,6 +325,8 @@ void UnitValues::UpdateVersion() {
 
 int32_t UnitValues::GetVersion() const { return version; }
 
+void UnitValues::SetVersion(int32_t value) { version = value; }
+
 void UnitValues::SetUnitsBuilt(uint8_t count) { units_built = count; }
 
 bool UnitValues::operator==(const UnitValues& other) const {
