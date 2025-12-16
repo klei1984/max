@@ -480,6 +480,9 @@ void AbstractBuildMenu::InitControls() {
     selector->Draw();
 
     Draw(selector->GetLast());
+
+    // Ensure window is drawn to screen even when no buildable units are available
+    win_draw(window.id);
 }
 
 int32_t AbstractBuildMenu::GetTurnsToBuild(ResourceID unit_type) {
