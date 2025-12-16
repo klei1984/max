@@ -76,11 +76,17 @@ void AccessMap::ProcessStationaryUnits(UnitInfo* unit) {
 
 void AccessMap::ProcessMobileUnits(SmartList<UnitInfo>* units, UnitInfo* unit, uint8_t flags) {
     uint16_t team = unit->team;
+    bool is_air_pathfinder = (unit->flags & MOBILE_AIR_UNIT);
 
     for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
         if ((*it).GetOrder() != ORDER_IDLE && (*it).IsVisibleToTeam(team)) {
             if ((flags & AccessModifier_SameClassBlocks) ||
                 ((flags & AccessModifier_EnemySameClassBlocks) && (*it).team != team)) {
+                // Skip hovering aircraft when building land unit access maps
+                if (((*it).flags & MOBILE_AIR_UNIT) && !is_air_pathfinder && ((*it).flags & HOVERING)) {
+                    continue;
+                }
+
                 (*this)((*it).grid_x, (*it).grid_y) = 0;
 
                 if ((*it).path != nullptr && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER && (&*it) != unit) {
@@ -88,6 +94,12 @@ void AccessMap::ProcessMobileUnits(SmartList<UnitInfo>* units, UnitInfo* unit, u
                     (*this)(position.x, position.y) = 0;
                 }
             }
+        }
+
+        // Block landed air units for land/sea unit pathfinding (redundant check but kept for clarity)
+        if (!is_air_pathfinder && ((*it).flags & MOBILE_AIR_UNIT) && !((*it).flags & HOVERING) &&
+            (*it).IsVisibleToTeam(team) && ((*it).GetOrder() != ORDER_IDLE || ((*it).flags & STATIONARY))) {
+            (*this)((*it).grid_x, (*it).grid_y) = 0;
         }
     }
 }
@@ -284,6 +296,7 @@ void AccessMap::Init(UnitInfo* unit, uint8_t flags, int32_t caution_level) {
 
         ProcessGroundCover(unit, surface_types);
         ProcessMobileUnits(&UnitsManager_MobileLandSeaUnits, unit, flags);
+        ProcessMobileUnits(&UnitsManager_MobileAirUnits, unit, flags);
         ProcessStationaryUnits(unit);
     }
 

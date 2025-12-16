@@ -142,6 +142,11 @@ uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x
                                     if ((*it).flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
                                         return 0;
                                     }
+
+                                    // Block landed air units (not hovering) for land/sea pathfinders
+                                    if (((*it).flags & MOBILE_AIR_UNIT) && !((*it).flags & HOVERING)) {
+                                        return 0;
+                                    }
                                 }
 
                                 if ((unit_flags & STATIONARY) && unit_type != CNCT_4W &&
