@@ -205,6 +205,10 @@ bool SaveLoad_GetSaveFileInfoV70(SmartFileReader& file, struct SaveFileInfo& sav
             save_file_info.team_clan[team] = team_clan[team];
         }
 
+        // Initialize alien team with default values as if a new game would be started
+        save_file_info.team_type[PLAYER_TEAM_ALIEN] = TEAM_TYPE_NONE;
+        save_file_info.team_clan[PLAYER_TEAM_ALIEN] = TEAM_CLAN_RANDOM;
+
         save_file_info.random_seed = rng_seed;
 
         result = true;
