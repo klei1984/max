@@ -49,32 +49,33 @@ UpgradeMenu::UpgradeMenu(uint16_t team, Complex* complex) : AbstractUpgradeMenu(
 
     team_gold = start_gold = UnitsManager_TeamInfo[team].team_units->GetGold();
 
-    window2 = window1;
-    window2.window.ulx = 11;
-    window2.window.uly = 13;
+    unit_portrait_window = dialog_window;
+    unit_portrait_window.window.ulx = 11;
+    unit_portrait_window.window.uly = 13;
 
-    window2.buffer = &window1.buffer[window1.width * window2.window.uly + window2.window.ulx];
-    window2.window.lrx = window2.window.ulx + 280;
-    window2.window.lry = window2.window.uly + 240;
+    unit_portrait_window.buffer =
+        &dialog_window.buffer[dialog_window.width * unit_portrait_window.window.uly + unit_portrait_window.window.ulx];
+    unit_portrait_window.window.lrx = unit_portrait_window.window.ulx + 280;
+    unit_portrait_window.window.lry = unit_portrait_window.window.uly + 240;
 
     type_selector = nullptr;
 
     {
         WindowInfo wininfo;
 
-        wininfo = window1;
+        wininfo = dialog_window;
         wininfo.window.ulx = 482;
         wininfo.window.uly = 80;
         wininfo.window.lrx = 625;
         wininfo.window.lry = 370;
-        wininfo.buffer = &window1.buffer[window1.width * wininfo.window.uly + wininfo.window.ulx];
+        wininfo.buffer = &dialog_window.buffer[dialog_window.width * wininfo.window.uly + wininfo.window.ulx];
 
         Text_SetFont(GNW_TEXT_FONT_5);
 
-        Text_TextBox(window1.buffer, window1.width, _(0b85), 327, 7, 158, 18, COLOR_GREEN, true);
-        Text_TextBox(&window1, _(7a2c), 209, 264, 80, 17, true, true);
-        Text_TextBox(&window1, _(f199), 320, 283, 48, 16, true, true);
-        Text_TextBox(&window1, _(fb18), 358, 284, 48, 17, true, true);
+        Text_TextBox(dialog_window.buffer, dialog_window.width, _(0b85), 327, 7, 158, 18, COLOR_GREEN, true);
+        Text_TextBox(&dialog_window, _(7a2c), 209, 264, 80, 17, true, true);
+        Text_TextBox(&dialog_window, _(f199), 320, 283, 48, 16, true, true);
+        Text_TextBox(&dialog_window, _(fb18), 358, 284, 48, 17, true, true);
 
         Init();
 
@@ -90,8 +91,8 @@ UpgradeMenu::~UpgradeMenu() {
     GameManager_ProcessTick(true);
 }
 
-void UpgradeMenu::AbstractUpgradeMenu_vfunc7() {
-    AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc7();
+void UpgradeMenu::CommitUpgradeChanges() {
+    AbstractUpgradeMenu::CommitUpgradeChanges();
 
     UnitsManager_TeamInfo[team].team_units->SetGold(team_gold);
 

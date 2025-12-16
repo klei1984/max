@@ -80,8 +80,8 @@ AbstractUpgradeMenu::AbstractUpgradeMenu(uint16_t team, ResourceID resource_id)
 
     Cursor_SetCursor(CURSOR_HAND);
     Add(true);
-    FillWindowInfo(&window1);
-    window2 = window1;
+    FillWindowInfo(&dialog_window);
+    unit_portrait_window = dialog_window;
 
     GameManager_DisableMainMenu();
 }
@@ -117,54 +117,54 @@ void AbstractUpgradeMenu::Init() {
     button_done->SetRValue(1000);
     button_done->SetPValue(GNW_INPUT_PRESS + 1000);
     button_done->SetSfx(NDONE0);
-    button_done->RegisterButton(window1.id);
+    button_done->RegisterButton(dialog_window.id);
 
     button_cancel->SetCaption(_(c6aa));
     button_cancel->SetRValue(1002);
     button_cancel->SetPValue(GNW_INPUT_PRESS + 1002);
     button_cancel->SetSfx(NCANC0);
-    button_cancel->RegisterButton(window1.id);
+    button_cancel->RegisterButton(dialog_window.id);
 
     button_help->SetRValue(1001);
     button_help->SetPValue(GNW_INPUT_PRESS + 1001);
     button_help->SetSfx(NHELP0);
-    button_help->RegisterButton(window1.id);
+    button_help->RegisterButton(dialog_window.id);
 
     button_ground->SetRValue(1004);
     button_ground->SetPValue(1003);
     button_ground->SetFlags(0x01);
     button_ground->SetSfx(KCARG0);
-    button_ground->RegisterButton(window1.id);
+    button_ground->RegisterButton(dialog_window.id);
 
     button_air->SetRValue(1006);
     button_air->SetPValue(1005);
     button_air->SetFlags(0x01);
     button_air->SetSfx(KCARG0);
-    button_air->RegisterButton(window1.id);
+    button_air->RegisterButton(dialog_window.id);
 
     button_sea->SetRValue(1008);
     button_sea->SetPValue(1007);
     button_sea->SetFlags(0x01);
     button_sea->SetSfx(KCARG0);
-    button_sea->RegisterButton(window1.id);
+    button_sea->RegisterButton(dialog_window.id);
 
     button_building->SetRValue(1010);
     button_building->SetPValue(1009);
     button_building->SetFlags(0x01);
     button_building->SetSfx(KCARG0);
-    button_building->RegisterButton(window1.id);
+    button_building->RegisterButton(dialog_window.id);
 
     button_combat->SetRValue(1012);
     button_combat->SetPValue(1011);
     button_combat->SetFlags(0x01);
     button_combat->SetSfx(KCARG0);
-    button_combat->RegisterButton(window1.id);
+    button_combat->RegisterButton(dialog_window.id);
 
     button_description->SetRValue(1014);
     button_description->SetPValue(1013);
     button_description->SetFlags(0x01);
     button_description->SetSfx(KCARG0);
-    button_description->RegisterButton(window1.id);
+    button_description->RegisterButton(dialog_window.id);
 
     if (buy_upgrade_toggle_state) {
         button_ground->Disable(false);
@@ -181,10 +181,10 @@ void AbstractUpgradeMenu::Init() {
     button_combat->SetRestState(button_combat_rest_state);
     button_description->SetRestState(button_description_rest_state);
 
-    stats_background->Copy(&window1);
-    cost_background->Copy(&window1);
-    button_background->Copy(&window1);
-    gold_background->Copy(&window1);
+    stats_background->Copy(&dialog_window);
+    cost_background->Copy(&dialog_window);
+    button_background->Copy(&dialog_window);
+    gold_background->Copy(&dialog_window);
 }
 
 AbstractUpgradeMenu::~AbstractUpgradeMenu() {
@@ -214,7 +214,7 @@ AbstractUpgradeMenu::~AbstractUpgradeMenu() {
 
 void AbstractUpgradeMenu::AddUpgrade(int32_t id, int32_t value1, int32_t value2, uint16_t* attribute, int32_t value) {
     upgrade_controls[upgrade_control_count] =
-        new (std::nothrow) UpgradeControl(window1.id, cost_background->GetULX() - 38, upgrade_control_next_uly,
+        new (std::nothrow) UpgradeControl(dialog_window.id, cost_background->GetULX() - 38, upgrade_control_next_uly,
                                           upgrade_control_count + 1015, upgrade_control_count + 1025, &team_gold);
 
     upgrade_controls[upgrade_control_count]->Init(id, value1, value2, attribute, value);
@@ -337,7 +337,7 @@ bool AbstractUpgradeMenu::EventHandler(Event* event) {
     if (event->GetEventId() == EVENTS_GET_EVENT_ID(UnitSelectEvent)) {
         EventUnitSelect* select = dynamic_cast<EventUnitSelect*>(event);
 
-        result = AbstractUpgradeMenu_vfunc4(select->GetSelector(), select->GetValue());
+        result = HandleUnitTypeSelection(select->GetSelector(), select->GetValue());
     } else {
         result = false;
     }
@@ -349,20 +349,22 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
     this->unit_type = unit_type;
 
     if (unit_type == INVALID_ID) {
-        buf_fill(window2.buffer, 300, 240, window1.width, 0);
+        buf_fill(unit_portrait_window.buffer, 300, 240, dialog_window.width, 0);
 
     } else {
         const Unit& base_unit = ResourceManager_GetUnit(unit_type);
 
-        if (!WindowManager_LoadBigImage(base_unit.GetPortrait(), &window2, window1.width, false, false)) {
-            buf_fill(window2.buffer, 300, 240, window1.width, 0);
-            flicsmgr_construct(base_unit.GetFlicsAnimation(), &window2, window1.width, 16, 17, false, false);
+        if (!WindowManager_LoadBigImage(base_unit.GetPortrait(), &unit_portrait_window, dialog_window.width, false,
+                                        false)) {
+            buf_fill(unit_portrait_window.buffer, 300, 240, dialog_window.width, 0);
+            flicsmgr_construct(base_unit.GetFlicsAnimation(), &unit_portrait_window, dialog_window.width, 16, 17, false,
+                               false);
         }
 
         if (button_description_rest_state) {
             Text_SetFont(GNW_TEXT_FONT_5);
-            Text_TextBox(window2.buffer, window1.width, base_unit.GetDescription().data(), 16, 17, 280, 230,
-                         GNW_TEXT_OUTLINE | 0xA2, false, false);
+            Text_TextBox(unit_portrait_window.buffer, dialog_window.width, base_unit.GetDescription().data(), 16, 17,
+                         280, 230, GNW_TEXT_OUTLINE | 0xA2, false, false);
         }
     }
 
@@ -373,7 +375,7 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
 
     upgrade_control_count = 0;
     upgrade_control_next_uly = static_cast<uint16_t>(cost_background->GetULY());
-    button_background->Write(&window1);
+    button_background->Write(&dialog_window);
 
     if (unit_type != INVALID_ID && Builder_IsBuildable(team, unit_type)) {
         AddUpgradeMilitary(unit_type);
@@ -386,16 +388,16 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
     DrawUnitStats(unit_type);
 }
 
-void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc3(ResourceID unit_type) {}
+void AbstractUpgradeMenu::OnUnitTypeConfirmed(ResourceID unit_type) {}
 
-bool AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc4(UnitTypeSelector* selector, bool mode) {
+bool AbstractUpgradeMenu::HandleUnitTypeSelection(UnitTypeSelector* selector, bool mode) {
     bool result;
 
     if (type_selector == selector) {
         ResourceID unit_type = selector->GetLast();
 
         if (mode && this->unit_type == unit_type) {
-            AbstractUpgradeMenu_vfunc3(unit_type);
+            OnUnitTypeConfirmed(unit_type);
         } else {
             DrawUnitInfo(unit_type);
         }
@@ -438,22 +440,23 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
     uint8_t* buffer_text;
     uint8_t* buffer_icon;
 
-    stats_background->Write(&window1);
+    stats_background->Write(&dialog_window);
 
     if (unit_type != INVALID_ID) {
-        UnitStats_DrawStats(&window1.buffer[stats_background->GetULY() * window1.width + stats_background->GetULX()],
-                            window1.width, unit_type, team, *unitvalues_actual[unit_type], stats_background->GetWidth(),
-                            interface_icon_full, interface_icon_empty);
+        UnitStats_DrawStats(
+            &dialog_window.buffer[stats_background->GetULY() * dialog_window.width + stats_background->GetULX()],
+            dialog_window.width, unit_type, team, *unitvalues_actual[unit_type], stats_background->GetWidth(),
+            interface_icon_full, interface_icon_empty);
     }
 
     Text_SetFont(GNW_TEXT_FONT_5);
 
-    cost_background->Write(&window1);
+    cost_background->Write(&dialog_window);
 
     image = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(I_GOLD));
 
-    buffer_text = &window1.buffer[cost_background->GetULX() + window1.width * 5 + 24];
-    buffer_icon = &window1.buffer[cost_background->GetULX() + window1.width * 3 + 25];
+    buffer_text = &dialog_window.buffer[cost_background->GetULX() + dialog_window.width * 5 + 24];
+    buffer_icon = &dialog_window.buffer[cost_background->GetULX() + dialog_window.width * 3 + 25];
 
     for (int32_t i = 0; i < upgrade_control_count; ++i) {
         int32_t cost;
@@ -464,10 +467,10 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
         if (cost > 0 && cost < UPGRADECONTROL_UPGRADE_COST_LIMIT) {
             int32_t offset;
 
-            offset = window1.width * upgrade_controls[i]->GetUly();
+            offset = dialog_window.width * upgrade_controls[i]->GetUly();
 
-            ReportStats_DrawNumber(&buffer_text[offset], cost, 24, window1.width, 5);
-            UnitStats_DrawImage(&buffer_icon[offset], window1.width, image);
+            ReportStats_DrawNumber(&buffer_text[offset], cost, 24, dialog_window.width, 5);
+            UnitStats_DrawImage(&buffer_icon[offset], dialog_window.width, image);
         }
     }
 
@@ -475,7 +478,7 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
         int32_t height;
         uint8_t* buffer;
 
-        gold_background->Write(&window1);
+        gold_background->Write(&dialog_window);
 
         if (start_gold) {
             height = ((gold_background->GetHeight() - 25) * team_gold) / start_gold;
@@ -483,10 +486,11 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
             height = 0;
         }
 
-        buffer = &window1.buffer[gold_background->GetULX() + (gold_background->GetULY() + 25) * window1.width +
-                                 (gold_background->GetHeight() - 25 - height) * window1.width];
+        buffer =
+            &dialog_window.buffer[gold_background->GetULX() + (gold_background->GetULY() + 25) * dialog_window.width +
+                                  (gold_background->GetHeight() - 25 - height) * dialog_window.width];
 
-        LoadVerticalBar(buffer, window1.width, height, gold_background->GetWidth(), VERTGOLD);
+        LoadVerticalBar(buffer, dialog_window.width, height, gold_background->GetWidth(), VERTGOLD);
     }
 
     {
@@ -497,16 +501,16 @@ void AbstractUpgradeMenu::DrawUnitStats(ResourceID unit_type) {
         snprintf(text, sizeof(text), "%i", team_gold);
 
         length = Text_GetWidth(text);
-        buffer = &window1.buffer[window1.width * gold_background->GetULY() + gold_background->GetULX() +
-                                 (gold_background->GetWidth() - length) / 2];
+        buffer = &dialog_window.buffer[dialog_window.width * gold_background->GetULY() + gold_background->GetULX() +
+                                       (gold_background->GetWidth() - length) / 2];
 
-        Text_Blit(buffer, text, length, window1.width, COLOR_CHROME_YELLOW);
+        Text_Blit(buffer, text, length, dialog_window.width, COLOR_CHROME_YELLOW);
     }
 
-    win_draw(window1.id);
+    win_draw(dialog_window.id);
 }
 
-void AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc7() {
+void AbstractUpgradeMenu::CommitUpgradeChanges() {
     for (uint16_t i = 0; i < UNIT_END; ++i) {
         if (*unitvalues_actual[i] != *unitvalues_base[i]) {
             unitvalues_actual[i]->UpdateVersion();
@@ -551,7 +555,7 @@ bool AbstractUpgradeMenu::ProcessKey(int32_t key) {
 
             case 1000:
             case GNW_KB_KEY_RETURN: {
-                AbstractUpgradeMenu_vfunc7();
+                CommitUpgradeChanges();
                 event_click_done = true;
                 result = true;
             } break;

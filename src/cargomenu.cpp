@@ -147,22 +147,23 @@ CargoMenu::CargoMenu(uint16_t team) : AbstractUpgradeMenu(team, CARGOPIC) {
     button_delete->SetRValue(1103);
     button_buy->SetRValue(1102);
     button_buy_upgrade_toggle->SetSfx(KCARG0);
-    button_cargo_up->RegisterButton(window1.id);
-    button_cargo_down->RegisterButton(window1.id);
-    button_buy_upgrade_toggle->RegisterButton(window1.id);
-    button_delete->RegisterButton(window1.id);
-    button_buy->RegisterButton(window1.id);
+    button_cargo_up->RegisterButton(dialog_window.id);
+    button_cargo_down->RegisterButton(dialog_window.id);
+    button_buy_upgrade_toggle->RegisterButton(dialog_window.id);
+    button_delete->RegisterButton(dialog_window.id);
+    button_buy->RegisterButton(dialog_window.id);
 
     scrollbar->Register();
 
-    window2 = window1;
+    unit_portrait_window = dialog_window;
 
-    window2.window.ulx = 11;
-    window2.window.uly = 13;
-    window2.window.lrx = window2.window.ulx + 280;
-    window2.window.lry = window2.window.uly + 240;
+    unit_portrait_window.window.ulx = 11;
+    unit_portrait_window.window.uly = 13;
+    unit_portrait_window.window.lrx = unit_portrait_window.window.ulx + 280;
+    unit_portrait_window.window.lry = unit_portrait_window.window.uly + 240;
 
-    window2.buffer = &window1.buffer[window2.window.ulx + window2.window.uly * window1.width];
+    unit_portrait_window.buffer =
+        &dialog_window.buffer[unit_portrait_window.window.ulx + unit_portrait_window.window.uly * dialog_window.width];
 
     {
         ResourceID id;
@@ -213,47 +214,47 @@ CargoMenu::CargoMenu(uint16_t team) : AbstractUpgradeMenu(team, CARGOPIC) {
         unit_types1.PushBack(&id);
     }
 
-    wininfo1 = window1;
+    wininfo1 = dialog_window;
 
     wininfo1.window.ulx = 482;
     wininfo1.window.uly = 80;
     wininfo1.window.lrx = 605;
     wininfo1.window.lry = 370;
 
-    wininfo1.buffer = &window1.buffer[window1.width * wininfo1.window.uly + wininfo1.window.ulx];
+    wininfo1.buffer = &dialog_window.buffer[dialog_window.width * wininfo1.window.uly + wininfo1.window.ulx];
 
-    Text_TextBox(window1.buffer, window1.width, _(e674), 482, 57, 143, 10, 0xA2, false);
+    Text_TextBox(dialog_window.buffer, dialog_window.width, _(e674), 482, 57, 143, 10, 0xA2, false);
 
-    Text_TextBox(window1.buffer, window1.width, _(056f), 625 - Text_GetWidth(_(056f)), 57, Text_GetWidth(_(056f)), 10,
-                 COLOR_YELLOW, false);
+    Text_TextBox(dialog_window.buffer, dialog_window.width, _(056f), 625 - Text_GetWidth(_(056f)), 57,
+                 Text_GetWidth(_(056f)), 10, COLOR_YELLOW, false);
 
-    draw_line(window1.buffer, window1.width, 482, 69, 625, 69, COLOR_CHROME_YELLOW);
+    draw_line(dialog_window.buffer, dialog_window.width, 482, 69, 625, 69, COLOR_CHROME_YELLOW);
 
-    wininfo2 = window1;
+    wininfo2 = dialog_window;
 
     wininfo2.window.ulx = 337;
     wininfo2.window.uly = 45;
     wininfo2.window.lrx = 455;
     wininfo2.window.lry = 230;
 
-    wininfo2.buffer = &wininfo2.buffer[wininfo2.window.uly * window1.width + wininfo2.window.ulx];
+    wininfo2.buffer = &wininfo2.buffer[wininfo2.window.uly * dialog_window.width + wininfo2.window.ulx];
 
     cargo_selector = new (std::nothrow) CargoSelector(this, &wininfo2, unit_types2, cargos, team, 3000,
                                                       button_purchase_list_up, button_purchase_list_down);
 
     Text_SetFont(GNW_TEXT_FONT_5);
 
-    Text_TextBox(window1.buffer, window1.width, _(5fa1), 337, 22, 118, 10, 0xA2, true);
+    Text_TextBox(dialog_window.buffer, dialog_window.width, _(5fa1), 337, 22, 118, 10, 0xA2, true);
 
-    draw_line(window1.buffer, window1.width, 337, 34, 455, 34, COLOR_CHROME_YELLOW);
+    draw_line(dialog_window.buffer, dialog_window.width, 337, 34, 455, 34, COLOR_CHROME_YELLOW);
 
     Text_SetFont(GNW_TEXT_FONT_5);
 
-    Text_TextBox(window1.buffer, window1.width, _(eb71), 473, 7, 158, 18, COLOR_GREEN, true);
-    Text_TextBox(&window1, _(57a6), 209, 264, 80, 17, true, true);
-    Text_TextBox(&window1, _(ab7e), 320, 283, 48, 16, true, true);
-    Text_TextBox(&window1, _(3201), 358, 283, 48, 16, true, true);
-    Text_TextBox(&window1, _(fc09), 409, 283, 48, 16, true, true);
+    Text_TextBox(dialog_window.buffer, dialog_window.width, _(eb71), 473, 7, 158, 18, COLOR_GREEN, true);
+    Text_TextBox(&dialog_window, _(57a6), 209, 264, 80, 17, true, true);
+    Text_TextBox(&dialog_window, _(ab7e), 320, 283, 48, 16, true, true);
+    Text_TextBox(&dialog_window, _(3201), 358, 283, 48, 16, true, true);
+    Text_TextBox(&dialog_window, _(fc09), 409, 283, 48, 16, true, true);
 
     Init();
 
@@ -370,9 +371,9 @@ void CargoMenu::DrawUnitInfo(ResourceID unit_type) {
     AbstractUpgradeMenu::DrawUnitInfo(unit_type);
 }
 
-void CargoMenu::AbstractUpgradeMenu_vfunc3(ResourceID unit_type) { BuyUnit(); }
+void CargoMenu::OnUnitTypeConfirmed(ResourceID unit_type) { BuyUnit(); }
 
-bool CargoMenu::AbstractUpgradeMenu_vfunc4(UnitTypeSelector* selector, bool mode) {
+bool CargoMenu::HandleUnitTypeSelection(UnitTypeSelector* selector, bool mode) {
     bool result;
 
     active_selector = selector;
@@ -386,7 +387,7 @@ bool CargoMenu::AbstractUpgradeMenu_vfunc4(UnitTypeSelector* selector, bool mode
 
         result = true;
     } else {
-        result = AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc4(selector, mode);
+        result = AbstractUpgradeMenu::HandleUnitTypeSelection(selector, mode);
     }
 
     return result;
@@ -421,10 +422,10 @@ void CargoMenu::DrawUnitStats(ResourceID unit_type) {
     AbstractUpgradeMenu::DrawUnitStats(unit_type);
 }
 
-void CargoMenu::AbstractUpgradeMenu_vfunc7() {
+void CargoMenu::CommitUpgradeChanges() {
     int32_t cargo;
 
-    AbstractUpgradeMenu::AbstractUpgradeMenu_vfunc7();
+    AbstractUpgradeMenu::CommitUpgradeChanges();
 
     UnitsManager_TeamMissionSupplies[team].start_gold = start_gold;
     UnitsManager_TeamMissionSupplies[team].team_gold = team_gold;

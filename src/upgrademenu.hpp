@@ -32,7 +32,7 @@ public:
     UpgradeMenu(uint16_t team, Complex* complex);
     ~UpgradeMenu();
 
-    void AbstractUpgradeMenu_vfunc7();
+    void CommitUpgradeChanges();
     bool ProcessKey(int32_t key);
 };
 

@@ -55,11 +55,11 @@ public:
 
     bool EventHandler(Event* event);
     void DrawUnitInfo(ResourceID unit_type);
-    void AbstractUpgradeMenu_vfunc3(ResourceID unit_type);
-    bool AbstractUpgradeMenu_vfunc4(UnitTypeSelector* selector, bool mode);
+    void OnUnitTypeConfirmed(ResourceID unit_type);
+    bool HandleUnitTypeSelection(UnitTypeSelector* selector, bool mode);
     void PopulateTeamUnitsList();
     void DrawUnitStats(ResourceID unit_type);
-    void AbstractUpgradeMenu_vfunc7();
+    void CommitUpgradeChanges();
     bool ProcessKey(int32_t key);
 
     UnitValues* GetCurrentUnitValues(ResourceID unit_type);

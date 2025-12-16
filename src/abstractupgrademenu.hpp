@@ -30,8 +30,8 @@
 
 class AbstractUpgradeMenu : public Window {
 protected:
-    WindowInfo window1;
-    WindowInfo window2;
+    WindowInfo dialog_window;
+    WindowInfo unit_portrait_window;
     uint16_t team;
     uint32_t start_gold;
     uint32_t team_gold;
@@ -89,11 +89,11 @@ public:
 
     bool EventHandler(Event* event);
     virtual void DrawUnitInfo(ResourceID unit_type);
-    virtual void AbstractUpgradeMenu_vfunc3(ResourceID unit_type);
-    virtual bool AbstractUpgradeMenu_vfunc4(UnitTypeSelector* selector, bool mode);
+    virtual void OnUnitTypeConfirmed(ResourceID unit_type);
+    virtual bool HandleUnitTypeSelection(UnitTypeSelector* selector, bool mode);
     virtual void PopulateTeamUnitsList();
     virtual void DrawUnitStats(ResourceID unit_type);
-    virtual void AbstractUpgradeMenu_vfunc7();
+    virtual void CommitUpgradeChanges();
     virtual bool ProcessKey(int32_t key);
 
     bool Run();
