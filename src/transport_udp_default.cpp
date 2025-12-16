@@ -30,6 +30,7 @@
 #include <upnpcommands.h>
 #endif
 
+#include <atomic>
 #include <utility>
 
 #include "netlog.hpp"
@@ -97,7 +98,7 @@ struct TransportUdpDefault_Context {
     SmartObjectArray<NetPacket*> RxPackets;
     struct UpnpDevice UpnpDevice;
     ENetAddress ServerAddress;
-    bool ExitThread;
+    std::atomic<bool> ExitThread;
     int32_t NetState;
     int32_t NetRole;
     const char* LastError;
@@ -176,7 +177,7 @@ bool TransportUdpDefault::Init(int32_t mode) {
         context->UpnpDevice.Status = TRANSPORT_IGDSTATUS_ERROR;
         context->ServerAddress.host = ENET_HOST_ANY;
         context->ServerAddress.port = TransportUdpDefault_DefaultHostPort;
-        context->ExitThread = false;
+        context->ExitThread.store(false, std::memory_order_release);
         context->NetState = TRANSPORT_NETSTATE_DEINITED;
         context->NetRole = -1;
         context->LastError = "No error.";
@@ -226,7 +227,7 @@ bool TransportUdpDefault::Deinit() {
         if (context->Thread) {
             int result;
 
-            context->ExitThread = true;
+            context->ExitThread.store(true, std::memory_order_release);
             SDL_WaitThread(context->Thread, &result);
             context->Thread = nullptr;
 
@@ -745,7 +746,7 @@ int TransportUdpDefault_ServerFunction(void* data) noexcept {
 
             TransportUdpDefault_TransmitApplPackets(context);
 
-            if (context->ExitThread) {
+            if (context->ExitThread.load(std::memory_order_acquire)) {
                 TransportUdpDefault_RemoveClients(context);
                 break;
             }
@@ -823,7 +824,7 @@ int TransportUdpDefault_ClientFunction(void* data) noexcept {
 
                 TransportUdpDefault_TransmitApplPackets(context);
 
-                if (context->ExitThread) {
+                if (context->ExitThread.load(std::memory_order_acquire)) {
                     TransportUdpDefault_RemoveClients(context);
                     break;
                 }

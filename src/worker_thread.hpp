@@ -25,6 +25,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_thread.h>
 
+#include <atomic>
 #include <deque>
 #include <functional>
 #include <memory>
@@ -88,7 +89,7 @@ public:
             return true;
         }
 
-        m_exit_requested = false;
+        m_exit_requested.store(false, std::memory_order_release);
         m_thread = SDL_CreateThread(ThreadFunction, thread_name, this);
 
         if (m_thread) {
@@ -110,7 +111,7 @@ public:
             return;
         }
 
-        m_exit_requested = true;
+        m_exit_requested.store(true, std::memory_order_release);
 
         if (m_thread) {
             SDL_WaitThread(m_thread, nullptr);
@@ -200,7 +201,7 @@ private:
     }
 
     void Run() {
-        while (!m_exit_requested) {
+        while (!m_exit_requested.load(std::memory_order_acquire)) {
             std::unique_ptr<TJob> job;
 
             // Try to get a job - minimize lock duration
@@ -231,7 +232,7 @@ private:
     mutable SDL_SpinLock m_queue_lock;
     std::deque<std::unique_ptr<TJob>> m_pending_jobs;
     std::deque<CompletedJob> m_completed_jobs;
-    volatile bool m_exit_requested;
+    std::atomic<bool> m_exit_requested;
     bool m_running;
 };
 
