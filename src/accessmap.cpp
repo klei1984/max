@@ -122,7 +122,7 @@ void AccessMap::ProcessGroundCover(UnitInfo* unit, int32_t surface_type) {
         if ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team)) {
             switch ((*it).GetUnitType()) {
                 case BRIDGE: {
-                    if (surface_type & SURFACE_TYPE_LAND) {
+                    if (surface_type & (SURFACE_TYPE_LAND | SURFACE_TYPE_WATER)) {
                         (*this)((*it).grid_x, (*it).grid_y) = 4;
                     }
                 } break;
