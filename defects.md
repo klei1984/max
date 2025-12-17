@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 198 / 252 (78.5%) original M.A.X. defects in M.A.X. Port.
+Fixed 205 / 252 (81.3%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -158,7 +158,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 46. **[Fixed]** The TeamInfo class allocates 6 slots for screen locations while only 4 locations can be saved and restored by the game logic. To fix this technical debt the save file format version needs to be updated.
 
-47. The save file format header allocates 5 team instances for team type and team clan parameters but only 4 team instances are filled up with valid data. To fix this technical debt the save file format version needs to be updated.
+47. **[Fixed]** The save file format header allocates 5 team instances for team type and team clan parameters but only 4 team instances are filled up with valid data. To fix this technical debt the save file format version needs to be updated.
 
 48. **[Fixed]** There is a typo in the description of Valentine's Planet. `Two to four can be easily accomodated.` -> `accommodated.`
 
@@ -180,7 +180,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 57. **[Fixed]** The custom scenarios menu title is "Multiplayer Scenarios" even in single player mode.
 
-58. If a high-tech unit is captured, and then it gets upgraded in the depot, the unit would lose any of its superior unit values. For example if an enemy tank had 34 attack power and the player's own latest tank upgrades would only grant 20 attack power to an upgraded tank then the captured tank would lose the 34 attack power and would get the inferior 20 "as an upgrade". This behavior was considered to be a defect in M.A.X. 2 back in March, 1998.
+58. **[Fixed]** If a high-tech unit is captured, and then it gets upgraded in the depot, the unit would lose any of its superior unit values. For example if an enemy tank had 34 attack power and the player's own latest tank upgrades would only grant 20 attack power to an upgraded tank then the captured tank would lose the 34 attack power and would get the inferior 20 "as an upgrade". This behavior was considered to be a defect in M.A.X. 2 back in March, 1998.
 
 59. **[Fixed]** The SaveSlot class has two image resources, FILEx_UP and FILEx_DN. The save load menu init function (cseg01:000D7A19) allocates memory for the images' data. The buffer size is determined for both images, but the allocation uses the size of FILEx_UP data for both. As both images have the same dimensions this defect does not cause any issues.
 
@@ -197,7 +197,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
     </video>
     In this case the AI thinks that the infiltrator stands at the old grid cell position and offloads all shots onto the empty ground. Eventually the AI will "learn" the correct location too and may terminate the revealed infiltrator.
 
-64. Disabled alien attack planes placed as alien derelicts onto the maps do not set the map pass tables to unpassable.
+64. **[Fixed]** Disabled alien attack planes placed as alien derelicts onto the maps do not set the map pass tables to unpassable.
     <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_64.mp4" type="video/mp4">
@@ -206,25 +206,25 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 65. **[Fixed]** The ResourceManager_InitTeamInfo() function (cseg01:000D6316) initializes 5 CTinfo structs. The last belongs to the alien derelicts team. The CTinfo structure's TeamType and ClanType fields are initialized from the MAX.INI file's red_team_player to gray_team_player and red_team_clan to gray_team_clan parameters. There is no alien_team_player nor alien_team_clan INI parameter so the alien CTinfo TeamType field is initialized from the red_team_clan INI parameter and the ClanType field is initialized from the DIGITAL INI group ID (returns 0 which corresponds to RANDOM clan).
 
-66. If a unit is selected the primary selection marker starts to blink at a 1 second rate. If a multiselect rectangle is redrawn by clicking and dragging the mouse pointer the primary marker gets redrawn as well and its draw function toggles the marker state much faster. The primary marker should not start to blink like crazy in such events.
+66. **[Fixed]** If a unit is selected the primary selection marker starts to blink at a 1 second rate. If a multiselect rectangle is redrawn by clicking and dragging the mouse pointer the primary marker gets redrawn as well and its draw function toggles the marker state much faster. The primary marker should not start to blink like crazy in such events.
 
 67. **[Fixed]** When a supply truck tries to reload a unit and it's storage container is empty the following alert message is shown: `insufficient material in storage to reload unit.`. The message should start with capital letter. Same goes for repairing a unit.
 
-68. The path generator erroneously cannot find path to a cell location in corner cases. Note: the audio can be unmuted on this video clip.
+68. **[Fixed]** The path generator erroneously cannot find path to a cell location in corner cases. Note: the audio can be unmuted on this video clip.
     <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_68.mp4" type="video/mp4">
     <track label="English" kind="subtitles" srclang="en" src="{{ site.baseurl }}/assets/clips/defect_68.vtt" default>
     </video>
-    In the above case an airplane is hovering above a bridge which confuses the path generator.
+    The problem was that the path finding request was rejected due to the access map class not considering the bridge to be traversable over a shore tile. When the destination is a single grid cell away, then the access map and path requests are skipped entirelly and a different code path is taken that handled bridge units correctly.
 
-69. The path generator inconsistently finds a path to a cell where it is questionable whether the given unit should be allowed to move at all. Note: the audio can be unmuted on this video clip.
+69. **[Fixed]** The path generator inconsistently finds a path to a cell where it is questionable whether the given unit should be allowed to move at all. Note: the audio can be unmuted on this video clip.
     <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_69.mp4" type="video/mp4">
     <track label="English" kind="subtitles" srclang="en" src="{{ site.baseurl }}/assets/clips/defect_69.vtt" default>
     </video>
-    Is it intentional to allow ships to coast type cells in case there is a bridge at the same cell?
+    The problem was that the path finding request was rejected due to the access map class not considering the bridge to be traversable over a shore tile. When the destination is a single grid cell away, then the access map and path requests are skipped entirelly and a different code path is taken that handled bridge units correctly. It is concluded that it is intentional to allow ships to go on coast type cells in case there is a bridge at the same cell.
 
 70. **[Fixed]** The allocation menu uses a function (cseg01:0008A5FB) to change color temperature of highlighted text background. When the algorithm finds a better color match in the system color palette based on color distance the worse distance is saved instead of the better one.
     <br>
@@ -649,7 +649,7 @@ Proposed defect fix:
 - Stealth action of an infiltrator should not be prohibited due to chance to success ratios when the target unit is already disabled.
 - `TaskAttack` tasks should not be created at all to target alien derelicts at expert or tougher difficulty levels while the team does not have infiltrators available as other units are not allowed to attack them anyways.<br><br>
 
-185. There are several units that reach above 255 hit points when they are fully developed. The game stores unit hits as `unsigned char` which can only hold values between 0 - 255. To fix this limitation the save file format version needs to be updated.
+185. **[Fixed]** There are several units that reach above 255 hit points when they are fully developed. The game stores unit hits as `unsigned char` which can only hold values between 0 - 255. To fix this limitation the save file format version needs to be updated.
 
 186. **[Fixed]** The TaskDump task has a member function (cseg01:0005032F) to check whether a unit is in its own control and if so remove it and eventually the task itself from the task manager as the task has no more use after it has no unit to dump. In corner cases the function could dereference null which leads to segmentation faults on modern operating systems. A TaskDump task cannot be created without a valid TaskMove task, but evidence shows that due to defect 209 the managed unit as well as the TaskMove task could be set to nullptr without destroying the TaskDump task itself. The proposed defect fix is to make the member function less error prone by testing for the invalid use case where the TaskMove object could be null.
 
