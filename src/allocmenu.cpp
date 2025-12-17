@@ -43,7 +43,6 @@
     {{(ulx), (uly), (lrx), (lry)}, (image_id), (label), (event_code), (event_handler), (sfx)}
 
 struct Allocator {
-    uint32_t field_0;
     SmartPointer<Complex> complex;
     int32_t cargo_demand;
     int32_t cargo_material_type;

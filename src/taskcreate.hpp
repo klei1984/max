@@ -36,8 +36,8 @@ public:
 
     void RemoveSelf();
 
-    virtual bool Task_vfunc28() = 0;
-    virtual bool Task_vfunc29() = 0;
+    virtual bool IsActivelyBuilding() = 0;
+    virtual bool HasCommittedToSite() = 0;
 
     ResourceID GetUnitType() const;
 };

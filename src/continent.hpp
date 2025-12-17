@@ -34,7 +34,7 @@ class Continent : public SmartObject {
     Rect bounds;
     Point point;
     AccessMap& map;
-    uint8_t field_35;
+    uint8_t clear_on_destroy;
 
     bool IsDangerousProximity(int32_t grid_x, int32_t grid_y, uint16_t team, int32_t proximity_range);
     bool IsViableSite(bool test_proximity, uint16_t team, Point site);

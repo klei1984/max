@@ -48,14 +48,13 @@ class AiPlayer {
 
     uint16_t player_team;
     uint8_t strategy;
-    int16_t field_3;
-    int16_t field_5;
-    int16_t field_7;
+    int16_t greenhouse_ratio;
+    int16_t minefield_density;
     BuildOrder build_order;
     int16_t upgrade_cost;
     bool need_init;
     bool tasks_pending;
-    uint8_t field_16;
+    uint8_t end_turn_retry_counter;
 
     SmartPointer<TaskClearZone> task_clear_ground_zone;
     SmartPointer<TaskClearZone> task_clear_air_zone;
@@ -78,8 +77,6 @@ class AiPlayer {
 
     uint8_t** info_map;
     int8_t** mine_map;
-
-    uint8_t field_107[2];
 
     SmartList<TransportOrder> transport_orders;
 
@@ -142,9 +139,8 @@ class AiPlayer {
     void MineSpotted(UnitInfo* unit);
     static bool IsSurfaceTypePresent(Point site, int32_t range, int32_t surface_type);
     int32_t SelectTeamClan();
-    void RollField3();
-    void RollField5();
-    void RollField7();
+    void RollGreenhouseRatio();
+    void RollMinefieldDensity();
     bool AddUnitToTeamMissionSupplies(ResourceID unit_type, uint16_t supplies);
     static int32_t GetVictoryConditionsFactor();
     void RollTeamMissionSupplies(int32_t clan);
@@ -166,7 +162,7 @@ public:
     int16_t GetTargetTeam() const;
     uint8_t** GetInfoMap();
     Point GetTargetLocation() const;
-    uint16_t GetField5() const;
+    uint16_t GetGreenhouseRatio() const;
     int8_t** GetMineMap();
     void AddTransportOrder(TransportOrder* transport_order);
     Task* FindManager(Point site);

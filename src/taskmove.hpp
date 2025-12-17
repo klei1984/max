@@ -45,9 +45,9 @@ class TaskMove : public Task {
     ObjectArray<Point> planned_path;
     SmartPointer<Zone> zone;
     void (*result_callback)(Task* task, UnitInfo* unit, char result);
-    bool field_68;
-    bool field_69;
-    bool field_70;
+    bool finish_on_arrival;
+    bool is_optional;
+    bool move_order_issued;
     uint8_t path_result;
 
     void AttemptTransport();
@@ -96,8 +96,8 @@ public:
     void RemoveUnit(UnitInfo& unit);
     void EventZoneCleared(Zone* zone, bool status);
 
-    void SetField68(bool value);
-    void SetField69(bool value);
+    void SetFinishOnArrival(bool value);
+    void SetOptional(bool value);
     UnitInfo* GetPassenger();
     Point GetDestination();
     void SetDestination(Point site);

@@ -99,7 +99,7 @@ bool TaskExplore::Execute(UnitInfo& unit) {
     return result;
 }
 
-void TaskExplore::TaskAbstractSearch_vfunc28(UnitInfo& unit) {
+void TaskExplore::OnUnitReleased(UnitInfo& unit) {
     obtain_requests[unit.GetUnitType()] = false;
 
     TaskManager.RemoveTask(*this);

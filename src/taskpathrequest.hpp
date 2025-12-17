@@ -28,8 +28,8 @@ class TaskFindPath;
 
 class TaskPathRequest : public PathRequest {
     SmartPointer<TaskFindPath> find_path;
-    bool field_30;
-    bool field_31;
+    bool can_use_cached_paths;
+    bool allow_generic_transporter;
 
 public:
     TaskPathRequest(UnitInfo* unit, int32_t mode, Point point);
@@ -40,8 +40,8 @@ public:
     void Finish(GroundPath* path);
 
     void AssignPathFindTask(TaskFindPath* task);
-    void SetField31(bool value);
-    bool GetField31() const;
+    void EnableCachedPaths(bool allow_generic_transporter);
+    bool AllowsGenericTransporter() const;
     void Complete(Point position, GroundPath* path);
 };
 

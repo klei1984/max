@@ -1197,7 +1197,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_priority)
                                                  TaskMove(unit, task, 0, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE,
                                                           target_location, &TaskTransport_MoveFinishedCallback));
 
-            move_task->SetField68(true);
+            move_task->SetFinishOnArrival(true);
 
             TaskManager.AppendTask(*move_task);
         }

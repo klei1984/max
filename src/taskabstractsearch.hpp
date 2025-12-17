@@ -45,7 +45,7 @@ public:
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
 
-    virtual void TaskAbstractSearch_vfunc28(UnitInfo& unit);
+    virtual void OnUnitReleased(UnitInfo& unit);
     virtual bool IsVisited(UnitInfo& unit, Point point) = 0;
     virtual void ObtainUnit() = 0;
 };

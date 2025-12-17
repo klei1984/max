@@ -207,7 +207,7 @@ void TaskCreateUnit::RemoveUnit(UnitInfo& unit_) {
 
 void TaskCreateUnit::EventZoneCleared(Zone* zone, bool status) {}
 
-bool TaskCreateUnit::Task_vfunc28() { return op_state >= CREATE_UNIT_STATE_BUILDING; }
+bool TaskCreateUnit::IsActivelyBuilding() { return op_state >= CREATE_UNIT_STATE_BUILDING; }
 
 void TaskCreateUnit::WaitForMaterials() {
     SDL_assert(op_state == CREATE_UNIT_STATE_WAITING_FOR_MATERIALS);
@@ -386,4 +386,4 @@ bool TaskCreateUnit::IsUnitStillNeeded() {
     return result;
 }
 
-bool TaskCreateUnit::Task_vfunc29() { return op_state >= CREATE_UNIT_STATE_BUILDING; }
+bool TaskCreateUnit::HasCommittedToSite() { return op_state >= CREATE_UNIT_STATE_BUILDING; }

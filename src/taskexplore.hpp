@@ -26,7 +26,6 @@
 
 class TaskExplore : public TaskAbstractSearch {
     bool obtain_requests[UNIT_END];
-    uint8_t field_80[5];
 
 public:
     TaskExplore(uint16_t team, Point point);
@@ -36,7 +35,7 @@ public:
     std::string WriteStatusLog() const;
     uint8_t GetType() const;
     bool Execute(UnitInfo& unit);
-    void TaskAbstractSearch_vfunc28(UnitInfo& unit);
+    void OnUnitReleased(UnitInfo& unit);
     bool IsVisited(UnitInfo& unit, Point point);
     void ObtainUnit();
 };

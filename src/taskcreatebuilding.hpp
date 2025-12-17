@@ -33,7 +33,7 @@ class TaskCreateBuilding : public TaskCreate {
     Point site;
     uint8_t op_state;
     SmartPointer<Zone> zone;
-    bool field_42;
+    bool needs_water_platforms;
     SmartList<Task> tasks;
 
     void RequestBuilder();
@@ -77,8 +77,8 @@ public:
     void RemoveSelf();
     void RemoveUnit(UnitInfo& unit);
     void EventZoneCleared(Zone* zone, bool status);
-    bool Task_vfunc28();
-    bool Task_vfunc29();
+    bool IsActivelyBuilding();
+    bool HasCommittedToSite();
 
     int32_t EstimateBuildTime();
 };

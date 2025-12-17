@@ -126,7 +126,7 @@ void TaskAbstractSearch::RemoveUnit(UnitInfo& unit) {
     units.Remove(unit);
 }
 
-void TaskAbstractSearch::TaskAbstractSearch_vfunc28(UnitInfo& unit) {
+void TaskAbstractSearch::OnUnitReleased(UnitInfo& unit) {
     if (units.GetCount() > 0 || requestors > 0) {
         TaskManager.ClearUnitTasksAndRemindAvailable(&unit);
     }

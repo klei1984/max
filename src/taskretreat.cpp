@@ -41,12 +41,12 @@ std::string TaskRetreat::WriteStatusLog() const { return "Retreat from danger"; 
 uint8_t TaskRetreat::GetType() const { return TaskType_TaskRetreat; }
 
 void TaskRetreat::Init() {
-    field_23 = 0;
+    search_radius = 0;
     position.x = unit_to_retreat->grid_x;
     position.y = unit_to_retreat->grid_y;
     direction = 6;
-    field_31 = 0;
-    field_34 = 1;
+    steps_in_direction = 0;
+    found_valid_position = 1;
 
     for (SmartList<Task>::Iterator it = unit_to_retreat->GetTasks().Begin(); it != unit_to_retreat->GetTasks().End();
          ++it) {
@@ -116,15 +116,16 @@ void TaskRetreat::Search() {
 
     if (damage_potential_map) {
         while (TickTimer_HaveTimeToThink() || index < 20) {
-            ++field_31;
+            ++steps_in_direction;
 
-            if (field_31 >= field_23) {
+            if (steps_in_direction >= search_radius) {
                 direction += 2;
 
                 if (direction >= 8) {
-                    field_23 += 2;
+                    search_radius += 2;
 
-                    if (field_34 == 0 || field_23 > unit_to_retreat->GetBaseValues()->GetAttribute(ATTRIB_SPEED) * 2) {
+                    if (found_valid_position == 0 ||
+                        search_radius > unit_to_retreat->GetBaseValues()->GetAttribute(ATTRIB_SPEED) * 2) {
                         unit_to_retreat->ChangeAiStateBits(UnitInfo::AI_STATE_NO_RETREAT, true);
                         RemoveTask();
 
@@ -136,10 +137,10 @@ void TaskRetreat::Search() {
 
                     direction = 0;
 
-                    field_34 = 0;
+                    found_valid_position = 0;
                 }
 
-                field_31 = 0;
+                steps_in_direction = 0;
             }
 
             position += DIRECTION_OFFSETS[direction];
@@ -147,7 +148,7 @@ void TaskRetreat::Search() {
             ++index;
 
             if (Access_IsInsideBounds(&bounds, &position)) {
-                field_34 = 1;
+                found_valid_position = 1;
 
                 if (damage_potential_map[position.x][position.y] < unit_hits) {
                     if (Access_IsAccessible(unit_to_retreat->GetUnitType(), m_team, position.x, position.y,
@@ -155,7 +156,7 @@ void TaskRetreat::Search() {
                         if (transporter_map.Search(position)) {
                             SmartPointer<TaskMove> task_move(new (std::nothrow) TaskMove(
                                 &*unit_to_retreat, this, 0, CAUTION_LEVEL_NONE, position, &TaskMoveResultCallback));
-                            task_move->SetField68(true);
+                            task_move->SetFinishOnArrival(true);
 
                             TaskManager.AppendTask(*task_move);
 

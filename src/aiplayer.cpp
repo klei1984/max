@@ -1225,55 +1225,52 @@ int32_t AiPlayer::SelectTeamClan() {
     return team_clan;
 }
 
-void AiPlayer::RollField3() { field_3 = Randomizer_Generate(4) + 2 + Randomizer_Generate(4) + 2; }
-
-void AiPlayer::RollField5() {
+void AiPlayer::RollGreenhouseRatio() {
     switch (strategy) {
         case AI_STRATEGY_DEFENSIVE:
         case AI_STRATEGY_AIR:
         case AI_STRATEGY_SEA: {
-            field_5 = Randomizer_Generate(6) + 7;
+            greenhouse_ratio = Randomizer_Generate(6) + 7;
         } break;
 
         case AI_STRATEGY_SCOUT_HORDE:
         case AI_STRATEGY_TANK_HORDE: {
-            field_5 = Randomizer_Generate(3) + 1;
-            field_5 = 5;
+            greenhouse_ratio = 5;
         } break;
 
         case AI_STRATEGY_MISSILES:
         case AI_STRATEGY_FAST_ATTACK:
         case AI_STRATEGY_COMBINED_ARMS:
         case AI_STRATEGY_ESPIONAGE: {
-            field_5 = Randomizer_Generate(2) + 4;
+            greenhouse_ratio = Randomizer_Generate(2) + 4;
         } break;
 
         default: {
-            field_5 = 0;
+            greenhouse_ratio = 0;
         } break;
     }
 }
 
-void AiPlayer::RollField7() {
+void AiPlayer::RollMinefieldDensity() {
     if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
         switch (strategy) {
             case AI_STRATEGY_AIR:
             case AI_STRATEGY_SEA: {
                 if (Randomizer_Generate(100) + 1 < 50) {
-                    field_7 = (Randomizer_Generate(5) + Randomizer_Generate(5)) * 6;
+                    minefield_density = (Randomizer_Generate(5) + Randomizer_Generate(5)) * 6;
 
                 } else {
-                    field_7 = 0;
+                    minefield_density = 0;
                 }
             } break;
 
             case AI_STRATEGY_DEFENSIVE: {
-                field_7 = (Randomizer_Generate(7) + Randomizer_Generate(7)) * 12;
+                minefield_density = (Randomizer_Generate(7) + Randomizer_Generate(7)) * 12;
             } break;
 
             case AI_STRATEGY_SCOUT_HORDE:
             case AI_STRATEGY_TANK_HORDE: {
-                field_7 = 0;
+                minefield_density = 0;
             } break;
 
             case AI_STRATEGY_MISSILES:
@@ -1281,16 +1278,16 @@ void AiPlayer::RollField7() {
             case AI_STRATEGY_COMBINED_ARMS:
             case AI_STRATEGY_ESPIONAGE: {
                 if (Randomizer_Generate(100) + 1 < 25) {
-                    field_7 = (Randomizer_Generate(5) + Randomizer_Generate(5)) * 6;
+                    minefield_density = (Randomizer_Generate(5) + Randomizer_Generate(5)) * 6;
 
                 } else {
-                    field_7 = 0;
+                    minefield_density = 0;
                 }
             } break;
         }
 
     } else {
-        field_7 = 0;
+        minefield_density = 0;
     }
 }
 
@@ -2173,7 +2170,7 @@ uint8_t** AiPlayer::GetInfoMap() { return info_map; }
 
 Point AiPlayer::GetTargetLocation() const { return target_location; }
 
-uint16_t AiPlayer::GetField5() const { return field_5; }
+uint16_t AiPlayer::GetGreenhouseRatio() const { return greenhouse_ratio; }
 
 int8_t** AiPlayer::GetMineMap() { return mine_map; }
 
@@ -2334,7 +2331,7 @@ void AiPlayer::BeginTurn() {
 
         InvalidateThreatMaps();
 
-        field_16 = 0;
+        end_turn_retry_counter = 0;
 
         transport_orders.Clear();
 
@@ -2390,16 +2387,12 @@ void AiPlayer::BeginTurn() {
                 }
             }
 
-            if (!field_3) {
-                RollField3();
+            if (greenhouse_ratio < 0) {
+                RollGreenhouseRatio();
             }
 
-            if (field_5 < 0) {
-                RollField5();
-            }
-
-            if (field_7 < 0) {
-                RollField7();
+            if (minefield_density < 0) {
+                RollMinefieldDensity();
             }
 
             UpdateWeightTables();
@@ -2774,7 +2767,7 @@ void AiPlayer::GuessEnemyAttackDirections() {
 }
 
 void AiPlayer::PlanMinefields() {
-    if (info_map && field_7 > 0) {
+    if (info_map && minefield_density > 0) {
         const World* world = ResourceManager_GetActiveWorld();
         AccessMap access_map(world);
 
@@ -2813,7 +2806,7 @@ void AiPlayer::PlanMinefields() {
             if ((*it).GetTeam() == player_team && (*it).GetType() == TaskType_TaskCreateBuilding) {
                 TaskCreateBuilding* create_building = dynamic_cast<TaskCreateBuilding*>(&*it);
 
-                if (create_building->Task_vfunc28()) {
+                if (create_building->IsActivelyBuilding()) {
                     if (ResourceManager_GetUnit(create_building->GetUnitType()).GetFlags() & BUILDING) {
                         Point position = create_building->DeterminePosition();
                         ZoneWalker walker(position, 8);
@@ -2836,7 +2829,7 @@ void AiPlayer::PlanMinefields() {
             if ((*it).GetTeam() == player_team && (*it).GetType() == TaskType_TaskCreateBuilding) {
                 TaskCreateBuilding* create_building = dynamic_cast<TaskCreateBuilding*>(&*it);
 
-                if (create_building->Task_vfunc28()) {
+                if (create_building->IsActivelyBuilding()) {
                     Rect bounds;
 
                     create_building->GetBounds(&bounds);
@@ -2925,7 +2918,7 @@ void AiPlayer::PlanMinefields() {
             }
         }
 
-        int32_t probability = ((field_7 * counter1) / 100) - counter2 - counter3;
+        int32_t probability = ((minefield_density * counter1) / 100) - counter2 - counter3;
 
         if (probability >= 32 - counter2) {
             probability = 32 - counter2;
@@ -2962,18 +2955,18 @@ bool AiPlayer::CheckEndTurn() {
 
     if (!need_init) {
         if (!tasks_pending) {
-            if (!field_16) {
+            if (!end_turn_retry_counter) {
                 TaskManager.MarkTasksForProcessing(player_team);
             }
 
-            ++field_16;
+            ++end_turn_retry_counter;
 
-            if (field_16 >= 10) {
-                if (field_16 != 10 || AreActionsPending()) {
-                    if (field_16 != 20) {
-                        if (field_16 != 30) {
-                            if (field_16 != 60) {
-                                if (field_16 > 120) {
+            if (end_turn_retry_counter >= 10) {
+                if (end_turn_retry_counter != 10 || AreActionsPending()) {
+                    if (end_turn_retry_counter != 20) {
+                        if (end_turn_retry_counter != 30) {
+                            if (end_turn_retry_counter != 60) {
+                                if (end_turn_retry_counter > 120) {
                                     if (GameManager_PlayMode == PLAY_MODE_TURN_BASED ||
                                         GameManager_GameState == GAME_STATE_9_END_TURN || IsDemoMode()) {
                                         GameManager_RefreshOrders(player_team, true);
@@ -3012,7 +3005,7 @@ bool AiPlayer::CheckEndTurn() {
             }
 
         } else {
-            field_16 = 0;
+            end_turn_retry_counter = 0;
 
             result = false;
         }
@@ -3033,10 +3026,9 @@ bool AiPlayer::CreateBuilding(ResourceID unit_type, Point position, Task* task) 
 
 void AiPlayer::Init(uint16_t team) {
     strategy = AI_STRATEGY_RANDOM;
-    field_3 = 0;
     target_team = -1;
-    field_5 = -1;
-    field_7 = -1;
+    greenhouse_ratio = -1;
+    minefield_density = -1;
 
     if (info_map) {
         for (int32_t x = 0; x < dimension_x; ++x) {
@@ -3834,7 +3826,7 @@ bool AiPlayer::MatchPath(TaskPathRequest* request) {
 
     if (distance >= unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED)) {
         int32_t transport_category = TransportOrder::DetermineCategory(unit->GetUnitType());
-        bool flag = request->GetField31();
+        bool flag = request->AllowsGenericTransporter();
         TransportOrder* transport_order = nullptr;
         Point source;
         Point destination;
@@ -4237,9 +4229,9 @@ bool AiPlayer::SelectStrategy() {
         continents.Release();
 
         RollTeamMissionSupplies(SelectTeamClan());
-        RollField3();
-        RollField5();
-        RollField7();
+
+        RollGreenhouseRatio();
+        RollMinefieldDensity();
 
         result = true;
 
@@ -4257,9 +4249,8 @@ void AiPlayer::FileSave(SmartFileWriter& file) {
 
     file.Write(player_team);
     file.Write(strategy);
-    file.Write(field_3);
-    file.Write(field_5);
-    file.Write(field_7);
+    file.Write(greenhouse_ratio);
+    file.Write(minefield_density);
     file.Write(target_team);
 
     file.WriteObjectCount(spotted_units.GetCount());
@@ -4296,9 +4287,14 @@ void AiPlayer::FileLoad(SmartFileReader& file) {
 
     file.Read(player_team);
     file.Read(strategy);
-    file.Read(field_3);
-    file.Read(field_5);
-    file.Read(field_7);
+    
+    if (file.GetFormat() == SmartFileFormat::V70) {
+        int16_t unused_field;
+        file.Read(unused_field);
+    }
+    
+    file.Read(greenhouse_ratio);
+    file.Read(minefield_density);
     file.Read(target_team);
 
     item_count = file.ReadObjectCount();

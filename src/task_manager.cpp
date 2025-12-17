@@ -89,7 +89,7 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t tas
                     TaskCreate* create_task = dynamic_cast<TaskCreate*>(&*it);
 
                     if (create_task->GetUnitType() == unit_type) {
-                        if (create_task->Task_vfunc28() ||
+                        if (create_task->IsActivelyBuilding() ||
                             create_task->ComparePriority(task_priority + TASK_PRIORITY_ADJUST_MAJOR) <= 0) {
                             return false;
                         }

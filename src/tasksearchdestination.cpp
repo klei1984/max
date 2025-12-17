@@ -38,13 +38,13 @@ TaskSearchDestination::TaskSearchDestination(Task* task, UnitInfo* unit_, int32_
     : Task(task->GetTeam(), task, task->GetPriority()) {
     index = 0;
     radius = 0;
-    field_57 = 0;
-    field_59 = 0;
-    field_61 = 0;
+    previous_radius = 0;
+    spiral_direction = 0;
+    continue_search_at_radius = 0;
     is_doomed = 0;
     unit = unit_;
-    point1.x = unit_->grid_x;
-    point1.y = unit_->grid_y;
+    initial_position.x = unit_->grid_x;
+    initial_position.y = unit_->grid_y;
     search_task = dynamic_cast<TaskAbstractSearch*>(task);
     search_radius = radius_;
 
@@ -67,18 +67,18 @@ void TaskSearchDestination::Init() {
     AILOG(log, "Search destination begin.");
 
     unit->AddTask(this);
-    point3 = search_task->GetPoint();
+    spiral_target = search_task->GetPoint();
     position.x = unit->grid_x;
     position.y = unit->grid_y;
 
-    if (point3 == position) {
-        --point3.y;
+    if (spiral_target == position) {
+        --spiral_target.y;
     }
 
-    point2 = position;
+    spiral_center = position;
 
-    field_57 = 0;
-    field_61 = 1;
+    previous_radius = 0;
+    continue_search_at_radius = 1;
 
     SearchNextCircle();
 }
@@ -126,34 +126,34 @@ void TaskSearchDestination::SearchNextCircle() {
 
     AILOG(log, "Search destination: NextCircle");
 
-    while (field_61) {
-        direction = UnitsManager_GetTargetAngle(point3.x - point2.x, point3.y - point2.y);
+    while (continue_search_at_radius) {
+        direction = UnitsManager_GetTargetAngle(spiral_target.x - spiral_center.x, spiral_target.y - spiral_center.y);
 
-        point2 += DIRECTION_OFFSETS[direction];
+        spiral_center += DIRECTION_OFFSETS[direction];
 
-        if (point2 == point3) {
-            point3.x = point3.x * 2 - position.x;
-            point3.y = point3.y * 2 - position.y;
+        if (spiral_center == spiral_target) {
+            spiral_target.x = spiral_target.x * 2 - position.x;
+            spiral_target.y = spiral_target.y * 2 - position.y;
         }
 
-        radius = Access_GetApproximateDistance(position, point2) / 2;
+        radius = Access_GetApproximateDistance(position, spiral_center) / 2;
 
         AILOG_LOG(log, "Radius {}", radius);
 
-        field_61 = true;
+        continue_search_at_radius = true;
 
-        if (field_57 != radius) {
-            field_57 = radius;
+        if (previous_radius != radius) {
+            previous_radius = radius;
 
-            points[0] = point2;
-            points[1] = point2;
+            spiral_cursors[0] = spiral_center;
+            spiral_cursors[1] = spiral_center;
 
             directions[0] = (direction + 2) & 0x7;
             directions[1] = (direction + 6) & 0x7;
 
             index = 0;
-            field_59 = 1;
-            field_61 = false;
+            spiral_direction = 1;
+            continue_search_at_radius = false;
 
             if (Search()) {
                 return;
@@ -162,7 +162,7 @@ void TaskSearchDestination::SearchNextCircle() {
     }
 
     if (search_task) {
-        search_task->TaskAbstractSearch_vfunc28(*unit);
+        search_task->OnUnitReleased(*unit);
     }
 
     FinishSearch();
@@ -191,14 +191,14 @@ bool TaskSearchDestination::Search() {
 
     for (;;) {
         index = 1 - index;
-        field_59 = -field_59;
+        spiral_direction = -spiral_direction;
 
-        directions[index] = (directions[index] - (field_59 * 2)) & 0x7;
+        directions[index] = (directions[index] - (spiral_direction * 2)) & 0x7;
 
         for (int32_t direction = 0;;) {
-            directions[index] = (directions[index] + field_59) & 0x7;
+            directions[index] = (directions[index] + spiral_direction) & 0x7;
 
-            site = points[index];
+            site = spiral_cursors[index];
             site += DIRECTION_OFFSETS[directions[index]];
 
             if (direction++ < 8) {
@@ -211,16 +211,16 @@ bool TaskSearchDestination::Search() {
             }
         }
 
-        points[index] = site;
+        spiral_cursors[index] = site;
 
         ++loop_count;
 
-        if (Access_IsInsideBounds(&bounds, &points[index])) {
-            field_61 = true;
+        if (Access_IsInsideBounds(&bounds, &spiral_cursors[index])) {
+            continue_search_at_radius = true;
 
-            if (!damage_potential_map || damage_potential_map[points[index].x][points[index].y] < 1) {
-                if (sub_3DFCF(&*unit, points[index])) {
-                    if (map.Search(points[index])) {
+            if (!damage_potential_map || damage_potential_map[spiral_cursors[index].x][spiral_cursors[index].y] < 1) {
+                if (sub_3DFCF(&*unit, spiral_cursors[index])) {
+                    if (map.Search(spiral_cursors[index])) {
                         SearchTrySite();
 
                         return true;
@@ -230,7 +230,7 @@ bool TaskSearchDestination::Search() {
         }
 
         if (TickTimer_HaveTimeToThink() || loop_count <= 20) {
-            if (points[index] == point2 || points[0] == points[1]) {
+            if (spiral_cursors[index] == spiral_center || spiral_cursors[0] == spiral_cursors[1]) {
                 return false;
             }
 
@@ -258,11 +258,12 @@ void TaskSearchDestination::SearchTrySite() {
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
-    AILOG(log, "Search destination: try [{},{}]", points[index].x + 1, points[index].y + 1);
+    AILOG(log, "Search destination: try [{},{}]", spiral_cursors[index].x + 1, spiral_cursors[index].y + 1);
 
     Point_object1 = search_task->GetPoint();
-    direction = UnitsManager_GetTargetAngle(points[index].x - Point_object1.x, points[index].y - Point_object1.y);
-    site = points[index];
+    direction = UnitsManager_GetTargetAngle(spiral_cursors[index].x - Point_object1.x,
+                                            spiral_cursors[index].y - Point_object1.y);
+    site = spiral_cursors[index];
     best_site = site;
 
     site += DIRECTION_OFFSETS[direction];
@@ -367,7 +368,7 @@ void TaskSearchDestination::ResumeSearch() {
                 AILOG_LOG(log, "Unit is doomed to destruction.");
             }
 
-            if (is_doomed && (unit->grid_x != point1.x || unit->grid_y != point1.y)) {
+            if (is_doomed && (unit->grid_x != initial_position.x || unit->grid_y != initial_position.y)) {
                 AILOG_LOG(log, "Unit has moved.");
 
                 FinishSearch();
@@ -375,8 +376,9 @@ void TaskSearchDestination::ResumeSearch() {
                 return;
             }
 
-            if ((points[index].x == point2.x && points[index].y == point2.y) ||
-                (points[0].x == points[1].x && points[0].y == points[1].y) || !Search()) {
+            if ((spiral_cursors[index].x == spiral_center.x && spiral_cursors[index].y == spiral_center.y) ||
+                (spiral_cursors[0].x == spiral_cursors[1].x && spiral_cursors[0].y == spiral_cursors[1].y) ||
+                !Search()) {
                 SearchNextCircle();
             }
 
@@ -397,9 +399,9 @@ void TaskSearchDestination::CloseMoveFinishedCallback(Task* task, UnitInfo* unit
     AILOG(log, "Search destination: close result");
 
     if (result == TASKMOVE_RESULT_BLOCKED) {
-        SmartPointer<Task> move_task = new (std::nothrow)
-            TaskMove(unit, search_task, search_task->search_radius * search_task->search_radius,
-                     CAUTION_LEVEL_AVOID_ALL_DAMAGE, search_task->points[search_task->index], &FarMoveFinishedCallback);
+        SmartPointer<Task> move_task = new (std::nothrow) TaskMove(
+            unit, search_task, search_task->search_radius * search_task->search_radius, CAUTION_LEVEL_AVOID_ALL_DAMAGE,
+            search_task->spiral_cursors[search_task->index], &FarMoveFinishedCallback);
 
         TaskManager.AppendTask(*move_task);
 

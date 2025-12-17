@@ -72,7 +72,7 @@ TaskCreateBuilding::TaskCreateBuilding(Task* task, uint16_t priority_, ResourceI
     : TaskCreate(task, priority_, unit_type_) {
     site = site_;
     manager = manager_;
-    field_42 = false;
+    needs_water_platforms = false;
     op_state = CREATE_BUILDING_STATE_INITIALIZING;
 
     AILOG(log, "Task Create Building: {}", WriteStatusLog());
@@ -89,7 +89,7 @@ TaskCreateBuilding::TaskCreateBuilding(UnitInfo* unit_, TaskManageBuildings* man
         op_state = CREATE_BUILDING_STATE_BUILDING;
     }
 
-    field_42 = false;
+    needs_water_platforms = false;
     manager = manager_;
 }
 
@@ -98,7 +98,7 @@ TaskCreateBuilding::~TaskCreateBuilding() {}
 int32_t TaskCreateBuilding::EstimateBuildTime() {
     int32_t result;
 
-    if (builder && Task_vfunc28()) {
+    if (builder && IsActivelyBuilding()) {
         result = builder->build_time;
 
     } else {
@@ -805,7 +805,7 @@ bool TaskCreateBuilding::Execute(UnitInfo& unit) {
 
                 case CREATE_BUILDING_STATE_GETTING_MATERIALS: {
                     if (CheckMaterials()) {
-                        if (manager && !Task_vfunc29()) {
+                        if (manager && !HasCommittedToSite()) {
                             AILOG_LOG(log, "Materials now available.");
 
                             FindBuildSite();
@@ -891,7 +891,7 @@ void TaskCreateBuilding::EventZoneCleared(Zone* zone_, bool status) {
     }
 }
 
-bool TaskCreateBuilding::Task_vfunc28() { return op_state >= CREATE_BUILDING_STATE_BUILDING; }
+bool TaskCreateBuilding::IsActivelyBuilding() { return op_state >= CREATE_BUILDING_STATE_BUILDING; }
 
 void TaskCreateBuilding::Activate() {
     if (!building && builder->GetOrder() == ORDER_BUILD) {
@@ -992,7 +992,7 @@ bool TaskCreateBuilding::RequestWaterPlatform() {
         for (position.x = bounds.ulx; position.x < bounds.lrx; ++position.x) {
             for (position.y = bounds.uly; position.y < bounds.lry; ++position.y) {
                 if (TaskCreateBuilding_DetermineMapSurfaceRequirements(WTRPLTFM, position) == 1) {
-                    field_42 = true;
+                    needs_water_platforms = true;
 
                     SmartPointer<TaskCreateBuilding> create_building_task(new (std::nothrow) TaskCreateBuilding(
                         this, GetPriority() - TASK_PRIORITY_ADJUST_MINOR, WTRPLTFM, position, nullptr));
@@ -1440,7 +1440,7 @@ bool TaskCreateBuilding::SearchPathStep(AccessMap& map, Point position, int32_t*
     return result;
 }
 
-bool TaskCreateBuilding::Task_vfunc29() {
+bool TaskCreateBuilding::HasCommittedToSite() {
     bool result;
 
     if (unit_type == CNCT_4W || unit_type == WTRPLTFM || unit_type == BRIDGE || unit_type == MININGST) {
@@ -1449,7 +1449,7 @@ bool TaskCreateBuilding::Task_vfunc29() {
     } else if (op_state == CREATE_BUILDING_STATE_SITE_BLOCKED || op_state == CREATE_BUILDING_STATE_EVALUTING_SITE) {
         result = false;
 
-    } else if (op_state >= CREATE_BUILDING_STATE_MOVING_TO_SITE || tasks.GetCount() || field_42) {
+    } else if (op_state >= CREATE_BUILDING_STATE_MOVING_TO_SITE || tasks.GetCount() || needs_water_platforms) {
         result = true;
 
     } else {
@@ -1476,7 +1476,7 @@ bool TaskCreateBuilding_IsMorePowerNeeded(uint16_t team) {
             if ((*it).GetTeam() == team && (*it).GetType() == TaskType_TaskCreateBuilding) {
                 TaskCreateBuilding* create_building_Task = dynamic_cast<TaskCreateBuilding*>(&*it);
 
-                if (create_building_Task->Task_vfunc28()) {
+                if (create_building_Task->IsActivelyBuilding()) {
                     consumption_rate += Cargo_GetPowerConsumptionRate(create_building_Task->GetUnitType());
                 }
             }
@@ -1508,7 +1508,7 @@ bool TaskCreateBuilding_IsMoreLifeNeeded(uint16_t team) {
             if ((*it).GetTeam() == team && (*it).GetType() == TaskType_TaskCreateBuilding) {
                 TaskCreateBuilding* create_building_Task = dynamic_cast<TaskCreateBuilding*>(&*it);
 
-                if (create_building_Task->Task_vfunc28()) {
+                if (create_building_Task->IsActivelyBuilding()) {
                     consumption_rate += Cargo_GetLifeConsumptionRate(create_building_Task->GetUnitType());
                 }
             }

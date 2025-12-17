@@ -73,7 +73,7 @@ void GameConfigMenu::Init() {
 
     victory_limit_text[0] = '\0';
     text_edit = nullptr;
-    field_867 = 0;
+    active_text_edit_index = 0;
 
     mouse_hide();
     WindowManager_LoadBigImage(OPTNFRM, window, window->width, false, false, -1, -1, true);
@@ -236,7 +236,7 @@ void GameConfigMenu::EventVictoryConditionPrefs() {
     int32_t victory_type;
     int32_t victory_limit;
 
-    field_867 = key;
+    active_text_edit_index = key;
 
     DrawPanelVictoryCondition();
     win_draw(window->id);
@@ -244,15 +244,15 @@ void GameConfigMenu::EventVictoryConditionPrefs() {
     victory_type = ResourceManager_GetSettings()->GetNumericValue("victory_type");
     victory_limit = ResourceManager_GetSettings()->GetNumericValue("victory_limit");
 
-    if (field_867 == 46 && victory_type) {
+    if (active_text_edit_index == 46 && victory_type) {
         victory_limit = 0;
-    } else if (field_867 == 47 && victory_type != 1) {
+    } else if (active_text_edit_index == 47 && victory_type != 1) {
         victory_limit = 0;
     }
 
     snprintf(victory_limit_text, 30, "%d", victory_limit);
 
-    control = &game_config_menu_controls[field_867];
+    control = &game_config_menu_controls[active_text_edit_index];
 
     text_edit = new (std::nothrow)
         TextEdit(window, victory_limit_text, 5, WindowManager_ScaleUlx(window, control->bounds.ulx + 10),
@@ -449,7 +449,7 @@ void GameConfigMenu::DrawPanelVictoryCondition() {
     if (ResourceManager_GetSettings()->GetNumericValue("victory_type")) {
         game_config_menu_items[67].title.clear();
 
-        if (field_867) {
+        if (active_text_edit_index) {
             game_config_menu_items[68].title.clear();
         } else {
             game_config_menu_items[68].title = text;
@@ -468,7 +468,7 @@ void GameConfigMenu::DrawPanelVictoryCondition() {
     } else {
         game_config_menu_items[68].title.clear();
 
-        if (field_867) {
+        if (active_text_edit_index) {
             game_config_menu_items[67].title.clear();
         } else {
             game_config_menu_items[67].title = text;
@@ -513,7 +513,7 @@ void GameConfigMenu::DrawRadioButtons(int32_t element_count, int32_t start_index
 void GameConfigMenu::UpdateTextEdit(int32_t mode) {
     if (text_edit) {
         if (mode) {
-            ResourceManager_GetSettings()->SetNumericValue("victory_type", field_867 - 46);
+            ResourceManager_GetSettings()->SetNumericValue("victory_type", active_text_edit_index - 46);
             ResourceManager_GetSettings()->SetNumericValue("victory_limit", strtol(victory_limit_text, nullptr, 10));
         }
 
@@ -521,7 +521,7 @@ void GameConfigMenu::UpdateTextEdit(int32_t mode) {
         delete text_edit;
         text_edit = nullptr;
 
-        field_867 = 0;
+        active_text_edit_index = 0;
         DrawPanelVictoryCondition();
 
         win_draw(window->id);

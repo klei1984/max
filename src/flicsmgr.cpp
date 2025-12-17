@@ -82,8 +82,7 @@ typedef struct {
 
 struct Flic {
     FILE* fp;
-    int16_t field_4;
-    int16_t field_6;
+    int16_t buffer_start_frame;
     FlicFrame frames[FLICSMGR_FRAME_BUFFER];
     int32_t file_pos;
     WinID wid;
@@ -320,7 +319,7 @@ char Flicsmgr_load_frame(FILE* file, FlicFrame* frame) {
 char flicsmgr_fill_frame_buffer(Flic* flc) {
     int32_t v2;
 
-    flc->field_4 = flc->frame_pos;
+    flc->buffer_start_frame = flc->frame_pos;
     v2 = flc->frame_count - flc->frame_pos + 1;
 
     if (v2 > FLICSMGR_FRAME_BUFFER) {
@@ -469,17 +468,17 @@ char flicsmgr_advance_animation(Flic* flc) {
 
         flc->frame_pos = 1;
 
-        if (flc->field_4 != 1) {
+        if (flc->buffer_start_frame != 1) {
             fseek(flc->fp, flc->file_pos, SEEK_SET);
             flicsmgr_fill_frame_buffer(flc);
         }
     }
 
-    if (flc->frame_pos >= (flc->field_4 + FLICSMGR_FRAME_BUFFER)) {
+    if (flc->frame_pos >= (flc->buffer_start_frame + FLICSMGR_FRAME_BUFFER)) {
         flicsmgr_fill_frame_buffer(flc);
     }
 
-    flicsmgr_decode_frame(&flc->frames[flc->frame_pos - flc->field_4], flc);
+    flicsmgr_decode_frame(&flc->frames[flc->frame_pos - flc->buffer_start_frame], flc);
 
     return 1;
 }

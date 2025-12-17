@@ -551,7 +551,7 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
                                     new (std::nothrow) TaskMove(unit, task, 0, caution_level, unit->attack_site,
                                                                 &TaskTransport_MoveFinishedCallback));
 
-                                move_task->SetField68(true);
+                                move_task->SetFinishOnArrival(true);
 
                                 TaskManager.AppendTask(*move_task);
 
@@ -1261,7 +1261,7 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
                         SmartPointer<TaskMove> move_task(new (std::nothrow) TaskMove(
                             unit, task, 0, caution_level, target_position, &TaskTransport_MoveFinishedCallback));
 
-                        move_task->SetField68(true);
+                        move_task->SetFinishOnArrival(true);
 
                         TaskManager.AppendTask(*move_task);
 
@@ -1427,7 +1427,7 @@ bool TaskAttack::MoveReconUnit(int32_t caution_level) {
                 SmartPointer<TaskMove> move_task(new (std::nothrow) TaskMove(&*leader, this, 0, caution_level, site,
                                                                              &TaskTransport_MoveFinishedCallback));
 
-                move_task->SetField68(true);
+                move_task->SetFinishOnArrival(true);
 
                 TaskManager.AppendTask(*move_task);
 

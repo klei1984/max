@@ -223,10 +223,10 @@ void TaskFrontalAttack::IssueOrders() {
                             SmartPointer<TaskMove> move_task(new (std::nothrow) TaskMove(
                                 attacker, this, 0, CAUTION_LEVEL_NONE, site, &MoveFinishedCallback));
 
-                            move_task->SetField69(true);
-                            move_task->SetField68(true);
+                            move_task->SetOptional(true);
+                            move_task->SetFinishOnArrival(true);
 
-                            field_19 = true;
+                            movement_in_progress = true;
 
                             TaskManager.AppendTask(*move_task);
 
@@ -293,7 +293,7 @@ TaskFrontalAttack::TaskFrontalAttack(uint16_t team_, SpottedUnit* spotted_unit_,
     : Task(team_, nullptr, TASK_PRIORITY_FRONTAL_ATTACK) {
     spotted_unit = spotted_unit_;
     caution_level = caution_level_;
-    field_19 = false;
+    movement_in_progress = false;
 }
 
 TaskFrontalAttack::~TaskFrontalAttack() {}
@@ -355,7 +355,7 @@ void TaskFrontalAttack::Init() {
 }
 
 void TaskFrontalAttack::BeginTurn() {
-    if (field_19) {
+    if (movement_in_progress) {
         Finish();
     }
 }

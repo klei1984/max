@@ -25,14 +25,14 @@
 #include "taskfindpath.hpp"
 
 TaskPathRequest::TaskPathRequest(UnitInfo* unit, int32_t mode, Point point)
-    : PathRequest(unit, mode, point), field_30(0) {}
+    : PathRequest(unit, mode, point), can_use_cached_paths(0) {}
 
 TaskPathRequest::~TaskPathRequest() {}
 
 bool TaskPathRequest::TryUseCachedPath() {
     bool result;
 
-    if (field_30 && find_path != nullptr && AiPlayer_Teams[find_path->GetTeam()].MatchPath(this)) {
+    if (can_use_cached_paths && find_path != nullptr && AiPlayer_Teams[find_path->GetTeam()].MatchPath(this)) {
         find_path = nullptr;
         client = nullptr;
 
@@ -61,12 +61,12 @@ void TaskPathRequest::Finish(GroundPath* path) {
 
 void TaskPathRequest::AssignPathFindTask(TaskFindPath* task) { find_path = task; }
 
-void TaskPathRequest::SetField31(bool value) {
-    field_30 = true;
-    field_31 = value;
+void TaskPathRequest::EnableCachedPaths(bool allow_generic_transporter) {
+    can_use_cached_paths = true;
+    this->allow_generic_transporter = allow_generic_transporter;
 }
 
-bool TaskPathRequest::GetField31() const { return field_31; }
+bool TaskPathRequest::AllowsGenericTransporter() const { return allow_generic_transporter; }
 
 void TaskPathRequest::Complete(Point position, GroundPath* path) {
     find_path->Finish(position, path, true);

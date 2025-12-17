@@ -26,20 +26,20 @@
 
 class TaskSearchDestination : public Task {
     SmartPointer<UnitInfo> unit;
-    Point point1;
+    Point initial_position;
     TaskAbstractSearch* search_task;
     uint16_t search_radius;
     int16_t index;
-    Point points[2];
+    Point spiral_cursors[2];
     int16_t directions[2];
-    Point point2;
-    Point point3;
+    Point spiral_center;
+    Point spiral_target;
 
     int16_t radius;
-    int16_t field_57;
-    int16_t field_59;
+    int16_t previous_radius;
+    int16_t spiral_direction;
 
-    bool field_61;
+    bool continue_search_at_radius;
     bool is_doomed;
 
     int16_t valid_sites;

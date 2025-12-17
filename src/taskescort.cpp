@@ -115,7 +115,7 @@ bool TaskEscort::IssueOrders(UnitInfo* unit) {
                                                      TaskMove(unit, this, 0, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE,
                                                               unit_location, &TaskTransport_MoveFinishedCallback));
 
-                move_task->SetField68(true);
+                move_task->SetFinishOnArrival(true);
 
                 TaskManager.AppendTask(*move_task);
 

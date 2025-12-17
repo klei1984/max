@@ -26,12 +26,12 @@
 
 class TaskRetreat : public Task {
     SmartPointer<UnitInfo> unit_to_retreat;
-    int16_t field_23;
+    int16_t search_radius;
     Point position;
     int16_t direction;
-    int16_t field_31;
+    int16_t steps_in_direction;
     char caution_level;
-    char field_34;
+    char found_valid_position;
 
     void RemoveTask();
     void Search();

@@ -71,9 +71,9 @@ TaskMove::TaskMove(UnitInfo* unit, Task* task, uint16_t minimum_distance_, uint8
 
     result_callback = result_callback_;
 
-    field_68 = false;
-    field_69 = false;
-    field_70 = false;
+    finish_on_arrival = false;
+    is_optional = false;
+    move_order_issued = false;
 }
 
 TaskMove::TaskMove(UnitInfo* unit, void (*result_callback_)(Task* task, UnitInfo* unit, char result))
@@ -96,9 +96,9 @@ TaskMove::TaskMove(UnitInfo* unit, void (*result_callback_)(Task* task, UnitInfo
 
     result_callback = result_callback_;
 
-    field_68 = false;
-    field_69 = false;
-    field_70 = false;
+    finish_on_arrival = false;
+    is_optional = false;
+    move_order_issued = false;
 }
 
 TaskMove::~TaskMove() {}
@@ -134,9 +134,9 @@ std::string TaskMove::WriteStatusLog() const {
 
 uint8_t TaskMove::GetType() const { return TaskType_TaskMove; }
 
-void TaskMove::SetField68(bool value) { field_68 = value; }
+void TaskMove::SetFinishOnArrival(bool value) { finish_on_arrival = value; }
 
-void TaskMove::SetField69(bool value) { field_69 = value; }
+void TaskMove::SetOptional(bool value) { is_optional = value; }
 
 UnitInfo* TaskMove::GetPassenger() { return &*passenger; }
 
@@ -204,7 +204,7 @@ void TaskMove::BeginTurn() {
 
 void TaskMove::EndTurn() {
     if (passenger && passenger->IsReadyForOrders(this)) {
-        if (field_68 && passenger->speed == 0 && transporter_unit_type == INVALID_ID) {
+        if (finish_on_arrival && passenger->speed == 0 && transporter_unit_type == INVALID_ID) {
             Finished(TASKMOVE_RESULT_SUCCESS);
 
         } else if (passenger->speed && !zone) {
@@ -285,7 +285,7 @@ bool TaskMove::Execute(UnitInfo& unit) {
                             }
 
                         } else {
-                            if (field_68 && transporter_unit_type == INVALID_ID) {
+                            if (finish_on_arrival && transporter_unit_type == INVALID_ID) {
                                 Finished(TASKMOVE_RESULT_SUCCESS);
                             }
 
@@ -355,7 +355,7 @@ void TaskMove::EventZoneCleared(Zone* zone_, bool status) {
     }
 
     if (passenger) {
-        if (!status && field_69) {
+        if (!status && is_optional) {
             Finished(TASKMOVE_RESULT_SUCCESS);
 
         } else {
@@ -480,7 +480,7 @@ void TaskMove::Search(bool mode) {
         }
 
         if (mode) {
-            request->SetField31(transporter_unit_type == INVALID_ID);
+            request->EnableCachedPaths(transporter_unit_type == INVALID_ID);
         }
 
         SmartPointer<Task> find_path(new (std::nothrow)
@@ -691,7 +691,7 @@ void TaskMove::BlockedPathResultCallback(Task* task, PathRequest* path_request, 
 
             if (flag) {
                 move->zone = local_zone;
-                move->zone->SetImportance(move->field_69);
+                move->zone->SetImportance(move->is_optional);
 
                 AiPlayer_Teams[move->m_team].ClearZone(&*local_zone);
 
@@ -781,7 +781,7 @@ void TaskMove::ProcessPath(Point site, GroundPath* path) {
         distance_minimum = 0;
     }
 
-    field_70 = false;
+    move_order_issued = false;
 
     for (uint32_t i = 0; i < steps.GetCount(); ++i) {
         site.x += steps[i]->x;
@@ -811,7 +811,7 @@ void TaskMove::ProcessPath(Point site, GroundPath* path) {
 }
 
 void TaskMove::RetryMove() {
-    if (field_70) {
+    if (move_order_issued) {
         Finished(TASKMOVE_RESULT_SUCCESS);
 
     } else if (path_result) {
@@ -1022,7 +1022,7 @@ void TaskMove::MoveAirUnit() {
                                         zone = new (std::nothrow) Zone(&*passenger, this);
 
                                         zone->Add(&passenger_waypoint);
-                                        zone->SetImportance(field_69);
+                                        zone->SetImportance(is_optional);
 
                                         AiPlayer_Teams[m_team].ClearZone(&*zone);
                                     }
@@ -1075,7 +1075,7 @@ void TaskMove::MoveAirUnit() {
             passenger->move_to_grid_x = passenger_waypoint.x;
             passenger->move_to_grid_y = passenger_waypoint.y;
 
-            field_70 = true;
+            move_order_issued = true;
 
             passenger->ChangeAiStateBits(UnitInfo::AI_STATE_NO_RETREAT, false);
 
@@ -1322,7 +1322,7 @@ void TaskMove::MoveUnit(GroundPath* path) {
 
         passenger->move_to_grid_x = passenger_waypoint.x;
         passenger->move_to_grid_y = passenger_waypoint.y;
-        field_70 = true;
+        move_order_issued = true;
         passenger->ChangeAiStateBits(UnitInfo::AI_STATE_NO_RETREAT, false);
 
         if (passenger->flags & MOBILE_AIR_UNIT) {

@@ -26,7 +26,7 @@
 #include "task.hpp"
 
 class TaskFrontalAttack : public Task {
-    bool field_19;
+    bool movement_in_progress;
     SmartPointer<SpottedUnit> spotted_unit;
     SmartList<UnitInfo> units1;
     SmartList<UnitInfo> units2;

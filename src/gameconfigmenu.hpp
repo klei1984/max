@@ -178,7 +178,7 @@ public:
     TextEdit* text_edit;
     Image* bg_panels[6];
     char victory_limit_text[30];
-    uint32_t field_867;
+    uint32_t active_text_edit_index;
     uint8_t ini_play_mode;
     uint16_t ini_timer;
     uint16_t ini_endturn;

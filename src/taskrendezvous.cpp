@@ -118,7 +118,7 @@ void TaskRendezvous::SecondaryMoveFinishedCallback(Task* task, UnitInfo* unit, c
                             &*local_unit1, task_rendezvous, 0, CAUTION_LEVEL_AVOID_ALL_DAMAGE, destination,
                             &PrimaryMoveFinishedCallback));
 
-                        move_task->SetField68(!(local_unit2->flags & STATIONARY));
+                        move_task->SetFinishOnArrival(!(local_unit2->flags & STATIONARY));
 
                         TaskManager.AppendTask(*move_task);
 
@@ -194,7 +194,7 @@ bool TaskRendezvous::Execute(UnitInfo& unit) {
                                     new (std::nothrow) TaskMove(&*unit2, this, 0, CAUTION_LEVEL_AVOID_ALL_DAMAGE,
                                                                 destination, &SecondaryMoveFinishedCallback));
 
-                                move_task->SetField68(!(unit1->flags & STATIONARY));
+                                move_task->SetFinishOnArrival(!(unit1->flags & STATIONARY));
 
                                 TaskManager.AppendTask(*move_task);
 

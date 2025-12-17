@@ -48,8 +48,8 @@ public:
     void RemoveUnit(UnitInfo& unit);
     void EventZoneCleared(Zone* zone, bool status);
 
-    bool Task_vfunc28();
-    bool Task_vfunc29();
+    bool IsActivelyBuilding();
+    bool HasCommittedToSite();
 };
 
 #endif /* TASKCREATEUNIT_HPP */

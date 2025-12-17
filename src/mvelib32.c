@@ -64,9 +64,9 @@ struct MveMemBlock {
 
 struct __attribute__((packed)) MveHeader {
     const char tag[20];
-    uint16_t field_20;
-    uint16_t field_22;
-    uint16_t field_24;
+    uint16_t magic_separator;
+    uint16_t format_version;
+    uint16_t checksum;
     struct MveControlBlock next_header;
 };
 
@@ -375,8 +375,9 @@ int32_t ioReset(FILE* handle) {
     io_handle = handle;
     header = ioRead(sizeof(struct MveHeader));
 
-    if (header && !strcmp(header->tag, "Interplay MVE File\x1A") && header->field_24 == (~header->field_22 + 0x1234) &&
-        header->field_22 == 0x100 && header->field_20 == 0x1A) {
+    if (header && !strcmp(header->tag, "Interplay MVE File\x1A") &&
+        header->checksum == (~header->format_version + 0x1234) && header->format_version == 0x100 &&
+        header->magic_separator == 0x1A) {
         io_next_hdr = header->next_header;
 
         result = 1;

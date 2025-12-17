@@ -78,7 +78,7 @@ Continent::Continent(AccessMap& map, uint16_t filler, Point point, uint8_t value
     ContinentFiller continent_filler(map, filler);
 
     this->point = point;
-    field_35 = value;
+    clear_on_destroy = value;
     this->filler = filler;
     continent_size = 0;
     is_isolated = false;
@@ -89,7 +89,7 @@ Continent::Continent(AccessMap& map, uint16_t filler, Point point, uint8_t value
 }
 
 Continent::~Continent() {
-    if (field_35) {
+    if (clear_on_destroy) {
         for (int32_t x = bounds.ulx; x < bounds.lrx; ++x) {
             for (int32_t y = bounds.uly; y < bounds.lry - 3; ++y) {
                 if (map(x, y) == filler) {
