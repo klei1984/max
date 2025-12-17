@@ -239,6 +239,16 @@ void ResearchMenu_NewTurn(uint16_t team) {
 
                 if (team == GameManager_PlayerTeam) {
                     ResourceManager_GetSoundManager().PlayVoice(V_M093, V_F093);
+
+                    // Refresh research center units to display "Research Complete" text overlay
+                    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+                         it != UnitsManager_StationaryUnits.End(); ++it) {
+                        UnitInfo* unit = &*it;
+                        if (unit->team == team && unit->GetUnitType() == RESEARCH &&
+                            unit->GetOrder() == ORDER_POWER_ON && unit->research_topic == i) {
+                            unit->RefreshScreen();
+                        }
+                    }
                 }
             }
         }
