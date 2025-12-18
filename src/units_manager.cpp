@@ -2206,7 +2206,7 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t te
     if (!is_existing_unit) {
         CTInfo* team_info;
 
-        unit->GetBaseValues()->SetUnitsBuilt(1);
+        unit->GetBaseValues()->MarkAsInUse();
 
         team_info = &UnitsManager_TeamInfo[team];
 

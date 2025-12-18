@@ -2835,7 +2835,7 @@ void GameManager_ProcessCheatCodes() {
 
                     do {
                         new_unit_values->UpdateVersion();
-                        new_unit_values->SetUnitsBuilt(1);
+                        new_unit_values->MarkAsInUse();
                     } while (new_unit_values->GetVersion() < 30);
 
                     if (new_unit_values->GetAttribute(ATTRIB_ATTACK) <

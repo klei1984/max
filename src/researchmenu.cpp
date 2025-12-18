@@ -214,7 +214,7 @@ void ResearchMenu_ApplyUpgrades(uint16_t team, uint8_t research_topic) {
             *value2 += new_value - old_value;
 
             unit_values2->UpdateVersion();
-            unit_values2->SetUnitsBuilt(0);
+            unit_values2->MarkAsNotInUse();
 
             UnitsManager_TeamInfo[team].team_units->SetCurrentUnitValues(unit_type, *unit_values2);
         }

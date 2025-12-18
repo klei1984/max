@@ -1809,7 +1809,7 @@ void Remote_ReceiveNetPacket_10(NetPacket& packet) {
         *UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[entity_id], unit_type)));
 
     unit_values->UpdateVersion();
-    unit_values->SetUnitsBuilt(0);
+    unit_values->MarkAsNotInUse();
 
     packet >> value;
     unit_values->SetAttribute(ATTRIB_TURNS, value);
@@ -2366,7 +2366,7 @@ void Remote_ReceiveNetPacket_20(NetPacket& packet) {
         SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
 
         unit_values->UpdateVersion();
-        unit_values->SetUnitsBuilt(1);
+        unit_values->MarkAsInUse();
 
         packet >> value;
         unit_values->SetAttribute(ATTRIB_TURNS, value);

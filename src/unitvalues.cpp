@@ -42,7 +42,7 @@ UnitValues::UnitValues()
       attack_radius(0),
       agent_adjust(0),
       version(1),
-      units_built(0) {}
+      m_is_in_use(false) {}
 
 UnitValues::UnitValues(const UnitValues& other)
     : turns(other.turns),
@@ -60,7 +60,7 @@ UnitValues::UnitValues(const UnitValues& other)
       attack_radius(other.attack_radius),
       agent_adjust(other.agent_adjust),
       version(other.version),
-      units_built(other.units_built) {}
+      m_is_in_use(other.m_is_in_use) {}
 
 UnitValues::~UnitValues() {}
 
@@ -86,7 +86,17 @@ void UnitValues::FileLoad(SmartFileReader& file) noexcept {
     file.Read(attack_radius);
     file.Read(agent_adjust);
     file.Read(version);
-    file.Read(units_built);
+
+    if (file.GetFormat() == SmartFileFormat::V70) {
+        uint8_t legacy_units_built;
+
+        file.Read(legacy_units_built);
+
+        m_is_in_use = (legacy_units_built != 0);
+
+    } else {
+        file.Read(m_is_in_use);
+    }
 }
 
 void UnitValues::FileSave(SmartFileWriter& file) noexcept {
@@ -104,7 +114,7 @@ void UnitValues::FileSave(SmartFileWriter& file) noexcept {
     file.Write(attack_radius);
     file.Write(agent_adjust);
     file.Write(version);
-    file.Write(units_built);
+    file.Write(m_is_in_use);
 }
 
 int32_t UnitValues::GetAttribute(char attribute) {
@@ -318,7 +328,7 @@ void UnitValues::AddAttribute(char attribute, int32_t value) {
 }
 
 void UnitValues::UpdateVersion() {
-    if (units_built) {
+    if (m_is_in_use) {
         ++version;
     }
 }
@@ -327,14 +337,16 @@ int32_t UnitValues::GetVersion() const { return version; }
 
 void UnitValues::SetVersion(int32_t value) { version = value; }
 
-void UnitValues::SetUnitsBuilt(uint8_t count) { units_built = count; }
+void UnitValues::MarkAsNotInUse() { m_is_in_use = false; }
+
+void UnitValues::MarkAsInUse() { m_is_in_use = true; }
 
 bool UnitValues::operator==(const UnitValues& other) const {
     return turns == other.turns && hits == other.hits && armor == other.armor && attack == other.attack &&
            speed == other.speed && range == other.range && rounds == other.rounds &&
            move_and_fire == other.move_and_fire && scan == other.scan && storage == other.storage &&
            ammo == other.ammo && attack_radius == other.attack_radius && version == other.version &&
-           units_built == other.units_built && agent_adjust == other.agent_adjust;
+           m_is_in_use == other.m_is_in_use && agent_adjust == other.agent_adjust;
 }
 
 bool UnitValues::operator!=(const UnitValues& other) const { return !this->operator==(other); }

@@ -2128,7 +2128,7 @@ void AiPlayer::UpgradeUnitType() {
         unit_values = new (std::nothrow) UnitValues(*unit_values);
 
         unit_values->UpdateVersion();
-        unit_values->SetUnitsBuilt(0);
+        unit_values->MarkAsNotInUse();
 
         unit_values->AddAttribute(build_order.primary_attribute, upgrade_level);
 
@@ -4287,12 +4287,12 @@ void AiPlayer::FileLoad(SmartFileReader& file) {
 
     file.Read(player_team);
     file.Read(strategy);
-    
+
     if (file.GetFormat() == SmartFileFormat::V70) {
         int16_t unused_field;
         file.Read(unused_field);
     }
-    
+
     file.Read(greenhouse_ratio);
     file.Read(minefield_density);
     file.Read(target_team);

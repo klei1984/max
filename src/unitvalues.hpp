@@ -41,7 +41,7 @@ class UnitValues : public FileObject {
     uint16_t attack_radius;
     uint16_t agent_adjust;
     uint16_t version;
-    uint8_t units_built;
+    bool m_is_in_use;
 
 public:
     UnitValues();
@@ -57,7 +57,8 @@ public:
     int32_t GetVersion() const;
     void SetVersion(int32_t value);
     int32_t GetAgentSkill() const;
-    void SetUnitsBuilt(uint8_t count);
+    void MarkAsNotInUse();
+    void MarkAsInUse();
 
     uint32_t GetTypeIndex() const;
     void FileLoad(SmartFileReader& file) noexcept;

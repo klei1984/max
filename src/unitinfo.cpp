@@ -1508,7 +1508,7 @@ void UnitInfo::GainExperience(int32_t experience_gain) {
                 }
 
                 base_values->UpdateVersion();
-                base_values->SetUnitsBuilt(1);
+                base_values->MarkAsInUse();
 
                 if (Remote_IsNetworkGame) {
                     Remote_SendNetPacket_20(this);
@@ -3851,7 +3851,7 @@ void UnitInfo::UpgradeInt() {
         best_values->SetVersion(base_values->GetVersion() + 1);
     }
 
-    best_values->SetUnitsBuilt(1);
+    best_values->MarkAsInUse();
 
     // Update current hits proportionally based on max hits change
     const int32_t new_hits =

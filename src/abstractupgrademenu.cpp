@@ -514,7 +514,7 @@ void AbstractUpgradeMenu::CommitUpgradeChanges() {
     for (uint16_t i = 0; i < UNIT_END; ++i) {
         if (*unitvalues_actual[i] != *unitvalues_base[i]) {
             unitvalues_actual[i]->UpdateVersion();
-            unitvalues_actual[i]->SetUnitsBuilt(0);
+            unitvalues_actual[i]->MarkAsNotInUse();
 
             UnitsManager_TeamInfo[team].team_units->SetCurrentUnitValues(i, *unitvalues_actual[i]);
 
