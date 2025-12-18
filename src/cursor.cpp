@@ -30,6 +30,7 @@ extern "C" {
 
 #include "enums.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "units_manager.hpp"
 
 #define CURSOR_CURSOR_COUNT 30
@@ -80,6 +81,20 @@ static bool Cursor_CacheInitialized = false;
 
 static void Cursor_AnimationTick(void);
 
+/*
+ * \brief Converts an sRGB color component to linear RGB color space.
+ *
+ * Applies the inverse sRGB gamma transfer function to convert from sRGB to linear RGB.
+ *
+ * \param srgb The sRGB color component value (0-255).
+ * \return The linearized color component value (0-255).
+ */
+static uint8_t Cursor_ConvertSRGBToLinear(uint8_t srgb) {
+    float normalized = srgb / 255.0f;
+    float linear = (normalized <= 0.04045f) ? (normalized / 12.92f) : SDL_powf((normalized + 0.055f) / 1.055f, 2.4f);
+    return static_cast<uint8_t>(linear * 255.0f + 0.5f);
+}
+
 static SDL_Surface* Cursor_CreateScaledSurface(uint8_t* indexed_data, int32_t width, int32_t height, int32_t full,
                                                uint8_t transparent_index, float scale) {
     int32_t scaled_w = static_cast<int32_t>(width * scale + 0.5f);
@@ -100,6 +115,9 @@ static SDL_Surface* Cursor_CreateScaledSurface(uint8_t* indexed_data, int32_t wi
 
         return nullptr;
     }
+
+    // Set colorspace to sRGB to prevent washed out appearance with modern GPU drivers
+    SDL_SetSurfaceColorspace(surface, SDL_COLORSPACE_SRGB);
 
     uint32_t* pixels = static_cast<uint32_t*>(surface->pixels);
     SDL_Palette* palette = Svga_GetPalette();
@@ -133,9 +151,25 @@ static SDL_Surface* Cursor_CreateScaledSurface(uint8_t* indexed_data, int32_t wi
 
             } else {
                 SDL_Color* c = &palette->colors[index];
+                uint8_t r, g, b;
 
-                pixels[dst_x + dst_y * (surface->pitch / sizeof(uint32_t))] =
-                    (0xFFu << 24) | (c->r << 16) | (c->g << 8) | c->b;
+                // Apply color space conversion based on cursor_colorspace setting
+                // 0 = sRGB
+                // 1 = Linear RGB
+                int32_t cursor_colorspace = ResourceManager_GetSettings()->GetNumericValue("cursor_colorspace");
+
+                if (cursor_colorspace == 1) {
+                    r = Cursor_ConvertSRGBToLinear(c->r);
+                    g = Cursor_ConvertSRGBToLinear(c->g);
+                    b = Cursor_ConvertSRGBToLinear(c->b);
+
+                } else {
+                    r = c->r;
+                    g = c->g;
+                    b = c->b;
+                }
+
+                pixels[dst_x + dst_y * (surface->pitch / sizeof(uint32_t))] = (0xFFu << 24) | (r << 16) | (g << 8) | b;
             }
         }
     }
