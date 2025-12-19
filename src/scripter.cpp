@@ -68,12 +68,12 @@ static void RegisterCountReadyUnits(lua_State* lua);
 static int HasAttackPower(const lua_Integer team, const lua_Integer unit_class);
 static int LuaHasAttackPower(lua_State* lua);
 static void RegisterHasAttackPower(lua_State* lua);
-static int CanRebuildComplex(const lua_Integer team);
-static int LuaCanRebuildComplex(lua_State* lua);
-static void RegisterCanRebuildComplex(lua_State* lua);
-static int CanRebuildBuilders(const lua_Integer team);
-static int LuaCanRebuildBuilders(lua_State* lua);
-static void RegisterCanRebuildBuilders(lua_State* lua);
+static int HasProductionInfrastructure(const lua_Integer team);
+static int LuaHasProductionInfrastructure(lua_State* lua);
+static void RegisterHasProductionInfrastructure(lua_State* lua);
+static int HasConstructionInfrastructure(const lua_Integer team);
+static int LuaHasConstructionInfrastructure(lua_State* lua);
+static void RegisterHasConstructionInfrastructure(lua_State* lua);
 static void CountTotalMining(const lua_Integer team, lua_Integer* const raw_mining_max,
                              lua_Integer* const fuel_mining_max, lua_Integer* const gold_mining_max);
 static int LuaCountTotalMining(lua_State* lua);
@@ -291,7 +291,7 @@ static int LuaHasAttackPower(lua_State* lua) {
 
 static void RegisterHasAttackPower(lua_State* lua) { lua_register(lua, "max_has_attack_power", LuaHasAttackPower); }
 
-static int CanRebuildComplex(const lua_Integer team) {
+static int HasProductionInfrastructure(const lua_Integer team) {
     SmartList<UnitInfo>::Iterator it;
     bool result;
 
@@ -345,29 +345,29 @@ static int CanRebuildComplex(const lua_Integer team) {
     return result;
 }
 
-static int LuaCanRebuildComplex(lua_State* lua) {
+static int LuaHasProductionInfrastructure(lua_State* lua) {
     if (lua_gettop(lua) < 1) {
-        return luaL_error(lua, "[max_can_rebuild_complex] Error: 1 argument required: MAX_TEAM");
+        return luaL_error(lua, "[max_has_production_infrastructure] Error: 1 argument required: MAX_TEAM");
     }
 
     auto team = luaL_checkinteger(lua, 1);
 
     if (team >= PLAYER_TEAM_MAX or team < PLAYER_TEAM_RED) {
-        return luaL_error(lua, "[max_can_rebuild_complex] Error: Invalid MAX_TEAM (%d)", team);
+        return luaL_error(lua, "[max_has_production_infrastructure] Error: Invalid MAX_TEAM (%d)", team);
     }
 
-    auto result = CanRebuildComplex(team);
+    auto result = HasProductionInfrastructure(team);
 
     lua_pushboolean(lua, result);
 
     return 1;
 }
 
-static void RegisterCanRebuildComplex(lua_State* lua) {
-    lua_register(lua, "max_can_rebuild_complex", LuaCanRebuildComplex);
+static void RegisterHasProductionInfrastructure(lua_State* lua) {
+    lua_register(lua, "max_has_production_infrastructure", LuaHasProductionInfrastructure);
 }
 
-static int CanRebuildBuilders(const lua_Integer team) {
+static int HasConstructionInfrastructure(const lua_Integer team) {
     SmartList<UnitInfo>::Iterator it;
     bool result;
 
@@ -427,26 +427,26 @@ static int CanRebuildBuilders(const lua_Integer team) {
     return result;
 }
 
-static int LuaCanRebuildBuilders(lua_State* lua) {
+static int LuaHasConstructionInfrastructure(lua_State* lua) {
     if (lua_gettop(lua) < 1) {
-        return luaL_error(lua, "[max_can_rebuild_builders] Error: 1 argument required: MAX_TEAM");
+        return luaL_error(lua, "[max_has_construction_infrastructure] Error: 1 argument required: MAX_TEAM");
     }
 
     auto team = luaL_checkinteger(lua, 1);
 
     if (team >= PLAYER_TEAM_MAX or team < PLAYER_TEAM_RED) {
-        return luaL_error(lua, "[max_can_rebuild_builders] Error: Invalid MAX_TEAM (%d)", team);
+        return luaL_error(lua, "[max_has_construction_infrastructure] Error: Invalid MAX_TEAM (%d)", team);
     }
 
-    auto result = CanRebuildBuilders(team);
+    auto result = HasConstructionInfrastructure(team);
 
     lua_pushboolean(lua, result);
 
     return 1;
 }
 
-static void RegisterCanRebuildBuilders(lua_State* lua) {
-    lua_register(lua, "max_can_rebuild_builders", LuaCanRebuildBuilders);
+static void RegisterHasConstructionInfrastructure(lua_State* lua) {
+    lua_register(lua, "max_has_construction_infrastructure", LuaHasConstructionInfrastructure);
 }
 
 static void CountTotalMining(const lua_Integer team, lua_Integer* const raw_mining_max,
@@ -1922,8 +1922,8 @@ void* CreateContext(const ScriptType type) {
                     RegisterHasMaterials(lua);
                     RegisterCountReadyUnits(lua);
                     RegisterHasAttackPower(lua);
-                    RegisterCanRebuildComplex(lua);
-                    RegisterCanRebuildBuilders(lua);
+                    RegisterHasProductionInfrastructure(lua);
+                    RegisterHasConstructionInfrastructure(lua);
                     RegisterCountTotalMining(lua);
                     RegisterGetTotalUnitsBeingConstructed(lua);
                     RegisterGetTotalPowerConsumption(lua);
