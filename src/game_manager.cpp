@@ -470,8 +470,9 @@ static void GameManager_RenderMultiSelectIndicator();
 static void GameManager_RenderMinimap();
 static bool GameManager_IsQuickBuildUnitValid(ResourceID unit_type);
 static bool GameManager_IsQuickBuildPlacementValid(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
-static void GameManager_QuickBuildMenuDrawPortraits(WindowInfo* window, int32_t* valid_units, int32_t start_index,
-                                                    int32_t valid_count, int32_t width);
+static void GameManager_UpdateAmphibiousUnitImageBase(UnitInfo* unit, Point position);
+static void GameManager_QuickBuildMenuDrawPortraits(WindowInfo* window, const std::vector<ResourceID>& valid_units,
+                                                    int32_t start_index, int32_t width);
 static void GameManager_QuickBuildMenu();
 
 void GameManager_TeamTurnTurnBased(int32_t& game_state) {
@@ -735,6 +736,8 @@ void GameManager_DeployUnit(uint16_t team, ResourceID unit_type, int32_t grid_x,
     unit = UnitsManager_DeployUnit(unit_type, team, nullptr, grid_x, grid_y, 0);
 
     flags = unit->flags;
+
+    GameManager_UpdateAmphibiousUnitImageBase(&*unit, Point(grid_x, grid_y));
 
     if ((flags & REQUIRES_SLAB) && Access_IsAnyLandPresent(grid_x, grid_y, flags)) {
         if (flags & BUILDING) {
@@ -6460,6 +6463,7 @@ void GameManager_ProcessInput() {
             if (GameManager_QuickBuildMenuActive) {
                 UnitsManager_MoveUnit(&*GameManager_QuickBuilderUnit, GameManager_MousePosition.x,
                                       GameManager_MousePosition.y);
+                GameManager_UpdateAmphibiousUnitImageBase(&*GameManager_QuickBuilderUnit, GameManager_MousePosition);
             }
 
             GameManager_LastMousePosition.x = GameManager_MousePosition.x;
@@ -8234,6 +8238,31 @@ bool GameManager_IsQuickBuildPlacementValid(UnitInfo* unit, int32_t grid_x, int3
     return result;
 }
 
+void GameManager_UpdateAmphibiousUnitImageBase(UnitInfo* unit, Point position) {
+    if ((unit->flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
+        int32_t surface_type = Access_GetModifiedSurfaceType(position.x, position.y);
+        int32_t image_base;
+
+        if (unit->GetUnitType() == CLNTRANS) {
+            image_base = (surface_type == SURFACE_TYPE_WATER) ? 0 : 8;
+
+        } else {
+            image_base = (surface_type == SURFACE_TYPE_WATER) ? 8 : 0;
+        }
+
+        if (image_base != unit->image_base) {
+            if (unit->GetUnitType() == CLNTRANS) {
+                unit->firing_image_base = image_base;
+
+            } else {
+                unit->firing_image_base = image_base + 16;
+            }
+
+            unit->UpdateSpriteFrame(image_base, unit->image_index_max);
+        }
+    }
+}
+
 void GameManager_QuickBuildMenuDrawPortraits(WindowInfo* window, const std::vector<ResourceID>& valid_units,
                                              int32_t start_index, int32_t width) {
     for (int32_t i = 0; i < MENU_QUICK_BUILD_UNIT_SLOTS; ++i) {
@@ -8401,6 +8430,9 @@ void GameManager_QuickBuildMenu() {
                         // reactions, or fire on enemies until actually deployed). The renderer has special handling to
                         // allow QuickBuild preview units (GameManager_QuickBuilderUnit) despite ORDER_IDLE.
                         GameManager_QuickBuilderUnit->SetOrder(ORDER_IDLE);
+
+                        GameManager_UpdateAmphibiousUnitImageBase(&*GameManager_QuickBuilderUnit,
+                                                                  GameManager_MousePosition);
 
                         key = 1000;
                     }
