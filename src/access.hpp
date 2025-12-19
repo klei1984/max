@@ -77,7 +77,6 @@ void Access_DestroyUtilities(int32_t grid_x, int32_t grid_y, bool remove_slabs, 
                              bool remove_connectors, bool remove_road);
 void Access_DestroyGroundCovers(UnitInfo* unit);
 void Access_ValidateUnitsOnTerrain(int32_t grid_x, int32_t grid_y, const UnitInfo* destroyed_unit);
-UnitInfo* Access_GetQuickBuilderUnit(int32_t grid_x, int32_t grid_y);
 UnitInfo* Access_GetActiveUnitWithFlags(int32_t grid_x, int32_t grid_y, uint32_t flags);
 UnitInfo* Access_GetBridge(int32_t grid_x, int32_t grid_y);
 UnitInfo* Access_GetUnit2(int32_t grid_x, int32_t grid_y, uint16_t team);

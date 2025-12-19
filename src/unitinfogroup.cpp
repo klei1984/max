@@ -25,6 +25,7 @@
 #include "game_manager.hpp"
 #include "gfx.hpp"
 #include "hash.hpp"
+#include "quickbuild.hpp"
 #include "units_manager.hpp"
 
 UnitInfoArray::UnitInfoArray(uint16_t growth_factor) : array(growth_factor) {}
@@ -60,7 +61,7 @@ bool UnitInfoGroup::IsRelevant(UnitInfo* unit, UnitInfoGroup* group) {
 
     if ((unit->IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy) &&
         (Gfx_ZoomLevel >= 8 || !(unit->flags & GROUND_COVER)) &&
-        (unit->GetOrder() != ORDER_IDLE || unit == GameManager_QuickBuilderUnit)) {
+        (unit->GetOrder() != ORDER_IDLE || unit == QuickBuild_PreviewUnit)) {
         result = unit->IsInGroupZone(group);
     } else {
         result = false;

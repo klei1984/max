@@ -33,6 +33,7 @@
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
 #include "networkmenu.hpp"
+#include "quickbuild.hpp"
 #include "randomizer.hpp"
 #include "resource_manager.hpp"
 #include "settings.hpp"
@@ -1979,13 +1980,13 @@ void Remote_ReceiveNetPacket_14(NetPacket& packet) {
     packet >> grid_x;
     packet >> grid_y;
 
-    bool state_backup = GameManager_QuickBuildMenuActive;
+    bool state_backup = QuickBuild_MenuActive;
 
-    GameManager_QuickBuildMenuActive = true;
+    QuickBuild_MenuActive = true;
 
     GameManager_DeployUnit(entity_id, unit_type, grid_x, grid_y);
 
-    GameManager_QuickBuildMenuActive = state_backup;
+    QuickBuild_MenuActive = state_backup;
 }
 
 void Remote_SendNetPacket_16(const char* file_name, const char* file_title) {

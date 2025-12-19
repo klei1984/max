@@ -48,6 +48,7 @@
 #include "paths.hpp"
 #include "paths_manager.hpp"
 #include "production_manager.hpp"
+#include "quickbuild.hpp"
 #include "randomizer.hpp"
 #include "remote.hpp"
 #include "reportmenu.hpp"
@@ -68,11 +69,6 @@
 #include "unitstats.hpp"
 #include "window_manager.hpp"
 #include "world.hpp"
-
-#define MENU_QUICK_BUILD_GUI_ITEM_DEF(id1, id2, ulx, uly, width, height, r_value) \
-    {(r_value), (id1), (id2), (ulx), (uly), (width), (height), (0), (0)}
-
-#define MENU_QUICK_BUILD_UNIT_SLOTS (6)
 
 #define MENU_GUI_ITEM_DEF(id, gfx, label, button, state, sfx) {(id), (gfx), (label), (button), (state), (sfx)}
 
@@ -112,18 +108,6 @@
 #define MENU_DISPLAY_CONTROL_TURN_TIMER 3
 #define MENU_DISPLAY_CONTROL_CORNER_FLIC 4
 #define MENU_DISPLAY_CONTROL_STAT_WINDOW 5
-
-struct QuickBuildMenuGuiItem {
-    int32_t r_value;
-    ResourceID id1;
-    ResourceID id2;
-    int16_t ulx;
-    int16_t uly;
-    int16_t width;
-    int16_t height;
-    uint32_t flags;
-    ButtonID bid;
-};
 
 struct MenuGuiItem {
     uint8_t wid;
@@ -171,7 +155,6 @@ Rect GameManager_MapView;
 Rect GameManager_MapWindowDrawBounds;
 SmartPointer<UnitInfo> GameManager_SelectedUnit;
 SmartPointer<UnitInfo> GameManager_TempTape;
-SmartPointer<UnitInfo> GameManager_QuickBuilderUnit;
 SmartPointer<UnitInfo> GameManager_UnknownUnit3;
 SmartPointer<UnitInfo> GameManager_UnitUnderMouseCursor;
 Image* GameManager_TurnTimerImageNormal;
@@ -218,7 +201,6 @@ bool GameManager_PlayFlic;
 bool GameManager_Progress1;
 bool GameManager_Progress2;
 bool GameManager_MaxSurvey;
-bool GameManager_QuickBuildMenuActive;
 bool GameManager_IsMainMenuEnabled;
 bool GameManager_IsCtrlKeyPressed;
 bool GameManager_IsShiftKeyPressed;
@@ -226,9 +208,6 @@ bool GameManager_DisplayControlsInitialized;
 bool GameManager_RenderFlag1;
 bool GameManager_RenderMinimapDisplay;
 bool GameManager_RenderFlag2;
-
-ResourceID GameManager_QuickBuildUnitId;
-ResourceID GameManager_QuickBuildMenuUnitId;
 
 Button* Gamemanager_FlicButton;
 
@@ -257,18 +236,6 @@ struct MenuFlic {
     WindowInfo dw;
     Flic* flc;
     int32_t text_height;
-};
-
-static struct QuickBuildMenuGuiItem GameManager_QuickBuildMenuItems[] = {
-    MENU_QUICK_BUILD_GUI_ITEM_DEF(INVALID_ID, INVALID_ID, 8, 7, 128, 128, 1003),
-    MENU_QUICK_BUILD_GUI_ITEM_DEF(INVALID_ID, INVALID_ID, 145, 7, 128, 128, 1004),
-    MENU_QUICK_BUILD_GUI_ITEM_DEF(INVALID_ID, INVALID_ID, 280, 7, 128, 128, 1005),
-    MENU_QUICK_BUILD_GUI_ITEM_DEF(INVALID_ID, INVALID_ID, 8, 167, 128, 128, 1006),
-    MENU_QUICK_BUILD_GUI_ITEM_DEF(INVALID_ID, INVALID_ID, 145, 167, 128, 128, 1007),
-    MENU_QUICK_BUILD_GUI_ITEM_DEF(INVALID_ID, INVALID_ID, 280, 167, 128, 128, 1008),
-    MENU_QUICK_BUILD_GUI_ITEM_DEF(QWKDN_OF, QWKDN_ON, 323, 316, 24, 24, 1002),
-    MENU_QUICK_BUILD_GUI_ITEM_DEF(QWKUP_OF, QWKUP_ON, 355, 316, 24, 24, 1001),
-    MENU_QUICK_BUILD_GUI_ITEM_DEF(QWKCN_OF, QWKCN_ON, 387, 316, 24, 24, 1000),
 };
 
 static struct MenuGuiItem GameManager_MenuItems[] = {
@@ -468,12 +435,6 @@ static void GameManager_RenderScanRangeIndicators();
 static void GameManager_RenderSurveyIndicator(DrawMapBuffer* drawmap);
 static void GameManager_RenderMultiSelectIndicator();
 static void GameManager_RenderMinimap();
-static bool GameManager_IsQuickBuildUnitValid(ResourceID unit_type);
-static bool GameManager_IsQuickBuildPlacementValid(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
-static void GameManager_UpdateAmphibiousUnitImageBase(UnitInfo* unit, Point position);
-static void GameManager_QuickBuildMenuDrawPortraits(WindowInfo* window, const std::vector<ResourceID>& valid_units,
-                                                    int32_t start_index, int32_t width);
-static void GameManager_QuickBuildMenu();
 
 void GameManager_TeamTurnTurnBased(int32_t& game_state) {
     bool enable_autosave;
@@ -737,7 +698,7 @@ void GameManager_DeployUnit(uint16_t team, ResourceID unit_type, int32_t grid_x,
 
     flags = unit->flags;
 
-    GameManager_UpdateAmphibiousUnitImageBase(&*unit, Point(grid_x, grid_y));
+    QuickBuild_UpdateAmphibiousUnitImageBase(&*unit, Point(grid_x, grid_y));
 
     if ((flags & REQUIRES_SLAB) && Access_IsAnyLandPresent(grid_x, grid_y, flags)) {
         if (flags & BUILDING) {
@@ -2594,7 +2555,7 @@ bool GameManager_ProcessPopupMenuInput(int32_t key) {
         UnitsManager_TeamInfo[GameManager_SelectedUnit->team].team_type != TEAM_TYPE_PLAYER ||
         (GameManager_GameState == GAME_STATE_9_END_TURN && GameManager_PlayMode != PLAY_MODE_SIMULTANEOUS_MOVES) ||
         UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type != TEAM_TYPE_PLAYER ||
-        GameManager_GameState == GAME_STATE_7_SITE_SELECT || GameManager_QuickBuildMenuActive) {
+        GameManager_GameState == GAME_STATE_7_SITE_SELECT || QuickBuild_MenuActive) {
         return false;
     }
 
@@ -2995,7 +2956,7 @@ void GameManager_InitUnitsAndGameState() {
     GameManager_MaxSurvey = false;
     GameManager_MaxSpy = false;
 
-    GameManager_QuickBuildMenuActive = false;
+    QuickBuild_MenuActive = false;
 
     GameManager_AllVisible = ResourceManager_GetSettings()->GetNumericValue("all_visible");
     GameManager_RealTime = ResourceManager_GetSettings()->GetNumericValue("real_time");
@@ -3905,9 +3866,9 @@ void GameManager_MenuClickPreferencesButton() {
 }
 
 void GameManager_MenuClickFileButton(bool is_saving_allowed) {
-    if (GameManager_QuickBuildMenuActive) {
-        UnitsManager_DestroyUnit(&*GameManager_QuickBuilderUnit, false);
-        GameManager_QuickBuildMenuActive = false;
+    if (QuickBuild_MenuActive) {
+        UnitsManager_DestroyUnit(&*QuickBuild_PreviewUnit, false);
+        QuickBuild_MenuActive = false;
     }
 
     GameManager_DeinitPopupButtons(false);
@@ -4216,7 +4177,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
         return result;
     }
 
-    if (GameManager_QuickBuildMenuActive) {
+    if (QuickBuild_MenuActive) {
         return CURSOR_HAND;
     }
 
@@ -5318,7 +5279,7 @@ void GameManager_ProcessKey() {
             if (MessageManager_MessageBox_IsActive) {
                 key = GNW_KB_KEY_ESCAPE;
 
-            } else if (!GameManager_QuickBuildMenuActive && !GameManager_Progress1) {
+            } else if (!QuickBuild_MenuActive && !GameManager_Progress1) {
                 key = 1003;
             }
         }
@@ -5368,12 +5329,12 @@ void GameManager_ProcessKey() {
             if (GameManager_GameState == GAME_STATE_7_SITE_SELECT) {
                 GameManager_GameState = GAME_STATE_14_EXIT_SITE_SELECT;
 
-            } else if (GameManager_QuickBuildMenuActive) {
+            } else if (QuickBuild_MenuActive) {
 #if !defined(NDEBUG)
-                UnitsManager_DestroyUnit(GameManager_QuickBuilderUnit.Get(), false);
-                GameManager_QuickBuildMenuActive = false;
+                UnitsManager_DestroyUnit(QuickBuild_PreviewUnit.Get(), false);
+                QuickBuild_MenuActive = false;
 
-                GameManager_QuickBuildMenu();
+                QuickBuild_Menu();
 #endif /* !defined(NDEBUG) */
             } else if (GameManager_Progress1) {
                 GameManager_Progress1 = false;
@@ -5466,12 +5427,12 @@ void GameManager_ProcessKey() {
             if (GameManager_IsMainMenuEnabled) {
                 GameManager_DeinitPopupButtons(false);
 
-                if (GameManager_QuickBuildMenuActive) {
-                    UnitsManager_DestroyUnit(GameManager_QuickBuilderUnit.Get(), false);
-                    GameManager_QuickBuildMenuActive = false;
+                if (QuickBuild_MenuActive) {
+                    UnitsManager_DestroyUnit(QuickBuild_PreviewUnit.Get(), false);
+                    QuickBuild_MenuActive = false;
                 }
 
-                GameManager_QuickBuildMenu();
+                QuickBuild_Menu();
             }
 #endif /* !defined(NDEBUG) */
         } break;
@@ -6460,10 +6421,10 @@ void GameManager_ProcessInput() {
                 GameManager_IsActiveMapPositionDisplay = false;
             }
 
-            if (GameManager_QuickBuildMenuActive) {
-                UnitsManager_MoveUnit(&*GameManager_QuickBuilderUnit, GameManager_MousePosition.x,
+            if (QuickBuild_MenuActive) {
+                UnitsManager_MoveUnit(&*QuickBuild_PreviewUnit, GameManager_MousePosition.x,
                                       GameManager_MousePosition.y);
-                GameManager_UpdateAmphibiousUnitImageBase(&*GameManager_QuickBuilderUnit, GameManager_MousePosition);
+                QuickBuild_UpdateAmphibiousUnitImageBase(&*QuickBuild_PreviewUnit, GameManager_MousePosition);
             }
 
             GameManager_LastMousePosition.x = GameManager_MousePosition.x;
@@ -6592,7 +6553,7 @@ void GameManager_ProcessInput() {
                     if (GameManager_MousePosition.x < ResourceManager_MapSize.x &&
                         GameManager_MousePosition.y < ResourceManager_MapSize.y) {
                         // Don't play sound yet if QuickBuild is active - sound will be played based on success/failure
-                        if (!GameManager_QuickBuildMenuActive) {
+                        if (!QuickBuild_MenuActive) {
                             ResourceManager_GetSoundManager().PlaySfx(KCARG0);
                         }
 
@@ -6620,40 +6581,9 @@ void GameManager_ProcessInput() {
                                 Access_GetTeamUnit(GameManager_MousePosition.x, GameManager_MousePosition.y,
                                                    GameManager_PlayerTeam, SELECTABLE);
 
-                            if (GameManager_QuickBuildMenuActive) {
-                                if (GameManager_MouseButtons & MOUSE_RELEASE_RIGHT) {
-                                    if (!unit) {
-                                        unit = Access_GetQuickBuilderUnit(GameManager_MousePosition.x,
-                                                                          GameManager_MousePosition.y);
-                                    }
-
-                                    if (unit) {
-                                        UnitsManager_SetNewOrder(unit, ORDER_BUILD, ORDER_STATE_BUILD_CLEARING);
-
-                                        if (GameManager_QuickBuilderUnit) {
-                                            GameManager_QuickBuilderUnit->RefreshScreen();
-                                        }
-                                    }
-
-                                } else {
-                                    if (GameManager_IsQuickBuildPlacementValid(&*GameManager_QuickBuilderUnit,
-                                                                               GameManager_MousePosition.x,
-                                                                               GameManager_MousePosition.y)) {
-                                        ResourceManager_GetSoundManager().PlaySfx(KCARG0);
-
-                                        if (Remote_IsNetworkGame) {
-                                            Remote_SendNetPacket_14(
-                                                GameManager_PlayerTeam, GameManager_QuickBuildUnitId,
-                                                GameManager_MousePosition.x, GameManager_MousePosition.y);
-                                        }
-
-                                        GameManager_DeployUnit(GameManager_PlayerTeam, GameManager_QuickBuildUnitId,
-                                                               GameManager_MousePosition.x,
-                                                               GameManager_MousePosition.y);
-                                    } else {
-                                        ResourceManager_GetSoundManager().PlaySfx(NCANC0);
-                                    }
-                                }
+                            if (QuickBuild_MenuActive) {
+                                QuickBuild_ProcessClick(unit, GameManager_MousePosition, GameManager_MouseButtons,
+                                                        GameManager_PlayerTeam);
 
                             } else {
                                 UnitInfo* unit2 =
@@ -8153,302 +8083,6 @@ Point GameManager_GetMinimapPosition() {
     }
 
     return minimap_position;
-}
-
-bool GameManager_IsQuickBuildUnitValid(ResourceID unit_type) {
-    if (unit_type >= UNIT_END) {
-        return false;
-    }
-
-    if ((ResourceManager_GetUnit(unit_type).GetFlags() & (MISSILE_UNIT | EXPLODING)) || unit_type == LRGSLAB ||
-        unit_type == SMLSLAB || unit_type == LRGCONES || unit_type == SMLCONES || unit_type == LRGTAPE ||
-        unit_type == SMLTAPE) {
-        return false;
-    }
-
-    return true;
-}
-
-bool GameManager_IsQuickBuildPlacementValid(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
-    ResourceID unit_type{unit->GetUnitType()};
-    SmartPointer<UnitInfo> parent{unit->GetParent()};
-    const uint32_t unit_flags{ResourceManager_GetUnit(unit->GetUnitType()).GetFlags()};
-    uint32_t result;
-
-    Hash_MapHash.Remove(unit);
-
-    if (parent != nullptr) {
-        Hash_MapHash.Remove(parent.Get());
-        unit_type = parent->GetConstructedUnitType();
-    }
-
-    if (unit_flags & BUILDING) {
-        if (grid_x >= 0 && grid_y >= 0 && grid_x <= ResourceManager_MapSize.x - 2 &&
-            grid_y <= ResourceManager_MapSize.y - 2) {
-            result = Access_IsAccessible(unit_type, unit->team, grid_x, grid_y,
-                                         AccessModifier_IgnoreVisibility | AccessModifier_SameClassBlocks) &&
-                     Access_IsAccessible(unit_type, unit->team, grid_x + 1, grid_y,
-                                         AccessModifier_IgnoreVisibility | AccessModifier_SameClassBlocks) &&
-                     Access_IsAccessible(unit_type, unit->team, grid_x, grid_y + 1,
-                                         AccessModifier_IgnoreVisibility | AccessModifier_SameClassBlocks) &&
-                     Access_IsAccessible(unit_type, unit->team, grid_x + 1, grid_y + 1,
-                                         AccessModifier_IgnoreVisibility | AccessModifier_SameClassBlocks);
-        } else {
-            result = 0;
-        }
-
-    } else {
-        if (Access_GetModifiedSurfaceType(grid_x, grid_y) == SURFACE_TYPE_AIR) {
-            result = 0;
-
-        } else {
-            result = Access_IsAccessible(unit_type, unit->team, grid_x, grid_y,
-                                         AccessModifier_IgnoreVisibility | AccessModifier_SameClassBlocks);
-
-            // Do not allow placement of landed aircraft on any unit except landing pads
-            if (result && (unit_flags & MOBILE_AIR_UNIT) && !(unit->flags & HOVERING)) {
-                const auto units = Hash_MapHash[Point(grid_x, grid_y)];
-
-                if (units) {
-                    bool landing_pad_present = false;
-
-                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-                        if ((*it).GetOrder() != ORDER_IDLE || ((*it).flags & STATIONARY)) {
-                            if ((*it).GetUnitType() == LANDPAD) {
-                                landing_pad_present = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!landing_pad_present) {
-                        result = 0;
-                    }
-                }
-            }
-        }
-    }
-
-    Hash_MapHash.Add(unit);
-
-    if (parent != nullptr) {
-        Hash_MapHash.Add(parent.Get());
-    }
-
-    return result;
-}
-
-void GameManager_UpdateAmphibiousUnitImageBase(UnitInfo* unit, Point position) {
-    if ((unit->flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
-        int32_t surface_type = Access_GetModifiedSurfaceType(position.x, position.y);
-        int32_t image_base;
-
-        if (unit->GetUnitType() == CLNTRANS) {
-            image_base = (surface_type == SURFACE_TYPE_WATER) ? 0 : 8;
-
-        } else {
-            image_base = (surface_type == SURFACE_TYPE_WATER) ? 8 : 0;
-        }
-
-        if (image_base != unit->image_base) {
-            if (unit->GetUnitType() == CLNTRANS) {
-                unit->firing_image_base = image_base;
-
-            } else {
-                unit->firing_image_base = image_base + 16;
-            }
-
-            unit->UpdateSpriteFrame(image_base, unit->image_index_max);
-        }
-    }
-}
-
-void GameManager_QuickBuildMenuDrawPortraits(WindowInfo* window, const std::vector<ResourceID>& valid_units,
-                                             int32_t start_index, int32_t width) {
-    for (int32_t i = 0; i < MENU_QUICK_BUILD_UNIT_SLOTS; ++i) {
-        const int32_t unit_index{start_index + i};
-        Rect bounds;
-
-        bounds.ulx = GameManager_QuickBuildMenuItems[i].ulx;
-        bounds.uly = GameManager_QuickBuildMenuItems[i].uly;
-        bounds.lrx = bounds.ulx + GameManager_QuickBuildMenuItems[i].width;
-        bounds.lry = bounds.uly + GameManager_QuickBuildMenuItems[i].height;
-
-        if (unit_index >= static_cast<int32_t>(valid_units.size())) {
-            win_print(window->id, " ", GameManager_QuickBuildMenuItems[i].width, bounds.ulx, bounds.lry,
-                      0x20 | GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_ALLOW_TRUNCATED);
-            win_disable_button(GameManager_QuickBuildMenuItems[i].bid);
-            buf_fill(&window->buffer[bounds.uly * width + bounds.ulx], GameManager_QuickBuildMenuItems[i].width,
-                     GameManager_QuickBuildMenuItems[i].height, width, COLOR_BLACK);
-
-        } else {
-            const Unit& base_unit{ResourceManager_GetUnit(valid_units[unit_index])};
-
-            win_print(window->id, base_unit.GetSingularName().data(), GameManager_QuickBuildMenuItems[i].width,
-                      bounds.ulx, bounds.lry, 0x20 | GNW_TEXT_REFRESH_WINDOW | GNW_TEXT_ALLOW_TRUNCATED);
-            flicsmgr_construct(base_unit.GetFlicsAnimation(), window, width, bounds.ulx, bounds.uly, false, false);
-            win_enable_button(GameManager_QuickBuildMenuItems[i].bid);
-        }
-
-        win_draw_rect(window->id, &bounds);
-    }
-}
-
-void GameManager_QuickBuildMenu() {
-    auto main_map_window{WindowManager_GetWindow(WINDOW_MAIN_MAP)};
-    auto window{WindowManager_GetWindow(WINDOW_POPUP_BUTTONS)};
-    constexpr uint16_t window_width{416};
-    constexpr uint16_t window_height{345};
-
-    // Build filtered list of valid unit types
-    std::vector<ResourceID> valid_units;
-    valid_units.reserve(UNIT_END - UNIT_START);
-
-    for (int32_t i = UNIT_START; i < UNIT_END; ++i) {
-        if (GameManager_IsQuickBuildUnitValid(static_cast<ResourceID>(i))) {
-            valid_units.push_back(static_cast<ResourceID>(i));
-        }
-    }
-
-    if (valid_units.empty()) {
-        return;
-    }
-
-    window->id = win_add(main_map_window->window.ulx + 20, main_map_window->window.uly + 20, window_width,
-                         window_height, COLOR_BLACK, WINDOW_NO_FLAGS);
-    window->buffer = win_get_buf(window->id);
-
-    if (WindowManager_LoadBigImage(QWKBUILD, window, window_width, false)) {
-        GameManager_FillOrRestoreWindow(WINDOW_CORNER_FLIC, COLOR_BLACK, true);
-        GameManager_FillOrRestoreWindow(WINDOW_STAT_WINDOW, COLOR_BLACK, true);
-
-        Cursor_SetCursor(CURSOR_HAND);
-
-        for (auto& item : GameManager_QuickBuildMenuItems) {
-            auto image_off = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(item.id1));
-            auto image_on = reinterpret_cast<struct ImageSimpleHeader*>(ResourceManager_LoadResource(item.id2));
-            uint8_t* up;
-            uint8_t* down;
-
-            if (image_off != nullptr) {
-                up = &image_off->transparent_color;
-
-            } else {
-                up = nullptr;
-            }
-
-            if (image_on != nullptr) {
-                down = &image_on->transparent_color;
-
-            } else {
-                down = nullptr;
-            }
-
-            item.bid = win_register_button(window->id, item.ulx, item.uly, item.width, item.height, -1, -1, -1,
-                                           item.r_value, up, down, nullptr, item.flags);
-        }
-
-        // Find current page index based on GameManager_QuickBuildMenuUnitId
-        int32_t current_page_index{0};
-
-        for (size_t i = 0; i < valid_units.size(); ++i) {
-            if (valid_units[i] >= GameManager_QuickBuildMenuUnitId) {
-                current_page_index =
-                    (static_cast<int32_t>(i) / MENU_QUICK_BUILD_UNIT_SLOTS) * MENU_QUICK_BUILD_UNIT_SLOTS;
-                break;
-            }
-        }
-
-        GameManager_QuickBuildMenuDrawPortraits(window, valid_units, current_page_index, window_width);
-
-        int32_t key;
-
-        do {
-            key = get_input();
-
-            if (GameManager_RequestMenuExit) {
-                key = 1000;
-            }
-
-            switch (key) {
-                case GNW_KB_KEY_ESCAPE: {
-                    key = 1000;
-
-                    GameManager_QuickBuildMenuActive = false;
-
-                    GameManager_MenuUnitSelect(nullptr);
-                } break;
-
-                case 1000: {
-                    GameManager_QuickBuildMenuActive = false;
-
-                    GameManager_MenuUnitSelect(nullptr);
-                } break;
-
-                case 1001: {
-                    // Page up
-                    if (current_page_index - MENU_QUICK_BUILD_UNIT_SLOTS >= 0) {
-                        current_page_index -= MENU_QUICK_BUILD_UNIT_SLOTS;
-
-                        GameManager_QuickBuildMenuDrawPortraits(window, valid_units, current_page_index, window_width);
-                    }
-                } break;
-
-                case 1002: {
-                    // Page down
-                    if (current_page_index + MENU_QUICK_BUILD_UNIT_SLOTS < static_cast<int32_t>(valid_units.size())) {
-                        current_page_index += MENU_QUICK_BUILD_UNIT_SLOTS;
-
-                        GameManager_QuickBuildMenuDrawPortraits(window, valid_units, current_page_index, window_width);
-                    }
-                } break;
-
-                case 1003:
-                case 1004:
-                case 1005:
-                case 1006:
-                case 1007:
-                case 1008: {
-                    const int32_t selected_index{current_page_index + key - 1003};
-
-                    if (selected_index < static_cast<int32_t>(valid_units.size())) {
-                        GameManager_QuickBuildUnitId = valid_units[selected_index];
-                        GameManager_QuickBuildMenuUnitId = GameManager_QuickBuildUnitId;
-                        GameManager_QuickBuildMenuActive = true;
-
-                        const Unit& base_unit{ResourceManager_GetUnit(GameManager_QuickBuildUnitId)};
-                        auto portrait_window{WindowManager_GetWindow(WINDOW_CORNER_FLIC)};
-                        auto main_window{WindowManager_GetWindow(WINDOW_MAIN_WINDOW)};
-
-                        flicsmgr_construct(base_unit.GetFlicsAnimation(), main_window, main_window->width,
-                                           portrait_window->window.ulx, portrait_window->window.uly, false, false);
-
-                        GameManager_QuickBuilderUnit =
-                            UnitsManager_SpawnUnit(GameManager_QuickBuildUnitId, GameManager_PlayerTeam, 0, 0, nullptr);
-
-                        // Set ORDER_IDLE so AI systems ignore this preview unit (it should not be attacked, cause enemy
-                        // reactions, or fire on enemies until actually deployed). The renderer has special handling to
-                        // allow QuickBuild preview units (GameManager_QuickBuilderUnit) despite ORDER_IDLE.
-                        GameManager_QuickBuilderUnit->SetOrder(ORDER_IDLE);
-
-                        GameManager_UpdateAmphibiousUnitImageBase(&*GameManager_QuickBuilderUnit,
-                                                                  GameManager_MousePosition);
-
-                        key = 1000;
-                    }
-                } break;
-            }
-
-            GameManager_ProcessState(true);
-
-        } while (key != 1000);
-
-        for (auto& item : GameManager_QuickBuildMenuItems) {
-            win_delete_button(item.bid);
-        }
-    }
-
-    win_delete(window->id);
 }
 
 bool GameManager_IsActiveTurn(uint16_t team) {

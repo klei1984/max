@@ -30,6 +30,7 @@
 #include "hash.hpp"
 #include "heatmap.hpp"
 #include "paths_manager.hpp"
+#include "quickbuild.hpp"
 #include "remote.hpp"
 #include "resource_manager.hpp"
 #include "settings.hpp"
@@ -1482,57 +1483,6 @@ bool Access_IsHeldByUnit(UnitInfo* unit, SmartList<UnitInfo>* list, SmartList<Un
     }
 
     return *it != list->End();
-}
-
-UnitInfo* Access_GetQuickBuilderUnit(int32_t grid_x, int32_t grid_y) {
-    UnitInfo* unit;
-
-    unit = nullptr;
-
-    if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
-        const auto units = Hash_MapHash[Point(grid_x, grid_y)];
-
-        if (units) {
-            // Check for alien units
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-                // Skip the quick builder preview unit that follows the mouse cursor
-                if (it->Get() == GameManager_QuickBuilderUnit.Get()) {
-                    continue;
-                }
-
-                const auto unit_type = (*it).GetUnitType();
-
-                if ((*it).team == PLAYER_TEAM_ALIEN) {
-                    unit = it->Get();
-                    break;
-                }
-
-                if (unit_type == SHIELDGN || unit_type == SUPRTPLT || unit_type == RECCENTR || unit_type == ALNTANK ||
-                    unit_type == ALNASGUN || unit_type == ALNPLANE) {
-                    unit = it->Get();
-                    break;
-                }
-            }
-
-            if (!unit) {
-                // If no neutral units found, try ground cover units
-                for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-                    // Skip the quick builder preview unit that follows the mouse cursor
-                    if (it->Get() == GameManager_QuickBuilderUnit.Get()) {
-                        continue;
-                    }
-
-                    if (((*it).flags & GROUND_COVER) || (*it).GetUnitType() == HARVSTER ||
-                        (*it).GetUnitType() == WALDO) {
-                        unit = it->Get();
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    return unit;
 }
 
 UnitInfo* Access_GetActiveUnitWithFlags(int32_t grid_x, int32_t grid_y, uint32_t flags) {

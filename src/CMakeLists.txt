@@ -153,6 +153,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/transportorder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/maxfloodfill.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/pathfill.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/quickbuild.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/sitemarker.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/continentfiller.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/continent.cpp	

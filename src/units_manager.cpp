@@ -37,6 +37,7 @@
 #include "message_manager.hpp"
 #include "paths_manager.hpp"
 #include "production_manager.hpp"
+#include "quickbuild.hpp"
 #include "randomizer.hpp"
 #include "remote.hpp"
 #include "repairshopmenu.hpp"
@@ -2255,8 +2256,7 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t te
         ++team_info->unit_counters[unit_type];
     }
 
-    if (GameManager_GameState != GAME_STATE_12_DEPLOYING_UNITS && !GameManager_QuickBuildMenuActive &&
-        !is_existing_unit) {
+    if (GameManager_GameState != GAME_STATE_12_DEPLOYING_UNITS && !QuickBuild_MenuActive && !is_existing_unit) {
         unit->storage = 0;
     }
 
