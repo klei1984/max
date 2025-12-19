@@ -3228,6 +3228,10 @@ bool UnitInfo::AttemptSideStep(int32_t grid_x, int32_t grid_y, int32_t angle) {
                 int32_t best_cost{0};
                 int32_t unit_angle{8};
                 int32_t best_angle{0};
+                bool best_is_water{false};
+
+                // CLNTRANS needs to stay on water tiles to remain hidden (underwater/stealth mode)
+                const bool is_clntrans{unit_type == CLNTRANS};
 
                 for (int32_t direction = 0; direction < 8; ++direction) {
                     for (int32_t scan_range = 0; scan_range < 2; ++scan_range) {
@@ -3251,9 +3255,47 @@ bool UnitInfo::AttemptSideStep(int32_t grid_x, int32_t grid_y, int32_t angle) {
                             if (step_cost) {
                                 if ((step_cost <= speed * 4 + move_fraction) ||
                                     UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
-                                    best_angle = unit_angle;
-                                    best_cost = step_cost;
-                                    best_site = position;
+                                    // For CLNTRANS, check if candidate position keeps unit underwater (on water)
+                                    bool candidate_is_water{false};
+
+                                    if (is_clntrans) {
+                                        const uint8_t candidate_surface_type{
+                                            Access_GetModifiedSurfaceType(position.x, position.y)};
+                                        candidate_is_water = (candidate_surface_type == SURFACE_TYPE_WATER);
+                                    }
+
+                                    // Determine if this candidate is better than the current best
+                                    bool is_better{false};
+
+                                    if (is_clntrans) {
+                                        // For CLNTRANS, prioritize staying underwater to remain hidden
+                                        if (candidate_is_water && !best_is_water) {
+                                            // Water tile beats non-water tile (stay hidden)
+                                            is_better = true;
+
+                                        } else if (candidate_is_water == best_is_water) {
+                                            // Both water or both non-water: use original logic (turning angle, then
+                                            // cost)
+                                            if (unit_angle > best_angle) {
+                                                is_better = true;
+
+                                            } else if (unit_angle == best_angle && step_cost < best_cost) {
+                                                is_better = true;
+                                            }
+                                        }
+                                        // If candidate is non-water but best is water, don't replace
+
+                                    } else {
+                                        // For other stealth units (SUBMARNE, COMMANDO), use original logic
+                                        is_better = (unit_angle > best_angle);
+                                    }
+
+                                    if (is_better) {
+                                        best_angle = unit_angle;
+                                        best_cost = step_cost;
+                                        best_site = position;
+                                        best_is_water = candidate_is_water;
+                                    }
                                 }
                             }
                         }
