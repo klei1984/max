@@ -2102,11 +2102,51 @@ void UnitsManager_UpdateConnectors(UnitInfo* unit) {
     }
 }
 
-void UnitsManager_DestroyUnit(UnitInfo* unit) {
+void UnitsManager_DestroyUnit(UnitInfo* unit, bool count_casualty) {
     SmartPointer<UnitInfo> unit_to_destroy(unit);
 
     AILOG(log, "{} at [{},{}] destroyed.", ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(),
           unit->grid_x + 1, unit->grid_y + 1);
+
+    // Count casualties for this unit and any units it's holding
+    if (count_casualty && unit->GetId() != 0xFFFF && !(unit->flags & (EXPLODING | MISSILE_UNIT)) &&
+        (unit->flags & SELECTABLE)) {
+        const ResourceID unit_type = unit->GetUnitType();
+
+        // Count casualties for units held by transports
+        if (unit_type == HANGAR || unit_type == AIRPLT || unit_type == SEATRANS || unit_type == AIRTRANS ||
+            unit_type == CLNTRANS) {
+            SmartList<UnitInfo>* units;
+
+            if (unit_type == HANGAR || unit_type == AIRPLT) {
+                units = &UnitsManager_MobileAirUnits;
+
+            } else {
+                units = &UnitsManager_MobileLandSeaUnits;
+            }
+
+            for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+                if ((*it).GetOrder() == ORDER_IDLE && (*it).GetParent() == unit) {
+                    const ResourceID held_unit_type = (*it).GetUnitType();
+
+                    ++UnitsManager_TeamInfo[(*it).team].casualties[held_unit_type];
+
+                    // Recursively count casualties for nested transports
+                    if (held_unit_type == SEATRANS || held_unit_type == AIRTRANS || held_unit_type == CLNTRANS) {
+                        for (SmartList<UnitInfo>::Iterator it2 = UnitsManager_MobileLandSeaUnits.Begin();
+                             it2 != UnitsManager_MobileLandSeaUnits.End(); ++it2) {
+                            if ((*it2).GetOrder() == ORDER_IDLE && (*it2).GetParent() == &*it) {
+                                ++UnitsManager_TeamInfo[(*it2).team].casualties[(*it2).GetUnitType()];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Count casualty for the unit itself
+        ++UnitsManager_TeamInfo[unit->team].casualties[unit_type];
+    }
 
     ResourceManager_GetPathsManager().RemoveRequest(unit);
 
@@ -2771,7 +2811,6 @@ void UnitsManager_ProcessOrderExplode(UnitInfo* unit) {
 
         case ORDER_STATE_EXPLODE: {
             unit->hits = 0;
-            ++UnitsManager_TeamInfo[unit->team].casualties[unit->GetUnitType()];
 
             unit->CheckIfDestroyed();
 
@@ -3461,6 +3500,16 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
 
     if ((unit_flags & (MOBILE_AIR_UNIT | MOBILE_LAND_UNIT | STATIONARY)) && !(unit->flags & HOVERING)) {
         Access_DestroyGroundCovers(unit);
+
+        if (unit->flags & BUILDING) {
+            Access_ValidateUnitsOnTerrain(unit_grid_x, unit_grid_y, unit);
+            Access_ValidateUnitsOnTerrain(unit_grid_x + 1, unit_grid_y, unit);
+            Access_ValidateUnitsOnTerrain(unit_grid_x, unit_grid_y + 1, unit);
+            Access_ValidateUnitsOnTerrain(unit_grid_x + 1, unit_grid_y + 1, unit);
+
+        } else {
+            Access_ValidateUnitsOnTerrain(unit_grid_x, unit_grid_y, unit);
+        }
     }
 
     if (unit_type == LANDMINE || unit_type == SEAMINE) {
@@ -3494,11 +3543,8 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
             for (SmartList<UnitInfo>::Iterator it2 = UnitsManager_MobileLandSeaUnits.Begin();
                  Access_IsHeldByUnit(it->Get(), &UnitsManager_MobileLandSeaUnits, &it2);
                  UnitsManager_DestroyUnit(it2->Get())) {
-                ++UnitsManager_TeamInfo[(*it2).team].casualties[(*it2).GetUnitType()];
             }
         }
-
-        ++UnitsManager_TeamInfo[(*it).team].casualties[(*it).GetUnitType()];
     }
 
     UnitsManager_DestroyUnit(unit);

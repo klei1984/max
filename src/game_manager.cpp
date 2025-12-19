@@ -3504,7 +3504,7 @@ void GameManager_SelectBuildSite(UnitInfo* unit) {
 
         SDL_assert(GameManager_TempTape != nullptr);
 
-        UnitsManager_DestroyUnit(&*GameManager_TempTape);
+        UnitsManager_DestroyUnit(&*GameManager_TempTape, false);
         GameManager_TempTape = nullptr;
 
         unit->GetBuildList().Clear();
@@ -3903,7 +3903,7 @@ void GameManager_MenuClickPreferencesButton() {
 
 void GameManager_MenuClickFileButton(bool is_saving_allowed) {
     if (GameManager_QuickBuildMenuActive) {
-        UnitsManager_DestroyUnit(&*GameManager_QuickBuilderUnit);
+        UnitsManager_DestroyUnit(&*GameManager_QuickBuilderUnit, false);
         GameManager_QuickBuildMenuActive = false;
     }
 
@@ -4528,7 +4528,7 @@ void GameManager_PathBuild(UnitInfo* unit) {
     unit->move_to_grid_x = GameManager_TempTape->grid_x;
     unit->move_to_grid_y = GameManager_TempTape->grid_y;
 
-    UnitsManager_DestroyUnit(&*GameManager_TempTape);
+    UnitsManager_DestroyUnit(&*GameManager_TempTape, false);
     GameManager_TempTape = nullptr;
 
     unit->path = nullptr;
@@ -5367,7 +5367,7 @@ void GameManager_ProcessKey() {
 
             } else if (GameManager_QuickBuildMenuActive) {
 #if !defined(NDEBUG)
-                UnitsManager_DestroyUnit(GameManager_QuickBuilderUnit.Get());
+                UnitsManager_DestroyUnit(GameManager_QuickBuilderUnit.Get(), false);
                 GameManager_QuickBuildMenuActive = false;
 
                 GameManager_QuickBuildMenu();
@@ -5464,7 +5464,7 @@ void GameManager_ProcessKey() {
                 GameManager_DeinitPopupButtons(false);
 
                 if (GameManager_QuickBuildMenuActive) {
-                    UnitsManager_DestroyUnit(GameManager_QuickBuilderUnit.Get());
+                    UnitsManager_DestroyUnit(GameManager_QuickBuilderUnit.Get(), false);
                     GameManager_QuickBuildMenuActive = false;
                 }
 

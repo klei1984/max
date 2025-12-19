@@ -1563,10 +1563,6 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int32_t attack_potential, int32_t dir
         }
 
         if (hits == 0) {
-            if (flags & SELECTABLE) {
-                ++UnitsManager_TeamInfo[team].casualties[unit_type];
-            }
-
             UnitsManager_DelayedAttackTargets[team].Remove(*this);
             UnitsManager_PendingAttacks.Remove(*this);
 

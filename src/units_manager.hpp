@@ -80,7 +80,7 @@ void UnitsManager_SetInitialMining(UnitInfo* unit, int32_t grid_x, int32_t grid_
 void UnitsManager_StartBuild(UnitInfo* unit);
 bool UnitsManager_IsUnitUnderWater(UnitInfo* unit);
 void UnitsManager_UpdateConnectors(UnitInfo* unit);
-void UnitsManager_DestroyUnit(UnitInfo* unit);
+void UnitsManager_DestroyUnit(UnitInfo* unit, bool count_casualty = true);
 SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t team, Complex* complex, int32_t grid_x,
                                                int32_t grid_y, uint8_t unit_angle, bool is_existing_unit = false,
                                                bool skip_map_status_update = false);

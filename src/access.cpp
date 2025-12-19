@@ -978,6 +978,53 @@ uint8_t Access_GetModifiedSurfaceType(const int32_t grid_x, const int32_t grid_y
     return surface_type;
 }
 
+uint8_t Access_GetModifiedSurfaceTypeExcludingUnit(const int32_t grid_x, const int32_t grid_y,
+                                                   const UnitInfo* exclude_unit, const bool mode) {
+    uint8_t surface_type = Access_GetSurfaceType(grid_x, grid_y);
+
+    if (surface_type == SURFACE_TYPE_WATER || surface_type == SURFACE_TYPE_COAST) {
+        const auto units = Hash_MapHash[Point(grid_x, grid_y)];
+
+        if (units) {
+            // The end node must be cached in case Hash_MapHash.Remove() deletes the list
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                // Skip the unit being destroyed
+                if (&*it == exclude_unit) {
+                    continue;
+                }
+
+                // Skip units that have already been destroyed
+                if ((*it).hits == 0) {
+                    continue;
+                }
+
+                const auto unit_type = (*it).GetUnitType();
+
+                if (mode) {
+                    // For sea units a bridge covered grid cell shall be reported as water surface
+                    if (unit_type == WTRPLTFM) {
+                        surface_type = SURFACE_TYPE_LAND;
+                        break;
+
+                    } else if (unit_type == BRIDGE) {
+                        break;
+                    }
+
+                } else {
+                    // For land units both a water platform and a bridge covered grid cell shall be reported as land
+                    // surface
+                    if (unit_type == WTRPLTFM || unit_type == BRIDGE) {
+                        surface_type = SURFACE_TYPE_LAND;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return surface_type;
+}
+
 bool Access_IsAnyLandPresent(int32_t grid_x, int32_t grid_y, uint32_t flags) {
     bool result;
 
@@ -1657,6 +1704,65 @@ void Access_DestroyGroundCovers(UnitInfo* unit) {
                         } break;
                     }
                 }
+            }
+        }
+    }
+}
+
+void Access_ValidateUnitsOnTerrain(int32_t grid_x, int32_t grid_y, const UnitInfo* destroyed_unit) {
+    const auto units = Hash_MapHash[Point(grid_x, grid_y)];
+
+    if (units) {
+        bool has_landing_pad = false;
+
+        // Check if there's an active landing pad at this position (excluding destroyed units)
+        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            if ((*it).hits > 0 && &*it != destroyed_unit && (*it).GetUnitType() == LANDPAD) {
+                has_landing_pad = true;
+                break;
+            }
+        }
+
+        // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            UnitInfo* const unit = it->Get();
+
+            // Skip the unit being destroyed itself
+            if (unit == destroyed_unit) {
+                continue;
+            }
+
+            // Skip units already destroyed (hits == 0)
+            if (unit->hits == 0) {
+                continue;
+            }
+
+            // Skip terrain-modifying ground cover units (but not mines)
+            const ResourceID unit_type = unit->GetUnitType();
+            if (unit_type == ROAD || unit_type == BRIDGE || unit_type == WTRPLTFM || unit_type == LANDPAD) {
+                continue;
+            }
+
+            // Flying aircraft can be over any terrain
+            if ((unit->flags & MOBILE_AIR_UNIT) && (unit->flags & HOVERING)) {
+                continue;
+            }
+
+            // Landed aircraft require a landing pad - destroy if no landing pad present
+            if ((unit->flags & MOBILE_AIR_UNIT) && !(unit->flags & HOVERING) && !has_landing_pad) {
+                UnitsManager_DestroyUnit(unit);
+                continue;
+            }
+
+            // Determine the appropriate mode for surface type calculation based on unit type
+            const bool mode = (unit->flags & MOBILE_SEA_UNIT) && !(unit->flags & MOBILE_LAND_UNIT);
+            const uint8_t surface_type =
+                Access_GetModifiedSurfaceTypeExcludingUnit(grid_x, grid_y, destroyed_unit, mode);
+            const uint8_t unit_land_type = ResourceManager_GetUnit(unit_type).GetLandType();
+
+            // Check if unit's land type is compatible with surface type
+            if (!(unit_land_type & surface_type)) {
+                UnitsManager_DestroyUnit(unit);
             }
         }
     }
