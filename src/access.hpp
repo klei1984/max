@@ -30,8 +30,8 @@ bool Access_SetUnitDestination(int32_t grid_x, int32_t grid_y, int32_t target_gr
 uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x, int32_t grid_y, uint32_t flags);
 bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo* unit, int16_t* grid_x, int16_t* grid_y,
                                  int32_t range_limit, int32_t mode, int32_t direction);
-void Access_InitUnitStealthStatus(SmartList<UnitInfo>& units);
-void Access_InitStealthMaps();
+void Access_InitUnitStealthStatus(SmartList<UnitInfo>& units, bool reset_visibility = true);
+void Access_InitStealthMaps(bool reset_visibility = true);
 bool Access_IsSurveyorOverlayActive(UnitInfo* unit);
 bool Access_IsWithinScanRange(UnitInfo* unit, int32_t grid_x, int32_t grid_y, int32_t scan_range);
 int32_t Access_GetSquaredDistance(int32_t grid_x, int32_t grid_y);
@@ -52,7 +52,7 @@ void Access_DrawUnit(UnitInfo* unit);
 uint32_t Access_GetTargetClass(UnitInfo* unit);
 void Access_UpdateMapStatus(UnitInfo* unit, bool mode);
 void Access_UpdateUnitVisibilityStatus(SmartList<UnitInfo>& units);
-void Access_UpdateVisibilityStatus(bool all_visible);
+void Access_UpdateVisibilityStatus(bool all_visible, bool reset_visibility = true);
 void Access_UpdateMinimapFogOfWar(uint16_t team, bool all_visible, bool ignore_team_scan_map = false);
 uint8_t Access_GetSurfaceType(int32_t grid_x, int32_t grid_y);
 uint8_t Access_GetModifiedSurfaceType(const int32_t grid_x, const int32_t grid_y, const bool mode = false);

@@ -318,18 +318,20 @@ bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo* unit, int16_t* 
     return false;
 }
 
-void Access_InitUnitStealthStatus(SmartList<UnitInfo>& units) {
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        (*it).InitStealthStatus();
+void Access_InitUnitStealthStatus(SmartList<UnitInfo>& units, bool reset_visibility) {
+    if (reset_visibility) {
+        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+            (*it).InitStealthStatus();
+        }
     }
 }
 
-void Access_InitStealthMaps() {
-    Access_InitUnitStealthStatus(UnitsManager_GroundCoverUnits);
-    Access_InitUnitStealthStatus(UnitsManager_MobileLandSeaUnits);
-    Access_InitUnitStealthStatus(UnitsManager_MobileAirUnits);
-    Access_InitUnitStealthStatus(UnitsManager_ParticleUnits);
-    Access_InitUnitStealthStatus(UnitsManager_StationaryUnits);
+void Access_InitStealthMaps(bool reset_visibility) {
+    Access_InitUnitStealthStatus(UnitsManager_GroundCoverUnits, reset_visibility);
+    Access_InitUnitStealthStatus(UnitsManager_MobileLandSeaUnits, reset_visibility);
+    Access_InitUnitStealthStatus(UnitsManager_MobileAirUnits, reset_visibility);
+    Access_InitUnitStealthStatus(UnitsManager_ParticleUnits, reset_visibility);
+    Access_InitUnitStealthStatus(UnitsManager_StationaryUnits, reset_visibility);
 
     for (uint16_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE && UnitsManager_TeamInfo[team].heat_map) {
@@ -873,9 +875,9 @@ void Access_UpdateUnitVisibilityStatus(SmartList<UnitInfo>& units) {
     }
 }
 
-void Access_UpdateVisibilityStatus(bool all_visible) {
+void Access_UpdateVisibilityStatus(bool all_visible, bool reset_visibility) {
     GameManager_AllVisible = all_visible;
-    Access_InitStealthMaps();
+    Access_InitStealthMaps(reset_visibility);
 
     if (!GameManager_AllVisible) {
         Access_UpdateUnitVisibilityStatus(UnitsManager_MobileAirUnits);

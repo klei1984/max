@@ -1918,7 +1918,7 @@ void GameManager_GameSetup(int32_t game_state) {
 
         if (SaveLoad_Load(filepath, mission_category, !Remote_IsNetworkGame, Remote_IsNetworkGame)) {
             GameManager_UpdateDrawBounds();
-            Access_UpdateVisibilityStatus(GameManager_AllVisible);
+            Access_UpdateVisibilityStatus(GameManager_AllVisible, false);
 
         } else {
             GameManager_GameState = GAME_STATE_3_MAIN_MENU;
@@ -3302,7 +3302,7 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
 
             if (SaveLoad_Load(filepath, mission_category, true, Remote_IsNetworkGame)) {
                 GameManager_UpdateDrawBounds();
-                Access_UpdateVisibilityStatus(GameManager_AllVisible);
+                Access_UpdateVisibilityStatus(GameManager_AllVisible, false);
 
                 load_successful = true;
 
