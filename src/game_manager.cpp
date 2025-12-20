@@ -6949,9 +6949,53 @@ void GameManager_DrawCircle(UnitInfo* unit, WindowInfo* window, int32_t radius, 
     }
 }
 
+void GameManager_MarkRangeIndicatorsDirty(UnitInfo* unit) {
+    if (unit != nullptr && (GameManager_DisplayButtonRange || GameManager_DisplayButtonScan)) {
+        SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
+        int32_t max_radius = 0;
+        int32_t unit_size;
+        Rect bounds;
+
+        if (GameManager_DisplayButtonRange) {
+            max_radius = std::max(max_radius, unit_values->GetAttribute(ATTRIB_RANGE));
+        }
+
+        if (GameManager_DisplayButtonScan) {
+            max_radius = std::max(max_radius, unit_values->GetAttribute(ATTRIB_SCAN));
+        }
+
+        if (max_radius > 0) {
+            int32_t radius = max_radius * GFX_MAP_TILE_SIZE;
+            int32_t scaled_radius = (radius * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor;
+
+            ++scaled_radius;
+
+            if (unit->flags & BUILDING) {
+                unit_size = GFX_MAP_TILE_SIZE;
+
+            } else {
+                unit_size = GFX_MAP_TILE_SIZE / 2;
+            }
+
+            bounds.ulx = (unit->grid_x * GFX_MAP_TILE_SIZE) + unit_size;
+            bounds.uly = (unit->grid_y * GFX_MAP_TILE_SIZE) + unit_size;
+
+            radius = (scaled_radius * Gfx_MapScalingFactor) / GFX_SCALE_DENOMINATOR;
+
+            bounds.lrx = bounds.ulx + radius + 1;
+            bounds.lry = bounds.uly + radius + 1;
+            bounds.ulx -= radius + 1;
+            bounds.uly -= radius + 1;
+
+            GameManager_AddDrawBounds(&bounds);
+        }
+    }
+}
+
 void GameManager_MenuUnitSelect(UnitInfo* unit) {
     if (GameManager_DisplayControlsInitialized) {
         if (GameManager_SelectedUnit != nullptr && GameManager_SelectedUnit != unit) {
+            GameManager_MarkRangeIndicatorsDirty(&*GameManager_SelectedUnit);
             GameManager_SelectedUnit->RefreshScreen();
             ResourceManager_GetSoundManager().PlaySfx(&*GameManager_SelectedUnit, Unit::SFX_TYPE_INVALID);
         }

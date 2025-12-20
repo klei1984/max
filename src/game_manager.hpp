@@ -47,6 +47,7 @@ void GameManager_DisableMainMenu();
 void GameManager_MenuDeleteFlic();
 void GameManager_GetScaledMessageBoxBounds(Rect* bounds);
 void GameManager_MenuUnitSelect(UnitInfo* unit);
+void GameManager_MarkRangeIndicatorsDirty(UnitInfo* unit);
 void GameManager_FillOrRestoreWindow(uint8_t id, int32_t color, bool redraw);
 void GameManager_UpdateInfoDisplay(UnitInfo* unit);
 bool GameManager_IsInsideMapView(UnitInfo* unit);
