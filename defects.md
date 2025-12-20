@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 205 / 252 (81.3%) original M.A.X. defects in M.A.X. Port.
+Fixed 213 / 253 (84.1%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -336,12 +336,12 @@ On modern operating systems the deallocated heap memory could be reallocated by 
 
 84. **[Fixed]** The reports menu constructor (cseg01:000CC8D0) calls GNW win_draw() twice right after each other. First a call is enabled by the class specific draw function via function parameter, then right after the draw function there is another call.
 
-85. Enemy land units do not sink or get destroyed after a water platform or similar is demolished beneath them. The units can also move from a water cell back to a land cell if it is next to them. Land mines do not get destroyed if the structure below them gets demolished. Sea mine layers can detect floating land mines too. Building a landing pad above a road above a water platform makes the road disappear. Further investigation is required whether the road unit gets "properly" destroyed or is it leaking memory. Destroying a landing pad above a water platform while an aircraft is landed there leaves the aircraft on the ground in awaiting state. The aircraft is targetable in this state by land units. The aircraft can take off into air from the water mass.
+85. **[Fixed]** Land units do not sink or get destroyed after a water platform or similar is demolished beneath them. The units can also move from a water cell back to a land cell if it is next to them. Land mines do not get destroyed if the structure below them gets demolished. Sea mine layers can detect floating land mines too. Building a landing pad above a road above a water platform makes the road disappear. Destroying a landing pad above a water platform while an aircraft is landed there leaves the aircraft on the ground in awaiting state. The aircraft is targetable in this state by land units. The aircraft can take off into air from the water mass.
 <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_85.mp4" type="video/mp4">
     </video>
-    In my opinion land mines should also blow up just like connectors and roads built above water platforms and bridges do. Any non hybrid land unit should sink to the bottom of the sea too. If an aircraft is landed on a landing pad on a water platform and the landing pad gets demolished the aircraft should either take off into air, or should sink to the bottom of the sea.
+    Proposed behavior change is to destroy any non hybrid land unit and landed aircraft too.
 
 86. **[Fixed]** The maxsuper cheat code increases the scan and attack ranges. The game redraws the markers incorrectly until there is a movement of screen or unit.
 <br>
@@ -434,7 +434,7 @@ The defect is closely related to the group command. Steps to reproduce the issue
 
 113. There is a function to load saved games (cseg01:000D8EB6) that reads the saved game file header which redundantly contains the team name, type and clan specifications. Only the team name is used from the saved game file header. The function calls a resource manager function (cseg01:000D6316) to initialize TeamInfo objects which initializes TeamInfo objects with stale ini configuration settings for team type and clan specifications instead of using the specifications from the already read saved game file header. The init function is called from three different call sites implementing different game setup scenarios, thus to eliminate the use of stale data in case of loading a previously saved game the ini configuration settings needs to be updated based on the file header before the call to the TeamInfo initialization function. Defect 65 is also relevant for this issue.
 
-114. The game logic does not consider whether a stealth unit would be revealed at a target location after stepping aside from an enemy unit. The sole purpose of stepping aside is to remain hidden. In the demonstrated scenario the enemy unit would have had sufficient movement or speed points to move to the west instead of east. Movement to the east is favored due to the cheaper movement costs even if that reveals the stealth unit.
+114. **[Fixed]** The game logic does not consider whether a stealth unit would be revealed at a target location after stepping aside from an enemy unit. The sole purpose of stepping aside is to remain hidden. In the demonstrated scenario the enemy unit would have had sufficient movement or speed points to move to the west instead of east. Movement to the east is favored due to the cheaper movement costs even if that reveals the stealth unit.
 <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_114.mp4" type="video/mp4">
@@ -447,7 +447,7 @@ The defect is closely related to the group command. Steps to reproduce the issue
     <source src="{{ site.baseurl }}/assets/clips/defect_115.mp4" type="video/mp4">
     </video>
 
-116. The scan and range markers of selected unit is not cleared if another unit is selected via the reports menu without moving the main map window in the process.
+116. **[Fixed]** The scan and range markers of selected unit is not cleared if another unit is selected via the reports menu without moving the main map window in the process.
 <br>
     <video class="embed-video" preload="metadata" controls loop muted playsinline>
     <source src="{{ site.baseurl }}/assets/clips/defect_116.mp4" type="video/mp4">
@@ -474,11 +474,11 @@ The proposed defect fix will not instantiate a ground path if the determinted pa
 
 126. **[Fixed]** There is a TaskAttack class method (cseg01:00023755) which issues conditional unit movement orders to move closer to target enemy units if viable. In case the target unit is owned by the alien derelict team, which team does not have heat maps allocated, the algorithm dereferences a null pointer offset by map coordinates which leads to segmentation fault on modern operating systems. The proposed defect fix handles non allocated heat maps as if the heat map would indicate no risks for the pursuer unit.
 
-127. Deploying new unit with either attack or scan range marker enabled renders an incomplete circle. As soon as the screen changes the problem disappears and the newly rendered circle is complete.
+127. **[Fixed]** Deploying new unit with either attack or scan range marker enabled renders an incomplete circle. As soon as the screen changes the problem disappears and the newly rendered circle is complete.
 
 128. **[Fixed]** The TaskAttack class has a method (cseg01:0002685E) to determine whether pursued enemy units are within attack range. The TaskKillUnit child tasks could in corner cases be assigned to recently destroyed units in which case the function dereferences null which leads to segmentation faults on modern operating systems. The proposed defect fix will not garbage collect the completed TaskKillUnit child task here by removing itself as this is surely performed by some other function somewhere else. Instead the affected method will simply report that the non existent target unit does not need to be attacked.
 
-129. The game forgets all previously detected enemy mines on loading a previously saved game. It is assumed that this is not the intended behavior. As an end user I would expect the game to continue from where I left off.
+129. **[Fixed]** The game forgets all previously detected enemy mines on loading a previously saved game. In fact the game throws away all unit spotted and unit visible state that is saved into saved game files and rebuilds visibility status on load which is wrong as a mine is only detected if a spotter unit stands next to it which is not the same as spotter unit's scan range.
 
 130. **[Fixed]** In multiplayer games cheaters are supposed to be punished by the game. But enabled cheats are not reset between game sessions. If a cheater starts the game, loads a single player mission, enables a cheat code to see enemy armies, then quits the single player mission and enters a multiplayer game the cheat code is still active without receiving any punishment for the ill gotten advantages. This can be used as an exploit in multiplayer games.
 
@@ -486,7 +486,7 @@ The proposed defect fix will not instantiate a ground path if the determinted pa
 
 132. **[Fixed]** There is a typo in the description of the Mine Layer land unit. "They cannot remove enemy minefields - those most be exploded with gunfire and rockets." -> must be.
 
-133. Land and sea mines do not blow up if enemy units are deployed or activated upon them.
+133. **[Fixed]** Land and sea mines do not blow up if enemy units are deployed, activated or unloaded upon them.
 
 134. **[Fixed]** The TaskCheckAssaults task implements the RemoveUnit (cseg01:0001CB93) interface. The implementation checks whether the passed unit instance is held by a member variable of the task. This task is unique in that it holds a SmartList<UnitInfo> iterator. The RemoveUnit implementation assumes that the iterator is always pointing to a valid ListNode object which seems not to be true. The method dereferences null which leads to segmentation faults on modern operating systems. This happens most of the time when the player reloads a previously saved game in which case the ongoing game is first cleaned up including the task manager. It is unclear whether the list iterator should never be null by design, thus the proposed defect fix is to simply check whether the iterator is null.
 
@@ -538,7 +538,7 @@ By normal means air units cannot land on plain ground. It is assumed that it was
     <img src="{{ site.baseurl }}/assets/images/defect_148.jpg" alt="defect 148" width="740"> 
 <br>
 
-149. Campaign mission 6 and 7 do not end even if the player's victory is obvious. Mission 6 & 7 do not have defined rules to win contrary to most other campaign missions. There is a function (cseg01:0008EFA5) that checks end game conditions. First the loss conditions are tested (cseg01:0008C1BD) which evaluates the enemy to have lost the game already. Then win conditions (cseg01:0008CD4D) are tested and as there are no explicit rules defined the function returns state pending. State pending instead of state generic means that generic rules do not apply thus the algorithm concludes that if the win conditions are pending then the fact that the enemy is utterly destroyed does not matter. After the turns limit ends at 100 turns the game makes a final conclusion that the player has won the game in case of mission 6 while for mission 7 the highest team score wins.
+149. **[Fixed]** Campaign mission 6 and 7 do not end even if the player's victory is obvious. Mission 6 & 7 do not have defined rules to win contrary to most other campaign missions. There is a function (cseg01:0008EFA5) that checks end game conditions. First the loss conditions are tested (cseg01:0008C1BD) which evaluates the enemy to have lost the game already. Then win conditions (cseg01:0008CD4D) are tested and as there are no explicit rules defined the function returns state pending. State pending instead of state generic means that generic rules do not apply thus the algorithm concludes that if the win conditions are pending then the fact that the enemy is utterly destroyed does not matter. After the turns limit ends at 100 turns the game makes a final conclusion that the player has won the game in case of mission 6 while for mission 7 the highest team score wins.
 
 150. In case of (hot seat) multiplayer games if one of the human players cancel landing zone selection with the ESC key while exclusion zones overlap the game progresses the game loop one frame and tries to determine the mouse cursor which is guaranteed to point over the actively selected master builder unit which is (mis)used as the landing zone's exclusion and warning zone markers. As the master builder unit has an IDLE order the cursor selection algorithm (cseg01:00097FB2) assumes that the unit should have a parent which is not true and the game dereferences a null pointer which leads to segmentation faults on modern operating systems.
 
@@ -556,6 +556,7 @@ By normal means air units cannot land on plain ground. It is assumed that it was
 Quality of life improvements:
 - Add icons for the active unit group that allows removal of unit types via clicking on their indicator icons.
 - Add popup context menu for grid cell if multiple units are present in the same cell to be able to select the attack target.
+<br><br>
 
 153. Campaign missions 2, 5, 9, multiplayer scenario 6, single player scenario 1, 2, 4, 11, 12, 14, 16, 17, 21, 22, 23 and 24 contain message log entires that should have been removed by the authors. For example in campaign mission 9 red player (MD5 hash: 30a8de876d55f3cabb4bc96f8cb31aab \*SAVE9.CAM) has three logged messages: 1) `Begin turn 1.` 2) `Begin turn 2.` and 3) `Begin turn 2.` yet again. Probably the mission was edited at least twice.
 
@@ -916,3 +917,10 @@ The video clip demonstrates that the enemy mining station disappears when the fr
 251. **[Fixed]** There is a function (cseg01:000144DB) to destroy the following ground cover units when a unit in the same grid cell that the ground cover unit occupies is destroyed: bridge, water platform, road, landing pad. For example if a fighter is landed on a landing pad which is built on a road, which is built on a water platform and the fighter is blown to pieces by the enemy, then the landing pad, the road and the water platform will be destroyed as well. But there is a use case which the algorithms do not consider. In case a road is self destructed or the empty road is destroyed by a (friendly) shot, than the game blows up the road and the given function destroys it first as a ground cover and then the caller destroys the road as the unit which was blown up effectively performing all operations related to removing a unit twice. This corrupts normal heat maps. A heat map tracks how many team units have scan coverage for a particular grid cell. If the number underflows below zero due to the double remove event users of the affected heat map will potentially misbehave as several events are connected to changing a grid cell's heat map cell value from 0 to 1 (gained scan coverage) or from 1 to 0 (lost scan coverage). The proposed defect fix is to pass the relevant function not only the grid cell position of the unit that explodes, from where the ground cover units need to be removed, but the exploding unit's object pointer itself so that it could be filtered out if it is actually a ground cover unit. This prevents the double removal.
 
 252. **[Fixed]** There is a typo in the unit description of Repair Unit. `The most extensive` -> `The more extensive`.
+
+253. **[Fixed]** When a research project completes, the research center unit itself does not visually change - no sprite update occurs. Therefore, no screen refresh is performed, and the unit's area isn't marked as a dirty zone. The problem is that the text overlay "Research Complete" is only rendered if the research center happens to be within a dirty zone. The proposed defect fix is to iterate through each research center that was allocated to the research project and mark them as a dirty zone once on completion.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_253.mp4" type="video/mp4">
+    </video>
+<br>
