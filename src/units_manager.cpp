@@ -3645,6 +3645,9 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
             UnitsManager_ScaleUnit(client.Get(), ORDER_STATE_EXPAND);
 
         } else {
+            // Check for enemy mines at the activation location BEFORE moving unit to that cell
+            Access_TriggerEnemyMine(client->team, unit->move_to_grid_x, unit->move_to_grid_y);
+
             UnitsManager_UpdateMapHash(client.Get(), unit->move_to_grid_x, unit->move_to_grid_y);
 
             client->SetOrder(ORDER_AWAIT);
@@ -3810,6 +3813,9 @@ void UnitsManager_ProgressUnloading(UnitInfo* unit) {
         }
 
         SmartPointer<UnitInfo> client(unit->GetParent());
+
+        // Check for enemy mines at the unload location BEFORE placing the unit
+        Access_TriggerEnemyMine(client->team, unit->grid_x, unit->grid_y);
 
         UnitsManager_UpdateMapHash(client.Get(), unit->grid_x, unit->grid_y);
 

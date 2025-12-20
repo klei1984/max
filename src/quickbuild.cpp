@@ -308,8 +308,52 @@ bool QuickBuild_IsPlacementValid(UnitInfo* unit, int32_t grid_x, int32_t grid_y)
             result = 0;
 
         } else {
-            result = Access_IsAccessible(unit_type, unit->team, grid_x, grid_y,
-                                         AccessModifier_IgnoreVisibility | AccessModifier_SameClassBlocks);
+            if (unit_type == LANDMINE || unit_type == SEAMINE) {
+                bool has_valid_ground_cover = false;
+                bool has_blocking_units = false;
+                const auto units = Hash_MapHash[Point(grid_x, grid_y)];
+
+                if (units) {
+                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                        const ResourceID other_type = (*it).GetUnitType();
+
+                        if (unit_type == LANDMINE) {
+                            if (other_type == BRIDGE || other_type == ROAD || other_type == LRGRUBLE ||
+                                other_type == SMLRUBLE) {
+                                has_valid_ground_cover = true;
+                            }
+
+                        } else if (unit_type == SEAMINE) {
+                            if (other_type == BRIDGE) {
+                                has_valid_ground_cover = true;
+                            }
+                        }
+
+                        if (other_type == LANDMINE || other_type == SEAMINE) {
+                            has_blocking_units = true;
+                            break;
+
+                        } else if (((*it).GetOrder() != ORDER_IDLE || ((*it).flags & STATIONARY)) &&
+                                   other_type != BRIDGE && other_type != ROAD && other_type != LRGRUBLE &&
+                                   other_type != SMLRUBLE && other_type != WTRPLTFM && other_type != CNCT_4W) {
+                            has_blocking_units = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (has_valid_ground_cover && !has_blocking_units) {
+                    result = 1;
+
+                } else {
+                    result = Access_IsAccessible(unit_type, unit->team, grid_x, grid_y,
+                                                 AccessModifier_IgnoreVisibility | AccessModifier_SameClassBlocks);
+                }
+
+            } else {
+                result = Access_IsAccessible(unit_type, unit->team, grid_x, grid_y,
+                                             AccessModifier_IgnoreVisibility | AccessModifier_SameClassBlocks);
+            }
 
             // Do not allow placement of landed aircraft on any unit except landing pads
             if (result && (unit_flags & MOBILE_AIR_UNIT) && !(unit->flags & HOVERING)) {
@@ -331,6 +375,23 @@ bool QuickBuild_IsPlacementValid(UnitInfo* unit, int32_t grid_x, int32_t grid_y)
                         result = 0;
                     }
                 }
+            }
+        }
+    }
+
+    // Do not allow placement on cells with enemy mines
+    if (result) {
+        if (unit_flags & BUILDING) {
+            if (Access_GetEnemyMineOnSentry(unit->team, grid_x, grid_y) ||
+                Access_GetEnemyMineOnSentry(unit->team, grid_x + 1, grid_y) ||
+                Access_GetEnemyMineOnSentry(unit->team, grid_x, grid_y + 1) ||
+                Access_GetEnemyMineOnSentry(unit->team, grid_x + 1, grid_y + 1)) {
+                result = 0;
+            }
+
+        } else {
+            if (Access_GetEnemyMineOnSentry(unit->team, grid_x, grid_y)) {
+                result = 0;
             }
         }
     }

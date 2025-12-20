@@ -98,6 +98,7 @@ void Access_MultiSelect(UnitInfo* unit, Rect* bounds);
 bool Access_AreTaskEventsPending();
 bool Access_ProcessNewGroupOrder(UnitInfo* unit);
 void Access_UpdateMultiSelection(UnitInfo* unit);
+void Access_TriggerEnemyMine(uint16_t team, int32_t grid_x, int32_t grid_y);
 bool Access_IsGroupOrderInterrupted(UnitInfo* unit);
 bool Access_IsInsideBounds(Rect* bounds, Point* point);
 

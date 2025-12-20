@@ -720,6 +720,9 @@ void GameManager_DeployUnit(uint16_t team, ResourceID unit_type, int32_t grid_x,
         UnitsManager_UpdateConnectors(&*unit);
     }
 
+    // Check for enemy mines at the deployment location
+    Access_TriggerEnemyMine(team, grid_x, grid_y);
+
     // Update minimap fog of war if this is the player's team
     if (team == GameManager_PlayerTeam) {
         Access_UpdateMinimapFogOfWar(team, GameManager_AllVisible);
@@ -852,6 +855,12 @@ bool GameManager_RefreshOrders(uint16_t team, bool check_production) {
     Access_RenewAttackOrders(UnitsManager_MobileAirUnits, team);
 
     UnitsManager_TeamInfo[team].finished_turn = true;
+
+    // Exit QuickBuild menu when player's turn ends
+    if (team == GameManager_PlayerTeam && QuickBuild_MenuActive) {
+        QuickBuild_MenuActive = false;
+        GameManager_MenuUnitSelect(nullptr);
+    }
 
     GameManager_ProcessTick(false);
 

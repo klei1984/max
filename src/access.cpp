@@ -2027,6 +2027,18 @@ UnitInfo* Access_GetEnemyMineOnSentry(uint16_t team, int32_t grid_x, int32_t gri
     return unit;
 }
 
+void Access_TriggerEnemyMine(uint16_t team, int32_t grid_x, int32_t grid_y) {
+    SmartPointer<UnitInfo> mine(Access_GetEnemyMineOnSentry(team, grid_x, grid_y));
+
+    if (mine) {
+        mine->SetOrder(ORDER_EXPLODE);
+        mine->SetOrderState(ORDER_STATE_EXPLODE);
+        mine->visible_to_team[team] = true;
+
+        Ai_UnitSpotted(&*mine, team);
+    }
+}
+
 UnitInfo* Access_GetAttackTarget2(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
     UnitInfo* result;
 
