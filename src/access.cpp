@@ -1729,12 +1729,26 @@ UnitInfo* Access_GetEnemyUnit(uint16_t team, int32_t grid_x, int32_t grid_y, uin
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            // the end node must be cached in case Hash_MapHash.Remove() deletes the list
+            // First try to find an eligible non ground cover unit
+            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                if ((*it).team != team && ((*it).IsVisibleToTeam(team) || GameManager_MaxSpy) &&
+                    (*it).GetOrder() != ORDER_IDLE && ((*it).flags & flags) && (*it).GetOrder() != ORDER_EXPLODE &&
+                    (*it).GetOrderState() != ORDER_STATE_DESTROY &&
+                    (!((*it).flags & GROUND_COVER) || (*it).GetUnitType() == LANDMINE ||
+                     (*it).GetUnitType() == SEAMINE)) {
+                    unit = it->Get();
+                    break;
+                }
+            }
+        }
+
+        if (!unit && units) {
+            // Second try to find a ground cover unit if unit is still nullptr
             for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 if ((*it).team != team && ((*it).IsVisibleToTeam(team) || GameManager_MaxSpy) &&
                     (*it).GetOrder() != ORDER_IDLE && ((*it).flags & flags) && (*it).GetOrder() != ORDER_EXPLODE &&
                     (*it).GetOrderState() != ORDER_STATE_DESTROY) {
-                    unit = &*it;
+                    unit = it->Get();
                     break;
                 }
             }

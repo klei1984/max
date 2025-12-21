@@ -4256,7 +4256,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
                    GameManager_SelectedUnit->GetUnitList() == team_unit->GetUnitList()) {
             result = CURSOR_UNIT_NO_GO;
 
-        } else if (team_unit) {
+        } else if (team_unit && !(team_unit->flags & GROUND_COVER)) {
             result = CURSOR_FRIEND;
 
         } else {
@@ -4272,7 +4272,7 @@ uint8_t GameManager_GetWindowCursor(int32_t grid_x, int32_t grid_y) {
         if (team_unit && team_unit->GetUnitList() == GameManager_SelectedUnit->GetUnitList()) {
             result = CURSOR_UNIT_NO_GO;
 
-        } else if (team_unit) {
+        } else if (team_unit && !(team_unit->flags & GROUND_COVER)) {
             result = CURSOR_FRIEND;
 
         } else {
@@ -6605,7 +6605,7 @@ void GameManager_ProcessInput() {
                                         (GameManager_SelectedUnit == unit || GameManager_SelectedUnit == unit2)) {
                                         UnitStats_Menu(&*GameManager_SelectedUnit);
 
-                                    } else if (unit) {
+                                    } else if (unit && (!(unit->flags & GROUND_COVER) || !unit2)) {
                                         GameManager_UnitSelect(unit);
 
                                     } else if (unit2) {
