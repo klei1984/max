@@ -493,6 +493,13 @@ void GameManager_TeamTurnConcurrent(int32_t& game_state) {
     }
 
     for (uint8_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (game_state != GAME_STATE_10_LOAD_GAME && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
+            UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
+            GameManager_ManageEconomy(team);
+        }
+    }
+
+    for (uint8_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
         if (game_state != GAME_STATE_10_LOAD_GAME && GameManager_PlayerTeam != team &&
             (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER ||
              UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_REMOTE)) {
@@ -557,14 +564,6 @@ void GameManager_TeamTurnConcurrent(int32_t& game_state) {
         GameManager_GameState = GAME_STATE_8_IN_GAME;
 
     } else if (GameManager_GameState == GAME_STATE_9_END_TURN) {
-        AILOG_LOG(log, "Resetting units.");
-
-        for (uint8_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-            if (UnitsManager_TeamInfo[team].finished_turn) {
-                GameManager_ManageEconomy(team);
-            }
-        }
-
         game_state = GAME_STATE_8_IN_GAME;
     }
 }

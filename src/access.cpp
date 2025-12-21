@@ -919,7 +919,7 @@ void Access_UpdateResourcesTotal(Complex* complex) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
          it != UnitsManager_StationaryUnits.End(); ++it) {
         if ((*it).GetComplex() == complex) {
-            inventory = Cargo_GetNetProduction(it->Get());
+            inventory = Cargo_GetNetProduction(it->Get(), true);
             inventory += Cargo_GetInventory(it->Get());
 
             complex->material += inventory.raw;

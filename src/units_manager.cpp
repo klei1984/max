@@ -2282,6 +2282,8 @@ SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t te
             case MININGST: {
                 unit->SetOrder(ORDER_POWER_ON);
                 unit->SetOrderState(ORDER_STATE_INIT);
+                unit->SetPriorOrder(ORDER_POWER_ON);
+                unit->SetPriorOrderState(ORDER_STATE_INIT);
             } break;
 
             case LANDMINE:
