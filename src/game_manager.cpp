@@ -60,6 +60,7 @@
 #include "settings.hpp"
 #include "sound_manager.hpp"
 #include "survey.hpp"
+#include "tacticaloverlay.hpp"
 #include "task_manager.hpp"
 #include "taskdebugger.hpp"
 #include "text.hpp"
@@ -1182,6 +1183,10 @@ void GameManager_RenderMap() {
             DrawMap_RenderUnits();
 
             GameManager_RenderSurveyIndicator(&drawmap);
+
+#if !defined(NDEBUG)
+            TacticalOverlay_Render();
+#endif /* !defined(NDEBUG) */
 
             GameManager_RenderScanRangeIndicators();
 
@@ -2948,6 +2953,8 @@ void GameManager_InitUnitsAndGameState() {
     GameManager_DisplayButtonNames = false;
     GameManager_DisplayButtonMinimap2x = false;
     GameManager_DisplayButtonMinimapTnt = false;
+
+    TacticalOverlay_Init();
 
     GameManager_HumanPlayerCount = 0;
     GameManager_RequestMenuExit = false;
@@ -5487,6 +5494,26 @@ void GameManager_ProcessKey() {
                     MessageManager_DrawMessage("Turn end is NOT delayed by units.", 0, 0);
                 }
             }
+#endif /* !defined(NDEBUG) */
+        } break;
+
+        case GNW_KB_KEY_CTRL_F2: {
+#if !defined(NDEBUG)
+            TacticalOverlay_Toggle();
+            GameManager_UpdateDrawBounds();
+#endif /* !defined(NDEBUG) */
+        } break;
+
+        case GNW_KB_KEY_CTRL_1:
+        case GNW_KB_KEY_CTRL_2:
+        case GNW_KB_KEY_CTRL_3:
+        case GNW_KB_KEY_CTRL_4:
+        case GNW_KB_KEY_CTRL_5:
+        case GNW_KB_KEY_CTRL_6:
+        case GNW_KB_KEY_CTRL_7: {
+#if !defined(NDEBUG)
+            TacticalOverlay_SetMode(key - GNW_KB_KEY_CTRL_1 + 1);
+            GameManager_UpdateDrawBounds();
 #endif /* !defined(NDEBUG) */
         } break;
 

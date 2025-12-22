@@ -106,6 +106,15 @@ int32_t GNW_input_init(void) {
         GNW_KB_KEY_MAP_ITEM(SDLK_TAB, GNW_KB_KEY_TAB, -1, -1, -1, -1),
         GNW_KB_KEY_MAP_ITEM(SDLK_SPACE, GNW_KB_KEY_SPACE, -1, -1, -1, -1),
 
+        // Number keys
+        GNW_KB_KEY_MAP_ITEM(SDLK_1, -1, -1, -1, -1, GNW_KB_KEY_CTRL_1),
+        GNW_KB_KEY_MAP_ITEM(SDLK_2, -1, -1, -1, -1, GNW_KB_KEY_CTRL_2),
+        GNW_KB_KEY_MAP_ITEM(SDLK_3, -1, -1, -1, -1, GNW_KB_KEY_CTRL_3),
+        GNW_KB_KEY_MAP_ITEM(SDLK_4, -1, -1, -1, -1, GNW_KB_KEY_CTRL_4),
+        GNW_KB_KEY_MAP_ITEM(SDLK_5, -1, -1, -1, -1, GNW_KB_KEY_CTRL_5),
+        GNW_KB_KEY_MAP_ITEM(SDLK_6, -1, -1, -1, -1, GNW_KB_KEY_CTRL_6),
+        GNW_KB_KEY_MAP_ITEM(SDLK_7, -1, -1, -1, -1, GNW_KB_KEY_CTRL_7),
+
         // Commands
         GNW_KB_KEY_MAP_ITEM(SDLK_A, -1, -1, GNW_KB_KEY_LALT_A, -1, -1),
         GNW_KB_KEY_MAP_ITEM(SDLK_B, -1, -1, GNW_KB_KEY_LALT_B, -1, -1),

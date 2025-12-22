@@ -145,6 +145,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/access.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/heatmap.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/survey.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/tacticaloverlay.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/searcher.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/paths_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/production_manager.cpp
