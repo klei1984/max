@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 213 / 253 (84.1%) original M.A.X. defects in M.A.X. Port.
+Fixed 217 / 253 (85.7%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -85,7 +85,7 @@ The following resources are missing from max.res or patches.res: A_MASTER, I_MAS
 
 17. Unit gets stuck at map square that is occupied by constructor's construction tape. This issue was observed only once so far. As soon as it could be reproduced a video will be added for it. The issue happened with a computer player that moved two units at the "same" time. One unit moved to a certain location while another one, a big constructor, moved next to it and started a construction job.
 
-18. First player to take turns gets 0 raw materials within the initial mining station's storage container on turn 1. Rest of the players get 14 raw materials. This is potentially a defect.
+18. **[Fixed]** First player to take turns gets 0 raw materials within the initial mining station's storage container on turn 1. Rest of the players get the appropriate amount.
 
 19. **[Fixed]** Certain reports menu screens could dereference NULL (mostly at game startup as long as some of the data is not filled in yet). See defect 3.
 
@@ -453,7 +453,11 @@ The defect is closely related to the group command. Steps to reproduce the issue
     <source src="{{ site.baseurl }}/assets/clips/defect_116.mp4" type="video/mp4">
     </video>
 
-117. Generic mission loss conditions do not consider the case when no mining stations remain, but we have at least one constructor unit and materials left to build a new one, although the constructor is not allowed to build mining stations in the given mission.
+117. **[Fixed]** The rocket launcher's area attack iterates through all relevant unit lists and identify their targets based on a unit's grid position. This is wrong as transporter units do not update the grid cell position of transported units. The hash map is updated and is faster as it already groups units based on their grid position.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_117.mp4" type="video/mp4">
+    </video>
 
 118. **[Fixed]** The in-game preferences menu implements a method (cseg01:000C29AD) to process human input. There is a corner case that leads to an out of bounds access. In a turn based game end the player's turn to start a computer turn. Press the in-game preferences button to open up the preferences window while the computer player is thinking. Close the preferences window by using the Done button. Open up the in-game preferences window a second time. Now press the files button in the background while the preferences window is still active. The preferences menu receives a key code of 4 while the minimum should be the virtual key code 1002 which results in an out of bounds access to a menu button array and the game crashes. The root cause of the issue is that there is a mechanism to disable the in-game menu buttons while popup windows are active which is triggered by the preferences window as well, but it does not work properly while computer players take turns. On opening up the preferences window the mechanism (cseg01:0009FC13) checks whether in-game menu buttons are enabled and if so the algorithm disables the in-game menu buttons and sets a state variable to disabled state. On exiting the preferences window the mechanism (cseg01:0009FA70) checks the state variable and if it is disabled state it enables back all buttons, but only sets the state variable to enabled again if the player that is taking its turn is a human one. The next time the preferences window is opened up the mechanism finds that the state variable is set to disabled state already and buttons in the background all remain active.
 
@@ -540,7 +544,7 @@ By normal means air units cannot land on plain ground. It is assumed that it was
 
 149. **[Fixed]** Campaign mission 6 and 7 do not end even if the player's victory is obvious. Mission 6 & 7 do not have defined rules to win contrary to most other campaign missions. There is a function (cseg01:0008EFA5) that checks end game conditions. First the loss conditions are tested (cseg01:0008C1BD) which evaluates the enemy to have lost the game already. Then win conditions (cseg01:0008CD4D) are tested and as there are no explicit rules defined the function returns state pending. State pending instead of state generic means that generic rules do not apply thus the algorithm concludes that if the win conditions are pending then the fact that the enemy is utterly destroyed does not matter. After the turns limit ends at 100 turns the game makes a final conclusion that the player has won the game in case of mission 6 while for mission 7 the highest team score wins.
 
-150. In case of (hot seat) multiplayer games if one of the human players cancel landing zone selection with the ESC key while exclusion zones overlap the game progresses the game loop one frame and tries to determine the mouse cursor which is guaranteed to point over the actively selected master builder unit which is (mis)used as the landing zone's exclusion and warning zone markers. As the master builder unit has an IDLE order the cursor selection algorithm (cseg01:00097FB2) assumes that the unit should have a parent which is not true and the game dereferences a null pointer which leads to segmentation faults on modern operating systems.
+150. **[Fixed]** In case of (hot seat) multiplayer games if one of the human players cancel landing zone selection with the ESC key while exclusion zones overlap the game progresses the game loop one frame and tries to determine the mouse cursor which is guaranteed to point over the actively selected master builder unit which is (mis)used as the landing zone's exclusion and warning zone markers. As the master builder unit has an IDLE order the cursor selection algorithm (cseg01:00097FB2) assumes that the unit should have a parent which is not true and the game dereferences a null pointer which leads to segmentation faults on modern operating systems.
 
 151. **[Fixed]** Two connectors at grid positions 45,70 and 45,71 overlap a depot in campaign mission 8 (MD5 hash: 97379ca828ca8017ea00f728b3b86941 \*SAVE8.CAM) which creates visual glitches. Normally connectors are removed by the game when a building is built over them.
 
@@ -586,7 +590,7 @@ This is a good example for a complex soft lock situation.
 
 160. **[Fixed]** The English in-game help entries UPGRADE_1 to UPGRADE_4 within the HANGAR_SETUP group are copy pasted from the repair help menu entries.
 
-161. In case an enemy infiltrator is visible only due to cheat code and the unit stands on a friendly road or similar ground cover class unit, it is not possible to select the enemy infiltrator. It is assumed that cheaters are not intentionally penalized by the game in single player modes, thus the behavior is considered to be a defect.
+161. **[Fixed]** In case an enemy infiltrator is visible only due to cheat code and the unit stands on a friendly road or similar ground cover class unit, it is not possible to select the enemy infiltrator. It is assumed that cheaters are not intentionally penalized by the game in single player modes, thus the behavior is considered to be a defect.
 
 162. **[Fixed]** The TaskManager class implements a function (cseg01:000453AC) to free up UnitInfo objects for tasks to use. In corner cases, for example when a new mission is started after a previous one is finished and the AI module resets the TaskManager instance, UnitInfo objects reference count tracked by SmartPointers reach zero references eventually within the TaskManager function's body and the raw pointer passed to it is deleted early, thus already freed up memory is getting dereferenced later which leads to segmentation faults on modern operating systems. It is unclear whether the TaskManager or the affected Task derived classes are supposed to protect against early deletions that call the TaskManager API. The proposed defect fix protects against the proven call site which causes segmentation faults, thus protects the called TaskManager API function instead of the caller Task derived class types.
 
