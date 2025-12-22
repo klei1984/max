@@ -47,6 +47,7 @@
 #include "unit.hpp"
 #include "unitinfogroup.hpp"
 #include "units_manager.hpp"
+#include "zonewalker.hpp"
 
 const uint8_t UnitInfo::ExpResearchTopics[] = {RESEARCH_TOPIC_ATTACK, RESEARCH_TOPIC_SHOTS, RESEARCH_TOPIC_RANGE,
                                                RESEARCH_TOPIC_ARMOR, RESEARCH_TOPIC_HITS};
@@ -2702,9 +2703,7 @@ void UnitInfo::Attack(int32_t grid_x, int32_t grid_y) {
     }
 
     if (GetBaseValues()->GetAttribute(ATTRIB_ATTACK_RADIUS)) {
-        FindTarget(grid_x, grid_y, &UnitsManager_GroundCoverUnits);
-        FindTarget(grid_x, grid_y, &UnitsManager_StationaryUnits);
-        FindTarget(grid_x, grid_y, &UnitsManager_MobileLandSeaUnits);
+        AttackAreaTargets(grid_x, grid_y);
 
     } else if (target) {
         target->AttackUnit(this, 0, target_angle);
@@ -3848,18 +3847,29 @@ void UnitInfo::UpdatePinsFromLists(int32_t grid_x, int32_t grid_y, SmartList<Uni
     }
 }
 
-void UnitInfo::FindTarget(int32_t grid_x, int32_t grid_y, SmartList<UnitInfo>* units) {
+void UnitInfo::AttackAreaTargets(int32_t grid_x, int32_t grid_y) {
     int32_t attack_radius = base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
+    ZoneWalker walker(Point(grid_x, grid_y), attack_radius);
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if (((*it).flags & SELECTABLE) && Access_IsWithinAttackRange(&*it, grid_x, grid_y, attack_radius) &&
-            Access_IsValidAttackTarget(this, &*it, Point(grid_x, grid_y))) {
-            if (((*it).unit_type != BRIDGE && (*it).unit_type != WTRPLTFM) || !Access_IsUnitBusyAtLocation(&*it)) {
-                (*it).AttackUnit(this, Access_GetApproximateDistance((*it).grid_x - grid_x, (*it).grid_y - grid_y),
-                                 UnitsManager_GetTargetAngle((*it).grid_x - grid_x, (*it).grid_y - grid_y));
+    // Iterate through all grid positions within the attack radius
+    do {
+        Point* location = walker.GetCurrentLocation();
+        SmartList<UnitInfo>* units_at_position = Hash_MapHash[*location];
+
+        if (units_at_position) {
+            // Cache the end iterator in case Hash_MapHash.Remove() deletes the list during iteration
+            for (auto it = units_at_position->Begin(), end = units_at_position->End(); it != end; ++it) {
+                if (((*it).flags & SELECTABLE) && Access_IsValidAttackTarget(this, &*it, Point(grid_x, grid_y))) {
+                    if (((*it).unit_type != BRIDGE && (*it).unit_type != WTRPLTFM) ||
+                        !Access_IsUnitBusyAtLocation(&*it)) {
+                        (*it).AttackUnit(this,
+                                         Access_GetApproximateDistance((*it).grid_x - grid_x, (*it).grid_y - grid_y),
+                                         UnitsManager_GetTargetAngle((*it).grid_x - grid_x, (*it).grid_y - grid_y));
+                    }
+                }
             }
         }
-    }
+    } while (walker.FindNext());
 }
 
 void UnitInfo::UpgradeInt() {

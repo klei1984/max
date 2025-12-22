@@ -67,7 +67,7 @@ private:
     void TestConnections();
     UnitInfo* GetFirstUntestedConnection();
     void UpdatePinsFromLists(int32_t grid_x, int32_t grid_y, SmartList<UnitInfo>* units, int32_t pin_units);
-    void FindTarget(int32_t grid_x, int32_t grid_y, SmartList<UnitInfo>* units);
+    void AttackAreaTargets(int32_t grid_x, int32_t grid_y);
     void RadarPing();
     void UpgradeInt();
     static void CalcRomanDigit(char* text, int32_t value, const char* digit1, const char* digit2, const char* digit3);
