@@ -13,6 +13,14 @@ endif()
 option(MAX_BUILD_TESTS "Build unit tests by default" ON)
 option(MAX_ENABLE_UPNP "Use miniupnpc library" ON)
 
+# Enable RmlUi debugger by default in debug builds, disable in release builds
+# (debugger contains SIL-licensed fonts that should not be in release builds)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	option(ENABLE_RMLUI_DEBUGGER "Enable RmlUi debugger (contains SIL-licensed fonts)" ON)
+else()
+	option(ENABLE_RMLUI_DEBUGGER "Enable RmlUi debugger (contains SIL-licensed fonts)" OFF)
+endif()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
@@ -54,8 +62,16 @@ if(MAX_ENABLE_UPNP)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC MAX_ENABLE_UPNP=1)
 endif()
 
+if(ENABLE_RMLUI_DEBUGGER)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC ENABLE_RMLUI_DEBUGGER=1)
+endif()
+
 if(NOT BUILD_SHARED_LIBS)
-	set(${PROJECT_NAME}_deps SDL3::SDL3-static utf8proc Freetype::Freetype Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::static lz4::static rectpack::rectpack Xoshiro::Xoshiro Enet::Enet)
+	set(${PROJECT_NAME}_deps SDL3::SDL3-static utf8proc Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::static lz4::static rectpack::rectpack Xoshiro::Xoshiro Enet::Enet RmlUi::Core Freetype::Freetype)
+
+	if(ENABLE_RMLUI_DEBUGGER)
+		list(APPEND ${PROJECT_NAME}_deps RmlUi::Debugger)
+	endif()
 
 	if(MAX_ENABLE_UPNP)
 		list(APPEND ${PROJECT_NAME}_deps miniupnpc::miniupnpc)
@@ -64,7 +80,11 @@ if(NOT BUILD_SHARED_LIBS)
 	target_link_options(${PROJECT_NAME} PUBLIC -static -static-libgcc -static-libstdc++)
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 else()
-	set(${PROJECT_NAME}_deps SDL3::SDL3-shared utf8proc Freetype::Freetype Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::shared lz4::shared rectpack::rectpack Xoshiro::Xoshiro Enet::Enet)
+	set(${PROJECT_NAME}_deps SDL3::SDL3-shared utf8proc Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::shared lz4::shared rectpack::rectpack Xoshiro::Xoshiro Enet::Enet RmlUi::Core Freetype::Freetype)
+
+	if(ENABLE_RMLUI_DEBUGGER)
+		list(APPEND ${PROJECT_NAME}_deps RmlUi::Debugger)
+	endif()
 
 	if(MAX_ENABLE_UPNP)
 		list(APPEND ${PROJECT_NAME}_deps miniupnpc::miniupnpc)
@@ -80,6 +100,7 @@ endif()
 include(sdl3)
 include(utf8proc)
 include(freetype)
+include(rmlui)
 include(miniaudio)
 include(sha2)
 include(json)
@@ -160,6 +181,7 @@ if(UNIX)
 				"^liblua.*$"
 				"^liblz4.*$"
 				"^libutf8proc.*$"
+				"^libRml.*$"
 		)
 
 		if(DEPS_CONFLICTING_FILENAMES)

@@ -63,6 +63,10 @@ RECTPACK2D_VERSION=$(sed -nr 's/set\(RECTPACK2D_VERSION ([a-z0-9]+)\)/\1/p' $max
 RECTPACK2D_FILE=$(eval echo $(sed -nr 's/set\(RECTPACK2D_FILE (.*)\)/\1/p' $maxport_configfile))
 RECTPACK2D_URI=$(eval echo $(sed -nr 's/set\(RECTPACK2D_URI (.*)\)/\1/p' $maxport_configfile))
 
+RMLUI_VERSION=$(sed -nr 's/set\(RMLUI_VERSION ([0-9]+\.[0-9]+)\)/\1/p' $maxport_configfile)
+RMLUI_FILE=$(eval echo $(sed -nr 's/set\(RMLUI_FILE (.*)\)/\1/p' $maxport_configfile))
+RMLUI_URI=$(eval echo $(sed -nr 's/set\(RMLUI_URI (.*)\)/\1/p' $maxport_configfile))
+
 [ -f "dependencies/$FREETYPE_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$FREETYPE_FILE" "$FREETYPE_URI" | true
 [ -f "dependencies/$MINIAUDIO_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$MINIAUDIO_FILE" "$MINIAUDIO_URI" | true
 [ -f "dependencies/$SDL3_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$SDL3_FILE" "$SDL3_URI" | true
@@ -77,6 +81,7 @@ RECTPACK2D_URI=$(eval echo $(sed -nr 's/set\(RECTPACK2D_URI (.*)\)/\1/p' $maxpor
 [ -f "dependencies/$XOSHIRO_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$XOSHIRO_FILE" "$XOSHIRO_URI" | true
 [ -f "dependencies/$LZ4_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$LZ4_FILE" "$LZ4_URI" | true
 [ -f "dependencies/$RECTPACK2D_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$RECTPACK2D_FILE" "$RECTPACK2D_URI" | true
+[ -f "dependencies/$RMLUI_FILE" ] || wget --no-clobber --quiet --output-document="dependencies/$RMLUI_FILE" "$RMLUI_URI" | true
 
 if [ -x dos2unix ] && [ -x md5sum ]; then
   dos2unix --quiet "dependencies/dependencies.md5"

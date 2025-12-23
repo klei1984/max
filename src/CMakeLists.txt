@@ -48,6 +48,9 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/textedit.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/drawloadbar.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/drawmap.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/rmlui_platform_sdl3.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/rmlui_renderer_gl3.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/rmlui_backend.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/assertmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/okcancelmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/desyncmenu.cpp
