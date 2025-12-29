@@ -56,3 +56,6 @@ Debug/**
 Release/**
 RelWithDebInfo/**
 MinSizeRel/**
+
+# IDE
+.vscode/**
