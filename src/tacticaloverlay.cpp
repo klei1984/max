@@ -39,10 +39,12 @@
 
 static bool TacticalOverlay_Enabled = false;
 static int32_t TacticalOverlay_Mode = 1;
+static int32_t TacticalOverlay_SelectedTeam = -1;
 
 void TacticalOverlay_Init() {
     TacticalOverlay_Enabled = false;
     TacticalOverlay_Mode = 1;
+    TacticalOverlay_SelectedTeam = -1;
 }
 
 void TacticalOverlay_Toggle() { TacticalOverlay_Enabled = !TacticalOverlay_Enabled; }
@@ -50,6 +52,14 @@ void TacticalOverlay_Toggle() { TacticalOverlay_Enabled = !TacticalOverlay_Enabl
 void TacticalOverlay_SetMode(int32_t mode) {
     if (mode >= 1 && mode <= 7) {
         TacticalOverlay_Mode = mode;
+    }
+}
+
+void TacticalOverlay_CycleTeam() {
+    ++TacticalOverlay_SelectedTeam;
+
+    if (TacticalOverlay_SelectedTeam >= PLAYER_TEAM_MAX) {
+        TacticalOverlay_SelectedTeam = -1;
     }
 }
 
@@ -108,7 +118,7 @@ static void TacticalOverlay_RenderGridCellValue(WindowInfo* window, int32_t grid
 }
 
 static uint32_t TacticalOverlay_GetCellValue(int32_t grid_x, int32_t grid_y, int32_t mode) {
-    const uint16_t team = GameManager_PlayerTeam;
+    const uint16_t team = (TacticalOverlay_SelectedTeam >= 0) ? TacticalOverlay_SelectedTeam : GameManager_ActiveTurnTeam;
     CTInfo* team_info = &UnitsManager_TeamInfo[team];
     uint32_t result = 0;
 

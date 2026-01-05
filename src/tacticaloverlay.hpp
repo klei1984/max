@@ -49,6 +49,16 @@ void TacticalOverlay_Toggle();
 void TacticalOverlay_SetMode(int32_t mode);
 
 /**
+ * \brief Cycle through teams for tactical overlay display, wrapping back to auto-detect (active turn team) after
+ * the last team.
+ *
+ * Cycles through team indices 0 to PLAYER_TEAM_MAX-1, then returns to -1 which means auto-detect based on the current
+ * active turn. This allows debugging heat maps and other team-specific data for any team regardless of whose turn it
+ * currently is.
+ */
+void TacticalOverlay_CycleTeam();
+
+/**
  * \brief Render the tactical overlay on the main map window displaying numeric values for each visible grid cell.
  *
  * This function should be called during the game rendering loop after map tiles are drawn. It iterates over all

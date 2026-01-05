@@ -5497,12 +5497,17 @@ void GameManager_ProcessKey() {
 #endif /* !defined(NDEBUG) */
         } break;
 
-        case GNW_KB_KEY_CTRL_F2: {
 #if !defined(NDEBUG)
+        case GNW_KB_KEY_CTRL_F2: {
             TacticalOverlay_Toggle();
             GameManager_UpdateDrawBounds();
-#endif /* !defined(NDEBUG) */
         } break;
+
+        case GNW_KB_KEY_CTRL_F3: {
+            TacticalOverlay_CycleTeam();
+            GameManager_UpdateDrawBounds();
+        } break;
+#endif /* !defined(NDEBUG) */
 
         case GNW_KB_KEY_CTRL_1:
         case GNW_KB_KEY_CTRL_2:
