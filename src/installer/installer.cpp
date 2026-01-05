@@ -36,7 +36,6 @@
 #include "palette.hpp"
 #include "panels.hpp"
 #include "portraits.hpp"
-#include "progress.hpp"
 #include "progress_event.hpp"
 #include "resource.hpp"
 #include "soundeffects.hpp"
