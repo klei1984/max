@@ -35,6 +35,9 @@
 #include "sound_manager.hpp"
 #include "window_manager.hpp"
 
+// track list is determined by multiplexer of MVE container
+enum MovieAudioTrack : int32_t { Track_English, Track_French, Track_German, Track_Italian, Track_Spanish };
+
 static void* mve_cb_alloc(size_t size);
 static void mve_cb_free(void* p);
 static int32_t mve_cb_read(FILE* handle, void* buf, size_t count);
@@ -43,7 +46,8 @@ static void movie_cb_show_frame(uint8_t* buffer, int32_t bufw, int32_t bufh, int
                                 int32_t h, int32_t dstx, int32_t dsty);
 static void movie_cb_set_palette(uint8_t* p, int32_t start, int32_t count);
 static void movie_init_palette(void);
-static int32_t movie_run(ResourceID resource_id, ResourceID subtitle_id = INVALID_ID);
+static int32_t movie_get_track_for_language(void);
+static int32_t movie_run(ResourceID resource_id, int32_t track = Track_English, ResourceID subtitle_id = INVALID_ID);
 
 static uint32_t movie_sound_volume;
 
@@ -143,7 +147,33 @@ static void movie_init_palette(void) {
     Svga_SetPaletteColor(PALETTE_SIZE - 1, &color);
 }
 
-int32_t movie_run(ResourceID resource_id, ResourceID subtitle_id) {
+static int32_t movie_get_track_for_language(void) {
+    const std::string language_tag = ResourceManager_GetSystemLocale();
+    int32_t track;
+
+    if (language_tag == "en-US") {
+        track = Track_English;
+
+    } else if (language_tag == "fr-FR") {
+        track = Track_French;
+
+    } else if (language_tag == "de-DE") {
+        track = Track_German;
+
+    } else if (language_tag == "it-IT") {
+        track = Track_English; // not available
+
+    } else if (language_tag == "es-ES") {
+        track = Track_Spanish;
+
+    } else {
+        track = Track_English;
+    }
+
+    return track;
+}
+
+int32_t movie_run(ResourceID resource_id, int32_t track, ResourceID subtitle_id) {
     int32_t result;
     uint8_t* palette;
 
@@ -194,7 +224,7 @@ int32_t movie_run(ResourceID resource_id, ResourceID subtitle_id) {
 
         MVE_sfSVGA(Svga_GetScreenWidth(), Svga_GetScreenHeight(), Svga_GetScreenWidth(), 0, nullptr, 0, 0, nullptr, 0);
 
-        if (!MVE_rmPrepMovie(fp, -1, -1, 0)) {
+        if (!MVE_rmPrepMovie(fp, -1, -1, track)) {
             int32_t aborted = 0;
 
             for (; (result = MVE_rmStepMovie()) == 0 && !aborted;) {
@@ -235,7 +265,7 @@ int32_t movie_run(ResourceID resource_id, ResourceID subtitle_id) {
     return result;
 }
 
-int32_t Movie_PlayOemLogo(void) { return movie_run(LOGOFLIC); }
+int32_t Movie_PlayOemLogo(void) { return movie_run(LOGOFLIC, movie_get_track_for_language()); }
 
 int32_t Movie_PlayIntro(void) {
     auto settings = ResourceManager_GetSettings();
@@ -245,7 +275,7 @@ int32_t Movie_PlayIntro(void) {
         return 0;
     }
 
-    int32_t result = movie_run(INTROFLC, INTROSUB);
+    int32_t result = movie_run(INTROFLC, movie_get_track_for_language(), INTROSUB);
 
     if (intro_movie == 2) {
         settings->SetNumericValue("intro_movie", 0);
@@ -254,4 +284,4 @@ int32_t Movie_PlayIntro(void) {
     return result;
 }
 
-int32_t Movie_Play(ResourceID resource_id) { return movie_run(resource_id); }
+int32_t Movie_Play(ResourceID resource_id) { return movie_run(resource_id, 0); }
