@@ -21,12 +21,25 @@
 
 #include <SDL3/SDL_main.h>
 
+#ifdef MAX_ENABLE_INSTALLER
+#include "installer/installer.hpp"
+#endif
+
 #include "menu.hpp"
 #include "movie.hpp"
 #include "resource_manager.hpp"
 #include "sound_manager.hpp"
 
 int main(int argc, char* argv[]) {
+#ifdef MAX_ENABLE_INSTALLER
+    Installer::MaxInstaller installer;
+    Installer::ExitCode result = installer.Run(argc, argv);
+
+    if (result != Installer::ExitCode::Skipped) {
+        return (result) == Installer::ExitCode::Success ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
+#endif
+
     try {
         ResourceManager_InitResources();
 
