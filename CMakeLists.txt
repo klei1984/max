@@ -12,6 +12,8 @@ endif()
 
 option(MAX_BUILD_TESTS "Build unit tests by default" ON)
 option(MAX_ENABLE_UPNP "Use miniupnpc library" ON)
+option(MAX_ENABLE_INSTALLER "Enable installer module for asset conversion" ON)
+option(MAX_BUILD_INSTALLER_STANDALONE "Build standalone installer shared library (independent of BUILD_SHARED_LIBS)" OFF)
 
 # Enable RmlUi debugger by default in debug builds, disable in release builds
 # (debugger contains SIL-licensed fonts that should not be in release builds)
@@ -62,6 +64,10 @@ if(MAX_ENABLE_UPNP)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC MAX_ENABLE_UPNP=1)
 endif()
 
+if(MAX_ENABLE_INSTALLER)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC MAX_ENABLE_INSTALLER=1)
+endif()
+
 if(ENABLE_RMLUI_DEBUGGER)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC ENABLE_RMLUI_DEBUGGER=1)
 endif()
@@ -77,6 +83,10 @@ if(NOT BUILD_SHARED_LIBS)
 		list(APPEND ${PROJECT_NAME}_deps miniupnpc::miniupnpc)
 	endif()
 
+	if(MAX_ENABLE_INSTALLER)
+		list(APPEND ${PROJECT_NAME}_deps max_installer_static)
+	endif()
+
 	target_link_options(${PROJECT_NAME} PUBLIC -static -static-libgcc -static-libstdc++)
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 else()
@@ -88,6 +98,16 @@ else()
 
 	if(MAX_ENABLE_UPNP)
 		list(APPEND ${PROJECT_NAME}_deps miniupnpc::miniupnpc)
+	endif()
+
+	if(MAX_ENABLE_INSTALLER)
+		# When building game as shared library, also use shared installer if available
+		# Otherwise fall back to static installer library
+		if(MAX_BUILD_INSTALLER_STANDALONE)
+			list(APPEND ${PROJECT_NAME}_deps max_installer_shared)
+		else()
+			list(APPEND ${PROJECT_NAME}_deps max_installer_static)
+		endif()
 	endif()
 
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
@@ -117,6 +137,11 @@ if(MAX_ENABLE_UPNP)
 	include(miniupnp)
 endif()
 
+# Conditionally add installer subdirectory if feature is enabled
+if(MAX_ENABLE_INSTALLER)
+	add_subdirectory(src/installer)
+endif()
+
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_OBJCOPY} ARGS --only-keep-debug	 $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.debug
 	COMMAND ${CMAKE_STRIP} ARGS --strip-debug --strip-unneeded $<TARGET_FILE:${PROJECT_NAME}>
@@ -139,7 +164,7 @@ set(CPACK_PACKAGE_CONTACT "M.A.X. Port Team")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/assets/LICENSE")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "M.A.X. Port v${GAME_VERSION_STRING}")
 set(CPACK_PACKAGE_DESCRIPTION "M.A.X. Port is an SDL library based runtime executable for the 1996 MS-DOS\n" "game M.A.X.: Mechanized Assault & Exploration developed and published by\n" "Interplay Productions.")
-set(CPACK_SOURCE_IGNORE_FILES "/\.git/;/\.github/;/\.settings/;\.gitignore;.\.launch;\.project;\.cproject;\.clang-format;\.gdbinit;README.md;/doc/;${CMAKE_BINARY_DIR};Debug;Release;RelWithDebInfo;MinSizeRel;/dependencies/.*\.tar\.gz")
+set(CPACK_SOURCE_IGNORE_FILES "/\.git/;/\.github/;/\.settings/;/\.vscode/;\.gitignore;.\.launch;\.project;\.cproject;\.clang-format;\.gdbinit;README.md;/doc/;${CMAKE_BINARY_DIR};Debug;Release;RelWithDebInfo;MinSizeRel;/dependencies/.*\.tar\.gz")
 
 if(UNIX)
 	set(CPACK_SOURCE_GENERATOR "TGZ")
