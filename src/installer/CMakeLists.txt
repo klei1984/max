@@ -28,7 +28,6 @@ set(INSTALLER_SOURCES
 set(INSTALLER_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/installer.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/procedures.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/progress.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/progress_event.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/resource.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sound.hpp
