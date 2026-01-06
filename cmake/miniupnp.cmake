@@ -27,4 +27,11 @@ set(UPNPC_BUILD_TESTS FALSE)
 set(UPNPC_BUILD_SAMPLE FALSE)
 set(UPNPC_NO_INSTALL TRUE)
 
+# Force Release build without debug info (treat as system library)
+set(CMAKE_BUILD_TYPE_BACKUP ${CMAKE_BUILD_TYPE})
+set(CMAKE_BUILD_TYPE Release)
+
 FetchContent_MakeAvailable(MINIUPNP)
+
+# Restore build configuration
+set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE_BACKUP})

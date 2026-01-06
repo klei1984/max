@@ -18,7 +18,14 @@ FetchContent_Declare(
 	OVERRIDE_FIND_PACKAGE
 )
 
+# Force Release build without debug info (treat as system library)
+set(CMAKE_BUILD_TYPE_BACKUP ${CMAKE_BUILD_TYPE})
+set(CMAKE_BUILD_TYPE Release)
+
 FetchContent_MakeAvailable(SHA2)
+
+# Restore build configuration
+set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE_BACKUP})
 
 set(SHA2_BINARY_DIR ${PROJECT_BINARY_DIR}/_deps/sha2-build)
 set(SHA2_SOURCE_DIR ${PROJECT_BINARY_DIR}/_deps/sha2-src)

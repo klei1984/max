@@ -22,7 +22,14 @@ FetchContent_Declare(
 	UPDATE_DISCONNECTED TRUE
 )
 
+# Force Release build without debug info (treat as system library)
+set(CMAKE_BUILD_TYPE_BACKUP ${CMAKE_BUILD_TYPE})
+set(CMAKE_BUILD_TYPE Release)
+
 FetchContent_MakeAvailable(XOSHIRO)
+
+# Restore build configuration
+set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE_BACKUP})
 
 set(XOSHIRO_BINARY_DIR ${PROJECT_BINARY_DIR}/_deps/xoshiro-build)
 set(XOSHIRO_SOURCE_DIR ${PROJECT_BINARY_DIR}/_deps/xoshiro-src)

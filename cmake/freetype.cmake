@@ -25,7 +25,14 @@ set(FT_DISABLE_BROTLI ON)
 set(FT_DISABLE_ZLIB ON)
 set(SKIP_INSTALL_ALL ON)
 
+# Force Release build without debug info (treat as system library)
+set(CMAKE_BUILD_TYPE_BACKUP ${CMAKE_BUILD_TYPE})
+set(CMAKE_BUILD_TYPE Release)
+
 FetchContent_MakeAvailable(FREETYPE)
+
+# Restore build configuration
+set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE_BACKUP})
 
 if(NOT TARGET Freetype::Freetype)
 	add_library(Freetype::Freetype ALIAS freetype)

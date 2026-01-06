@@ -26,4 +26,11 @@ set(SDL_SENSOR OFF)
 set(SDL_TEST_LIBRARY OFF)
 set(SDL_DISABLE_INSTALL ON)
 
+# Force Release build without debug info (treat as system library)
+set(CMAKE_BUILD_TYPE_BACKUP ${CMAKE_BUILD_TYPE})
+set(CMAKE_BUILD_TYPE Release)
+
 FetchContent_MakeAvailable(SDL3)
+
+# Restore build configuration
+set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE_BACKUP})

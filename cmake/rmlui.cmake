@@ -9,12 +9,22 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/dependencies/${RMLUI_FILE})
 	endif()
 endif()
 
+find_package(Patch)
+
+if(NOT Patch_FOUND)
+	message(FATAL_ERROR "Patch tool is required.")
+endif()
+
+set(RMLUI_PATCH ${Patch_EXECUTABLE} -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/patches/rmlui.patch)
+
 FetchContent_Declare(
 	RmlUi
 	TIMEOUT 120
 	URL ${RMLUI_URI}
 	URL_HASH ${RMLUI_HASH_TYPE}=${RMLUI_HASH}
 	DOWNLOAD_EXTRACT_TIMESTAMP FALSE
+	PATCH_COMMAND ${RMLUI_PATCH}
+	UPDATE_DISCONNECTED TRUE
 )
 
 set(RMLUI_SAMPLES OFF CACHE BOOL "Build samples")
@@ -25,6 +35,12 @@ set(RMLUI_CUSTOM_RTTI OFF CACHE BOOL "Use custom RTTI implementation")
 set(RMLUI_PRECOMPILED_HEADERS OFF CACHE BOOL "Disable precompiled headers")
 set(RMLUI_TRACY_PROFILING OFF CACHE BOOL "Disable Tracy profiling")
 set(BUILD_TESTING OFF CACHE BOOL "Disable RmlUi tests")
-set(RMLUI_INSTALL OFF CACHE BOOL "Disable RmlUI installation")
+
+# Force Release build without debug info (treat as system library)
+set(CMAKE_BUILD_TYPE_BACKUP ${CMAKE_BUILD_TYPE})
+set(CMAKE_BUILD_TYPE Release)
 
 FetchContent_MakeAvailable(RmlUi)
+
+# Restore build configuration
+set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE_BACKUP})

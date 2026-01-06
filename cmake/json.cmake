@@ -21,4 +21,11 @@ FetchContent_Declare(
 set(JSON_GlobalUDLs OFF)
 set(JSON_ImplicitConversions OFF)
 
+# Force Release build without debug info (treat as system library)
+set(CMAKE_BUILD_TYPE_BACKUP ${CMAKE_BUILD_TYPE})
+set(CMAKE_BUILD_TYPE Release)
+
 FetchContent_MakeAvailable(JSON)
+
+# Restore build configuration
+set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE_BACKUP})

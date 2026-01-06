@@ -34,8 +34,16 @@ set(MINIAUDIO_NO_ENCODING ON)
 set(MINIAUDIO_NO_FLAC ON)
 set(MINIAUDIO_NO_MP3 ON)
 set(MINIAUDIO_NO_GENERATION ON)
+set(MINIAUDIO_DISABLE_INSTALL ON)
+
+# Force Release build without debug info (treat as system library)
+set(CMAKE_BUILD_TYPE_BACKUP ${CMAKE_BUILD_TYPE})
+set(CMAKE_BUILD_TYPE Release)
 
 FetchContent_MakeAvailable(MINIAUDIO)
+
+# Restore build configuration
+set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE_BACKUP})
 
 if(NOT TARGET Miniaudio::Miniaudio)
 	add_library(Miniaudio::Miniaudio ALIAS miniaudio)
