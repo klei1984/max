@@ -5192,12 +5192,17 @@ bool GameManager_ProcessTextInput(int32_t key) {
         if (GameManager_TextInput.GetLength() < 30) {
             switch (key) {
                 case GNW_KB_KEY_BACKSPACE: {
-                    GameManager_TextInput = GameManager_TextInput.Substr(0, GameManager_TextInput.GetLength() - 2);
+                    GameManager_TextInput = GameManager_TextInput.Substr(0, GameManager_TextInput.GetLength() - 1);
                 } break;
 
                 case GNW_KB_KEY_RETURN: {
                     MessageManager_ClearMessageBox();
                     GameManager_ProcessCheatCodes();
+                    GameManager_TextInput = "";
+                } break;
+
+                case GNW_KB_KEY_ESCAPE: {
+                    MessageManager_ClearMessageBox();
                     GameManager_TextInput = "";
                 } break;
 
