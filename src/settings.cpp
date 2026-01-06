@@ -149,7 +149,6 @@ static const std::vector<std::pair<std::string, Settings::SettingDefinition>> se
     {"screen_mode", {2, "GRAPHICS_SETTINGS"}},
     {"disable_ar_correction", {0, "GRAPHICS_SETTINGS"}},
     {"scale_quality", {1, "GRAPHICS_SETTINGS"}},
-    {"cursor_colorspace", {0, "GRAPHICS_SETTINGS"}},
     {"window_width", {640, "GRAPHICS_SETTINGS"}},
     {"window_height", {480, "GRAPHICS_SETTINGS"}},
     {"dialog_center_mode", {0, "GRAPHICS_SETTINGS"}},
