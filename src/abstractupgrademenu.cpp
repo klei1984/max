@@ -685,7 +685,20 @@ bool AbstractUpgradeMenu::IsUnitFiltered(ResourceID unit_type) {
 
     flags = ResourceManager_GetUnit(unit_type).GetFlags();
 
-    if ((flags & UPGRADABLE) && Builder_IsBuildable(team, unit_type)) {
+    bool is_buildable = Builder_IsBuildable(team, unit_type);
+
+    // Mines are upgradable but not buildable. They should appear in upgrade menus only if their deployer unit is
+    // buildable.
+    if (!is_buildable && (flags & GROUND_COVER) && (flags & STATIONARY) && (flags & SENTRY_UNIT)) {
+        if (unit_type == LANDMINE) {
+            is_buildable = Builder_IsBuildable(team, MINELAYR);
+
+        } else if (unit_type == SEAMINE) {
+            is_buildable = Builder_IsBuildable(team, SEAMNLYR);
+        }
+    }
+
+    if ((flags & UPGRADABLE) && is_buildable) {
         if (((flags & MOBILE_LAND_UNIT) && button_ground_rest_state) ||
             ((flags & MOBILE_AIR_UNIT) && button_air_rest_state) ||
             ((flags & MOBILE_SEA_UNIT) && button_sea_rest_state) ||
