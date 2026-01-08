@@ -119,19 +119,24 @@ bool NetworkMenu_MenuLoop(bool is_host_mode) {
                         }
 
                         if (network_menu.key == 1017) {
-                            network_menu.key = 0;
                             network_menu.buttons[MENU_CONTROL_CHAT_BAR_ONE]->PlaySound();
+                            network_menu.text_edit3->ProcessKeyPress(GNW_KB_KEY_RETURN);
+                            network_menu.LeaveEditField();
+                            network_menu.key = 0;
+                            continue;
                         }
 
                     } else if (network_menu.key == 1000) {
                         continue;
                     }
 
-                    network_menu.text_edit3->ProcessKeyPress(GNW_KB_KEY_RETURN);
-                    network_menu.LeaveEditField();
+                    if (network_menu.key >= 1000) {
+                        network_menu.text_edit3->ProcessKeyPress(GNW_KB_KEY_RETURN);
+                        network_menu.LeaveEditField();
 
-                    if (!network_menu.key) {
-                        continue;
+                        if (!network_menu.key) {
+                            continue;
+                        }
                     }
                 }
             }
@@ -529,6 +534,10 @@ void NetworkMenu::EventSetJar() {
 }
 
 void NetworkMenu::EventChat() {
+    if (text_edit3) {
+        return;
+    }
+
     strcpy(text_buffer, chat_input_buffer);
 
     text_edit3 = text_edit2;
