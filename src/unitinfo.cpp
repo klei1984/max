@@ -4424,12 +4424,12 @@ void UnitInfo::PickUpMine() {
 
             if (storage == GetBaseValues()->GetAttribute(ATTRIB_STORAGE)) {
                 laying_state = 0;
+            }
 
-                if (GameManager_SelectedUnit == this) {
-                    GameManager_UpdateInfoDisplay(this);
+            if (GameManager_SelectedUnit == this) {
+                GameManager_UpdateInfoDisplay(this);
 
-                    ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_END, true);
-                }
+                ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_END, true);
             }
         }
     }
