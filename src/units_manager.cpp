@@ -3549,6 +3549,17 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
         }
     }
 
+    bool skip_rubble_removal = false;
+
+    if (unit_type == BULLDOZR && unit_orders == ORDER_CLEAR) {
+        skip_rubble_removal = true;
+    }
+
+    if (unit_type == ENGINEER && unit_orders == ORDER_BUILD && unit->build_list.GetCount() > 0 &&
+        *unit->build_list[0] == CNCT_4W) {
+        skip_rubble_removal = true;
+    }
+
     UnitsManager_DestroyUnit(unit);
 
     if ((unit_flags & STATIONARY) && UnitsManager_TeamInfo[unit_team].team_type != TEAM_TYPE_REMOTE) {
@@ -3570,7 +3581,7 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
             }
         }
 
-        Access_DestroyUtilities(unit_grid_x, unit_grid_y, true, true, false, false);
+        Access_DestroyUtilities(unit_grid_x, unit_grid_y, true, !skip_rubble_removal, false, false);
     }
 
     if (rubble_type != INVALID_ID) {
