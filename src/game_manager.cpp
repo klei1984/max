@@ -5488,7 +5488,7 @@ void GameManager_ProcessKey() {
 #endif /* !defined(NDEBUG) */
         } break;
 
-        case GNW_KB_KEY_LALT_F4: {
+        case GNW_KB_KEY_LALT_F2: {
 #if !defined(NDEBUG)
             {
                 if (!GameManager_DebugDelayedEndTurn(UnitsManager_MobileLandSeaUnits) &&
