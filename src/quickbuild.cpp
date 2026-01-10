@@ -46,6 +46,7 @@ SmartPointer<UnitInfo> QuickBuild_PreviewUnit;
 
 static ResourceID QuickBuild_UnitId;
 static ResourceID QuickBuild_MenuUnitId;
+static int32_t QuickBuild_SelectedTeam = 0;
 
 struct QuickBuildMenuGuiItem {
     int32_t r_value;
@@ -66,6 +67,7 @@ static struct QuickBuildMenuGuiItem QuickBuild_MenuItems[] = {
     MENU_QUICK_BUILD_GUI_ITEM_DEF(INVALID_ID, INVALID_ID, 8, 167, 128, 128, 1006),
     MENU_QUICK_BUILD_GUI_ITEM_DEF(INVALID_ID, INVALID_ID, 145, 167, 128, 128, 1007),
     MENU_QUICK_BUILD_GUI_ITEM_DEF(INVALID_ID, INVALID_ID, 280, 167, 128, 128, 1008),
+    MENU_QUICK_BUILD_GUI_ITEM_DEF(QWKCN_OF, QWKCN_ON, 291, 316, 24, 24, 1009),
     MENU_QUICK_BUILD_GUI_ITEM_DEF(QWKDN_OF, QWKDN_ON, 323, 316, 24, 24, 1002),
     MENU_QUICK_BUILD_GUI_ITEM_DEF(QWKUP_OF, QWKUP_ON, 355, 316, 24, 24, 1001),
     MENU_QUICK_BUILD_GUI_ITEM_DEF(QWKCN_OF, QWKCN_ON, 387, 316, 24, 24, 1000),
@@ -73,6 +75,47 @@ static struct QuickBuildMenuGuiItem QuickBuild_MenuItems[] = {
 
 static void QuickBuild_MenuDrawPortraits(WindowInfo* window, const std::vector<ResourceID>& valid_units,
                                          int32_t start_index, int32_t width);
+static void QuickBuild_DrawTeamIndicator(WindowInfo* window);
+
+void QuickBuild_DrawTeamIndicator(WindowInfo* window) {
+    char team_text[2];
+    int32_t text_color;
+
+    team_text[0] = '0' + QuickBuild_SelectedTeam;
+    team_text[1] = '\0';
+
+    switch (QuickBuild_SelectedTeam) {
+        case 0: {
+            text_color = 0x20;
+        } break;
+
+        case 1: {
+            text_color = COLOR_RED;
+        } break;
+
+        case 2: {
+            text_color = COLOR_GREEN;
+        } break;
+
+        case 3: {
+            text_color = COLOR_BLUE;
+        } break;
+
+        case 4: {
+            text_color = 0xFF;
+        } break;
+
+        case 5: {
+            text_color = COLOR_YELLOW;
+        } break;
+
+        default: {
+            text_color = 0x20;
+        } break;
+    }
+
+    win_print(window->id, team_text, 20, 260, 330, text_color | GNW_TEXT_REFRESH_WINDOW);
+}
 
 void QuickBuild_MenuDrawPortraits(WindowInfo* window, const std::vector<ResourceID>& valid_units, int32_t start_index,
                                   int32_t width) {
@@ -110,6 +153,10 @@ void QuickBuild_Menu() {
     auto window{WindowManager_GetWindow(WINDOW_POPUP_BUTTONS)};
     constexpr uint16_t window_width{416};
     constexpr uint16_t window_height{345};
+
+    // Save and enable AllVisible mode to make all units visible during quick build
+    const bool saved_all_visible = GameManager_AllVisible;
+    GameManager_AllVisible = true;
 
     // Build filtered list of valid unit types
     std::vector<ResourceID> valid_units;
@@ -157,6 +204,21 @@ void QuickBuild_Menu() {
 
             item.bid = win_register_button(window->id, item.ulx, item.uly, item.width, item.height, -1, -1, -1,
                                            item.r_value, up, down, nullptr, item.flags);
+
+            // Draw initial button image to window buffer and refresh to screen
+            if (image_off != nullptr) {
+                Rect button_rect;
+
+                buf_to_buf(&image_off->transparent_color, image_off->width, image_off->height, image_off->width,
+                           &window->buffer[item.uly * window_width + item.ulx], window_width);
+
+                button_rect.ulx = item.ulx;
+                button_rect.uly = item.uly;
+                button_rect.lrx = item.ulx + item.width;
+                button_rect.lry = item.uly + item.height;
+
+                win_draw_rect(window->id, &button_rect);
+            }
         }
 
         // Find current page index based on QuickBuild_MenuUnitId
@@ -171,6 +233,7 @@ void QuickBuild_Menu() {
         }
 
         QuickBuild_MenuDrawPortraits(window, valid_units, current_page_index, window_width);
+        QuickBuild_DrawTeamIndicator(window);
 
         int32_t key;
 
@@ -234,8 +297,11 @@ void QuickBuild_Menu() {
                         flicsmgr_construct(base_unit.GetFlicsAnimation(), main_window, main_window->width,
                                            portrait_window->window.ulx, portrait_window->window.uly, false, false);
 
-                        QuickBuild_PreviewUnit =
-                            UnitsManager_SpawnUnit(QuickBuild_UnitId, GameManager_PlayerTeam, 0, 0, nullptr);
+                        const uint16_t spawn_team = (QuickBuild_SelectedTeam == 0)
+                                                        ? GameManager_PlayerTeam
+                                                        : static_cast<uint16_t>(QuickBuild_SelectedTeam - 1);
+
+                        QuickBuild_PreviewUnit = UnitsManager_SpawnUnit(QuickBuild_UnitId, spawn_team, 0, 0, nullptr);
 
                         // Set ORDER_IDLE so AI systems ignore this preview unit (it should not be attacked, cause enemy
                         // reactions, or fire on enemies until actually deployed). The renderer has special handling to
@@ -246,6 +312,12 @@ void QuickBuild_Menu() {
 
                         key = 1000;
                     }
+                } break;
+
+                case 1009: {
+                    // Team selection - cycle through 0-5
+                    QuickBuild_SelectedTeam = (QuickBuild_SelectedTeam + 1) % 6;
+                    QuickBuild_DrawTeamIndicator(window);
                 } break;
             }
 
@@ -259,6 +331,9 @@ void QuickBuild_Menu() {
     }
 
     win_delete(window->id);
+
+    // Restore AllVisible mode
+    GameManager_AllVisible = saved_all_visible;
 }
 
 bool QuickBuild_IsUnitValid(ResourceID unit_type) {
@@ -443,37 +518,39 @@ UnitInfo* QuickBuild_GetTargetUnit(int32_t grid_x, int32_t grid_y) {
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            // Check for alien units
+            // Determine which team to search for based on QuickBuild_SelectedTeam
+            // 0 = active team, 1-5 = specific team (RED, GREEN, BLUE, GRAY, ALIEN)
+            const uint16_t target_team = (QuickBuild_SelectedTeam == 0)
+                                             ? GameManager_PlayerTeam
+                                             : static_cast<uint16_t>(QuickBuild_SelectedTeam - 1);
+
+            // First pass: Check for units of the target team
             for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
                 // Skip the quick builder preview unit that follows the mouse cursor
                 if (it->Get() == QuickBuild_PreviewUnit.Get()) {
                     continue;
                 }
 
-                const auto unit_type = (*it).GetUnitType();
+                if ((*it).team == target_team) {
+                    const auto unit_type = (*it).GetUnitType();
 
-                if ((*it).team == PLAYER_TEAM_ALIEN) {
-                    unit = it->Get();
-                    break;
-                }
-
-                if (unit_type == SHIELDGN || unit_type == SUPRTPLT || unit_type == RECCENTR || unit_type == ALNTANK ||
-                    unit_type == ALNASGUN || unit_type == ALNPLANE) {
-                    unit = it->Get();
-                    break;
-                }
-            }
-
-            if (!unit) {
-                // If no neutral units found, try ground cover units
-                for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-                    // Skip the quick builder preview unit that follows the mouse cursor
-                    if (it->Get() == QuickBuild_PreviewUnit.Get()) {
-                        continue;
+                    // For alien team, check for alien-specific units
+                    if (target_team == PLAYER_TEAM_ALIEN) {
+                        if (unit_type == SHIELDGN || unit_type == SUPRTPLT || unit_type == RECCENTR ||
+                            unit_type == ALNTANK || unit_type == ALNASGUN || unit_type == ALNPLANE) {
+                            unit = it->Get();
+                            break;
+                        }
                     }
 
-                    if (((*it).flags & GROUND_COVER) || (*it).GetUnitType() == HARVSTER ||
-                        (*it).GetUnitType() == WALDO) {
+                    // Check for ground cover units
+                    if (((*it).flags & GROUND_COVER) || unit_type == HARVSTER || unit_type == WALDO) {
+                        unit = it->Get();
+                        break;
+                    }
+
+                    // For non-ground-cover units, only select if they're stationary or have valid orders
+                    if ((*it).GetOrder() != ORDER_IDLE || ((*it).flags & STATIONARY)) {
                         unit = it->Get();
                         break;
                     }
@@ -503,11 +580,14 @@ void QuickBuild_ProcessClick(UnitInfo* unit, Point mouse_position, uint32_t mous
         if (QuickBuild_IsPlacementValid(&*QuickBuild_PreviewUnit, mouse_position.x, mouse_position.y)) {
             ResourceManager_GetSoundManager().PlaySfx(KCARG0);
 
+            const uint16_t deploy_team =
+                (QuickBuild_SelectedTeam == 0) ? player_team : static_cast<uint16_t>(QuickBuild_SelectedTeam - 1);
+
             if (Remote_IsNetworkGame) {
-                Remote_SendNetPacket_14(player_team, QuickBuild_GetUnitId(), mouse_position.x, mouse_position.y);
+                Remote_SendNetPacket_14(deploy_team, QuickBuild_GetUnitId(), mouse_position.x, mouse_position.y);
             }
 
-            GameManager_DeployUnit(player_team, QuickBuild_GetUnitId(), mouse_position.x, mouse_position.y);
+            GameManager_DeployUnit(deploy_team, QuickBuild_GetUnitId(), mouse_position.x, mouse_position.y);
         } else {
             ResourceManager_GetSoundManager().PlaySfx(NCANC0);
         }
