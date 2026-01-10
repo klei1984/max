@@ -22,14 +22,18 @@
 #include "drawmap.hpp"
 
 #include "access.hpp"
+#include "color.h"
 #include "game_manager.hpp"
 #include "gfx.hpp"
 #include "researchmenu.hpp"
+#include "resource_manager.hpp"
+#include "settings.hpp"
 #include "survey.hpp"
 #include "text.hpp"
 #include "unit.hpp"
 #include "units_manager.hpp"
 #include "window_manager.hpp"
+#include "world.hpp"
 
 enum {
     OVERLAP_2IN1,
@@ -62,6 +66,8 @@ static void DrawMap_RenderNamesDisplay(UnitInfo* unit);
 static void DrawMap_RenderMiniMapUnitList(SmartList<UnitInfo>* units);
 static void DrawMap_RenderMiniMap();
 static void DrawMap_RenderMapTile(int32_t ulx, int32_t uly, Rect bounds, uint8_t* buffer);
+static void DrawMap_RenderSimpleGridOverlay(WindowInfo* window, Rect pixel_bounds, const Rect& grid_bounds);
+static void DrawMap_RenderComplexGridOverlay(WindowInfo* window, Rect pixel_bounds, int32_t grid_x, int32_t grid_y);
 
 DrawMapBuffer::DrawMapBuffer() : buffer(nullptr), bounds({0, 0, 0, 0}) {}
 
@@ -911,6 +917,82 @@ void DrawMap_RenderMapTile(int32_t ulx, int32_t uly, Rect bounds, uint8_t* buffe
     }
 }
 
+void DrawMap_RenderSimpleGridOverlay(WindowInfo* window, Rect pixel_bounds, const Rect& grid_bounds) {
+    pixel_bounds.ulx = (pixel_bounds.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
+    pixel_bounds.uly = (pixel_bounds.uly * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
+    pixel_bounds.lrx = ((pixel_bounds.lrx - 1) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
+    pixel_bounds.lry = ((pixel_bounds.lry - 1) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
+
+    const int32_t width = grid_bounds.lrx - grid_bounds.ulx;
+    const int32_t height = grid_bounds.lry - grid_bounds.uly;
+
+    int32_t position_x =
+        ((grid_bounds.ulx * GFX_MAP_TILE_SIZE) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
+    int32_t position_y =
+        ((grid_bounds.uly * GFX_MAP_TILE_SIZE) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
+
+    const World* world = ResourceManager_GetActiveWorld();
+    const uint8_t color = world ? world->GetGridOverlayColor(SURFACE_TYPE_LAND) : 37;
+
+    for (int32_t j = 0; j < width; ++j) {
+        if (position_x >= pixel_bounds.ulx && position_x <= pixel_bounds.lrx) {
+            draw_line(window->buffer, window->width, position_x, pixel_bounds.uly, position_x, pixel_bounds.lry, color);
+        }
+
+        position_x += Gfx_ZoomLevel;
+    }
+
+    for (int32_t j = 0; j < height; ++j) {
+        if (position_y >= pixel_bounds.uly && position_y <= pixel_bounds.lry) {
+            draw_line(window->buffer, window->width, pixel_bounds.ulx, position_y, pixel_bounds.lrx, position_y, color);
+        }
+
+        position_y += Gfx_ZoomLevel;
+    }
+}
+
+void DrawMap_RenderComplexGridOverlay(WindowInfo* window, Rect pixel_bounds, int32_t grid_x, int32_t grid_y) {
+    pixel_bounds.ulx = (pixel_bounds.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
+    pixel_bounds.uly = (pixel_bounds.uly * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
+    pixel_bounds.lrx = ((pixel_bounds.lrx - 1) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
+    pixel_bounds.lry = ((pixel_bounds.lry - 1) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
+
+    const World* world = ResourceManager_GetActiveWorld();
+
+    if (!world) {
+        return;
+    }
+
+    const uint8_t surface_type = world->GetSurfaceType(grid_x, grid_y);
+    const uint8_t color = world->GetGridOverlayColor(surface_type);
+
+    // Calculate the top-left pixel position of this grid cell
+    const int32_t position_x =
+        ((grid_x * GFX_MAP_TILE_SIZE) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
+    const int32_t position_y =
+        ((grid_y * GFX_MAP_TILE_SIZE) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
+
+    // Draw the top horizontal line
+    if (position_y >= pixel_bounds.uly && position_y <= pixel_bounds.lry) {
+        const int32_t line_start_x = std::max(position_x, pixel_bounds.ulx);
+        const int32_t line_end_x = std::min(position_x + static_cast<int32_t>(Gfx_ZoomLevel), pixel_bounds.lrx);
+
+        if (line_start_x <= line_end_x) {
+            draw_line(window->buffer, window->width, line_start_x, position_y, line_end_x, position_y, color);
+        }
+    }
+
+    // Draw the left vertical line
+    if (position_x >= pixel_bounds.ulx && position_x <= pixel_bounds.lrx) {
+        const int32_t line_start_y = std::max(position_y, pixel_bounds.uly);
+        const int32_t line_end_y = std::min(position_y + static_cast<int32_t>(Gfx_ZoomLevel), pixel_bounds.lry);
+
+        if (line_start_y <= line_end_y) {
+            draw_line(window->buffer, window->width, position_x, line_start_y, position_x, line_end_y, color);
+        }
+    }
+}
+
 void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
     int32_t index;
 
@@ -964,39 +1046,14 @@ void DrawMap_RenderMapTiles(DrawMapBuffer* drawmap, bool display_button_grid) {
             DrawMap_RenderMapTile(grid_bounds.ulx, grid_bounds.uly, pixel_bounds, window->buffer);
 
             if (display_button_grid) {
-                pixel_bounds.ulx = (pixel_bounds.ulx * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
-                pixel_bounds.uly = (pixel_bounds.uly * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
-                pixel_bounds.lrx =
-                    ((pixel_bounds.lrx - 1) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUlx;
-                pixel_bounds.lry =
-                    ((pixel_bounds.lry - 1) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor - Gfx_MapWindowUly;
-
-                int32_t width = grid_bounds.lrx - grid_bounds.ulx;
-                int32_t height = grid_bounds.lry - grid_bounds.uly;
-
-                int32_t position_x =
-                    ((grid_bounds.ulx * GFX_MAP_TILE_SIZE) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor -
-                    Gfx_MapWindowUlx;
-                int32_t position_y =
-                    ((grid_bounds.uly * GFX_MAP_TILE_SIZE) * GFX_SCALE_DENOMINATOR) / Gfx_MapScalingFactor -
-                    Gfx_MapWindowUly;
-
-                for (int32_t j = 0; j < width; ++j) {
-                    if (position_x >= pixel_bounds.ulx && position_x <= pixel_bounds.lrx) {
-                        draw_line(window->buffer, window->width, position_x, pixel_bounds.uly, position_x,
-                                  pixel_bounds.lry, 0x25);
+                if (ResourceManager_GetSettings()->GetNumericValue("complex_grid_overlay")) {
+                    for (point.y = grid_bounds.uly; point.y < grid_bounds.lry; ++point.y) {
+                        for (point.x = grid_bounds.ulx; point.x < grid_bounds.lrx; ++point.x) {
+                            DrawMap_RenderComplexGridOverlay(window, pixel_bounds, point.x, point.y);
+                        }
                     }
-
-                    position_x += Gfx_ZoomLevel;
-                }
-
-                for (int32_t j = 0; j < height; ++j) {
-                    if (position_y >= pixel_bounds.uly && position_y <= pixel_bounds.lry) {
-                        draw_line(window->buffer, window->width, pixel_bounds.ulx, position_y, pixel_bounds.lrx,
-                                  position_y, 0x25);
-                    }
-
-                    position_y += Gfx_ZoomLevel;
+                } else {
+                    DrawMap_RenderSimpleGridOverlay(window, pixel_bounds, grid_bounds);
                 }
             }
         }

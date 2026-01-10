@@ -157,6 +157,15 @@ public:
      */
     [[nodiscard]] uint8_t GetSurfaceType(int32_t grid_x, int32_t grid_y) const;
 
+    /**
+     * \brief Retrieves the palette color index for grid overlay rendering based on surface type.
+     *
+     * \param surface_type The surface type (SURFACE_TYPE_LAND, SURFACE_TYPE_WATER, SURFACE_TYPE_COAST,
+     * SURFACE_TYPE_AIR).
+     * \return The palette color index for rendering grid overlay lines of the specified surface type.
+     */
+    [[nodiscard]] uint8_t GetGridOverlayColor(uint8_t surface_type) const;
+
     [[nodiscard]] const Point& GetMapSize() const { return m_map_size; }
     [[nodiscard]] const uint16_t* GetTileIds() const { return m_tile_ids.get(); }
     [[nodiscard]] const uint8_t* GetTileBuffer() const { return m_tile_buffer.get(); }
@@ -177,6 +186,7 @@ private:
     void ApplyBugFixes();
     void CalculateMinimapScaling();
     [[nodiscard]] std::string ComputeHash() const;
+    void InitGridOverlayColors();
 
     ResourceID m_resource_id;
     std::filesystem::path m_file_path;
@@ -201,6 +211,11 @@ private:
     std::unique_ptr<uint8_t[]> m_palette;
     std::vector<ColorCycleData> m_color_cycles;
     uint8_t m_color_cycle_step;
+
+    uint8_t m_grid_overlay_color_land;
+    uint8_t m_grid_overlay_color_water;
+    uint8_t m_grid_overlay_color_coast;
+    uint8_t m_grid_overlay_color_air;
 };
 
 #endif  // WORLD_HPP

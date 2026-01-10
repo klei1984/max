@@ -528,6 +528,15 @@ void World::ApplyPaletteAndTints(DrawLoadBar* load_bar) {
         progress_bar_value += 3;
         load_bar->SetValue(progress_bar_value);
     }
+
+    InitGridOverlayColors();
+}
+
+void World::InitGridOverlayColors() {
+    m_grid_overlay_color_land = Color_MapColor(WindowManager_ColorPalette, 49 / 4, 97 / 4, 8 / 4, false);
+    m_grid_overlay_color_water = Color_MapColor(WindowManager_ColorPalette, 58 / 4, 81 / 4, 173 / 4, false);
+    m_grid_overlay_color_coast = Color_MapColor(WindowManager_ColorPalette, 82 / 4, 158 / 4, 206 / 4, false);
+    m_grid_overlay_color_air = Color_MapColor(WindowManager_ColorPalette, 206 / 4, 32 / 4, 0 / 4, false);
 }
 
 void World::InitColorCycles() {
@@ -893,4 +902,32 @@ uint8_t World::GetSurfaceType(int32_t grid_x, int32_t grid_y) const {
     }
 
     return m_surface_map[grid_y * m_map_size.x + grid_x];
+}
+
+uint8_t World::GetGridOverlayColor(uint8_t surface_type) const {
+    uint8_t result;
+
+    switch (surface_type) {
+        case SURFACE_TYPE_LAND: {
+            result = m_grid_overlay_color_land;
+        } break;
+
+        case SURFACE_TYPE_WATER: {
+            result = m_grid_overlay_color_water;
+        } break;
+
+        case SURFACE_TYPE_COAST: {
+            result = m_grid_overlay_color_coast;
+        } break;
+
+        case SURFACE_TYPE_AIR: {
+            result = m_grid_overlay_color_air;
+        } break;
+
+        default: {
+            result = m_grid_overlay_color_land;
+        } break;
+    }
+
+    return result;
 }

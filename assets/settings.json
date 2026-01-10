@@ -25,7 +25,8 @@
 			"disable_subtitles": 0,
 			"subtitle_text_color": -1,
 			"subtitle_outline_color": -16777216,
-			"subtitle_bg_color": 0
+			"subtitle_bg_color": 0,
+			"complex_grid_overlay": 0
 		},
 		"OPTIONS": {
 			"world": 0,
