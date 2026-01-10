@@ -736,7 +736,31 @@ void SaveLoadMenu_CreateBackup(const char* file_name) {
     std::error_code ec;
 
     if (std::filesystem::exists(save_path, ec)) {
-        const auto backup_path = std::filesystem::path(file_name).replace_extension(".BAK");
+        const auto base_path = save_path.parent_path() / save_path.stem();
+
+        // Rotate backups: ba4->ba5, ba3->ba4, ba2->ba3, ba1->ba2, bak->ba1
+        for (int i = 5; i >= 1; --i) {
+            auto from_path = base_path;
+            auto to_path = base_path;
+
+            if (i == 1) {
+                from_path.replace_extension(".bak");
+
+            } else {
+                from_path.replace_extension(".ba" + std::to_string(i - 1));
+            }
+
+            to_path.replace_extension(".ba" + std::to_string(i));
+
+            if (std::filesystem::exists(from_path, ec)) {
+                std::filesystem::rename(from_path, to_path, ec);
+            }
+        }
+
+        // Create new backup from current save file
+        auto backup_path = base_path;
+
+        backup_path.replace_extension(".bak");
 
         std::filesystem::rename(save_path, backup_path, ec);
 
