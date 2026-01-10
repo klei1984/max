@@ -3343,7 +3343,7 @@ bool UnitsManager_PursueEnemy(UnitInfo* unit) {
                 enemy_unit->GetOrder() != ORDER_IDLE &&
                 (enemy_unit->IsVisibleToTeam(unit->team) || !enemy_unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED))) {
                 if ((UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_COMPUTER ||
-                     !enemy_unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED)) &&
+                     !unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED)) &&
                     Access_GetSquaredDistance(unit, position) > unit_range * unit_range) {
                     enemy_unit = nullptr;
 
