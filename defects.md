@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 217 / 253 (85.7%) original M.A.X. defects in M.A.X. Port.
+Fixed 219 / 255 (85.8%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -928,3 +928,12 @@ The video clip demonstrates that the enemy mining station disappears when the fr
     <source src="{{ site.baseurl }}/assets/clips/defect_253.mp4" type="video/mp4">
     </video>
 <br>
+
+254. **[Fixed]** There is a function (cseg01:001007BF) to clean up after destruction of a unit. Normally when an engineer is building something and it blows up utility units like cones and slabs are removed before deployment of rubble. Problem is that an engineer can build connectors over rubble and the function that removes utilities (cseg01:00014395) is configured to remove rubble as well. The same functions are responsible for cleaning up after bulldozers. Rubble are not simply visual markers, each instance tracks the amount of raw materials that can be extracted from them by bulldozers so incorrectly removing a rubble instance is considered a defect.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_254.mp4" type="video/mp4">
+    </video>
+<br>
+
+255. **[Fixed]** The save game menu (cseg01:000D843F) does not update the saved game category when an existing save file is overwritten till the menu is reloaded. For example if the existing save file is custom game and the new one is a training mission after saving the training mission the menu shows custom save game category until the menu is closed and opened again.
