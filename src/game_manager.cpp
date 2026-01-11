@@ -2051,22 +2051,23 @@ void GameManager_UpdateScoreGraph() {
 }
 
 uint16_t GameManager_EvaluateWinner() {
-    int32_t result;
+    uint16_t result;
 
     if (ini_setting_victory_type == VICTORY_TYPE_SCORE) {
         uint16_t highest_team_points_team = 0;
-        uint32_t highest_team_points = 0;
+        int64_t highest_team_points = -1;
 
         for (uint16_t i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
             if (UnitsManager_TeamInfo[i].team_type != TEAM_TYPE_NONE &&
                 UnitsManager_TeamInfo[i].team_type != TEAM_TYPE_ELIMINATED &&
-                UnitsManager_TeamInfo[i].team_points >= highest_team_points) {
+                UnitsManager_TeamInfo[i].team_points > highest_team_points) {
                 highest_team_points = UnitsManager_TeamInfo[i].team_points;
                 highest_team_points_team = i;
             }
         }
 
         result = highest_team_points_team;
+
     } else {
         result = 0;
     }
@@ -2086,7 +2087,7 @@ void GameManager_AnnounceWinner(uint16_t team) {
 
         sample_count = 1;
 
-        resource_id1 = static_cast<ResourceID>(V_M118 + team * (sample_count + 1));
+        resource_id1 = static_cast<ResourceID>(V_M118 + winner * (sample_count + 1));
         resource_id2 = static_cast<ResourceID>(resource_id1 + sample_count);
 
         ResourceManager_GetSoundManager().PlayVoice(resource_id1, resource_id2);
