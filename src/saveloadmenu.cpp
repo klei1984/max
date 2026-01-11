@@ -435,6 +435,7 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
 
                         SaveLoadMenu_Save(slots[save_slot_index].file_name, slots[save_slot_index].save_name, true);
                         slots[save_slot_index].in_use = true;
+                        slots[save_slot_index].save_file_type = mission_category;
                         slots[save_slot_index].DrawSaveSlot(slots[save_slot_index].save_file_type);
                         win_draw(WindowManager_GetWindow(WINDOW_MAIN_WINDOW)->id);
                         SaveLoadMenu_SaveSlot = SaveLoadMenu_FirstSaveSlotOnPage + save_slot_index;
