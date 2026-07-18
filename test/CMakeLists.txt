@@ -40,9 +40,6 @@ add_executable(
     smartstring.cpp
 )
 
-target_compile_options(max_tests PRIVATE --coverage)
-target_link_options(max_tests PRIVATE --coverage)
-
 if(NOT BUILD_SHARED_LIBS)
 	target_link_options(max_tests PRIVATE -static -static-libgcc -static-libstdc++)
 	target_link_libraries(max_tests PRIVATE ${${PROJECT_NAME}_deps})

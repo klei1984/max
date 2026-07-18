@@ -26,6 +26,7 @@
 #include <format>
 #include <fstream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 

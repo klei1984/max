@@ -1,5 +1,5 @@
 #!/bin/sh -e
-# Copyright: 2024 M.A.X. Port Team
+# Copyright: 2024-2026 M.A.X. Port Team
 # License: MIT
 
 # Set default values for referenced XDG environment variables if they are unset

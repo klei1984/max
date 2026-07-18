@@ -1,0 +1,1159 @@
+{
+    "version": 6,
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "cacheVariables": {
+                "BUILD_SHARED_LIBS": "OFF",
+                "CMAKE_INSTALL_PREFIX": "/usr/local"
+            }
+        },
+        {
+            "name": "base-windows",
+            "hidden": true,
+            "inherits": "base",
+            "description": "Ninja generator. The CI historically used 'MSYS Makefiles'; Ninja is used here because its dependency graph makes no-op rebuilds near-instant and its process-group teardown on Windows does not orphan cc1plus/as.exe when a build is cancelled. NOTE: run each msys2-* preset from its matching MSYS2 shell (mingw32 presets from the MINGW32 shell, mingw64 presets from the MINGW64 shell). A prefix's gcc/clang loads its own runtime DLLs by PATH order, so invoking it from a foreign MSYS2 shell fails the compiler check. Set MSYS2_ROOT to override the default c:/msys64 install location.",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "c:/Program Files/M.A.X. Port"
+            }
+        },
+        {
+            "name": "base-windows-x86",
+            "hidden": true,
+            "inherits": "base-windows",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "c:/Program Files (x86)/M.A.X. Port"
+            }
+        },
+        {
+            "name": "base-linux",
+            "hidden": true,
+            "inherits": "base",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "BUILD_SHARED_LIBS": "ON"
+            }
+        },
+        {
+            "name": "base-cross-windows",
+            "hidden": true,
+            "inherits": "base",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "c:/Program Files/M.A.X. Port"
+            }
+        },
+        {
+            "name": "msys2-ucrt64-debug",
+            "displayName": "MSYS2 UCRT64 Debug",
+            "description": "Preferred 64 bit Windows configuration. Links the Universal CRT instead of the legacy msvcrt.dll used by the mingw64 prefix.",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/ucrt64-debug",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-ucrt64-gcc.cmake",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "msys2-ucrt64-relwithdebinfo",
+            "displayName": "MSYS2 UCRT64 RelWithDebInfo",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/ucrt64-relwithdebinfo",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-ucrt64-gcc.cmake",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "msys2-ucrt64-release",
+            "displayName": "MSYS2 UCRT64 Release",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/ucrt64-release",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-ucrt64-gcc.cmake",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "msys2-ucrt64-minsizerel",
+            "displayName": "MSYS2 UCRT64 MinSizeRel",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/ucrt64-minsizerel",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-ucrt64-gcc.cmake",
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "msys2-clang64-debug",
+            "displayName": "MSYS2 Clang64 Debug",
+            "description": "UCRT based clang/LLVM prefix (libc++, compiler-rt, lld).",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/clang64-debug",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-clang64-clang.cmake",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "msys2-clang64-relwithdebinfo",
+            "displayName": "MSYS2 Clang64 RelWithDebInfo",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/clang64-relwithdebinfo",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-clang64-clang.cmake",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "msys2-clang64-release",
+            "displayName": "MSYS2 Clang64 Release",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/clang64-release",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-clang64-clang.cmake",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "msys2-clang64-minsizerel",
+            "displayName": "MSYS2 Clang64 MinSizeRel",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/clang64-minsizerel",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-clang64-clang.cmake",
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "msys2-mingw64-debug",
+            "displayName": "MSYS2 MinGW64 Debug",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/mingw64-debug",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-x86_64.cmake",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "msys2-mingw64-relwithdebinfo",
+            "displayName": "MSYS2 MinGW64 RelWithDebInfo",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/mingw64-relwithdebinfo",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-x86_64.cmake",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "msys2-mingw64-release",
+            "displayName": "MSYS2 MinGW64 Release",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/mingw64-release",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-x86_64.cmake",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "msys2-mingw64-minsizerel",
+            "displayName": "MSYS2 MinGW64 MinSizeRel",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/mingw64-minsizerel",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-x86_64.cmake",
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "msys2-mingw64-clang-debug",
+            "displayName": "MSYS2 MinGW64 Clang Debug",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/mingw64-clang-debug",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-x86_64-clang.cmake",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "msys2-mingw64-clang-relwithdebinfo",
+            "displayName": "MSYS2 MinGW64 Clang RelWithDebInfo",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/mingw64-clang-relwithdebinfo",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-x86_64-clang.cmake",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "msys2-mingw64-clang-release",
+            "displayName": "MSYS2 MinGW64 Clang Release",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/mingw64-clang-release",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-x86_64-clang.cmake",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "msys2-mingw64-clang-minsizerel",
+            "displayName": "MSYS2 MinGW64 Clang MinSizeRel",
+            "inherits": "base-windows",
+            "binaryDir": "${sourceDir}/build/mingw64-clang-minsizerel",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-x86_64-clang.cmake",
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "msys2-mingw32-debug",
+            "displayName": "MSYS2 MinGW32 Debug",
+            "inherits": "base-windows-x86",
+            "binaryDir": "${sourceDir}/build/mingw32-debug",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-i686.cmake",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "msys2-mingw32-relwithdebinfo",
+            "displayName": "MSYS2 MinGW32 RelWithDebInfo",
+            "inherits": "base-windows-x86",
+            "binaryDir": "${sourceDir}/build/mingw32-relwithdebinfo",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-i686.cmake",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "msys2-mingw32-release",
+            "displayName": "MSYS2 MinGW32 Release",
+            "inherits": "base-windows-x86",
+            "binaryDir": "${sourceDir}/build/mingw32-release",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-i686.cmake",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "msys2-mingw32-minsizerel",
+            "displayName": "MSYS2 MinGW32 MinSizeRel",
+            "inherits": "base-windows-x86",
+            "binaryDir": "${sourceDir}/build/mingw32-minsizerel",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-i686.cmake",
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "msys2-mingw32-clang-debug",
+            "displayName": "MSYS2 MinGW32 Clang Debug",
+            "inherits": "base-windows-x86",
+            "binaryDir": "${sourceDir}/build/mingw32-clang-debug",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-i686-clang.cmake",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "msys2-mingw32-clang-relwithdebinfo",
+            "displayName": "MSYS2 MinGW32 Clang RelWithDebInfo",
+            "inherits": "base-windows-x86",
+            "binaryDir": "${sourceDir}/build/mingw32-clang-relwithdebinfo",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-i686-clang.cmake",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "msys2-mingw32-clang-release",
+            "displayName": "MSYS2 MinGW32 Clang Release",
+            "inherits": "base-windows-x86",
+            "binaryDir": "${sourceDir}/build/mingw32-clang-release",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-i686-clang.cmake",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "msys2-mingw32-clang-minsizerel",
+            "displayName": "MSYS2 MinGW32 Clang MinSizeRel",
+            "inherits": "base-windows-x86",
+            "binaryDir": "${sourceDir}/build/mingw32-clang-minsizerel",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-mingw-w64-i686-clang.cmake",
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "linux-x64-debug",
+            "displayName": "Linux x64 Debug",
+            "inherits": "base-linux",
+            "binaryDir": "${sourceDir}/build/linux-x64-debug",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-linux-x86_64.cmake",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "linux-x64-relwithdebinfo",
+            "displayName": "Linux x64 RelWithDebInfo",
+            "inherits": "base-linux",
+            "binaryDir": "${sourceDir}/build/linux-x64-relwithdebinfo",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-linux-x86_64.cmake",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "linux-x64-release",
+            "displayName": "Linux x64 Release",
+            "inherits": "base-linux",
+            "binaryDir": "${sourceDir}/build/linux-x64-release",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-linux-x86_64.cmake",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "linux-x64-minsizerel",
+            "displayName": "Linux x64 MinSizeRel",
+            "inherits": "base-linux",
+            "binaryDir": "${sourceDir}/build/linux-x64-minsizerel",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-linux-x86_64.cmake",
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "linux-x86-debug",
+            "displayName": "Linux x86 Debug",
+            "inherits": "base-linux",
+            "binaryDir": "${sourceDir}/build/linux-x86-debug",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-linux-i686.cmake",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "linux-x86-relwithdebinfo",
+            "displayName": "Linux x86 RelWithDebInfo",
+            "inherits": "base-linux",
+            "binaryDir": "${sourceDir}/build/linux-x86-relwithdebinfo",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-linux-i686.cmake",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "linux-x86-release",
+            "displayName": "Linux x86 Release",
+            "inherits": "base-linux",
+            "binaryDir": "${sourceDir}/build/linux-x86-release",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-linux-i686.cmake",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "linux-x86-minsizerel",
+            "displayName": "Linux x86 MinSizeRel",
+            "inherits": "base-linux",
+            "binaryDir": "${sourceDir}/build/linux-x86-minsizerel",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-linux-i686.cmake",
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "cross-windowsxp-x64-debug",
+            "displayName": "Cross Windows XP x64 Debug",
+            "inherits": "base-cross-windows",
+            "binaryDir": "${sourceDir}/build/cross-winxp-x64-debug",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-cross-mingw-w64-x86_64.cmake",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "cross-windowsxp-x64-relwithdebinfo",
+            "displayName": "Cross Windows XP x64 RelWithDebInfo",
+            "inherits": "base-cross-windows",
+            "binaryDir": "${sourceDir}/build/cross-winxp-x64-relwithdebinfo",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-cross-mingw-w64-x86_64.cmake",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "cross-windowsxp-x64-release",
+            "displayName": "Cross Windows XP x64 Release",
+            "inherits": "base-cross-windows",
+            "binaryDir": "${sourceDir}/build/cross-winxp-x64-release",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-cross-mingw-w64-x86_64.cmake",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "cross-windowsxp-x64-minsizerel",
+            "displayName": "Cross Windows XP x64 MinSizeRel",
+            "inherits": "base-cross-windows",
+            "binaryDir": "${sourceDir}/build/cross-winxp-x64-minsizerel",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-cross-mingw-w64-x86_64.cmake",
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "cross-windowsxp-x86-debug",
+            "displayName": "Cross Windows XP x86 Debug",
+            "inherits": "base-cross-windows",
+            "binaryDir": "${sourceDir}/build/cross-winxp-x86-debug",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-cross-mingw-w64-i686.cmake",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "cross-windowsxp-x86-relwithdebinfo",
+            "displayName": "Cross Windows XP x86 RelWithDebInfo",
+            "inherits": "base-cross-windows",
+            "binaryDir": "${sourceDir}/build/cross-winxp-x86-relwithdebinfo",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-cross-mingw-w64-i686.cmake",
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "cross-windowsxp-x86-release",
+            "displayName": "Cross Windows XP x86 Release",
+            "inherits": "base-cross-windows",
+            "binaryDir": "${sourceDir}/build/cross-winxp-x86-release",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-cross-mingw-w64-i686.cmake",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "cross-windowsxp-x86-minsizerel",
+            "displayName": "Cross Windows XP x86 MinSizeRel",
+            "inherits": "base-cross-windows",
+            "binaryDir": "${sourceDir}/build/cross-winxp-x86-minsizerel",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain-cross-mingw-w64-i686.cmake",
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "base-build",
+            "hidden": true,
+            "description": "Capped at 4 parallel jobs rather than 0 (== one job per core). Several TUs here are memory-hungry, and an unbounded job count on a high-core CPU can exceed system RAM, thrash the pagefile and orphan cc1plus/as.exe when a job OOMs. Override per-invocation with '--parallel N'.",
+            "jobs": 4
+        },
+        {
+            "name": "msys2-ucrt64-debug",
+            "inherits": "base-build",
+            "configurePreset": "msys2-ucrt64-debug",
+            "description": "Build MSYS2 UCRT64 Debug"
+        },
+        {
+            "name": "msys2-ucrt64-relwithdebinfo",
+            "inherits": "base-build",
+            "configurePreset": "msys2-ucrt64-relwithdebinfo",
+            "description": "Build MSYS2 UCRT64 RelWithDebInfo"
+        },
+        {
+            "name": "msys2-ucrt64-release",
+            "inherits": "base-build",
+            "configurePreset": "msys2-ucrt64-release",
+            "description": "Build MSYS2 UCRT64 Release"
+        },
+        {
+            "name": "msys2-ucrt64-minsizerel",
+            "inherits": "base-build",
+            "configurePreset": "msys2-ucrt64-minsizerel",
+            "description": "Build MSYS2 UCRT64 MinSizeRel"
+        },
+        {
+            "name": "msys2-clang64-debug",
+            "inherits": "base-build",
+            "configurePreset": "msys2-clang64-debug",
+            "description": "Build MSYS2 Clang64 Debug"
+        },
+        {
+            "name": "msys2-clang64-relwithdebinfo",
+            "inherits": "base-build",
+            "configurePreset": "msys2-clang64-relwithdebinfo",
+            "description": "Build MSYS2 Clang64 RelWithDebInfo"
+        },
+        {
+            "name": "msys2-clang64-release",
+            "inherits": "base-build",
+            "configurePreset": "msys2-clang64-release",
+            "description": "Build MSYS2 Clang64 Release"
+        },
+        {
+            "name": "msys2-clang64-minsizerel",
+            "inherits": "base-build",
+            "configurePreset": "msys2-clang64-minsizerel",
+            "description": "Build MSYS2 Clang64 MinSizeRel"
+        },
+        {
+            "name": "msys2-mingw64-debug",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw64-debug",
+            "description": "Build MSYS2 MinGW64 Debug"
+        },
+        {
+            "name": "msys2-mingw64-relwithdebinfo",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw64-relwithdebinfo",
+            "description": "Build MSYS2 MinGW64 RelWithDebInfo"
+        },
+        {
+            "name": "msys2-mingw64-release",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw64-release",
+            "description": "Build MSYS2 MinGW64 Release"
+        },
+        {
+            "name": "msys2-mingw64-minsizerel",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw64-minsizerel",
+            "description": "Build MSYS2 MinGW64 MinSizeRel"
+        },
+        {
+            "name": "msys2-mingw64-clang-debug",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw64-clang-debug",
+            "description": "Build MSYS2 MinGW64 Clang Debug"
+        },
+        {
+            "name": "msys2-mingw64-clang-relwithdebinfo",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw64-clang-relwithdebinfo",
+            "description": "Build MSYS2 MinGW64 Clang RelWithDebInfo"
+        },
+        {
+            "name": "msys2-mingw64-clang-release",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw64-clang-release",
+            "description": "Build MSYS2 MinGW64 Clang Release"
+        },
+        {
+            "name": "msys2-mingw64-clang-minsizerel",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw64-clang-minsizerel",
+            "description": "Build MSYS2 MinGW64 Clang MinSizeRel"
+        },
+        {
+            "name": "msys2-mingw32-debug",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw32-debug",
+            "description": "Build MSYS2 MinGW32 Debug"
+        },
+        {
+            "name": "msys2-mingw32-relwithdebinfo",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw32-relwithdebinfo",
+            "description": "Build MSYS2 MinGW32 RelWithDebInfo"
+        },
+        {
+            "name": "msys2-mingw32-release",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw32-release",
+            "description": "Build MSYS2 MinGW32 Release"
+        },
+        {
+            "name": "msys2-mingw32-minsizerel",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw32-minsizerel",
+            "description": "Build MSYS2 MinGW32 MinSizeRel"
+        },
+        {
+            "name": "msys2-mingw32-clang-debug",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw32-clang-debug",
+            "description": "Build MSYS2 MinGW32 Clang Debug"
+        },
+        {
+            "name": "msys2-mingw32-clang-relwithdebinfo",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw32-clang-relwithdebinfo",
+            "description": "Build MSYS2 MinGW32 Clang RelWithDebInfo"
+        },
+        {
+            "name": "msys2-mingw32-clang-release",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw32-clang-release",
+            "description": "Build MSYS2 MinGW32 Clang Release"
+        },
+        {
+            "name": "msys2-mingw32-clang-minsizerel",
+            "inherits": "base-build",
+            "configurePreset": "msys2-mingw32-clang-minsizerel",
+            "description": "Build MSYS2 MinGW32 Clang MinSizeRel"
+        },
+        {
+            "name": "linux-x64-debug",
+            "inherits": "base-build",
+            "configurePreset": "linux-x64-debug",
+            "description": "Build Linux x64 Debug"
+        },
+        {
+            "name": "linux-x64-relwithdebinfo",
+            "inherits": "base-build",
+            "configurePreset": "linux-x64-relwithdebinfo",
+            "description": "Build Linux x64 RelWithDebInfo"
+        },
+        {
+            "name": "linux-x64-release",
+            "inherits": "base-build",
+            "configurePreset": "linux-x64-release",
+            "description": "Build Linux x64 Release"
+        },
+        {
+            "name": "linux-x64-minsizerel",
+            "inherits": "base-build",
+            "configurePreset": "linux-x64-minsizerel",
+            "description": "Build Linux x64 MinSizeRel"
+        },
+        {
+            "name": "linux-x86-debug",
+            "inherits": "base-build",
+            "configurePreset": "linux-x86-debug",
+            "description": "Build Linux x86 Debug"
+        },
+        {
+            "name": "linux-x86-relwithdebinfo",
+            "inherits": "base-build",
+            "configurePreset": "linux-x86-relwithdebinfo",
+            "description": "Build Linux x86 RelWithDebInfo"
+        },
+        {
+            "name": "linux-x86-release",
+            "inherits": "base-build",
+            "configurePreset": "linux-x86-release",
+            "description": "Build Linux x86 Release"
+        },
+        {
+            "name": "linux-x86-minsizerel",
+            "inherits": "base-build",
+            "configurePreset": "linux-x86-minsizerel",
+            "description": "Build Linux x86 MinSizeRel"
+        },
+        {
+            "name": "cross-windowsxp-x64-debug",
+            "inherits": "base-build",
+            "configurePreset": "cross-windowsxp-x64-debug",
+            "description": "Build Cross Windows XP x64 Debug"
+        },
+        {
+            "name": "cross-windowsxp-x64-relwithdebinfo",
+            "inherits": "base-build",
+            "configurePreset": "cross-windowsxp-x64-relwithdebinfo",
+            "description": "Build Cross Windows XP x64 RelWithDebInfo"
+        },
+        {
+            "name": "cross-windowsxp-x64-release",
+            "inherits": "base-build",
+            "configurePreset": "cross-windowsxp-x64-release",
+            "description": "Build Cross Windows XP x64 Release"
+        },
+        {
+            "name": "cross-windowsxp-x64-minsizerel",
+            "inherits": "base-build",
+            "configurePreset": "cross-windowsxp-x64-minsizerel",
+            "description": "Build Cross Windows XP x64 MinSizeRel"
+        },
+        {
+            "name": "cross-windowsxp-x86-debug",
+            "inherits": "base-build",
+            "configurePreset": "cross-windowsxp-x86-debug",
+            "description": "Build Cross Windows XP x86 Debug"
+        },
+        {
+            "name": "cross-windowsxp-x86-relwithdebinfo",
+            "inherits": "base-build",
+            "configurePreset": "cross-windowsxp-x86-relwithdebinfo",
+            "description": "Build Cross Windows XP x86 RelWithDebInfo"
+        },
+        {
+            "name": "cross-windowsxp-x86-release",
+            "inherits": "base-build",
+            "configurePreset": "cross-windowsxp-x86-release",
+            "description": "Build Cross Windows XP x86 Release"
+        },
+        {
+            "name": "cross-windowsxp-x86-minsizerel",
+            "inherits": "base-build",
+            "configurePreset": "cross-windowsxp-x86-minsizerel",
+            "description": "Build Cross Windows XP x86 MinSizeRel"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "msys2-ucrt64-debug",
+            "configurePreset": "msys2-ucrt64-debug",
+            "description": "Test MSYS2 UCRT64 Debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-ucrt64-relwithdebinfo",
+            "configurePreset": "msys2-ucrt64-relwithdebinfo",
+            "description": "Test MSYS2 UCRT64 RelWithDebInfo",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-ucrt64-release",
+            "configurePreset": "msys2-ucrt64-release",
+            "description": "Test MSYS2 UCRT64 Release",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-ucrt64-minsizerel",
+            "configurePreset": "msys2-ucrt64-minsizerel",
+            "description": "Test MSYS2 UCRT64 MinSizeRel",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-clang64-debug",
+            "configurePreset": "msys2-clang64-debug",
+            "description": "Test MSYS2 Clang64 Debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-clang64-relwithdebinfo",
+            "configurePreset": "msys2-clang64-relwithdebinfo",
+            "description": "Test MSYS2 Clang64 RelWithDebInfo",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-clang64-release",
+            "configurePreset": "msys2-clang64-release",
+            "description": "Test MSYS2 Clang64 Release",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-clang64-minsizerel",
+            "configurePreset": "msys2-clang64-minsizerel",
+            "description": "Test MSYS2 Clang64 MinSizeRel",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw64-debug",
+            "configurePreset": "msys2-mingw64-debug",
+            "description": "Test MSYS2 MinGW64 Debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw64-relwithdebinfo",
+            "configurePreset": "msys2-mingw64-relwithdebinfo",
+            "description": "Test MSYS2 MinGW64 RelWithDebInfo",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw64-release",
+            "configurePreset": "msys2-mingw64-release",
+            "description": "Test MSYS2 MinGW64 Release",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw64-minsizerel",
+            "configurePreset": "msys2-mingw64-minsizerel",
+            "description": "Test MSYS2 MinGW64 MinSizeRel",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw64-clang-debug",
+            "configurePreset": "msys2-mingw64-clang-debug",
+            "description": "Test MSYS2 MinGW64 Clang Debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw64-clang-relwithdebinfo",
+            "configurePreset": "msys2-mingw64-clang-relwithdebinfo",
+            "description": "Test MSYS2 MinGW64 Clang RelWithDebInfo",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw64-clang-release",
+            "configurePreset": "msys2-mingw64-clang-release",
+            "description": "Test MSYS2 MinGW64 Clang Release",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw64-clang-minsizerel",
+            "configurePreset": "msys2-mingw64-clang-minsizerel",
+            "description": "Test MSYS2 MinGW64 Clang MinSizeRel",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw32-debug",
+            "configurePreset": "msys2-mingw32-debug",
+            "description": "Test MSYS2 MinGW32 Debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw32-relwithdebinfo",
+            "configurePreset": "msys2-mingw32-relwithdebinfo",
+            "description": "Test MSYS2 MinGW32 RelWithDebInfo",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw32-release",
+            "configurePreset": "msys2-mingw32-release",
+            "description": "Test MSYS2 MinGW32 Release",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw32-minsizerel",
+            "configurePreset": "msys2-mingw32-minsizerel",
+            "description": "Test MSYS2 MinGW32 MinSizeRel",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw32-clang-debug",
+            "configurePreset": "msys2-mingw32-clang-debug",
+            "description": "Test MSYS2 MinGW32 Clang Debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw32-clang-relwithdebinfo",
+            "configurePreset": "msys2-mingw32-clang-relwithdebinfo",
+            "description": "Test MSYS2 MinGW32 Clang RelWithDebInfo",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw32-clang-release",
+            "configurePreset": "msys2-mingw32-clang-release",
+            "description": "Test MSYS2 MinGW32 Clang Release",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "msys2-mingw32-clang-minsizerel",
+            "configurePreset": "msys2-mingw32-clang-minsizerel",
+            "description": "Test MSYS2 MinGW32 Clang MinSizeRel",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "linux-x64-debug",
+            "configurePreset": "linux-x64-debug",
+            "description": "Test Linux x64 Debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "linux-x64-relwithdebinfo",
+            "configurePreset": "linux-x64-relwithdebinfo",
+            "description": "Test Linux x64 RelWithDebInfo",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "linux-x64-release",
+            "configurePreset": "linux-x64-release",
+            "description": "Test Linux x64 Release",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "linux-x64-minsizerel",
+            "configurePreset": "linux-x64-minsizerel",
+            "description": "Test Linux x64 MinSizeRel",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "linux-x86-debug",
+            "configurePreset": "linux-x86-debug",
+            "description": "Test Linux x86 Debug",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "linux-x86-relwithdebinfo",
+            "configurePreset": "linux-x86-relwithdebinfo",
+            "description": "Test Linux x86 RelWithDebInfo",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "linux-x86-release",
+            "configurePreset": "linux-x86-release",
+            "description": "Test Linux x86 Release",
+            "output": {
+                "outputOnFailure": true
+            }
+        },
+        {
+            "name": "linux-x86-minsizerel",
+            "configurePreset": "linux-x86-minsizerel",
+            "description": "Test Linux x86 MinSizeRel",
+            "output": {
+                "outputOnFailure": true
+            }
+        }
+    ],
+    "packagePresets": [
+        {
+            "name": "msys2-ucrt64-debug",
+            "configurePreset": "msys2-ucrt64-debug",
+            "description": "Package MSYS2 UCRT64 Debug"
+        },
+        {
+            "name": "msys2-ucrt64-relwithdebinfo",
+            "configurePreset": "msys2-ucrt64-relwithdebinfo",
+            "description": "Package MSYS2 UCRT64 RelWithDebInfo"
+        },
+        {
+            "name": "msys2-ucrt64-release",
+            "configurePreset": "msys2-ucrt64-release",
+            "description": "Package MSYS2 UCRT64 Release"
+        },
+        {
+            "name": "msys2-ucrt64-minsizerel",
+            "configurePreset": "msys2-ucrt64-minsizerel",
+            "description": "Package MSYS2 UCRT64 MinSizeRel"
+        },
+        {
+            "name": "msys2-clang64-debug",
+            "configurePreset": "msys2-clang64-debug",
+            "description": "Package MSYS2 Clang64 Debug"
+        },
+        {
+            "name": "msys2-clang64-relwithdebinfo",
+            "configurePreset": "msys2-clang64-relwithdebinfo",
+            "description": "Package MSYS2 Clang64 RelWithDebInfo"
+        },
+        {
+            "name": "msys2-clang64-release",
+            "configurePreset": "msys2-clang64-release",
+            "description": "Package MSYS2 Clang64 Release"
+        },
+        {
+            "name": "msys2-clang64-minsizerel",
+            "configurePreset": "msys2-clang64-minsizerel",
+            "description": "Package MSYS2 Clang64 MinSizeRel"
+        },
+        {
+            "name": "msys2-mingw64-debug",
+            "configurePreset": "msys2-mingw64-debug",
+            "description": "Package MSYS2 MinGW64 Debug"
+        },
+        {
+            "name": "msys2-mingw64-relwithdebinfo",
+            "configurePreset": "msys2-mingw64-relwithdebinfo",
+            "description": "Package MSYS2 MinGW64 RelWithDebInfo"
+        },
+        {
+            "name": "msys2-mingw64-release",
+            "configurePreset": "msys2-mingw64-release",
+            "description": "Package MSYS2 MinGW64 Release"
+        },
+        {
+            "name": "msys2-mingw64-minsizerel",
+            "configurePreset": "msys2-mingw64-minsizerel",
+            "description": "Package MSYS2 MinGW64 MinSizeRel"
+        },
+        {
+            "name": "msys2-mingw64-clang-debug",
+            "configurePreset": "msys2-mingw64-clang-debug",
+            "description": "Package MSYS2 MinGW64 Clang Debug"
+        },
+        {
+            "name": "msys2-mingw64-clang-relwithdebinfo",
+            "configurePreset": "msys2-mingw64-clang-relwithdebinfo",
+            "description": "Package MSYS2 MinGW64 Clang RelWithDebInfo"
+        },
+        {
+            "name": "msys2-mingw64-clang-release",
+            "configurePreset": "msys2-mingw64-clang-release",
+            "description": "Package MSYS2 MinGW64 Clang Release"
+        },
+        {
+            "name": "msys2-mingw64-clang-minsizerel",
+            "configurePreset": "msys2-mingw64-clang-minsizerel",
+            "description": "Package MSYS2 MinGW64 Clang MinSizeRel"
+        },
+        {
+            "name": "msys2-mingw32-debug",
+            "configurePreset": "msys2-mingw32-debug",
+            "description": "Package MSYS2 MinGW32 Debug"
+        },
+        {
+            "name": "msys2-mingw32-relwithdebinfo",
+            "configurePreset": "msys2-mingw32-relwithdebinfo",
+            "description": "Package MSYS2 MinGW32 RelWithDebInfo"
+        },
+        {
+            "name": "msys2-mingw32-release",
+            "configurePreset": "msys2-mingw32-release",
+            "description": "Package MSYS2 MinGW32 Release"
+        },
+        {
+            "name": "msys2-mingw32-minsizerel",
+            "configurePreset": "msys2-mingw32-minsizerel",
+            "description": "Package MSYS2 MinGW32 MinSizeRel"
+        },
+        {
+            "name": "msys2-mingw32-clang-debug",
+            "configurePreset": "msys2-mingw32-clang-debug",
+            "description": "Package MSYS2 MinGW32 Clang Debug"
+        },
+        {
+            "name": "msys2-mingw32-clang-relwithdebinfo",
+            "configurePreset": "msys2-mingw32-clang-relwithdebinfo",
+            "description": "Package MSYS2 MinGW32 Clang RelWithDebInfo"
+        },
+        {
+            "name": "msys2-mingw32-clang-release",
+            "configurePreset": "msys2-mingw32-clang-release",
+            "description": "Package MSYS2 MinGW32 Clang Release"
+        },
+        {
+            "name": "msys2-mingw32-clang-minsizerel",
+            "configurePreset": "msys2-mingw32-clang-minsizerel",
+            "description": "Package MSYS2 MinGW32 Clang MinSizeRel"
+        },
+        {
+            "name": "linux-x64-debug",
+            "configurePreset": "linux-x64-debug",
+            "description": "Package Linux x64 Debug"
+        },
+        {
+            "name": "linux-x64-relwithdebinfo",
+            "configurePreset": "linux-x64-relwithdebinfo",
+            "description": "Package Linux x64 RelWithDebInfo"
+        },
+        {
+            "name": "linux-x64-release",
+            "configurePreset": "linux-x64-release",
+            "description": "Package Linux x64 Release"
+        },
+        {
+            "name": "linux-x64-minsizerel",
+            "configurePreset": "linux-x64-minsizerel",
+            "description": "Package Linux x64 MinSizeRel"
+        },
+        {
+            "name": "linux-x86-debug",
+            "configurePreset": "linux-x86-debug",
+            "description": "Package Linux x86 Debug"
+        },
+        {
+            "name": "linux-x86-relwithdebinfo",
+            "configurePreset": "linux-x86-relwithdebinfo",
+            "description": "Package Linux x86 RelWithDebInfo"
+        },
+        {
+            "name": "linux-x86-release",
+            "configurePreset": "linux-x86-release",
+            "description": "Package Linux x86 Release"
+        },
+        {
+            "name": "linux-x86-minsizerel",
+            "configurePreset": "linux-x86-minsizerel",
+            "description": "Package Linux x86 MinSizeRel"
+        },
+        {
+            "name": "cross-windowsxp-x64-debug",
+            "configurePreset": "cross-windowsxp-x64-debug",
+            "description": "Package Cross Windows XP x64 Debug"
+        },
+        {
+            "name": "cross-windowsxp-x64-relwithdebinfo",
+            "configurePreset": "cross-windowsxp-x64-relwithdebinfo",
+            "description": "Package Cross Windows XP x64 RelWithDebInfo"
+        },
+        {
+            "name": "cross-windowsxp-x64-release",
+            "configurePreset": "cross-windowsxp-x64-release",
+            "description": "Package Cross Windows XP x64 Release"
+        },
+        {
+            "name": "cross-windowsxp-x64-minsizerel",
+            "configurePreset": "cross-windowsxp-x64-minsizerel",
+            "description": "Package Cross Windows XP x64 MinSizeRel"
+        },
+        {
+            "name": "cross-windowsxp-x86-debug",
+            "configurePreset": "cross-windowsxp-x86-debug",
+            "description": "Package Cross Windows XP x86 Debug"
+        },
+        {
+            "name": "cross-windowsxp-x86-relwithdebinfo",
+            "configurePreset": "cross-windowsxp-x86-relwithdebinfo",
+            "description": "Package Cross Windows XP x86 RelWithDebInfo"
+        },
+        {
+            "name": "cross-windowsxp-x86-release",
+            "configurePreset": "cross-windowsxp-x86-release",
+            "description": "Package Cross Windows XP x86 Release"
+        },
+        {
+            "name": "cross-windowsxp-x86-minsizerel",
+            "configurePreset": "cross-windowsxp-x86-minsizerel",
+            "description": "Package Cross Windows XP x86 MinSizeRel"
+        }
+    ]
+}

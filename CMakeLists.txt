@@ -12,16 +12,6 @@ endif()
 
 option(MAX_BUILD_TESTS "Build unit tests by default" ON)
 option(MAX_ENABLE_UPNP "Use miniupnpc library" ON)
-option(MAX_ENABLE_INSTALLER "Enable installer module for asset conversion" ON)
-option(MAX_BUILD_INSTALLER_STANDALONE "Build standalone installer shared library (independent of BUILD_SHARED_LIBS)" OFF)
-
-# Enable RmlUi debugger by default in debug builds, disable in release builds
-# (debugger contains SIL-licensed fonts that should not be in release builds)
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	option(ENABLE_RMLUI_DEBUGGER "Enable RmlUi debugger (contains SIL-licensed fonts)" ON)
-else()
-	option(ENABLE_RMLUI_DEBUGGER "Enable RmlUi debugger (contains SIL-licensed fonts)" OFF)
-endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
@@ -64,50 +54,20 @@ if(MAX_ENABLE_UPNP)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC MAX_ENABLE_UPNP=1)
 endif()
 
-if(MAX_ENABLE_INSTALLER)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC MAX_ENABLE_INSTALLER=1)
-endif()
-
-if(ENABLE_RMLUI_DEBUGGER)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC ENABLE_RMLUI_DEBUGGER=1)
-endif()
-
 if(NOT BUILD_SHARED_LIBS)
-	set(${PROJECT_NAME}_deps SDL3::SDL3-static utf8proc Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::static lz4::static rectpack::rectpack Xoshiro::Xoshiro Enet::Enet RmlUi::Core Freetype::Freetype)
-
-	if(ENABLE_RMLUI_DEBUGGER)
-		list(APPEND ${PROJECT_NAME}_deps RmlUi::Debugger)
-	endif()
+	set(${PROJECT_NAME}_deps SDL3::SDL3-static utf8proc Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::static Xoshiro::Xoshiro Enet::Enet Freetype::Freetype)
 
 	if(MAX_ENABLE_UPNP)
 		list(APPEND ${PROJECT_NAME}_deps miniupnpc::miniupnpc)
-	endif()
-
-	if(MAX_ENABLE_INSTALLER)
-		list(APPEND ${PROJECT_NAME}_deps max_installer_static)
 	endif()
 
 	target_link_options(${PROJECT_NAME} PUBLIC -static -static-libgcc -static-libstdc++)
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 else()
-	set(${PROJECT_NAME}_deps SDL3::SDL3-shared utf8proc Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::shared lz4::shared rectpack::rectpack Xoshiro::Xoshiro Enet::Enet RmlUi::Core Freetype::Freetype)
-
-	if(ENABLE_RMLUI_DEBUGGER)
-		list(APPEND ${PROJECT_NAME}_deps RmlUi::Debugger)
-	endif()
+	set(${PROJECT_NAME}_deps SDL3::SDL3-shared utf8proc Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::shared Xoshiro::Xoshiro Enet::Enet Freetype::Freetype)
 
 	if(MAX_ENABLE_UPNP)
 		list(APPEND ${PROJECT_NAME}_deps miniupnpc::miniupnpc)
-	endif()
-
-	if(MAX_ENABLE_INSTALLER)
-		# When building game as shared library, also use shared installer if available
-		# Otherwise fall back to static installer library
-		if(MAX_BUILD_INSTALLER_STANDALONE)
-			list(APPEND ${PROJECT_NAME}_deps max_installer_shared)
-		else()
-			list(APPEND ${PROJECT_NAME}_deps max_installer_static)
-		endif()
 	endif()
 
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
@@ -120,14 +80,11 @@ endif()
 include(sdl3)
 include(utf8proc)
 include(freetype)
-include(rmlui)
 include(miniaudio)
 include(sha2)
 include(json)
 include(jsonschema)
 include(lua)
-include(lz4)
-include(rectpack2d)
 include(xoshiro)
 
 set(ENET_RELEASE ON)
@@ -135,11 +92,6 @@ include(enet)
 
 if(MAX_ENABLE_UPNP)
 	include(miniupnp)
-endif()
-
-# Conditionally add installer subdirectory if feature is enabled
-if(MAX_ENABLE_INSTALLER)
-	add_subdirectory(src/installer)
 endif()
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -164,7 +116,7 @@ set(CPACK_PACKAGE_CONTACT "M.A.X. Port Team")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/assets/LICENSE")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "M.A.X. Port v${GAME_VERSION_STRING}")
 set(CPACK_PACKAGE_DESCRIPTION "M.A.X. Port is an SDL library based runtime executable for the 1996 MS-DOS\n" "game M.A.X.: Mechanized Assault & Exploration developed and published by\n" "Interplay Productions.")
-set(CPACK_SOURCE_IGNORE_FILES "/\.git/;/\.github/;/\.settings/;/\.vscode/;\.gitignore;.\.launch;\.project;\.cproject;\.clang-format;\.gdbinit;README.md;/doc/;${CMAKE_BINARY_DIR};Debug;Release;RelWithDebInfo;MinSizeRel;/dependencies/.*\.tar\.gz")
+set(CPACK_SOURCE_IGNORE_FILES "/\.git/;/\.github/;/\.settings/;/\.vscode/;\.gitignore;.\.launch;\.project;\.cproject;\.clang-format;\.gdbinit;README.md;/doc/;/build/;${CMAKE_BINARY_DIR};Debug;Release;RelWithDebInfo;MinSizeRel;/dependencies/.*\.tar\.gz")
 
 if(UNIX)
 	set(CPACK_SOURCE_GENERATOR "TGZ")
@@ -204,9 +156,7 @@ if(UNIX)
 				"^libnlohmann_json.*$"
 				"^libnlohmann_json_schema_validator.*$"
 				"^liblua.*$"
-				"^liblz4.*$"
 				"^libutf8proc.*$"
-				"^libRml.*$"
 		)
 
 		if(DEPS_CONFLICTING_FILENAMES)

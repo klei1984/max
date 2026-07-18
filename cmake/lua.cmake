@@ -9,7 +9,7 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/dependencies/${LUA_FILE})
 	endif()
 endif()
 
-set(LUA_PATCH ${Patch_EXECUTABLE} -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/patches/lua.patch)
+set(LUA_PATCH ${Patch_EXECUTABLE} -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/cmake/patches/lua.patch)
 
 FetchContent_Declare(
 	LUA

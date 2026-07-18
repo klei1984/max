@@ -52,10 +52,7 @@ Mkfile.old
 dkms.conf
 
 # CMake
-Debug/**
-Release/**
-RelWithDebInfo/**
-MinSizeRel/**
+build/**
 
 # IDE
 .vscode/**

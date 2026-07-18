@@ -9,7 +9,7 @@ if(EXISTS ${PROJECT_SOURCE_DIR}/dependencies/${XOSHIRO_FILE})
 	endif()
 endif()
 
-set(XOSHIRO_PATCH ${Patch_EXECUTABLE} -p0 < ${PROJECT_SOURCE_DIR}/dependencies/patches/xoshiro.patch)
+set(XOSHIRO_PATCH ${Patch_EXECUTABLE} -p0 < ${PROJECT_SOURCE_DIR}/cmake/patches/xoshiro.patch)
 
 FetchContent_Declare(
 	XOSHIRO

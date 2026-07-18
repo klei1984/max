@@ -1,4 +1,4 @@
-# Copyright: 2025 M.A.X. Port Team
+# Copyright: 2026 M.A.X. Port Team
 # License: MIT
 
 # Maintainer: M.A.X. Port Team <maxport@maxport.org>
@@ -10,7 +10,7 @@ arch=("${CARCH}")
 url="https://github.com/klei1984/max"
 license=("MIT")
 depends=("sh" "libnewt" "glibc" "gcc-libs")
-makedepends=("git" "cmake" "gcc" "ninja" "wget" "gettext" "p7zip" "sdl2" "desktop-file-utils")
+makedepends=("git" "cmake" "gcc" "ninja" "wget" "gettext" "p7zip" "libx11" "libxext" "libxcursor" "libxrandr" "libxfixes" "libxi" "libxss" "libxtst" "libxkbcommon" "wayland" "wayland-protocols" "libdecor" "alsa-lib" "libpulse" "dbus" "libglvnd" "desktop-file-utils")
 source=("$pkgname::git+https://github.com/klei1984/max.git")
 provides=("$pkgname")
 conflicts=("$pkgname")
@@ -18,8 +18,9 @@ sha256sums=("SKIP")
 
 pkgver() {
     cd "$pkgname"
-    git describe --long --tags --abbrev=8 --exclude="*[a-zA-Z][a-zA-Z]*" \
-        | sed -E "s/^[^0-9]*//;s/([^-]*-g)/r\1/;s/-/./g"
+    _v=$(git describe --long --tags --abbrev=8 --exclude="*[a-zA-Z][a-zA-Z]*" 2>/dev/null | sed -E "s/^[^0-9]*//;s/([^-]*-g)/r\1/;s/-/./g")
+    [ -n "$_v" ] || _v="$pkgver.r$(git rev-list --count HEAD).g$(git rev-parse --short=8 HEAD)"
+    printf '%s' "$_v"
 }
 
 build() {

@@ -14,10 +14,17 @@ else()
 	set(MSYS2_ROOT c:/msys64)
 endif()
 
-set(PREFIX ${MSYS2_ROOT}/mingw64)
+# CLANG64 is a UCRT based prefix built around clang/LLVM (libc++, compiler-rt,
+# lld) rather than the GCC runtime used by ucrt64.
+set(PREFIX ${MSYS2_ROOT}/clang64)
 set(TOOLSET "x86_64-w64-mingw32")
 
-set(CMAKE_FIND_ROOT_PATH ${PREFIX}/${TOOLSET})
+# Unlike the gcc prefixes, clang64 has no ${TOOLSET} sysroot subdirectory --
+# its libraries and headers sit directly under ${PREFIX}/lib and
+# ${PREFIX}/include, so the find root is the prefix itself. Pointing it at
+# ${PREFIX}/${TOOLSET} would name a directory that does not exist and make
+# every find_library/find_path call fail.
+set(CMAKE_FIND_ROOT_PATH ${PREFIX})
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)

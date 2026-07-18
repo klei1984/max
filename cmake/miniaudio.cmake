@@ -15,7 +15,7 @@ if(NOT Patch_FOUND)
 	message(FATAL_ERROR "Patch tool is required.")
 endif()
 
-set(MINIAUDIO_PATCH ${Patch_EXECUTABLE} -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/patches/miniaudio.patch)
+set(MINIAUDIO_PATCH ${Patch_EXECUTABLE} -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/cmake/patches/miniaudio.patch)
 
 FetchContent_Declare(
 	MINIAUDIO
@@ -34,7 +34,7 @@ set(MINIAUDIO_NO_ENCODING ON)
 set(MINIAUDIO_NO_FLAC ON)
 set(MINIAUDIO_NO_MP3 ON)
 set(MINIAUDIO_NO_GENERATION ON)
-set(MINIAUDIO_DISABLE_INSTALL ON)
+set(MINIAUDIO_INSTALL OFF)
 
 # Force Release build without debug info (treat as system library)
 set(CMAKE_BUILD_TYPE_BACKUP ${CMAKE_BUILD_TYPE})

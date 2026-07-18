@@ -25,6 +25,7 @@
 
 #include <ctime>
 #include <filesystem>
+#include <vector>
 
 #include "access.hpp"
 #include "ai.hpp"
@@ -162,7 +163,7 @@ void SaveLoadMenu_Init(const MissionCategory mission_category, SaveSlot* slots, 
     int32_t image_down_size;
     char text_slot_index[8];
     WindowInfo slot_window;
-    ButtonID button_list[num_buttons];
+    std::vector<ButtonID> button_list(num_buttons);
 
     mouse_hide();
 
@@ -244,7 +245,7 @@ void SaveLoadMenu_Init(const MissionCategory mission_category, SaveSlot* slots, 
         button_list[i] = slots[i].bid;
     }
 
-    win_group_radio_buttons(num_buttons, button_list);
+    win_group_radio_buttons(num_buttons, button_list.data());
 
     buttons[0] = SaveLoadMenu_CreateButton(window->id, MNUUAROU, MNUUAROD, WindowManager_ScaleUlx(window, 33),
                                            WindowManager_ScaleUly(window, 438), nullptr, 329);

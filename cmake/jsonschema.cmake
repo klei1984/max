@@ -15,7 +15,7 @@ if(NOT Patch_FOUND)
 	message(FATAL_ERROR "Patch tool is required.")
 endif()
 
-set(JSONSCHEMA_PATCH ${Patch_EXECUTABLE} -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/patches/jsonschema.patch)
+set(JSONSCHEMA_PATCH ${Patch_EXECUTABLE} -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/cmake/patches/jsonschema.patch)
 
 FetchContent_Declare(
 	JSONSCHEMA

@@ -14,8 +14,11 @@ else()
 	set(MSYS2_ROOT c:/msys64)
 endif()
 
-set(PREFIX ${MSYS2_ROOT}/mingw32)
-set(TOOLSET "i686-w64-mingw32")
+# UCRT64 links against Microsoft's Universal CRT rather than the legacy
+# msvcrt.dll used by the mingw64 prefix, and is the preferred 64 bit Windows
+# toolchain for this project.
+set(PREFIX ${MSYS2_ROOT}/ucrt64)
+set(TOOLSET "x86_64-w64-mingw32")
 
 set(CMAKE_FIND_ROOT_PATH ${PREFIX}/${TOOLSET})
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
@@ -25,7 +28,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
 # HINTS is searched ahead of the system PATH, so the compiler is taken from
 # this toolchain's own prefix regardless of which MSYS2 shell drives the
-# build. Without it a mingw32 build started from a mingw64 shell would
+# build. Without it a ucrt64 build started from a mingw64 shell would
 # silently pick up the mingw64 compiler.
 find_program(CMAKE_RC_COMPILER NAMES windres HINTS ${PREFIX}/bin REQUIRED)
 find_program(CMAKE_C_COMPILER NAMES ${TOOLSET}-gcc HINTS ${PREFIX}/bin REQUIRED)
@@ -37,9 +40,6 @@ set(CONFIGURE_EXTRA_ARGS
 	--build=${TOOLSET}
 	CC=${CMAKE_C_COMPILER}
 	CXX=${CMAKE_CXX_COMPILER}
-	CFLAGS=-m32
-	CXXFLAGS=-m32
-	LDFLAGS=-m32
 )
 
 # Every -Wno-* comes after -Wall. gcc lets an explicit -Wno-X win wherever it
@@ -47,7 +47,6 @@ set(CONFIGURE_EXTRA_ARGS
 # before -Wall is silently re-enabled by it), so both families keep the same
 # layout and the flag list stays safe to copy between them.
 add_compile_options(
-	-m32
 	-Wall
 	$<$<COMPILE_LANGUAGE:CXX>:-Wno-reorder>
 	-Wno-switch

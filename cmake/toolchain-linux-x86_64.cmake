@@ -16,15 +16,20 @@ set(CONFIGURE_EXTRA_ARGS
 	CXX=g++
 )
 
+# Every -Wno-* comes after -Wall. gcc lets an explicit -Wno-X win wherever it
+# sits, but the clang toolchains genuinely need this order (there, a -Wno-X
+# before -Wall is silently re-enabled by it), so both families keep the same
+# layout and the flag list stays safe to copy between them.
 add_compile_options(
-	$<$<COMPILE_LANGUAGE:CXX>:-Wno-reorder>
 	-Wall
+	$<$<COMPILE_LANGUAGE:CXX>:-Wno-reorder>
 	-Wno-switch
 	-Wno-unused-function
 	-Wno-unused-variable
 	-Wignored-qualifiers
 	-Wshadow=local
 	-Wtype-limits
+	-Wvla
 	-Wlogical-op
 	-fno-eliminate-unused-debug-types
 )

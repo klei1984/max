@@ -2,7 +2,7 @@ Source: max-port
 Section: contrib/games
 Priority: optional
 Maintainer: M.A.X. Port Team <maxport@maxport.org>
-Build-Depends: cmake, ninja-build, wget, gettext, p7zip-full, libsdl2-dev,
+Build-Depends: cmake, ninja-build, wget, gettext, p7zip-full, libasound2-dev, libpulse-dev, libx11-dev, libxext-dev, libxcursor-dev, libxrandr-dev, libxfixes-dev, libxi-dev, libxss-dev, libxtst-dev, libxkbcommon-dev, libwayland-dev, wayland-protocols, libdecor-0-dev, libdbus-1-dev, libgl-dev, libegl-dev, libudev-dev,
  debhelper-compat (= 13)
 Standards-Version: 4.6.2
 Homepage: https://klei1984.github.io/max/
