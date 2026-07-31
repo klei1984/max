@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 219 / 255 (85.8%) original M.A.X. defects in M.A.X. Port.
+Fixed 222 / 258 (86.04%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -937,3 +937,24 @@ The video clip demonstrates that the enemy mining station disappears when the fr
 <br>
 
 255. **[Fixed]** The save game menu (cseg01:000D843F) does not update the saved game category when an existing save file is overwritten till the menu is reloaded. For example if the existing save file is custom game and the new one is a training mission after saving the training mission the menu shows custom save game category until the menu is closed and opened again.
+
+256. **[Fixed]** When an engineer is path building and on completion of a construction job the transition to the next construction site is blocked, then the UnitInfo class method (cseg01:000EF017) responsible to handle the blocked path changes the unit order and order state to await order. Builder units use a FIFO list to store what are the units to be constructed and normally when an engineer or constructor operated construction job finishes, the first element of the list is removed, emptying the list. But when a human player adds a new path construction job to an engineer, then on completion of one job (cseg01:000F1740), the list is not cleared before the new unit to be constructed is added to the list. So when the pathing engineer is blocked and the path building stops the last list element is stuck and the new human construction job will be ignored as the FIFO read order reads the stale construction job instead of the newly added one. As an engineer never actually needs a construction job list, the proposed defect fix is to not append, but rewrite the list.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_256.mp4" type="video/mp4">
+    </video>
+<br>
+
+257. **[Fixed]** When an engineer is path building and on completion of a construction job the transition to the next construction site is blocked, then the UnitInfo class method (cseg01:000EF017) responsible to handle the blocked path changes the unit order and order state to await order. The new engineer unit order and order state lets a depot, sea or air transport load the engineer off the construction site. M.A.X. 1 does not have an off-map unit status like M.A.X. 2, so while a unit is loaded into another the grid position of the engineer is not refreshed, it is still the construction site which blocks the stationary unit at the construction site from being activated. The constructed unit is in child and parent relationship with the builder unit as long as the activation of the constructed unit does not happen. This means that as long as the engineer is not activated from the depot or the transporter to refresh its map grid position, the constructed unit is stalled. When an engineer is loaded into another unit, the engineer gets idle order. The proposed defect fix is to change the function responsible for the activation precondition (cseg01:000FF9AE) to test whether the engineer, the parent unit of the constructed unit awaiting activation, has idle order. If so, the engineer finished the shrink animation and is inside the holder unit so there is no obstruction anymore for the construction site.
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_257.mp4" type="video/mp4">
+    </video>
+<br>
+
+258. **[Fixed]** When an engineer is path building and on completion of a construction job the transition to the next construction site is blocked, then the UnitInfo class method (cseg01:000EF017) responsible to handle the blocked path changes the unit order and order state to await order. In case the engineer is destroyed in this state the child unit, the constructed unit, is also destroyed due to the parent child relationship. But while the slab utility unit is already deployed the constructed unit is still waiting activation and in this case the expected utility unit cleanup function (cseg01:00014395) is not called after the constructed unit gets destroyed leaving the slab at the construction site. The proposed defect fix is to call the missing cleanup function just before the constructed unit gets destroyed by the applicable function (cseg01:000FF9AE).
+<br>
+    <video class="embed-video" preload="metadata" controls loop muted playsinline>
+    <source src="{{ site.baseurl }}/assets/clips/defect_258.mp4" type="video/mp4">
+    </video>
+<br>
