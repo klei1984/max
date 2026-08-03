@@ -4897,6 +4897,22 @@
 			"es-ES": "Jugador:",
 			"ru-RU": "Имя Игрока:"
 		},
+		"a001": {
+			"en-US": "Host Address:",
+			"fr-FR": "Adresse hôte:",
+			"de-DE": "Host-Adresse:",
+			"it-IT": "Indirizzo host:",
+			"es-ES": "Dirección host:",
+			"ru-RU": "Адрес хоста:"
+		},
+		"a002": {
+			"en-US": "Host Port:",
+			"fr-FR": "Port hôte:",
+			"de-DE": "Host-Port:",
+			"it-IT": "Porta host:",
+			"es-ES": "Puerto host:",
+			"ru-RU": "Порт хоста:"
+		},
 		"238c": {
 			"en-US": "Animate Effects",
 			"fr-FR": "Effets d'Animation",

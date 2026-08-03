@@ -36,15 +36,15 @@
 #include "text.hpp"
 #include "window_manager.hpp"
 
-OptionsMenu::OptionsMenu(uint16_t team, ResourceID bg_image)
-    : Window(bg_image, GameManager_GetDialogWindowCenterMode()),
+OptionsMenu::OptionsMenu(uint16_t team, ResourceID variant)
+    : Window(PREFSPIC, GameManager_GetDialogWindowCenterMode()),
       team(team),
-      bg_image(bg_image),
+      variant(variant),
       text_edit(nullptr),
       control_id(0),
       is_slider_active(false),
       button_count(sizeof(options_menu_buttons) / sizeof(struct OptionsButton)) {
-    int32_t uly = bg_image == SETUPPIC ? 141 : 383;
+    const int32_t uly = 383;
 
     text_buffer[0] = '\0';
     text_buffer_key = 0;
@@ -75,16 +75,15 @@ OptionsMenu::OptionsMenu(uint16_t team, ResourceID bg_image)
     button_help->SetSfx(MBUTT0);
     button_help->RegisterButton(window.id);
 
-    if (bg_image == PREFSPIC) {
-        Text_TextBox(window.buffer, window.width, _(f70f), 108, 12, 184, 17, COLOR_GREEN, true, true);
-    }
+    Text_TextBox(window.buffer, window.width, variant == SETUPPIC ? _(7013) : _(f70f), 108, 12, 184, 17, COLOR_GREEN,
+                 true, true);
 
     Init();
     win_draw_rect(window.id, &window.window);
 
     for (int32_t i = 0; i < button_count; ++i) {
-        if ((strcmp(options_menu_buttons[i].setting_key.c_str(), "enhanced_graphics") != 0 || bg_image == SETUPPIC) &&
-            options_menu_buttons[i].type == OPTIONS_TYPE_CHECKBOX) {
+        /* A control that this variant does not offer has no button instance. */
+        if (options_menu_buttons[i].button && options_menu_buttons[i].type == OPTIONS_TYPE_CHECKBOX) {
             options_menu_buttons[i].button->SetRestState(options_menu_buttons[i].rest_state);
         }
     }
@@ -104,7 +103,7 @@ OptionsMenu::~OptionsMenu() {
         options_menu_buttons[i].image = nullptr;
     }
 
-    if (bg_image == PREFSPIC) {
+    if (variant == PREFSPIC) {
         GameManager_ProcessTick(true);
     }
 }
@@ -169,7 +168,11 @@ void OptionsMenu::InitEditControl(int32_t id, int32_t ulx, int32_t uly) {
         } break;
 
         case OPTIONS_TYPE_EDIT_STR: {
-            if (bg_image == PREFSPIC) {
+            /* In game the player name box edits the name of the team being played, not the global
+             * player name. Keyed on the setting rather than the control type, so that other string
+             * controls are left alone.
+             */
+            if (variant == PREFSPIC && setting_key == "player_name") {
                 setting_key = menu_team_name_setting[team].c_str();
             }
 
@@ -258,7 +261,7 @@ void OptionsMenu::DrawSlider(int32_t id, int32_t value) {
     OptionsButton* button;
     struct ImageSimpleHeader* slider_slit_image;
     struct ImageSimpleHeader* slider_slide_image;
-    int16_t max;
+    int32_t max;
     int32_t ulx;
     int32_t uly;
 
@@ -374,29 +377,40 @@ int32_t OptionsMenu::ProcessTextEditKeyPress(int32_t key) {
     return result;
 }
 
+/* Tells whether the control belongs to the variant being built. A control that is filtered out here
+ * gets no button and no image, which is what the save and cancel paths test for.
+ */
+bool OptionsMenu::IsControlVisible(int32_t id) const {
+    const std::string& setting_key = options_menu_buttons[id].setting_key;
+
+    /* The graphics switch and the network settings only make sense before a game is running. */
+    if (setting_key == "enhanced_graphics" || setting_key == "host_address" || setting_key == "host_port") {
+        return variant == SETUPPIC;
+    }
+
+    return true;
+}
+
 void OptionsMenu::Init() {
     int32_t window_ulx;
     int32_t window_uly;
     std::string setting_key;
 
-    if (bg_image == PREFSPIC) {
-        window_uly = 20;
+    /* Both variants share the PREFSPIC panel, so both start below its title. */
+    window_uly = 20;
 
 #if !defined(NDEBUG)
-        if (ResourceManager_GetSettings()->GetNumericValue("debug")) {
-            window_uly = 0;
-        }
-#endif /* !defined(NDEBUG) */
-
-    } else {
-        window_uly = -20;
+    /* Only the in game variant can grow by a whole debug section, so only it has to start higher. */
+    if (variant == PREFSPIC && ResourceManager_GetSettings()->GetNumericValue("debug")) {
+        window_uly = 0;
     }
+#endif /* !defined(NDEBUG) */
 
     for (int32_t i = 0; i < button_count; ++i) {
         window_ulx = options_menu_buttons[i].ulx;
         setting_key = options_menu_buttons[i].setting_key;
 
-        if (strcmp(setting_key.c_str(), "enhanced_graphics") != 0 || bg_image == SETUPPIC) {
+        if (IsControlVisible(i)) {
 #if !defined(NDEBUG)
             if (ResourceManager_GetSettings()->GetNumericValue("debug")) {
                 if (strcmp(setting_key.c_str(), "play_mode") == 0 || strcmp(setting_key.c_str(), "opponent") == 0 ||
@@ -435,7 +449,7 @@ void OptionsMenu::Init() {
                 }
 
             } else {
-                if (bg_image == SETUPPIC && strcmp(setting_key.c_str(), "setup") != 0) {
+                if (variant == SETUPPIC && strcmp(setting_key.c_str(), "setup") != 0) {
                     button_count = i;
                     return;
                 }
@@ -476,7 +490,7 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
         case GNW_KB_KEY_SHIFT_DIVIDE: {
             if (text_edit) {
                 text_edit->ProcessKeyPress(key);
-            } else if (bg_image == SETUPPIC) {
+            } else if (variant == SETUPPIC) {
                 HelpMenu_Menu("SETUP_MENU_SETUP", WINDOW_MAIN_WINDOW, false);
             } else {
                 HelpMenu_Menu("PREFS_MENU_SETUP", WINDOW_MAIN_WINDOW, Remote_IsNetworkGame == false);
@@ -498,6 +512,13 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
                 std::string setting_key = options_menu_buttons[i].setting_key;
                 int32_t option_type = options_menu_buttons[i].type;
 
+                /* Controls this variant does not offer were never built, so they hold no edited value
+                 * and must not be written back over the stored setting.
+                 */
+                if (options_menu_buttons[i].button == nullptr) {
+                    continue;
+                }
+
                 switch (option_type) {
                     case OPTIONS_TYPE_SLIDER: {
                         ResourceManager_GetSettings()->SetNumericValue(setting_key, options_menu_buttons[i].rest_state);
@@ -517,7 +538,7 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
                         ResourceManager_GetSettings()->SetStringValue(setting_key,
                                                                       options_menu_buttons[i].ini_string_value);
 
-                        if (bg_image == PREFSPIC) {
+                        if (variant == PREFSPIC && setting_key == "player_name") {
                             setting_key = menu_team_name_setting[team].c_str();
                             ResourceManager_GetSettings()->SetStringValue(setting_key,
                                                                           options_menu_buttons[i].ini_string_value);
@@ -539,7 +560,7 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
                 }
             }
 
-            if (bg_image == SETUPPIC) {
+            if (variant == SETUPPIC) {
                 ResourceManager_DisableEnhancedGraphics =
                     !ResourceManager_GetSettings()->GetNumericValue("enhanced_graphics");
             }
@@ -712,7 +733,7 @@ void OptionsMenu::Run() {
             event_release = false;
         }
 
-        if (bg_image == PREFSPIC && Remote_IsNetworkGame) {
+        if (variant == PREFSPIC && Remote_IsNetworkGame) {
             if (GameManager_RequestMenuExit) {
                 key = 1001;
             }

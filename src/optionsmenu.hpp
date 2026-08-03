@@ -39,7 +39,7 @@ enum OptionsType {
     OPTIONS_TYPE_LABEL,
 };
 
-#define OPTIONS_BUTTON_COUNT 33
+#define OPTIONS_BUTTON_COUNT 34
 #define OPTIONS_PLAY_MODE_ITEM_COUNT 2
 #define OPTIONS_OPPONENT_ITEM_COUNT 6
 #define OPTIONS_VICTORY_TYPE_ITEM_COUNT 2
@@ -52,13 +52,13 @@ struct OptionsButton {
     const char* format;
     std::string setting_key;
     int16_t ulx;
-    int16_t range_min;
-    int16_t range_max;
+    int32_t range_min;
+    int32_t range_max;
     Button* button;
     Image* image;
     std::string ini_string_value;
-    int16_t rest_state;
-    int16_t last_rest_state;
+    int32_t rest_state;
+    int32_t last_rest_state;
 };
 
 class OptionsMenu : public Window {
@@ -78,7 +78,8 @@ class OptionsMenu : public Window {
         OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, _(87bf), "voice_level", 25, 0, 100),
         OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(e9db), "disable_voice", 210, 0, 1),
         OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(64fb), "auto_save", 25, 0, 1),
-        OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_HEX, _(5940), "ipx_socket", 210, 0, 0x7FFF),
+        OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_STR, _(a001), "host_address", 25, 0, 0),
+        OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, _(a002), "host_port", 25, 1024, 65535),
         OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_STR, _(f11f), "player_name", 25, 0, 0),
         OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SECTION, nullptr, "preferences", 0, 0, 0),
         OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(238c), "effects", 25, 0, 1),
@@ -108,8 +109,12 @@ class OptionsMenu : public Window {
     Button* button_done;
     Button* button_help;
     uint16_t team;
-    ResourceID bg_image;
-    char text_buffer[30];
+    /* Selects which set of settings the menu offers, SETUPPIC for the main menu variant and PREFSPIC
+     * for the in game one. Both variants render on the PREFSPIC panel, so this is no longer the
+     * background resource.
+     */
+    ResourceID variant;
+    char text_buffer[64];
     int32_t text_buffer_key;
     TextEdit* text_edit;
     uint16_t control_id;
@@ -119,6 +124,7 @@ class OptionsMenu : public Window {
     bool event_release;
 
     void Init();
+    [[nodiscard]] bool IsControlVisible(int32_t id) const;
     void InitSliderControl(int32_t id, int32_t ulx, int32_t uly);
     void InitEditControl(int32_t id, int32_t ulx, int32_t uly);
     void InitCheckboxControl(int32_t id, int32_t ulx, int32_t uly);
@@ -130,7 +136,7 @@ class OptionsMenu : public Window {
     int32_t ProcessKeyPress(int32_t key);
 
 public:
-    OptionsMenu(uint16_t team, ResourceID bg_image);
+    OptionsMenu(uint16_t team, ResourceID variant);
     ~OptionsMenu();
 
     void Run();

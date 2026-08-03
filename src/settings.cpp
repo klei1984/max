@@ -86,7 +86,6 @@ static const std::vector<std::pair<std::string, Settings::SettingDefinition>> se
     {"player_name", {std::string("Player 1"), "SETUP"}},
     {"player_clan", {0, "SETUP"}},
     {"intro_movie", {1, "SETUP"}},
-    {"ipx_socket", {0x51E7, "SETUP"}},
     {"music_level", {100, "SETUP"}},
     {"movie_level", {100, "SETUP"}},
     {"fx_sound_level", {100, "SETUP"}},
@@ -184,6 +183,38 @@ Settings::~Settings() { (void)Save(); }
     return schema;
 }
 
+static bool Settings_IsDefinedKey(const std::vector<std::pair<std::string, Settings::SettingDefinition>>& definitions,
+                                  const std::string& key) {
+    return std::find_if(definitions.begin(), definitions.end(),
+                        [&key](const auto& pair) { return pair.first == key; }) != definitions.end();
+}
+
+static bool Settings_IsDefinedSection(
+    const std::vector<std::pair<std::string, Settings::SettingDefinition>>& definitions, const std::string& section) {
+    return std::find_if(definitions.begin(), definitions.end(), [&section](const auto& pair) {
+               return pair.second.section == section;
+           }) != definitions.end();
+}
+
+static void Settings_RelaxAdditionalProperties(json& schema) {
+    if (schema.is_object()) {
+        auto it = schema.find("additionalProperties");
+
+        if (it != schema.end() && it->is_boolean() && !it->get<bool>()) {
+            schema.erase(it);
+        }
+
+        for (auto& [key, value] : schema.items()) {
+            Settings_RelaxAdditionalProperties(value);
+        }
+
+    } else if (schema.is_array()) {
+        for (auto& value : schema) {
+            Settings_RelaxAdditionalProperties(value);
+        }
+    }
+}
+
 [[nodiscard]] bool Settings::LoadScript(const std::string& script) {
     bool result{false};
 
@@ -195,6 +226,8 @@ Settings::~Settings() { (void)Save(); }
         try {
             validator validator;
             json jschema = json::parse(LoadSchema());
+
+            Settings_RelaxAdditionalProperties(jschema);
 
             validator.set_root_schema(jschema);
             validator.validate(jscript);
@@ -219,6 +252,11 @@ Settings::~Settings() { (void)Save(); }
                         } else if (std::holds_alternative<std::string>(it->second.default_value) && value.is_string()) {
                             (*m_loaded_settings)[key] = value.get<std::string>();
                         }
+
+                    } else {
+                        SDL_Log("Warning: Settings key \"%s\" is not known, it is ignored and will be dropped when the "
+                                "settings are saved.\n",
+                                key.c_str());
                     }
                 }
             }
@@ -288,22 +326,45 @@ Settings::~Settings() { (void)Save(); }
     auto& settings_obj = jscript["settings"];
 
     if (file_existed) {
-        // Update existing settings only
+        // Update existing settings only, and drop whatever the catalog does not define, so that a
+        // renamed or retired setting disappears from the file instead of lingering there forever.
+        std::vector<std::string> stale_sections;
+
         for (auto& [section_name, section_data] : settings_obj.items()) {
-            if (section_data.is_object()) {
-                for (auto& [key, value] : section_data.items()) {
-                    auto it = m_loaded_settings->find(key);
+            if (!section_data.is_object() || !Settings_IsDefinedSection(*m_setting_definitions, section_name)) {
+                stale_sections.push_back(section_name);
+                continue;
+            }
 
-                    if (it != m_loaded_settings->end()) {
-                        if (std::holds_alternative<int32_t>(it->second)) {
-                            value = std::get<int32_t>(it->second);
+            std::vector<std::string> stale_keys;
 
-                        } else if (std::holds_alternative<std::string>(it->second)) {
-                            value = std::get<std::string>(it->second);
-                        }
+            for (auto& [key, value] : section_data.items()) {
+                if (!Settings_IsDefinedKey(*m_setting_definitions, key)) {
+                    stale_keys.push_back(key);
+                    continue;
+                }
+
+                auto it = m_loaded_settings->find(key);
+
+                if (it != m_loaded_settings->end()) {
+                    if (std::holds_alternative<int32_t>(it->second)) {
+                        value = std::get<int32_t>(it->second);
+
+                    } else if (std::holds_alternative<std::string>(it->second)) {
+                        value = std::get<std::string>(it->second);
                     }
                 }
             }
+
+            for (const auto& key : stale_keys) {
+                section_data.erase(key);
+                SDL_Log("Dropped unknown settings key \"%s\".\n", key.c_str());
+            }
+        }
+
+        for (const auto& section_name : stale_sections) {
+            settings_obj.erase(section_name);
+            SDL_Log("Dropped unknown settings section \"%s\".\n", section_name.c_str());
         }
 
     } else {

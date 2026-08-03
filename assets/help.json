@@ -5352,22 +5352,6 @@
 					"ru-RU": "Это - фича \"Авто-Сохранение\" , которая автоматически сохраняет вашу игру. Число показывает раз в сколько ходов игра будет сохранена. Если там стоит 1 то это значит что игра будет сохраняться каждый ход."
 				}
 			},
-			"IPX_SOCKET": {
-				"coordinates": {
-					"ux": 406,
-					"uy": 160,
-					"lx": 584,
-					"ly": 180
-				},
-				"text": {
-					"en-US": "Use this field to enter your network IPX socket if it is different from the default value.",
-					"fr-FR": "Utiliser ce champ pour entrer votre réseau IPX s'il est différent de la valeur par défaut.",
-					"de-DE": "Benutzen Sie dieses Feld, um Ihren Netzwerk-IPX-Sockel einzugeben, wenn er sich vom voreingestellten Wert unterscheidet.",
-					"it-IT": "Usa questo campo per introdurre il socket IPX della tua rete se è diverso dal valore di default.",
-					"es-ES": "En este cuadro puedes introducir tu zócalo de red IPX, si es distinto del valor predeterminado.",
-					"ru-RU": "Введите сюда ваши настройки АиПиИкса если они отличаются от стандартных."
-				}
-			},
 			"PLAYER_NAME": {
 				"coordinates": {
 					"ux": 225,
@@ -5628,10 +5612,10 @@
 		"SETUP_MENU_SETUP": {
 			"MEMORY_MODE": {
 				"coordinates": {
-					"ux": 319,
-					"uy": 162,
-					"lx": 482,
-					"ly": 182
+					"ux": 406,
+					"uy": 80,
+					"lx": 584,
+					"ly": 100
 				},
 				"text": {
 					"en-US": "Use this option to reduce the memory requirements on low memory systems.",
@@ -5644,10 +5628,10 @@
 			},
 			"MUSIC_VOLUME": {
 				"coordinates": {
-					"ux": 140,
-					"uy": 182,
-					"lx": 319,
-					"ly": 202
+					"ux": 225,
+					"uy": 100,
+					"lx": 406,
+					"ly": 120
 				},
 				"text": {
 					"en-US": "Use this slider to adjust the music volume.",
@@ -5660,10 +5644,10 @@
 			},
 			"DISABLE_MUSIC": {
 				"coordinates": {
-					"ux": 319,
-					"uy": 182,
-					"lx": 482,
-					"ly": 202
+					"ux": 406,
+					"uy": 100,
+					"lx": 584,
+					"ly": 120
 				},
 				"text": {
 					"en-US": "Click this button to turn off the background music.",
@@ -5676,10 +5660,10 @@
 			},
 			"FX_VOLUME": {
 				"coordinates": {
-					"ux": 140,
-					"uy": 202,
-					"lx": 319,
-					"ly": 222
+					"ux": 225,
+					"uy": 120,
+					"lx": 406,
+					"ly": 140
 				},
 				"text": {
 					"en-US": "Use this slider to adjust the sound effects volume.",
@@ -5692,10 +5676,10 @@
 			},
 			"DISABLE_FX": {
 				"coordinates": {
-					"ux": 319,
-					"uy": 202,
-					"lx": 482,
-					"ly": 222
+					"ux": 406,
+					"uy": 120,
+					"lx": 584,
+					"ly": 140
 				},
 				"text": {
 					"en-US": "Click this button to turn off sound effects.",
@@ -5708,10 +5692,10 @@
 			},
 			"VOICE_VOLUME": {
 				"coordinates": {
-					"ux": 140,
-					"uy": 222,
-					"lx": 319,
-					"ly": 242
+					"ux": 225,
+					"uy": 140,
+					"lx": 406,
+					"ly": 160
 				},
 				"text": {
 					"en-US": "Use this slider to adjust the voice volume.",
@@ -5724,10 +5708,10 @@
 			},
 			"DISABLE_VOICE": {
 				"coordinates": {
-					"ux": 319,
-					"uy": 222,
-					"lx": 482,
-					"ly": 242
+					"ux": 406,
+					"uy": 140,
+					"lx": 584,
+					"ly": 160
 				},
 				"text": {
 					"en-US": "Click this button to turn off the voice effects.",
@@ -5740,10 +5724,10 @@
 			},
 			"AUTO_SAVE": {
 				"coordinates": {
-					"ux": 140,
-					"uy": 242,
-					"lx": 319,
-					"ly": 262
+					"ux": 225,
+					"uy": 160,
+					"lx": 406,
+					"ly": 180
 				},
 				"text": {
 					"en-US": "The \"Auto-Save\" feature automatically saves your game at the begining of every turn.",
@@ -5754,28 +5738,44 @@
 					"ru-RU": "\"Авто-Сохранение\" автоматически сохраняет вашу игру в начале каждого хода."
 				}
 			},
-			"IPX_SOCKET": {
+			"HOST_ADDRESS": {
 				"coordinates": {
-					"ux": 319,
-					"uy": 242,
-					"lx": 482,
-					"ly": 262
+					"ux": 225,
+					"uy": 180,
+					"lx": 584,
+					"ly": 200
 				},
 				"text": {
-					"en-US": "Use this field to enter your network IPX socket if it is different from the default value.",
-					"fr-FR": "Utilisez ce champ pour entrer votre réglage IPX de réseau, s'il est différent de la valeur par défaut.",
-					"de-DE": "Benutzen Sie dieses Feld, um Ihren Netzwerk IPX-Sockel einzugeben, falls er sich vom voreingestellten Wert unterscheidet.",
-					"it-IT": "Usa questo campo per introdurre il socket IPX della tua rete se è diverso dal valore di default.",
-					"es-ES": "En este cuadro puedes introducir tu zócalo de red IPX, si es distinto del valor predeterminado.",
-					"ru-RU": "Введите сюда ваши настройки АиПиИкса если они отличаются от стандартных."
+					"en-US": "Use this field to enter the name or the IP address of the computer that hosts the Multiplayer Game you want to join.",
+					"fr-FR": "Utilisez ce champ pour entrer le nom ou l'adresse IP de l'ordinateur qui héberge le Jeu Multijoueurs que vous voulez rejoindre.",
+					"de-DE": "Benutzen Sie dieses Feld, um den Namen oder die IP-Adresse des Rechners einzugeben, der das Multi-Player-Spiel anbietet, dem Sie beitreten wollen.",
+					"it-IT": "Utilizza questo campo per inserire il nome o l'indirizzo IP del computer che ospita il gioco in modalità Multi-Player al quale vuoi partecipare.",
+					"es-ES": "En este cuadro puedes introducir el nombre o la dirección IP del ordenador que aloja el juego multijugador al que quieres unirte.",
+					"ru-RU": "Введите сюда имя или IP-адрес компьютера, на котором запущена многоигроковая игра, к которой вы хотите присоединиться."
+				}
+			},
+			"HOST_PORT": {
+				"coordinates": {
+					"ux": 225,
+					"uy": 200,
+					"lx": 584,
+					"ly": 220
+				},
+				"text": {
+					"en-US": "Use this field to enter the network port of the Multiplayer Game if it is different from the default value.",
+					"fr-FR": "Utilisez ce champ pour entrer le port réseau du Jeu Multijoueurs, s'il est différent de la valeur par défaut.",
+					"de-DE": "Benutzen Sie dieses Feld, um den Netzwerk-Port des Multi-Player-Spiels einzugeben, falls er sich vom voreingestellten Wert unterscheidet.",
+					"it-IT": "Utilizza questo campo per introdurre la porta di rete del gioco in modalità Multi-Player se è diversa dal valore di default.",
+					"es-ES": "En este cuadro puedes introducir el puerto de red del juego multijugador, si es distinto del valor predeterminado.",
+					"ru-RU": "Введите сюда сетевой порт многоигроковой игры если он отличается от стандартного."
 				}
 			},
 			"PLAYER_NAME": {
 				"coordinates": {
-					"ux": 140,
-					"uy": 262,
-					"lx": 482,
-					"ly": 282
+					"ux": 225,
+					"uy": 220,
+					"lx": 584,
+					"ly": 240
 				},
 				"text": {
 					"en-US": "Use this field to enter your name for use in Multiplayer Games.",
@@ -5788,10 +5788,10 @@
 			},
 			"CANCEL": {
 				"coordinates": {
-					"ux": 245,
-					"uy": 290,
-					"lx": 306,
-					"ly": 312
+					"ux": 327,
+					"uy": 413,
+					"lx": 390,
+					"ly": 434
 				},
 				"text": {
 					"en-US": "Click the \"Cancel\" button to cancel any changes and return to the main menu.",
@@ -5804,10 +5804,10 @@
 			},
 			"DONE": {
 				"coordinates": {
-					"ux": 334,
-					"uy": 290,
-					"lx": 398,
-					"ly": 312
+					"ux": 416,
+					"uy": 413,
+					"lx": 478,
+					"ly": 434
 				},
 				"text": {
 					"en-US": "Click the \"Done\" button to save any changes and return to the main menu.",

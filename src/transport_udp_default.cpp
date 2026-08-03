@@ -59,6 +59,8 @@ enum {
 
 static constexpr uint16_t TransportUdpDefault_ProtocolVersionId = 0x0002;
 static constexpr uint16_t TransportUdpDefault_DefaultHostPort = 31554;
+static constexpr uint16_t TransportUdpDefault_MinimumHostPort = 1024;
+static constexpr uint16_t TransportUdpDefault_MaximumHostPort = 65535;
 static constexpr uint32_t TransportUdpDefault_ServiceTickPeriod = 10;
 static constexpr uint32_t TransportUdpDefault_DisconnectResponseTimeout = 3000;
 static constexpr uint32_t TransportUdpDefault_MaximumPeers = 32;
@@ -149,7 +151,7 @@ TransportUdpDefault::~TransportUdpDefault() {
 uint16_t TransportUdpDefault_GetHostPort() {
     int32_t host_port = ResourceManager_GetSettings()->GetNumericValue("host_port");
 
-    if (!host_port || host_port < 1024 || host_port > 65535) {
+    if (host_port < TransportUdpDefault_MinimumHostPort || host_port > TransportUdpDefault_MaximumHostPort) {
         host_port = TransportUdpDefault_DefaultHostPort;
     }
 
@@ -160,11 +162,15 @@ uint16_t TransportUdpDefault_GetHostPort() {
  *
  * This is a client side setting only. A server does not need to know its own address, and must not bind one, as that
  * would restrict it to a single local interface. See Init().
+ *
+ * The setting takes either a host name or an IPv4 literal. enet_address_set_host() resolves names through the operating
+ * system resolver, so whether a bare LAN host name works depends on that host being resolvable there, through DNS, the
+ * hosts file, or a local name service such as mDNS or NetBIOS. It parses IPv4 literals too, so it covers both forms.
  */
 void TransportUdpDefault_GetServerAddress(ENetAddress& address) {
     std::string server_address = ResourceManager_GetSettings()->GetStringValue("host_address");
 
-    if (server_address.empty() || enet_address_set_host_ip(&address, server_address.c_str()) != 0) {
+    if (server_address.empty() || enet_address_set_host(&address, server_address.c_str()) != 0) {
         (void)enet_address_set_host_ip(&address, "127.0.0.1");
     }
 
