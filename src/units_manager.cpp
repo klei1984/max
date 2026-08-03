@@ -3975,6 +3975,7 @@ void UnitsManager_BuildingReady(UnitInfo* unit) {
             is_found = !Access_IsInsideBounds(&bounds, &position);
 
             if (!is_found) {
+                Access_DestroyUtilities(unit->grid_x, unit->grid_y, true, false, false, false);
                 UnitsManager_DestroyUnit(unit);
             }
         }
