@@ -26,6 +26,7 @@
 #include <memory>
 #include <optional>
 
+#include "pathfill.hpp"
 #include "pathrequest.hpp"
 #include "searcher.hpp"
 #include "smartpointer.hpp"
@@ -58,10 +59,19 @@ struct PathWorkerJob {
      * \return The path result if found, or std::nullopt if no path exists.
      */
     std::optional<PathResult> Execute() {
-        if (context) {
-            return context->RunSearch();
+        if (!context) {
+            return std::nullopt;
         }
-        return std::nullopt;
+
+        PathFill path_fill(context->access_map);
+
+        path_fill.Fill(context->start_point);
+
+        if (!(context->access_map(context->destination.x, context->destination.y) & 0x20)) {
+            return std::nullopt;
+        }
+
+        return context->RunSearch();
     }
 };
 

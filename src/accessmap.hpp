@@ -58,8 +58,16 @@ class AccessMap {
     // Process map surface to set traversal costs based on surface type.
     void ProcessMapSurface(int32_t surface_type, uint8_t value);
 
+    // Overwrite the map with the cached base costs for a land type mask. Equivalent to Fill(0)
+    // followed by the ProcessMapSurface() passes, but served from a per-world cache instead of
+    // rescanning the surface map on every call. See the cache notes in accessmap.cpp.
+    void ApplySurfaceBase(int32_t surface_types, uint8_t water_value);
+
     // Process ground cover units (bridges, platforms, roads, etc.).
     void ProcessGroundCover(UnitInfo* unit, int32_t surface_type);
+
+    // Blank out cells whose projected damage meets or exceeds the unit's hit points.
+    void ApplyDamageMask(const int16_t* const* damage_potential_map, int32_t unit_hits);
 
     // Process dangerous enemy units to mark their attack ranges.
     void ProcessDangers(UnitInfo* unit);

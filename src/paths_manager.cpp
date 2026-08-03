@@ -30,7 +30,6 @@
 #include "aiplayer.hpp"
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
-#include "pathfill.hpp"
 #include "resource_manager.hpp"
 #include "searcher.hpp"
 #include "task_manager.hpp"
@@ -155,14 +154,24 @@ void PathsManager::PollResults() {
 
             m_dispatched_requests.erase(it);
 
+            std::optional<PathResult> result = completed_job.result;
+            UnitInfo* const client = request->GetClient();
+
+            if (client != nullptr && completed_job.job->context) {
+                const Point live_position(client->grid_x, client->grid_y);
+
+                if (live_position != completed_job.job->start_position) {
+                    result = completed_job.job->context->ExtractPath(live_position);
+                }
+            }
+
             // Build GroundPath from result
             SmartPointer<GroundPath> ground_path;
 
-            if (completed_job.result) {
-                ground_path = new (std::nothrow)
-                    GroundPath(completed_job.result->destination.x, completed_job.result->destination.y);
+            if (result) {
+                ground_path = new (std::nothrow) GroundPath(result->destination.x, result->destination.y);
 
-                for (const auto& step : completed_job.result->steps) {
+                for (const auto& step : result->steps) {
                     ground_path->AddStep(step.x, step.y);
                 }
 
@@ -420,20 +429,10 @@ bool PathsManager::PrepareAndDispatchJob(SmartPointer<PathRequest> request) {
         use_air_transport = true;
     }
 
-    AILOG_LOG(log, "Checking if destination is reachable.");
-
-    // Check reachability with PathFill
-    PathFill path_fill(*m_access_map);
-
-    path_fill.Fill(position);
-
-    if (!((*m_access_map)(destination.x, destination.y) & 0x20)) {
-        AILOG_LOG(log, "Path not found.");
-
-        CompleteRequest(request, nullptr);
-
-        return false;
-    }
+    /* Reachability is decided by the worker alongside the search (PathWorkerJob::Execute). An
+     * unreachable destination therefore completes one poll later through the ordinary null path
+     * route rather than synchronously here, which keeps the flood fill off the main thread.
+     */
 
     // Create search context with COPY of access map (worker will own this)
     auto context = std::make_unique<PathSearchContext>(*m_access_map, position, destination, use_air_transport,

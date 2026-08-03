@@ -223,9 +223,20 @@ struct PathSearchContext {
      *
      * \return The path result if a valid path was found, or std::nullopt otherwise.
      */
-    std::optional<PathResult> ExtractPath() const {
+    std::optional<PathResult> ExtractPath() const { return ExtractPath(start_point); }
+
+    /**
+     * \brief Extract the path result, reconstructing back to an explicit origin.
+     *
+     * The steps are relative deltas replayed from wherever the unit actually is, so the origin
+     * used here must be the unit's position at the moment the path is handed over.
+     *
+     * \param from The origin the reconstruction must terminate at.
+     * \return The path result if a valid path was found, or std::nullopt otherwise.
+     */
+    std::optional<PathResult> ExtractPath(const Point from) const {
         if (forward_searcher) {
-            return forward_searcher->DeterminePath(start_point, max_cost);
+            return forward_searcher->DeterminePath(from, max_cost);
         }
 
         return std::nullopt;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2022 M.A.X. Port Team
+﻿/* Copyright (c) 2022 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,9 @@
 #include "accessmap.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cstring>
+#include <vector>
 
 #include "access.hpp"
 #include "ailog.hpp"
@@ -104,6 +106,72 @@ void AccessMap::ProcessMobileUnits(SmartList<UnitInfo>* units, UnitInfo* unit, u
     }
 }
 
+namespace {
+
+constexpr size_t SURFACE_BASE_SLOT_COUNT{32};
+
+struct SurfaceBaseCache {
+    const World* world{nullptr};
+    Point size{0, 0};
+    std::array<std::vector<uint8_t>, SURFACE_BASE_SLOT_COUNT> slots;
+
+    void Reset(const World* new_world, const Point new_size) {
+        world = new_world;
+        size = new_size;
+
+        for (auto& slot : slots) {
+            slot.clear();
+            slot.shrink_to_fit();
+        }
+    }
+};
+
+SurfaceBaseCache AccessMap_SurfaceBaseCache;
+
+}  // namespace
+
+void AccessMap::ApplySurfaceBase(int32_t surface_types, uint8_t water_value) {
+    const size_t key = (static_cast<size_t>(surface_types) & 0x0F) | ((water_value == 8) ? 0x10 : 0);
+
+    // A different world or a resized map invalidates every cached base.
+    if (AccessMap_SurfaceBaseCache.world != m_world || AccessMap_SurfaceBaseCache.size != m_size) {
+        AccessMap_SurfaceBaseCache.Reset(m_world, m_size);
+    }
+
+    std::vector<uint8_t>& base = AccessMap_SurfaceBaseCache.slots[key];
+
+    if (base.size() != m_data.size()) {
+        base.assign(m_data.size(), 0);
+
+        for (int32_t index_x = 0; index_x < m_size.x; ++index_x) {
+            for (int32_t index_y = 0; index_y < m_size.y; ++index_y) {
+                const uint8_t surface_type = m_world->GetSurfaceType(index_x, index_y);
+                uint8_t value = 0;
+
+                if (surface_type == SURFACE_TYPE_LAND) {
+                    if (surface_types & SURFACE_TYPE_LAND) {
+                        value = 4;
+                    }
+
+                } else if (surface_type == SURFACE_TYPE_COAST) {
+                    if (surface_types & SURFACE_TYPE_COAST) {
+                        value = 4;
+                    }
+
+                } else if (surface_type == SURFACE_TYPE_WATER) {
+                    if (surface_types & SURFACE_TYPE_WATER) {
+                        value = water_value;
+                    }
+                }
+
+                base[static_cast<size_t>(index_x) * m_size.y + index_y] = value;
+            }
+        }
+    }
+
+    std::memcpy(m_data.data(), base.data(), m_data.size());
+}
+
 void AccessMap::ProcessMapSurface(int32_t surface_type, uint8_t value) {
     for (int32_t index_x = 0; index_x < m_size.x; ++index_x) {
         for (int32_t index_y = 0; index_y < m_size.y; ++index_y) {
@@ -114,76 +182,112 @@ void AccessMap::ProcessMapSurface(int32_t surface_type, uint8_t value) {
     }
 }
 
+void AccessMap::ApplyDamageMask(const int16_t* const* damage_potential_map, int32_t unit_hits) {
+    for (int32_t i = 0; i < m_size.x; ++i) {
+        for (int32_t j = 0; j < m_size.y; ++j) {
+            if (damage_potential_map[i][j] >= unit_hits) {
+                (*this)(i, j) = 0;
+            }
+        }
+    }
+}
+
 void AccessMap::ProcessGroundCover(UnitInfo* unit, int32_t surface_type) {
-    uint16_t team = unit->team;
+    const uint16_t team = unit->team;
+    const bool process_paved =
+        (surface_type & SURFACE_TYPE_LAND) && unit->GetLayingState() != 2 && unit->GetLayingState() != 1;
+
+    static std::vector<UnitInfo*> surface_units;
+    static std::vector<UnitInfo*> paved_units;
+    static std::vector<UnitInfo*> tape_units;
+    static std::vector<UnitInfo*> mine_units;
+
+    surface_units.clear();
+    paved_units.clear();
+    tape_units.clear();
+    mine_units.clear();
 
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
          it != UnitsManager_GroundCoverUnits.End(); ++it) {
-        if ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team)) {
-            switch ((*it).GetUnitType()) {
-                case BRIDGE: {
-                    if (surface_type & (SURFACE_TYPE_LAND | SURFACE_TYPE_WATER)) {
-                        (*this)((*it).grid_x, (*it).grid_y) = 4;
-                    }
-                } break;
+        if (!((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team))) {
+            continue;
+        }
 
-                case WTRPLTFM: {
-                    if (surface_type & SURFACE_TYPE_LAND) {
-                        (*this)((*it).grid_x, (*it).grid_y) = 4;
+        UnitInfo* const cover = &*it;
 
-                    } else {
-                        (*this)((*it).grid_x, (*it).grid_y) = 0;
-                    }
-                } break;
+        switch (cover->GetUnitType()) {
+            case BRIDGE: {
+                surface_units.push_back(cover);
+
+                if (process_paved) {
+                    paved_units.push_back(cover);
+                }
+            } break;
+
+            case WTRPLTFM: {
+                surface_units.push_back(cover);
+            } break;
+
+            case ROAD:
+            case SMLSLAB:
+            case LRGSLAB: {
+                if (process_paved) {
+                    paved_units.push_back(cover);
+                }
+            } break;
+
+            case LRGTAPE:
+            case SMLTAPE: {
+                tape_units.push_back(cover);
+            } break;
+
+            case LANDMINE:
+            case SEAMINE: {
+                mine_units.push_back(cover);
+            } break;
+        }
+    }
+
+    for (UnitInfo* const cover : surface_units) {
+        if (cover->GetUnitType() == BRIDGE) {
+            if (surface_type & (SURFACE_TYPE_LAND | SURFACE_TYPE_WATER)) {
+                (*this)(cover->grid_x, cover->grid_y) = 4;
+            }
+
+        } else {
+            if (surface_type & SURFACE_TYPE_LAND) {
+                (*this)(cover->grid_x, cover->grid_y) = 4;
+
+            } else {
+                (*this)(cover->grid_x, cover->grid_y) = 0;
             }
         }
     }
 
-    if ((surface_type & SURFACE_TYPE_LAND) && unit->GetLayingState() != 2 && unit->GetLayingState() != 1) {
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
-             it != UnitsManager_GroundCoverUnits.End(); ++it) {
-            if ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team)) {
-                if ((*it).GetUnitType() == ROAD || (*it).GetUnitType() == SMLSLAB || (*it).GetUnitType() == LRGSLAB ||
-                    (*it).GetUnitType() == BRIDGE) {
-                    (*this)((*it).grid_x, (*it).grid_y) = 2;
+    for (UnitInfo* const cover : paved_units) {
+        (*this)(cover->grid_x, cover->grid_y) = 2;
 
-                    if ((*it).flags & BUILDING) {
-                        (*this)((*it).grid_x + 1, (*it).grid_y) = 2;
-                        (*this)((*it).grid_x, (*it).grid_y + 1) = 2;
-                        (*this)((*it).grid_x + 1, (*it).grid_y + 1) = 2;
-                    }
-                }
-            }
+        if (cover->flags & BUILDING) {
+            (*this)(cover->grid_x + 1, cover->grid_y) = 2;
+            (*this)(cover->grid_x, cover->grid_y + 1) = 2;
+            (*this)(cover->grid_x + 1, cover->grid_y + 1) = 2;
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
-         it != UnitsManager_GroundCoverUnits.End(); ++it) {
-        if ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team)) {
-            if ((*it).GetUnitType() == LRGTAPE || (*it).GetUnitType() == SMLTAPE) {
-                (*this)((*it).grid_x, (*it).grid_y) = 0;
+    for (UnitInfo* const cover : tape_units) {
+        (*this)(cover->grid_x, cover->grid_y) = 0;
 
-                if ((*it).flags & BUILDING) {
-                    (*this)((*it).grid_x + 1, (*it).grid_y) = 0;
-                    (*this)((*it).grid_x, (*it).grid_y + 1) = 0;
-                    (*this)((*it).grid_x + 1, (*it).grid_y + 1) = 0;
-                }
-            }
+        if (cover->flags & BUILDING) {
+            (*this)(cover->grid_x + 1, cover->grid_y) = 0;
+            (*this)(cover->grid_x, cover->grid_y + 1) = 0;
+            (*this)(cover->grid_x + 1, cover->grid_y + 1) = 0;
         }
     }
 
     // mine fields shall be processed after everything else otherwise the map would overwrite no-go zones
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
-         it != UnitsManager_GroundCoverUnits.End(); ++it) {
-        if ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team)) {
-            switch ((*it).GetUnitType()) {
-                case LANDMINE:
-                case SEAMINE: {
-                    if ((*it).team != team && (*it).IsDetectedByTeam(team)) {
-                        (*this)((*it).grid_x, (*it).grid_y) = 0;
-                    }
-                } break;
-            }
+    for (UnitInfo* const cover : mine_units) {
+        if (cover->team != team && cover->IsDetectedByTeam(team)) {
+            (*this)(cover->grid_x, cover->grid_y) = 0;
         }
     }
 }
@@ -275,24 +379,9 @@ void AccessMap::Init(UnitInfo* unit, uint8_t flags, int32_t caution_level) {
     } else {
         int32_t surface_types = ResourceManager_GetUnit(unit->GetUnitType()).GetLandType();
 
-        Fill(0);
+        const uint8_t water_value = ((surface_types & SURFACE_TYPE_LAND) && unit->GetUnitType() != SURVEYOR) ? 8 : 4;
 
-        if (surface_types & SURFACE_TYPE_LAND) {
-            ProcessMapSurface(SURFACE_TYPE_LAND, 4);
-        }
-
-        if (surface_types & SURFACE_TYPE_COAST) {
-            ProcessMapSurface(SURFACE_TYPE_COAST, 4);
-        }
-
-        if (surface_types & SURFACE_TYPE_WATER) {
-            if ((surface_types & SURFACE_TYPE_LAND) && unit->GetUnitType() != SURVEYOR) {
-                ProcessMapSurface(SURFACE_TYPE_WATER, 8);
-
-            } else {
-                ProcessMapSurface(SURFACE_TYPE_WATER, 4);
-            }
-        }
+        ApplySurfaceBase(surface_types, water_value);
 
         ProcessGroundCover(unit, surface_types);
         ProcessMobileUnits(&UnitsManager_MobileLandSeaUnits, unit, flags);
@@ -328,13 +417,7 @@ void AccessMap::ApplyCautionLevel(UnitInfo* unit, int32_t caution_level) {
                     unit_hits = 1;
                 }
 
-                for (int32_t i = 0; i < m_size.x; ++i) {
-                    for (int32_t j = 0; j < m_size.y; ++j) {
-                        if (damage_potential_map[i][j] >= unit_hits) {
-                            (*this)(i, j) = 0;
-                        }
-                    }
-                }
+                ApplyDamageMask(damage_potential_map, unit_hits);
             }
         }
     }
