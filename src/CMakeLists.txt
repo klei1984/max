@@ -26,6 +26,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/teamunits.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/window_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/resourcetable.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/gamesetup.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/resource_manager.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/world.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/menulandingsequence.cpp

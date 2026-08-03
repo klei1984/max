@@ -13,7 +13,7 @@ Rules-Requires-Root: no
 Package: max-port
 Architecture: any
 Multi-Arch: foreign
-Depends: whiptail, ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: conquer and plunder-type turn-based sci-fi strategy game
  M.A.X. Port is an SDL library based runtime executable for the 1996 DOS game
  M.A.X.: Mechanized Assault & Exploration developed and published by Interplay

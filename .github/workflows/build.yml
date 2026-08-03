@@ -289,7 +289,7 @@ jobs:
             cp *-win64.exe Artifacts/WindowsXP-x64/
             cp *-win64.7z Artifacts/WindowsXP-x64/
             cp *-Source.7z Artifacts/WindowsXP-x64/
-            7z a -mx9 -bd max-port-win64-symbols.7z max.debug
+            7z a -mx9 -bd max-port-win64-symbols.7z max-port.debug
             cp max-port-win64-symbols.7z Artifacts/WindowsXP-x64/
 
       -  name: Upload Artifacts
@@ -382,7 +382,7 @@ jobs:
             cp *-win32.exe Artifacts/WindowsXP-x86/
             cp *-win32.7z Artifacts/WindowsXP-x86/
             cp *-Source.7z Artifacts/WindowsXP-x86/
-            7z a -mx9 -bd max-port-win32-symbols.7z max.debug
+            7z a -mx9 -bd max-port-win32-symbols.7z max-port.debug
             cp max-port-win32-symbols.7z Artifacts/WindowsXP-x86/
 
       -  name: Upload Artifacts
@@ -473,7 +473,7 @@ jobs:
             cp *-win64.exe Artifacts/Windows-x64/
             cp *-win64.7z Artifacts/Windows-x64/
             cp *-Source.7z Artifacts/Windows-x64/
-            7z a -mx9 -bd max-port-win64-symbols.7z max.debug
+            7z a -mx9 -bd max-port-win64-symbols.7z max-port.debug
             cp max-port-win64-symbols.7z Artifacts/Windows-x64/
 
       -  name: Upload Artifacts
@@ -564,7 +564,7 @@ jobs:
             cp *-win32.exe Artifacts/Windows-x86/
             cp *-win32.7z Artifacts/Windows-x86/
             cp *-Source.7z Artifacts/Windows-x86/
-            7z a -mx9 -bd max-port-win32-symbols.7z max.debug
+            7z a -mx9 -bd max-port-win32-symbols.7z max-port.debug
             cp max-port-win32-symbols.7z Artifacts/Windows-x86/
 
       -  name: Upload Artifacts
@@ -636,6 +636,33 @@ jobs:
               cd -
             done
 
+      -  name: Verify runtime dependencies
+         run: |
+            DEB_PACKAGE=$(ls ${{steps.build_configuration.outputs.build_type}}/Artifacts/Linux-x64/max-port_*_amd64.deb | head -1)
+            sudo dpkg -i "${DEB_PACKAGE}" || sudo apt-get -f install -y
+
+            MAXPORT_BINARY=$(dpkg -L max-port | grep -E '/max-port$' | grep -Ev '/(applications|icons)/' | head -1)
+            MAXPORT_LIB_DIR=$(dirname "$(dpkg -L max-port | grep -E '\.so' | head -1)")
+
+            if ! readelf -d "${MAXPORT_BINARY}" | grep -E 'RPATH|RUNPATH' | grep -q '\$ORIGIN'; then
+               echo "::error::The executable does not carry the \$ORIGIN RPATH."
+               exit 1
+            fi
+
+            ldd -r "${MAXPORT_BINARY}"
+
+            if ldd -r "${MAXPORT_BINARY}" 2>&1 | grep -E "not found|undefined symbol"; then
+               echo "::error::The Debian package is missing a runtime dependency of the executable."
+               exit 1
+            fi
+
+            for LIBRARY in "${MAXPORT_LIB_DIR}"/*.so*; do
+               if ldd "${LIBRARY}" 2>&1 | grep -E "not found"; then
+                  echo "::error::${LIBRARY} is missing a runtime dependency."
+                  exit 1
+               fi
+            done
+
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v7
          with:
@@ -671,14 +698,14 @@ jobs:
 
             # Maintainer: M.A.X. Port <maxport@maxport.org>
             pkgname="max-port"
-            pkgver=0.7.2
+            pkgver=0.8.0
             pkgrel=1
             pkgdesc="conquer and plunder-type turn-based sci-fi strategy game"
             arch=("\${CARCH}")
             url="https://github.com/klei1984/max"
             license=("MIT")
-            depends=("sh" "libnewt" "glibc" "gcc-libs")
-            makedepends=("git" "cmake" "gcc" "ninja" "wget" "gettext" "p7zip" "libx11" "libxext" "libxcursor" "libxrandr" "libxfixes" "libxi" "libxss" "libxtst" "libxkbcommon" "wayland" "wayland-protocols" "libdecor" "alsa-lib" "libpulse" "dbus" "libglvnd" "desktop-file-utils")
+            depends=("glibc" "gcc-libs")
+            makedepends=("git" "cmake" "gcc" "ninja" "wget" "gettext" "p7zip" "libx11" "libxext" "libxcursor" "libxrandr" "libxfixes" "libxi" "libxss" "libxtst" "libxkbcommon" "wayland" "wayland-protocols" "libdecor" "alsa-lib" "libpulse" "dbus" "libglvnd")
             source=("\$pkgname::git+file://$GITHUB_WORKSPACE#commit=$GITHUB_SHA")
             provides=("\$pkgname")
             conflicts=("\$pkgname")
@@ -706,15 +733,65 @@ jobs:
             package() {
                cd "\${srcdir}/\${pkgname}"
                DESTDIR="\$pkgdir" cmake --install build
-               chmod 755 "\${pkgdir}/usr/bin/\${pkgname}"
-               desktop-file-edit --set-key="Exec" --set-value="max-port" "\$pkgdir/usr/share/applications/\$pkgname.desktop"
                install -Dm644 LICENSE -t "\${pkgdir}/usr/share/licenses/\${pkgname}"
+               depends=("\${depends[@]/glibc/glibc>=\$(pacman -Q glibc | awk '{print \$2}' | cut -d- -f1 | cut -d+ -f1)}")
+               depends=("\${depends[@]/gcc-libs/gcc-libs>=\$(pacman -Q gcc-libs | awk '{print \$2}' | cut -d- -f1 | cut -d+ -f1)}")
             }
             EOF
             makepkg --noconfirm --syncdeps --holdver
             mkdir -p Artifacts/Linux-x64
             cp max-port-*.pkg.tar.zst Artifacts/Linux-x64/
             EOFCMD
+
+      -  name: Verify runtime dependencies
+         run: |
+            pacman -U --noconfirm /home/builder/Artifacts/Linux-x64/max-port-*.pkg.tar.zst
+
+            if ! readelf -d /usr/bin/max-port | grep -E 'RPATH|RUNPATH' | grep -q '\$ORIGIN'; then
+               echo "::error::The executable does not carry the \$ORIGIN RPATH."
+               exit 1
+            fi
+
+            ldd -r /usr/bin/max-port
+
+            if ldd -r /usr/bin/max-port 2>&1 | grep -E "not found|undefined symbol"; then
+               echo "::error::The Arch package is missing a runtime dependency of the executable."
+               exit 1
+            fi
+
+            pacman -S --noconfirm desktop-file-utils
+            desktop-file-validate /usr/share/applications/max-port.desktop
+
+            MAXPORT_EXEC=$(grep -E '^Exec=' /usr/share/applications/max-port.desktop | cut -d= -f2)
+
+            if [ ! -x "${MAXPORT_EXEC}" ]; then
+               echo "::error::The desktop entry Exec target '${MAXPORT_EXEC}' is not an executable file."
+               exit 1
+            fi
+
+            if [ ! -f /usr/share/icons/hicolor/256x256/apps/max-port.png ]; then
+               echo "::error::The desktop entry icon is not installed into the hicolor theme."
+               exit 1
+            fi
+
+            for LIBRARY in /usr/lib/max-port/*.so*; do
+               if ldd "${LIBRARY}" 2>&1 | grep -E "not found"; then
+                  echo "::error::${LIBRARY} is missing a runtime dependency."
+                  exit 1
+               fi
+            done
+
+            echo "Runtime floor of the package:"
+            readelf -V /usr/bin/max-port /usr/lib/max-port/*.so* 2>/dev/null \
+               | grep -oE '(GLIBCXX|CXXABI|GLIBC)_[0-9.]+' | sort -uV \
+               | awk -F_ '{floor[$1]=$0} END {for (family in floor) print "  " floor[family]}'
+
+            pacman -Qi max-port | grep -E '^Depends'
+
+            if ! pacman -Qi max-port | grep -E '^Depends' | grep -qE 'glibc>=[0-9]'; then
+               echo "::error::The Arch package does not declare a versioned glibc dependency."
+               exit 1
+            fi
 
       -  name: Upload Artifacts
          uses: actions/upload-artifact@v7
@@ -786,137 +863,3 @@ jobs:
          with:
             name: Linux-flatpak-x64
             path: ${{steps.build_configuration.outputs.build_type}}/Artifacts
-
-   Nightly-Release:
-      name: Nightly Release
-      runs-on: ubuntu-latest
-      if: github.event_name == 'push' && github.ref == 'refs/heads/master' && github.repository == 'klei1984/max'
-      needs:
-      - Linux-x64
-      - Linux-x86
-      - WindowsXP-x64
-      - WindowsXP-x86
-      - Windows-x64
-      - Windows-x86
-      - Linux-deb-x64
-      - Linux-arch-x64
-      - Linux-flatpak-x64
-
-      permissions:
-         contents: write
-
-      concurrency:
-         group: nightly-release
-         cancel-in-progress: false
-
-      env:
-         NIGHTLY_TAG: nightly
-         NIGHTLY_PREFIX: max-port-nightly
-         GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-         GH_REPO: ${{github.repository}}
-
-      steps:
-      -  name: Download build artifacts
-         uses: actions/download-artifact@v8
-         with:
-            path: artifacts
-
-      -  name: Stage release assets
-         run: |
-            set -euo pipefail
-            mkdir -p upload
-
-            # publish <stable-name> <candidate-path>...
-            # copies the first existing candidate under its permanent, version independent name
-            publish() {
-               local target="$1"
-               shift
-               local candidate
-               for candidate in "$@"; do
-                  if [ -f "${candidate}" ]; then
-                     cp -- "${candidate}" "upload/${target}"
-                     echo "${candidate} -> ${target}"
-                     return 0
-                  fi
-               done
-               echo "::error::no build artifact matched ${target} (looked for: $*)"
-               return 1
-            }
-
-            publish "${NIGHTLY_PREFIX}-Windows_x86_64.exe"            artifacts/Windows-x64/Windows-x64/*-win64.exe
-            publish "${NIGHTLY_PREFIX}-Windows_x86_64.7z"             artifacts/Windows-x64/Windows-x64/*-win64.7z
-            publish "${NIGHTLY_PREFIX}-Windows_x86_64-symbols.7z"     artifacts/Windows-x64/Windows-x64/max-port-win64-symbols.7z
-
-            publish "${NIGHTLY_PREFIX}-Windows_x86.exe"               artifacts/Windows-x86/Windows-x86/*-win32.exe
-            publish "${NIGHTLY_PREFIX}-Windows_x86.7z"                artifacts/Windows-x86/Windows-x86/*-win32.7z
-            publish "${NIGHTLY_PREFIX}-Windows_x86-symbols.7z"        artifacts/Windows-x86/Windows-x86/max-port-win32-symbols.7z
-
-            publish "${NIGHTLY_PREFIX}-WindowsXP_x86_64.exe"          artifacts/WindowsXP-x64/WindowsXP-x64/*-win64.exe
-            publish "${NIGHTLY_PREFIX}-WindowsXP_x86_64.7z"           artifacts/WindowsXP-x64/WindowsXP-x64/*-win64.7z
-            publish "${NIGHTLY_PREFIX}-WindowsXP_x86_64-symbols.7z"   artifacts/WindowsXP-x64/WindowsXP-x64/max-port-win64-symbols.7z
-
-            publish "${NIGHTLY_PREFIX}-WindowsXP_x86.exe"             artifacts/WindowsXP-x86/WindowsXP-x86/*-win32.exe
-            publish "${NIGHTLY_PREFIX}-WindowsXP_x86.7z"              artifacts/WindowsXP-x86/WindowsXP-x86/*-win32.7z
-            publish "${NIGHTLY_PREFIX}-WindowsXP_x86-symbols.7z"      artifacts/WindowsXP-x86/WindowsXP-x86/max-port-win32-symbols.7z
-
-            publish "${NIGHTLY_PREFIX}-Linux_x86_64.deb"              artifacts/Linux-deb-x64/Linux-x64/max-port_*_amd64.deb
-            publish "${NIGHTLY_PREFIX}-Linux_x86_64.ddeb"             artifacts/Linux-deb-x64/Linux-x64/max-port-dbgsym_*_amd64.ddeb
-            publish "${NIGHTLY_PREFIX}-Linux_x86_64.flatpak"          artifacts/Linux-flatpak-x64/Linux-x64/max-port.flatpak
-            publish "${NIGHTLY_PREFIX}-Linux_x86_64.pkg.tar.zst"      artifacts/Linux-arch-x64/Linux-x64/max-port-*.pkg.tar.zst
-
-            publish "${NIGHTLY_PREFIX}-Source.tar.gz"                 artifacts/Linux-x64/Linux-x64/*-Source.tar.gz
-            publish "${NIGHTLY_PREFIX}-Source.7z"                     artifacts/Windows-x64/Windows-x64/*-Source.7z
-
-            ( cd upload && sha256sum -- * ) > "${NIGHTLY_PREFIX}-SHA256SUMS.txt"
-            mv "${NIGHTLY_PREFIX}-SHA256SUMS.txt" upload/
-
-            ls -l upload
-
-      -  name: Create or refresh the nightly release
-         run: |
-            set -euo pipefail
-
-            NOTES_FILE="$(mktemp)"
-            cat > "${NOTES_FILE}" << EOF
-            **Automated development build - not a formal release.**
-
-            These artefacts are rebuilt from the tip of \`master\` on every successful build
-            and the download links below never change, so they always serve the newest build.
-
-            | | |
-            | --- | --- |
-            | Commit | [\`${GITHUB_SHA:0:8}\`](https://github.com/${GH_REPO}/commit/${GITHUB_SHA}) |
-            | Built | $(date -u '+%Y-%m-%d %H:%M UTC') |
-            | Configuration | Debug |
-            | Workflow run | [#${GITHUB_RUN_NUMBER}](https://github.com/${GH_REPO}/actions/runs/${GITHUB_RUN_ID}) |
-
-            Development builds are compiled without optimizations and with assertions and
-            developer only tooling (scenario editor, debug menus, verbose logging) enabled.
-            They run noticeably slower than the official releases and they may be unstable.
-            Use the official [releases](https://github.com/${GH_REPO}/releases) for playing.
-
-            \`${NIGHTLY_PREFIX}-SHA256SUMS.txt\` lists the checksums of every asset of this build.
-            EOF
-
-            if gh release view "${NIGHTLY_TAG}" > /dev/null 2>&1; then
-               gh api --method PATCH "repos/${GH_REPO}/git/refs/tags/${NIGHTLY_TAG}" -f sha="${GITHUB_SHA}" -F force=true > /dev/null ||
-               echo "::warning::could not move the ${NIGHTLY_TAG} tag to ${GITHUB_SHA}"
-               gh release edit "${NIGHTLY_TAG}" --title "Latest Development Build" --notes-file "${NOTES_FILE}" --prerelease --draft=false
-            else
-               gh release create "${NIGHTLY_TAG}" --target "${GITHUB_SHA}" --title "Latest Development Build" --notes-file "${NOTES_FILE}" --prerelease
-            fi
-
-      -  name: Upload release assets
-         run: |
-            set -euo pipefail
-
-            gh release upload "${NIGHTLY_TAG}" upload/* --clobber
-
-            # drop assets left over from earlier builds that are no longer produced
-            mapfile -t assets < <(gh release view "${NIGHTLY_TAG}" --json assets --jq '.assets[].name')
-            for asset in "${assets[@]}"; do
-               if [ ! -f "upload/${asset}" ]; then
-                  echo "deleting stale asset ${asset}"
-                  gh release delete-asset "${NIGHTLY_TAG}" "${asset}" --yes
-               fi
-            done

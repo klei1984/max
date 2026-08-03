@@ -4913,6 +4913,30 @@
 			"es-ES": "Puerto host:",
 			"ru-RU": "Порт хоста:"
 		},
+		"a003": {
+			"en-US": "Configure Game Settings",
+			"fr-FR": "Configurer les paramètres du jeu",
+			"de-DE": "Spieleinstellungen konfigurieren",
+			"it-IT": "Configura le impostazioni di gioco",
+			"es-ES": "Configurar ajustes del juego",
+			"ru-RU": "Настройка параметров игры"
+		},
+		"a004": {
+			"en-US": "Select location of original game assets.\n\nPlease select the CD-ROM drive in case of an original M.A.X. CD-ROM, or the root folder of an existing M.A.X. full installation.",
+			"fr-FR": "Sélectionnez l'emplacement des fichiers originaux du jeu.\n\nVeuillez sélectionner le lecteur CD-ROM si vous avez un CD-ROM original de M.A.X., ou le dossier racine d'une installation complète existante de M.A.X.",
+			"de-DE": "Wählen Sie den Speicherort der Originalspiel-Dateien.\n\nBitte wählen Sie das CD-ROM-Laufwerk bei einer originalen M.A.X. CD-ROM aus, oder das Stammverzeichnis einer bestehenden M.A.X. Vollinstallation.",
+			"it-IT": "Seleziona la posizione dei file originali del gioco.\n\nSeleziona l'unità CD-ROM in caso di CD-ROM originale di M.A.X., o la cartella principale di un’installazione completa di M.A.X.",
+			"es-ES": "Seleccione la ubicación de los archivos originales del juego.\n\nPor favor, seleccione la unidad de CD-ROM si tiene el CD-ROM original de M.A.X., o la carpeta raíz de una instalación completa existente de M.A.X.",
+			"ru-RU": "Выберите расположение оригинальных файлов игры.\n\nПожалуйста, выберите привод CD-ROM для оригинального диска M.A.X., или корневую папку существующей полной установки M.A.X."
+		},
+		"a005": {
+			"en-US": "The selected folder does not contain the original game assets (MAX.RES).",
+			"fr-FR": "Le dossier sélectionné ne contient pas les fichiers originaux du jeu (MAX.RES).",
+			"de-DE": "Der ausgewählte Ordner enthält nicht die Originalspiel-Dateien (MAX.RES).",
+			"it-IT": "La cartella selezionata non contiene i file originali del gioco (MAX.RES).",
+			"es-ES": "La carpeta seleccionada no contiene los archivos originales del juego (MAX.RES).",
+			"ru-RU": "Выбранная папка не содержит оригинальных файлов игры (MAX.RES)."
+		},
 		"238c": {
 			"en-US": "Animate Effects",
 			"fr-FR": "Effets d'Animation",

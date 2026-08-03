@@ -25,6 +25,8 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 add_executable(${PROJECT_NAME} ${GAME_SOURCES})
 
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "max-port")
+
 target_include_directories(${PROJECT_NAME} PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/src
 	${GAME_INCLUDES}
@@ -95,9 +97,9 @@ if(MAX_ENABLE_UPNP)
 endif()
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-	COMMAND ${CMAKE_OBJCOPY} ARGS --only-keep-debug	 $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.debug
+	COMMAND ${CMAKE_OBJCOPY} ARGS --only-keep-debug	 $<TARGET_FILE:${PROJECT_NAME}> $<TARGET_FILE_BASE_NAME:${PROJECT_NAME}>.debug
 	COMMAND ${CMAKE_STRIP} ARGS --strip-debug --strip-unneeded $<TARGET_FILE:${PROJECT_NAME}>
-	COMMAND ${CMAKE_OBJCOPY} ARGS --add-gnu-debuglink ${PROJECT_NAME}.debug $<TARGET_FILE:${PROJECT_NAME}>
+	COMMAND ${CMAKE_OBJCOPY} ARGS --add-gnu-debuglink $<TARGET_FILE_BASE_NAME:${PROJECT_NAME}>.debug $<TARGET_FILE:${PROJECT_NAME}>
 )
 
 if(MAX_BUILD_TESTS)
@@ -131,16 +133,35 @@ if(UNIX)
 	endif()
 
 	set(DEP_BIN_DIRS)
+	set(DEP_LIBRARY_REGEXES)
+
 	foreach(TARGET_NAME ${${PROJECT_NAME}_deps})
 		get_target_property(BIN_DIR ${TARGET_NAME} BINARY_DIR)
 		list(APPEND DEP_BIN_DIRS "${BIN_DIR}")
 		list(APPEND DEP_BIN_DIRS "${BIN_DIR}/lib")
+
+		get_target_property(ALIASED_TARGET ${TARGET_NAME} ALIASED_TARGET)
+
+		if(ALIASED_TARGET)
+			set(DEP_TARGET ${ALIASED_TARGET})
+		else()
+			set(DEP_TARGET ${TARGET_NAME})
+		endif()
+
+		get_target_property(DEP_TARGET_TYPE ${DEP_TARGET} TYPE)
+
+		if(DEP_TARGET_TYPE STREQUAL "SHARED_LIBRARY")
+			list(APPEND DEP_LIBRARY_REGEXES
+				"^$<TARGET_FILE_PREFIX:${DEP_TARGET}>$<TARGET_FILE_BASE_NAME:${DEP_TARGET}>.*$")
+		endif()
 	endforeach()
 
-	install(CODE "set(CMAKE_INSTALL_PREFIX \"${CMAKE_INSTALL_PREFIX}\")")
-	install(CODE "set(GAME_INSTALL_LIB_PATH \"${GAME_INSTALL_LIB_PATH}\")")
-	install(CODE "set(DEP_BIN_DIRS \"${DEP_BIN_DIRS}\")")
-	install(CODE [[
+	if(DEP_LIBRARY_REGEXES)
+		install(CODE "set(CMAKE_INSTALL_PREFIX \"${CMAKE_INSTALL_PREFIX}\")")
+		install(CODE "set(GAME_INSTALL_LIB_PATH \"${GAME_INSTALL_LIB_PATH}\")")
+		install(CODE "set(DEP_BIN_DIRS \"${DEP_BIN_DIRS}\")")
+		install(CODE "set(DEP_LIBRARY_REGEXES \"${DEP_LIBRARY_REGEXES}\")")
+		install(CODE [[
 		file(GET_RUNTIME_DEPENDENCIES
 			EXECUTABLES $<TARGET_FILE:max>
 			RESOLVED_DEPENDENCIES_VAR DEPS_RESOLVED
@@ -150,18 +171,30 @@ if(UNIX)
 			PRE_EXCLUDE_REGEXES
 				 ".*"
 			PRE_INCLUDE_REGEXES
-				"^libSDL3.*$"
-				"^libfreetype.*$"
-				"^libminiupnpc.*$"
-				"^libnlohmann_json.*$"
-				"^libnlohmann_json_schema_validator.*$"
-				"^liblua.*$"
-				"^libutf8proc.*$"
+				${DEP_LIBRARY_REGEXES}
 		)
 
 		if(DEPS_CONFLICTING_FILENAMES)
 			message(WARNING "Conflicting dependencies for library: \"${DEPS_CONFLICTING}\"!")
 		endif()
+
+		foreach(DEP_REGEX ${DEP_LIBRARY_REGEXES})
+			set(DEP_REGEX_MATCHED FALSE)
+
+			foreach(DEP_FILE ${DEPS_RESOLVED})
+				get_filename_component(DEP_FILE_NAME "${DEP_FILE}" NAME)
+
+				if(DEP_FILE_NAME MATCHES "${DEP_REGEX}")
+					set(DEP_REGEX_MATCHED TRUE)
+					break()
+				endif()
+			endforeach()
+
+			if(NOT DEP_REGEX_MATCHED)
+				message(FATAL_ERROR "No shared dependency matches \"${DEP_REGEX}\", the package would "
+					"be missing a library that the game needs at runtime.")
+			endif()
+		endforeach()
 
 		foreach(DEP_FILE ${DEPS_RESOLVED})
 			file(INSTALL
@@ -170,37 +203,37 @@ if(UNIX)
 				DESTINATION "${CMAKE_INSTALL_PREFIX}/${GAME_INSTALL_LIB_PATH}"
 			)
 		endforeach()
-	]])
+		]])
+	endif()
+
+	if(MAXPORT_FLATPAK_BUILD)
+		set(MAXPORT_LAUNCHER_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
+	elseif(MAXPORT_PKGMAKE_BUILD)
+		set(MAXPORT_LAUNCHER_DIR "/usr/bin")
+	else()
+		set(MAXPORT_LAUNCHER_DIR "/usr/games")
+	endif()
+
+	set_target_properties(${PROJECT_NAME} PROPERTIES
+		INSTALL_RPATH "$ORIGIN/../${GAME_INSTALL_LIB_PATH};$ORIGIN")
 
 	install(TARGETS ${PROJECT_NAME}
 		CONFIGURATIONS ${CMAKE_BUILD_TYPE}
-		RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/${GAME_INSTALL_LIB_PATH}"
+		RUNTIME DESTINATION "${MAXPORT_LAUNCHER_DIR}"
 	)
 
-	configure_file("${CMAKE_SOURCE_DIR}/assets/max-port.in" "${CMAKE_BINARY_DIR}/max-port" @ONLY)
 	configure_file("${CMAKE_SOURCE_DIR}/assets/max-port.desktop.in" "${CMAKE_BINARY_DIR}/max-port.desktop" @ONLY)
 
 	if(MAXPORT_FLATPAK_BUILD)
 		configure_file("${CMAKE_SOURCE_DIR}/flatpak/metainfo.xml.in" "${CMAKE_BINARY_DIR}/metainfo.xml" @ONLY)
 	else()
-		if(MAXPORT_PKGMAKE_BUILD)
-			install(FILES "${CMAKE_BINARY_DIR}/max-port"
-				DESTINATION "/usr/bin"
-				PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-			)
-		else()
-			install(FILES "${CMAKE_BINARY_DIR}/max-port"
-				DESTINATION "/usr/games"
-				PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-			)
-		endif()
-
 		install(FILES "${CMAKE_BINARY_DIR}/max-port.desktop"
 			DESTINATION "${CMAKE_INSTALL_DATADIR}/applications"
 		)
 
 		install(FILES "${CMAKE_SOURCE_DIR}/assets/max.png"
-			DESTINATION "${GAME_INSTALL_PATH}"
+			DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps"
+			RENAME "max-port.png"
 		)
 	endif()
 endif()
@@ -210,6 +243,7 @@ if(MINGW)
 	set(GAME_INSTALL_PATH ".")
 	set(CPACK_GENERATOR "7Z")
 	set(CPACK_SOURCE_GENERATOR "7Z")
+	set(CPACK_PRE_BUILD_SCRIPTS "${CMAKE_SOURCE_DIR}/cmake/scripts/cpack_exclude_portable.cmake")
 
 	include(nsis/nsis)
 
@@ -227,7 +261,7 @@ if(MINGW)
 
 		install(CODE "
 			include(BundleUtilities)
-			fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/${PROJECT_NAME}${CMAKE_EXECUTABLE_SUFFIX}\" \"\" \"${DEP_BIN_DIRS}\")
+			fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/$<TARGET_FILE_NAME:${PROJECT_NAME}>\" \"\" \"${DEP_BIN_DIRS}\")
 			"
 		)
 	endif()

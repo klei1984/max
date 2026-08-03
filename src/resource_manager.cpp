@@ -37,6 +37,7 @@
 #include "drawloadbar.hpp"
 #include "enums.hpp"
 #include "game_manager.hpp"
+#include "gamesetup.hpp"
 #include "gfx.hpp"
 #include "hash.hpp"
 #include "help.hpp"
@@ -400,10 +401,19 @@ void ResourceManager_InitPrefPath() {
 }
 
 void ResourceManager_InitGameDataPath() {
-    if (!ResourceManager_GetGameDataPath(ResourceManager_FilePathGameData)) {
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(0f72), nullptr);
-        exit(EXIT_FAILURE);
+    std::filesystem::path path;
+
+    /* The configured folder must actually hold the game assets. The stored path may point to an
+     * ejected CD-ROM or a moved installation, and a fresh install defaults to the working
+     * directory, so a failed test is not an error, it starts the interactive first run setup.
+     */
+    if (!ResourceManager_GetGameDataPath(path) || !GameSetup_IsGameDataFolder(path)) {
+        if (!GameSetup_Run(path)) {
+            exit(EXIT_SUCCESS);
+        }
     }
+
+    ResourceManager_FilePathGameData = path;
 }
 
 void ResourceManager_InitResources() {
@@ -419,10 +429,10 @@ void ResourceManager_InitResources() {
     // SDL file logging, resource file system base and pref paths are available
     ResourceManager_InitSettings();
     // game settings are available
+    ResourceManager_InitSDL();
+    // SDL video sub-system and logging are available, the first run setup can show native dialogs
     ResourceManager_InitGameDataPath();
     // resource file system game data path is available
-    ResourceManager_InitSDL();
-    // SDL video sub-system and logging are available
     ResourceManager_TestMemory();
     ResourceManager_TestDiskSpace();
     // tested RAM and NVM space

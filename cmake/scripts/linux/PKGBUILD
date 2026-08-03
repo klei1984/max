@@ -3,14 +3,14 @@
 
 # Maintainer: M.A.X. Port Team <maxport@maxport.org>
 pkgname="max-port"
-pkgver=0.7.2
+pkgver=0.8.0
 pkgrel=1
 pkgdesc="conquer and plunder-type turn-based sci-fi strategy game"
 arch=("${CARCH}")
 url="https://github.com/klei1984/max"
 license=("MIT")
-depends=("sh" "libnewt" "glibc" "gcc-libs")
-makedepends=("git" "cmake" "gcc" "ninja" "wget" "gettext" "p7zip" "libx11" "libxext" "libxcursor" "libxrandr" "libxfixes" "libxi" "libxss" "libxtst" "libxkbcommon" "wayland" "wayland-protocols" "libdecor" "alsa-lib" "libpulse" "dbus" "libglvnd" "desktop-file-utils")
+depends=("glibc" "gcc-libs")
+makedepends=("git" "cmake" "gcc" "ninja" "wget" "gettext" "p7zip" "libx11" "libxext" "libxcursor" "libxrandr" "libxfixes" "libxi" "libxss" "libxtst" "libxkbcommon" "wayland" "wayland-protocols" "libdecor" "alsa-lib" "libpulse" "dbus" "libglvnd")
 source=("$pkgname::git+https://github.com/klei1984/max.git")
 provides=("$pkgname")
 conflicts=("$pkgname")
@@ -38,7 +38,7 @@ build() {
 package() {
     cd "${srcdir}/${pkgname}"
     DESTDIR="$pkgdir" cmake --install build
-    chmod 755 "${pkgdir}/usr/bin/${pkgname}"
-    desktop-file-edit --set-key="Exec" --set-value="max-port" "$pkgdir/usr/share/applications/$pkgname.desktop"
     install -Dm644 LICENSE -t "${pkgdir}/usr/share/licenses/${pkgname}"
+    depends=("${depends[@]/glibc/glibc>=$(pacman -Q glibc | awk '{print $2}' | cut -d- -f1 | cut -d+ -f1)}")
+    depends=("${depends[@]/gcc-libs/gcc-libs>=$(pacman -Q gcc-libs | awk '{print $2}' | cut -d- -f1 | cut -d+ -f1)}")
 }
