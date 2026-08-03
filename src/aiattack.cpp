@@ -960,7 +960,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                             }
 
                             if (projected_damage < unit->hits && caution_level > CAUTION_LEVEL_AVOID_REACTION_FIRE) {
-                                unit_shots =
+                                unit_shots +=
                                     std::min(unit_values->GetAttribute(ATTRIB_ROUNDS), (unit->ammo - unit_shots));
                             }
 
