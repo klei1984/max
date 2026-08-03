@@ -25,6 +25,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 struct LanguageObject;
@@ -32,10 +33,11 @@ struct LanguageObject;
 class Language {
     std::string& m_language;
     std::string m_empty{""};
-    std::string m_error{"error"};
+    std::unordered_map<uint32_t, std::string> m_missing;
     std::unique_ptr<LanguageObject> m_languageobject;
 
     [[nodiscard]] std::string LoadSchema();
+    [[nodiscard]] const std::string& GetMissingEntry(const uint32_t key);
 
 public:
     Language();

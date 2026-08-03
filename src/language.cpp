@@ -23,6 +23,7 @@
 
 #include <SDL3/SDL.h>
 
+#include <format>
 #include <fstream>
 #include <nlohmann/json-schema.hpp>
 #include <nlohmann/json.hpp>
@@ -143,5 +144,19 @@ const std::string& Language::GetEntry(const uint32_t key) {
         }
     }
 
-    return m_error;
+    return GetMissingEntry(key);
+}
+
+const std::string& Language::GetMissingEntry(const uint32_t key) {
+    auto [it, inserted] = m_missing.try_emplace(key);
+
+    if (inserted) {
+        /* Several call sites pass language entries to printf style formatters, so the placeholder must not contain
+         * any conversion specifier. It carries the key in the same notation the _() macro uses in the sources. */
+        it->second = std::format("<missing string {:04x}>", key);
+
+        SDL_Log("Language: key %04x is not in the loaded string catalog.\n", key);
+    }
+
+    return it->second;
 }
