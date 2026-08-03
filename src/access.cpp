@@ -1504,7 +1504,7 @@ UnitInfo* Access_GetActiveUnitWithFlags(int32_t grid_x, int32_t grid_y, uint32_t
                 }
 
                 Hash_MapHash.Remove(&*it);
-                Hash_MapHash.Add(&*it);
+                Hash_MapHash.Add(&*it, true);
 
                 ++it;
 
