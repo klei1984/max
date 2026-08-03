@@ -132,22 +132,6 @@ void ResourceAllocator::Optimize(Point point, int32_t resource_level, int32_t re
     point.x = ((((point.x + 1) - m_point.x) / 2) * 2) + m_point.x;
     point.y = ((((point.y + 1) - m_point.y) / 2) * 2) + m_point.y;
 
-    if (point.x < 0) {
-        point.x = 0;
-    }
-
-    if (point.y < 0) {
-        point.y = 0;
-    }
-
-    if (point.x >= ResourceManager_MapSize.x) {
-        point.x = ResourceManager_MapSize.x - 1;
-    }
-
-    if (point.y >= ResourceManager_MapSize.y) {
-        point.y = ResourceManager_MapSize.y - 1;
-    }
-
     bounds.lry = point.y - 4;
 
     if (bounds.lry < 0) {
@@ -176,7 +160,17 @@ void ResourceAllocator::Optimize(Point point, int32_t resource_level, int32_t re
         bounds.ulx = ResourceManager_MapSize.x;
     }
 
-    map_resource_amount = ResourceManager_CargoMap[point.y * ResourceManager_MapSize.x + point.x] & 0x1F;
+    const int32_t map_index = point.y * ResourceManager_MapSize.x + point.x;
+
+    // The centre of a deposit is not clamped into the map, so this index may leave the cargo map. The deposit
+    // loop below cannot, as bounds.lrx and bounds.lry never fall below m_point and the loops stay empty once
+    // the centre is past the far edge.
+    if (map_index >= 0 && map_index < ResourceManager_MapSize.x * ResourceManager_MapSize.y) {
+        map_resource_amount = ResourceManager_CargoMap[map_index] & 0x1F;
+
+    } else {
+        map_resource_amount = 0;
+    }
 
     if (point.x > 0) {
         if (point.y > 0) {
