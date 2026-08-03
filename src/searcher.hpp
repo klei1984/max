@@ -148,9 +148,12 @@ public:
      * Reconstructs the path from start to destination by following direction pointers from the
      * meeting point. Returns the path as a sequence of movement steps.
      *
+     * The path is truncated when it would exceed max_cost.
+     *
      * \param meeting_point The point where forward and backward searches met.
-     * \param max_cost Maximum allowed path cost; paths exceeding this are rejected.
-     * \return The path result if valid path found within cost limit, or std::nullopt otherwise.
+     * \param max_cost Cost budget for the returned steps. A non-positive budget yields no steps.
+     * \return The path result, truncated to max_cost, or std::nullopt if no step could be
+     *         emitted.
      */
     std::optional<PathResult> DeterminePath(const Point meeting_point, const int32_t max_cost) const;
 };

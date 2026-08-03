@@ -355,8 +355,13 @@ std::optional<PathResult> Searcher::DeterminePath(const Point meeting_point, con
 
             PathResult result(m_destination);
 
-            // Process steps in reverse (from meeting_point toward destination), respecting max_cost
-            for (auto it = raw_steps.rbegin(); it != raw_steps.rend(); ++it) {
+            int32_t cost = 0;
+
+            // Process steps in reverse (from meeting_point toward destination) until the cost
+            // budget is spent. The budget is tested before each step and charged afterwards, so
+            // the final step may overshoot max_cost and a positive budget always yields at least
+            // one step.
+            for (auto it = raw_steps.rbegin(); it != raw_steps.rend() && cost < max_cost; ++it) {
                 destination_x += it->x;
                 destination_y += it->y;
 
@@ -367,14 +372,9 @@ std::optional<PathResult> Searcher::DeterminePath(const Point meeting_point, con
                     step_cost = (step_cost * 3) / 2;
                 }
 
-                if (result.steps.empty()) {
-                    // First step always added
-                    result.steps.push_back(PathStep{static_cast<int8_t>(it->x), static_cast<int8_t>(it->y)});
+                cost += step_cost;
 
-                } else {
-                    // Check cost accumulation (simplified: just add steps up to max_cost)
-                    result.steps.push_back(PathStep{static_cast<int8_t>(it->x), static_cast<int8_t>(it->y)});
-                }
+                result.steps.push_back(PathStep{static_cast<int8_t>(it->x), static_cast<int8_t>(it->y)});
             }
 
             if (result.steps.empty()) {
