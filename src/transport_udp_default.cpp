@@ -44,13 +44,7 @@ enum : uint8_t {
     TRANSPORT_PACKET_00 = TRANSPORT_TP_PACKET_ID,
     TRANSPORT_PACKET_01,
     TRANSPORT_PACKET_02,
-};
-
-enum {
-    TRANSPORT_NETSTATE_DEINITED,
-    TRANSPORT_NETSTATE_INITED,
-    TRANSPORT_NETSTATE_CONNECTED,
-    TRANSPORT_NETSTATE_DISCONNECTED,
+    TRANSPORT_PACKET_03,
 };
 
 enum {
@@ -59,13 +53,20 @@ enum {
     TRANSPORT_CHANNEL_COUNT,
 };
 
-static constexpr uint16_t TransportUdpDefault_ProtocolVersionId = 0x0002;
+enum : intptr_t {
+    TRANSPORT_PEER_UNVERIFIED,
+    TRANSPORT_PEER_VERIFIED,
+};
+
+static constexpr uint16_t TransportUdpDefault_ProtocolVersionId = 0x0003;
 static constexpr uint16_t TransportUdpDefault_DefaultHostPort = 31554;
 static constexpr uint16_t TransportUdpDefault_MinimumHostPort = 1024;
 static constexpr uint16_t TransportUdpDefault_MaximumHostPort = 65535;
 static constexpr uint32_t TransportUdpDefault_ServiceTickPeriod = 10;
 static constexpr uint32_t TransportUdpDefault_DisconnectResponseTimeout = 3000;
 static constexpr uint32_t TransportUdpDefault_MaximumPeers = 32;
+static constexpr uint32_t TransportUdpDefault_MaximumConnectAttempts = 5;
+static constexpr size_t TransportUdpDefault_MaximumQueuedPackets = 1024;
 static constexpr uint32_t TransportUdpDefault_Channels = TRANSPORT_CHANNEL_COUNT;
 
 #if defined(MAX_ENABLE_UPNP)
@@ -102,8 +103,13 @@ struct TransportUdpDefault_Context {
     std::deque<NetPacket> RxPackets;
     struct UpnpDevice UpnpDevice;
     ENetAddress ServerAddress;
+    /* The client's link to the server. Null in the server role, and while a client is between
+     * connection attempts. Control packets that only the server may send are checked against it.
+     */
+    ENetPeer* ServerPeer;
     std::atomic<bool> ExitThread;
-    int32_t NetState;
+    std::atomic<int32_t> NetState;
+    std::atomic<int32_t> ErrorCode;
     int32_t NetRole;
     const char* LastError;
 };
@@ -118,6 +124,10 @@ static inline bool TransportUdpDefault_SendVersionInfo(struct TransportUdpDefaul
                                                        ENetPeer* const peer);
 static inline bool TransportUdpDefault_VersionCheck(struct TransportUdpDefault_Context* const context,
                                                     NetPacket& packet);
+static inline bool TransportUdpDefault_SendVersionReject(struct TransportUdpDefault_Context* const context,
+                                                         ENetPeer* const peer);
+static inline void TransportUdpDefault_SetPeerState(ENetPeer* const peer, const intptr_t state) noexcept;
+static inline bool TransportUdpDefault_IsPeerVerified(const ENetPeer* const peer) noexcept;
 static inline bool TransportUdpDefault_SendPeersListToPeer(struct TransportUdpDefault_Context* const context,
                                                            ENetPeer* const peer);
 static inline bool TransportUdpDefault_BroadcastNewPeerArrived(struct TransportUdpDefault_Context* const context,
@@ -137,6 +147,8 @@ static inline void TransportUdpDefault_ProcessApplPacket(struct TransportUdpDefa
 static inline void TransportUdpDefault_TransmitApplPackets(struct TransportUdpDefault_Context* const context);
 static ENetPeer* TransportUdpDefault_FindPeer(struct TransportUdpDefault_Context* const context,
                                               const NetAddress& address) noexcept;
+static void TransportUdpDefault_SetErrorCode(struct TransportUdpDefault_Context* const context,
+                                             int32_t error_code) noexcept;
 
 #if defined(MAX_ENABLE_UPNP)
 static void TransportUdpDefault_UpnpInit(struct TransportUdpDefault_Context* const context) noexcept;
@@ -197,8 +209,10 @@ bool TransportUdpDefault::Init(int32_t mode) {
         context->UpnpDevice.Status = TRANSPORT_IGDSTATUS_ERROR;
         context->ServerAddress.host = ENET_HOST_ANY;
         context->ServerAddress.port = TransportUdpDefault_DefaultHostPort;
+        context->ServerPeer = nullptr;
         context->ExitThread.store(false, std::memory_order_release);
-        context->NetState = TRANSPORT_NETSTATE_DEINITED;
+        context->NetState.store(TRANSPORT_NETSTATE_DEINITED, std::memory_order_release);
+        context->ErrorCode.store(TRANSPORT_ERROR_NONE, std::memory_order_release);
         context->NetRole = -1;
         context->LastError = "No error.";
 
@@ -207,23 +221,20 @@ bool TransportUdpDefault::Init(int32_t mode) {
         }
     }
 
-    if (context->NetState == TRANSPORT_NETSTATE_DEINITED) {
-        if (enet_initialize() == 0) {
-            // safe write access as thread cannot exist yet
-            context->NetState = TRANSPORT_NETSTATE_INITED;
+    if (context->NetState.load(std::memory_order_acquire) == TRANSPORT_NETSTATE_DEINITED) {
+        if (Transport_IsInitialized()) {
+            context->ErrorCode.store(TRANSPORT_ERROR_NONE, std::memory_order_release);
+            context->NetState.store(TRANSPORT_NETSTATE_INITED, std::memory_order_release);
 
             SDL_assert(context->Thread == nullptr);
 
             if (mode == TRANSPORT_SERVER) {
-                // ServerAddress is the bind address for a server. Accept on every local interface, so that clients
-                // reach the host regardless of which one they arrive on, and only the port needs to be agreed on.
                 context->ServerAddress.host = ENET_HOST_ANY;
                 context->ServerAddress.port = TransportUdpDefault_GetHostPort();
 
                 context->Thread = SDL_CreateThread(&TransportUdpDefault_ServerFunction, "TransportUdpDefault", context);
 
             } else {
-                // ServerAddress is the peer address to dial for a client.
                 TransportUdpDefault_GetServerAddress(context->ServerAddress);
 
                 context->Thread = SDL_CreateThread(&TransportUdpDefault_ClientFunction, "TransportUdpDefault", context);
@@ -260,10 +271,8 @@ bool TransportUdpDefault::Deinit() {
             /// \todo Handle error.
         }
 
-        if (context->NetState != TRANSPORT_NETSTATE_DEINITED) {
-            enet_deinitialize();
-            // safe write access as thread cannot exist anymore
-            context->NetState = TRANSPORT_NETSTATE_DEINITED;
+        if (context->NetState.load(std::memory_order_acquire) != TRANSPORT_NETSTATE_DEINITED) {
+            context->NetState.store(TRANSPORT_NETSTATE_DEINITED, std::memory_order_release);
         }
     }
 
@@ -280,31 +289,84 @@ void TransportUdpDefault::SetError(const char* error) {
     }
 }
 
+void TransportUdpDefault_SetErrorCode(struct TransportUdpDefault_Context* const context, int32_t error_code) noexcept {
+    int32_t expected{TRANSPORT_ERROR_NONE};
+
+    (void)context->ErrorCode.compare_exchange_strong(expected, error_code, std::memory_order_acq_rel,
+                                                     std::memory_order_relaxed);
+}
+
 const char* TransportUdpDefault::GetError() const {
     const char* error{""};
 
     if (context) {
-        error = context->LastError;
+        switch (context->ErrorCode.load(std::memory_order_acquire)) {
+            case TRANSPORT_ERROR_BIND_FAILED: {
+                error = "Could not bind the network port.";
+            } break;
+
+            case TRANSPORT_ERROR_PEER_CONNECT_FAILED: {
+                error = "Could not connect to a remote peer.";
+            } break;
+
+            case TRANSPORT_ERROR_MESH_INCOMPLETE: {
+                error = "Could not announce a peer to every participant.";
+            } break;
+
+            case TRANSPORT_ERROR_OUT_OF_MEMORY: {
+                error = "Out of memory in the network layer.";
+            } break;
+
+            case TRANSPORT_ERROR_SEND_FAILED: {
+                error = "Could not send to a remote peer.";
+            } break;
+
+            case TRANSPORT_ERROR_VERSION_MISMATCH: {
+                error = "The other player runs a different version of the game.";
+            } break;
+
+            default: {
+                error = context->LastError;
+            } break;
+        }
     }
 
     return error;
 }
 
+TransportStatus TransportUdpDefault::GetStatus() const {
+    TransportStatus status{TRANSPORT_NETSTATE_DEINITED, TRANSPORT_ERROR_NONE};
+
+    if (context) {
+        status.state = context->NetState.load(std::memory_order_acquire);
+        status.error_code = context->ErrorCode.load(std::memory_order_acquire);
+    }
+
+    return status;
+}
+
 bool TransportUdpDefault::TransmitPacket(NetPacket&& packet) {
-    /* Log before queueing. Once the packet is on the queue it belongs to the network thread, which
-     * may consume and destroy it before this function returns.
-     */
+    bool result{false};
+
     NETLOG(log, "Transmit");
     NETLOG_LOG(log, packet);
 
     SDL_LockSpinlock(&context->QueueLock);
     {
-        context->TxPackets.push_back(std::move(packet));
+        if (context->TxPackets.size() < TransportUdpDefault_MaximumQueuedPackets) {
+            context->TxPackets.push_back(std::move(packet));
+
+            result = true;
+        }
 
         SDL_UnlockSpinlock(&context->QueueLock);
     }
 
-    return true;
+    if (!result) {
+        NETLOG_LOG(log, "Transmit queue is full, packet rejected.");
+    }
+
+    return result;
 }
 
 bool TransportUdpDefault::ReceivePacket(NetPacket& packet) {
@@ -343,6 +405,10 @@ bool TransportUdpDefault_SendTpPacket(struct TransportUdpDefault_Context* const 
                 result = true;
             }
 
+            if (enet_packet->referenceCount == 0) {
+                enet_packet_destroy(enet_packet);
+            }
+
         } else {
             enet_host_broadcast(context->Host, TRANSPORT_TP_CHANNEL, enet_packet);
 
@@ -379,8 +445,45 @@ bool TransportUdpDefault_VersionCheck(struct TransportUdpDefault_Context* const 
     packet >> remote_enet_version;
     packet >> remote_protocol_version;
 
-    return game_version == remote_game_version && enet_version == remote_enet_version &&
-           protocol_version == remote_protocol_version;
+    const bool result{game_version == remote_game_version && enet_version == remote_enet_version &&
+                      protocol_version == remote_protocol_version};
+
+    if (!result) {
+        AILOG(log,
+              "Transport: Version mismatch. Local game {:08X} enet {:08X} protocol {:04X}, remote game {:08X} enet "
+              "{:08X} protocol {:04X}.\n",
+              game_version, enet_version, protocol_version, remote_game_version, remote_enet_version,
+              remote_protocol_version);
+    }
+
+    return result;
+}
+
+/* Tells a peer why it is about to be dropped.
+ *
+ * A bare disconnect is indistinguishable from a network fault, which is what left a mismatched
+ * client retrying forever. The rejected side reads this and stops.
+ */
+bool TransportUdpDefault_SendVersionReject(struct TransportUdpDefault_Context* const context, ENetPeer* const peer) {
+    NetPacket packet;
+    uint32_t enet_version{static_cast<uint32_t>(enet_linked_version())};
+    uint16_t protocol_version{TransportUdpDefault_ProtocolVersionId};
+    uint32_t game_version{GAME_VERSION};
+
+    packet << static_cast<uint8_t>(TRANSPORT_PACKET_03);
+    packet << game_version;
+    packet << enet_version;
+    packet << protocol_version;
+
+    return TransportUdpDefault_SendTpPacket(context, peer, packet);
+}
+
+void TransportUdpDefault_SetPeerState(ENetPeer* const peer, const intptr_t state) noexcept {
+    peer->data = reinterpret_cast<void*>(state);
+}
+
+bool TransportUdpDefault_IsPeerVerified(const ENetPeer* const peer) noexcept {
+    return reinterpret_cast<intptr_t>(peer->data) == TRANSPORT_PEER_VERIFIED;
 }
 
 bool TransportUdpDefault_SendPeersListToPeer(struct TransportUdpDefault_Context* const context, ENetPeer* const peer) {
@@ -413,7 +516,10 @@ bool TransportUdpDefault_BroadcastNewPeerArrived(struct TransportUdpDefault_Cont
 
     for (auto i = 0; i < peer_count; ++i) {
         if (!TransportUdpDefault_SendTpPacket(context, *context->Peers[i], packet)) {
-            /// \todo Handle error
+            result = false;
+
+            NETLOG(log, "Failed to announce new peer {:8X}:{:4X} to peer {:8X}:{:4X}.", peer->address.host,
+                   peer->address.port, (*context->Peers[i])->address.host, (*context->Peers[i])->address.port);
         }
     }
 
@@ -438,7 +544,7 @@ void TransportUdpDefault_RemoveClients(struct TransportUdpDefault_Context* const
     enet_host_flush(context->Host);
 
     for (uint32_t i = 0; i < peers.GetCount(); ++i) {
-        enet_peer_disconnect(*peers[i], 0);
+        enet_peer_disconnect_later(*peers[i], 0);
     }
 
     for (; peers.GetCount();) {
@@ -452,7 +558,12 @@ void TransportUdpDefault_RemoveClients(struct TransportUdpDefault_Context* const
                 } break;
 
                 case ENET_EVENT_TYPE_DISCONNECT: {
-                    TransportUdpDefault_RemovePeer(context, event.peer);
+                    if (context->NetRole == TRANSPORT_SERVER) {
+                        TransportUdpDefault_RemovePeer(context, event.peer);
+
+                    } else {
+                        TransportUdpDefault_RemoveRemotePeer(context, event.peer);
+                    }
                 } break;
             }
         }
@@ -471,6 +582,8 @@ void TransportUdpDefault_RemoveClients(struct TransportUdpDefault_Context* const
     }
 
     peers.Clear();
+
+    context->ServerPeer = nullptr;
 }
 
 void TransportUdpDefault_ConnectRemotePeer(struct TransportUdpDefault_Context* const context, NetPacket& packet) {
@@ -485,7 +598,9 @@ void TransportUdpDefault_ConnectRemotePeer(struct TransportUdpDefault_Context* c
         context->RemotePeers.PushBack(&remote_peer);
 
     } else {
-        /// \todo Handle error
+        NETLOG(log, "Failed to allocate a connection to peer {:8X}:{:4X}.", address.host, address.port);
+
+        TransportUdpDefault_SetErrorCode(context, TRANSPORT_ERROR_PEER_CONNECT_FAILED);
     }
 }
 
@@ -518,11 +633,24 @@ void TransportUdpDefault_ProcessTpPacket(struct TransportUdpDefault_Context* con
 
     packet >> packet_type;
 
-    if (context->NetRole == TRANSPORT_SERVER) {
-        switch (packet_type) {
-            case TRANSPORT_PACKET_00: {
-                if (TransportUdpDefault_VersionCheck(context, packet) &&
-                    TransportUdpDefault_SendPeersListToPeer(context, peer) &&
+    switch (packet_type) {
+        case TRANSPORT_PACKET_00: {
+            if (!TransportUdpDefault_VersionCheck(context, packet)) {
+                (void)TransportUdpDefault_SendVersionReject(context, peer);
+
+                if (peer == context->ServerPeer) {
+                    TransportUdpDefault_SetErrorCode(context, TRANSPORT_ERROR_VERSION_MISMATCH);
+                }
+
+                enet_peer_disconnect_later(peer, 0);
+
+                return;
+            }
+
+            TransportUdpDefault_SetPeerState(peer, TRANSPORT_PEER_VERIFIED);
+
+            if (context->NetRole == TRANSPORT_SERVER) {
+                if (TransportUdpDefault_SendPeersListToPeer(context, peer) &&
                     TransportUdpDefault_BroadcastNewPeerArrived(context, peer)) {
                     context->Peers.PushBack(&peer);
 
@@ -530,33 +658,57 @@ void TransportUdpDefault_ProcessTpPacket(struct TransportUdpDefault_Context* con
                     enet_peer_disconnect(peer, 0);
                 }
 
-            } break;
+            } else if (peer == context->ServerPeer) {
+                context->NetState.store(TRANSPORT_NETSTATE_CONNECTED, std::memory_order_release);
 
-            default: {
+            } else if (context->RemotePeers->Find(&peer) == -1) {
+                context->RemotePeers.PushBack(&peer);
+            }
+
+        } break;
+
+        case TRANSPORT_PACKET_03: {
+            (void)TransportUdpDefault_VersionCheck(context, packet);
+
+            if (peer == context->ServerPeer) {
+                TransportUdpDefault_SetErrorCode(context, TRANSPORT_ERROR_VERSION_MISMATCH);
+            }
+
+            enet_peer_disconnect_later(peer, 0);
+
+        } break;
+
+        case TRANSPORT_PACKET_01: {
+            if (context->NetRole != TRANSPORT_CLIENT || peer != context->ServerPeer ||
+                !TransportUdpDefault_IsPeerVerified(peer)) {
                 TransportUdpDefault_ProtocolErrorMessage(peer, packet_type);
-            } break;
-        }
 
-    } else if (context->NetRole == TRANSPORT_CLIENT) {
-        switch (packet_type) {
-            case TRANSPORT_PACKET_01: {
-                uint16_t peer_count;
+                return;
+            }
 
-                packet >> peer_count;
+            uint16_t peer_count;
 
-                for (auto i = 0; i < peer_count; ++i) {
-                    TransportUdpDefault_ConnectRemotePeer(context, packet);
-                }
-            } break;
+            packet >> peer_count;
 
-            case TRANSPORT_PACKET_02: {
+            for (auto i = 0; i < peer_count; ++i) {
                 TransportUdpDefault_ConnectRemotePeer(context, packet);
-            } break;
+            }
+        } break;
 
-            default: {
+        case TRANSPORT_PACKET_02: {
+            if (context->NetRole != TRANSPORT_CLIENT || peer != context->ServerPeer ||
+                !TransportUdpDefault_IsPeerVerified(peer)) {
                 TransportUdpDefault_ProtocolErrorMessage(peer, packet_type);
-            } break;
-        }
+
+                return;
+            }
+
+            TransportUdpDefault_ConnectRemotePeer(context, packet);
+        } break;
+
+        default: {
+            TransportUdpDefault_ProtocolErrorMessage(peer, packet_type);
+        } break;
     }
 }
 
@@ -565,17 +717,34 @@ void TransportUdpDefault_ProcessApplPacket(struct TransportUdpDefault_Context* c
     NetPacket packet;
     NetAddress address;
 
+    if (!TransportUdpDefault_IsPeerVerified(peer)) {
+        NETLOG(log, "Dropped {} application bytes from unverified peer {:8X}:{:4X}.", enet_packet->dataLength,
+               peer->address.host, peer->address.port);
+
+        return;
+    }
+
     address.host = peer->address.host;
     address.port = peer->address.port;
 
     packet.AddAddress(address);
     packet.Write(enet_packet->data, enet_packet->dataLength);
 
+    bool accepted{false};
+
     SDL_LockSpinlock(&context->QueueLock);
     {
-        context->RxPackets.push_back(std::move(packet));
+        if (context->RxPackets.size() < TransportUdpDefault_MaximumQueuedPackets) {
+            context->RxPackets.push_back(std::move(packet));
+
+            accepted = true;
+        }
 
         SDL_UnlockSpinlock(&context->QueueLock);
+    }
+
+    if (!accepted) {
+        NETLOG(log, "Receive queue is full, packet from {:8X}:{:4X} dropped.", peer->address.host, peer->address.port);
     }
 }
 
@@ -603,6 +772,8 @@ ENetPeer* TransportUdpDefault_FindPeer(struct TransportUdpDefault_Context* const
 }
 
 void TransportUdpDefault_TransmitApplPackets(struct TransportUdpDefault_Context* const context) {
+    bool packets_transmitted{false};
+
     for (;;) {
         NetPacket local;
         bool packet_pending{false};
@@ -623,12 +794,16 @@ void TransportUdpDefault_TransmitApplPackets(struct TransportUdpDefault_Context*
             break;
         }
 
-        /// \todo Flush buffered packets as soon as a synch packet is found or simply exit loop
+        packets_transmitted = true;
+
         ENetPacket* const enet_packet =
             enet_packet_create(local.GetBuffer(), local.GetDataSize(), ENET_PACKET_FLAG_RELIABLE);
 
         if (!enet_packet) {
-            /// \todo Handle error
+            NETLOG(log, "Failed to allocate a packet of {} bytes, packet lost.", local.GetDataSize());
+
+            TransportUdpDefault_SetErrorCode(context, TRANSPORT_ERROR_OUT_OF_MEMORY);
+
             continue;
         }
 
@@ -646,27 +821,26 @@ void TransportUdpDefault_TransmitApplPackets(struct TransportUdpDefault_Context*
 
                 if (target) {
                     if (enet_peer_send(target, TRANSPORT_APPL_CHANNEL, enet_packet) < 0) {
-                        /// \todo Handle error
+                        NETLOG(log, "Failed to queue a packet of {} bytes to peer {:8X}:{:4X}.", local.GetDataSize(),
+                               local.GetAddress(index).host, local.GetAddress(index).port);
+
+                        TransportUdpDefault_SetErrorCode(context, TRANSPORT_ERROR_SEND_FAILED);
                     }
 
                 } else {
-                    /* No connected peer carries this address, so the recipient is skipped. Report
-                     * it: unlike a broadcast, an unresolved recipient loses the packet silently and
-                     * surfaces much later as a stalled synchronisation.
-                     */
                     NETLOG(log, "No connected peer for recipient {:8X}:{:4X}, packet dropped.",
                            local.GetAddress(index).host, local.GetAddress(index).port);
                 }
             }
 
-            /* enet_peer_send() takes a reference only when it queues the packet, and unlike
-             * enet_host_broadcast() it does not release an unreferenced one. Undelivered packets
-             * would leak without this.
-             */
             if (enet_packet->referenceCount == 0) {
                 enet_packet_destroy(enet_packet);
             }
         }
+    }
+
+    if (packets_transmitted) {
+        enet_host_flush(context->Host);
     }
 }
 
@@ -735,7 +909,9 @@ void TransportUdpDefault_UpnpInit(struct TransportUdpDefault_Context* const cont
 void TransportUdpDefault_UpnpDeinit(struct TransportUdpDefault_Context* const context) noexcept {
     if (TRANSPORT_IGDSTATUS_OK == context->UpnpDevice.Status) {
         if (!TransportUdpDefault_UpnpRemovePortMapping(context->UpnpDevice, context->Host->address)) {
-            /// \todo Handle error
+            NETLOG(log, "Failed to remove the UPnP port mapping for port {}.", context->Host->address.port);
+
+            TransportUdpDefault_SetErrorCode(context, TRANSPORT_ERROR_UPNP_UNMAP_FAILED);
         }
     }
 }
@@ -802,12 +978,14 @@ int TransportUdpDefault_ServerFunction(void* data) noexcept {
 #if defined(MAX_ENABLE_UPNP)
         TransportUdpDefault_UpnpInit(context);
 #endif
-        context->NetState = TRANSPORT_NETSTATE_CONNECTED;
+        context->NetState.store(TRANSPORT_NETSTATE_CONNECTED, std::memory_order_release);
 
         for (;;) {
             if (enet_host_service(context->Host, &event, TransportUdpDefault_ServiceTickPeriod) > 0) {
                 switch (event.type) {
                     case ENET_EVENT_TYPE_CONNECT: {
+                        TransportUdpDefault_SetPeerState(event.peer, TRANSPORT_PEER_UNVERIFIED);
+                        (void)TransportUdpDefault_SendVersionInfo(context, event.peer);
                     } break;
 
                     case ENET_EVENT_TYPE_RECEIVE: {
@@ -833,6 +1011,7 @@ int TransportUdpDefault_ServerFunction(void* data) noexcept {
             TransportUdpDefault_TransmitApplPackets(context);
 
             if (context->ExitThread.load(std::memory_order_acquire)) {
+                TransportUdpDefault_TransmitApplPackets(context);
                 TransportUdpDefault_RemoveClients(context);
                 break;
             }
@@ -845,7 +1024,15 @@ int TransportUdpDefault_ServerFunction(void* data) noexcept {
         enet_host_destroy(context->Host);
 
         context->NetRole = -1;
-        context->NetState = TRANSPORT_NETSTATE_DISCONNECTED;
+        context->NetState.store(TRANSPORT_NETSTATE_DISCONNECTED, std::memory_order_release);
+
+    } else {
+        NETLOG(log, "Failed to bind the server host to port {}.", context->ServerAddress.port);
+
+        TransportUdpDefault_SetErrorCode(context, TRANSPORT_ERROR_BIND_FAILED);
+
+        context->NetRole = -1;
+        context->NetState.store(TRANSPORT_NETSTATE_DISCONNECTED, std::memory_order_release);
     }
 
     return 0;
@@ -863,20 +1050,25 @@ int TransportUdpDefault_ClientFunction(void* data) noexcept {
         TransportUdpDefault_UpnpInit(context);
 #endif
 
-        ENetPeer* server_peer =
+        uint32_t connect_attempts{1};
+
+        context->ServerPeer =
             enet_host_connect(context->Host, &context->ServerAddress, TransportUdpDefault_Channels, 0);
 
-        if (server_peer) {
+        if (context->ServerPeer) {
+            context->RemotePeers.PushBack(&context->ServerPeer);
+
             for (;;) {
                 ENetEvent event;
 
                 while (enet_host_service(context->Host, &event, TransportUdpDefault_ServiceTickPeriod) > 0) {
                     switch (event.type) {
                         case ENET_EVENT_TYPE_CONNECT: {
-                            if (event.peer == server_peer) {
-                                TransportUdpDefault_SendVersionInfo(context, event.peer);
+                            TransportUdpDefault_SetPeerState(event.peer, TRANSPORT_PEER_UNVERIFIED);
+                            (void)TransportUdpDefault_SendVersionInfo(context, event.peer);
 
-                                context->NetState = TRANSPORT_NETSTATE_CONNECTED;
+                            if (event.peer == context->ServerPeer) {
+                                connect_attempts = 0;
                             }
                         } break;
 
@@ -895,14 +1087,40 @@ int TransportUdpDefault_ClientFunction(void* data) noexcept {
                         } break;
 
                         case ENET_EVENT_TYPE_DISCONNECT: {
-                            if (event.peer == server_peer) {
-                                context->NetState = TRANSPORT_NETSTATE_DISCONNECTED;
+                            TransportUdpDefault_SetPeerState(event.peer, TRANSPORT_PEER_UNVERIFIED);
+                            TransportUdpDefault_RemoveRemotePeer(context, event.peer);
 
-                                server_peer = enet_host_connect(context->Host, &context->ServerAddress,
-                                                                TransportUdpDefault_Channels, 0);
+                            if (event.peer == context->ServerPeer) {
+                                context->NetState.store(TRANSPORT_NETSTATE_DISCONNECTED, std::memory_order_release);
 
-                            } else {
-                                TransportUdpDefault_RemoveRemotePeer(context, event.peer);
+                                context->ServerPeer = nullptr;
+
+                                if (context->ErrorCode.load(std::memory_order_acquire) != TRANSPORT_ERROR_NONE) {
+                                    break;
+                                }
+
+                                if (connect_attempts >= TransportUdpDefault_MaximumConnectAttempts) {
+                                    NETLOG(log, "Giving up on the server after {} connection attempts.",
+                                           connect_attempts);
+
+                                    TransportUdpDefault_SetErrorCode(context, TRANSPORT_ERROR_PEER_CONNECT_FAILED);
+
+                                    break;
+                                }
+
+                                ++connect_attempts;
+
+                                context->ServerPeer = enet_host_connect(context->Host, &context->ServerAddress,
+                                                                        TransportUdpDefault_Channels, 0);
+
+                                if (context->ServerPeer) {
+                                    context->RemotePeers.PushBack(&context->ServerPeer);
+
+                                } else {
+                                    NETLOG(log, "Failed to allocate a peer for the server reconnection.");
+
+                                    TransportUdpDefault_SetErrorCode(context, TRANSPORT_ERROR_PEER_CONNECT_FAILED);
+                                }
                             }
                         } break;
                     }
@@ -911,10 +1129,16 @@ int TransportUdpDefault_ClientFunction(void* data) noexcept {
                 TransportUdpDefault_TransmitApplPackets(context);
 
                 if (context->ExitThread.load(std::memory_order_acquire)) {
+                    TransportUdpDefault_TransmitApplPackets(context);
                     TransportUdpDefault_RemoveClients(context);
                     break;
                 }
             }
+
+        } else {
+            NETLOG(log, "Failed to allocate a peer for the server connection.");
+
+            TransportUdpDefault_SetErrorCode(context, TRANSPORT_ERROR_PEER_CONNECT_FAILED);
         }
 
 #if defined(MAX_ENABLE_UPNP)
@@ -925,7 +1149,15 @@ int TransportUdpDefault_ClientFunction(void* data) noexcept {
 
         context->RemotePeers.Clear();
         context->NetRole = -1;
-        context->NetState = TRANSPORT_NETSTATE_DISCONNECTED;
+        context->NetState.store(TRANSPORT_NETSTATE_DISCONNECTED, std::memory_order_release);
+
+    } else {
+        NETLOG(log, "Failed to create the client host.");
+
+        TransportUdpDefault_SetErrorCode(context, TRANSPORT_ERROR_BIND_FAILED);
+
+        context->NetRole = -1;
+        context->NetState.store(TRANSPORT_NETSTATE_DISCONNECTED, std::memory_order_release);
     }
 
     return 0;

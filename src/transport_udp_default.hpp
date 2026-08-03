@@ -34,6 +34,7 @@ public:
     ~TransportUdpDefault();
 
     const char* GetError() const;
+    [[nodiscard]] TransportStatus GetStatus() const;
     bool Init(int32_t mode);
     bool Deinit();
     bool Connect();

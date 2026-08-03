@@ -36,10 +36,20 @@ class NetPacket {
     uint32_t buffer_capacity;
     uint32_t buffer_read_position;
     uint32_t buffer_write_position;
+    bool is_malformed;
 
     void GrowBuffer(int32_t length) noexcept;
 
 public:
+    /* Upper bounds for values that arrive from the network and drive an allocation or a loop.
+     *
+     * The real protection is CanRead(), which limits every field to the bytes actually received.
+     * These add a second ceiling so a single packet cannot ask for an allocation far larger than
+     * anything the protocol has a use for.
+     */
+    static constexpr uint32_t MaximumStringLength = 4096;
+    static constexpr uint32_t MaximumArrayCount = 1024;
+
     NetPacket() noexcept;
     ~NetPacket() noexcept;
     NetPacket(NetPacket&& other) noexcept;
@@ -50,6 +60,15 @@ public:
     void Reset() noexcept;
     [[nodiscard]] char* GetBuffer() const noexcept;
     [[nodiscard]] int32_t GetDataSize() const noexcept;
+
+    /* A packet is malformed once any read has run past the received data, any length or count has
+     * exceeded its bound, or an allocation has failed. The flag is sticky: a handler may keep
+     * parsing without checking after every field, and the dispatcher tests it once at the end.
+     */
+    [[nodiscard]] bool IsMalformed() const noexcept;
+    void SetMalformed() noexcept;
+    [[nodiscard]] uint32_t GetRemainingSize() const noexcept;
+    [[nodiscard]] bool CanRead(uint32_t length) const noexcept;
 
     void AddAddress(NetAddress& address) noexcept;
     [[nodiscard]] NetAddress& GetAddress(uint16_t index) noexcept;

@@ -868,7 +868,8 @@ std::string World::ComputeHash() const {
     return hex_digest;
 }
 
-void World::GetRedTintParameters(uint8_t& r_level, uint8_t& g_level, uint8_t& b_level, uint8_t& factor) const {
+void World::GetMessageBoxWarningTintParameters(uint8_t& r_level, uint8_t& g_level, uint8_t& b_level,
+                                               uint8_t& factor) const {
     r_level = 63;
     g_level = 0;
     b_level = 0;
@@ -880,7 +881,7 @@ void World::GetRedTintParameters(uint8_t& r_level, uint8_t& g_level, uint8_t& b_
     }
 }
 
-void World::GetWorldTintParameters(uint8_t& r_level, uint8_t& g_level, uint8_t& b_level) const {
+void World::GetMessageBoxNoticeTintParameters(uint8_t& r_level, uint8_t& g_level, uint8_t& b_level) const {
     r_level = 63;
 
     if (m_resource_id >= SNOW_1 && m_resource_id <= SNOW_6) {

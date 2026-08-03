@@ -1662,7 +1662,7 @@ bool SaveLoad_Load(const std::filesystem::path& filepath, const MissionCategory 
             } break;
 
             default: {
-                MessageManager_DrawMessage(_(61ef), 2, 1, true);
+                MessageManager_DrawMessage(_(61ef), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODAL, true);
 
                 result = false;
             } break;

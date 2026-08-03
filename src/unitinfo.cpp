@@ -44,6 +44,7 @@
 #include "settings.hpp"
 #include "sound_manager.hpp"
 #include "task_manager.hpp"
+#include "text.hpp"
 #include "unit.hpp"
 #include "unitinfogroup.hpp"
 #include "units_manager.hpp"
@@ -764,7 +765,7 @@ void UnitInfo::GetDisplayName(char* text, const size_t size) const noexcept {
         char unit_mark[20];
 
         GetName(unit_name, sizeof(unit_name));
-        GetVersion(unit_mark, base_values->GetVersion());
+        GetVersion(unit_mark, sizeof(unit_mark), base_values->GetVersion());
 
         const auto name_length{snprintf(nullptr, 0, "%s %s %s", _(660b), unit_mark, unit_name)};
 
@@ -782,24 +783,25 @@ void UnitInfo::GetDisplayName(char* text, const size_t size) const noexcept {
     }
 }
 
-void UnitInfo::CalcRomanDigit(char* text, int32_t value, const char* digit1, const char* digit2, const char* digit3) {
+void UnitInfo::CalcRomanDigit(char* text, const size_t size, int32_t value, const char* digit1, const char* digit2,
+                              const char* digit3) {
     if (value == 9) {
-        strcat(text, digit1);
-        strcat(text, digit3);
+        Text_AppendUtf8(text, digit1, size);
+        Text_AppendUtf8(text, digit3, size);
     } else {
         if (value >= 5) {
-            strcat(text, digit2);
+            Text_AppendUtf8(text, digit2, size);
             value -= 5;
         }
 
         if (value >= 4) {
-            strcat(text, digit1);
-            strcat(text, digit2);
+            Text_AppendUtf8(text, digit1, size);
+            Text_AppendUtf8(text, digit2, size);
             value -= 4;
         }
 
         for (int32_t i = 0; i < value; ++i) {
-            strcat(text, digit1);
+            Text_AppendUtf8(text, digit1, size);
         }
     }
 }
@@ -891,24 +893,29 @@ void UnitInfo::DrawSpriteTurretFrame(uint16_t turret_image_index) {
     }
 }
 
-void UnitInfo::GetVersion(char* text, int32_t version) {
+void UnitInfo::GetVersion(char* text, const size_t size, int32_t version) {
     text[0] = '\0';
 
-    CalcRomanDigit(text, version / 100, "C", "D", "M");
+    CalcRomanDigit(text, size, version / 100, "C", "D", "M");
     version %= 100;
 
-    CalcRomanDigit(text, version / 10, "X", "L", "C");
+    CalcRomanDigit(text, size, version / 10, "X", "L", "C");
     version %= 10;
 
-    CalcRomanDigit(text, version, "I", "V", "X");
+    CalcRomanDigit(text, size, version, "I", "V", "X");
 }
 
 void UnitInfo::SetName(const char* const text) noexcept {
     delete[] name;
 
     if (text && strlen(text)) {
-        name = new (std::nothrow) char[strlen(text) + 1];
-        strcpy(name, text);
+        const size_t size = strlen(text) + 1;
+
+        name = new (std::nothrow) char[size];
+
+        if (name) {
+            SDL_utf8strlcpy(name, text, size);
+        }
 
     } else {
         name = nullptr;
@@ -1505,7 +1512,7 @@ void UnitInfo::GainExperience(int32_t experience_gain) {
 
                     string.Sprintf(80, _(d6a7), ResourceManager_GetUnit(unit_type).GetSingularName().data(), grid_x + 1,
                                    grid_y + 1);
-                    MessageManager_DrawMessage(string.GetCStr(), 0, this, Point(grid_x, grid_y));
+                    MessageManager_DrawMessage(string.GetCStr(), MESSAGE_BOX_INFO, this, Point(grid_x, grid_y));
                 }
 
                 base_values->UpdateVersion();
@@ -1592,7 +1599,7 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int32_t attack_potential, int32_t dir
             message.Sprintf(80, formats[base_unit.GetGender()], base_unit.GetSingularName().data(), grid_x + 1,
                             grid_y + 1);
 
-            MessageManager_DrawMessage(message.GetCStr(), 0, this, position);
+            MessageManager_DrawMessage(message.GetCStr(), MESSAGE_BOX_INFO, this, position);
         }
 
         CheckIfDestroyed();
@@ -4233,12 +4240,13 @@ bool UnitInfo::Upgrade(UnitInfo* parent) {
                 char unit_mark[10];
                 SmartString message;
 
-                GetVersion(unit_mark, parent->GetBaseValues()->GetVersion());
+                GetVersion(unit_mark, sizeof(unit_mark), parent->GetBaseValues()->GetVersion());
 
                 message.Sprintf(80, _(d23e), ResourceManager_GetUnit(parent->unit_type).GetSingularName().data(),
                                 unit_mark, materials_cost);
 
-                MessageManager_DrawMessage(message.GetCStr(), 0, parent, Point(parent->grid_x, parent->grid_y));
+                MessageManager_DrawMessage(message.GetCStr(), MESSAGE_BOX_INFO, parent,
+                                           Point(parent->grid_x, parent->grid_y));
             }
 
             result = true;
@@ -4248,7 +4256,7 @@ bool UnitInfo::Upgrade(UnitInfo* parent) {
 
             message.Sprintf(80, _(e3e0), materials_cost);
 
-            MessageManager_DrawMessage(message.GetCStr(), 2, 0);
+            MessageManager_DrawMessage(message.GetCStr(), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODELESS);
         }
     }
 
@@ -5001,7 +5009,7 @@ void UnitInfo::ProcessLoading() {
 
             sprintf(message, _(c15c), base_unit.GetSingularName().data(), parent->unit_id);
 
-            MessageManager_DrawMessage(message, 0, 0);
+            MessageManager_DrawMessage(message, MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
         }
     }
 }
@@ -5024,7 +5032,7 @@ void UnitInfo::ProcessUnloading() {
 
             sprintf(message, _(60f3), base_unit.GetSingularName().data(), parent->unit_id);
 
-            MessageManager_DrawMessage(message, 0, 0);
+            MessageManager_DrawMessage(message, MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
         }
     }
 }

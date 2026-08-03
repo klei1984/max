@@ -90,6 +90,16 @@ bool NetworkMenu_MenuLoop(bool is_host_mode) {
             network_menu.DrawScreen();
         }
 
+        /* Fatal transport status published by the network worker (e.g. the bind failed because
+         * the port is taken): leave the lobby through the ordinary ESC path. connection_state
+         * stays 0, so this cannot be mistaken for a started game; Remote_Lobby() reports the
+         * reason after the loop exits.
+         */
+        if (Remote_TransportFailed()) {
+            network_menu.key = GNW_KB_KEY_ESCAPE;
+            continue;
+        }
+
         network_menu.key = get_input();
 
         if (network_menu.key > 0 && network_menu.key < GNW_INPUT_PRESS) {
@@ -367,7 +377,7 @@ void NetworkMenu::Deinit() {
 }
 
 void NetworkMenu::EventEditPlayerName() {
-    SDL_strlcpy(text_buffer, player_name.c_str(), sizeof(text_buffer));
+    SDL_utf8strlcpy(text_buffer, player_name.c_str(), sizeof(text_buffer));
 
     text_edit3 = text_edit1;
     text_edit3->SetEditedText(text_buffer);
@@ -415,7 +425,7 @@ void NetworkMenu::EventMapButton() {
 
     if (menu_planet_select_menu_loop()) {
         ini_world_index = ResourceManager_GetSettings()->GetNumericValue("world");
-        strcpy(world_name, menu_planet_names[ini_world_index]);
+        SDL_utf8strlcpy(world_name, menu_planet_names[ini_world_index], sizeof(world_name));
         ini_setting_victory_type = ResourceManager_GetSettings()->GetNumericValue("victory_type");
         ini_setting_victory_limit = ResourceManager_GetSettings()->GetNumericValue("victory_limit");
         ReadIniSettings(GAME_STATE_6_GAME_SETUP);
@@ -506,7 +516,7 @@ void NetworkMenu::EventSetJar() {
     button_index = key;
 
     if (is_incompatible_save_file) {
-        MessageManager_DrawMessage(_(cdfc), 0, 1);
+        MessageManager_DrawMessage(_(cdfc), MESSAGE_BOX_INFO, MESSAGE_BOX_MODAL);
 
         buttons[button_index]->SetRestState(false);
 
@@ -516,7 +526,7 @@ void NetworkMenu::EventSetJar() {
             --remote_player_count;
         }
 
-        SDL_strlcpy(team_names[team_index], player_name.c_str(), sizeof(team_names[team_index]));
+        SDL_utf8strlcpy(team_names[team_index], player_name.c_str(), sizeof(team_names[team_index]));
         team_nodes[team_index] = player_node;
         team_jar_in_use[team_index] = true;
 
@@ -538,7 +548,7 @@ void NetworkMenu::EventChat() {
         return;
     }
 
-    strcpy(text_buffer, chat_input_buffer);
+    SDL_utf8strlcpy(text_buffer, chat_input_buffer, sizeof(text_buffer));
 
     text_edit3 = text_edit2;
     text_edit3->SetEditedText(text_buffer);
@@ -688,11 +698,11 @@ void NetworkMenu::DrawTextLine(int32_t line_index, char* text, int32_t height, b
 
 void NetworkMenu::ResetJar(int32_t team) {
     if (default_team_names[team][0]) {
-        strcpy(team_names[team], "<");
-        strcat(team_names[team], default_team_names[team]);
-        strcat(team_names[team], ">");
+        SDL_utf8strlcpy(team_names[team], "<", sizeof(team_names[team]));
+        Text_AppendUtf8(team_names[team], default_team_names[team], sizeof(team_names[team]));
+        Text_AppendUtf8(team_names[team], ">", sizeof(team_names[team]));
     } else {
-        strcpy(team_names[team], default_team_names[team]);
+        SDL_utf8strlcpy(team_names[team], default_team_names[team], sizeof(team_names[team]));
     }
 
     team_nodes[team] = 0;
@@ -708,7 +718,7 @@ void NetworkMenu::UpdateSaveSettings(struct SaveFileInfo* save_file_info) {
 
             if (!strlen(default_team_names[i]) && (save_file_info->team_type[i] == TEAM_TYPE_PLAYER ||
                                                    save_file_info->team_type[i] == TEAM_TYPE_REMOTE)) {
-                strcpy(default_team_names[i], _(0cb7));
+                SDL_utf8strlcpy(default_team_names[i], _(0cb7), sizeof(default_team_names[i]));
             }
         }
 
@@ -806,7 +816,7 @@ int32_t NetworkMenu::SetupScenario(int32_t mode) {
     }
 
     if (is_incompatible_save_file) {
-        MessageManager_DrawMessage(_(4ba6), 0, 1);
+        MessageManager_DrawMessage(_(4ba6), MESSAGE_BOX_INFO, MESSAGE_BOX_MODAL);
 
         client_state = 0;
 
@@ -875,6 +885,7 @@ int32_t NetworkMenu::IsAllowedToStartGame() {
 
 void NetworkMenu::LeaveGame(uint16_t team_node) {
     Remote_Hosts.Remove(team_node);
+    Remote_Nodes.Remove(team_node);
 
     for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
         if (team_nodes[i] == team_node) {
@@ -1020,7 +1031,7 @@ void NetworkMenu::DrawTextWindow() {
     height = 10;
 
     images[2]->Write(window);
-    strcpy(text, _(a661));
+    SDL_utf8strlcpy(text, _(a661), sizeof(text));
 
     DrawTextLine(line_index, text, height, true);
     ++line_index;
@@ -1250,7 +1261,7 @@ void NetworkMenu::LeaveEditField() {
 
             if (player_team != -1) {
                 images[3 + player_team]->Write(window);
-                SDL_strlcpy(team_names[player_team], player_name.c_str(), sizeof(team_names[player_team]));
+                SDL_utf8strlcpy(team_names[player_team], player_name.c_str(), sizeof(team_names[player_team]));
 
                 network_menu_titles[MENU_ITEM_TEXT_WINDOW + player_team].title = team_names[player_team];
 
@@ -1265,7 +1276,7 @@ void NetworkMenu::LeaveEditField() {
             }
 
             images[7]->Write(window);
-            strcpy(chat_input_buffer, text_buffer);
+            SDL_utf8strlcpy(chat_input_buffer, text_buffer, sizeof(chat_input_buffer));
 
             network_menu_titles[MENU_ITEM_CHAT_BAR_ONE].title = chat_input_buffer;
 

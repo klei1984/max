@@ -70,7 +70,8 @@ private:
     void AttackAreaTargets(int32_t grid_x, int32_t grid_y);
     void RadarPing();
     void UpgradeInt();
-    static void CalcRomanDigit(char* text, int32_t value, const char* digit1, const char* digit2, const char* digit3);
+    static void CalcRomanDigit(char* text, const size_t size, int32_t value, const char* digit1, const char* digit2,
+                               const char* digit3);
     void Regenerate();
     void StepMoveUnit(Point position);
     void PrepareConstructionSite(ResourceID unit_type);
@@ -289,7 +290,7 @@ public:
     void DrawStealth(uint16_t team);
     void StopMovement();
     void SpotByTeam(uint16_t team);
-    static void GetVersion(char* text, int32_t version);
+    static void GetVersion(char* text, const size_t size, int32_t version);
     int32_t GetRaw();
     int32_t GetRawFreeCapacity();
     void TransferRaw(int32_t amount);

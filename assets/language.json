@@ -8681,6 +8681,22 @@
 		},
 		"f2b2": {
 			"en-US": "dead waldo"
+		},
+		"f7a1": {
+			"en-US": "Waiting for the remote players to respond...\n\nPress Cancel to return to the main menu.",
+			"fr-FR": "En attente de réponse des joueurs distants...\n\nAppuyez sur Annuler pour revenir au menu principal.",
+			"de-DE": "Warte auf Antwort der Netzwerkspieler...\n\nDrücken Sie Abbruch, um zum Hauptmenü zurückzukehren.",
+			"it-IT": "In attesa della risposta dei giocatori remoti...\n\nPremere Annulla per tornare al menu principale.",
+			"es-ES": "Esperando la respuesta de los jugadores remotos...\n\nPulse Cancelar para volver al menú principal.",
+			"ru-RU": "Ожидание ответа сетевых игроков...\n\nНажмите Отмена, чтобы вернуться в главное меню."
+		},
+		"f7a2": {
+			"en-US": "Verifying game synchronization...\n\nPress Cancel to abort the audit and leave the game.",
+			"fr-FR": "Vérification de la synchronisation de la partie...\n\nAppuyez sur Annuler pour interrompre la vérification et quitter la partie.",
+			"de-DE": "Überprüfe die Spielsynchronisation...\n\nDrücken Sie Abbruch, um die Prüfung abzubrechen und das Spiel zu verlassen.",
+			"it-IT": "Verifica della sincronizzazione della partita...\n\nPremere Annulla per interrompere la verifica e uscire dalla partita.",
+			"es-ES": "Verificando la sincronización de la partida...\n\nPulse Cancelar para cancelar la verificación y abandonar la partida.",
+			"ru-RU": "Проверка синхронизации игры...\n\nНажмите Отмена, чтобы прервать проверку и покинуть игру."
 		}
 	}
 }

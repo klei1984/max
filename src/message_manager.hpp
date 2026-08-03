@@ -27,10 +27,31 @@
 
 class World;
 
+/**
+ * \brief Selects the background tint of the in-game message box.
+ *
+ * The tint tables behind these styles are built per tileset, so the resulting hue is not fixed. Pick a style by the
+ * meaning of the message, never by the color a particular tileset happens to produce.
+ */
+enum MessageBoxStyle : uint8_t {
+    MESSAGE_BOX_INFO,     ///< Ordinary status text. Darkened background on every tileset.
+    MESSAGE_BOX_NOTICE,   ///< Gameplay events worth attention: unit built, enemy spotted, chat.
+    MESSAGE_BOX_WARNING,  ///< Failures and errors: network faults, invalid orders, save/load problems.
+    MESSAGE_BOX_STYLE_COUNT
+};
+
+/**
+ * \brief Selects how a message reaches the player.
+ */
+enum MessageBoxMode : uint8_t {
+    MESSAGE_BOX_MODELESS,  ///< Paints the in-game message box and returns at once; the caller keeps running.
+    MESSAGE_BOX_MODAL,     ///< Opens a WINDOW_MODAL dialog that runs its own event loop until dismissed.
+};
+
 void MessageManager_AddMessage(const char* text, ResourceID id);
-void MessageManager_DrawMessage(const char* text, uint8_t type, UnitInfo* unit, Point point);
-void MessageManager_DrawMessage(const char* text, uint8_t type, int32_t mode, bool flag1 = false,
-                                bool save_to_log = false);
+void MessageManager_DrawMessage(const char* text, const MessageBoxStyle style, UnitInfo* unit, Point point);
+void MessageManager_DrawMessage(const char* text, const MessageBoxStyle style, const MessageBoxMode mode,
+                                bool center_align_text = false, bool save_to_log = false);
 void MessageManager_DrawMessageBox();
 void MessageManager_ClearMessageBox();
 void MessageManager_DrawTextMessage(WindowInfo* window, uint8_t* buffer, int32_t width, int32_t left_margin,

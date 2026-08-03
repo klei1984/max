@@ -47,13 +47,13 @@ class SmartString {
         StringObject(const char* const cstring) noexcept
             : reference_count(1), size(std::strlen(cstring)), length(size) {
             buffer = new (std::nothrow) char[size + 1];
-            (void)std::strcpy(buffer, cstring);
+            (void)SDL_utf8strlcpy(buffer, cstring, size + 1);
         }
 
         StringObject(const StringObject& other) noexcept
             : reference_count(1), size(other.GetSize()), length(other.GetLength()) {
             buffer = new (std::nothrow) char[size + 1];
-            (void)std::strcpy(buffer, other.GetCStr());
+            (void)SDL_utf8strlcpy(buffer, other.GetCStr(), size + 1);
         }
 
         ~StringObject() noexcept {
@@ -68,7 +68,7 @@ class SmartString {
                     char* new_buffer = new (std::nothrow) char[new_size + 1];
 
                     if (new_size >= this->length) {
-                        (void)std::strcpy(new_buffer, this->buffer);
+                        (void)SDL_utf8strlcpy(new_buffer, this->buffer, new_size + 1);
 
                     } else {
                         this->length = SDL_utf8strlcpy(new_buffer, this->buffer, new_size);
@@ -190,7 +190,8 @@ public:
             Resize(CalcOptimalCapacity(length));
         }
 
-        (void)strcpy(&GetCStr()[object_pointer->GetLength()], other.GetCStr());
+        (void)SDL_utf8strlcpy(&GetCStr()[object_pointer->GetLength()], other.GetCStr(),
+                              object_pointer->GetSize() - object_pointer->GetLength() + 1);
 
         object_pointer->SetLength(length);
 
@@ -206,7 +207,8 @@ public:
             Resize(CalcOptimalCapacity(length));
         }
 
-        (void)strcpy(&GetCStr()[object_pointer->GetLength()], cstring);
+        (void)SDL_utf8strlcpy(&GetCStr()[object_pointer->GetLength()], cstring,
+                              object_pointer->GetSize() - object_pointer->GetLength() + 1);
 
         object_pointer->SetLength(length);
 

@@ -21,7 +21,9 @@
 
 #include "remote.hpp"
 
+#include <filesystem>
 #include <format>
+#include <string_view>
 #include <utility>
 
 #include "access.hpp"
@@ -37,6 +39,7 @@
 #include "quickbuild.hpp"
 #include "randomizer.hpp"
 #include "resource_manager.hpp"
+#include "saveloadmenu.hpp"
 #include "settings.hpp"
 #include "sound_manager.hpp"
 #include "ticktimer.hpp"
@@ -45,6 +48,7 @@
 #include "unitevents.hpp"
 #include "units_manager.hpp"
 #include "version.hpp"
+#include "waitmenu.hpp"
 #include "window_manager.hpp"
 
 #define REMOTE_RESPONSE_TIMEOUT 30000
@@ -118,6 +122,8 @@ uint32_t Remote_RngSeed;
 Transport* Remote_Transport;
 NetworkMenu* Remote_NetworkMenu;
 
+static uint16_t Remote_PlayerNode;
+static uint16_t Remote_TeamNodeIds[TRANSPORT_MAX_TEAM_COUNT];
 static uint8_t Remote_FrameSyncCounter2;
 static uint8_t Remote_FrameSyncCounter[TRANSPORT_MAX_TEAM_COUNT];
 static uint8_t Remote_FrameSyncCounter2values[TRANSPORT_MAX_TEAM_COUNT];
@@ -157,7 +163,10 @@ static void Remote_OrderProcessor5_Read(UnitInfo* unit, NetPacket& packet);
 
 static int32_t Remote_SetupPlayers();
 static void Remote_ResponseTimeout(uint16_t team, bool mode);
+static void Remote_AnnounceLeave(uint16_t team, bool mode);
 static bool Remote_AnalyzeDesyncHost(SmartList<UnitInfo>& units);
+static bool Remote_DrawBarrierWaitIndicator(bool is_drawn, uint64_t time_stamp);
+static void Remote_ClearBarrierWaitIndicator(bool is_drawn);
 static void Remote_CreateNetPacket_23(UnitInfo* unit, NetPacket& packet);
 static void Remote_ProcessNetPacket_23(struct Packet23Data& data, NetPacket& packet);
 static void Remote_NetErrorUnknownUnit(uint16_t unit_id);
@@ -308,8 +317,15 @@ void Remote_ReadGameSettings(NetPacket& packet) {
         } break;
 
         default: {
-            SDL_assert(0);
-        } break;
+            /* Asserting and carrying on left the remaining fields misaligned, because the branch
+             * that would have consumed the category's payload never ran.
+             */
+            packet.SetMalformed();
+
+            AILOG(log, "Remote: Rejected game settings with unknown mission category ({}).\n", mission_category);
+
+            return;
+        }
     }
 
     packet >> Remote_NetworkMenu->world_name;
@@ -329,6 +345,23 @@ void Remote_ReadGameSettings(NetPacket& packet) {
     packet >> Remote_NetworkMenu->is_multi_scenario;
     packet >> Remote_NetworkMenu->default_team_names;
     packet >> Remote_NetworkMenu->rng_seed;
+
+    /* Both name blocks are raw fixed size reads, so the sender is not trusted to terminate them. */
+    Remote_NetworkMenu->world_name[sizeof(Remote_NetworkMenu->world_name) - 1] = '\0';
+
+    for (auto& team_name : Remote_NetworkMenu->default_team_names) {
+        team_name[sizeof(team_name) - 1] = '\0';
+    }
+
+    /* The world index selects a resource id by arithmetic (SNOW_1 + index), so an out of range
+     * value reads past the world resources instead of failing a lookup.
+     */
+    if (Remote_NetworkMenu->ini_world_index < 0 || Remote_NetworkMenu->ini_world_index > (DESERT_6 - SNOW_1)) {
+        packet.SetMalformed();
+
+        AILOG(log, "Remote: Rejected game settings with out of range world index ({}).\n",
+              Remote_NetworkMenu->ini_world_index);
+    }
 }
 
 void Remote_OrderProcessor0_Write(UnitInfo* unit, NetPacket& packet) {}
@@ -344,8 +377,6 @@ void Remote_OrderProcessor1_Write(UnitInfo* unit, NetPacket& packet) {
 }
 
 void Remote_OrderProcessor1_Read(UnitInfo* unit, NetPacket& packet) {
-    UnitsManager_NewOrderWhileScaling(unit);
-
     UnitOrderType order;
     UnitOrderStateType order_state;
     UnitOrderType prior_order;
@@ -355,6 +386,22 @@ void Remote_OrderProcessor1_Read(UnitInfo* unit, NetPacket& packet) {
     packet >> order_state;
     packet >> prior_order;
     packet >> prior_order_state;
+
+    /* The order indexes Remote_OrderProcessors, an array of function pointers, so it is validated
+     * before it is stored. A clamp would not do: the unit keeps the value and the send path indexes
+     * with it later, so a wrong-but-in-range order corrupts the session instead of the process.
+     */
+    if (order >= ORDER_COUNT_MAX || prior_order >= ORDER_COUNT_MAX) {
+        packet.SetMalformed();
+
+        AILOG(log, "Remote: Rejected out of range unit order ({}, prior {}).\n", static_cast<int32_t>(order),
+              static_cast<int32_t>(prior_order));
+
+        return;
+    }
+
+    UnitsManager_NewOrderWhileScaling(unit);
+
     packet >> unit->disabled_reaction_fire;
 
     unit->SetOrder(order);
@@ -495,6 +542,15 @@ void Remote_OrderProcessor5_Read(UnitInfo* unit, NetPacket& packet) {
 }
 
 int32_t Remote_SetupPlayers() {
+    Remote_PlayerNode = Remote_NetworkMenu->player_node;
+
+    for (int32_t team = 0; team < TRANSPORT_MAX_TEAM_COUNT; ++team) {
+        Remote_TeamNodeIds[team] = Remote_NetworkMenu->team_nodes[team];
+    }
+
+    AILOG(log, "Remote: Player node {:X}, team nodes {:X} {:X} {:X} {:X}.\n", Remote_PlayerNode, Remote_TeamNodeIds[0],
+          Remote_TeamNodeIds[1], Remote_TeamNodeIds[2], Remote_TeamNodeIds[3]);
+
     GameManager_PlayerTeam = Remote_NetworkMenu->player_team;
 
     ResourceManager_GetSettings()->SetNumericValue(menu_team_player_setting[GameManager_PlayerTeam], TEAM_TYPE_PLAYER);
@@ -542,6 +598,16 @@ void Remote_ResponseTimeout(uint16_t team, bool mode) {
 
     UnitsManager_TeamInfo[team].team_type = TEAM_TYPE_ELIMINATED;
 
+    if (team < TRANSPORT_MAX_TEAM_COUNT && Remote_TeamNodeIds[team]) {
+        if (Remote_Nodes.Find(Remote_TeamNodeIds[team])) {
+            Remote_Nodes.Remove(Remote_TeamNodeIds[team]);
+
+        } else {
+            AILOG(log, "Remote: Node {:X} of team {} is not in the roster, departed player stays addressed.\n",
+                  Remote_TeamNodeIds[team], team);
+        }
+    }
+
     if (mode) {
         sprintf(message, _(62a6), menu_team_names[team]);
 
@@ -557,7 +623,7 @@ void Remote_ResponseTimeout(uint16_t team, bool mode) {
     }
 
     if (GameManager_GameState != GAME_STATE_3_MAIN_MENU) {
-        MessageManager_DrawMessage(message, 1, 1, true);
+        MessageManager_DrawMessage(message, MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS, false, true);
     }
 
     for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
@@ -658,20 +724,100 @@ void Remote_Init() {
     }
 }
 
-static bool Remote_ReceivePacket(NetPacket& packet) {
-    bool result;
+static bool Remote_IsValidSaveFileName(const char* const file_name) {
+    if (!file_name) {
+        return false;
+    }
+
+    static constexpr std::string_view prefix{"save"};
+    static constexpr std::string_view extensions[]{"dta", "tra", "cam", "hot", "mlt", "dmo", "sce", "mps"};
+
+    const std::string name{ResourceManager_StringToLowerCase(file_name)};
+    const auto separator = name.rfind('.');
+
+    if (separator == std::string::npos || !name.starts_with(prefix)) {
+        return false;
+    }
+
+    const std::string_view slot{std::string_view{name}.substr(prefix.size(), separator - prefix.size())};
+    const std::string_view extension{std::string_view{name}.substr(separator + 1)};
+
+    if (slot.empty() || slot.size() > 3) {
+        return false;
+    }
+
+    int32_t slot_index{0};
+
+    for (const char digit : slot) {
+        if (digit < '0' || digit > '9') {
+            return false;
+        }
+
+        slot_index = (slot_index * 10) + static_cast<int32_t>(digit - '0');
+    }
+
+    if (slot_index < SaveLoadMenu_FirstSaveSlot || slot_index > SaveLoadMenu_LastSaveSlot) {
+        return false;
+    }
+
+    for (const auto& candidate : extensions) {
+        if (extension == candidate) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static void Remote_WriteNetNode(const NetNode& node, NetPacket& packet) {
+    packet << node.entity_id;
+    packet << node.address;
+    packet.Write(node.name, sizeof(node.name));
+    packet << node.is_host;
+}
+
+static void Remote_ReadNetNode(NetNode& node, NetPacket& packet) {
+    packet >> node.entity_id;
+    packet >> node.address;
+    packet.Read(node.name, sizeof(node.name));
+    packet >> node.is_host;
+
+    node.name[sizeof(node.name) - 1] = '\0';
+}
+
+static bool Remote_IsValidTeamIndex(NetPacket& packet, uint32_t index) {
+    const bool result{index < TRANSPORT_MAX_TEAM_COUNT};
+
+    if (!result) {
+        packet.SetMalformed();
+
+        AILOG(log, "Remote: Rejected packet with out of range team index ({}).\n", index);
+    }
+
+    return result;
+}
+
+enum : uint8_t {
+    REMOTE_RECEIVE_OK,
+    REMOTE_RECEIVE_MALFORMED,
+    REMOTE_RECEIVE_EMPTY,
+};
+
+static uint8_t Remote_ReceivePacket(NetPacket& packet) {
+    uint8_t result;
 
     if (Remote_Transport->ReceivePacket(packet)) {
         if (packet.GetDataSize() < 3) {
             AILOG(log, "Remote: Dropped malformed packet (size: {}).\n", packet.GetDataSize());
-            result = false;
+
+            result = REMOTE_RECEIVE_MALFORMED;
 
         } else {
-            result = true;
+            result = REMOTE_RECEIVE_OK;
         }
 
     } else {
-        result = false;
+        result = REMOTE_RECEIVE_EMPTY;
     }
 
     return result;
@@ -684,8 +830,12 @@ static void Remote_TransmitPacket(NetPacket& packet, int32_t transmit_mode) {
         } break;
 
         case REMOTE_MULTICAST: {
+            if (Remote_NetworkMenu) {
+                Remote_PlayerNode = Remote_NetworkMenu->player_node;
+            }
+
             for (uint32_t i = 0; i < Remote_Nodes.GetCount(); ++i) {
-                if (Remote_NetworkMenu->player_node != Remote_Nodes[i]->entity_id) {
+                if (Remote_PlayerNode != Remote_Nodes[i]->entity_id) {
                     packet.AddAddress(Remote_Nodes[i]->address);
                 }
             }
@@ -698,16 +848,25 @@ static void Remote_TransmitPacket(NetPacket& packet, int32_t transmit_mode) {
         case REMOTE_BROADCAST: {
             packet.ClearAddressTable();
         } break;
+
+        default: {
+            AILOG(log, "Remote: Packet dropped, invalid transmit mode {}.\n", transmit_mode);
+
+            return;
+        }
     }
 
     if (!Remote_Transport->TransmitPacket(std::move(packet))) {
-        /// \todo Handle transport layer errors
-        Remote_Transport->GetError();
+        AILOG(log, "Remote: Transport rejected the packet: {}\n", Remote_Transport->GetError());
     }
 }
 
 void Remote_Deinit() {
     if (Remote_Transport) {
+        if (Remote_IsNetworkGame && GameManager_PlayerTeam < TRANSPORT_MAX_TEAM_COUNT) {
+            Remote_AnnounceLeave(GameManager_PlayerTeam, true);
+        }
+
         Remote_Transport->Deinit();
 
         delete Remote_Transport;
@@ -727,6 +886,7 @@ bool Remote_AnalyzeDesyncHost(SmartList<UnitInfo>& units) {
 
             Remote_SendNetPacket_23(&*it);
 
+            uint64_t time_stamp = timer_get();
             bool stay_in_loop = true;
 
             while (stay_in_loop && Remote_IsNetworkGame) {
@@ -743,7 +903,19 @@ bool Remote_AnalyzeDesyncHost(SmartList<UnitInfo>& units) {
                     }
                 }
 
+                if (stay_in_loop && timer_elapsed_time(time_stamp) > REMOTE_RESPONSE_TIMEOUT) {
+                    for (int32_t i = TRANSPORT_MAX_TEAM_COUNT - 1; i >= 0; --i) {
+                        if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE && !Remote_P24_Signals[i]) {
+                            AILOG(log, "Remote: Team {} stopped responding during the desync audit.\n", i);
+
+                            Remote_ResponseTimeout(i, true);
+                        }
+                    }
+                }
+
                 if (get_input() == GNW_KB_KEY_ESCAPE) {
+                    GameManager_GameState = GAME_STATE_3_MAIN_MENU;
+
                     return false;
                 }
             }
@@ -775,7 +947,7 @@ int32_t Remote_Lobby(bool is_host_mode) {
             error_message.Sprintf(
                 100, "Unknown network transport layer type (%s), using default (" TRANSPORT_DEFAULT_TYPE ").\n",
                 transport_setting.c_str());
-            MessageManager_DrawMessage(error_message.GetCStr(), 2, 1, true);
+            MessageManager_DrawMessage(error_message.GetCStr(), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODAL, true);
 
             transort_type = TRANSPORT_DEFAULT_UDP;
         }
@@ -790,13 +962,21 @@ int32_t Remote_Lobby(bool is_host_mode) {
     if (Remote_Transport) {
         if (Remote_Transport->Init(Remote_IsHostMode ? TRANSPORT_SERVER : TRANSPORT_CLIENT)) {
             Remote_IsNetworkGame = NetworkMenu_MenuLoop(Remote_IsHostMode);
+            Remote_UnregisterMenu();
+
+            if (!Remote_IsNetworkGame && Remote_Transport->GetStatus().IsFatal()) {
+                WindowManager_LoadBigImage(MAINPIC, WindowManager_GetWindow(WINDOW_MAIN_WINDOW),
+                                           WindowManager_GetWindow(WINDOW_MAIN_WINDOW)->width, false, true, -1, -1,
+                                           true);
+                MessageManager_DrawMessage(Remote_Transport->GetError(), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODAL);
+            }
 
             result = Remote_IsNetworkGame;
 
         } else {
             WindowManager_LoadBigImage(MAINPIC, WindowManager_GetWindow(WINDOW_MAIN_WINDOW),
                                        WindowManager_GetWindow(WINDOW_MAIN_WINDOW)->width, false, true, -1, -1, true);
-            MessageManager_DrawMessage(Remote_Transport->GetError(), 2, 1);
+            MessageManager_DrawMessage(Remote_Transport->GetError(), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODAL);
 
             result = false;
         }
@@ -804,7 +984,8 @@ int32_t Remote_Lobby(bool is_host_mode) {
     } else {
         WindowManager_LoadBigImage(MAINPIC, WindowManager_GetWindow(WINDOW_MAIN_WINDOW),
                                    WindowManager_GetWindow(WINDOW_MAIN_WINDOW)->width, false, true, -1, -1, true);
-        MessageManager_DrawMessage("Unable to initialize network transport layer.\n", 2, 1);
+        MessageManager_DrawMessage("Unable to initialize network transport layer.\n", MESSAGE_BOX_WARNING,
+                                   MESSAGE_BOX_MODAL);
 
         result = false;
     }
@@ -822,10 +1003,18 @@ void Remote_SetupConnection() {
 
     Remote_SendNetPacket_32(REMOTE_BROADCAST);
 
-    while (Remote_NetworkMenu->remote_player_count != remote_player_count) {
-        Remote_ProcessNetPackets();
-        if (get_input() == GNW_KB_KEY_ESCAPE) {
-            return;
+    {
+        WaitMenu wait_menu(_(f7a1), WINDOW_MAIN_WINDOW);
+
+        while (Remote_NetworkMenu->remote_player_count != remote_player_count) {
+            Remote_ProcessNetPackets();
+
+            /* Cancel leaves connection_state at 0, so the lobby unwinds to the main menu; the
+             * session teardown notifies the other machines via disconnect.
+             */
+            if (get_input() == GNW_KB_KEY_ESCAPE) {
+                return;
+            }
         }
     }
 
@@ -837,7 +1026,7 @@ void Remote_SetupConnection() {
 bool Remote_UiProcessNetPackets() {
     Remote_ProcessNetPackets();
 
-    return Remote_NetworkMenu->is_gui_update_needed;
+    return Remote_NetworkMenu ? Remote_NetworkMenu->is_gui_update_needed : false;
 }
 
 bool Remote_UiProcessTick(bool mode) {
@@ -874,12 +1063,26 @@ void Remote_RegisterMenu(NetworkMenu* menu) {
     }
 }
 
+void Remote_UnregisterMenu() { Remote_NetworkMenu = nullptr; }
+
+bool Remote_TransportFailed() { return Remote_Transport && Remote_Transport->GetStatus().IsFatal(); }
+
 void Remote_ProcessNetPackets() {
     for (;;) {
         NetPacket packet;
         uint8_t packet_type;
 
-        if (Remote_ReceivePacket(packet)) {
+        const uint8_t receive_status = Remote_ReceivePacket(packet);
+
+        if (receive_status == REMOTE_RECEIVE_EMPTY) {
+            break;
+        }
+
+        if (receive_status == REMOTE_RECEIVE_MALFORMED) {
+            continue;
+        }
+
+        {
             packet >> packet_type;
 
             switch (packet_type) {
@@ -1063,8 +1266,11 @@ void Remote_ProcessNetPackets() {
                     AILOG(log, "Received unknown packet type ({}).", packet_type - TRANSPORT_APPL_PACKET_ID);
                 } break;
             }
-        } else {
-            break;
+
+            if (packet.IsMalformed()) {
+                AILOG(log, "Remote: Packet type {} failed validation while being processed.\n",
+                      packet_type - TRANSPORT_APPL_PACKET_ID);
+            }
         }
     };
 }
@@ -1076,7 +1282,7 @@ void Remote_NetErrorUnknownUnit(uint16_t unit_id) {
 
     AILOG(log, "{}", message);
 
-    MessageManager_DrawMessage(message, 2, 1, false, true);
+    MessageManager_DrawMessage(message, MESSAGE_BOX_WARNING, MESSAGE_BOX_MODELESS, false, true);
 }
 
 void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet) {
@@ -1135,13 +1341,25 @@ void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet) {
 
     std::string message = std::format("Unit, id {}, is in different state in remote packet.", unit->GetId());
 
-    MessageManager_DrawMessage(message.c_str(), 2, 1, false, true);
+    MessageManager_DrawMessage(message.c_str(), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODELESS, false, true);
+}
+
+static bool Remote_IsDesyncAuditAuthorityPresent() {
+    for (uint32_t i = 0; i < Remote_Nodes.GetCount(); ++i) {
+        if (Remote_Nodes[i]->is_host) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void Remote_AnalyzeDesync() {
     Remote_UpdatePauseTimer = false;
 
     if (Remote_IsHostMode) {
+        WaitMenu wait_menu(_(f7a2), WINDOW_MAIN_MAP);
+
         if (Remote_AnalyzeDesyncHost(UnitsManager_MobileLandSeaUnits) &&
             Remote_AnalyzeDesyncHost(UnitsManager_MobileAirUnits) &&
             Remote_AnalyzeDesyncHost(UnitsManager_StationaryUnits) &&
@@ -1152,9 +1370,13 @@ void Remote_AnalyzeDesync() {
         Remote_SendNetPacket_Signal(REMOTE_PACKET_49, PLAYER_TEAM_RED, 1);
 
     } else {
+        WaitMenu wait_menu(_(f7a2), WINDOW_MAIN_MAP);
+
+        uint64_t time_stamp = timer_get();
+
         Remote_P49_Signal = false;
 
-        while (!Remote_P49_Signal) {
+        while (!Remote_P49_Signal && Remote_IsNetworkGame) {
             Remote_ProcessNetPackets();
             GameManager_ProcessTick(false);
 
@@ -1180,9 +1402,19 @@ void Remote_AnalyzeDesync() {
                 Remote_P23_UnitId = 0;
 
                 Remote_SendNetPacket_Signal(REMOTE_PACKET_24, GameManager_PlayerTeam, 1);
+
+                time_stamp = timer_get();
+            }
+
+            if (!Remote_IsDesyncAuditAuthorityPresent() || timer_elapsed_time(time_stamp) > REMOTE_RESPONSE_TIMEOUT) {
+                AILOG(log, "Remote: Desync audit authority is gone, aborting the audit wait.\n");
+
+                break;
             }
 
             if (get_input() == GNW_KB_KEY_ESCAPE) {
+                GameManager_GameState = GAME_STATE_3_MAIN_MENU;
+
                 break;
             }
         }
@@ -1217,7 +1449,7 @@ void Remote_NotifyTimeout(bool main_menu_state) {
             Cursor_SetCursor(CURSOR_UNIT_NO_GO);
             MessageManager_ClearMessageBox();
             win_draw_rect(window->id, &window->window);
-            MessageManager_DrawMessage(_(17ee), 2, 0);
+            MessageManager_DrawMessage(_(17ee), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODELESS);
             MessageManager_DrawMessageBox();
             win_draw_rect(window->id, &window->window);
         }
@@ -1236,6 +1468,32 @@ void Remote_ClearNotifyTimeout(bool main_menu_state) {
 
     if (main_menu_state) {
         GameManager_EnableMainMenu(nullptr);
+    }
+}
+
+bool Remote_DrawBarrierWaitIndicator(bool is_drawn, uint64_t time_stamp) {
+    if (!is_drawn && timer_elapsed_time(time_stamp) > REMOTE_RESPONSE_PENDING) {
+        const auto window = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
+
+        Cursor_SetCursor(CURSOR_UNIT_NO_GO);
+        MessageManager_ClearMessageBox();
+        win_draw_rect(window->id, &window->window);
+        MessageManager_DrawMessage(_(17ee), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODELESS);
+        MessageManager_DrawMessageBox();
+        win_draw_rect(window->id, &window->window);
+
+        is_drawn = true;
+    }
+
+    return is_drawn;
+}
+
+void Remote_ClearBarrierWaitIndicator(bool is_drawn) {
+    if (is_drawn) {
+        const auto window = WindowManager_GetWindow(WINDOW_MESSAGE_BOX);
+
+        MessageManager_ClearMessageBox();
+        win_draw_rect(window->id, &window->window);
     }
 }
 
@@ -1283,8 +1541,6 @@ void Remote_Synchronize(bool async_mode) {
             }
 
             if (stay_in_loop && async_mode) {
-                Remote_TimeoutTimeStamp = timer_get();
-
                 Remote_ClearNotifyTimeout(main_menu_state);
 
                 return;
@@ -1312,6 +1568,7 @@ void Remote_WaitBeginTurnAcknowledge() {
     uint64_t time_stamp_timeout = timer_get();
     uint64_t time_stamp_ping = timer_get();
 
+    bool is_indicator_drawn = false;
     bool stay_in_loop = true;
 
     while (stay_in_loop && Remote_IsNetworkGame) {
@@ -1338,10 +1595,17 @@ void Remote_WaitBeginTurnAcknowledge() {
             }
         }
 
-        if (get_input() == GNW_KB_KEY_ESCAPE) {
-            stay_in_loop = false;
+        if (stay_in_loop) {
+            is_indicator_drawn = Remote_DrawBarrierWaitIndicator(is_indicator_drawn, time_stamp_timeout);
         }
+
+        /* Pump the event queue, but discard the input: a synchronization barrier cannot be
+         * escaped and must not let the player issue commands while peers catch up.
+         */
+        get_input();
     }
+
+    Remote_ClearBarrierWaitIndicator(is_indicator_drawn);
 }
 
 void Remote_WaitEndTurnAcknowledge() {
@@ -1356,6 +1620,7 @@ void Remote_WaitEndTurnAcknowledge() {
     uint64_t time_stamp_timeout = timer_get();
     uint64_t time_stamp_ping = timer_get();
 
+    bool is_indicator_drawn = false;
     bool stay_in_loop = true;
 
     while (stay_in_loop && Remote_IsNetworkGame) {
@@ -1382,10 +1647,17 @@ void Remote_WaitEndTurnAcknowledge() {
             }
         }
 
-        if (get_input() == GNW_KB_KEY_ESCAPE) {
-            stay_in_loop = false;
+        if (stay_in_loop) {
+            is_indicator_drawn = Remote_DrawBarrierWaitIndicator(is_indicator_drawn, time_stamp_timeout);
         }
+
+        /* Pump the event queue, but discard the input: a synchronization barrier cannot be
+         * escaped and must not let the player issue commands while peers catch up.
+         */
+        get_input();
     }
+
+    Remote_ClearBarrierWaitIndicator(is_indicator_drawn);
 }
 
 int32_t Remote_SiteSelectMenu() {
@@ -1402,7 +1674,7 @@ int32_t Remote_SiteSelectMenu() {
     }
 
     if (stay_in_loop && Remote_IsNetworkGame) {
-        MessageManager_DrawMessage(_(6da5), 0, 0);
+        MessageManager_DrawMessage(_(6da5), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
 
         Cursor_SetCursor(CURSOR_HAND);
 
@@ -1494,7 +1766,7 @@ int32_t Remote_SiteSelectMenu() {
     return 0;
 }
 
-void Remote_LeaveGame(uint16_t team, bool mode) {
+void Remote_AnnounceLeave(uint16_t team, bool mode) {
     if (UnitsManager_TeamInfo[UnitsManager_DelayedReactionsTeam].team_type != TEAM_TYPE_REMOTE) {
         uint16_t source_team = UnitsManager_DelayedReactionsTeam;
 
@@ -1514,30 +1786,36 @@ void Remote_LeaveGame(uint16_t team, bool mode) {
     ++Remote_LeaveGameRequestId[team];
 
     Remote_SendNetPacket_07(team, mode);
+}
 
-    uint64_t time_stamp = timer_get();
-    bool stay_in_loop = true;
+bool Remote_DelayedReactionsSyncStalled() {
+    static uint64_t time_stamp;
+    static uint64_t poll_time_stamp;
+    static uint16_t observed_team{TRANSPORT_MAX_TEAM_COUNT};
+    static uint32_t observed_counter{UINT32_MAX};
 
-    while (stay_in_loop && Remote_IsNetworkGame) {
-        Remote_ProcessNetPackets();
-        MouseEvent::ProcessInput();
+    const uint64_t now = timer_get();
+    bool result = false;
 
-        stay_in_loop = false;
+    if (observed_team != UnitsManager_DelayedReactionsTeam ||
+        observed_counter != UnitsManager_DelayedReactionsSyncCounter ||
+        timer_elapsed_time(poll_time_stamp) > REMOTE_RESPONSE_PENDING) {
+        observed_team = UnitsManager_DelayedReactionsTeam;
+        observed_counter = UnitsManager_DelayedReactionsSyncCounter;
+        time_stamp = now;
 
-        for (int32_t team2 = 0; team2 < TRANSPORT_MAX_TEAM_COUNT; ++team2) {
-            if (UnitsManager_TeamInfo[team2].team_type == TEAM_TYPE_REMOTE) {
-                if (Remote_LeaveGameRequestId[team2] < Remote_LeaveGameRequestId[team]) {
-                    if (timer_elapsed_time(time_stamp) < 5000) {
-                        stay_in_loop = true;
-                    }
-                }
-            }
-        }
-
-        if (get_input() == GNW_KB_KEY_ESCAPE) {
-            stay_in_loop = false;
-        }
+    } else if (timer_elapsed_time(time_stamp) > REMOTE_RESPONSE_TIMEOUT) {
+        result = true;
+        time_stamp = now;
     }
+
+    poll_time_stamp = now;
+
+    return result;
+}
+
+void Remote_LeaveGame(uint16_t team, bool mode) {
+    Remote_AnnounceLeave(team, mode);
 
     Remote_GameState = 0;
     Remote_IsNetworkGame = false;
@@ -1551,6 +1829,7 @@ bool Remote_CheckDesync(uint16_t team, uint16_t crc_checksum) {
     uint64_t time_stamp_timeout = timer_get();
     uint64_t time_stamp_ping = timer_get();
 
+    bool is_indicator_drawn = false;
     bool stay_in_loop = true;
 
     while (stay_in_loop && Remote_IsNetworkGame) {
@@ -1575,10 +1854,17 @@ bool Remote_CheckDesync(uint16_t team, uint16_t crc_checksum) {
             }
         }
 
-        if (get_input() == GNW_KB_KEY_ESCAPE) {
-            stay_in_loop = false;
+        if (stay_in_loop) {
+            is_indicator_drawn = Remote_DrawBarrierWaitIndicator(is_indicator_drawn, time_stamp_timeout);
         }
+
+        /* Pump the event queue, but discard the input: the desync check is a synchronization
+         * barrier like any other — escaping it would compare this turn against stale checksums.
+         */
+        get_input();
     }
+
+    Remote_ClearBarrierWaitIndicator(is_indicator_drawn);
 
     for (int32_t i = TRANSPORT_MAX_TEAM_COUNT - 1; i >= 0; --i) {
         if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
@@ -1606,6 +1892,10 @@ void Remote_ReceiveNetPacket_00(NetPacket& packet) {
     uint16_t entity_id;
 
     packet >> entity_id;
+
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
     packet >> Remote_FrameSyncCounter[entity_id];
 }
 
@@ -1613,6 +1903,10 @@ void Remote_ReceiveNetPacket_01(NetPacket& packet) {
     uint16_t entity_id;
 
     packet >> entity_id;
+
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
     packet >> Remote_FrameSyncCounter2values[entity_id];
 }
 
@@ -1635,7 +1929,7 @@ void Remote_ReceiveNetPacket_05(NetPacket& packet) {
 
     packet >> entity_id;
 
-    if (Remote_NetworkMenu->host_node == entity_id) {
+    if (Remote_NetworkMenu && Remote_NetworkMenu->host_node == entity_id) {
         ++Remote_NetworkMenu->remote_player_count;
     }
 }
@@ -1645,6 +1939,10 @@ void Remote_ReceiveNetPacket_06(NetPacket& packet) {
     const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
 
     packet >> entity_id;
+
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
 
     UnitsManager_TeamInfo[entity_id].finished_turn = 1;
 
@@ -1669,7 +1967,7 @@ void Remote_ReceiveNetPacket_06(NetPacket& packet) {
 
             sprintf(message, _(2abe), menu_team_names[entity_id]);
 
-            MessageManager_DrawMessage(message, 1, 0);
+            MessageManager_DrawMessage(message, MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
 
             ResourceManager_GetSoundManager().PlayVoice(static_cast<ResourceID>(V_M279 + entity_id * 2),
                                                         static_cast<ResourceID>(V_F279 + entity_id * 2));
@@ -1715,6 +2013,13 @@ void Remote_SendNetPacket_08(UnitInfo* unit) {
     packet << static_cast<uint8_t>(REMOTE_PACKET_08);
     packet << static_cast<uint16_t>(unit->GetId());
 
+    if (unit->GetOrder() >= ORDER_COUNT_MAX) {
+        AILOG(log, "Remote: Refusing to transmit unit {} with out of range order {}.\n", unit->GetId(),
+              static_cast<int32_t>(unit->GetOrder()));
+
+        return;
+    }
+
     Remote_OrderProcessors[unit->GetOrder()].WritePacket(unit, packet);
 
     Remote_TransmitPacket(packet, REMOTE_MULTICAST);
@@ -1734,6 +2039,18 @@ void Remote_ReceiveNetPacket_08(NetPacket& packet) {
             local.Write(packet.GetBuffer(), packet.GetDataSize());
 
             Remote_OrderProcessor1_Read(unit, local);
+
+            if (local.IsMalformed()) {
+                packet.SetMalformed();
+
+                return;
+            }
+        }
+
+        if (unit->GetOrder() >= ORDER_COUNT_MAX) {
+            packet.SetMalformed();
+
+            return;
         }
 
         Remote_OrderProcessors[unit->GetOrder()].ReadPacket(unit, packet);
@@ -1770,6 +2087,10 @@ void Remote_ReceiveNetPacket_09(NetPacket& packet) {
     SmartString team_name;
 
     packet >> entity_id;
+
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
     packet >> gold;
 
     UnitsManager_TeamInfo[entity_id].team_units->SetGold(gold);
@@ -1812,6 +2133,10 @@ void Remote_ReceiveNetPacket_10(NetPacket& packet) {
     uint16_t value;
 
     packet >> entity_id;
+
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
 
     packet >> unit_type;
 
@@ -1887,6 +2212,10 @@ void Remote_ReceiveNetPacket_11(NetPacket& packet) {
 
     packet >> entity_id;
 
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
+
     UnitsManager_TeamInfo[entity_id].team_units->ReadComplexPacket(packet);
 }
 
@@ -1917,6 +2246,10 @@ void Remote_ReceiveNetPacket_12(NetPacket& packet) {
     uint16_t entity_id;
 
     packet >> entity_id;
+
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
 
     TeamMissionSupplies* supplies = &UnitsManager_TeamMissionSupplies[entity_id];
 
@@ -2021,9 +2354,21 @@ void Remote_ReceiveNetPacket_16(NetPacket& packet) {
     packet >> file_name;
     packet >> file_title;
 
+    if (packet.IsMalformed()) {
+        return;
+    }
+
+    if (!Remote_IsValidSaveFileName(file_name.GetCStr())) {
+        packet.SetMalformed();
+
+        AILOG(log, "Remote: Rejected packet 16 with unsafe save file name '{}'.\n", file_name.GetCStr());
+
+        return;
+    }
+
     SaveLoadMenu_Save(file_name.GetCStr(), file_title.GetCStr(), true);
 
-    MessageManager_DrawMessage(_(87d7), 1, 0);
+    MessageManager_DrawMessage(_(87d7), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
 }
 
 void Remote_SendNetPacket_17() {
@@ -2299,32 +2644,50 @@ void Remote_ReceiveNetPacket_17(NetPacket& packet) {
         }
 
         if (backup_timer != timer || backup_endturn != endturn) {
-            MessageManager_DrawMessage(_(7be4), 1, 0);
+            MessageManager_DrawMessage(_(7be4), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
         }
     }
 }
 
 void Remote_SendNetPacket_18(int32_t sender_team, int32_t addresse_team, const char* message) {
-    int32_t message_length;
-
-    message_length = strlen(message);
-
-    if (message_length && Remote_IsNetworkGame) {
-        NetPacket packet;
-
-        packet << static_cast<uint8_t>(REMOTE_PACKET_18);
-        packet << static_cast<uint16_t>(sender_team);
-
-        packet << SmartString(message);
-
-        Remote_TransmitPacket(packet, addresse_team);
+    if (!message || message[0] == '\0' || !Remote_IsNetworkGame) {
+        return;
     }
+
+    if (addresse_team < 0 || addresse_team >= TRANSPORT_MAX_TEAM_COUNT) {
+        AILOG(log, "Remote: Chat message addressed to invalid team {}.\n", addresse_team);
+
+        return;
+    }
+
+    NetNode* const node = Remote_Nodes.Find(Remote_TeamNodeIds[addresse_team]);
+
+    if (!node) {
+        AILOG(log, "Remote: Chat recipient team {} has no connected node.\n", addresse_team);
+
+        return;
+    }
+
+    NetPacket packet;
+
+    packet << static_cast<uint8_t>(REMOTE_PACKET_18);
+    packet << static_cast<uint16_t>(sender_team);
+
+    packet << SmartString(message);
+
+    packet.AddAddress(node->address);
+
+    Remote_TransmitPacket(packet, REMOTE_UNICAST);
 }
 
 void Remote_ReceiveNetPacket_18(NetPacket& packet) {
     uint16_t entity_id;
 
     packet >> entity_id;
+
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
 
     const auto team_name = ResourceManager_GetSettings()->GetStringValue(menu_team_name_setting[entity_id]);
 
@@ -2336,7 +2699,7 @@ void Remote_ReceiveNetPacket_18(NetPacket& packet) {
     message += ": ";
     message += message_text;
 
-    MessageManager_DrawMessage(message.GetCStr(), 1, 0, true, false);
+    MessageManager_DrawMessage(message.GetCStr(), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS, true, false);
     MessageManager_AddMessage(message.GetCStr(), LIPS);
 }
 
@@ -2522,6 +2885,10 @@ void Remote_ReceiveNetPacket_24(NetPacket& packet) {
 
     packet >> entity_id;
 
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
+
     packet >> status;
 
     Remote_P24_Signals[entity_id] = status;
@@ -2532,6 +2899,10 @@ void Remote_ReceiveNetPacket_26(NetPacket& packet) {
     uint8_t team_clan;
 
     packet >> entity_id;
+
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
 
     packet >> team_clan;
 
@@ -2550,7 +2921,7 @@ void Remote_SendNetPacket_28(int32_t node) {
 }
 
 void Remote_ReceiveNetPacket_28(NetPacket& packet) {
-    if (Remote_GameState == 1 && Remote_NetworkMenu->is_host_mode) {
+    if (Remote_GameState == 1 && Remote_NetworkMenu && Remote_NetworkMenu->is_host_mode) {
         NetNode client_node;
         client_node.address = packet.GetAddress(REMOTE_RECEIVED_ADDRESS);
         client_node.entity_id = 0;
@@ -2587,7 +2958,7 @@ void Remote_ReceiveNetPacket_29(NetPacket& packet) {
 
     packet >> host_node;
 
-    if (Remote_GameState == 1 && Remote_NetworkMenu->player_node == host_node) {
+    if (Remote_GameState == 1 && Remote_NetworkMenu && Remote_NetworkMenu->player_node == host_node) {
         NetNode client_node;
 
         client_node.address = packet.GetAddress(REMOTE_RECEIVED_ADDRESS);
@@ -2595,15 +2966,6 @@ void Remote_ReceiveNetPacket_29(NetPacket& packet) {
         client_node.is_host = false;
         client_node.name[0] = '\0';
 
-        /* Announce the joiner to the peers that are already in the lobby, before it joins the node
-         * list itself. Multicast then covers exactly those peers, and the joiner does not receive a
-         * redundant announcement about itself -- it learns the full list from packet 30 below.
-         *
-         * Without this the host is the only node whose list stays current: every client would keep
-         * the snapshot it was handed on arrival, and would address its multicasts to the peers that
-         * happened to be present back then. Later joiners never see such a client rename itself, or
-         * chat.
-         */
         Remote_SendNetPacket_47(client_node);
 
         Remote_Nodes.Add(client_node);
@@ -2630,7 +2992,7 @@ void Remote_SendNetPacket_30(NetAddress& address) {
         packet << Remote_Nodes.GetCount();
 
         for (uint32_t i = 0; i < Remote_Nodes.GetCount(); ++i) {
-            packet << *Remote_Nodes[i];
+            Remote_WriteNetNode(*Remote_Nodes[i], packet);
         }
 
         Remote_WriteGameSettings(packet, mission);
@@ -2645,7 +3007,7 @@ void Remote_SendNetPacket_30(NetAddress& address) {
 }
 
 void Remote_ReceiveNetPacket_30(NetPacket& packet) {
-    if (Remote_GameState == 1) {
+    if (Remote_GameState == 1 && Remote_NetworkMenu) {
         uint16_t player_node;
         uint16_t host_node;
         uint32_t node_count;
@@ -2659,13 +3021,28 @@ void Remote_ReceiveNetPacket_30(NetPacket& packet) {
         packet >> Remote_NetworkMenu->team_nodes;
         packet >> Remote_NetworkMenu->team_names;
 
+        for (auto& team_name : Remote_NetworkMenu->team_names) {
+            team_name[sizeof(team_name) - 1] = '\0';
+        }
+
         packet >> node_count;
 
-        for (uint32_t i = 0; i < node_count; ++i) {
+        if (packet.IsMalformed() || node_count > TRANSPORT_MAX_TEAM_COUNT) {
+            packet.SetMalformed();
+
+            AILOG(log, "Remote: Rejected packet 30 with implausible node count ({}).\n", node_count);
+
+            return;
+        }
+
+        for (uint32_t i = 0; i < node_count && !packet.IsMalformed(); ++i) {
             NetNode peer_node;
 
-            packet >> peer_node;
-            Remote_Nodes.Add(peer_node);
+            Remote_ReadNetNode(peer_node, packet);
+
+            if (!packet.IsMalformed()) {
+                Remote_Nodes.Add(peer_node);
+            }
         }
 
         SDL_assert(Remote_Nodes.Find(player_node) && Remote_Nodes.Find(host_node));
@@ -2694,7 +3071,7 @@ void Remote_SendNetPacket_31(int32_t node) {
 }
 
 void Remote_ReceiveNetPacket_31(NetPacket& packet) {
-    if (Remote_GameState == 1) {
+    if (Remote_GameState == 1 && Remote_NetworkMenu) {
         uint16_t entity_id;
 
         packet >> entity_id;
@@ -2719,7 +3096,7 @@ void Remote_SendNetPacket_32(int32_t transmit_mode) {
 }
 
 void Remote_ReceiveNetPacket_32(NetPacket& packet) {
-    if (Remote_GameState == 1) {
+    if (Remote_GameState == 1 && Remote_NetworkMenu) {
         uint16_t entity_id;
 
         packet >> entity_id;
@@ -2765,7 +3142,7 @@ void Remote_ReceiveNetPacket_33(NetPacket& packet) {
 
     packet >> entity_id;
 
-    if (Remote_GameState == 1 && Remote_NetworkMenu->host_node == entity_id) {
+    if (Remote_GameState == 1 && Remote_NetworkMenu && Remote_NetworkMenu->host_node == entity_id) {
         std::string string;
 
         packet >> string;
@@ -2791,7 +3168,7 @@ void Remote_ReceiveNetPacket_34(NetPacket& packet) {
 
     packet >> entity_id;
 
-    if (Remote_NetworkMenu->host_node == entity_id) {
+    if (Remote_NetworkMenu && Remote_NetworkMenu->host_node == entity_id) {
         Remote_NetworkMenu->connection_state = true;
     }
 }
@@ -2818,7 +3195,7 @@ void Remote_ReceiveNetPacket_35(NetPacket& packet) {
 
     packet >> entity_id;
 
-    if (Remote_GameState == 1 && Remote_NetworkMenu->host_node == entity_id) {
+    if (Remote_GameState == 1 && Remote_NetworkMenu && Remote_NetworkMenu->host_node == entity_id) {
         uint16_t source_node;
         uint8_t team_slot;
         bool ready_state;
@@ -2836,12 +3213,26 @@ void Remote_ReceiveNetPacket_35(NetPacket& packet) {
         packet >> team_slot;
         packet >> ready_state;
 
-        Remote_NetworkMenu->team_nodes[team_slot] = source_node;
-        Remote_NetworkMenu->team_jar_in_use[team_slot] = ready_state;
+        if (packet.IsMalformed() || team_slot >= TRANSPORT_MAX_TEAM_COUNT) {
+            packet.SetMalformed();
+
+            AILOG(log, "Remote: Rejected packet 35 with out of range team slot ({}).\n",
+                  static_cast<int32_t>(team_slot));
+
+            return;
+        }
 
         packet >> team_name;
 
-        strcpy(Remote_NetworkMenu->team_names[team_slot], team_name.c_str());
+        if (packet.IsMalformed()) {
+            return;
+        }
+
+        Remote_NetworkMenu->team_nodes[team_slot] = source_node;
+        Remote_NetworkMenu->team_jar_in_use[team_slot] = ready_state;
+
+        SDL_utf8strlcpy(Remote_NetworkMenu->team_names[team_slot], team_name.c_str(),
+                        sizeof(Remote_NetworkMenu->team_names[team_slot]));
         ++Remote_NetworkMenu->remote_player_count;
 
         Remote_NetworkMenu->is_gui_update_needed = true;
@@ -2860,7 +3251,7 @@ void Remote_SendNetPacket_36() {
 }
 
 void Remote_ReceiveNetPacket_36(NetPacket& packet) {
-    if (Remote_GameState == 1) {
+    if (Remote_GameState == 1 && Remote_NetworkMenu) {
         uint16_t entity_id;
         std::string player_name;
         NetNode* host_node;
@@ -2870,15 +3261,15 @@ void Remote_ReceiveNetPacket_36(NetPacket& packet) {
 
         host_node = Remote_Hosts.Find(entity_id);
         if (host_node) {
-            SDL_strlcpy(host_node->name, player_name.c_str(), sizeof(host_node->name));
+            SDL_utf8strlcpy(host_node->name, player_name.c_str(), sizeof(host_node->name));
 
             Remote_NetworkMenu->is_gui_update_needed = true;
         }
 
         for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
             if (Remote_NetworkMenu->team_nodes[i] == entity_id) {
-                SDL_strlcpy(Remote_NetworkMenu->team_names[i], player_name.c_str(),
-                            sizeof(Remote_NetworkMenu->team_names[i]));
+                SDL_utf8strlcpy(Remote_NetworkMenu->team_names[i], player_name.c_str(),
+                                sizeof(Remote_NetworkMenu->team_names[i]));
 
                 Remote_NetworkMenu->is_gui_update_needed = true;
             }
@@ -2909,7 +3300,7 @@ void Remote_ReceiveNetPacket_37(NetPacket& packet) {
 
     packet >> entity_id;
 
-    if (Remote_GameState == 1 && Remote_NetworkMenu->host_node == entity_id) {
+    if (Remote_GameState == 1 && Remote_NetworkMenu && Remote_NetworkMenu->host_node == entity_id) {
         Remote_ReadGameSettings(packet);
 
         Remote_NetworkMenu->is_gui_update_needed = true;
@@ -3073,6 +3464,10 @@ void Remote_ReceiveNetPacket_42(NetPacket& packet) {
 
     packet >> entity_id;
 
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
+
     TeamMissionSupplies* supplies = &UnitsManager_TeamMissionSupplies[entity_id];
 
     supplies->units.Clear();
@@ -3124,7 +3519,7 @@ void Remote_SendNetPacket_44(NetAddress& address) {
 }
 
 void Remote_ReceiveNetPacket_44(NetPacket& packet) {
-    if (Remote_GameState == 1) {
+    if (Remote_GameState == 1 && Remote_NetworkMenu) {
         uint16_t entity_id;
 
         packet >> entity_id;
@@ -3140,7 +3535,7 @@ void Remote_ReceiveNetPacket_44(NetPacket& packet) {
                 packet >> host_name;
                 host_node.address = packet.GetAddress(REMOTE_RECEIVED_ADDRESS);
                 host_node.entity_id = entity_id;
-                SDL_strlcpy(host_node.name, host_name.c_str(), sizeof(host_node.name));
+                SDL_utf8strlcpy(host_node.name, host_name.c_str(), sizeof(host_node.name));
                 host_node.is_host = true;
 
                 Remote_Hosts.Add(host_node);
@@ -3167,6 +3562,10 @@ void Remote_ReceiveNetPacket_45(NetPacket& packet) {
     uint16_t entity_id;
 
     packet >> entity_id;
+
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
 
     packet >> Remote_NextTurnIndices[entity_id];
     packet >> Remote_TeamDataCrc16[entity_id];
@@ -3209,7 +3608,7 @@ void Remote_SendNetPacket_47(NetNode& node) {
     packet << static_cast<uint8_t>(REMOTE_PACKET_47);
     packet << static_cast<uint16_t>(Remote_NetworkMenu->player_node);
 
-    packet << node;
+    Remote_WriteNetNode(node, packet);
 
     Remote_TransmitPacket(packet, REMOTE_MULTICAST);
 }
@@ -3219,13 +3618,14 @@ void Remote_ReceiveNetPacket_47(NetPacket& packet) {
 
     packet >> entity_id;
 
-    /* Only the host assigns entity identifiers, so only the host may extend the node list. */
-    if (Remote_GameState == 1 && Remote_NetworkMenu->host_node == entity_id) {
+    if (Remote_GameState == 1 && Remote_NetworkMenu && Remote_NetworkMenu->host_node == entity_id) {
         NetNode peer_node;
 
-        packet >> peer_node;
+        Remote_ReadNetNode(peer_node, packet);
 
-        Remote_Nodes.Add(peer_node);
+        if (!packet.IsMalformed()) {
+            Remote_Nodes.Add(peer_node);
+        }
     }
 }
 
@@ -3233,6 +3633,10 @@ void Remote_ReceiveNetPacket_48(NetPacket& packet) {
     uint16_t entity_id;
 
     packet >> entity_id;
+
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
 
     packet >> Remote_LeaveGameRequestId[entity_id];
 }
@@ -3283,6 +3687,10 @@ void Remote_ReceiveNetPacket_52(NetPacket& packet) {
     uint16_t entity_id;
 
     packet >> entity_id;
+
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
 
     packet >> Remote_TurnIndices[entity_id];
 }

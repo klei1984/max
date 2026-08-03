@@ -88,8 +88,8 @@ extern ColorIndex* ResourceManager_TeamGreenColorIndexTable;
 extern ColorIndex* ResourceManager_TeamBlueColorIndexTable;
 extern ColorIndex* ResourceManager_TeamGrayColorIndexTable;
 extern ColorIndex* ResourceManager_TeamDerelictColorIndexTable;
-extern ColorIndex* ResourceManager_RedTintColorIndexTable;
-extern ColorIndex* ResourceManager_WorldTintColorIndexTable;
+extern ColorIndex* ResourceManager_MessageBoxWarningColorIndexTable;
+extern ColorIndex* ResourceManager_MessageBoxNoticeColorIndexTable;
 extern ColorIndex* ResourceManager_DarkeningColorIndexTable;
 extern ColorIndex* ResourceManager_BrightnessColorIndexTable;
 

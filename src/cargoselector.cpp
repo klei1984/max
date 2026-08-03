@@ -79,7 +79,7 @@ void CargoSelector::Draw() {
         ReportStats_DrawListItemIcon(window_info.buffer, window_info.width, unit_type, GameManager_PlayerTeam, 16,
                                      32 * i + 16);
 
-        strcpy(text, ResourceManager_GetUnit(unit_type).GetSingularName().data());
+        SDL_utf8strlcpy(text, ResourceManager_GetUnit(unit_type).GetSingularName().data(), sizeof(text));
 
         index = 1;
 
@@ -92,7 +92,7 @@ void CargoSelector::Draw() {
         {
             SmartString string;
 
-            strcat(text, string.Sprintf(10, " %i", index).GetCStr());
+            Text_AppendUtf8(text, string.Sprintf(10, " %i", index).GetCStr(), sizeof(text));
         }
 
         storage = dynamic_cast<CargoMenu*>(window)->GetCurrentUnitValues(unit_type)->GetAttribute(ATTRIB_STORAGE);
@@ -109,14 +109,14 @@ void CargoSelector::Draw() {
                         sprintf(text2, _(b0e8), cargo);
                     }
 
-                    strcat(text, text2);
+                    Text_AppendUtf8(text, text2, sizeof(text));
 
                 } else {
-                    strcat(text, _(ed1b));
+                    Text_AppendUtf8(text, _(ed1b), sizeof(text));
                 }
 
             } else {
-                strcat(text, _(64fd));
+                Text_AppendUtf8(text, _(64fd), sizeof(text));
             }
         }
 

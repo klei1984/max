@@ -524,10 +524,10 @@ void GameManager_TeamTurnConcurrent(int32_t& game_state) {
 
     if (GameManager_GameState == GAME_STATE_9_END_TURN && !GameManager_AreTeamsFinishedTurn()) {
         if (Remote_IsNetworkGame) {
-            MessageManager_DrawMessage(_(758a), 0, 0);
+            MessageManager_DrawMessage(_(758a), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
 
         } else {
-            MessageManager_DrawMessage(_(c977), 0, 0);
+            MessageManager_DrawMessage(_(c977), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
         }
 
         while (GameManager_GameState == GAME_STATE_9_END_TURN && !GameManager_AreTeamsFinishedTurn()) {
@@ -548,7 +548,7 @@ void GameManager_TeamTurnConcurrent(int32_t& game_state) {
 
         if (Remote_IsNetworkGame) {
             if (ResourceManager_GetSettings()->GetNumericValue("log_file_debug")) {
-                MessageManager_DrawMessage(_(0d6b), 0, 0);
+                MessageManager_DrawMessage(_(0d6b), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
                 Remote_AnalyzeDesync();
             }
         }
@@ -847,7 +847,7 @@ bool GameManager_RefreshOrders(uint16_t team, bool check_production) {
         if (ProductionManager_UpdateIndustryOrders(team, &(*it)) && is_player) {
             sprintf(message, _(a9fd), (*it).GetId());
 
-            MessageManager_DrawMessage(message, 1, 0, false, true);
+            MessageManager_DrawMessage(message, MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS, false, true);
         }
     }
 
@@ -1216,7 +1216,7 @@ bool GameManager_CargoSelection(uint16_t team) {
     if (GameManager_HumanPlayerCount) {
         sprintf(message, _(df78), menu_team_names[team]);
 
-        MessageManager_DrawMessage(message, 0, 1, true);
+        MessageManager_DrawMessage(message, MESSAGE_BOX_INFO, MESSAGE_BOX_MODAL, true);
     }
 
     return cargo_menu.Run();
@@ -1306,7 +1306,7 @@ void GameManager_DrawSelectSiteMessage(uint16_t team) {
     string += ":\n";
     string += _(851c);
 
-    MessageManager_DrawMessage(string.GetCStr(), 0, 1, true);
+    MessageManager_DrawMessage(string.GetCStr(), MESSAGE_BOX_INFO, MESSAGE_BOX_MODAL, true);
 }
 
 bool GameManager_SelectSite(uint16_t team) {
@@ -1326,7 +1326,7 @@ bool GameManager_SelectSite(uint16_t team) {
     if (proximity_alert_ack == 1) {
         flag = true;
 
-        MessageManager_DrawMessage(_(dfe1), 0, 0);
+        MessageManager_DrawMessage(_(dfe1), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
         ResourceManager_GetSoundManager().PlayVoice(V_M278, V_F177);
 
     } else {
@@ -1415,7 +1415,7 @@ bool GameManager_SelectSite(uint16_t team) {
                     }
 
                 } else {
-                    MessageManager_DrawMessage(_(5cb4), 0, 0);
+                    MessageManager_DrawMessage(_(5cb4), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
 
                     grid_x_overlap = starting_position_x;
                     grid_y_overlap = starting_position_y;
@@ -1427,7 +1427,7 @@ bool GameManager_SelectSite(uint16_t team) {
             } break;
 
             case 3: {
-                MessageManager_DrawMessage(_(3a97), 2, 0);
+                MessageManager_DrawMessage(_(3a97), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODELESS);
 
                 proximity_alert_ack = 1;
                 flag = true;
@@ -2269,7 +2269,7 @@ void GameManager_UpdateGuiControl(uint16_t team) {
 
     sprintf(message, _(c2eb), menu_team_names[team]);
 
-    MessageManager_DrawMessage(message, 0, 1, true);
+    MessageManager_DrawMessage(message, MESSAGE_BOX_INFO, MESSAGE_BOX_MODAL, true);
 
     GameManager_PlayerTeam = team;
 
@@ -2349,7 +2349,7 @@ bool GameManager_CheckDesync() {
                 if (!GameManager_LoadGame(10, GameManager_MenuFadeOut())) {
                     GameManager_GameState = GAME_STATE_3_MAIN_MENU;
 
-                    MessageManager_DrawMessage(_(df36), 0, 1);
+                    MessageManager_DrawMessage(_(df36), MESSAGE_BOX_INFO, MESSAGE_BOX_MODAL);
                 }
 
             } else {
@@ -2728,10 +2728,10 @@ void GameManager_ProcessCheatCodes() {
 
     if (is_multiplayer_game) {
         if (Remote_IsNetworkGame && GameManager_PlayMode != PLAY_MODE_TURN_BASED) {
-            MessageManager_DrawMessage(_(f47b), 2, 0);
+            MessageManager_DrawMessage(_(f47b), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODELESS);
 
         } else {
-            MessageManager_DrawMessage(_(abd7), 2, 0);
+            MessageManager_DrawMessage(_(abd7), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODELESS);
             GameManager_IsCheater = true;
             GameManager_CheaterTeam = GameManager_PlayerTeam;
         }
@@ -3328,7 +3328,7 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
                     }
 
                     if (is_multiplayer_game) {
-                        MessageManager_DrawMessage(_(abd7), 2, 0);
+                        MessageManager_DrawMessage(_(abd7), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODELESS);
                     }
                 }
 
@@ -3462,10 +3462,10 @@ void GameManager_NotifyEvent(UnitInfo* unit, int32_t event) {
     }
 
     if (GameManager_UnknownUnit3 != nullptr) {
-        strcat(text, _(c719));
+        Text_AppendUtf8(text, _(c719), sizeof(text));
     }
 
-    MessageManager_DrawMessage(text, 1, unit, GameManager_SpottedEnemyPosition);
+    MessageManager_DrawMessage(text, MESSAGE_BOX_NOTICE, unit, GameManager_SpottedEnemyPosition);
 
     if (resource_id1 != INVALID_ID) {
         ResourceManager_GetSoundManager().PlayVoice(resource_id1, resource_id2);
@@ -3846,7 +3846,7 @@ void GameManager_MenuClickChatGoalButton() {
         if (mission->GetDescription().length()) {
             const auto mission_goal = std::format("{}\n\n{}", mission->GetTitle(), mission->GetDescription());
 
-            MessageManager_DrawMessage(mission_goal.c_str(), 0, 1);
+            MessageManager_DrawMessage(mission_goal.c_str(), MESSAGE_BOX_INFO, MESSAGE_BOX_MODAL);
         }
     }
 }
@@ -3990,7 +3990,7 @@ void GameManager_SaveLoadGame(bool save_load_mode) {
                     }
 
                     SaveLoadMenu_Save(file_name.c_str(), save_file_info.save_name.c_str(), true);
-                    MessageManager_DrawMessage(_(f640), 1, 0);
+                    MessageManager_DrawMessage(_(f640), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
 
                 } else {
                     Color* palette_buffer;
@@ -4537,41 +4537,41 @@ void GameManager_PathBuild(UnitInfo* unit) {
 void GameManager_ReloadUnit(UnitInfo* unit1, UnitInfo* unit2) {
     if (unit2->GetOrder() == ORDER_DISABLE) {
         ResourceManager_GetSoundManager().PlaySfx(NCANC0);
-        MessageManager_DrawMessage(_(d984), 1, 0);
+        MessageManager_DrawMessage(_(d984), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
 
     } else if (unit1->storage) {
         unit1->SetParent(unit2);
-        MessageManager_DrawMessage(_(1fd7), 0, 0);
+        MessageManager_DrawMessage(_(1fd7), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
         UnitsManager_SetNewOrder(unit1, ORDER_RELOAD, ORDER_STATE_INIT);
         ResourceManager_GetSoundManager().PlayVoice(V_M085, V_F085);
 
     } else {
         ResourceManager_GetSoundManager().PlaySfx(NCANC0);
-        MessageManager_DrawMessage(_(930a), 1, 0);
+        MessageManager_DrawMessage(_(930a), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
     }
 }
 
 void GameManager_RepairUnit(UnitInfo* unit1, UnitInfo* unit2) {
     if (unit2->GetOrder() == ORDER_DISABLE) {
         ResourceManager_GetSoundManager().PlaySfx(NCANC0);
-        MessageManager_DrawMessage(_(7c90), 1, 0);
+        MessageManager_DrawMessage(_(7c90), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
 
     } else if (unit1->storage) {
         unit1->SetParent(unit2);
-        MessageManager_DrawMessage(_(5ae3), 0, 0);
+        MessageManager_DrawMessage(_(5ae3), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
         UnitsManager_SetNewOrder(unit1, ORDER_REPAIR, ORDER_STATE_INIT);
         ResourceManager_GetSoundManager().PlayVoice(V_M210, V_F210);
 
     } else {
         ResourceManager_GetSoundManager().PlaySfx(NCANC0);
-        MessageManager_DrawMessage(_(c65e), 1, 0);
+        MessageManager_DrawMessage(_(c65e), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
     }
 }
 
 void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
     if (unit2->GetOrder() == ORDER_DISABLE) {
         ResourceManager_GetSoundManager().PlaySfx(NCANC0);
-        MessageManager_DrawMessage(_(42b7), 1, 0);
+        MessageManager_DrawMessage(_(42b7), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
 
     } else if (ResourceManager_GetUnit(unit1->GetUnitType()).GetCargoType() ==
                    ResourceManager_GetUnit(unit2->GetUnitType()).GetCargoType() ||
@@ -4607,7 +4607,7 @@ void GameManager_TransferCargo(UnitInfo* unit1, UnitInfo* unit2) {
                 } break;
             }
 
-            MessageManager_DrawMessage(message, 0, 0);
+            MessageManager_DrawMessage(message, MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
 
             ResourceManager_GetSoundManager().PlayVoice(V_M224, V_F224);
         }
@@ -4625,7 +4625,7 @@ void GameManager_StealUnit(UnitInfo* unit1, UnitInfo* unit2) {
             UnitsManager_SetNewOrder(unit1, ORDER_AWAIT_STEAL_UNIT, ORDER_STATE_INIT);
 
         } else {
-            MessageManager_DrawMessage(_(f37a), 0, 0);
+            MessageManager_DrawMessage(_(f37a), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
         }
     }
 }
@@ -4641,7 +4641,7 @@ void GameManager_DisableUnit(UnitInfo* unit1, UnitInfo* unit2) {
             UnitsManager_SetNewOrder(unit1, ORDER_AWAIT_DISABLE_UNIT, ORDER_STATE_INIT);
 
         } else {
-            MessageManager_DrawMessage(_(3e56), 0, 0);
+            MessageManager_DrawMessage(_(3e56), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
         }
     }
 }
@@ -5212,7 +5212,7 @@ bool GameManager_ProcessTextInput(int32_t key) {
                 } break;
             }
 
-            MessageManager_DrawMessage(GameManager_TextInput.GetCStr(), 0, 0);
+            MessageManager_DrawMessage(GameManager_TextInput.GetCStr(), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
 
             result = true;
 
@@ -5245,7 +5245,7 @@ bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo>& units) {
             sprintf(text, _(dcc6), ResourceManager_GetUnit((*it).GetUnitType()).GetSingularName().data(),
                     (*it).grid_x + 1, (*it).grid_y + 1, GameManager_OrderStatusMessages[(*it).GetOrder()]);
 
-            MessageManager_DrawMessage(text, 0, 0);
+            MessageManager_DrawMessage(text, MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
 
             result = true;
             break;
@@ -5425,7 +5425,7 @@ void GameManager_ProcessKey() {
         case GNW_KB_KEY_LALT_L: {
             if (GameManager_IsMainMenuEnabled) {
                 if (Remote_IsNetworkGame) {
-                    MessageManager_DrawMessage(_(5504), 2, 1, true);
+                    MessageManager_DrawMessage(_(5504), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODAL, true);
 
                 } else {
                     GameManager_SaveLoadGame(false);
@@ -5478,7 +5478,7 @@ void GameManager_ProcessKey() {
                     MessageManager_ClearMessageBox();
                     GameManager_MenuUnitSelect(&*GameManager_UnknownUnit3);
                 } else {
-                    MessageManager_DrawMessage(_(10eb), 0, 0);
+                    MessageManager_DrawMessage(_(10eb), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
                 }
             }
         } break;
@@ -5504,7 +5504,8 @@ void GameManager_ProcessKey() {
                     !GameManager_DebugDelayedEndTurn(UnitsManager_StationaryUnits) &&
                     !GameManager_DebugDelayedEndTurn(UnitsManager_GroundCoverUnits) &&
                     !GameManager_DebugDelayedEndTurn(UnitsManager_ParticleUnits)) {
-                    MessageManager_DrawMessage("Turn end is NOT delayed by units.", 0, 0);
+                    MessageManager_DrawMessage("Turn end is NOT delayed by units.", MESSAGE_BOX_INFO,
+                                               MESSAGE_BOX_MODELESS);
                 }
             }
 #endif /* !defined(NDEBUG) */
@@ -5570,7 +5571,7 @@ void GameManager_ProcessKey() {
             team_info->screen_locations[key - GNW_KB_KEY_LALT_F5].x = GameManager_MapViewCenter.x;
             team_info->screen_locations[key - GNW_KB_KEY_LALT_F5].y = GameManager_MapViewCenter.y;
 
-            MessageManager_DrawMessage(_(7615), 0, 0);
+            MessageManager_DrawMessage(_(7615), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
         } break;
 
         case 1003: {
@@ -6717,7 +6718,8 @@ void GameManager_ProcessInput() {
                                                             GameManager_MousePosition.x, GameManager_MousePosition.y);
 
                                                     } else if (GameManager_Unit->GetOrder() == ORDER_DISABLE) {
-                                                        MessageManager_DrawMessage(_(9897), 1, 0);
+                                                        MessageManager_DrawMessage(_(9897), MESSAGE_BOX_NOTICE,
+                                                                                   MESSAGE_BOX_MODELESS);
 
                                                     } else if (GameManager_SelectedUnit->grid_x ==
                                                                    GameManager_Unit->grid_x &&
@@ -7091,27 +7093,27 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
                     if (experience > 2) {
                         if (experience > 5) {
                             if (experience > 10) {
-                                strcpy(text, _(1d69));
+                                SDL_utf8strlcpy(text, _(1d69), sizeof(text));
 
                             } else {
-                                strcpy(text, _(13d9));
+                                SDL_utf8strlcpy(text, _(13d9), sizeof(text));
                             }
 
                         } else {
-                            strcpy(text, _(abcf));
+                            SDL_utf8strlcpy(text, _(abcf), sizeof(text));
                         }
 
                     } else {
-                        strcpy(text, _(b38a));
+                        SDL_utf8strlcpy(text, _(b38a), sizeof(text));
                     }
 
                 } else {
-                    strcpy(text, _(ea0b));
+                    SDL_utf8strlcpy(text, _(ea0b), sizeof(text));
                 }
 
                 if (experience > 0) {
                     sprintf(exp_text, " (+%i)", experience);
-                    strcat(text, exp_text);
+                    Text_AppendUtf8(text, exp_text, sizeof(text));
                 }
 
                 win_print(window->id, text, 128, window->window.ulx, window->window.uly + Text_GetHeight() * 2,
@@ -7819,7 +7821,7 @@ void GameManager_DrawBuilderUnitStatusMessage(UnitInfo* unit) {
         }
     }
 
-    MessageManager_DrawMessage(string.GetCStr(), 0, 0);
+    MessageManager_DrawMessage(string.GetCStr(), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
 }
 
 void GameManager_DrawDisabledUnitStatusMessage(UnitInfo* unit) {
@@ -7827,7 +7829,7 @@ void GameManager_DrawDisabledUnitStatusMessage(UnitInfo* unit) {
 
     string.Sprintf(200, _(bda4), unit->disabled_turns_remaining);
 
-    MessageManager_DrawMessage(string.GetCStr(), 0, 0);
+    MessageManager_DrawMessage(string.GetCStr(), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
 }
 
 void GameManager_PlayUnitStatusVoice(UnitInfo* unit) {
@@ -7933,7 +7935,8 @@ void GameManager_DrawUnitStatusMessage(UnitInfo* unit) {
     }
 
     if (mission_category == MISSION_CATEGORY_TRAINING) {
-        MessageManager_DrawMessage(ResourceManager_GetUnit(unit->GetUnitType()).GetTutorialDescription().data(), 0, 0);
+        MessageManager_DrawMessage(ResourceManager_GetUnit(unit->GetUnitType()).GetTutorialDescription().data(),
+                                   MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
     }
 
     if (unit->GetOrder() == ORDER_BUILD || unit->GetOrder() == ORDER_CLEAR || unit->GetOrder() == ORDER_HALT_BUILDING ||
@@ -8024,14 +8027,14 @@ void GameManager_ReportNewUnitsMessage(uint32_t* counts) {
             }
 
             if (different_type_count == 1) {
-                strcat(message, chunk);
+                Text_AppendUtf8(message, chunk, sizeof(message));
 
             } else {
                 if (different_type_count == 2) {
-                    strcat(chunk, _(e3ee));
+                    Text_AppendUtf8(chunk, _(e3ee), sizeof(chunk));
 
                 } else {
-                    strcat(chunk, _(0a07));
+                    Text_AppendUtf8(chunk, _(0a07), sizeof(chunk));
                 }
 
                 SDL_assert(strlen(chunk) + strlen(message) < sizeof(message) + 1);
@@ -8045,16 +8048,16 @@ void GameManager_ReportNewUnitsMessage(uint32_t* counts) {
         message[0] = toupper(message[0]);
 
         if (unit_count == 1) {
-            strcat(message, _(a8bd));
-            strcat(message, _(e3cd));
+            Text_AppendUtf8(message, _(a8bd), sizeof(message));
+            Text_AppendUtf8(message, _(e3cd), sizeof(message));
 
             if (flag) {
                 ResourceManager_GetSoundManager().PlayVoice(V_M215, V_F217);
             }
 
         } else {
-            strcat(message, _(2cd0));
-            strcat(message, _(9753));
+            Text_AppendUtf8(message, _(2cd0), sizeof(message));
+            Text_AppendUtf8(message, _(9753), sizeof(message));
 
             if (flag) {
                 ResourceManager_GetSoundManager().PlayVoice(V_M206, V_F207);
@@ -8066,7 +8069,7 @@ void GameManager_ReportNewUnitsMessage(uint32_t* counts) {
 
     GameManager_PrependMessageChunk(chunk, message);
 
-    MessageManager_DrawMessage(message, 0, 0, false, true);
+    MessageManager_DrawMessage(message, MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS, false, true);
 }
 
 void GameManager_ProgressBuildState(uint16_t team) {

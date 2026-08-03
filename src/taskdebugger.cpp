@@ -203,16 +203,16 @@ void TaskDebugger_SetDebugMode() {
 
     switch (TaskDebugger_DebugMode) {
         case 0: {
-            MessageManager_DrawMessage("Task Debug info OFF.", 0, 0);
+            MessageManager_DrawMessage("Task Debug info OFF.", MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
             AiLog_Close();
         } break;
 
         case 1: {
-            MessageManager_DrawMessage("Task Debug info ON.", 0, 0);
+            MessageManager_DrawMessage("Task Debug info ON.", MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
         } break;
 
         case 2: {
-            MessageManager_DrawMessage("Task Log ON.", 0, 0);
+            MessageManager_DrawMessage("Task Log ON.", MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
             AiLog_Open();
         } break;
     }

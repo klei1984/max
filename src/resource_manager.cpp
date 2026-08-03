@@ -127,8 +127,8 @@ ColorIndex* ResourceManager_TeamGreenColorIndexTable;
 ColorIndex* ResourceManager_TeamBlueColorIndexTable;
 ColorIndex* ResourceManager_TeamGrayColorIndexTable;
 ColorIndex* ResourceManager_TeamDerelictColorIndexTable;
-ColorIndex* ResourceManager_RedTintColorIndexTable;
-ColorIndex* ResourceManager_WorldTintColorIndexTable;
+ColorIndex* ResourceManager_MessageBoxWarningColorIndexTable;
+ColorIndex* ResourceManager_MessageBoxNoticeColorIndexTable;
 ColorIndex* ResourceManager_DarkeningColorIndexTable;
 ColorIndex* ResourceManager_BrightnessColorIndexTable;
 
@@ -840,7 +840,7 @@ ResourceID ResourceManager_GetResourceID(int32_t index) {
     char buffer[9];
 
     memset(buffer, 0, sizeof(buffer));
-    strncpy(buffer, ResourceManager_ResItemTable[index].tag, sizeof(((struct res_index){0}).tag));
+    SDL_memcpy(buffer, ResourceManager_ResItemTable[index].tag, sizeof(ResourceManager_ResItemTable[index].tag));
     for (int32_t i = 0; i < RESOURCE_E; ++i) {
         if (!strncmp(buffer, ResourceManager_ResourceIdList[i], sizeof(buffer))) {
             return static_cast<ResourceID>(i);
@@ -906,8 +906,8 @@ int32_t ResourceManager_BuildColorTables() {
         ResourceManager_TeamBlueColorIndexTable = &aligned_buffer[2 * PALETTE_SIZE];
         ResourceManager_TeamGrayColorIndexTable = &aligned_buffer[3 * PALETTE_SIZE];
         ResourceManager_TeamDerelictColorIndexTable = &aligned_buffer[4 * PALETTE_SIZE];
-        ResourceManager_RedTintColorIndexTable = &aligned_buffer[5 * PALETTE_SIZE];
-        ResourceManager_WorldTintColorIndexTable = &aligned_buffer[6 * PALETTE_SIZE];
+        ResourceManager_MessageBoxWarningColorIndexTable = &aligned_buffer[5 * PALETTE_SIZE];
+        ResourceManager_MessageBoxNoticeColorIndexTable = &aligned_buffer[6 * PALETTE_SIZE];
         ResourceManager_DarkeningColorIndexTable = &aligned_buffer[7 * PALETTE_SIZE];
         ResourceManager_BrightnessColorIndexTable = &aligned_buffer[8 * PALETTE_SIZE];
 

@@ -22,11 +22,9 @@
 #ifndef DESYNCMENU_HPP
 #define DESYNCMENU_HPP
 
-#include "button.hpp"
-#include "window.hpp"
+#include "popupmenu.hpp"
 
-class DesyncMenu : public Window {
-    WindowInfo window;
+class DesyncMenu : public PopupMenu {
     bool event_click_restart;
     bool event_click_quit;
     Button* button_restart;
@@ -35,7 +33,7 @@ class DesyncMenu : public Window {
 
 public:
     DesyncMenu();
-    ~DesyncMenu();
+    ~DesyncMenu() override;
 
     bool Run();
 };

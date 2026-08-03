@@ -51,6 +51,8 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/drawmap.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/assertmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/okcancelmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/popupmenu.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/waitmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/desyncmenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/transfermenu.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/dialogmenu.cpp

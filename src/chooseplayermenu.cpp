@@ -230,13 +230,13 @@ void ChoosePlayerMenu::EventDone() {
 
     if (is_single_player) {
         if (human_player_count + computer_player_count < 2) {
-            MessageManager_DrawMessage(_(bc94), 0, 1);
+            MessageManager_DrawMessage(_(bc94), MESSAGE_BOX_INFO, MESSAGE_BOX_MODAL);
         } else {
             event_click_done = true;
         }
 
     } else if (human_player_count < 2) {
-        MessageManager_DrawMessage(_(06ec), 0, 1);
+        MessageManager_DrawMessage(_(06ec), MESSAGE_BOX_INFO, MESSAGE_BOX_MODAL);
     } else {
         event_click_done = true;
     }

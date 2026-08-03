@@ -250,7 +250,7 @@ void OptionsMenu::InitLabelControl(int32_t id, int32_t ulx, int32_t uly) {
         sprintf(buffer, options_menu_buttons[id].format, ini_setting_victory_limit,
                 options_menu_victory_type_strings[ini_setting_victory_type]);
     } else if (strcmp(setting_key.c_str(), "music_level") == 0) {
-        strcpy(buffer, options_menu_buttons[id].format);
+        SDL_utf8strlcpy(buffer, options_menu_buttons[id].format, sizeof(buffer));
         font_color = Fonts_GoldColor;
     }
 

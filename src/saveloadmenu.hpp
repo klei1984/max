@@ -34,6 +34,17 @@ extern const char* SaveLoadMenu_CampaignTitles[];
 extern int32_t SaveLoadMenu_SaveSlot;
 extern uint8_t SaveLoadMenu_GameState;
 
+/* Save slots are numbered from one and presented a page at a time.
+ *
+ * SaveLoadMenu_SaveSlotLimit is the first slot of the last page, not the last slot, so the highest
+ * slot a player can reach is a full page beyond it. Anything validating a slot number wants
+ * SaveLoadMenu_LastSaveSlot.
+ */
+inline constexpr int32_t SaveLoadMenu_SaveSlotsPerPage = 10;
+inline constexpr int32_t SaveLoadMenu_FirstSaveSlot = 1;
+inline constexpr int32_t SaveLoadMenu_SaveSlotLimit = 991;
+inline constexpr int32_t SaveLoadMenu_LastSaveSlot = SaveLoadMenu_SaveSlotLimit + SaveLoadMenu_SaveSlotsPerPage - 1;
+
 void SaveLoadMenu_CreateBackup(const char* file_name);
 int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool is_saving_allowed);
 void SaveLoadMenu_Save(const char* file_name, const char* save_name, bool play_voice, bool backup = false);

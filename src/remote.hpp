@@ -91,6 +91,8 @@ bool Remote_UiProcessNetPackets();
 bool Remote_UiProcessTick(bool mode = false);
 bool Remote_CheckRestartAfterDesyncEvent();
 void Remote_RegisterMenu(NetworkMenu* menu);
+void Remote_UnregisterMenu();
+[[nodiscard]] bool Remote_TransportFailed();
 void Remote_ProcessNetPackets();
 void Remote_AnalyzeDesync();
 int32_t Remote_CheckUnpauseEvent();
@@ -99,6 +101,7 @@ void Remote_WaitBeginTurnAcknowledge();
 void Remote_WaitEndTurnAcknowledge();
 int32_t Remote_SiteSelectMenu();
 void Remote_LeaveGame(uint16_t team, bool mode);
+[[nodiscard]] bool Remote_DelayedReactionsSyncStalled();
 bool Remote_CheckDesync(uint16_t team, uint16_t crc_checksum);
 
 void Remote_SendNetPacket_Signal(int32_t packet_type, int32_t team, uint8_t parameter);

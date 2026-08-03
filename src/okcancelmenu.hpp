@@ -22,11 +22,9 @@
 #ifndef OKCANCELMENU_HPP
 #define OKCANCELMENU_HPP
 
-#include "button.hpp"
-#include "window.hpp"
+#include "popupmenu.hpp"
 
-class OKCancelMenu : public Window {
-    WindowInfo window;
+class OKCancelMenu : public PopupMenu {
     bool event_click_ok;
     bool event_click_cancel;
     Button* button_ok;
@@ -35,7 +33,7 @@ class OKCancelMenu : public Window {
 
 public:
     OKCancelMenu(const char* caption);
-    ~OKCancelMenu();
+    ~OKCancelMenu() override;
 
     bool Run();
 };

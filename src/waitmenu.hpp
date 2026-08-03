@@ -1,4 +1,4 @@
-/* Copyright (c) 2022 M.A.X. Port Team
+/* Copyright (c) 2026 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,36 +19,20 @@
  * SOFTWARE.
  */
 
-#include <SDL3/SDL_main.h>
+#ifndef WAITMENU_HPP
+#define WAITMENU_HPP
 
-#include "menu.hpp"
-#include "movie.hpp"
-#include "resource_manager.hpp"
-#include "sound_manager.hpp"
-#include "transport.hpp"
+#include "popupmenu.hpp"
 
-int main(int argc, char* argv[]) {
-    try {
-        ResourceManager_InitResources();
+/* Modal popup for cancellable network waits: the wait reason and a Cancel button wired to ESC,
+ * so the surrounding wait loop keeps polling get_input() for GNW_KB_KEY_ESCAPE unchanged.
+ */
+class WaitMenu : public PopupMenu {
+    Button* button_cancel;
 
-        if (!Transport_Init()) {
-            SDL_Log("Transport_Init() failed, networked play is unavailable.");
-        }
+public:
+    WaitMenu(const char* caption, uint8_t parent_window_id);
+    ~WaitMenu() override;
+};
 
-        if (Movie_PlayIntro()) {
-            menu_draw_logo(ILOGO, 3000);
-        }
-
-        ResourceManager_GetSoundManager().PlayMusic(MAIN_MSC, false);
-        menu_draw_logo(MLOGO, 3000);
-
-        main_menu();
-
-    } catch (std::exception& e) {
-        SDL_Log("\n%s\n", (std::string("Unhandled exception: ") + e.what()).c_str());
-
-        ResourceManager_Exit();
-    }
-
-    return EXIT_SUCCESS;
-}
+#endif /* WAITMENU_HPP */

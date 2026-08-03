@@ -49,4 +49,19 @@ void Text_TypeWriter_TextBoxMultiLineWrapText(WindowInfo* window, const char* te
 void Text_AutofitTextBox(uint8_t* buffer, uint16_t pitch, const char* text, Rect* text_area, Rect* draw_area,
                          int32_t color, bool horizontal_align);
 
+/**
+ * \brief Appends UTF-8 text to a bounded buffer without splitting a code point.
+ *
+ * SDL offers SDL_utf8strlcpy but no matching append, and plain strcat has no idea how large the
+ * destination is. This finds the end of the destination and hands the space that is left to
+ * SDL_utf8strlcpy, so an append that does not fit truncates on a character boundary instead of
+ * overrunning or leaving a partial sequence behind.
+ *
+ * \param dst Destination buffer, already holding a null terminated string.
+ * \param src Null terminated UTF-8 text to append.
+ * \param dst_bytes Total size of the destination buffer in bytes.
+ * \return Length of the resulting string in bytes, not counting the terminator.
+ */
+size_t Text_AppendUtf8(char* dst, const char* src, size_t dst_bytes) noexcept;
+
 #endif /* TEXT_HPP */

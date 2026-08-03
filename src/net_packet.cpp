@@ -29,39 +29,101 @@
 static constexpr int32_t NetPacket_DefaultPacketSize = 100;
 
 void NetPacket::GrowBuffer(int32_t length) noexcept {
-    while (buffer_write_position + length >= buffer_capacity) {
-        buffer_capacity *= 2;
+    uint32_t new_capacity{buffer_capacity ? buffer_capacity : static_cast<uint32_t>(NetPacket_DefaultPacketSize)};
+
+    while (buffer_write_position + static_cast<uint32_t>(length) >= new_capacity) {
+        if (new_capacity > (UINT32_MAX / 2)) {
+            is_malformed = true;
+
+            return;
+        }
+
+        new_capacity *= 2;
     }
 
-    char* new_buffer = new (std::nothrow) char[buffer_capacity];
+    char* new_buffer = new (std::nothrow) char[new_capacity];
+
+    if (!new_buffer) {
+        is_malformed = true;
+
+        return;
+    }
+
     memcpy(new_buffer, buffer, buffer_write_position);
     delete[] buffer;
+
     buffer = new_buffer;
+    buffer_capacity = new_capacity;
 }
 
 void NetPacket::Read(void* address, int32_t length) noexcept {
     SDL_assert(address);
-    SDL_assert(buffer);
     SDL_assert(length > 0);
-    SDL_assert(buffer_read_position + length <= buffer_write_position);
+
+    if (!address) {
+        is_malformed = true;
+
+        return;
+    }
+
+    if (length <= 0) {
+        is_malformed = true;
+
+        return;
+    }
+
+    if (!buffer || !CanRead(static_cast<uint32_t>(length))) {
+        memset(address, 0, static_cast<size_t>(length));
+
+        is_malformed = true;
+
+        return;
+    }
 
     memcpy(address, &buffer[buffer_read_position], length);
     buffer_read_position += length;
 }
 
 void NetPacket::Write(const void* address, int32_t length) noexcept {
+    SDL_assert(address);
+
+    if (!address || length <= 0) {
+        return;
+    }
+
     if (!buffer) {
         buffer = new (std::nothrow) char[NetPacket_DefaultPacketSize];
+
+        if (!buffer) {
+            is_malformed = true;
+
+            return;
+        }
+
         buffer_capacity = NetPacket_DefaultPacketSize;
     }
 
-    if (buffer_write_position + length > buffer_capacity) {
+    if (buffer_write_position + static_cast<uint32_t>(length) > buffer_capacity) {
         GrowBuffer(length);
+
+        if (buffer_write_position + static_cast<uint32_t>(length) > buffer_capacity) {
+            return;
+        }
     }
 
     memcpy(&buffer[buffer_write_position], address, length);
     buffer_write_position += length;
 }
+
+[[nodiscard]] bool NetPacket::IsMalformed() const noexcept { return is_malformed; }
+
+void NetPacket::SetMalformed() noexcept { is_malformed = true; }
+
+[[nodiscard]] uint32_t NetPacket::GetRemainingSize() const noexcept {
+    return buffer_write_position - buffer_read_position;
+}
+
+[[nodiscard]] bool NetPacket::CanRead(uint32_t length) const noexcept { return length <= GetRemainingSize(); }
 
 uint32_t NetPacket::Peek(uint32_t offset, void* data_address, uint32_t length) noexcept {
     uint32_t size;
@@ -89,6 +151,7 @@ void NetPacket::Reset() noexcept {
     buffer_read_position = 0;
     buffer_write_position = 0;
     address_count = 0;
+    is_malformed = false;
 }
 
 NetPacket::NetPacket() noexcept
@@ -97,11 +160,12 @@ NetPacket::NetPacket() noexcept
       buffer(nullptr),
       buffer_capacity(0),
       buffer_read_position(0),
-      buffer_write_position(0) {}
+      buffer_write_position(0),
+      is_malformed(false) {}
 
 NetPacket::~NetPacket() noexcept { delete[] buffer; }
 
-[[nodiscard]] char* NetPacket::GetBuffer() const noexcept { return &buffer[buffer_read_position]; }
+[[nodiscard]] char* NetPacket::GetBuffer() const noexcept { return buffer ? &buffer[buffer_read_position] : nullptr; }
 
 [[nodiscard]] int32_t NetPacket::GetDataSize() const noexcept { return buffer_write_position - buffer_read_position; }
 
@@ -156,27 +220,66 @@ void NetPacket::AddAddress(NetAddress& address) noexcept {
 void NetPacket::ClearAddressTable() noexcept { address_count = 0; }
 
 NetPacket& operator>>(NetPacket& packet, SmartString& string) noexcept {
-    uint16_t length;
+    uint16_t length{0};
+
     packet.Read(&length, sizeof(length));
-    char* text_buffer = new (std::nothrow) char[length];
+
+    string = "";
+
+    if (length == 0 || length > NetPacket::MaximumStringLength || !packet.CanRead(length)) {
+        packet.SetMalformed();
+
+        return packet;
+    }
+
+    char* text_buffer = new (std::nothrow) char[static_cast<size_t>(length) + 1];
+
+    if (!text_buffer) {
+        packet.SetMalformed();
+
+        return packet;
+    }
+
     packet.Read(text_buffer, length);
+    text_buffer[length] = '\0';
+
     string = text_buffer;
+
     delete[] text_buffer;
+
     return packet;
 }
 
 NetPacket& operator>>(NetPacket& packet, std::string& string) noexcept {
-    uint32_t length;
-    packet.Read(&length, sizeof(length));
-    if (length) {
-        char* text_buffer = new (std::nothrow) char[length];
-        packet.Read(text_buffer, length);
-        string.assign(text_buffer, length);
-        delete[] text_buffer;
+    uint32_t length{0};
 
-    } else {
-        string.clear();
+    packet.Read(&length, sizeof(length));
+
+    string.clear();
+
+    if (length == 0) {
+        return packet;
     }
+
+    if (length > NetPacket::MaximumStringLength || !packet.CanRead(length)) {
+        packet.SetMalformed();
+
+        return packet;
+    }
+
+    char* text_buffer = new (std::nothrow) char[length];
+
+    if (!text_buffer) {
+        packet.SetMalformed();
+
+        return packet;
+    }
+
+    packet.Read(text_buffer, length);
+    string.assign(text_buffer, length);
+
+    delete[] text_buffer;
+
     return packet;
 }
 
@@ -199,14 +302,26 @@ NetPacket& operator<<(NetPacket& packet, std::vector<std::string>& strings) noex
 }
 
 NetPacket& operator>>(NetPacket& packet, std::vector<std::string>& strings) noexcept {
-    uint32_t count;
+    uint32_t count{0};
+
     strings.clear();
+
     packet >> count;
-    for (uint32_t i = 0; i < count; ++i) {
+
+    if (count > NetPacket::MaximumArrayCount || count > packet.GetRemainingSize() / sizeof(uint32_t)) {
+        packet.SetMalformed();
+
+        return packet;
+    }
+
+    for (uint32_t i = 0; i < count && !packet.IsMalformed(); ++i) {
         std::string string;
+
         packet >> string;
+
         strings.push_back(string);
     }
+
     return packet;
 }
 
@@ -221,7 +336,8 @@ NetPacket::NetPacket(NetPacket&& other) noexcept
       buffer(other.buffer),
       buffer_capacity(other.buffer_capacity),
       buffer_read_position(other.buffer_read_position),
-      buffer_write_position(other.buffer_write_position) {
+      buffer_write_position(other.buffer_write_position),
+      is_malformed(other.is_malformed) {
     other.Reset();
     other.buffer = nullptr;
     other.buffer_capacity = 0;
@@ -237,6 +353,7 @@ NetPacket& NetPacket::operator=(NetPacket&& other) noexcept {
         buffer_capacity = other.buffer_capacity;
         buffer_read_position = other.buffer_read_position;
         buffer_write_position = other.buffer_write_position;
+        is_malformed = other.is_malformed;
 
         other.Reset();
         other.buffer = nullptr;

@@ -21,47 +21,21 @@
 
 #include "okcancelmenu.hpp"
 
-#include "cursor.hpp"
 #include "game_manager.hpp"
-#include "mouseevent.hpp"
-#include "text.hpp"
-#include "window_manager.hpp"
 
 OKCancelMenu::OKCancelMenu(const char* caption)
-    : Window(HELPFRAM, GameManager_GetDialogWindowCenterMode()),
+    : PopupMenu(caption, GameManager_GetDialogWindowCenterMode(), true),
       event_click_ok(false),
       event_click_cancel(false),
+      button_ok(CreateButton(HELPOK_U, HELPOK_D, 155, _(755f), GNW_KB_KEY_RETURN, NDONE0)),
+      button_cancel(CreateButton(XFRCAN_U, XFRCAN_D, 85, _(2879), GNW_KB_KEY_ESCAPE, NCANC0)),
       event_release(false) {
-    Cursor_SetCursor(CURSOR_HAND);
-    Text_SetFont(GNW_TEXT_FONT_5);
-    SetFlags(WINDOW_MODAL);
-
-    Add();
-    FillWindowInfo(&window);
-
-    button_ok = new (std::nothrow) Button(HELPOK_U, HELPOK_D, 155, 193);
-    button_ok->SetCaption(_(755f), 2, 2);
-    button_ok->SetRValue(GNW_KB_KEY_RETURN);
-    button_ok->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_RETURN);
-    button_ok->SetSfx(NDONE0);
-    button_ok->RegisterButton(window.id);
-
-    button_cancel = new (std::nothrow) Button(XFRCAN_U, XFRCAN_D, 85, 193);
-    button_cancel->SetCaption(_(2879), 2, 2);
-    button_cancel->SetRValue(GNW_KB_KEY_ESCAPE);
-    button_cancel->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_ESCAPE);
-    button_cancel->SetSfx(NCANC0);
-    button_cancel->RegisterButton(window.id);
-
-    Text_TextBox(window.buffer, window.width, caption, 20, 14, 265, 175, GNW_TEXT_OUTLINE | 0xFF, true);
-    win_draw_rect(window.id, &window.window);
+    Draw();
 }
 
 OKCancelMenu::~OKCancelMenu() {
     delete button_ok;
     delete button_cancel;
-
-    MouseEvent::Clear();
 }
 
 bool OKCancelMenu::Run() {

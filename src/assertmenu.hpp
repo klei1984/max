@@ -22,11 +22,9 @@
 #ifndef ASSERTMENU_HPP
 #define ASSERTMENU_HPP
 
-#include "button.hpp"
-#include "window.hpp"
+#include "popupmenu.hpp"
 
-class AssertMenu : Window {
-    WindowInfo window;
+class AssertMenu : PopupMenu {
     Button* button_break;
     Button* button_abort;
     Button* button_ignore;
@@ -36,7 +34,7 @@ class AssertMenu : Window {
 
 public:
     AssertMenu(const char* caption);
-    ~AssertMenu();
+    ~AssertMenu() override;
 
     int32_t Run();
 };

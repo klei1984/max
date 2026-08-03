@@ -967,3 +967,20 @@ void Text_AutofitTextBox(uint8_t* buffer, uint16_t pitch, const char* text, Rect
         }
     }
 }
+
+size_t Text_AppendUtf8(char* const dst, const char* const src, const size_t dst_bytes) noexcept {
+    SDL_assert(dst);
+    SDL_assert(src);
+
+    if (!dst || !src || dst_bytes == 0) {
+        return 0;
+    }
+
+    const size_t length = SDL_strnlen(dst, dst_bytes);
+
+    if (length + 1 >= dst_bytes) {
+        return length;
+    }
+
+    return length + SDL_utf8strlcpy(&dst[length], src, dst_bytes - length);
+}

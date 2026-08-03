@@ -206,8 +206,8 @@ bool ChatMenu::ProcessKey(int32_t key) {
 void ChatMenu::DrawMessage() {
     for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
         if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
-            int32_t team_ulx;
-            int32_t team_uly;
+            int32_t team_ulx{0};
+            int32_t team_uly{0};
             const auto team_name = ResourceManager_GetSettings()->GetStringValue(menu_team_name_setting[i]);
 
             switch (i) {
@@ -222,12 +222,12 @@ void ChatMenu::DrawMessage() {
                 } break;
 
                 case PLAYER_TEAM_BLUE: {
-                    team_ulx = 262;
+                    team_ulx = 66;
                     team_uly = 57;
                 } break;
 
                 case PLAYER_TEAM_GRAY: {
-                    team_ulx = 66;
+                    team_ulx = 262;
                     team_uly = 57;
                 } break;
             }

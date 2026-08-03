@@ -129,23 +129,30 @@ public:
     void UpdateColorAnimations(uint64_t current_time);
 
     /**
-     * \brief Retrieves tileset-specific RGB intensity weights and factor for red-tinted message box backgrounds.
+     * \brief Retrieves tileset-specific RGB intensity weights and factor for warning message box backgrounds.
+     *
+     * The hue is red on every tileset; only the intensity factor is tileset-specific, and the snow tilesets pick
+     * the weaker one so the tint stays readable over a bright map.
      *
      * \param r_level Output parameter for red intensity weight (0-63).
      * \param g_level Output parameter for green intensity weight (0-63).
      * \param b_level Output parameter for blue intensity weight (0-63).
      * \param factor Output parameter for tint intensity multiplier (0-63).
      */
-    void GetRedTintParameters(uint8_t& r_level, uint8_t& g_level, uint8_t& b_level, uint8_t& factor) const;
+    void GetMessageBoxWarningTintParameters(uint8_t& r_level, uint8_t& g_level, uint8_t& b_level,
+                                            uint8_t& factor) const;
 
     /**
-     * \brief Retrieves tileset-specific RGB intensity weights for neutral-tinted message box backgrounds.
+     * \brief Retrieves tileset-specific RGB intensity weights for notice message box backgrounds.
+     *
+     * The resulting hue is tileset-dependent: neutral on the crater, green and desert tilesets, but deliberately
+     * red on the snow tilesets, where a neutral tint would be invisible over a white map.
      *
      * \param r_level Output parameter for red intensity weight (0-63).
      * \param g_level Output parameter for green intensity weight (0-63).
      * \param b_level Output parameter for blue intensity weight (0-63).
      */
-    void GetWorldTintParameters(uint8_t& r_level, uint8_t& g_level, uint8_t& b_level) const;
+    void GetMessageBoxNoticeTintParameters(uint8_t& r_level, uint8_t& g_level, uint8_t& b_level) const;
 
     /**
      * \brief Retrieves the surface type value at the specified grid coordinates from the active world's surface map.

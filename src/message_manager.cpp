@@ -47,9 +47,14 @@ int16_t MessageManager_MessageBox_Height;
 ColorIndex* MessageManager_MessageBox_BgColor;
 bool MessageManager_MessageBox_IsActive;
 
-ColorIndex** MessageManager_MessageBox_BgColorArray[] = {&ResourceManager_DarkeningColorIndexTable,
-                                                         &ResourceManager_WorldTintColorIndexTable,
-                                                         &ResourceManager_RedTintColorIndexTable};
+ColorIndex** MessageManager_MessageBox_BgColorArray[] = {
+    &ResourceManager_DarkeningColorIndexTable,          // MESSAGE_BOX_INFO
+    &ResourceManager_MessageBoxNoticeColorIndexTable,   // MESSAGE_BOX_NOTICE
+    &ResourceManager_MessageBoxWarningColorIndexTable,  // MESSAGE_BOX_WARNING
+};
+
+static_assert(std::size(MessageManager_MessageBox_BgColorArray) == MESSAGE_BOX_STYLE_COUNT,
+              "Every MessageBoxStyle needs a background color table.");
 
 SmartList<MessageLogEntry> MessageManager_TeamMessageLog[PLAYER_TEAM_MAX - 1];
 
@@ -79,13 +84,13 @@ void MessageManager_BuildMessageBoxColorTables(const World* world) {
 
     SDL_assert(world != nullptr);
 
-    world->GetRedTintParameters(r_level, g_level, b_level, factor);
+    world->GetMessageBoxWarningTintParameters(r_level, g_level, b_level, factor);
     Color_GenerateIntensityTable3(WindowManager_ColorPalette, r_level, g_level, b_level, factor,
-                                  ResourceManager_RedTintColorIndexTable);
+                                  ResourceManager_MessageBoxWarningColorIndexTable);
 
-    world->GetWorldTintParameters(r_level, g_level, b_level);
+    world->GetMessageBoxNoticeTintParameters(r_level, g_level, b_level);
     Color_GenerateIntensityTable2(WindowManager_ColorPalette, r_level, g_level, b_level,
-                                  ResourceManager_WorldTintColorIndexTable);
+                                  ResourceManager_MessageBoxNoticeColorIndexTable);
 }
 
 void MessageManager_DrawMessageBoxText(uint8_t* buffer, int32_t width, int32_t left_margin, int32_t top_margin,
@@ -122,7 +127,7 @@ void MessageManager_AddMessage(const char* text, ResourceID id) {
     }
 }
 
-void MessageManager_DrawMessage(const char* text, uint8_t type, UnitInfo* unit, Point point) {
+void MessageManager_DrawMessage(const char* text, const MessageBoxStyle style, UnitInfo* unit, Point point) {
     if (text[0] != '\0') {
         MessageManager_TeamMessageLog[GameManager_PlayerTeam].PushBack(
             *dynamic_cast<MessageLogEntry*>(new (std::nothrow) MessageLogEntry(text, unit, point)));
@@ -132,14 +137,15 @@ void MessageManager_DrawMessage(const char* text, uint8_t type, UnitInfo* unit, 
                 *MessageManager_TeamMessageLog[GameManager_PlayerTeam].Begin());
         }
 
-        MessageManager_DrawMessage(text, type, 0);
+        MessageManager_DrawMessage(text, style, MESSAGE_BOX_MODELESS);
     }
 }
 
-void MessageManager_DrawMessage(const char* text, uint8_t type, int32_t mode, bool flag1, bool save_to_log) {
+void MessageManager_DrawMessage(const char* text, const MessageBoxStyle style, const MessageBoxMode mode,
+                                bool center_align_text, bool save_to_log) {
     if (text && *text != '\0') {
-        if (mode) {
-            DialogMenu dialog(text, flag1);
+        if (mode == MESSAGE_BOX_MODAL) {
+            DialogMenu dialog(text, center_align_text);
             dialog.Run();
         } else {
             WindowInfo* window_message_box;
@@ -188,7 +194,7 @@ void MessageManager_DrawMessage(const char* text, uint8_t type, int32_t mode, bo
 
             window_message_box->buffer = &window_main_map->buffer[offset_x + window_message_box->width * offset_y];
 
-            MessageManager_MessageBox_BgColor = *MessageManager_MessageBox_BgColorArray[type];
+            MessageManager_MessageBox_BgColor = *MessageManager_MessageBox_BgColorArray[style];
             MessageManager_MessageBox_IsActive = true;
 
             GameManager_GetScaledMessageBoxBounds(&bounds);
@@ -319,7 +325,7 @@ void MessageLogEntry::FileSave(SmartFileWriter& file) {
 char* MessageLogEntry::GetCStr() const { return text; }
 
 void MessageLogEntry::Select() {
-    MessageManager_DrawMessage(text, 0, 0);
+    MessageManager_DrawMessage(text, MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
 
     if (is_alert_message) {
         if (unit != nullptr && unit->hits > 0 && unit->IsVisibleToTeam(GameManager_PlayerTeam)) {

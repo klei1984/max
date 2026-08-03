@@ -452,13 +452,14 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
     }
 
     UnitInfo::GetVersion(
-        mark_level,
+        mark_level, sizeof(mark_level),
         UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[unit->team], unit->GetUnitType())->GetVersion());
 
     if (unit_count <= 0) {
         SmartString string;
 
-        MessageManager_DrawMessage(string.Sprintf(80, _(a0ee), unit->GetNormalRateBuildCost() / 4).GetCStr(), 2, 0);
+        MessageManager_DrawMessage(string.Sprintf(80, _(a0ee), unit->GetNormalRateBuildCost() / 4).GetCStr(),
+                                   MESSAGE_BOX_WARNING, MESSAGE_BOX_MODELESS);
 
     } else if (unit_count == 1) {
         SmartString string;
@@ -468,7 +469,7 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
                 .Sprintf(80, _(8967), ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), mark_level,
                          material_cost)
                 .GetCStr(),
-            0, upgraded_unit, Point(upgraded_unit->grid_x, upgraded_unit->grid_y));
+            MESSAGE_BOX_INFO, upgraded_unit, Point(upgraded_unit->grid_x, upgraded_unit->grid_y));
 
     } else {
         SmartString string;
@@ -478,7 +479,7 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
                 .Sprintf(80, _(2693), unit_count, ResourceManager_GetUnit(unit->GetUnitType()).GetPluralName().data(),
                          mark_level, material_cost)
                 .GetCStr(),
-            0, 0);
+            MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
     }
 }
 
@@ -640,7 +641,7 @@ void UnitsManager_Popup_OnClick_PlaceMine(ButtonID bid, UnitInfo* unit) {
         UnitsManager_SetNewOrder(unit, ORDER_LAY_MINE, ORDER_STATE_PLACING_MINES);
 
     } else {
-        MessageManager_DrawMessage(_(78a0), 1, 0);
+        MessageManager_DrawMessage(_(78a0), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
     }
 }
 
@@ -654,7 +655,7 @@ void UnitsManager_Popup_OnClick_RemoveMine(ButtonID bid, UnitInfo* unit) {
         UnitsManager_SetNewOrder(unit, ORDER_LAY_MINE, ORDER_STATE_REMOVING_MINES);
 
     } else {
-        MessageManager_DrawMessage(_(63d6), 1, 0);
+        MessageManager_DrawMessage(_(63d6), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
     }
 }
 
@@ -832,11 +833,11 @@ void UnitsManager_Popup_PlaceNewUnit(ButtonID bid, UnitInfo* unit) {
 
     if (Access_FindReachableSpot(parent->GetUnitType(), parent, &grid_x, &grid_y, 1, 1, 0)) {
         parent->FollowUnit();
-        MessageManager_DrawMessage(_(87e9), 0, 0);
+        MessageManager_DrawMessage(_(87e9), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
         GameManager_EnableMainMenu(parent);
 
     } else {
-        MessageManager_DrawMessage(_(c710), 1, 0);
+        MessageManager_DrawMessage(_(c710), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
         GameManager_EnableMainMenu(parent);
     }
 }
@@ -880,7 +881,7 @@ void UnitsManager_Popup_OnClick_PowerOn(ButtonID bid, UnitInfo* unit) {
 
     sprintf(message, _(8576), ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), _(b8d3));
 
-    MessageManager_DrawMessage(message, 0, 0);
+    MessageManager_DrawMessage(message, MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
 }
 
 void UnitsManager_Popup_OnClick_PowerOff(ButtonID bid, UnitInfo* unit) {
@@ -891,7 +892,7 @@ void UnitsManager_Popup_OnClick_PowerOff(ButtonID bid, UnitInfo* unit) {
 
     sprintf(message, _(d599), ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), _(b4dc));
 
-    MessageManager_DrawMessage(message, 0, 0);
+    MessageManager_DrawMessage(message, MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
 }
 
 void UnitsManager_Popup_OnClick_Steal(ButtonID bid, UnitInfo* unit) {
@@ -1099,10 +1100,10 @@ void UnitsManager_Popup_OnClick_StopRemove(ButtonID bid, UnitInfo* unit) {
 
             sprintf(message, _(b9b7), unit->build_time);
 
-            MessageManager_DrawMessage(message, 0, unit, Point(unit->grid_x, unit->grid_y));
+            MessageManager_DrawMessage(message, MESSAGE_BOX_INFO, unit, Point(unit->grid_x, unit->grid_y));
 
         } else {
-            MessageManager_DrawMessage(_(a615), 1, 0);
+            MessageManager_DrawMessage(_(a615), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
         }
     }
 }
@@ -1189,10 +1190,10 @@ void UnitsManager_Popup_OnClick_StartMasterBuilder(ButtonID bid, UnitInfo* unit)
             UnitsManager_SpawnUnit(LRGTAPE, GameManager_PlayerTeam, unit->move_to_grid_x, unit->move_to_grid_y, unit);
 
     } else {
-        MessageManager_DrawMessage(_(5e0b), 2, 0);
+        MessageManager_DrawMessage(_(5e0b), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODELESS);
     }
 
-    MessageManager_DrawMessage(_(bb70), 0, 0);
+    MessageManager_DrawMessage(_(bb70), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
 }
 
 bool UnitsManager_IsMasterBuilderPlaceable(UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
@@ -1469,7 +1470,7 @@ void UnitsManager_StartBuild(UnitInfo* unit) {
                        ResourceManager_GetUnit(unit_type).GetSingularName().data(),
                        UnitsManager_TeamInfo[GameManager_PlayerTeam].unit_counters[unit_type], turns_to_build_unit);
 
-        MessageManager_DrawMessage(string.GetCStr(), 0, unit, Point(unit->grid_x, unit->grid_y));
+        MessageManager_DrawMessage(string.GetCStr(), MESSAGE_BOX_INFO, unit, Point(unit->grid_x, unit->grid_y));
     }
 }
 
@@ -4044,10 +4045,12 @@ bool UnitsManager_AttemptStealthAction(UnitInfo* unit) {
             if (parent->GetOrder() == ORDER_DISABLE) {
                 if (GameManager_PlayerTeam == unit->team) {
                     if (unit->GetOrder() == ORDER_AWAIT_STEAL_UNIT) {
-                        MessageManager_DrawMessage(_(1141), 1, unit, Point(unit->grid_x, unit->grid_y));
+                        MessageManager_DrawMessage(_(1141), MESSAGE_BOX_NOTICE, unit,
+                                                   Point(unit->grid_x, unit->grid_y));
 
                     } else {
-                        MessageManager_DrawMessage(_(1c5c), 1, unit, Point(unit->grid_x, unit->grid_y));
+                        MessageManager_DrawMessage(_(1c5c), MESSAGE_BOX_NOTICE, unit,
+                                                   Point(unit->grid_x, unit->grid_y));
                     }
                 }
 
@@ -4070,10 +4073,12 @@ bool UnitsManager_AttemptStealthAction(UnitInfo* unit) {
 
                 } else if (GameManager_PlayerTeam == unit->team) {
                     if (unit->GetOrder() == ORDER_AWAIT_STEAL_UNIT) {
-                        MessageManager_DrawMessage(_(f876), 1, unit, Point(unit->grid_x, unit->grid_y));
+                        MessageManager_DrawMessage(_(f876), MESSAGE_BOX_NOTICE, unit,
+                                                   Point(unit->grid_x, unit->grid_y));
 
                     } else {
-                        MessageManager_DrawMessage(_(a939), 1, unit, Point(unit->grid_x, unit->grid_y));
+                        MessageManager_DrawMessage(_(a939), MESSAGE_BOX_NOTICE, unit,
+                                                   Point(unit->grid_x, unit->grid_y));
                     }
 
                     ResourceManager_GetSoundManager().PlayVoice(V_M007, V_F012);
@@ -4098,7 +4103,7 @@ void UnitsManager_CaptureUnit(UnitInfo* unit) {
         GameManager_NotifyEvent(&*parent, 2);
 
     } else if (GameManager_PlayerTeam == old_team) {
-        MessageManager_DrawMessage(_(8c00), 0, &*parent, Point(parent->grid_x, parent->grid_y));
+        MessageManager_DrawMessage(_(8c00), MESSAGE_BOX_INFO, &*parent, Point(parent->grid_x, parent->grid_y));
         ResourceManager_GetSoundManager().PlayVoice(V_M239, V_F242);
     }
 
@@ -4143,14 +4148,14 @@ void UnitsManager_DisableUnit(UnitInfo* unit) {
         Point position(parent->grid_x, parent->grid_y);
 
         if (turns_disabled == 1) {
-            MessageManager_DrawMessage(_(ea13), 0, &*parent, position);
+            MessageManager_DrawMessage(_(ea13), MESSAGE_BOX_INFO, &*parent, position);
 
         } else {
             SmartString message;
 
             message.Sprintf(100, _(836d), turns_disabled);
 
-            MessageManager_DrawMessage(message.GetCStr(), 0, &*parent, position);
+            MessageManager_DrawMessage(message.GetCStr(), MESSAGE_BOX_INFO, &*parent, position);
         }
 
         ResourceManager_GetSoundManager().PlayVoice(V_M244, V_F244);
@@ -4221,16 +4226,65 @@ bool UnitsManager_AssessAttacks() {
         AILOG(log, "Assess pending attacks.");
 
         bool are_attacks_delayed = false;
+        [[maybe_unused]] bool eliminated_team_pending = false;
 
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
-            if (UnitsManager_DelayedAttackTargets[team].GetCount() > 0 || UnitsManager_Units[team]) {
+            const bool has_pending = UnitsManager_DelayedAttackTargets[team].GetCount() > 0 || UnitsManager_Units[team];
+
+            if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_ELIMINATED) {
+                eliminated_team_pending = eliminated_team_pending || has_pending;
+
+                continue;
+            }
+
+            if (has_pending) {
                 are_attacks_delayed = true;
             }
         }
 
+#if !defined(NDEBUG)
+        {
+            static uint32_t previous_state = UINT32_MAX;
+
+            uint32_t current_state = (are_attacks_delayed ? 1u : 0u) | (eliminated_team_pending ? 2u : 0u) |
+                                     (static_cast<uint32_t>(UnitsManager_DelayedReactionsTeam) << 2u);
+
+            for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+                current_state = current_state * 31u +
+                                static_cast<uint32_t>(UnitsManager_TeamInfo[team].team_type) * 2u +
+                                (UnitsManager_DelayedAttackTargets[team].GetCount() > 0 ? 1u : 0u);
+            }
+
+            if (current_state != previous_state) {
+                previous_state = current_state;
+
+                AILOG_LOG(log, "Turn end gate: delayed {}, stale eliminated {}, baton team {} (type {}).",
+                          are_attacks_delayed, eliminated_team_pending,
+                          static_cast<int32_t>(UnitsManager_DelayedReactionsTeam),
+                          static_cast<int32_t>(UnitsManager_TeamInfo[UnitsManager_DelayedReactionsTeam].team_type));
+
+                for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX; ++team) {
+                    AILOG_LOG(log, "  team {}: type {}, delayed targets {}, pending unit {}.", team,
+                              static_cast<int32_t>(UnitsManager_TeamInfo[team].team_type),
+                              UnitsManager_DelayedAttackTargets[team].GetCount(), UnitsManager_Units[team] ? 1 : 0);
+                }
+            }
+        }
+#endif /* !defined(NDEBUG) */
+
         if (are_attacks_delayed) {
             if (UnitsManager_TeamInfo[UnitsManager_DelayedReactionsTeam].team_type == TEAM_TYPE_REMOTE) {
-                result = true;
+                if (Remote_DelayedReactionsSyncStalled()) {
+                    AILOG_LOG(log, "Delayed reactions sync with team {} stalled, dropping local reaction state.",
+                              static_cast<int32_t>(UnitsManager_DelayedReactionsTeam));
+
+                    UnitsManager_ClearDelayedReactions();
+
+                    result = false;
+
+                } else {
+                    result = true;
+                }
 
             } else {
                 are_attacks_delayed = false;
@@ -4402,7 +4456,7 @@ bool UnitsManager_CheckReaction(UnitInfo* unit1, UnitInfo* unit2) {
                             unit1->grid_y + 1, base_unit.GetSingularName().data(), unit2->grid_x + 1,
                             unit2->grid_y + 1);
 
-            MessageManager_DrawMessage(message.GetCStr(), 0, unit1, position);
+            MessageManager_DrawMessage(message.GetCStr(), MESSAGE_BOX_INFO, unit1, position);
         }
 
         UnitsManager_SetNewOrder(unit1, ORDER_FIRE, ORDER_STATE_INIT);
@@ -4722,7 +4776,7 @@ bool UnitsManager_LoadUnit(UnitInfo* unit) {
                 unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
 
                 if (GameManager_SelectedUnit == unit) {
-                    MessageManager_DrawMessage(_(7c8d), 1, unit, Point(unit->grid_x, unit->grid_y));
+                    MessageManager_DrawMessage(_(7c8d), MESSAGE_BOX_NOTICE, unit, Point(unit->grid_x, unit->grid_y));
                 }
 
             } else {

@@ -905,7 +905,7 @@ void MobileBuildMenu::Build() {
 
             if (build_rate == 1 &&
                 unit->storage < Cargo_GetRawConsumptionRate(unit->GetUnitType(), 1) * turns_to_build) {
-                MessageManager_DrawMessage(_(c529), 2, 0);
+                MessageManager_DrawMessage(_(c529), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODELESS);
 
             } else {
                 unit->GetBuildList().PushBack(&unit_type);
@@ -926,7 +926,7 @@ void MobileBuildMenu::Build() {
                     GameManager_TempTape = UnitsManager_SpawnUnit((base_unit.GetFlags() & BUILDING) ? LRGTAPE : SMLTAPE,
                                                                   GameManager_PlayerTeam, grid_x, grid_y, unit);
 
-                    MessageManager_DrawMessage(_(06cb), 0, 0);
+                    MessageManager_DrawMessage(_(06cb), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
 
                     if (mission_category == MISSION_CATEGORY_TRAINING) {
                         ResourceManager_GetSoundManager().PlayVoice(V_M049, V_F050);
@@ -955,7 +955,7 @@ void MobileBuildMenu::Build() {
                     point.x = unit->grid_x;
                     point.y = unit->grid_y;
 
-                    MessageManager_DrawMessage(string.GetCStr(), 0, unit, point);
+                    MessageManager_DrawMessage(string.GetCStr(), MESSAGE_BOX_INFO, unit, point);
                 }
             }
 
@@ -966,7 +966,7 @@ void MobileBuildMenu::Build() {
                 150, BuildMenu_EventStrings_InvalidSquare[ResourceManager_GetUnit(unit->GetUnitType()).GetGender()],
                 ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
-            MessageManager_DrawMessage(string.GetCStr(), 1, 0);
+            MessageManager_DrawMessage(string.GetCStr(), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
         }
 
     } else {
@@ -1196,7 +1196,7 @@ void FactoryBuildMenu::Build() {
                        base_unit.GetSingularName().data(), UnitsManager_TeamInfo[unit->team].unit_counters[unit_type],
                        (unit->build_time + build_rate - 1) / build_rate);
 
-        MessageManager_DrawMessage(string.GetCStr(), 1, unit, Point(unit->grid_x, unit->grid_y));
+        MessageManager_DrawMessage(string.GetCStr(), MESSAGE_BOX_NOTICE, unit, Point(unit->grid_x, unit->grid_y));
 
         unit->BuildOrder();
 

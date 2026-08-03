@@ -18,6 +18,15 @@ FetchContent_Declare(
 	OVERRIDE_FIND_PACKAGE
 )
 
+# SDL puts -D_GNU_SOURCE=1 in CMAKE_REQUIRED_FLAGS so its feature checks see the glibc
+# extensions. CMake 4.4.1 regressed check_symbol_exists() to ignore CMAKE_REQUIRED_FLAGS,
+# leaving HAVE_GETRESUID, HAVE_GETRESGID, HAVE_PPOLL, HAVE_MEMFD_CREATE, HAVE_FOPEN64 and
+# HAVE_FSEEKO64 undefined. src/core/unix/SDL_gtk.c then emits its own getresuid()/getresgid()
+# fallbacks, which collide with the real declarations that _GNU_SOURCE exposes during the
+# build. CMAKE_REQUIRED_DEFINITIONS travels a different code path and is still honoured, so
+# carry the macro there as well. Harmless once CMake is fixed.
+list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE=1)
+
 set(SDL_HAPTIC OFF)
 set(SDL_HIDAPI OFF)
 set(SDL_JOYSTICK OFF)

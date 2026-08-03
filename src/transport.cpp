@@ -19,9 +19,26 @@
  * SOFTWARE.
  */
 
+#include <enet/enet.h>
+
+#include <cstdlib>
 #include <new>
 
 #include "transport_udp_default.hpp"
+
+static bool Transport_GlobalsInitialized{false};
+
+bool Transport_Init() noexcept {
+    if (!Transport_GlobalsInitialized && enet_initialize() == 0) {
+        Transport_GlobalsInitialized = true;
+
+        atexit(&enet_deinitialize);
+    }
+
+    return Transport_GlobalsInitialized;
+}
+
+[[nodiscard]] bool Transport_IsInitialized() noexcept { return Transport_GlobalsInitialized; }
 
 Transport* Transport_Create(int32_t type) {
     Transport* transport;

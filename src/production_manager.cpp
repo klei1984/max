@@ -26,6 +26,7 @@
 #include "game_manager.hpp"
 #include "message_manager.hpp"
 #include "remote.hpp"
+#include "text.hpp"
 #include "unit.hpp"
 #include "units_manager.hpp"
 
@@ -58,8 +59,8 @@ class ProductionManager {
     void UpdateUnitLifeConsumption(UnitInfo* unit);
     bool ValidateAuxilaryIndustry(UnitInfo* const unit, const bool forceful_shutoff);
     bool ValidateIndustry(UnitInfo* const unit, const bool mode);
-    static void ComposeResourceMessage(char* buffer, int32_t new_value, int32_t old_value, const char* format1,
-                                       const char* format2);
+    static void ComposeResourceMessage(char* buffer, const size_t buffer_size, int32_t new_value, int32_t old_value,
+                                       const char* format1, const char* format2);
 
     friend bool ProductionManager_UpdateIndustryOrders(const uint16_t team, Complex* const complex);
     friend void ProductionManager_OptimizeProduction(const uint16_t team, Complex* const complex, UnitInfo* const unit,
@@ -318,13 +319,13 @@ void ProductionManager::ComposeIndustryMessage(UnitInfo* const unit, const char*
 
         } else {
             if (buffer[0] == '\0') {
-                strcpy(buffer, _(b441));
+                SDL_utf8strlcpy(buffer, _(b441), sizeof(buffer));
             }
 
             sprintf(text, format2, material, ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
         }
 
-        strcat(buffer, text);
+        Text_AppendUtf8(buffer, text, sizeof(buffer));
     }
 }
 
@@ -338,7 +339,7 @@ bool ProductionManager::PowerOn(ResourceID unit_type) {
             units.PushBack(&unit_type);
 
             sprintf(text, _(0aea), ResourceManager_GetUnit(unit_type).GetSingularName().data(), _(ff10));
-            strcat(buffer, text);
+            Text_AppendUtf8(buffer, text, sizeof(buffer));
         }
 
         result = true;
@@ -461,19 +462,19 @@ bool ProductionManager::ValidateAuxilaryIndustry(UnitInfo* const unit, const boo
     return result;
 }
 
-void ProductionManager::ComposeResourceMessage(char* buffer_, int32_t new_value, int32_t old_value, const char* format1,
-                                               const char* format2) {
+void ProductionManager::ComposeResourceMessage(char* buffer_, const size_t buffer_size, int32_t new_value,
+                                               int32_t old_value, const char* format1, const char* format2) {
     char text[300];
 
     if (new_value >= old_value) {
         if (new_value > old_value) {
             sprintf(text, format2, new_value);
-            strcat(buffer_, text);
+            Text_AppendUtf8(buffer_, text, buffer_size);
         }
 
     } else {
         sprintf(text, format1, new_value);
-        strcat(buffer_, text);
+        Text_AppendUtf8(buffer_, text, buffer_size);
     }
 }
 
@@ -790,16 +791,16 @@ bool ProductionManager::OptimizeAuxilaryIndustry(const ResourceID unit_type, con
 
 void ProductionManager::DrawResourceMessage() {
     if (buffer[0] == '\0') {
-        strcpy(buffer, _(3226));
+        SDL_utf8strlcpy(buffer, _(3226), sizeof(buffer));
     }
 
-    ComposeResourceMessage(buffer, net_production.raw, prev_net_production.raw, _(3d58), _(61fa));
+    ComposeResourceMessage(buffer, sizeof(buffer), net_production.raw, prev_net_production.raw, _(3d58), _(61fa));
 
-    ComposeResourceMessage(buffer, net_production.fuel, prev_net_production.fuel, _(f957), _(1dfe));
+    ComposeResourceMessage(buffer, sizeof(buffer), net_production.fuel, prev_net_production.fuel, _(f957), _(1dfe));
 
-    ComposeResourceMessage(buffer, net_production.gold, prev_net_production.gold, _(1226), _(17c7));
+    ComposeResourceMessage(buffer, sizeof(buffer), net_production.gold, prev_net_production.gold, _(1226), _(17c7));
 
-    MessageManager_DrawMessage(buffer, 1, 0, false, true);
+    MessageManager_DrawMessage(buffer, MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS, false, true);
 }
 
 bool ProductionManager_UpdateIndustryOrders(const uint16_t team, Complex* const complex) {

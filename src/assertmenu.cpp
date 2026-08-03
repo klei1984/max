@@ -21,62 +21,30 @@
 
 #include "assertmenu.hpp"
 
-#include "cursor.hpp"
 #include "game_manager.hpp"
-#include "mouseevent.hpp"
 #include "remote.hpp"
-#include "text.hpp"
-#include "units_manager.hpp"
 #include "window_manager.hpp"
 
 AssertMenu::AssertMenu(const char* caption)
-    : Window(HELPFRAM, GameManager_GetDialogWindowCenterMode()),
+    : PopupMenu(caption, GameManager_GetDialogWindowCenterMode(), true),
+      button_break(CreateButton(HELPOK_U, HELPOK_D, 185, "Debug", GNW_KB_KEY_D, NDONE0)),
+      button_abort(CreateButton(HELPOK_U, HELPOK_D, 115, "Abort", GNW_KB_KEY_ESCAPE, NCANC0)),
+      button_ignore(CreateButton(HELPOK_U, HELPOK_D, 45, "Ignore", GNW_KB_KEY_RETURN, NDONE0)),
+      show_cursor_state(!mouse_hidden()),
       event_click(false),
-      event_release(false),
-      show_cursor_state(!mouse_hidden()) {
-    Cursor_SetCursor(CURSOR_HAND);
-    Text_SetFont(GNW_TEXT_FONT_5);
-    SetFlags(WINDOW_MODAL);
-
-    Add();
-    FillWindowInfo(&window);
-
+      event_release(false) {
     if (!show_cursor_state) {
         mouse_set_position(WindowManager_GetWidth(&window) / 2, WindowManager_GetHeight(&window) / 2);
         mouse_show();
     }
 
-    button_ignore = new (std::nothrow) Button(HELPOK_U, HELPOK_D, 45, 193);
-    button_ignore->SetCaption("Ignore", 2, 2);
-    button_ignore->SetRValue(GNW_KB_KEY_RETURN);
-    button_ignore->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_RETURN);
-    button_ignore->SetSfx(NDONE0);
-    button_ignore->RegisterButton(window.id);
-
-    button_abort = new (std::nothrow) Button(HELPOK_U, HELPOK_D, 115, 193);
-    button_abort->SetCaption("Abort", 2, 2);
-    button_abort->SetRValue(GNW_KB_KEY_ESCAPE);
-    button_abort->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_ESCAPE);
-    button_abort->SetSfx(NCANC0);
-    button_abort->RegisterButton(window.id);
-
-    button_break = new (std::nothrow) Button(HELPOK_U, HELPOK_D, 185, 193);
-    button_break->SetCaption("Debug", 2, 2);
-    button_break->SetRValue(GNW_KB_KEY_D);
-    button_break->SetPValue(GNW_INPUT_PRESS + GNW_KB_KEY_D);
-    button_break->SetSfx(NDONE0);
-    button_break->RegisterButton(window.id);
-
-    Text_TextBox(window.buffer, window.width, caption, 20, 14, 265, 175, GNW_TEXT_OUTLINE | 0xFF, true);
-    win_draw_rect(window.id, &window.window);
+    Draw();
 }
 
 AssertMenu::~AssertMenu() {
     delete button_ignore;
     delete button_abort;
     delete button_break;
-
-    MouseEvent::Clear();
 
     if (!show_cursor_state) {
         mouse_hide();

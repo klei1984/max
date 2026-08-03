@@ -1,4 +1,4 @@
-/* Copyright (c) 2022 M.A.X. Port Team
+/* Copyright (c) 2026 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,36 +19,12 @@
  * SOFTWARE.
  */
 
-#include <SDL3/SDL_main.h>
+#include "waitmenu.hpp"
 
-#include "menu.hpp"
-#include "movie.hpp"
-#include "resource_manager.hpp"
-#include "sound_manager.hpp"
-#include "transport.hpp"
-
-int main(int argc, char* argv[]) {
-    try {
-        ResourceManager_InitResources();
-
-        if (!Transport_Init()) {
-            SDL_Log("Transport_Init() failed, networked play is unavailable.");
-        }
-
-        if (Movie_PlayIntro()) {
-            menu_draw_logo(ILOGO, 3000);
-        }
-
-        ResourceManager_GetSoundManager().PlayMusic(MAIN_MSC, false);
-        menu_draw_logo(MLOGO, 3000);
-
-        main_menu();
-
-    } catch (std::exception& e) {
-        SDL_Log("\n%s\n", (std::string("Unhandled exception: ") + e.what()).c_str());
-
-        ResourceManager_Exit();
-    }
-
-    return EXIT_SUCCESS;
+WaitMenu::WaitMenu(const char* caption, uint8_t parent_window_id)
+    : PopupMenu(caption, parent_window_id, false),
+      button_cancel(CreateButton(XFRCAN_U, XFRCAN_D, 120, _(1976), GNW_KB_KEY_ESCAPE, NCANC0)) {
+    Draw();
 }
+
+WaitMenu::~WaitMenu() { delete button_cancel; }

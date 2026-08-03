@@ -669,7 +669,7 @@ void RepairShopMenu::Activate(UnitInfo* target_unit) {
             GameManager_EnableMainMenu(&*repairshop);
 
         } else {
-            MessageManager_DrawMessage(_(eeb4), 1, 0);
+            MessageManager_DrawMessage(_(eeb4), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
             GameManager_EnableMainMenu(&*repairshop);
         }
 
@@ -680,11 +680,11 @@ void RepairShopMenu::Activate(UnitInfo* target_unit) {
         if (Access_FindReachableSpot(target_unit->GetUnitType(), target_unit, &grid_x, &grid_y, 1,
                                      repairshop->flags & BUILDING, 0)) {
             repairshop->FollowUnit();
-            MessageManager_DrawMessage(_(755b), 0, 0);
+            MessageManager_DrawMessage(_(755b), MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
             GameManager_EnableMainMenu(target_unit);
 
         } else {
-            MessageManager_DrawMessage(_(a1f0), 1, 0);
+            MessageManager_DrawMessage(_(a1f0), MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS);
             GameManager_EnableMainMenu(&*repairshop);
         }
     }

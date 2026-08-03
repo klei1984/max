@@ -2341,7 +2341,7 @@ void AiPlayer::BeginTurn() {
 
             sprintf(message, _(2ab8), team_colors[player_team]);
 
-            MessageManager_DrawMessage(message, 0, 0);
+            MessageManager_DrawMessage(message, MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
         }
 
         Point position = GetTeamClusterCoordinates(player_team);
@@ -4044,10 +4044,9 @@ bool AiPlayer::SelectStrategy() {
                                                          "sea",           "scout horde", "tank horde", "fast attack",
                                                          "combined arms", "espionage"};
 
-        strncpy(strategy_string,
-                ResourceManager_GetSettings()->GetStringValue(menu_team_strategy_setting[player_team]).c_str(),
-                sizeof(strategy_string) - 1);
-        strategy_string[sizeof(strategy_string) - 1] = '\0';
+        SDL_utf8strlcpy(strategy_string,
+                        ResourceManager_GetSettings()->GetStringValue(menu_team_strategy_setting[player_team]).c_str(),
+                        sizeof(strategy_string));
         if (strategy_string[0] != '\0') {
             for (int32_t i = 0; i < AI_STRATEGY_MAX; ++i) {
                 if (!SDL_strcasecmp(strategy_string, strategy_strings[i])) {

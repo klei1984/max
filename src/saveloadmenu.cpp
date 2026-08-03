@@ -83,9 +83,7 @@ public:
     void DrawSaveSlot(int32_t game_file_type);
 };
 
-static constexpr int32_t SaveLoadMenu_SaveSlotLimit = 991L;
-
-static int32_t SaveLoadMenu_FirstSaveSlotOnPage = 1;
+static int32_t SaveLoadMenu_FirstSaveSlotOnPage = SaveLoadMenu_FirstSaveSlot;
 int32_t SaveLoadMenu_SaveSlot;
 uint8_t SaveLoadMenu_GameState;
 uint16_t SaveLoadMenu_TurnTimer;
@@ -311,7 +309,7 @@ void SaveLoadMenu_EventSaveLoadSlotClick(SaveSlot* slots, int32_t save_slot_inde
 
 int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool is_saving_allowed) {
     const char* menu_team_names[] = {_(f394), _(a8a6), _(a3ee), _(319d), ""};
-    SaveSlot slots[10];
+    SaveSlot slots[SaveLoadMenu_SaveSlotsPerPage];
     Button* buttons[7];
     Flic* flc;
     int32_t result;
@@ -465,7 +463,7 @@ int32_t SaveLoadMenu_MenuLoop(const MissionCategory mission_category, const bool
 
                         game_state = GameManager_GameState;
                         GameManager_GameState = GAME_STATE_10_LOAD_GAME;
-                        MessageManager_DrawMessage(_(1fc6), 2, 1, true);
+                        MessageManager_DrawMessage(_(1fc6), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODAL, true);
                         GameManager_GameState = game_state;
                     } else if (save_slot_index != -1 && slots[save_slot_index].in_use) {
                         struct SaveFileInfo save_file_info;

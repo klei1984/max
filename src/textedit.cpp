@@ -26,6 +26,7 @@
 #include <new>
 
 #include "input.h"
+#include "text.hpp"
 #include "utf8.hpp"
 
 /* Active TextEdit instance for UTF-8 input routing */
@@ -64,7 +65,7 @@ TextEdit::TextEdit(WindowInfo* window, char* text, int32_t buffer_size, int32_t 
     edited_text = new (std::nothrow) char[buffer_size];
     text_before_cursor = new (std::nothrow) char[buffer_size];
 
-    strcpy(edited_text, text);
+    SDL_utf8strlcpy(edited_text, text, buffer_size);
 
     bg_image = new (std::nothrow) Image(0, 0, width, Text_GetHeight());
 }
@@ -158,13 +159,13 @@ void TextEdit::DrawFullText(int32_t refresh_screen) {
     }
 }
 
-void TextEdit::AcceptEditedText() { strcpy(approved_text, edited_text); }
+void TextEdit::AcceptEditedText() { SDL_utf8strlcpy(approved_text, edited_text, buffer_size); }
 
 void TextEdit::DrawTillCursor() {
     if (cursor_blink) {
         Rect bounds;
 
-        strncpy(text_before_cursor, edited_text, cursor_position);
+        SDL_utf8strlcpy(text_before_cursor, edited_text, cursor_position + 1);
 
         text_before_cursor[cursor_position] = '\0';
 
@@ -225,13 +226,13 @@ void TextEdit::Delete() {
 
             size_t next_char_offset = utf8_next_char_offset(edited_text, cursor_position);
 
-            strncpy(text_before_cursor, edited_text, cursor_position);
+            SDL_utf8strlcpy(text_before_cursor, edited_text, cursor_position + 1);
 
             text_before_cursor[cursor_position] = '\0';
 
-            strcat(text_before_cursor, &edited_text[next_char_offset]);
+            Text_AppendUtf8(text_before_cursor, &edited_text[next_char_offset], buffer_size);
 
-            strcpy(edited_text, text_before_cursor);
+            SDL_utf8strlcpy(edited_text, text_before_cursor, buffer_size);
 
             DrawFullText();
 
@@ -266,15 +267,15 @@ void TextEdit::InsertCharacter(char character) {
 
             DrawTillCursor();
 
-            strncpy(text_before_cursor, edited_text, cursor_position);
+            SDL_utf8strlcpy(text_before_cursor, edited_text, cursor_position + 1);
 
             text_before_cursor[cursor_position] = character;
             text_before_cursor[cursor_position + 1] = '\0';
 
-            strcat(text_before_cursor, &edited_text[cursor_position]);
+            Text_AppendUtf8(text_before_cursor, &edited_text[cursor_position], buffer_size);
 
             if ((Text_GetWidth(text_before_cursor) + Text_GetWidth("|")) <= (window.window.lrx - window.window.ulx)) {
-                strcpy(edited_text, text_before_cursor);
+                SDL_utf8strlcpy(edited_text, text_before_cursor, buffer_size);
 
                 DrawFullText();
 
@@ -308,14 +309,14 @@ void TextEdit::InsertUTF8Text(const char* utf8_text) {
         DrawTillCursor();
 
         /* Build new string: text before cursor + utf8 text + text after cursor */
-        strncpy(text_before_cursor, edited_text, cursor_position);
+        SDL_utf8strlcpy(text_before_cursor, edited_text, cursor_position + 1);
         text_before_cursor[cursor_position] = '\0';
-        strcat(text_before_cursor, utf8_text);
-        strcat(text_before_cursor, &edited_text[cursor_position]);
+        Text_AppendUtf8(text_before_cursor, utf8_text, buffer_size);
+        Text_AppendUtf8(text_before_cursor, &edited_text[cursor_position], buffer_size);
 
         /* Check if text fits in visible area */
         if ((Text_GetWidth(text_before_cursor) + Text_GetWidth("|")) <= (window.window.lrx - window.window.ulx)) {
-            strcpy(edited_text, text_before_cursor);
+            SDL_utf8strlcpy(edited_text, text_before_cursor, buffer_size);
             DrawFullText();
 
             /* Move cursor past the inserted UTF-8 text */
@@ -396,7 +397,7 @@ int32_t TextEdit::ProcessKeyPress(int32_t key) {
             } break;
 
             case GNW_KB_KEY_ESCAPE: {
-                strcpy(edited_text, approved_text);
+                SDL_utf8strlcpy(edited_text, approved_text, buffer_size);
                 LeaveTextEditField();
 
                 result = true;
@@ -411,7 +412,7 @@ int32_t TextEdit::ProcessKeyPress(int32_t key) {
             } break;
 
             case GNW_KB_KEY_RETURN: {
-                strcpy(approved_text, edited_text);
+                SDL_utf8strlcpy(approved_text, edited_text, buffer_size);
                 LeaveTextEditField();
 
                 result = true;
