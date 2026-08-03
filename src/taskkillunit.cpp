@@ -76,7 +76,13 @@ int32_t TaskKillUnit::GetProjectedDamage(UnitInfo* attacker, UnitInfo* target) {
 void TaskKillUnit::MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
     TaskKillUnit* unit_kill_task = dynamic_cast<TaskKillUnit*>(task);
 
-    if (result != TASKMOVE_RESULT_SUCCESS || !AiAttack_EvaluateAssault(unit, task, &MoveFinishedCallback)) {
+    if (result == TASKMOVE_RESULT_BLOCKED) {
+        // The unit cannot reach the target. Re-ordering it here would pick the same attack
+        // site and issue an identical path request, which fails the same way.
+        AILOG(log, "Kill unit: {} cannot reach the target, not re-ordering it this turn.",
+              ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
+
+    } else if (result != TASKMOVE_RESULT_SUCCESS || !AiAttack_EvaluateAssault(unit, task, &MoveFinishedCallback)) {
         unit_kill_task->GiveOrdersToUnit(unit);
     }
 }
