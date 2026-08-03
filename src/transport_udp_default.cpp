@@ -146,7 +146,7 @@ TransportUdpDefault::~TransportUdpDefault() {
 }
 
 void TransportUdpDefault_GetServerAddress(ENetAddress& address) {
-    std::string server_address = ResourceManager_GetSettings()->GetStringValue("server_address");
+    std::string server_address = ResourceManager_GetSettings()->GetStringValue("host_address");
 
     if (server_address.empty() || enet_address_set_host_ip(&address, server_address.c_str()) != 0) {
         (void)enet_address_set_host_ip(&address, "127.0.0.1");
