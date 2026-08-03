@@ -6243,18 +6243,18 @@
 		},
 		"c8d3": {
 			"en-US": "Barracks",
-			"fr-FR": "Casernes",
-			"de-DE": "Kasernen",
-			"it-IT": "Caserme",
-			"es-ES": "Cuarteles",
-			"ru-RU": "Казармы"
-		},
-		"10c9": {
-			"en-US": "Barracks",
 			"fr-FR": "Caserne",
 			"de-DE": "Kaserne",
 			"it-IT": "Caserma",
 			"es-ES": "Cuartel",
+			"ru-RU": "Казармы"
+		},
+		"10c9": {
+			"en-US": "Barracks",
+			"fr-FR": "Casernes",
+			"de-DE": "Kasernen",
+			"it-IT": "Caserme",
+			"es-ES": "Cuarteles",
 			"ru-RU": "Казармы"
 		},
 		"4582": {
@@ -6829,7 +6829,7 @@
 			"en-US": "Gun Turrets",
 			"fr-FR": "Tourelles à Canon",
 			"de-DE": "Gefechtstürme",
-			"it-IT": "Torrette Con cannone",
+			"it-IT": "Torrette con Cannone",
 			"es-ES": "Torretas de cañones",
 			"ru-RU": "Пушки"
 		},
@@ -6837,7 +6837,7 @@
 			"en-US": "Gun Turret",
 			"fr-FR": "Tourelle à Canon",
 			"de-DE": "Gefechtsturm",
-			"it-IT": "Torretta Con cannone",
+			"it-IT": "Torretta con Cannone",
 			"es-ES": "Torreta de cañones",
 			"ru-RU": "Пушка"
 		},
@@ -6853,7 +6853,7 @@
 			"en-US": "Anti Aircraft",
 			"fr-FR": "D.C.A.",
 			"de-DE": "Luftabwehr",
-			"it-IT": "Antiaerei",
+			"it-IT": "Antiaereo",
 			"es-ES": "Antiaéreo",
 			"ru-RU": "Зенитки"
 		},
@@ -6861,7 +6861,7 @@
 			"en-US": "Anti Aircraft",
 			"fr-FR": "D.C.A.",
 			"de-DE": "Luftabwehr",
-			"it-IT": "Antiaereo",
+			"it-IT": "Antiaerei",
 			"es-ES": "Antiaéreo",
 			"ru-RU": "Зенитки"
 		},
@@ -6875,17 +6875,17 @@
 		},
 		"6689": {
 			"en-US": "Artillery",
-			"fr-FR": "Artilleries",
-			"de-DE": "Artillerien",
-			"it-IT": "Artiglierie",
+			"fr-FR": "Artillerie",
+			"de-DE": "Artillerie",
+			"it-IT": "Artiglieria",
 			"es-ES": "Artillería",
 			"ru-RU": "Артиллер."
 		},
 		"64b7": {
 			"en-US": "Artillery",
-			"fr-FR": "Artillerie",
-			"de-DE": "Artillerie",
-			"it-IT": "Artiglieria",
+			"fr-FR": "Artilleries",
+			"de-DE": "Artillerien",
+			"it-IT": "Artiglierie",
 			"es-ES": "Artillería",
 			"ru-RU": "Артиллер."
 		},
@@ -7243,18 +7243,18 @@
 		},
 		"b6ef": {
 			"en-US": "Mobile Anti Aircraft",
-			"fr-FR": "D.C.A. Mobiles",
-			"de-DE": "Mobile Luftabwehr",
-			"it-IT": "Antiaerei  Mobili",
-			"es-ES": "Antiaéreos móviles",
-			"ru-RU": "Подвижная Зенитка"
-		},
-		"a3da": {
-			"en-US": "Mobile Anti Aircraft",
 			"fr-FR": "D.C.A. Mobile",
 			"de-DE": "Mobile Luftabwehr",
 			"it-IT": "Antiaereo Mobile",
 			"es-ES": "Antiaéreo móvil",
+			"ru-RU": "Подвижная Зенитка"
+		},
+		"a3da": {
+			"en-US": "Mobile Anti Aircraft",
+			"fr-FR": "D.C.A. Mobiles",
+			"de-DE": "Mobile Luftabwehr",
+			"it-IT": "Antiaerei Mobili",
+			"es-ES": "Antiaéreos móviles",
 			"ru-RU": "Подвижная Зенитка"
 		},
 		"45c2": {
@@ -7547,17 +7547,17 @@
 		},
 		"ad96": {
 			"en-US": "Infantry",
-			"fr-FR": "Fantassins",
+			"fr-FR": "Fantassin",
 			"de-DE": "Infanterie",
-			"it-IT": "Fanti",
+			"it-IT": "Fante",
 			"es-ES": "Infantería",
 			"ru-RU": "Пехота"
 		},
 		"461c": {
 			"en-US": "Infantry",
-			"fr-FR": "Fantassin",
+			"fr-FR": "Fantassins",
 			"de-DE": "Infanterie",
-			"it-IT": "Fante",
+			"it-IT": "Fanti",
 			"es-ES": "Infantería",
 			"ru-RU": "Пехота"
 		},
@@ -7619,18 +7619,18 @@
 		},
 		"4ae7": {
 			"en-US": "Gunboat",
-			"fr-FR": "Vedettes",
-			"de-DE": "Kanonenboote",
-			"it-IT": "Cannoniere",
-			"es-ES": "Cañoneras",
-			"ru-RU": "Канонер"
-		},
-		"9cbf": {
-			"en-US": "Gunboat",
 			"fr-FR": "Vedette",
 			"de-DE": "Kanonenboot",
 			"it-IT": "Cannoniera",
 			"es-ES": "Cañonera",
+			"ru-RU": "Канонер"
+		},
+		"9cbf": {
+			"en-US": "Gunboat",
+			"fr-FR": "Vedettes",
+			"de-DE": "Kanonenboote",
+			"it-IT": "Cannoniere",
+			"es-ES": "Cañoneras",
 			"ru-RU": "Канонер"
 		},
 		"06b2": {
