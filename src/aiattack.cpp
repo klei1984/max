@@ -105,11 +105,11 @@ bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site
     bool result = false;
     int16_t** damage_potential_map = AiPlayer_Teams[unit1->team].GetDamagePotentialMap(unit1, caution_level, true);
     int32_t distance;
-    int32_t minimum_distance = INT_MAX;
+    int32_t minimum_distance = INT16_MAX;
     int32_t damage_potential = 0;
     int32_t range;
 
-    *projected_damage = INT_MAX;
+    *projected_damage = INT16_MAX;
 
     if (Task_IsAdjacent(unit2, unit1->grid_x, unit1->grid_y)) {
         site->x = unit1->grid_x;
@@ -1065,7 +1065,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
     return result;
 }
 
-Task* AiAttack_GetPrimaryTask(UnitInfo* unit) {
+TaskAttack* AiAttack_GetAttackTask(UnitInfo* unit) {
     Task* task = unit->GetTask();
 
     while (task) {
@@ -1086,7 +1086,8 @@ Task* AiAttack_GetPrimaryTask(UnitInfo* unit) {
         }
     }
 
-    return task;
+    // The loop only leaves `task` non-null when its type is TaskType_TaskAttack.
+    return static_cast<TaskAttack*>(task);
 }
 
 bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_priority) {
@@ -1100,7 +1101,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_priority)
     for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
          it != it_end; ++it) {
         if ((*it).team == unit->team) {
-            attack_task = dynamic_cast<TaskAttack*>(AiAttack_GetPrimaryTask(it->Get()));
+            attack_task = AiAttack_GetAttackTask(it->Get());
 
             if (attack_task) {
                 if (!is_execution_phase || attack_task->IsExecutionPhase()) {
@@ -1122,7 +1123,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_priority)
     for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
          ++it) {
         if ((*it).team == unit->team) {
-            attack_task = dynamic_cast<TaskAttack*>(AiAttack_GetPrimaryTask(it->Get()));
+            attack_task = AiAttack_GetAttackTask(it->Get());
 
             if (attack_task) {
                 if (!is_execution_phase || attack_task->IsExecutionPhase()) {

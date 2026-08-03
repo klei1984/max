@@ -25,6 +25,8 @@
 #include "spottedunit.hpp"
 #include "unitinfo.hpp"
 
+class TaskAttack;
+
 int32_t AiAttack_GetTargetValue(UnitInfo* unit);
 bool AiAttack_DecideDesperationAttack(UnitInfo* attacker, UnitInfo* target);
 bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site, int32_t* projected_damage,
@@ -49,7 +51,7 @@ void AiAttack_SetAttackTargetCooldown(UnitInfo* unit);
 bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode = true);
 bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                               void (*result_callback)(Task* task, UnitInfo* unit, char result));
-Task* AiAttack_GetPrimaryTask(UnitInfo* unit);
+TaskAttack* AiAttack_GetAttackTask(UnitInfo* unit);
 bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_priority);
 bool AiAttack_IsReadyToMove(UnitInfo* unit);
 uint32_t AiAttack_GetTargetFlags(UnitInfo* attacker, UnitInfo* target, uint16_t team);
