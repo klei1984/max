@@ -708,7 +708,7 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
     bool result;
 
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
-        if (unit->ammo || GameManager_IsActiveTurn(unit->team)) {
+        if ((unit->ammo > 0) && GameManager_IsActiveTurn(unit->team)) {
             if (unit->shots > 0 || !unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
                 if (unit->delayed_reaction || Ai_GetReactionState() == AI_REACTION_STATE_ANIMATIONS_ACTIVE) {
                     SmartPointer<Task> wait_to_attack_task(new (std::nothrow) TaskWaitToAttack(unit));
