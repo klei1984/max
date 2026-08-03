@@ -160,7 +160,7 @@ void AccessMap::ProcessGroundCover(UnitInfo* unit, int32_t surface_type) {
     for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
          it != UnitsManager_GroundCoverUnits.End(); ++it) {
         if ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team)) {
-            if ((*it).GetUnitType() == LRGTAPE || (*it).GetUnitType() == LRGTAPE) {
+            if ((*it).GetUnitType() == LRGTAPE || (*it).GetUnitType() == SMLTAPE) {
                 (*this)((*it).grid_x, (*it).grid_y) = 0;
 
                 if ((*it).flags & BUILDING) {
