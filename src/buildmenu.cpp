@@ -908,6 +908,7 @@ void MobileBuildMenu::Build() {
                 MessageManager_DrawMessage(_(c529), MESSAGE_BOX_WARNING, MESSAGE_BOX_MODELESS);
 
             } else {
+                unit->GetBuildList().Clear();
                 unit->GetBuildList().PushBack(&unit_type);
 
                 unit->SetBuildRate(build_rate);
