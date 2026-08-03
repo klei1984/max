@@ -109,11 +109,11 @@ void PathRequest::CreateTransport(ResourceID unit_type) {
 
 uint8_t PathRequest::GetFlags() const { return flags; }
 
-uint16_t PathRequest::GetMaxCost() const { return max_cost; }
+int32_t PathRequest::GetMaxCost() const { return max_cost; }
 
 uint8_t PathRequest::GetBoardTransport() const { return board_transport; }
 
-uint16_t PathRequest::GetMinimumDistance() const { return minimum_distance; }
+int32_t PathRequest::GetMinimumDistance() const { return minimum_distance; }
 
 void PathRequest::AssignGroundPath(UnitInfo* unit, GroundPath* path) {
     Point destination(unit->move_to_grid_x, unit->move_to_grid_y);

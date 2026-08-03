@@ -28,8 +28,8 @@ class PathRequest : public SmartObject {
     SmartPointer<UnitInfo> transporter;
     Point point;
     uint8_t flags;
-    uint16_t max_cost;
-    uint16_t minimum_distance;
+    int32_t max_cost;
+    int32_t minimum_distance;
     uint8_t caution_level;
     bool board_transport;
     bool optimize;
@@ -47,10 +47,10 @@ public:
     UnitInfo* GetTransporter() const;
     Point GetDestination() const;
     uint8_t GetFlags() const;
-    uint16_t GetMaxCost() const;
+    int32_t GetMaxCost() const;
     uint8_t GetCautionLevel() const;
     uint8_t GetBoardTransport() const;
-    uint16_t GetMinimumDistance() const;
+    int32_t GetMinimumDistance() const;
 
     void SetMaxCost(int32_t value);
     void SetMinimumDistance(int32_t value);
