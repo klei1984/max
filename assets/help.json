@@ -1720,6 +1720,22 @@
 					"ru-RU": "Показывает количество груза в данном объекте. Так как большинство объектов не может носить груз то здесь пусто ."
 				}
 			},
+			"CARGO_UP_DOWN_BUTTONS": {
+				"coordinates": {
+					"ux": 416,
+					"uy": 425,
+					"lx": 447,
+					"ly": 439
+				},
+				"text": {
+					"en-US": "Use these buttons to add Raw Materials to a vehicle with a cargo bay, such as constructors, engineers and repair units.",
+					"fr-FR": "Utilisez ces boutons pour ajouter du Minerai dans un véhicule disposant d'une soute cargo tels que les constructeurs, les engins du génie et les unités de réparation.",
+					"de-DE": "Benutzen Sie diese Felder, um Rohstoffe auf ein Fahrzeug mit Laderaum zu laden, wie z.B. Konstrukteure, Pionier-Fahrzeuge und Reparier-Einheiten.",
+					"it-IT": "Usa questi bottoni per caricare Materie Prime su un veicolo fornito di vano di carico, come costruttori, ingegneri e unità riparazioni.",
+					"es-ES": "Usa estos botones para añadir materia prima a un vehículo con compartimento de carga, como un constructor, un ingeniero o una unidad de reparación.",
+					"ru-RU": "Используйте эти кнопки, чтобы добавить загрузить или разгрузить объект"
+				}
+			},
 			"UP_DOWN_BUTTONS": {
 				"coordinates": {
 					"ux": 327,
@@ -5411,8 +5427,9 @@
 					"en-US": "When checked, this feature will immediately halt any moving unit as soon as an enemy is detected by its radar. If a unit is part of a group then the entire group will stop also. When unchecked, the unit will continue to move until it reaches the end of its path or its speed points are exhausted.",
 					"fr-FR": "Quand elle est cochée, cette caractéristique arrêtera immédiatement toute unité en mouvement dès qu'elle détecte un ennemi avec son radar. Si cette unité fait partie d'un groupe, le groupe tout entier sera aussi arrêté. Si cette caractéristique n'est pas cochée, l'unité continuera sa progression tant qu'elle n'aura pas achevée son cheminement ou que ses points de vitesse ne seront pas épuisés.",
 					"de-DE": "Wenn gewhlt, bewegende Einheiten halten an, sobald eine feindliche Einheit mit dem Radar entdeckt wird. Wenn eine Einheit ein Teil einer Gruppe ist, hlt die ganze ebenfalls an. Wenn nicht gewhlt, bewegt sich die Einheit weiter, bis den Endpunkt des Pfads erreicht wird oder die Geschwindigkeitspunkte auslaufen..",
+					"it-IT": "Questa funzione, quando attivata, arresterà immediatamente qualsiasi unità in movimento non appena il suo radar individuerà un nemico. Se l'unità fa parte di un gruppo, si fermerà tutto quanto il gruppo. Se la funzione non è attivata, l'unità continuerà a spostarsi finché arriverà al termine del suo percorso o avrà esaurito i suoi punti velocità.",
 					"es-ES": "Cuando esté activada, esta función detendrá inmediatamente todas las unidades que se estén moviendo en cuanto detecten un enemigo con su radar. Si una unidad forma parte de un grupo, se detendrá todo el grupo. Si está desactivada, la unidad seguirá moviéndose hasta llegar al final de su camino o hasta agotar sus puntos de velocidad.",
-					"ru-RU": "Если вы включите эту опцию то ваши объекты перестанут двигаться как только ваши радары засекут неприятеля. Если объект является частью группы то целая группа остановится. В случае выключения этой опции ваши объекты будут двигаться в прежнем направлении с"
+					"ru-RU": "Если вы включите эту опцию то ваши объекты перестанут двигаться как только ваши радары засекут неприятеля. Если объект является частью группы то целая группа остановится. В случае выключения этой опции ваши объекты будут двигаться в прежнем направлении с прежней скоростью ."
 				}
 			},
 			"QUICK_SCROLL": {
@@ -5426,6 +5443,7 @@
 					"en-US": "The position of the slider indicates the rate at which the screen will scroll. Positioned to the right will scroll quicker. Positioned to the left will scroll slower.",
 					"fr-FR": "La position du curseur indique la vitesse à laquelle l'écran se déroulera. Si elle est à droite, la vitesse de déroulement sera plus rapide, si elle est à gauche la vitesse de déroulement sera plus lente.",
 					"de-DE": "Die Position dieses Reglers entspricht das Tempo, mit dem sich der Bildschirm scrollt. Nach rechts scrollt der Bildschirm schneller. Nach links scrollt der Bildschirm langsamer.",
+					"it-IT": "La posizione del cursore indica la velocità di scorrimento dello schermo. Se posizionato a destra, lo scorrimento sarà più veloce, sarà invece più lento se il cursore è posizionato a sinistra.",
 					"es-ES": "La posición de este tirador indica la velocidad de desplazamiento de la pantalla. Si está a la derecha, la pantalla se desplazará más deprisa. Si está a la izquierda, se desplazará más despacio.",
 					"ru-RU": "Эта штука позволяет изменять скорость скроллирования экрана"
 				}
@@ -5884,6 +5902,54 @@
 					"ru-RU": "Здесь выводится стоимость данного объекта ."
 				}
 			},
+			"BUILD_BUTTONx1": {
+				"coordinates": {
+					"ux": 292,
+					"uy": 369,
+					"lx": 365,
+					"ly": 387
+				},
+				"text": {
+					"en-US": "Choosing the Build X1 button will build the selected unit at normal speed and lowest cost.",
+					"fr-FR": "En choisissant le bouton Construire X1, l'unité sélectionnée sera construite à une vitesse normale et pour un coût minimum.",
+					"de-DE": "Die Wahl des Bauen-X1-Button baut die ausgewählte Einheit mit normaler Geschwindigkeit und zu geringsten Kosten.",
+					"it-IT": "Scegliendo il bottone Costruisci X1, l'unità selezionata verrà costruita a velocità normale e al minimo costo.",
+					"es-ES": "El botón \"Construir X1\" hace que la unidad seleccionada se construya a velocidad normal, con el precio más bajo.",
+					"ru-RU": "Выберите эту кнопку чтобы строить объекты с небольшой скоростью и минимальной ценой ."
+				}
+			},
+			"BUILD_BUTTONx2": {
+				"coordinates": {
+					"ux": 292,
+					"uy": 394,
+					"lx": 365,
+					"ly": 412
+				},
+				"text": {
+					"en-US": "Choosing the Build X2 button will build the selected unit at twice the normal speed, but will use more materials than normal.",
+					"fr-FR": "En choisissant le bouton Construire X2, l'unité sélectionnée sera construite deux fois plus vite que la vitesse normale mais en utilisant plus de minerai.",
+					"de-DE": "Die Wahl des Bauen-X2-Buttons baut die ausgewählte Einheit mit zweifacher Geschwindigkeit, wobei jedoch mehr Material verbraucht wird.",
+					"it-IT": "Scegliendo il bottone Costruisci X2, l'unità selezionata verrà costruita a velocità doppia del normale, ma con maggiore impiego di materiali.",
+					"es-ES": "El botón \"Construir X2\" hace que la unidad seleccionada se construya al doble de la velocidad normal, pero usará más material que de costumbre.",
+					"ru-RU": "Выберите эту кнопку чтобы строить объекты с средней скоростью и нормальной ценой ."
+				}
+			},
+			"BUILD_BUTTONx4": {
+				"coordinates": {
+					"ux": 292,
+					"uy": 420,
+					"lx": 365,
+					"ly": 440
+				},
+				"text": {
+					"en-US": "Choosing the Build X4 button will build the selected unit at the fastest rate possible, but is also the least cost efficient.",
+					"fr-FR": "En choisissant le bouton Construire X4, l'unité sélectionnée sera construite à rapidité maximum mais aussi de la façon la moins économique.",
+					"de-DE": "Die Wahl des Bauen-X4-Buttons baut die ausgewählte Einheit mit der schnellstmöglichen Geschwindigkeit, dies ist jedoch auch am teuersten.",
+					"it-IT": "Scegliendo il bottone Costruisci X4 l'unità selezionata verrà costruita il più rapidamente possibile, ma anche nel modo più costoso.",
+					"es-ES": "El botón \"Construir X4\" hace que la unidad seleccionada se construya a la máxima velocidad posible, pero es también la opción más cara.",
+					"ru-RU": "Выберите эту кнопку чтобы строить объекты с быстрой скоростью и громадными при этом расходами ."
+				}
+			},
 			"BUILD_BUTTON": {
 				"coordinates": {
 					"ux": 510,
@@ -6184,10 +6250,42 @@
 				"text": {
 					"en-US": "Choosing the Build X1 button will build the selected unit at normal speed and lowest cost.",
 					"fr-FR": "En choisissant le bouton Construire X1, l'unité sélectionnée sera construite à une vitesse normale et pour un coût minimum.",
-					"de-DE": "Die Wahl des Bauen-X1-Buttons baut die ausgewählte Einheit mit normaler Geschwindigkeit und zu geringsten",
+					"de-DE": "Die Wahl des Bauen-X1-Buttons baut die ausgewählte Einheit mit normaler Geschwindigkeit und zu geringsten Kosten.",
 					"it-IT": "Scegliendo il bottone Costruisci X1, l'unità selezionata verrà costruita a velocità normale e al minimo costo.",
 					"es-ES": "El botón \"Construir X1\" hace que la unidad seleccionada se construya a velocidad normal, con el precio más bajo.",
 					"ru-RU": "Выберите эту кнопку чтобы строить объекты с небольшой скоростью и минимальной ценой ."
+				}
+			},
+			"BUILD_BUTTONx2": {
+				"coordinates": {
+					"ux": 292,
+					"uy": 369,
+					"lx": 365,
+					"ly": 387
+				},
+				"text": {
+					"en-US": "Choosing the Build X2 button will build the selected unit at twice the normal speed, but will use more materials than normal.",
+					"fr-FR": "En choisissant le bouton Construire X2, l'unité sélectionnée sera construite deux fois plus vite que la vitesse normale mais en utilisant plus de minerai.",
+					"de-DE": "Die Wahl des Bauen-X2-Buttons baut die ausgewählte Einheit mit zweifacher Geschwindigkeit, wobei jedoch mehr Material verbraucht wird.",
+					"it-IT": "Scegliendo il bottone Costruisci X2, l'unità selezionata verrà costruita a velocità doppia del normale, ma con maggiore impiego di materiali.",
+					"es-ES": "El botón \"Construir X2\" hace que la unidad seleccionada se construya al doble de la velocidad normal, pero usará más material que de costumbre.",
+					"ru-RU": "Выберите эту кнопку чтобы строить объекты с средней скоростью и нормальной ценой ."
+				}
+			},
+			"BUILD_BUTTONx4": {
+				"coordinates": {
+					"ux": 292,
+					"uy": 394,
+					"lx": 365,
+					"ly": 412
+				},
+				"text": {
+					"en-US": "Choosing the Build X4 button will build the selected unit at the fastest rate possible, but is also the least cost efficient.",
+					"fr-FR": "En choisissant le bouton Construire X4, l'unité sélectionnée sera construite à rapidité maximum mais aussi de la façon la moins économique.",
+					"de-DE": "Die Wahl des Bauen-X4-Buttons baut die ausgewählte Einheit mit der schnellstmöglichen Geschwindigkeit, dies ist jedoch auch am teuersten.",
+					"it-IT": "Scegliendo il bottone Costruisci X4, l'unità selezionata verrà costruita il più rapidamente possibile, ma anche nel modo più costoso.",
+					"es-ES": "El botón \"Construir X4\" hace que la unidad seleccionada se construya a la máxima velocidad posible, pero es también la opción más cara.",
+					"ru-RU": "Выберите эту кнопку чтобы строить объекты с быстрой скоростью и громадными при этом расходами ."
 				}
 			},
 			"DESCRIP_BUTTON": {
@@ -6784,7 +6882,7 @@
 				"text": {
 					"en-US": "This is the Mission Window. Select a mission from the list on the left, and a mission briefing will appear in the window on the right.",
 					"fr-FR": "Ceci est la Fenêtre Campagne. Sélectionnez une mission dans la liste de gauche, et un briefing de mission apparaîtra dans la fenêtre de droite.",
-					"de-DE": "Dies ist das Missions-Fenster. Wählen Sie eine Mission aus der Liste links, und ein Missionsauftrag erscheint im",
+					"de-DE": "Dies ist das Missions-Fenster. Wählen Sie eine Mission aus der Liste links, und ein Missionsauftrag erscheint im Fenster auf der rechten Seite.",
 					"it-IT": "Questa è la Finestra Missioni. Seleziona una missione dell'elenco di sinistra, e nella finestra di destra compariranno informazioni relative alla missione.",
 					"es-ES": "Esta es la ventana \"Misión\". Selecciona una misión en la lista de la izquierda, y en la ventana de la derecha aparecerá una descripción de la misma.",
 					"ru-RU": "Это Окно Миссий. Выберите миссию из списка слева, и справа появится описание этой миссии."
@@ -6800,7 +6898,7 @@
 				"text": {
 					"en-US": "This window displays a list of Missions. The mission briefing is displayed in the window on the right.",
 					"fr-FR": "Cette fenêtre affiche une liste des Missions. Le briefing de mission est affiché dans la fenêtre à droite.",
-					"de-DE": "Dieses Fenster zeigt eine Liste mit Missionen. Der Missionsauftrag wird im Fenster auf der rechten Seite",
+					"de-DE": "Dieses Fenster zeigt eine Liste mit Missionen. Der Missionsauftrag wird im Fenster auf der rechten Seite angezeigt..",
 					"it-IT": "Questa finestra visualizza un elenco di Missioni. Le informazioni relative alla missione sono visualizzate sulla finestra di destra.",
 					"es-ES": "En esta ventana aparece una lista de las misiones. Haz clic en una de ellas para presentar su descripción.",
 					"ru-RU": "Здесь выводится список миссий . Описание миссий появляется в окне справа ."
@@ -7047,7 +7145,7 @@
 					"de-DE": "Dies ist das Forschungsmenü.  Hier können Sie auswählen, welche Bereiche Sie erforschen wollen.  Jedes Forschungszentrum kann ein Thema auf einmal erforschen, aber Sie können mehrere Forschungszentren bauen, um verschiedene Bereiche gleichzeitig zu erforschen.  Technologie-Upgrades, die durch Forschung gewonnen wurden, wirken sich auf alle Einheiten aus.",
 					"it-IT": "Questo è il Quadro Ricerche. Qui puoi specificare quali Argomenti vuoi ricercare. Ogni Centro di Ricerche può ricercare un argomento per volta; ma tu puoi costruire più Centri per effettuare ricerche simultaneamente in più settori . Gli aggiornamenti tecnologici conseguiti toccano tutti i tipi di unità.",
 					"es-ES": "Este es el Centro de investigación. Aquí puedes establecer los Temas sobre los que quieras investigar. Cada centro puede investigar un tema cada vez, pero puedes construir varios Centros de investigación para investigar sobre varios temas a la vez. También puedes poner a varios centros a trabajar en las mismas investigaciones, para acelerar el desarrollo. A diferencia de las Mejoras, que influyen cada vez sobre un tipo de unidad, la tecnología adquirida por investigación puede influir sobre los atributos d",
-					"ru-RU": "Это - Научно-исследовательский Центр. Здесь Вы можете определить какие Темы Вы хотите изучить . Центр не может исследовать две или более тем одновременно, тем не менее Вы можете построить много центров и исследовать несколько тем одновременно . Кроме тог"
+					"ru-RU": "Это - Научно-исследовательский Центр. Здесь Вы можете определить какие Темы Вы хотите изучить . Центр не может исследовать две или более тем одновременно, тем не менее Вы можете построить много центров и исследовать несколько тем одновременно . Кроме того если много центров работают над одним исследованием то они выполнят его быстрее ."
 				}
 			},
 			"LABS_LABEL": {
@@ -7063,7 +7161,7 @@
 					"de-DE": "Diese Spalte zeigt die Anzahl der Labore (Forschungszentren) an, die zu einem bestimmten Thema forschen.  Sie können die Themen für jedes Labor ändern, indem Sie die Scroll-Balken anklicken, um die Anzahl der Forschungszentren, die ein Thema erforschen, steigern oder reduzieren.",
 					"it-IT": "Questa colonna visualizza il numero di Laboratori (Centri Ricerche) che effettuano ricerche in un settore. Puoi modificare l'argomento della ricerca di ogni Laboratorio cliccando sulle barre di scorrimento per modificare il numero di Centri che indagano su un Argomento.",
 					"es-ES": "Esta columna muestra la cantidad de Laboratorios (Centros de investigación) que llevan a cabo investigaciones sobre un tema determinado. Puedes modificar los temas a investigar por cualquier laboratorio haciendo clic en las barras de desplazamiento para aumentar o reducir la cantidad de Centros de investigación que trabajen en un tema.",
-					"ru-RU": "Здесь показывается количество лабораторий которые работают над данной проблемой . Вы можете изменить научно-исследовательские темы любой Лаборатории нажимая на скроллер , чтобы увеличить или уменьшить количество Научно-исследовательских Центров, исследую"
+					"ru-RU": "Здесь показывается количество лабораторий которые работают над данной проблемой . Вы можете изменить научно-исследовательские темы любой Лаборатории нажимая на скроллер , чтобы увеличить или уменьшить количество Научно-исследовательских Центров, исследующих Тему."
 				}
 			},
 			"NUM_ATTACK": {
@@ -10113,6 +10211,7 @@
 					"en-US": "This window displays one of the cargo bays inside the Barracks. Each unit that is loaded into the Barracks will occupy one bay.",
 					"fr-FR": "Cette fenêtre affiche un des quais de chargement dans la Caserne. Chaque unité en chargement dans la Caserne occupera un quai.",
 					"de-DE": "Dieses Fenster zeigt einen der Laderäume in der Kaserne. Jede Einheit, die in die Kaserne geladen wird, belegt einen Laderaum.",
+					"it-IT": "Questa finestra mostra uno dei terminali di carico all'interno del Caserma. Ogni unità caricata nel caserma occuperà un terminale.",
 					"es-ES": "Esta ventana muestra uno de los compartimentos de carga del cuartel. Cada  una de las unidades que hay en el cuartel ocupa un compartimento.",
 					"ru-RU": "Это окно отображает один отсек в Казармах. Каждый объект, который находится в Казармах, займет один отсек"
 				}
@@ -10208,6 +10307,7 @@
 					"en-US": "This window displays one of the cargo bays inside the Barracks. Each unit that is loaded into the Barracks will occupy one bay.",
 					"fr-FR": "Cette fenêtre affiche un des quais de chargement dans la Caserne. Chaque unité en chargement dans la Caserne occupera un quai.",
 					"de-DE": "Dieses Fenster zeigt einen der Laderäume in der Kaserne. Jede Einheit, die in die Kaserne geladen wird, belegt einen Laderaum.",
+					"it-IT": "Questa finestra mostra uno dei terminali di carico all'interno del Caserma. Ogni unità caricata nel caserma occuperà un terminale.",
 					"es-ES": "Esta ventana muestra uno de los compartimentos de carga del cuartel. Cada  una de las unidades que hay en el cuartel ocupa un compartimento.",
 					"ru-RU": "Это окно отображает один отсек в Казармах. Каждый объект, который находится в Казармах, займет один отсек"
 				}
@@ -10303,6 +10403,7 @@
 					"en-US": "This window displays one of the cargo bays inside the Barracks. Each unit that is loaded into the Barracks will occupy one bay.",
 					"fr-FR": "Cette fenêtre affiche un des quais de chargement dans la Caserne. Chaque unité en chargement dans la Caserne occupera un quai.",
 					"de-DE": "Dieses Fenster zeigt einen der Laderäume in der Kaserne. Jede Einheit, die in die Kaserne geladen wird, belegt einen Laderaum.",
+					"it-IT": "Questa finestra mostra uno dei terminali di carico all'interno del Caserma. Ogni unità caricata nel caserma occuperà un terminale.",
 					"es-ES": "Esta ventana muestra uno de los compartimentos de carga del cuartel. Cada  una de las unidades que hay en el cuartel ocupa un compartimento.",
 					"ru-RU": "Это окно отображает один отсек в Казармах. Каждый объект, который находится в Казармах, займет один отсек"
 				}
