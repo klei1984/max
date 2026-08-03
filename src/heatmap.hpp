@@ -65,6 +65,24 @@ using HeatMapQualifier = std::function<bool(const UnitInfo* unit)>;
 using HeatMapTransitionCallout = std::function<void(const UnitInfo* unit, int32_t grid_x, int32_t grid_y)>;
 
 /**
+ * \brief Callout function type for the complete map 0 -> 1 transition, which reports a value back to the caller.
+ *
+ * Behaves like HeatMapTransitionCallout but returns a value that Add() forwards, unexamined, to its caller. The reveal
+ * callout is the only place that observes each unit's visibility both before and after the reveal, so it is the only
+ * place that can tell which units the reveal actually uncovered. Anything derived from that distinction has to be
+ * produced here and handed back rather than recomputed afterwards, because once the callout returns, a unit uncovered
+ * by this reveal is indistinguishable from one that was already visible.
+ *
+ * The value is opaque to HeatMap; its meaning is agreed between the callout and the caller of Add().
+ *
+ * \param unit The unit causing the transition.
+ * \param grid_x The x coordinate of the cell.
+ * \param grid_y The y coordinate of the cell.
+ * \return Caller-defined value, forwarded by Add() through its revealed_info out parameter.
+ */
+using HeatMapRevealCallout = std::function<uint32_t(const UnitInfo* unit, int32_t grid_x, int32_t grid_y)>;
+
+/**
  * \struct HeatMapCallouts
  * \brief Collection of all transition callout functions for heat map state changes.
  *
@@ -72,7 +90,7 @@ using HeatMapTransitionCallout = std::function<void(const UnitInfo* unit, int32_
  * respective heat map layer transitions between zero and non-zero coverage at a cell position.
  */
 struct HeatMapCallouts {
-    HeatMapTransitionCallout on_cell_revealed{nullptr};  ///< Complete map: 0 -> 1 transition
+    HeatMapRevealCallout on_cell_revealed{nullptr};      ///< Complete map: 0 -> 1 transition
     HeatMapTransitionCallout on_cell_hidden{nullptr};    ///< Complete map: 1 -> 0 transition
     HeatMapTransitionCallout on_sea_revealed{nullptr};   ///< Stealth sea map: 0 -> 1 transition
     HeatMapTransitionCallout on_land_revealed{nullptr};  ///< Stealth land map: 0 -> 1 transition
@@ -138,9 +156,11 @@ public:
      * \param unit The unit being added to contribute scan coverage.
      * \param grid_x X coordinate of the cell.
      * \param grid_y Y coordinate of the cell.
+     * \param revealed_info Optional out parameter receiving the on_cell_revealed callout's return value. Set to 0 when
+     *        no reveal happened or no callout is registered, so the caller may read it unconditionally.
      * \return True if the complete heat map transitioned from 0 to 1 at this cell.
      */
-    bool Add(const UnitInfo* unit, int32_t grid_x, int32_t grid_y);
+    bool Add(const UnitInfo* unit, int32_t grid_x, int32_t grid_y, uint32_t* revealed_info = nullptr);
 
     /**
      * \brief Removes a unit's contribution from heat map values at the specified position.

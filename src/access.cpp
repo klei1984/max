@@ -541,9 +541,10 @@ bool Access_IsVisibleOnHeatMap(UnitInfo* const unit, const uint16_t team) {
     return UnitsManager_TeamInfo[team].heat_map && UnitsManager_TeamInfo[team].heat_map->IsVisible(unit);
 }
 
-void Access_OnCellRevealed(const UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
+uint32_t Access_OnCellRevealed(const UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
     const uint16_t team = unit->team;
     const int32_t map_offset = ResourceManager_MapSize.x * grid_y + grid_x;
+    uint32_t revealed_target_class = TARGET_CLASS_NONE;
 
     Ai_SetInfoMapPoint(Point(grid_x, grid_y), team);
 
@@ -557,11 +558,21 @@ void Access_OnCellRevealed(const UnitInfo* unit, int32_t grid_x, int32_t grid_y)
     if (units) {
         // the end node must be cached in case Hash_MapHash.Remove() deletes the list
         for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            // Only a unit that was hidden here and is visible once DrawStealth() has run counts as newly uncovered.
+            // Both halves matter: a unit that was already visible is not news, and DrawStealth() leaves a stealth unit
+            // hidden when the matching stealth coverage is missing. Testing visibility after the loop cannot tell
+            // these apart, which is why the accumulation lives here and is reported back through the return value.
             if (!(*it).IsVisibleToTeam(team)) {
                 (*it).DrawStealth(team);
+
+                if ((*it).IsVisibleToTeam(team) && (*it).team != team) {
+                    revealed_target_class |= Access_GetAttackTargetGroup(&*it);
+                }
             }
         }
     }
+
+    return revealed_target_class;
 }
 
 void Access_OnCellHidden(const UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
@@ -630,13 +641,15 @@ uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t g
     const uint16_t team = unit->team;
     HeatMap* heat_map = UnitsManager_TeamInfo[team].heat_map.get();
 
-    // Check stealth states before Add() to detect transitions for target class accumulation
+    // Check stealth states before Add() to detect transitions for target class accumulation. The complete map needs no
+    // such flag: its transition spans a per-unit visibility change that only the reveal callout can observe, so that
+    // accumulation happens inside Access_OnCellRevealed() and arrives through revealed_target_class.
     const bool sea_stealth_was_zero = (heat_map->GetStealthSea(grid_x, grid_y) == 0);
     const bool land_stealth_was_zero = (heat_map->GetStealthLand(grid_x, grid_y) == 0);
-    const bool complete_was_zero = (heat_map->GetComplete(grid_x, grid_y) == 0);
+    uint32_t revealed_target_class = TARGET_CLASS_NONE;
 
     // Add() handles all increment logic and invokes callouts for side effects
-    heat_map->Add(unit, grid_x, grid_y);
+    heat_map->Add(unit, grid_x, grid_y, &revealed_target_class);
 
     // Accumulate target classes for sea stealth transition (callout already spotted units)
     if (unit->GetUnitType() == CORVETTE && sea_stealth_was_zero) {
@@ -664,18 +677,8 @@ uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t g
         }
     }
 
-    // Accumulate target classes for complete map transition (callout already spotted units)
-    if (complete_was_zero) {
-        const auto units = Hash_MapHash[Point(grid_x, grid_y)];
-
-        if (units) {
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-                if ((*it).IsVisibleToTeam(team) && (*it).team != unit->team) {
-                    result |= Access_GetAttackTargetGroup(&*it);
-                }
-            }
-        }
-    }
+    // Target classes for the complete map transition, accumulated by the reveal callout for the units it uncovered
+    result |= revealed_target_class;
 
     return result;
 }

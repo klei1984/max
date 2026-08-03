@@ -53,8 +53,12 @@ HeatMap::HeatMap(SmartFileReader& file, int32_t width, int32_t height, uint16_t 
     Load(file);
 }
 
-bool HeatMap::Add(const UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
+bool HeatMap::Add(const UnitInfo* unit, int32_t grid_x, int32_t grid_y, uint32_t* revealed_info) {
     SDL_assert(IsValidCoordinate(grid_x, grid_y));
+
+    if (revealed_info) {
+        *revealed_info = 0;
+    }
 
     const size_t index = GetIndex(grid_x, grid_y);
     HeatMapCell& cell = m_cells[index];
@@ -88,7 +92,11 @@ bool HeatMap::Add(const UnitInfo* unit, int32_t grid_x, int32_t grid_y) {
     // Invoke callout if cell just became visible
     if (was_hidden && cell.complete == 1) {
         if (m_callouts.on_cell_revealed) {
-            m_callouts.on_cell_revealed(unit, grid_x, grid_y);
+            const uint32_t info = m_callouts.on_cell_revealed(unit, grid_x, grid_y);
+
+            if (revealed_info) {
+                *revealed_info = info;
+            }
         }
 
         return true;
