@@ -1169,7 +1169,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_priority)
             ++unit_position.y;
 
             for (int32_t direction = 0; direction < 8; direction += 2) {
-                for (int32_t j = 0; j < i; ++j) {
+                for (int32_t j = 0; j < i * 2; ++j) {
                     unit_position += DIRECTION_OFFSETS[direction];
 
                     if (unit_position.x >= 0 && unit_position.x < ResourceManager_MapSize.x && unit_position.y >= 0 &&
