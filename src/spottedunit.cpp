@@ -52,7 +52,7 @@ void SpottedUnit::FileSave(SmartFileWriter& file) {
     file.Write(last_position);
 }
 
-Task* SpottedUnit::GetTask() const { return &*task; }
+Task* SpottedUnit::GetTask() const { return task.Get(); }
 
 void SpottedUnit::SetTask(Task* task_) { task = task_; }
 
@@ -90,6 +90,6 @@ void SpottedUnit::UpdatePositionIfVisible() {
     }
 }
 
-UnitInfo* SpottedUnit::GetUnit() const { return &*unit; }
+UnitInfo* SpottedUnit::GetUnit() const { return unit.Get(); }
 
 uint16_t SpottedUnit::GetTeam() const { return team; }

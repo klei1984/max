@@ -834,7 +834,7 @@ void DrawMap_RenderUnit(UnitInfoGroup* group, UnitInfo* unit, bool mode) {
 }
 
 void DrawMap_RenderMiniMapUnitList(SmartList<UnitInfo>* units) {
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if (((*it).IsVisibleToTeam(GameManager_PlayerTeam) || GameManager_MaxSpy) &&
             (Gfx_ZoomLevel > 4 || !((*it).flags & GROUND_COVER)) && (*it).GetOrder() != ORDER_IDLE &&
             ((*it).flags & SELECTABLE) &&

@@ -116,7 +116,8 @@ void TaskAssistMove::BeginTurn() {
                 }
             }
 
-            for (auto it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End(); ++it) {
+            for (auto it = TaskManager.GetTaskList().Begin(), it_end = TaskManager.GetTaskList().End(); it != it_end;
+                 ++it) {
                 if ((*it).GetTeam() == m_team && (*it).GetType() == TaskType_TaskCreateUnit &&
                     dynamic_cast<TaskCreate*>(it->Get())->GetUnitType() == AIRTRANS) {
                     ++unit_count_transport;
@@ -156,7 +157,8 @@ void TaskAssistMove::BeginTurn() {
                 }
             }
 
-            for (auto it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End(); ++it) {
+            for (auto it = TaskManager.GetTaskList().Begin(), it_end = TaskManager.GetTaskList().End(); it != it_end;
+                 ++it) {
                 if ((*it).GetTeam() == m_team && (*it).GetType() == TaskType_TaskCreateUnit &&
                     dynamic_cast<TaskCreate*>(it->Get())->GetUnitType() == CLNTRANS) {
                     ++unit_count_transport;
@@ -195,7 +197,8 @@ bool TaskAssistMove::Execute(UnitInfo& transporter) {
                                (transporter.GetUnitType() == CLNTRANS) ? CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE
                                                                        : CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
-            for (auto it = UnitsManager_MobileLandSeaUnits.Begin(); it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+            for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+                 it != it_end; ++it) {
                 if ((*it).team == m_team && ((*it).flags & MOBILE_LAND_UNIT) && (*it).GetUnitType() != SURVEYOR) {
                     if ((*it).GetTask() && (*it).GetTask()->GetType() == TaskType_TaskMove &&
                         Task_IsReadyToTakeOrders(it->Get())) {
@@ -226,7 +229,8 @@ bool TaskAssistMove::Execute(UnitInfo& transporter) {
         }
 
         if (transporter.storage > 0) {
-            for (auto it = UnitsManager_MobileLandSeaUnits.Begin(); it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+            for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+                 it != it_end; ++it) {
                 if ((*it).GetOrder() == ORDER_IDLE && (*it).GetParent() == &transporter && (*it).team == m_team) {
                     if (!(*it).GetTask() || (*it).GetTask()->GetType() != TaskType_TaskMove) {
                         TaskMove* task_move =
@@ -280,7 +284,7 @@ bool TaskAssistMove::Execute(UnitInfo& transporter) {
 }
 
 void TaskAssistMove::RemoveSelf() {
-    for (auto it = transporters.Begin(); it != transporters.End(); ++it) {
+    for (auto it = transporters.Begin(), it_end = transporters.End(); it != it_end; ++it) {
         (*it).RemoveTask(this);
     }
 

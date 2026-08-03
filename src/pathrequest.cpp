@@ -45,9 +45,9 @@ PathRequest::PathRequest(UnitInfo* unit, int32_t mode, Point point) : client(uni
 
 PathRequest::~PathRequest() {}
 
-UnitInfo* PathRequest::GetClient() const { return &*client; }
+UnitInfo* PathRequest::GetClient() const { return client.Get(); }
 
-UnitInfo* PathRequest::GetTransporter() const { return &*transporter; }
+UnitInfo* PathRequest::GetTransporter() const { return transporter.Get(); }
 
 Point PathRequest::GetDestination() const { return point; }
 

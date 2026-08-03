@@ -99,7 +99,7 @@ UnitInfo* TaskObtainUnits::FindUnit(ResourceID unit_type, bool mode) {
 
     AILOG(log, "Obtain Unit: Find {} ", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
-    for (SmartList<UnitInfo>::Iterator unit = list->Begin(); unit != list->End(); ++unit) {
+    for (auto unit = list->Begin(), unit_end = list->End(); unit != unit_end; ++unit) {
         if ((*unit).GetUnitType() == unit_type) {
             if ((*unit).GetOrder() == ORDER_BUILD &&
                 ((*unit).flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT))) {
@@ -304,7 +304,7 @@ void TaskObtainUnits::RequestUnits(ResourceID unit_type, uint16_t team, int32_t 
 
         memset(unit_counters, 0, sizeof(unit_counters));
 
-        for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+        for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
             if ((*it).GetTeam() == this->GetTeam() && (*it).GetType() == TaskType_TaskCreateUnit) {
                 if ((*it).ComparePriority(task_priority + TASK_PRIORITY_ADJUST_MAJOR) <= 0) {
                     ++unit_counters[dynamic_cast<TaskCreateUnit*>(it->Get())->GetUnitType()];
@@ -312,8 +312,8 @@ void TaskObtainUnits::RequestUnits(ResourceID unit_type, uint16_t team, int32_t 
             }
         }
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             if ((*it).team == task_team && (*it).GetUnitType() == builder_type) {
                 ++builder_count;
             }

@@ -40,11 +40,11 @@ uint8_t TaskFindMines::GetType() const { return TaskType_TaskFindMines; }
 void TaskFindMines::BeginTurn() {
     AILOG(log, "Find mines: begin turn");
 
-    SmartList<UnitInfo>::Iterator unit = units.Begin();
+    auto unit = units.Begin();
 
     if (unit != units.End() && requestors == 0) {
         int16_t** damage_potential_map =
-            AiPlayer_Teams[m_team].GetDamagePotentialMap(&*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, false);
+            AiPlayer_Teams[m_team].GetDamagePotentialMap(unit->Get(), CAUTION_LEVEL_AVOID_ALL_DAMAGE, false);
         int8_t** mine_map = AiPlayer_Teams[m_team].GetMineMap();
         uint32_t valuable_sites = 0;
 

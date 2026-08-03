@@ -94,8 +94,8 @@ ProductionManager::ProductionManager(const uint16_t team, Complex* const complex
     power_station_active = 0;
     power_station_count = 0;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if (this->complex == (*it).GetComplex()) {
             Cargo cargo;
 
@@ -549,8 +549,8 @@ void ProductionManager::OptimizePowerProduction() {
 }
 
 void ProductionManager::OptimizePowerConsumption() {
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if (selected_unit != it->Get()) {
             UpdatePowerConsumption(it->Get());
         }
@@ -668,8 +668,8 @@ void ProductionManager::UpdateLifeConsumption() {
         UpdateUnitLifeConsumption(selected_unit.Get());
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End() && total.life < 0; ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+         it != it_end && total.life < 0; ++it) {
         UpdateUnitLifeConsumption(it->Get());
     }
 }
@@ -715,8 +715,8 @@ bool ProductionManager::OptimizeIndustry(const bool mode) {
         return true;
 
     } else {
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             if (ValidateIndustry(it->Get(), mode)) {
                 return true;
             }
@@ -738,8 +738,8 @@ bool ProductionManager::OptimizeMiningIndustry() {
         minimum_demand = Cargo_GetNetProduction(selected_unit.Get(), true);
 
     } else {
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             if (complex == (*it).GetComplex() && (*it).GetOrder() != ORDER_POWER_OFF &&
                 (*it).GetOrder() != ORDER_DISABLE && (*it).GetOrder() != ORDER_IDLE &&
                 (*it).GetUnitType() == MININGST) {
@@ -779,8 +779,8 @@ bool ProductionManager::OptimizeAuxilaryIndustry(const ResourceID unit_type, con
         return true;
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetUnitType() == unit_type && ValidateAuxilaryIndustry(it->Get(), forceful_shutoff)) {
             return true;
         }
@@ -807,8 +807,8 @@ bool ProductionManager_UpdateIndustryOrders(const uint16_t team, Complex* const 
     ProductionManager manager(team, complex);
     bool is_found = false;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End() && manager.total.raw > 0; ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+         it != it_end && manager.total.raw > 0; ++it) {
         if ((*it).GetComplex() == complex && (*it).GetOrder() == ORDER_HALT_BUILDING_2 && (*it).storage == 0 &&
             Cargo_GetRawConsumptionRate((*it).GetUnitType(), (*it).GetMaxAllowedBuildRate()) <= manager.total.raw &&
             Cargo_GetLifeConsumptionRate((*it).GetUnitType()) <= manager.total.life &&

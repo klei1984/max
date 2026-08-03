@@ -87,8 +87,8 @@ void Complex::ReadPacket(NetPacket& packet) {
 void Complex::GetCargoMinable(Cargo& capacity) {
     capacity.Init();
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetComplex() == this && (*it).GetOrder() != ORDER_POWER_OFF && (*it).GetOrder() != ORDER_DISABLE &&
             (*it).GetOrder() != ORDER_IDLE) {
             Cargo cargo = Cargo_GetNetProduction(it->Get());
@@ -114,8 +114,8 @@ void Complex::GetCargoMining(Cargo& materials, Cargo& capacity) {
     materials.Init();
     capacity.Init();
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetComplex() == this && (*it).GetUnitType() == MININGST && (*it).GetOrder() != ORDER_POWER_OFF &&
             (*it).GetOrder() != ORDER_DISABLE && (*it).GetOrder() != ORDER_IDLE) {
             materials.gold += (*it).gold_mining;
@@ -137,8 +137,8 @@ void Complex::GetCargoInfo(Cargo& materials, Cargo& capacity) {
     materials.Init();
     capacity.Init();
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetComplex() == this) {
             materials += Cargo_GetInventory(it->Get());
             capacity += Cargo_GetCargoCapacity(it->Get());
@@ -180,21 +180,21 @@ void Complex::Transfer(int32_t raw, int32_t fuel, int32_t gold) {
     this->fuel += fuel;
     this->material += raw;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if (raw || fuel || gold) {
             if ((*it).GetComplex() == this) {
                 switch (ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType()) {
                     case Unit::CargoType::CARGO_TYPE_RAW: {
-                        TransferCargo(&*it, &raw);
+                        TransferCargo(it->Get(), &raw);
                     } break;
 
                     case Unit::CargoType::CARGO_TYPE_FUEL: {
-                        TransferCargo(&*it, &fuel);
+                        TransferCargo(it->Get(), &fuel);
                     } break;
 
                     case Unit::CargoType::CARGO_TYPE_GOLD: {
-                        TransferCargo(&*it, &gold);
+                        TransferCargo(it->Get(), &gold);
                     } break;
                 }
             }

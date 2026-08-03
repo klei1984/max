@@ -313,7 +313,7 @@ void Ai_RemoveUnit(UnitInfo* unit) {
 
                 if (units) {
                     // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                         if ((*it).GetUnitType() == BRIDGE) {
                             surface_type |= SURFACE_TYPE_LAND;
                         }
@@ -389,16 +389,16 @@ bool Ai_AreThereActiveCombatEffects() {
 }
 
 bool Ai_AreThereMovingUnits() {
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
         if ((*it).GetOrder() == ORDER_MOVE &&
             ((*it).GetOrderState() == ORDER_STATE_IN_PROGRESS || (*it).GetOrderState() == ORDER_STATE_IN_TRANSITION)) {
             return true;
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-         it != UnitsManager_MobileAirUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetOrder() == ORDER_MOVE &&
             ((*it).GetOrderState() == ORDER_STATE_IN_PROGRESS || (*it).GetOrderState() == ORDER_STATE_IN_TRANSITION)) {
             return true;
@@ -438,8 +438,8 @@ void Ai_CheckReactions() {
 bool TaskManager_NeedToReserveRawMaterials(uint16_t team) {
     int32_t raw_materials = -10;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
         if ((*it).team == team &&
             ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == Unit::CargoType::CARGO_TYPE_RAW) {
             raw_materials += (*it).storage;
@@ -454,8 +454,8 @@ bool TaskManager_NeedToReserveRawMaterials(uint16_t team) {
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == team) {
             raw_materials -= Cargo_GetRawConsumptionRate((*it).GetUnitType(), 1);
 

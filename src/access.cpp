@@ -65,7 +65,7 @@ bool Access_SetUnitDestination(int32_t grid_x, int32_t grid_y, int32_t target_gr
 
     if (units) {
         // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
             if ((*it).flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
                 if ((*it).GetOrder() == ORDER_IDLE) {
                     continue;
@@ -126,7 +126,7 @@ uint32_t Access_IsAccessible(ResourceID unit_type, uint16_t team, int32_t grid_x
 
             if (units) {
                 // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-                for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                     if ((*it).IsVisibleToTeam(team) || (flags & AccessModifier_IgnoreVisibility) ||
                         ((*it).IsDetectedByTeam(team) && ((*it).flags & STATIONARY))) {
                         if ((*it).GetOrder() != ORDER_IDLE || ((*it).flags & STATIONARY)) {
@@ -320,7 +320,7 @@ bool Access_FindReachableSpotInt(ResourceID unit_type, UnitInfo* unit, int16_t* 
 
 void Access_InitUnitStealthStatus(SmartList<UnitInfo>& units, bool reset_visibility) {
     if (reset_visibility) {
-        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
             (*it).InitStealthStatus();
         }
     }
@@ -557,7 +557,7 @@ uint32_t Access_OnCellRevealed(const UnitInfo* unit, int32_t grid_x, int32_t gri
 
     if (units) {
         // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
             // Only a unit that was hidden here and is visible once DrawStealth() has run counts as newly uncovered.
             // Both halves matter: a unit that was already visible is not news, and DrawStealth() leaves a stealth unit
             // hidden when the matching stealth coverage is missing. Testing visibility after the loop cannot tell
@@ -566,7 +566,7 @@ uint32_t Access_OnCellRevealed(const UnitInfo* unit, int32_t grid_x, int32_t gri
                 (*it).DrawStealth(team);
 
                 if ((*it).IsVisibleToTeam(team) && (*it).team != team) {
-                    revealed_target_class |= Access_GetAttackTargetGroup(&*it);
+                    revealed_target_class |= Access_GetAttackTargetGroup(it->Get());
                 }
             }
         }
@@ -614,8 +614,8 @@ void Access_OnSeaStealthRevealed(const UnitInfo* unit, int32_t grid_x, int32_t g
 
     if (units) {
         // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-            if (UnitsManager_IsUnitUnderWater(&*it)) {
+        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+            if (UnitsManager_IsUnitUnderWater(it->Get())) {
                 (*it).SpotByTeam(team);
             }
         }
@@ -628,7 +628,7 @@ void Access_OnLandStealthRevealed(const UnitInfo* unit, int32_t grid_x, int32_t 
 
     if (units) {
         // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
             if ((*it).GetUnitType() == COMMANDO) {
                 (*it).SpotByTeam(team);
             }
@@ -656,9 +656,9 @@ uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t g
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-                if (UnitsManager_IsUnitUnderWater(&*it) && unit->team != (*it).team) {
-                    result |= Access_GetAttackTargetGroup(&*it);
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+                if (UnitsManager_IsUnitUnderWater(it->Get()) && unit->team != (*it).team) {
+                    result |= Access_GetAttackTargetGroup(it->Get());
                 }
             }
         }
@@ -669,9 +669,9 @@ uint32_t Access_UpdateMapStatusAddUnit(UnitInfo* unit, int32_t grid_x, int32_t g
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).GetUnitType() == COMMANDO && unit->team != (*it).team) {
-                    result |= Access_GetAttackTargetGroup(&*it);
+                    result |= Access_GetAttackTargetGroup(it->Get());
                 }
             }
         }
@@ -833,9 +833,9 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
                     uint32_t friendly_target_class = Access_GetTargetClass(unit);
 
                     if (unit->GetUnitList()) {
-                        for (SmartList<UnitInfo>::Iterator it = unit->GetUnitList()->Begin();
-                             it != unit->GetUnitList()->End(); ++it) {
-                            friendly_target_class |= Access_GetTargetClass(&*it);
+                        for (auto it = unit->GetUnitList()->Begin(), it_end = unit->GetUnitList()->End(); it != it_end;
+                             ++it) {
+                            friendly_target_class |= Access_GetTargetClass(it->Get());
                         }
                     }
 
@@ -845,9 +845,10 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
                               unit->grid_y + 1);
 
                         if (unit->GetUnitList()) {
-                            for (SmartList<UnitInfo>::Iterator it = unit->GetUnitList()->Begin();
-                                 it != unit->GetUnitList()->End(); ++it) {
-                                UnitEventEmergencyStop* unit_event = new (std::nothrow) UnitEventEmergencyStop(&*it);
+                            for (auto it = unit->GetUnitList()->Begin(), it_end = unit->GetUnitList()->End();
+                                 it != it_end; ++it) {
+                                UnitEventEmergencyStop* unit_event =
+                                    new (std::nothrow) UnitEventEmergencyStop(it->Get());
 
                                 UnitEvent_UnitEvents.PushBack(*unit_event);
 
@@ -873,8 +874,8 @@ void Access_UpdateMapStatus(UnitInfo* unit, bool mode) {
 }
 
 void Access_UpdateUnitVisibilityStatus(SmartList<UnitInfo>& units) {
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        Access_UpdateMapStatus(&*it, true);
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+        Access_UpdateMapStatus(it->Get(), true);
     }
 }
 
@@ -919,8 +920,8 @@ void Access_UpdateResourcesTotal(Complex* complex) {
     complex->power = 0;
     complex->workers = 0;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetComplex() == complex) {
             inventory = Cargo_GetNetProduction(it->Get(), true);
             inventory += Cargo_GetInventory(it->Get());
@@ -956,7 +957,7 @@ uint8_t Access_GetModifiedSurfaceType(const int32_t grid_x, const int32_t grid_y
 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 const auto unit_type = (*it).GetUnitType();
 
                 if (mode) {
@@ -993,9 +994,9 @@ uint8_t Access_GetModifiedSurfaceTypeExcludingUnit(const int32_t grid_x, const i
 
         if (units) {
             // The end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 // Skip the unit being destroyed
-                if (&*it == exclude_unit) {
+                if (it->Get() == exclude_unit) {
                     continue;
                 }
 
@@ -1071,9 +1072,9 @@ UnitInfo* Access_GetRemovableRubble(uint16_t team, int32_t grid_x, int32_t grid_
 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).GetUnitType() == SMLRUBLE) {
-                    unit = &*it;
+                    unit = it->Get();
                     break;
                 }
 
@@ -1088,7 +1089,7 @@ UnitInfo* Access_GetRemovableRubble(uint16_t team, int32_t grid_x, int32_t grid_
                         }
                     }
 
-                    unit = &*it;
+                    unit = it->Get();
                     break;
                 }
             }
@@ -1114,7 +1115,7 @@ int32_t Access_FindUnitInUnitList(UnitInfo* unit) {
 }
 
 bool Access_IsTeamInUnitList(uint16_t team, SmartList<UnitInfo>& units) {
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).team == team) {
             return true;
         }
@@ -1152,10 +1153,10 @@ UnitInfo* Access_GetSelectableUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_
 }
 
 UnitInfo* Access_GetFirstMiningStation(uint16_t team) {
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == team && (*it).GetUnitType() == MININGST) {
-            return &*it;
+            return it->Get();
         }
     }
 
@@ -1163,9 +1164,9 @@ UnitInfo* Access_GetFirstMiningStation(uint16_t team) {
 }
 
 UnitInfo* Access_GetFirstActiveUnit(uint16_t team, SmartList<UnitInfo>& units) {
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).team == team && (*it).GetOrder() != ORDER_IDLE) {
-            return &*it;
+            return it->Get();
         }
     }
 
@@ -1175,11 +1176,11 @@ UnitInfo* Access_GetFirstActiveUnit(uint16_t team, SmartList<UnitInfo>& units) {
 void Access_RenewAttackOrders(SmartList<UnitInfo>& units, uint16_t team) {
     UnitInfo* unit;
 
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         unit = (*it).GetFirstFromUnitList();
 
         if (unit) {
-            if ((*it).team == team && (&(*it) == unit)) {
+            if ((*it).team == team && (it->Get() == unit)) {
                 Access_GroupAttackOrder(unit, 0);
             }
 
@@ -1188,7 +1189,7 @@ void Access_RenewAttackOrders(SmartList<UnitInfo>& units, uint16_t team) {
                  (*it).GetOrder() == ORDER_MOVE_TO_ATTACK) &&
                 (*it).GetOrderState() == ORDER_STATE_EXECUTING_ORDER) {
                 if ((*it).team == team && (*it).speed > 0 && (*it).engine == 2) {
-                    UnitsManager_SetNewOrder(&(*it), (*it).GetOrder(), ORDER_STATE_INIT);
+                    UnitsManager_SetNewOrder(it->Get(), (*it).GetOrder(), ORDER_STATE_INIT);
                 }
             }
         }
@@ -1199,7 +1200,7 @@ bool Access_UpdateGroupSpeed(UnitInfo* unit) {
     int32_t max_speed = static_cast<int32_t>(INT32_MAX) - 1L;
     auto units = unit->GetUnitList();
 
-    for (auto it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if (((*it).GetOrder() == ORDER_MOVE || (*it).GetOrder() == ORDER_MOVE_TO_ATTACK) &&
             ((*it).GetOrderState() == ORDER_STATE_IN_PROGRESS || (*it).GetOrderState() == ORDER_STATE_IN_TRANSITION ||
              (*it).GetOrderState() == ORDER_STATE_NEW_ORDER)) {
@@ -1211,7 +1212,7 @@ bool Access_UpdateGroupSpeed(UnitInfo* unit) {
         }
     }
 
-    for (auto it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         (*it).group_speed = max_speed + 1;
     }
 
@@ -1231,8 +1232,8 @@ void Access_GroupAttackOrder(UnitInfo* unit, bool mode) {
 
         SmartList<UnitInfo>* units = unit->GetUnitList();
 
-        for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-            friendly = &*it;
+        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+            friendly = it->Get();
 
             if ((mode || (friendly->group_speed - 1) != 0) &&
                 (friendly->GetOrder() == ORDER_MOVE || friendly->GetOrder() == ORDER_MOVE_TO_ATTACK ||
@@ -1302,7 +1303,7 @@ int32_t Access_GetStoredUnitCount(UnitInfo* unit) {
         units = &UnitsManager_MobileLandSeaUnits;
     }
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if ((*it).GetOrder() == ORDER_IDLE && (*it).GetParent() == unit) {
             ++result;
         }
@@ -1343,7 +1344,7 @@ int32_t Access_GetRepairShopClientCount(uint16_t team, ResourceID unit_type) {
         } break;
     }
 
-    for (auto it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         const uint32_t unit_flags =
             (*it).flags & (MOBILE_AIR_UNIT | MOBILE_LAND_UNIT | MOBILE_SEA_UNIT | ELECTRONIC_UNIT);
 
@@ -1447,7 +1448,7 @@ UnitInfo* Access_SeekNextUnit(uint16_t team, UnitInfo* unit, bool seek_direction
                     it_end = Access_UnitsLists[seek_index]->End();
                 }
             } while (seek_index != list_index && it == it_end);
-        } while (it != it_end && &*it != unit && ((*it).team != team || !Access_IsValidNextUnit(&*it)));
+        } while (it != it_end && it->Get() != unit && ((*it).team != team || !Access_IsValidNextUnit(it->Get())));
 
     } else {
         do {
@@ -1467,11 +1468,11 @@ UnitInfo* Access_SeekNextUnit(uint16_t team, UnitInfo* unit, bool seek_direction
                     it_end = Access_UnitsLists[seek_index]->End();
                 }
             } while (seek_index != list_index && it == it_end);
-        } while (it != it_end && &*it != unit && ((*it).team != team || !Access_IsValidNextUnit(&*it)));
+        } while (it != it_end && it->Get() != unit && ((*it).team != team || !Access_IsValidNextUnit(it->Get())));
     }
 
-    if (it != it_end && Access_IsValidNextUnit(&*it)) {
-        result = &*it;
+    if (it != it_end && Access_IsValidNextUnit(it->Get())) {
+        result = it->Get();
 
     } else {
         result = nullptr;
@@ -1481,37 +1482,39 @@ UnitInfo* Access_SeekNextUnit(uint16_t team, UnitInfo* unit, bool seek_direction
 }
 
 bool Access_IsHeldByUnit(UnitInfo* unit, SmartList<UnitInfo>* list, SmartList<UnitInfo>::Iterator* it) {
-    for (; *it != list->End(); ++*it) {
+    const auto it_end = list->End();
+
+    for (; *it != it_end; ++*it) {
         if ((*(*it)).GetOrder() == ORDER_IDLE && (*(*it)).GetParent() == unit) {
             break;
         }
     }
 
-    return *it != list->End();
+    return *it != it_end;
 }
 
 UnitInfo* Access_GetActiveUnitWithFlags(int32_t grid_x, int32_t grid_y, uint32_t flags) {
     if (grid_x >= 0 && grid_x < ResourceManager_MapSize.x && grid_y >= 0 && grid_y < ResourceManager_MapSize.y) {
         SmartPointer<UnitInfo> unit;
-        SmartList<UnitInfo>::Iterator it, end;
+        SmartList<UnitInfo>::Iterator it, it_end;
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (it = units->Begin(), end = units->End(), unit = *it; it != end;) {
+            for (it = units->Begin(), it_end = units->End(), unit = *it; it != it_end;) {
                 if (((*it).flags & flags) && !((*it).flags & GROUND_COVER) && (*it).GetOrder() != ORDER_IDLE) {
-                    return &*it;
+                    return it->Get();
                 }
 
-                Hash_MapHash.Remove(&*it);
-                Hash_MapHash.Add(&*it, true);
+                Hash_MapHash.Remove(it->Get());
+                Hash_MapHash.Add(it->Get(), true);
 
                 ++it;
 
-                if (it != end) {
+                if (it != it_end) {
                     if (*it == unit) {
                         if ((*it).flags & flags) {
-                            return &*it;
+                            return it->Get();
 
                         } else {
                             return nullptr;
@@ -1538,9 +1541,9 @@ UnitInfo* Access_GetBridge(int32_t grid_x, int32_t grid_y) {
 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).GetUnitType() == BRIDGE) {
-                    unit = &*it;
+                    unit = it->Get();
                     break;
                 }
             }
@@ -1560,10 +1563,10 @@ UnitInfo* Access_GetUnit2(int32_t grid_x, int32_t grid_y, uint16_t team) {
 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).team == team && ((*it).flags & SELECTABLE) && !((*it).flags & (HOVERING | GROUND_COVER)) &&
                     (*it).GetUnitType() != LANDPAD && (*it).GetOrder() != ORDER_IDLE && (*it).GetId() != 0xFFFF) {
-                    unit = &*it;
+                    unit = it->Get();
                     break;
                 }
             }
@@ -1583,39 +1586,39 @@ void Access_DestroyUtilities(int32_t grid_x, int32_t grid_y, bool remove_slabs, 
 
     if (units) {
         // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
             switch ((*it).GetUnitType()) {
                 case SMLTAPE:
                 case LRGTAPE:
                 case SMLCONES:
                 case LRGCONES: {
-                    UnitsManager_DestroyUnit(&*it);
+                    UnitsManager_DestroyUnit(it->Get());
                 } break;
 
                 case ROAD: {
                     if (remove_road) {
-                        UnitsManager_DestroyUnit(&*it);
+                        UnitsManager_DestroyUnit(it->Get());
                     }
                 } break;
 
                 case SMLSLAB:
                 case LRGSLAB: {
                     if (remove_slabs) {
-                        UnitsManager_DestroyUnit(&*it);
+                        UnitsManager_DestroyUnit(it->Get());
                     }
                 } break;
 
                 case CNCT_4W: {
                     if (remove_connectors) {
-                        UnitsManager_RemoveConnections(&*it);
-                        UnitsManager_DestroyUnit(&*it);
+                        UnitsManager_RemoveConnections(it->Get());
+                        UnitsManager_DestroyUnit(it->Get());
                     }
                 } break;
 
                 case SMLRUBLE:
                 case LRGRUBLE: {
                     if (remove_rubble) {
-                        UnitsManager_DestroyUnit(&*it);
+                        UnitsManager_DestroyUnit(it->Get());
                     }
                 } break;
             }
@@ -1648,7 +1651,7 @@ void Access_DestroyGroundCovers(UnitInfo* unit) {
 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if (unit != it->Get()) {
                     switch ((*it).GetUnitType()) {
                         case ROAD:
@@ -1671,15 +1674,15 @@ void Access_ValidateUnitsOnTerrain(int32_t grid_x, int32_t grid_y, const UnitInf
         bool has_landing_pad = false;
 
         // Check if there's an active landing pad at this position (excluding destroyed units)
-        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-            if ((*it).hits > 0 && &*it != destroyed_unit && (*it).GetUnitType() == LANDPAD) {
+        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+            if ((*it).hits > 0 && it->Get() != destroyed_unit && (*it).GetUnitType() == LANDPAD) {
                 has_landing_pad = true;
                 break;
             }
         }
 
         // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
             UnitInfo* const unit = it->Get();
 
             // Skip the unit being destroyed itself
@@ -1733,7 +1736,7 @@ UnitInfo* Access_GetEnemyUnit(uint16_t team, int32_t grid_x, int32_t grid_y, uin
 
         if (units) {
             // First try to find an eligible non ground cover unit
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).team != team && ((*it).IsVisibleToTeam(team) || GameManager_MaxSpy) &&
                     (*it).GetOrder() != ORDER_IDLE && ((*it).flags & flags) && (*it).GetOrder() != ORDER_EXPLODE &&
                     (*it).GetOrderState() != ORDER_STATE_DESTROY &&
@@ -1747,7 +1750,7 @@ UnitInfo* Access_GetEnemyUnit(uint16_t team, int32_t grid_x, int32_t grid_y, uin
 
         if (!unit && units) {
             // Second try to find a ground cover unit if unit is still nullptr
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).team != team && ((*it).IsVisibleToTeam(team) || GameManager_MaxSpy) &&
                     (*it).GetOrder() != ORDER_IDLE && ((*it).flags & flags) && (*it).GetOrder() != ORDER_EXPLODE &&
                     (*it).GetOrderState() != ORDER_STATE_DESTROY) {
@@ -1773,9 +1776,9 @@ UnitInfo* Access_GetConstructionUtility(uint16_t team, int32_t grid_x, int32_t g
 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).team == team && (*it).GetUnitType() >= LRGTAPE && (*it).GetUnitType() <= SMLCONES) {
-                    unit = &*it;
+                    unit = it->Get();
                     break;
                 }
             }
@@ -1793,7 +1796,7 @@ UnitInfo* Access_GetTeamUnit(int32_t grid_x, int32_t grid_y, uint16_t team, uint
 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).team == team && ((*it).flags & flags) && (*it).GetOrder() != ORDER_IDLE &&
                     (*it).GetId() != 0xFFFF && (*it).GetUnitType() != LRGTAPE && (*it).GetUnitType() != SMLTAPE &&
                     !((*it).flags & GROUND_COVER)) {
@@ -1804,7 +1807,7 @@ UnitInfo* Access_GetTeamUnit(int32_t grid_x, int32_t grid_y, uint16_t team, uint
 
             if (!unit) {
                 // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-                for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                     if ((*it).team == team && ((*it).flags & flags) && (*it).GetOrder() != ORDER_IDLE &&
                         (*it).GetId() != 0xFFFF) {
                         unit = *it;
@@ -1937,7 +1940,7 @@ bool Access_IsUnitBusyAtLocation(UnitInfo* unit) {
 
     if (units) {
         // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
             if (((*it).flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT | STATIONARY)) && !((*it).flags & GROUND_COVER) &&
                 (*it).GetOrder() != ORDER_IDLE) {
                 result = true;
@@ -1989,7 +1992,7 @@ UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int32_t grid_x, int32_t grid_y,
 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).team == unit->team) {
                     if (!((*it).flags & MISSILE_UNIT)) {
                         normal_unit = true;
@@ -1997,13 +2000,13 @@ UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int32_t grid_x, int32_t grid_y,
 
                 } else if (((*it).flags & SELECTABLE) && (*it).GetOrder() != ORDER_EXPLODE &&
                            (*it).GetOrderState() != ORDER_STATE_DESTROY && (*it).GetOrder() != ORDER_IDLE &&
-                           Access_IsValidAttackTarget(unit, &*it, Point(grid_x, grid_y))) {
+                           Access_IsValidAttackTarget(unit, it->Get(), Point(grid_x, grid_y))) {
                     if (mode) {
                         (*it).SpotByTeam(unit->team);
                     }
 
                     if ((*it).IsVisibleToTeam(unit->team)) {
-                        result = &*it;
+                        result = it->Get();
                         break;
                     }
                 }
@@ -2033,10 +2036,10 @@ UnitInfo* Access_GetEnemyMineOnSentry(uint16_t team, int32_t grid_x, int32_t gri
 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if (((*it).GetUnitType() == LANDMINE || (*it).GetUnitType() == SEAMINE) && (*it).team != team &&
                     (*it).GetOrder() == ORDER_SENTRY) {
-                    unit = &*it;
+                    unit = it->Get();
                     break;
                 }
             }
@@ -2068,10 +2071,10 @@ UnitInfo* Access_GetAttackTarget2(UnitInfo* unit, int32_t grid_x, int32_t grid_y
 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).team != unit->team && !(*it).IsVisibleToTeam(unit->team) &&
-                    Access_IsValidAttackTarget(unit, &*it)) {
-                    result = &*it;
+                    Access_IsValidAttackTarget(unit, it->Get())) {
+                    result = it->Get();
                     break;
                 }
             }
@@ -2096,32 +2099,32 @@ UnitInfo* Access_GetReceiverUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y)
 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).team == team && (*it).GetOrder() != ORDER_IDLE) {
                     if (flags & MOBILE_LAND_UNIT) {
                         if (((*it).GetUnitType() == BARRACKS || (*it).GetUnitType() == CLNTRANS ||
                              (*it).GetUnitType() == SEATRANS) &&
                             (unit->GetUnitType() == COMMANDO || unit->GetUnitType() == INFANTRY)) {
-                            result = &*it;
+                            result = it->Get();
                             break;
 
                         } else if (((*it).GetUnitType() == DEPOT || (*it).GetUnitType() == SEATRANS) &&
                                    (unit->GetUnitType() != COMMANDO && unit->GetUnitType() != INFANTRY)) {
-                            result = &*it;
+                            result = it->Get();
                             break;
                         }
                     }
 
                     if ((flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) == MOBILE_SEA_UNIT) {
                         if ((*it).GetUnitType() == DOCK) {
-                            result = &*it;
+                            result = it->Get();
                             break;
                         }
                     }
 
                     if (flags & MOBILE_AIR_UNIT) {
                         if ((*it).GetUnitType() == LANDPAD || (*it).GetUnitType() == HANGAR) {
-                            result = &*it;
+                            result = it->Get();
                             break;
                         }
                     }
@@ -2141,11 +2144,11 @@ UnitInfo* Access_GetTeamBuilding(uint16_t team, int32_t grid_x, int32_t grid_y) 
 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).team == team && (*it).GetOrder() != ORDER_IDLE && (*it).GetId() != 0xFFFF &&
                     (((*it).flags & (CONNECTOR_UNIT | STANDALONE)) ||
                      (((*it).flags) & (GROUND_COVER | BUILDING)) == BUILDING)) {
-                    unit = &*it;
+                    unit = it->Get();
                     break;
                 }
             }
@@ -2250,8 +2253,7 @@ void Access_ProcessGroupAirPath(UnitInfo* unit) {
 
 bool Access_AreTaskEventsPending() {
     for (int32_t i = std::size(Access_UnitsLists) - 1; i >= 0; --i) {
-        for (SmartList<UnitInfo>::Iterator it = Access_UnitsLists[i]->Begin(); it != Access_UnitsLists[i]->End();
-             ++it) {
+        for (auto it = Access_UnitsLists[i]->Begin(), it_end = Access_UnitsLists[i]->End(); it != it_end; ++it) {
             if ((*it).GetOrder() == ORDER_FIRE || (*it).GetOrder() == ORDER_EXPLODE ||
                 (*it).GetOrder() == ORDER_ACTIVATE || (*it).GetOrder() == ORDER_AWAIT_TAPE_POSITIONING ||
                 (*it).GetOrder() == ORDER_AWAIT_DISABLE_UNIT || (*it).GetOrder() == ORDER_AWAIT_STEAL_UNIT ||
@@ -2261,24 +2263,24 @@ bool Access_AreTaskEventsPending() {
                 ((*it).GetOrder() == ORDER_MOVE_TO_ATTACK && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER) ||
                 (*it).GetOrderState() == ORDER_STATE_INIT) {
                 if ((*it).GetOrderState() == ORDER_STATE_NEW_ORDER && (*it).team == GameManager_PlayerTeam &&
-                    !ResourceManager_GetPathsManager().HasRequest(&*it)) {
+                    !ResourceManager_GetPathsManager().HasRequest(it->Get())) {
                     if ((*it).path != nullptr) {
                         if ((*it).GetFirstFromUnitList()) {
-                            Access_ProcessNewGroupOrder(&*it);
+                            Access_ProcessNewGroupOrder(it->Get());
 
                         } else {
                             (*it).SetOrderState(ORDER_STATE_ISSUING_PATH);
 
                             if (Remote_IsNetworkGame) {
-                                Remote_SendNetPacket_08(&*it);
+                                Remote_SendNetPacket_08(it->Get());
                             }
                         }
 
                     } else if (((*it).flags & MOBILE_AIR_UNIT) && (*it).GetOrder() != ORDER_MOVE_TO_ATTACK) {
-                        Access_ProcessGroupAirPath(&*it);
+                        Access_ProcessGroupAirPath(it->Get());
 
                     } else {
-                        Paths_RequestPath(&*it, AccessModifier_SameClassBlocks);
+                        Paths_RequestPath(it->Get(), AccessModifier_SameClassBlocks);
                     }
                 }
 
@@ -2309,11 +2311,11 @@ bool Access_ProcessNewGroupOrder(UnitInfo* unit) {
         group = unit->GetUnitList();
 
         if (group) {
-            for (SmartList<UnitInfo>::Iterator it = group->Begin(); it != group->End(); ++it) {
+            for (auto it = group->Begin(), it_end = group->End(); it != it_end; ++it) {
                 if ((*it).GetOrderState() == ORDER_STATE_NEW_ORDER && (*it).path == nullptr) {
                     if ((*it).hits > 0) {
                         if (((*it).flags & MOBILE_AIR_UNIT) && (*it).GetOrder() != ORDER_MOVE_TO_ATTACK) {
-                            Access_ProcessGroupAirPath(&*it);
+                            Access_ProcessGroupAirPath(it->Get());
                         }
 
                         return false;
@@ -2324,8 +2326,8 @@ bool Access_ProcessNewGroupOrder(UnitInfo* unit) {
                 }
             }
 
-            for (SmartList<UnitInfo>::Iterator it = group->Begin(); it != group->End(); ++it) {
-                unit = &*it;
+            for (auto it = group->Begin(), it_end = group->End(); it != it_end; ++it) {
+                unit = it->Get();
 
                 if (unit->GetOrderState() == ORDER_STATE_NEW_ORDER) {
                     unit->SetOrderState(ORDER_STATE_ISSUING_PATH);
@@ -2355,7 +2357,7 @@ void Access_UpdateMultiSelection(UnitInfo* unit) {
     unit->MoveToFrontInUnitList();
     units = unit->GetUnitList();
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         (*it).SetOrder(ORDER_AWAIT);
         (*it).move_to_grid_x = (*it).grid_x;
         (*it).move_to_grid_y = (*it).grid_y;
@@ -2364,7 +2366,7 @@ void Access_UpdateMultiSelection(UnitInfo* unit) {
         (*it).path = nullptr;
 
         if (Remote_IsNetworkGame) {
-            Remote_SendNetPacket_38(&*it);
+            Remote_SendNetPacket_38(it->Get());
         }
     }
 }
@@ -2375,7 +2377,7 @@ bool Access_IsGroupOrderInterrupted(UnitInfo* unit) {
     units = unit->GetUnitList();
 
     if (units) {
-        for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
             if (((*it).GetOrder() == ORDER_MOVE || (*it).GetOrder() == ORDER_MOVE_TO_ATTACK) &&
                 ((*it).GetOrderState() == ORDER_STATE_IN_PROGRESS ||
                  (*it).GetOrderState() == ORDER_STATE_IN_TRANSITION ||

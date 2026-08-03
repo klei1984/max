@@ -295,18 +295,18 @@ void TaskAttack::EndTurn() {
     }
 
     if (support_attack_task) {
-        for (SmartList<UnitInfo>::Iterator it = support_attack_task->GetUnits().Begin();
-             it != support_attack_task->GetUnits().End(); ++it) {
-            if ((*it).speed > 0 && Task_IsReadyToTakeOrders(&*it) && (*it).GetTask() == this) {
-                Task_RemindMoveFinished(&*it, true);
+        for (auto it = support_attack_task->GetUnits().Begin(), it_end = support_attack_task->GetUnits().End();
+             it != it_end; ++it) {
+            if ((*it).speed > 0 && Task_IsReadyToTakeOrders(it->Get()) && (*it).GetTask() == this) {
+                Task_RemindMoveFinished(it->Get(), true);
             }
         }
     }
 
-    for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
-        for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End(); ++it2) {
-            if ((*it2).speed > 0 && Task_IsReadyToTakeOrders(&*it2) && (*it2).GetTask() == this) {
-                Task_RemindMoveFinished(&*it2, true);
+    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+        for (auto it2 = (*it).GetUnits().Begin(), it2_end = (*it).GetUnits().End(); it2 != it2_end; ++it2) {
+            if ((*it2).speed > 0 && Task_IsReadyToTakeOrders(it2->Get()) && (*it2).GetTask() == this) {
+                Task_RemindMoveFinished(it2->Get(), true);
             }
         }
     }
@@ -398,7 +398,7 @@ void TaskAttack::RemoveSelf() {
         TaskManager.ClearUnitTasksAndRemindAvailable(&*leader);
     }
 
-    for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
+    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
         (*it).GetSpottedUnit()->SetTask(nullptr);
         (*it).RemoveSelf();
     }
@@ -440,8 +440,8 @@ int32_t TaskAttack::GetHighestScan() {
         unit_scan = recon_unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
     }
 
-    for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
-        for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End(); ++it2) {
+    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+        for (auto it2 = (*it).GetUnits().Begin(), it2_end = (*it).GetUnits().End(); it2 != it2_end; ++it2) {
             int32_t scan = (*it2).GetBaseValues()->GetAttribute(ATTRIB_SCAN);
 
             if (scan > unit_scan) {
@@ -609,14 +609,14 @@ UnitInfo* TaskAttack::DetermineLeader() {
             minimum_distance = Access_GetSquaredDistance(&*recon_unit, position);
         }
 
-        for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
-            for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End(); ++it2) {
-                if (IsViableLeader(&*it2)) {
-                    distance = Access_GetSquaredDistance(&*it2, position);
+        for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+            for (auto it2 = (*it).GetUnits().Begin(), it2_end = (*it).GetUnits().End(); it2 != it2_end; ++it2) {
+                if (IsViableLeader(it2->Get())) {
+                    distance = Access_GetSquaredDistance(it2->Get(), position);
 
                     if (!recon_unit || distance < minimum_distance) {
-                        leader = &*it2;
-                        leader_task = &*it;
+                        leader = it2->Get();
+                        leader_task = it->Get();
                         minimum_distance = distance;
                     }
                 }
@@ -624,15 +624,13 @@ UnitInfo* TaskAttack::DetermineLeader() {
         }
 
         if (!leader) {
-            for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End();
-                 ++it) {
-                for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End();
-                     ++it2) {
-                    distance = Access_GetSquaredDistance(&*it2, position);
+            for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+                for (auto it2 = (*it).GetUnits().Begin(), it2_end = (*it).GetUnits().End(); it2 != it2_end; ++it2) {
+                    distance = Access_GetSquaredDistance(it2->Get(), position);
 
                     if (!leader || distance < minimum_distance) {
-                        leader = &*it2;
-                        leader_task = &*it;
+                        leader = it2->Get();
+                        leader_task = it->Get();
                         minimum_distance = distance;
                     }
                 }
@@ -697,14 +695,14 @@ bool TaskAttack::EvaluateLandAttack() {
                 }
             }
 
-            for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
-                 it != UnitsManager_GroundCoverUnits.End(); ++it) {
+            for (auto it = UnitsManager_GroundCoverUnits.Begin(), it_end = UnitsManager_GroundCoverUnits.End();
+                 it != it_end; ++it) {
                 if ((*it).GetUnitType() != BRIDGE && (*it).IsVisibleToTeam(m_team)) {
                     access_map((*it).grid_x, (*it).grid_y) = 2;
                 }
             }
 
-            for (SmartList<TaskKillUnit>::Iterator it = primary_targets.Begin(); it != primary_targets.End(); ++it) {
+            for (auto it = primary_targets.Begin(), it_end = primary_targets.End(); it != it_end; ++it) {
                 SpottedUnit* spotted_unit = (*it).GetSpottedUnit();
 
                 if (spotted_unit) {
@@ -723,8 +721,8 @@ bool TaskAttack::EvaluateLandAttack() {
 
             weight_table = AiPlayer_Teams[m_team].GetExtendedWeightTable(unit, 0x01);
 
-            for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-                 it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+            for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+                 it != it_end; ++it) {
                 if ((*it).team == m_team && (*it).hits > 0 && (*it).ammo > 0 &&
                     (*it).ammo >= (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) &&
                     !((*it).flags & MOBILE_AIR_UNIT) &&
@@ -759,8 +757,8 @@ bool TaskAttack::EvaluateLandAttack() {
                 result = worth_of_land_units > worth_of_sea_units;
 
             } else {
-                for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                     it != UnitsManager_StationaryUnits.End(); ++it) {
+                for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                     it != it_end; ++it) {
                     if ((*it).team == m_team && (*it).GetUnitType() == LANDPLT) {
                         stationary_unit_present = true;
 
@@ -771,8 +769,8 @@ bool TaskAttack::EvaluateLandAttack() {
                 }
 
                 if (!stationary_unit_present) {
-                    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                         it != UnitsManager_StationaryUnits.End(); ++it) {
+                    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                         it != it_end; ++it) {
                         if ((*it).team == m_team && access_map((*it).grid_x, (*it).grid_y) == 3) {
                             return true;
                         }
@@ -807,7 +805,7 @@ void TaskAttack::Finish() {
         TaskManager.ClearUnitTasksAndRemindAvailable(&*recon_unit);
     }
 
-    for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
+    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
         (*it).GetSpottedUnit()->SetTask(nullptr);
         (*it).RemoveSelf();
     }
@@ -872,12 +870,12 @@ bool TaskAttack::FindReconUnit(ResourceID unit_type, int32_t safe_distance) {
             units = &UnitsManager_MobileLandSeaUnits;
         }
 
-        for (auto it = units->Begin(); it != units->End(); ++it) {
+        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
             if ((*it).team == m_team && (*it).GetUnitType() == unit_type &&
                 (*it).GetBaseValues()->GetAttribute(ATTRIB_SCAN) >= safe_distance &&
                 (!(*it).GetTask() || (*it).GetTask()->ComparePriority(task_priority) > 0)) {
                 if (!new_recon_unit || (new_recon_unit->GetTask() && !(*it).GetTask())) {
-                    new_recon_unit = &*it;
+                    new_recon_unit = it->Get();
                 }
             }
         }
@@ -958,14 +956,14 @@ void TaskAttack::GetSafeDistances(int32_t* safe_distance_air, int32_t* safe_dist
         int32_t safe_air_distance;
         int32_t safe_ground_distance;
 
-        for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
+        for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
             unit = (*it).GetUnitSpotted();
 
             if (unit) {
                 UnitValues* unit_values = unit->GetBaseValues();
 
                 if (unit_values->GetAttribute(ATTRIB_ATTACK) > 0) {
-                    if (&*it == &*kill_unit_task || IsWithinAttackRange(unit, unit_position)) {
+                    if (it->Get() == &*kill_unit_task || IsWithinAttackRange(unit, unit_position)) {
                         if (Access_IsValidAttackTargetType(unit->GetUnitType(), AWAC)) {
                             *safe_distance_air =
                                 std::max(*safe_distance_air, unit_values->GetAttribute(ATTRIB_RANGE) + 1);
@@ -1077,13 +1075,11 @@ void TaskAttack::ChooseFirstTarget() {
 }
 
 void TaskAttack::CopyTargets(TaskAttack* other) {
-    for (SmartList<TaskKillUnit>::Iterator it = other->primary_targets.Begin(); it != other->primary_targets.End();
-         ++it) {
+    for (auto it = other->primary_targets.Begin(), it_end = other->primary_targets.End(); it != it_end; ++it) {
         primary_targets.PushBack(*it);
     }
 
-    for (SmartList<TaskKillUnit>::Iterator it = other->secondary_targets.Begin(); it != other->secondary_targets.End();
-         ++it) {
+    for (auto it = other->secondary_targets.Begin(), it_end = other->secondary_targets.End(); it != it_end; ++it) {
         (*it).SetParent(this);
         (*it).GetSpottedUnit()->SetTask(this);
         secondary_targets.PushBack(*it);
@@ -1096,8 +1092,8 @@ bool TaskAttack::IsTargetGroupInSight() {
     if (secondary_targets.GetCount() > 0) {
         uint16_t unit_team = secondary_targets[0].GetUnitSpotted()->team;
 
-        for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
-            for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End(); ++it2) {
+        for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+            for (auto it2 = (*it).GetUnits().Begin(), it2_end = (*it).GetUnits().End(); it2 != it2_end; ++it2) {
                 if ((*it2).IsVisibleToTeam(unit_team)) {
                     return true;
                 }
@@ -1248,10 +1244,10 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
                         }
 
                         if (op_state < ATTACK_STATE_NORMAL_SEARCH && leader == unit) {
-                            for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin();
-                                 it != secondary_targets.End(); ++it) {
-                                for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin();
-                                     it2 != (*it).GetUnits().End(); ++it2) {
+                            for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end;
+                                 ++it) {
+                                for (auto it2 = (*it).GetUnits().Begin(), it2_end = (*it).GetUnits().End();
+                                     it2 != it2_end; ++it2) {
                                     (*it2).attack_site.x = 0;
                                     (*it2).attack_site.y = 0;
                                 }
@@ -1412,10 +1408,9 @@ bool TaskAttack::MoveReconUnit(int32_t caution_level) {
 
             } else {
                 if (op_state < ATTACK_STATE_NORMAL_SEARCH) {
-                    for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin();
-                         it != secondary_targets.End(); ++it) {
-                        for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin();
-                             it2 != (*it).GetUnits().End(); ++it2) {
+                    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+                        for (auto it2 = (*it).GetUnits().Begin(), it2_end = (*it).GetUnits().End(); it2 != it2_end;
+                             ++it2) {
                             (*it2).attack_site.x = 0;
                             (*it2).attack_site.y = 0;
                         }
@@ -1456,8 +1451,8 @@ bool TaskAttack::IsAttackUnderControl() {
         unit_location.x = target->grid_x;
         unit_location.y = target->grid_y;
 
-        for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
-            if ((&*it) == &*kill_unit_task || IsWithinAttackRange((*it).GetUnitSpotted(), unit_location)) {
+        for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+            if ((it->Get()) == &*kill_unit_task || IsWithinAttackRange((*it).GetUnitSpotted(), unit_location)) {
                 required_damage += (*it).GetRequiredDamage();
             }
 
@@ -1476,11 +1471,10 @@ bool TaskAttack::IsAttackUnderControl() {
                     int32_t unit_worth;
                     int32_t unit_scan;
 
-                    for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin();
-                         it != secondary_targets.End(); ++it) {
-                        for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin();
-                             it2 != (*it).GetUnits().End(); ++it2) {
-                            unit_worth = AiAttack_GetTargetValue(&*it2);
+                    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+                        for (auto it2 = (*it).GetUnits().Begin(), it2_end = (*it).GetUnits().End(); it2 != it2_end;
+                             ++it2) {
+                            unit_worth = AiAttack_GetTargetValue(it2->Get());
                             unit_scan = (*it2).GetBaseValues()->GetAttribute(ATTRIB_SCAN);
                             max_unit_worth = std::max(max_unit_worth, unit_worth);
                             max_unit_scan = std::max(max_unit_scan, unit_scan);
@@ -1641,18 +1635,18 @@ void TaskAttack::FindNewSiteForUnit(UnitInfo* unit) {
 
     access_map.GetMap().Init(unit, 0x01, caution_level);
 
-    for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
-        for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End(); ++it2) {
-            if ((&*it2) != unit) {
+    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+        for (auto it2 = (*it).GetUnits().Begin(), it2_end = (*it).GetUnits().End(); it2 != it2_end; ++it2) {
+            if ((it2->Get()) != unit) {
                 access_map((*it2).attack_site.x, (*it2).attack_site.y) = 0;
             }
         }
     }
 
     if (support_attack_task) {
-        for (SmartList<UnitInfo>::Iterator it = support_attack_task->GetUnits().Begin();
-             it != support_attack_task->GetUnits().End(); ++it) {
-            if ((&*it) != unit) {
+        for (auto it = support_attack_task->GetUnits().Begin(), it_end = support_attack_task->GetUnits().End();
+             it != it_end; ++it) {
+            if ((it->Get()) != unit) {
                 access_map((*it).attack_site.x, (*it).attack_site.y) = 0;
             }
         }
@@ -1731,7 +1725,7 @@ bool TaskAttack::MoveUnits() {
         Task_RemindMoveFinished(&*leader, true);
     }
 
-    for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
+    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
         if ((*it).MoveUnits()) {
             return true;
         }
@@ -1748,15 +1742,14 @@ bool TaskAttack::MoveUnits() {
 }
 
 bool TaskAttack::IsAnyTargetInRange() {
-    for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
-        for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End(); ++it2) {
+    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+        for (auto it2 = (*it).GetUnits().Begin(), it2_end = (*it).GetUnits().End(); it2 != it2_end; ++it2) {
             int32_t unit_range = (*it2).GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
             unit_range = unit_range * unit_range;
 
-            for (SmartList<TaskKillUnit>::Iterator it3 = secondary_targets.Begin(); it3 != secondary_targets.End();
-                 ++it3) {
-                if (Access_GetSquaredDistance(&*it2, (*it3).GetUnitSpotted()) <= unit_range) {
+            for (auto it3 = secondary_targets.Begin(), it3_end = secondary_targets.End(); it3 != it3_end; ++it3) {
+                if (Access_GetSquaredDistance(it2->Get(), (*it3).GetUnitSpotted()) <= unit_range) {
                     return true;
                 }
             }
@@ -1779,8 +1772,8 @@ bool TaskAttack::IsReconUnitAvailable() {
 
         GetSafeDistances(&safe_distance_air, &safe_distance_ground);
 
-        for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
-            for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End(); ++it2) {
+        for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+            for (auto it2 = (*it).GetUnits().Begin(), it2_end = (*it).GetUnits().End(); it2 != it2_end; ++it2) {
                 unit_values = (*it2).GetBaseValues();
 
                 if ((*it2).flags & MOBILE_AIR_UNIT) {
@@ -1824,8 +1817,8 @@ void TaskAttack::EvaluateAttackReadiness() {
         UnitInfo* target = kill_unit_task->GetUnitSpotted();
         Point target_position(target->grid_x, target->grid_y);
 
-        for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
-            if ((&*it) == &*kill_unit_task || IsWithinAttackRange((*it).GetUnitSpotted(), target_position)) {
+        for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+            if ((it->Get()) == &*kill_unit_task || IsWithinAttackRange((*it).GetUnitSpotted(), target_position)) {
                 required_damage += (*it).GetRequiredDamage();
             }
 
@@ -1869,13 +1862,11 @@ void TaskAttack::EvaluateAttackReadiness() {
 
             Point position = kill_unit_task->GetSpottedUnit()->GetLastPosition();
 
-            for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End();
-                 ++it) {
-                for (SmartList<UnitInfo>::Iterator it2 = (*it).GetUnits().Begin(); it2 != (*it).GetUnits().End();
-                     ++it2) {
+            for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+                for (auto it2 = (*it).GetUnits().Begin(), it2_end = (*it).GetUnits().End(); it2 != it2_end; ++it2) {
                     int32_t unit_range = (*it2).GetAttackRange();
 
-                    if (Access_GetSquaredDistance(&*it2, position) <= unit_range * unit_range) {
+                    if (Access_GetSquaredDistance(it2->Get(), position) <= unit_range * unit_range) {
                         AILOG_LOG(log, "{} at [{},{}] is in assault range, shifting to attack mode.",
                                   ResourceManager_GetUnit((*it2).GetUnitType()).GetSingularName().data(),
                                   (*it2).grid_x + 1, (*it2).grid_y + 1);
@@ -1928,7 +1919,7 @@ bool TaskAttack::IsDefenderDangerous(SpottedUnit* spotted_unit) {
 
         unit_range = unit_range * unit_range;
 
-        for (SmartList<TaskKillUnit>::Iterator it = primary_targets.Begin(); it != primary_targets.End(); ++it) {
+        for (auto it = primary_targets.Begin(), it_end = primary_targets.End(); it != it_end; ++it) {
             if ((*it).GetUnitSpotted()) {
                 if (Access_GetSquaredDistance((*it).GetUnitSpotted(), position) <= unit_range) {
                     return true;
@@ -1964,13 +1955,13 @@ void TaskAttack::AssessEnemyUnits() {
 
     enemy_team = AiPlayer_Teams[m_team].GetTargetTeam();
 
-    for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
+    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
         (*it).GetSpottedUnit()->SetTask(nullptr);
     }
 
     m_base_priority = TASK_PRIORITY_ATTACK_DEFAULT;
 
-    for (SmartList<TaskKillUnit>::Iterator it = primary_targets.Begin(); it != primary_targets.End(); ++it) {
+    for (auto it = primary_targets.Begin(), it_end = primary_targets.End(); it != it_end; ++it) {
         UnitInfo* target = (*it).GetUnitSpotted();
 
         if (target) {
@@ -2000,27 +1991,28 @@ void TaskAttack::AssessEnemyUnits() {
                 (*it).GetSpottedUnit()->SetTask(this);
 
             } else {
-                RemoveTask(&*it);
+                RemoveTask(it->Get());
             }
         }
     }
 
-    for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
+    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
         SpottedUnit* target = (*it).GetSpottedUnit();
 
         if (target->GetTask() == this || IsDefenderDangerous(target)) {
             target->SetTask(this);
 
         } else {
-            RemoveTask(&*it);
+            RemoveTask(it->Get());
         }
     }
 
-    for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[m_team].GetSpottedUnits().Begin();
-         it != AiPlayer_Teams[m_team].GetSpottedUnits().End(); ++it) {
+    for (auto it = AiPlayer_Teams[m_team].GetSpottedUnits().Begin(),
+              it_end = AiPlayer_Teams[m_team].GetSpottedUnits().End();
+         it != it_end; ++it) {
         UnitInfo* target = (*it).GetUnit();
 
-        if (target && target->team == enemy_team && (*it).GetTask() != this && IsDefenderDangerous(&*it)) {
+        if (target && target->team == enemy_team && (*it).GetTask() != this && IsDefenderDangerous(it->Get())) {
             TaskAttack* attack_task = dynamic_cast<TaskAttack*>((*it).GetTask());
 
             if (attack_task) {
@@ -2038,7 +2030,8 @@ void TaskAttack::AssessEnemyUnits() {
                 }
 
             } else {
-                SmartPointer<TaskKillUnit> task_kill_unit(new (std::nothrow) TaskKillUnit(this, &*it, m_base_priority));
+                SmartPointer<TaskKillUnit> task_kill_unit(new (std::nothrow)
+                                                              TaskKillUnit(this, it->Get(), m_base_priority));
 
                 (*it).SetTask(this);
                 secondary_targets.PushBack(*task_kill_unit);
@@ -2048,7 +2041,7 @@ void TaskAttack::AssessEnemyUnits() {
         }
     }
 
-    for (SmartList<TaskKillUnit>::Iterator it = secondary_targets.Begin(); it != secondary_targets.End(); ++it) {
+    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
         (*it).SetPriority(m_base_priority);
     }
 }

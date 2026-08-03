@@ -92,8 +92,8 @@ bool UnitInfoGroup::Populate() {
 
                 if (units) {
                     // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
-                        if (UnitInfoGroup::IsRelevant(&(*it), this)) {
+                    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+                        if (UnitInfoGroup::IsRelevant(it->Get(), this)) {
                             if ((*it).flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
                                 sea_land_units.Insert((*it));
 
@@ -237,9 +237,9 @@ void UnitInfoGroup::RenderGroups() {
 }
 
 void UnitInfoGroup::RenderList(SmartList<UnitInfo>* units) {
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if (UnitInfoGroup::IsRelevant(&(*it), this)) {
-            DrawMap_RenderUnit(this, &(*it));
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+        if (UnitInfoGroup::IsRelevant(it->Get(), this)) {
+            DrawMap_RenderUnit(this, it->Get());
         }
     }
 }
@@ -248,41 +248,41 @@ void UnitInfoGroup::RenderLists() {
     RenderList(&UnitsManager_GroundCoverUnits);
     RenderList(&UnitsManager_MobileLandSeaUnits);
     RenderList(&UnitsManager_StationaryUnits);
-    SmartList<UnitInfo>::Iterator it2 = UnitsManager_ParticleUnits.End();
+    const auto it2_end = UnitsManager_ParticleUnits.End();
+    auto it2 = it2_end;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-         it != UnitsManager_MobileAirUnits.End(); ++it) {
-        if (IsRelevant(&(*it), this)) {
-            DrawMap_RenderAirShadow(this, &(*it));
+    for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+         ++it) {
+        if (IsRelevant(it->Get(), this)) {
+            DrawMap_RenderAirShadow(this, it->Get());
 
             if (!((*it).flags & HOVERING)) {
-                DrawMap_RenderUnit(this, &(*it), false);
+                DrawMap_RenderUnit(this, it->Get(), false);
             }
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_ParticleUnits.Begin(); it != UnitsManager_ParticleUnits.End();
-         ++it) {
+    for (auto it = UnitsManager_ParticleUnits.Begin(), it_end = UnitsManager_ParticleUnits.End(); it != it_end; ++it) {
         if (((*it).flags & EXPLODING) && (*it).GetUnitType() != RKTSMOKE) {
             it2 = it;
             break;
         }
 
-        if (IsRelevant(&(*it), this)) {
-            DrawMap_RenderUnit(this, &(*it), false);
+        if (IsRelevant(it->Get(), this)) {
+            DrawMap_RenderUnit(this, it->Get(), false);
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-         it != UnitsManager_MobileAirUnits.End(); ++it) {
-        if (((*it).flags & HOVERING) && IsRelevant(&(*it), this)) {
-            DrawMap_RenderUnit(this, &(*it), false);
+    for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+         ++it) {
+        if (((*it).flags & HOVERING) && IsRelevant(it->Get(), this)) {
+            DrawMap_RenderUnit(this, it->Get(), false);
         }
     }
 
-    for (; it2 != UnitsManager_ParticleUnits.End(); ++it2) {
-        if (IsRelevant(&(*it2), this)) {
-            DrawMap_RenderUnit(this, &(*it2), false);
+    for (; it2 != it2_end; ++it2) {
+        if (IsRelevant(it2->Get(), this)) {
+            DrawMap_RenderUnit(this, it2->Get(), false);
         }
     }
 }

@@ -112,8 +112,8 @@ void TeamUnits::FileSave(SmartFileWriter& file) {
 
     file.WriteObjectCount(complexes.GetCount());
 
-    for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
-        file.WriteObject(&*it);
+    for (auto it = complexes.Begin(), it_end = complexes.End(); it != it_end; ++it) {
+        file.WriteObject(it->Get());
     }
 }
 
@@ -138,12 +138,12 @@ void TeamUnits::SetGold(uint32_t value) { gold = value; }
 Complex* TeamUnits::CreateComplex() {
     uint16_t complex_id;
     Complex* result;
-    SmartList<Complex>::Iterator it;
 
     complex_id = 1;
-    it = complexes.Begin();
 
-    for (; it != complexes.End() && (*it).GetId() == complex_id; ++it, ++complex_id) {
+    auto it = complexes.Begin(), it_end = complexes.End();
+
+    for (; it != it_end && (*it).GetId() == complex_id; ++it, ++complex_id) {
     }
 
     result = new (std::nothrow) Complex(complex_id);
@@ -157,9 +157,9 @@ SmartList<Complex>& TeamUnits::GetComplexes() { return complexes; }
 Complex* TeamUnits::GetComplex(uint16_t complex_id) {
     Complex* result = nullptr;
 
-    for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
+    for (auto it = complexes.Begin(), it_end = complexes.End(); it != it_end; ++it) {
         if ((*it).GetId() == complex_id) {
-            result = &*it;
+            result = it->Get();
             break;
         }
     }
@@ -168,9 +168,9 @@ Complex* TeamUnits::GetComplex(uint16_t complex_id) {
 }
 
 void TeamUnits::OptimizeComplexes(uint16_t team) {
-    for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
-        Access_UpdateResourcesTotal(&*it);
-        ProductionManager_OptimizeProduction(team, &*it, nullptr, false);
+    for (auto it = complexes.Begin(), it_end = complexes.End(); it != it_end; ++it) {
+        Access_UpdateResourcesTotal(it->Get());
+        ProductionManager_OptimizeProduction(team, it->Get(), nullptr, false);
     }
 }
 
@@ -178,11 +178,11 @@ void TeamUnits::RemoveComplex(Complex& object) { complexes.Remove(object); }
 
 void TeamUnits::ClearComplexes() { complexes.Clear(); }
 
-UnitValues* TeamUnits::GetBaseUnitValues(uint16_t id) { return &*base_values[id]; }
+UnitValues* TeamUnits::GetBaseUnitValues(uint16_t id) { return base_values[id].Get(); }
 
 void TeamUnits::SetBaseUnitValues(uint16_t id, UnitValues& object) { base_values[id] = object; }
 
-UnitValues* TeamUnits::GetCurrentUnitValues(uint16_t id) { return &*current_values[id]; }
+UnitValues* TeamUnits::GetCurrentUnitValues(uint16_t id) { return current_values[id].Get(); }
 
 void TeamUnits::SetCurrentUnitValues(uint16_t id, UnitValues& object) { current_values[id] = object; }
 

@@ -56,13 +56,13 @@ void SmartList_UnitInfo_FileSave(SmartList<UnitInfo>& list, SmartFileWriter& fil
     uint32_t count = list.GetCount();
 
     file.Write(count);
-    for (SmartList<UnitInfo>::Iterator unit = list.Begin(); unit != list.End(); ++unit) {
-        file.WriteObject(&*unit);
+    for (auto unit = list.Begin(), unit_end = list.End(); unit != unit_end; ++unit) {
+        file.WriteObject(unit->Get());
     }
 }
 
 void SmartList_UnitInfo_Clear(SmartList<UnitInfo>& list) {
-    for (SmartList<UnitInfo>::Iterator unit = list.Begin(); unit != list.End(); ++unit) {
+    for (auto unit = list.Begin(), unit_end = list.End(); unit != unit_end; ++unit) {
         unit->Get()->SetParent(nullptr);
         unit->Get()->SetEnemy(nullptr);
         unit->Get()->RemoveTasks();
@@ -131,9 +131,9 @@ MapHash::~MapHash() { delete[] entry; }
 
 void MapHash::AddEx(UnitInfo* unit, uint16_t grid_x, uint16_t grid_y, bool mode) {
     SmartList<MapHashObject>* list = &entry[(grid_y ^ (grid_x << x_shift)) % hash_size];
-    SmartList<MapHashObject>::Iterator object = list->Begin();
+    auto object = list->Begin(), object_end = list->End();
 
-    while (object != list->End()) {
+    while (object != object_end) {
         if (grid_x == (*object).GetX() && grid_y == (*object).GetY()) {
             break;
         }
@@ -141,7 +141,7 @@ void MapHash::AddEx(UnitInfo* unit, uint16_t grid_x, uint16_t grid_y, bool mode)
         ++object;
     }
 
-    if (object == list->End()) {
+    if (object == object_end) {
         list->PushFront(*new (std::nothrow) MapHashObject(grid_x, grid_y));
         object = list->Begin();
     }
@@ -173,9 +173,9 @@ void MapHash::Add(UnitInfo* unit, bool mode) {
 
 void MapHash::RemoveEx(UnitInfo* unit, uint16_t grid_x, uint16_t grid_y) {
     SmartList<MapHashObject>* list = &entry[(grid_y ^ (grid_x << x_shift)) % hash_size];
-    SmartList<MapHashObject>::Iterator object = list->Begin();
+    auto object = list->Begin(), object_end = list->End();
 
-    while (object != list->End()) {
+    while (object != object_end) {
         if (grid_x == (*object).GetX() && grid_y == (*object).GetY()) {
             break;
         }
@@ -183,7 +183,7 @@ void MapHash::RemoveEx(UnitInfo* unit, uint16_t grid_x, uint16_t grid_y) {
         ++object;
     }
 
-    if (object != list->End()) {
+    if (object != object_end) {
         (*object).Remove(unit);
 
         if (!(*object).GetList().GetCount()) {
@@ -243,7 +243,7 @@ void MapHash::FileSave(SmartFileWriter& file) {
         uint32_t count = entry[index].GetCount();
         file.Write(count);
 
-        for (SmartList<MapHashObject>::Iterator object = entry[index].Begin(); object != entry[index].End(); ++object) {
+        for (auto object = entry[index].Begin(), object_end = entry[index].End(); object != object_end; ++object) {
             (*object).FileSave(file);
         }
     }
@@ -282,7 +282,7 @@ void UnitHash::Remove(UnitInfo* unit) {
 
 void UnitHash::Clear() {
     for (int32_t index = 0; index < hash_size; ++index) {
-        for (SmartList<UnitInfo>::Iterator unit = list[index].Begin(); unit != list[index].End(); ++unit) {
+        for (auto unit = list[index].Begin(), unit_end = list[index].End(); unit != unit_end; ++unit) {
             (*unit).ClearUnitList();
             (*unit).SetParent(nullptr);
         }
@@ -317,9 +317,9 @@ void UnitHash::FileSave(SmartFileWriter& file) {
 UnitInfo* UnitHash::operator[](const uint16_t& key) {
     const auto& units = list[key % hash_size];
 
-    for (auto unit = units.Begin(); unit != units.End(); ++unit) {
+    for (auto unit = units.Begin(), unit_end = units.End(); unit != unit_end; ++unit) {
         if (key == (*unit).GetId()) {
-            return &(*unit);
+            return unit->Get();
         }
     }
 

@@ -132,13 +132,13 @@ UnitInfo* TaskRepair::SelectRepairShop() {
         int32_t distance;
         int32_t minimum_distance{INT32_MAX};
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             if ((*it).team == m_team && (*it).GetUnitType() == repair_shop) {
-                distance = Access_GetApproximateDistance(&*it, &*target_unit);
+                distance = Access_GetApproximateDistance(it->Get(), &*target_unit);
 
                 if (result == nullptr || distance < minimum_distance) {
-                    result = &*it;
+                    result = it->Get();
                     minimum_distance = distance;
                 }
             }
@@ -200,17 +200,16 @@ void TaskRepair::CreateUnitIfNeeded(ResourceID unit_type) {
         unit_list = &UnitsManager_MobileLandSeaUnits;
     }
 
-    for (SmartList<UnitInfo>::Iterator it = unit_list->Begin(); it != unit_list->End(); ++it) {
+    for (auto it = unit_list->Begin(), it_end = unit_list->End(); it != it_end; ++it) {
         if ((*it).team == m_team && (*it).GetUnitType() == unit_type) {
             return;
         }
     }
 
-    for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
-         ++it) {
+    for (auto it = TaskManager.GetTaskList().Begin(), it_end = TaskManager.GetTaskList().End(); it != it_end; ++it) {
         if ((*it).GetTeam() == m_team &&
             ((*it).GetType() == TaskType_TaskCreateBuilding || (*it).GetType() == TaskType_TaskCreateUnit)) {
-            if (dynamic_cast<TaskCreate*>(&*it)->GetUnitType() == unit_type) {
+            if (dynamic_cast<TaskCreate*>(it->Get())->GetUnitType() == unit_type) {
                 return;
             }
         }
@@ -376,7 +375,7 @@ bool TaskRepair::Execute(UnitInfo& unit) {
                                 const auto tasks = operator_unit->GetTasks();
                                 SmartPointer<Task> task;
 
-                                for (auto it = tasks.Begin(); it != tasks.End(); ++it) {
+                                for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
                                     if ((*it).GetType() == TaskType_TaskRendezvous && (*it).GetParent() == this) {
                                         task = *it;
                                         break;
@@ -454,16 +453,16 @@ void TaskRepair::SelectOperator() {
         int32_t distance;
         int32_t minimum_distance{INT32_MAX};
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-             it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+        for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+             it != it_end; ++it) {
             if ((*it).team == m_team && (*it).GetUnitType() == REPAIR && (*it).hits > 0 &&
                 ((*it).GetOrder() == ORDER_AWAIT || ((*it).GetOrder() == ORDER_MOVE && (*it).speed == 0)) &&
                 target_unit != (*it)) {
                 if ((*it).GetTask() == nullptr || (*it).GetTask()->ComparePriority(m_base_priority) > 0) {
-                    distance = Access_GetApproximateDistance(&*it, &*target_unit);
+                    distance = Access_GetApproximateDistance(it->Get(), &*target_unit);
 
                     if (unit == nullptr || distance < minimum_distance) {
-                        unit = &*it;
+                        unit = it->Get();
                         minimum_distance = distance;
                     }
                 }

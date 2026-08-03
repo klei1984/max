@@ -151,7 +151,7 @@ static uint32_t TacticalOverlay_GetCellValue(int32_t grid_x, int32_t grid_y, int
             if (units) {
                 uint32_t count = 0;
 
-                for (auto it = units->Begin(); it != units->End(); ++it) {
+                for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                     if ((*it).team == team) {
                         ++count;
                     }

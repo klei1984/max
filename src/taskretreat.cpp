@@ -48,7 +48,7 @@ void TaskRetreat::Init() {
     steps_in_direction = 0;
     found_valid_position = 1;
 
-    for (SmartList<Task>::Iterator it = unit_to_retreat->GetTasks().Begin(); it != unit_to_retreat->GetTasks().End();
+    for (auto it = unit_to_retreat->GetTasks().Begin(), it_end = unit_to_retreat->GetTasks().End(); it != it_end;
          ++it) {
         if ((*it).GetType() == TaskType_TaskRetreat) {
             TaskManager.RemoveTask(*this);

@@ -76,13 +76,13 @@ UnitInfo* TaskGetResource::FindClosestBuilding(Complex* complex) {
     int32_t distance;
     int32_t minimum_distance{INT32_MAX};
 
-    for (SmartList<UnitInfo>::Iterator unit = UnitsManager_StationaryUnits.Begin();
-         unit != UnitsManager_StationaryUnits.End(); ++unit) {
+    for (auto unit = UnitsManager_StationaryUnits.Begin(), unit_end = UnitsManager_StationaryUnits.End();
+         unit != unit_end; ++unit) {
         if ((*unit).GetComplex() == complex) {
-            distance = Access_GetApproximateDistance(&(*unit), &*requestor);
+            distance = Access_GetApproximateDistance(unit->Get(), &*requestor);
 
             if (best_building == nullptr || (minimum_distance > distance)) {
-                best_building = &*unit;
+                best_building = unit->Get();
                 minimum_distance = distance;
             }
         }

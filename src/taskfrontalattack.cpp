@@ -47,15 +47,15 @@ void TaskFrontalAttack::MoveFinishedCallback(Task* task, UnitInfo* unit, char re
 void TaskFrontalAttack::Finish() {
     SmartPointer<Task> frontal_attack_task(this);
 
-    for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
-        Task_RemoveMovementTasks(&*it);
+    for (auto it = units1.Begin(), it_end = units1.End(); it != it_end; ++it) {
+        Task_RemoveMovementTasks(it->Get());
         (*it).RemoveTask(this);
     }
 
     units1.Clear();
 
-    for (SmartList<UnitInfo>::Iterator it = units2.Begin(); it != units2.End(); ++it) {
-        Task_RemoveMovementTasks(&*it);
+    for (auto it = units2.Begin(), it_end = units2.End(); it != it_end; ++it) {
+        Task_RemoveMovementTasks(it->Get());
         (*it).RemoveTask(this);
     }
 
@@ -69,7 +69,7 @@ void TaskFrontalAttack::IssueOrders() {
     int32_t units_ready_for_orders = 0;
 
     if (GameManager_PlayMode != PLAY_MODE_UNKNOWN && target->hits > 0) {
-        for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
+        for (auto it = units1.Begin(), it_end = units1.End(); it != it_end; ++it) {
             if ((*it).shots == 0 && ((*it).speed == 0 || ((*it).GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
                                                           ResourceManager_GetSettings()->GetNumericValue("opponent") >=
                                                               OPPONENT_TYPE_AVERAGE))) {
@@ -79,12 +79,12 @@ void TaskFrontalAttack::IssueOrders() {
         }
 
         if (GameManager_IsActiveTurn(m_team)) {
-            for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
-                if (Task_IsReadyToTakeOrders(&*it)) {
-                    if ((*it).speed == 0 || Access_GetSquaredDistance(&*it, spotted_unit->GetLastPosition()) <=
+            for (auto it = units1.Begin(), it_end = units1.End(); it != it_end; ++it) {
+                if (Task_IsReadyToTakeOrders(it->Get())) {
+                    if ((*it).speed == 0 || Access_GetSquaredDistance(it->Get(), spotted_unit->GetLastPosition()) <=
                                                 (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE) *
                                                     (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE)) {
-                        if (!AiAttack_EvaluateAttack(&*it)) {
+                        if (!AiAttack_EvaluateAttack(it->Get())) {
                             units2.PushBack(*it);
                             units1.Remove(*it);
                         }
@@ -99,7 +99,7 @@ void TaskFrontalAttack::IssueOrders() {
             }
         }
 
-        for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
+        for (auto it = units1.Begin(), it_end = units1.End(); it != it_end; ++it) {
             if ((*it).speed == 0) {
                 (*it).RemoveTask(this);
                 units1.Remove(*it);
@@ -112,9 +112,9 @@ void TaskFrontalAttack::IssueOrders() {
             int32_t unit_value;
             int32_t best_unit_value{0};
 
-            for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
+            for (auto it = units1.Begin(), it_end = units1.End(); it != it_end; ++it) {
                 if ((*it).GetOrder() == ORDER_MOVE_TO_ATTACK ||
-                    Access_GetSquaredDistance(&*it, spotted_unit->GetLastPosition()) <=
+                    Access_GetSquaredDistance(it->Get(), spotted_unit->GetLastPosition()) <=
                         (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE) *
                             (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE)) {
                     has_attack_target = true;
@@ -127,7 +127,7 @@ void TaskFrontalAttack::IssueOrders() {
                     if (units1.GetCount() == 1 ||
                         (UnitsManager_TeamInfo[m_team].heat_map &&
                          UnitsManager_TeamInfo[m_team].heat_map->GetComplete(target->grid_x, target->grid_y) != 1) ||
-                        Access_GetSquaredDistance(&*it, target) >
+                        Access_GetSquaredDistance(it->Get(), target) >
                             unit_values->GetAttribute(ATTRIB_SCAN) * unit_values->GetAttribute(ATTRIB_SCAN)) {
                         unit_value = ((unit_values->GetAttribute(ATTRIB_ARMOR) * 4 + (*it).hits) * 12) /
                                      unit_values->GetAttribute(ATTRIB_TURNS);
@@ -142,7 +142,7 @@ void TaskFrontalAttack::IssueOrders() {
 
                         if (!attacker || unit_value > best_unit_value ||
                             (unit_value == best_unit_value && !attacker->IsReadyForOrders(this))) {
-                            attacker = &*it;
+                            attacker = it->Get();
                             best_unit_value = unit_value;
                         }
                     }
@@ -186,9 +186,9 @@ void TaskFrontalAttack::IssueOrders() {
                     if (is_found && !AiAttack_DecideDesperationAttack(attacker, target)) {
                         total_predicted_damage_to_enemy = 0;
 
-                        for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
+                        for (auto it = units1.Begin(), it_end = units1.End(); it != it_end; ++it) {
                             total_predicted_damage_to_enemy +=
-                                AiPlayer_CalculateProjectedDamage(&*it, target, local_caution_level);
+                                AiPlayer_CalculateProjectedDamage(it->Get(), target, local_caution_level);
                         }
 
                         damage_potential_on_friendly_unit =
@@ -201,9 +201,9 @@ void TaskFrontalAttack::IssueOrders() {
                             if (local_caution_level == CAUTION_LEVEL_AVOID_REACTION_FIRE) {
                                 total_predicted_damage_to_enemy = 0;
 
-                                for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
+                                for (auto it = units1.Begin(), it_end = units1.End(); it != it_end; ++it) {
                                     total_predicted_damage_to_enemy += AiPlayer_CalculateProjectedDamage(
-                                        &*it, target, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE);
+                                        it->Get(), target, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE);
                                 }
 
                                 damage_potential_on_friendly_unit = AiPlayer_Teams[m_team].GetDamagePotential(
@@ -257,8 +257,8 @@ void TaskFrontalAttack::IssueOrders() {
 
             } else {
                 if (!has_attack_target) {
-                    for (SmartList<UnitInfo>::Iterator it = units2.Begin(); it != units2.End(); ++it) {
-                        if (Task_RetreatIfNecessary(this, &*it, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
+                    for (auto it = units2.Begin(), it_end = units2.End(); it != it_end; ++it) {
+                        if (Task_RetreatIfNecessary(this, it->Get(), CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
                             if (!IsScheduledForTurnEnd()) {
                                 TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
                             }
@@ -267,8 +267,8 @@ void TaskFrontalAttack::IssueOrders() {
                         }
                     }
 
-                    for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
-                        if (Task_RetreatIfNecessary(this, &*it, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
+                    for (auto it = units1.Begin(), it_end = units1.End(); it != it_end; ++it) {
+                        if (Task_RetreatIfNecessary(this, it->Get(), CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
                             if (!IsScheduledForTurnEnd()) {
                                 TaskManager.AppendReminder(new (std::nothrow) class RemindTurnEnd(*this));
                             }
@@ -331,20 +331,20 @@ void TaskFrontalAttack::AddUnit(UnitInfo& unit) {
 void TaskFrontalAttack::Init() {
     UnitInfo* target = spotted_unit->GetUnit();
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-         it != UnitsManager_MobileAirUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == m_team &&
             ((*it).GetTask() == nullptr || (*it).GetTask()->ComparePriority(m_base_priority) > 0) &&
-            AiPlayer_GetProjectedDamage(&*it, target, caution_level) > 0) {
+            AiPlayer_GetProjectedDamage(it->Get(), target, caution_level) > 0) {
             AddUnit(*it);
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
         if ((*it).team == m_team &&
             ((*it).GetTask() == nullptr || (*it).GetTask()->ComparePriority(m_base_priority) > 0) &&
-            AiPlayer_GetProjectedDamage(&*it, target, caution_level) > 0) {
+            AiPlayer_GetProjectedDamage(it->Get(), target, caution_level) > 0) {
             AddUnit(*it);
         }
     }
@@ -379,14 +379,14 @@ void TaskFrontalAttack::RemoveSelf() {
     m_parent = nullptr;
     spotted_unit = nullptr;
 
-    for (SmartList<UnitInfo>::Iterator it = units1.Begin(); it != units1.End(); ++it) {
-        TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
+    for (auto it = units1.Begin(), it_end = units1.End(); it != it_end; ++it) {
+        TaskManager.ClearUnitTasksAndRemindAvailable(it->Get());
     }
 
     units1.Clear();
 
-    for (SmartList<UnitInfo>::Iterator it = units2.Begin(); it != units2.End(); ++it) {
-        TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
+    for (auto it = units2.Begin(), it_end = units2.End(); it != it_end; ++it) {
+        TaskManager.ClearUnitTasksAndRemindAvailable(it->Get());
     }
 
     units2.Clear();

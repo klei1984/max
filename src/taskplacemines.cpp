@@ -77,7 +77,7 @@ bool TaskPlaceMines::IsNeeded() {
     bool has_mine_layer = false;
     bool has_sea_mine_layer = false;
 
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).GetUnitType() == MINELAYR) {
             has_mine_layer = true;
 
@@ -107,7 +107,7 @@ void TaskPlaceMines::BeginTurn() {
     bool has_mine_layer = mine_layer_count > 0;
     bool has_sea_mine_layer = sea_mine_layer_count > 0;
 
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).GetUnitType() == MINELAYR) {
             has_mine_layer = true;
 
@@ -136,7 +136,7 @@ void TaskPlaceMines::BeginTurn() {
 }
 
 void TaskPlaceMines::EndTurn() {
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if (Execute(*it)) {
             return;
         }
@@ -234,8 +234,8 @@ bool TaskPlaceMines::Execute(UnitInfo& unit) {
 }
 
 void TaskPlaceMines::RemoveSelf() {
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+        TaskManager.ClearUnitTasksAndRemindAvailable(it->Get());
     }
 
     units.Clear();

@@ -41,8 +41,8 @@ DefenseManager::DefenseManager() {
 DefenseManager::~DefenseManager() {}
 
 void DefenseManager::ClearUnitsList() {
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+        TaskManager.ClearUnitTasksAndRemindAvailable(it->Get());
     }
 
     units.Clear();
@@ -113,20 +113,20 @@ void DefenseManager::AddRule(uint16_t team, ResourceID unit_type, int32_t weight
 void DefenseManager::MaintainDefences(Task* task) {
     SmartPointer<Task> maintenance_task;
 
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).IsReadyForOrders(task)) {
             maintenance_task = nullptr;
 
             if ((*it).GetBaseValues()->GetAttribute(ATTRIB_HITS) != (*it).hits &&
                 ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_APPRENTICE) {
-                maintenance_task = new (std::nothrow) TaskRepair(&*it);
+                maintenance_task = new (std::nothrow) TaskRepair(it->Get());
 
             } else if ((*it).ammo < (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {
-                maintenance_task = new (std::nothrow) TaskReload(&*it);
+                maintenance_task = new (std::nothrow) TaskReload(it->Get());
 
             } else if (((*it).flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
-                       !((*it).flags & REGENERATING_UNIT) && AiPlayer_Teams[(*it).team].ShouldUpgradeUnit(&*it)) {
-                maintenance_task = new (std::nothrow) TaskUpgrade(&*it);
+                       !((*it).flags & REGENERATING_UNIT) && AiPlayer_Teams[(*it).team].ShouldUpgradeUnit(it->Get())) {
+                maintenance_task = new (std::nothrow) TaskUpgrade(it->Get());
             }
 
             if (maintenance_task) {

@@ -837,14 +837,14 @@ bool GameManager_RefreshOrders(uint16_t team, bool check_production) {
 
     const auto& complexes = team_info->team_units->GetComplexes();
 
-    for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
-        Access_UpdateResourcesTotal(&(*it));
+    for (auto it = complexes.Begin(), it_end = complexes.End(); it != it_end; ++it) {
+        Access_UpdateResourcesTotal(it->Get());
 
-        if (!GameManager_OptimizeProduction(team, &(*it), is_player, true) && !check_production) {
+        if (!GameManager_OptimizeProduction(team, it->Get(), is_player, true) && !check_production) {
             return false;
         }
 
-        if (ProductionManager_UpdateIndustryOrders(team, &(*it)) && is_player) {
+        if (ProductionManager_UpdateIndustryOrders(team, it->Get()) && is_player) {
             sprintf(message, _(a9fd), (*it).GetId());
 
             MessageManager_DrawMessage(message, MESSAGE_BOX_NOTICE, MESSAGE_BOX_MODELESS, false, true);
@@ -950,8 +950,8 @@ void GameManager_RenderScanRangeIndicators() {
         if (GameManager_DisplayButtonLock && (GameManager_DisplayButtonRange || GameManager_DisplayButtonScan) &&
             GameManager_LockedUnits.GetCount()) {
             SmartPointer<UnitValues> unit_values;
-            for (SmartList<UnitInfo>::Iterator it = GameManager_LockedUnits.Begin();
-                 it != GameManager_LockedUnits.End(); ++it) {
+            for (auto it = GameManager_LockedUnits.Begin(), it_end = GameManager_LockedUnits.End(); it != it_end;
+                 ++it) {
                 if ((*it).team != GameManager_PlayerTeam &&
                     ((*it).GetOrderState() == ORDER_STATE_EXECUTING_ORDER ||
                      (*it).GetOrderState() == ORDER_STATE_READY_TO_EXECUTE_ORDER)) {
@@ -964,10 +964,11 @@ void GameManager_RenderScanRangeIndicators() {
                             } else {
                                 color = COLOR_RED;
                             }
-                            GameManager_DrawCircle(&*it, window, unit_values->GetAttribute(ATTRIB_RANGE), color);
+                            GameManager_DrawCircle(it->Get(), window, unit_values->GetAttribute(ATTRIB_RANGE), color);
                         }
                         if (GameManager_DisplayButtonScan) {
-                            GameManager_DrawCircle(&*it, window, unit_values->GetAttribute(ATTRIB_SCAN), COLOR_YELLOW);
+                            GameManager_DrawCircle(it->Get(), window, unit_values->GetAttribute(ATTRIB_SCAN),
+                                                   COLOR_YELLOW);
                         }
                     }
                 }
@@ -2004,7 +2005,7 @@ void GameManager_GameLoopCleanup() {
 }
 
 void GameManager_UpdateProductions(uint16_t team, SmartList<UnitInfo>* units) {
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if ((*it).team == team) {
             (*it).UpdateProduction();
         }
@@ -2012,7 +2013,7 @@ void GameManager_UpdateProductions(uint16_t team, SmartList<UnitInfo>* units) {
 }
 
 void GameManager_ResupplyUnits(uint16_t team, SmartList<UnitInfo>* units) {
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if ((*it).team == team && (*it).GetOrder() != ORDER_DISABLE) {
             (*it).Resupply();
         }
@@ -2290,7 +2291,7 @@ uint16_t GameManager_GetCrc16(uint16_t data, uint16_t crc_checksum) {
 
 uint16_t GameManager_GetUnitListChecksum(SmartList<UnitInfo>* units, uint16_t team, uint16_t crc_checksum) {
     if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE || team == PLAYER_TEAM_ALIEN) {
-        for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
             if ((*it).GetId() != 0xFFFF && !((*it).flags & EXPLODING) && (*it).team == team) {
                 crc_checksum = GameManager_GetCrc16((*it).team, crc_checksum);
                 crc_checksum = GameManager_GetCrc16((*it).GetUnitType(), crc_checksum);
@@ -2653,50 +2654,50 @@ bool GameManager_ProcessPopupMenuInput(int32_t key) {
 }
 
 void GameManager_PunishCheater() {
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetOrder() == ORDER_EXPLODE) {
             return;
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-         it != UnitsManager_MobileAirUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetOrder() == ORDER_EXPLODE) {
             return;
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
         if ((*it).GetOrder() == ORDER_EXPLODE) {
             return;
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == GameManager_CheaterTeam) {
             (*it).FollowUnit();
-            UnitsManager_SetNewOrder(&(*it), ORDER_EXPLODE, ORDER_STATE_EXPLODE);
+            UnitsManager_SetNewOrder(it->Get(), ORDER_EXPLODE, ORDER_STATE_EXPLODE);
             return;
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
         if ((*it).team == GameManager_CheaterTeam) {
             (*it).FollowUnit();
-            UnitsManager_SetNewOrder(&(*it), ORDER_EXPLODE, ORDER_STATE_EXPLODE);
+            UnitsManager_SetNewOrder(it->Get(), ORDER_EXPLODE, ORDER_STATE_EXPLODE);
             return;
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-         it != UnitsManager_MobileAirUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == GameManager_CheaterTeam) {
             (*it).FollowUnit();
-            UnitsManager_SetNewOrder(&(*it), ORDER_EXPLODE, ORDER_STATE_EXPLODE);
+            UnitsManager_SetNewOrder(it->Get(), ORDER_EXPLODE, ORDER_STATE_EXPLODE);
             return;
         }
     }
@@ -2751,8 +2752,8 @@ void GameManager_ProcessCheatCodes() {
             } break;
 
             case CHEAT_CODE_MAXSTORAGE: {
-                for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                     it != UnitsManager_StationaryUnits.End(); ++it) {
+                for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                     it != it_end; ++it) {
                     if ((*it).team == GameManager_PlayerTeam &&
                         ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() >=
                             Unit::CargoType::CARGO_TYPE_RAW &&
@@ -2762,8 +2763,8 @@ void GameManager_ProcessCheatCodes() {
                     }
                 }
 
-                for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-                     it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+                for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+                     it != it_end; ++it) {
                     if ((*it).team == GameManager_PlayerTeam &&
                         ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() >=
                             Unit::CargoType::CARGO_TYPE_RAW &&
@@ -2777,22 +2778,22 @@ void GameManager_ProcessCheatCodes() {
             } break;
 
             case CHEAT_CODE_MAXAMMO: {
-                for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                     it != UnitsManager_StationaryUnits.End(); ++it) {
+                for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                     it != it_end; ++it) {
                     if ((*it).team == GameManager_PlayerTeam) {
                         (*it).ammo = (*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO);
                     }
                 }
 
-                for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-                     it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+                for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+                     it != it_end; ++it) {
                     if ((*it).team == GameManager_PlayerTeam) {
                         (*it).ammo = (*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO);
                     }
                 }
 
-                for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-                     it != UnitsManager_MobileAirUnits.End(); ++it) {
+                for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End();
+                     it != it_end; ++it) {
                     if ((*it).team == GameManager_PlayerTeam) {
                         (*it).ammo = (*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO);
                     }
@@ -5236,7 +5237,7 @@ bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo>& units) {
         _(0664), _(5ece), _(68b7), _(6553), _(dc38), _(ab01), _(e2c5), _(1469), _(a4b3), _(5e16), _(6172),
         _(7bcd), _(5f83), _(8115), _(e843), _(7508), _(d80d), _(85f8), _(1925), _(bc06), _(c331)};
 
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).GetOrder() == ORDER_FIRE || (*it).GetOrder() == ORDER_EXPLODE ||
             ((*it).GetOrder() == ORDER_MOVE && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER) ||
             ((*it).GetOrder() == ORDER_MOVE_TO_UNIT && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER)) {
@@ -5852,11 +5853,11 @@ bool GameManager_IsUnitNotInAir(UnitInfo* unit) {
 }
 
 UnitInfo* GameManager_GetUnitWithCargoType(Complex* complex, int32_t cargo_type) {
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetComplex() == complex &&
             ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == cargo_type) {
-            return &(*it);
+            return it->Get();
         }
     }
 
@@ -5985,9 +5986,9 @@ bool GameManager_IsValidTransferTarget(UnitInfo* unit1, UnitInfo* unit2) {
         complex = unit2->GetComplex();
 
         if (complex != nullptr) {
-            for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                 it != UnitsManager_StationaryUnits.End(); ++it) {
-                if (complex == (*it).GetComplex() && GameManager_IsUnitNextToPosition(&(*it), grid_x, grid_y)) {
+            for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                 it != it_end; ++it) {
+                if (complex == (*it).GetComplex() && GameManager_IsUnitNextToPosition(it->Get(), grid_x, grid_y)) {
                     return true;
                 }
             }
@@ -7354,8 +7355,8 @@ void GameManager_DrawInfoDisplayType2(UnitInfo* unit) {
         power_need = 0;
         current_power_need = 0;
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             if ((*it).GetComplex() == unit->GetComplex()) {
                 cargo.power = Cargo_GetPowerConsumptionRate((*it).GetUnitType());
 
@@ -7426,8 +7427,8 @@ void GameManager_DrawInfoDisplayType1(UnitInfo* unit) {
         life_need = 0;
         current_life_need = 0;
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             if ((*it).GetComplex() == unit->GetComplex()) {
                 cargo.life = Cargo_GetLifeConsumptionRate((*it).GetUnitType());
 
@@ -7966,7 +7967,7 @@ void GameManager_MenuDeinitDisplayControls() {
 }
 
 void GameManager_SpawnNewUnits(uint16_t team, SmartList<UnitInfo>* units, uint32_t* counts) {
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if ((*it).team == team && (*it).build_time && (*it).GetOrder() != ORDER_HALT_BUILDING &&
             (*it).GetOrder() != ORDER_HALT_BUILDING_2) {
             if ((*it).build_time <= (*it).GetBuildRate()) {
@@ -8090,9 +8091,9 @@ void GameManager_ProgressBuildState(uint16_t team) {
 
     const auto& complexes = UnitsManager_TeamInfo[team].team_units->GetComplexes();
 
-    for (SmartList<Complex>::Iterator it = complexes.Begin(); it != complexes.End(); ++it) {
-        Access_UpdateResourcesTotal(&(*it));
-        GameManager_OptimizeProduction(team, &(*it), false, true);
+    for (auto it = complexes.Begin(), it_end = complexes.End(); it != it_end; ++it) {
+        Access_UpdateResourcesTotal(it->Get());
+        GameManager_OptimizeProduction(team, it->Get(), false, true);
     }
 
     GameManager_GameState = GAME_STATE_8_IN_GAME;

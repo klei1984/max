@@ -104,10 +104,9 @@ void TaskDebugger::InitTaskList(Task* task) {
         task_count = 0;
     }
 
-    for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
-         ++it) {
+    for (auto it = TaskManager.GetTaskList().Begin(), it_end = TaskManager.GetTaskList().End(); it != it_end; ++it) {
         if ((*it).GetTeam() == team && (*it).GetParent() == task) {
-            tasks.Insert(&*it);
+            tasks.Insert(it->Get());
         }
     }
 

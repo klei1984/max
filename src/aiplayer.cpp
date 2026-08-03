@@ -163,7 +163,7 @@ Point AiPlayer::GetUnitClusterCoordinates(uint16_t team, SmartList<UnitInfo>* un
     int32_t grid_y = 0;
     Point result(0, 0);
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if ((*it).team == team) {
             ++team_unit_count;
             grid_x += (*it).grid_x;
@@ -242,7 +242,7 @@ void AiPlayer::UpdatePriorityTasks() {
         attack_tasks[i] = nullptr;
     }
 
-    for (auto it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End(); ++it) {
+    for (auto it = TaskManager.GetTaskList().Begin(), it_end = TaskManager.GetTaskList().End(); it != it_end; ++it) {
         if ((*it).GetTeam() == player_team && (*it).GetType() == TaskType_TaskAttack) {
             uint16_t task_priority = (*it).GetPriority();
             int32_t task_index;
@@ -276,7 +276,7 @@ void AiPlayer::DetermineTargetLocation(Point position) {
         int32_t distance;
         int32_t minimum_distance;
 
-        for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+        for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
             UnitInfo* unit = (*it).GetUnit();
 
             if (!target || unit->GetUnitType() == MININGST || target->GetUnit()->GetUnitType() != MININGST) {
@@ -284,7 +284,7 @@ void AiPlayer::DetermineTargetLocation(Point position) {
 
                 if (!target || (unit->GetUnitType() == MININGST && target->GetUnit()->GetUnitType() != MININGST) ||
                     distance < minimum_distance) {
-                    target = &*it;
+                    target = it->Get();
                     minimum_distance = distance;
                 }
             }
@@ -331,8 +331,8 @@ void AiPlayer::DetermineResearchProjects() {
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == player_team && (*it).GetUnitType() == RESEARCH && (*it).GetOrder() == ORDER_POWER_ON &&
             (*it).GetOrderState() != ORDER_STATE_INIT && (*it).research_topic != best_research_topic) {
             ResearchMenu_UpdateResearchProgress(player_team, (*it).research_topic, -1);
@@ -351,9 +351,9 @@ bool AiPlayer::IsPotentialSpotter(uint16_t team, UnitInfo* unit) {
 
     distance = distance * distance;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
-        if ((*it).team == team && Access_GetSquaredDistance(unit, &*it) <= distance) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
+        if ((*it).team == team && Access_GetSquaredDistance(unit, it->Get()) <= distance) {
             return true;
         }
     }
@@ -426,23 +426,23 @@ void AiPlayer::UpdateAccessMap(Point point1, Point point2, AccessMap& access_map
 
 bool AiPlayer::CheckAttacks() {
     if (Ai_GetReactionState() != AI_REACTION_STATE_ANIMATIONS_ACTIVE) {
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
-            if ((*it).team == player_team && AiAttack_EvaluateAttack(&*it)) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
+            if ((*it).team == player_team && AiAttack_EvaluateAttack(it->Get())) {
                 return true;
             }
         }
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-             it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-            if ((*it).team == player_team && AiAttack_EvaluateAttack(&*it)) {
+        for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+             it != it_end; ++it) {
+            if ((*it).team == player_team && AiAttack_EvaluateAttack(it->Get())) {
                 return true;
             }
         }
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-             it != UnitsManager_MobileAirUnits.End(); ++it) {
-            if ((*it).team == player_team && AiAttack_EvaluateAttack(&*it)) {
+        for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+             ++it) {
+            if ((*it).team == player_team && AiAttack_EvaluateAttack(it->Get())) {
                 return true;
             }
         }
@@ -452,8 +452,8 @@ bool AiPlayer::CheckAttacks() {
 }
 
 void AiPlayer::RegisterReadyAndAbleUnits(SmartList<UnitInfo>* units) {
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).team == player_team && Task_IsReadyToTakeOrders(&*it) && (*it).speed > 0) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+        if ((*it).team == player_team && Task_IsReadyToTakeOrders(it->Get()) && (*it).speed > 0) {
             TaskManager.EnqueueUnitForReactionCheck(*it);
         }
     }
@@ -475,27 +475,27 @@ bool AiPlayer::IsDemoMode() {
 }
 
 void AiPlayer::RegisterIdleUnits() {
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == player_team && !(*it).GetTask()) {
             if ((*it).ammo > 0 || (*it).GetUnitType() == LIGHTPLT || (*it).GetUnitType() == LANDPLT ||
                 (*it).GetUnitType() == SHIPYARD || (*it).GetUnitType() == AIRPLT || (*it).GetUnitType() == TRAINHAL) {
-                TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
+                TaskManager.ClearUnitTasksAndRemindAvailable(it->Get());
             }
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
         if ((*it).team == player_team && !(*it).GetTask()) {
-            TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
+            TaskManager.ClearUnitTasksAndRemindAvailable(it->Get());
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-         it != UnitsManager_MobileAirUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == player_team && !(*it).GetTask()) {
-            TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
+            TaskManager.ClearUnitTasksAndRemindAvailable(it->Get());
         }
     }
 }
@@ -504,9 +504,9 @@ int32_t AiPlayer::GetTotalProjectedDamage(UnitInfo* unit, int32_t caution_level,
                                           SmartList<UnitInfo>* units) {
     int32_t result = 0;
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if ((*it).team == team) {
-            result += AiPlayer_GetProjectedDamage(&*it, unit, caution_level);
+            result += AiPlayer_GetProjectedDamage(it->Get(), unit, caution_level);
         }
     }
 
@@ -596,7 +596,7 @@ void AiPlayer::InvalidateThreatMaps() {
 }
 
 void AiPlayer::DetermineDefenses(SmartList<UnitInfo>* units, int16_t** map) {
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if ((*it).shots > 0 && (*it).GetOrder() != ORDER_IDLE && (*it).GetOrder() != ORDER_DISABLE) {
             int32_t unit_range = (*it).GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
@@ -816,32 +816,32 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
             if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_MASTER &&
                 ResourceManager_GetSettings()->GetNumericValue("cheating_computer") >=
                     COMPUTER_CHEATING_LEVEL_SHAMELESS) {
-                for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                     it != UnitsManager_StationaryUnits.End(); ++it) {
-                    if (IsAbleToAttack(&*it, risk_group_unit, player_team) && (*it).team != player_team) {
-                        DetermineThreats(&*it, Point((*it).grid_x, (*it).grid_y), caution_level, teams,
+                for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                     it != it_end; ++it) {
+                    if (IsAbleToAttack(it->Get(), risk_group_unit, player_team) && (*it).team != player_team) {
+                        DetermineThreats(it->Get(), Point((*it).grid_x, (*it).grid_y), caution_level, teams,
                                          &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
                     }
                 }
 
-                for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-                     it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-                    if (IsAbleToAttack(&*it, risk_group_unit, player_team) && (*it).team != player_team) {
-                        DetermineThreats(&*it, Point((*it).grid_x, (*it).grid_y), caution_level, teams,
+                for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+                     it != it_end; ++it) {
+                    if (IsAbleToAttack(it->Get(), risk_group_unit, player_team) && (*it).team != player_team) {
+                        DetermineThreats(it->Get(), Point((*it).grid_x, (*it).grid_y), caution_level, teams,
                                          &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
                     }
                 }
 
-                for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-                     it != UnitsManager_MobileAirUnits.End(); ++it) {
-                    if (IsAbleToAttack(&*it, risk_group_unit, player_team) && (*it).team != player_team) {
-                        DetermineThreats(&*it, Point((*it).grid_x, (*it).grid_y), caution_level, teams,
+                for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End();
+                     it != it_end; ++it) {
+                    if (IsAbleToAttack(it->Get(), risk_group_unit, player_team) && (*it).team != player_team) {
+                        DetermineThreats(it->Get(), Point((*it).grid_x, (*it).grid_y), caution_level, teams,
                                          &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
                     }
                 }
 
             } else {
-                for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+                for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
                     if (IsAbleToAttack((*it).GetUnit(), risk_group_unit, player_team)) {
                         DetermineThreats((*it).GetUnit(), Point((*it).GetUnit()->grid_x, (*it).GetUnit()->grid_y),
                                          caution_level, teams, &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
@@ -850,7 +850,7 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
             }
 
         } else {
-            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+            for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
                 if (IsAbleToAttack((*it).GetUnit(), risk_group_unit, player_team)) {
                     DetermineThreats((*it).GetUnit(), (*it).GetLastPosition(), caution_level, teams,
                                      &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
@@ -923,7 +923,7 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
         if (risk_level == 4) {
             int16_t** active_damage_potential_map = AiPlayer_ThreatMaps[index].damage_potential_map;
 
-            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+            for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
                 if ((*it).GetUnit()->GetOrder() == ORDER_DISABLE) {
                     ZoneWalker walker((*it).GetLastPosition(), 4);
 
@@ -959,7 +959,7 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
         }
 
         if (risk_level != 3) {
-            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+            for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
                 UnitInfo* unit = (*it).GetUnit();
 
                 if (unit->GetUnitType() == LANDMINE || unit->GetUnitType() == SEAMINE) {
@@ -1074,7 +1074,7 @@ WeightTable AiPlayer::GetWeightTable(ResourceID unit_type) {
                 table += weight_table_commando;
             }
 
-            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+            for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
                 table += GetWeightTable((*it).GetUnit()->GetUnitType());
             }
 
@@ -1972,8 +1972,8 @@ SmartObjectArray<BuildOrder> AiPlayer::ChooseStrategicBuildOrders(bool mode) {
 void AiPlayer::ProcessBuildOrders(SmartObjectArray<BuildOrder> build_orders) {
     SmartObjectArray<ResourceID> unit_types;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == player_team && (*it).GetOrder() == ORDER_BUILD &&
             (*it).GetOrderState() != ORDER_STATE_UNIT_READY) {
             ResourceID constructed_unit_type = (*it).GetConstructedUnitType();
@@ -1984,8 +1984,8 @@ void AiPlayer::ProcessBuildOrders(SmartObjectArray<BuildOrder> build_orders) {
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
         if ((*it).team == player_team && (*it).GetOrder() == ORDER_BUILD &&
             (*it).GetOrderState() != ORDER_STATE_UNIT_READY) {
             ResourceID constructed_unit_type = (*it).GetConstructedUnitType();
@@ -2182,7 +2182,7 @@ Task* AiPlayer::FindManager(Point site) {
     if (task_list.GetCount() > 0) {
         Point position;
         Point location;
-        SmartList<Task>::Iterator task_it = task_list.Begin();
+        auto task_it = task_list.Begin(), task_it_end = task_list.End();
         Rect bounds;
         int32_t distance;
         int32_t minimum_distance;
@@ -2197,7 +2197,7 @@ Task* AiPlayer::FindManager(Point site) {
 
         minimum_distance = position.x * position.x + position.y * position.y;
 
-        for (++task_it; task_it != task_list.End(); ++task_it) {
+        for (++task_it; task_it != task_it_end; ++task_it) {
             (*task_it).GetBounds(&bounds);
 
             position = site;
@@ -2225,7 +2225,7 @@ Task* AiPlayer::FindManager(Point site) {
         TaskManager.AppendTask(*attack_reserve_task);
     }
 
-    return &*task;
+    return task.Get();
 }
 
 SmartList<SpottedUnit>& AiPlayer::GetSpottedUnits() { return spotted_units; }
@@ -2268,8 +2268,8 @@ void AiPlayer::DetermineTargetTeam() {
 
         memset(team_building_counts, 0, sizeof(team_building_counts));
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             ++team_building_counts[(*it).team];
         }
 
@@ -2431,8 +2431,8 @@ void AiPlayer::BeginTurn() {
             if (position.x || position.y) {
                 SmartPointer<Task> survey(new (std::nothrow) TaskSurvey(player_team, position));
 
-                for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-                     it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+                for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+                     it != it_end; ++it) {
                     if ((*it).team == player_team && (*it).GetUnitType() == SURVEYOR) {
                         survey->AddUnit(*it);
                     }
@@ -2445,80 +2445,80 @@ void AiPlayer::BeginTurn() {
                 TaskManager.AppendTask(*explore);
             }
 
-            for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
-                 it != UnitsManager_GroundCoverUnits.End(); ++it) {
+            for (auto it = UnitsManager_GroundCoverUnits.Begin(), it_end = UnitsManager_GroundCoverUnits.End();
+                 it != it_end; ++it) {
                 if ((*it).team == player_team && (*it).GetOrder() != ORDER_IDLE &&
                     ((*it).GetUnitType() == WTRPLTFM || (*it).GetUnitType() == BRIDGE)) {
-                    AddBuilding(&*it);
+                    AddBuilding(it->Get());
                 }
             }
 
-            for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                 it != UnitsManager_StationaryUnits.End(); ++it) {
+            for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                 it != it_end; ++it) {
                 if ((*it).team == player_team && (*it).GetOrder() != ORDER_IDLE) {
-                    AddBuilding(&*it);
+                    AddBuilding(it->Get());
                 }
             }
 
-            for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-                 it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+            for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+                 it != it_end; ++it) {
                 if ((*it).team == player_team && (*it).GetOrder() == ORDER_BUILD) {
-                    AddBuilding(&*it);
+                    AddBuilding(it->Get());
                 }
             }
 
-            for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-                 it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+            for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+                 it != it_end; ++it) {
                 if ((*it).team == player_team && (*it).GetOrder() == ORDER_IDLE &&
                     (*it).GetOrderState() == ORDER_STATE_PREPARE_STORE) {
-                    SmartPointer<Task> move(new (std::nothrow) TaskMove(&*it, &MoveFinishedCallback));
+                    SmartPointer<Task> move(new (std::nothrow) TaskMove(it->Get(), &MoveFinishedCallback));
 
                     TaskManager.AppendTask(*move);
                 }
             }
 
-            for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-                 it != UnitsManager_MobileAirUnits.End(); ++it) {
+            for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End();
+                 it != it_end; ++it) {
                 if ((*it).team == player_team) {
                     if ((*it).GetUnitType() == AWAC || (*it).GetUnitType() == BOMBER) {
-                        SmartPointer<Task> escort(new (std::nothrow) TaskEscort(&*it, FIGHTER));
+                        SmartPointer<Task> escort(new (std::nothrow) TaskEscort(it->Get(), FIGHTER));
 
                         TaskManager.AppendTask(*escort);
                     }
 
                     if ((*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0) {
-                        AddMilitaryUnit(&*it);
+                        AddMilitaryUnit(it->Get());
                     }
                 }
             }
 
-            for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-                 it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+            for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+                 it != it_end; ++it) {
                 if ((*it).team == player_team) {
                     if ((*it).GetUnitType() == MISSLLCH || (*it).GetUnitType() == SCANNER) {
-                        SmartPointer<Task> tank_escort(new (std::nothrow) TaskEscort(&*it, TANK));
+                        SmartPointer<Task> tank_escort(new (std::nothrow) TaskEscort(it->Get(), TANK));
                         TaskManager.AppendTask(*tank_escort);
 
-                        SmartPointer<Task> sp_flak_escort(new (std::nothrow) TaskEscort(&*it, SP_FLAK));
+                        SmartPointer<Task> sp_flak_escort(new (std::nothrow) TaskEscort(it->Get(), SP_FLAK));
                         TaskManager.AppendTask(*sp_flak_escort);
                     }
 
                     if ((*it).GetUnitType() == SP_FLAK || (*it).GetUnitType() == FASTBOAT) {
-                        SmartPointer<Task> escort(new (std::nothrow) TaskEscort(&*it, FIGHTER));
+                        SmartPointer<Task> escort(new (std::nothrow) TaskEscort(it->Get(), FIGHTER));
                         TaskManager.AppendTask(*escort);
                     }
 
                     if ((*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0) {
-                        AddMilitaryUnit(&*it);
+                        AddMilitaryUnit(it->Get());
                     }
                 }
             }
 
-            for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                 it != UnitsManager_StationaryUnits.End(); ++it) {
+            for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                 it != it_end; ++it) {
                 if ((*it).team == player_team) {
                     if ((*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0) {
-                        AddMilitaryUnit(&*it);
+                        AddMilitaryUnit(it->Get());
                     }
                 }
             }
@@ -2526,18 +2526,18 @@ void AiPlayer::BeginTurn() {
             if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_EXPERT &&
                 ResourceManager_GetSettings()->GetNumericValue("cheating_computer") >=
                     COMPUTER_CHEATING_LEVEL_TOLERABLE) {
-                for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                     it != UnitsManager_StationaryUnits.End(); ++it) {
+                for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                     it != it_end; ++it) {
                     if ((*it).team != player_team &&
                         ((*it).GetUnitType() == MININGST || (*it).GetUnitType() == GREENHSE)) {
-                        Ai_UnitSpotted(&*it, player_team);
+                        Ai_UnitSpotted(it->Get(), player_team);
                     }
                 }
             }
 
-            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+            for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
                 if (IsKeyFacility((*it).GetUnit()->GetUnitType()) && IsTargetTeam((*it).GetUnit()->team)) {
-                    DetermineAttack(&*it, TASK_PRIORITY_ATTACK_DEFAULT);
+                    DetermineAttack(it->Get(), TASK_PRIORITY_ATTACK_DEFAULT);
                 }
             }
 
@@ -2582,19 +2582,19 @@ void AiPlayer::BeginTurn() {
 
         AiAttack_GetTargetTeams(player_team, teams);
 
-        for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+        for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
             if (!(*it).GetTask()) {
                 UnitInfo* target = (*it).GetUnit();
 
                 if (AiAttack_IsWithinReach(target, player_team, teams)) {
-                    DetermineAttack(&*it, TASK_PRIORITY_ATTACK_MOBILE);
+                    DetermineAttack(it->Get(), TASK_PRIORITY_ATTACK_MOBILE);
 
                 } else if (IsTargetTeam(target->team) || target->team == PLAYER_TEAM_ALIEN) {
                     if ((target->GetUnitType() == CONSTRCT && target->GetOrder() == ORDER_BUILD) ||
                         IsKeyFacility(target->GetUnitType()) ||
                         (target->team == PLAYER_TEAM_ALIEN &&
                          (target->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)))) {
-                        DetermineAttack(&*it, TASK_PRIORITY_ATTACK_DEFAULT);
+                        DetermineAttack(it->Get(), TASK_PRIORITY_ATTACK_DEFAULT);
                     }
                 }
             }
@@ -2602,29 +2602,29 @@ void AiPlayer::BeginTurn() {
 
         int32_t fuel_reserves = 0;
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             if ((*it).team == player_team && (*it).GetUnitType() == FDUMP) {
                 fuel_reserves += (*it).storage;
             }
         }
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             if ((*it).team == player_team && (*it).GetUnitType() == MININGST && (*it).GetOrder() != ORDER_POWER_ON &&
                 (*it).GetOrder() != ORDER_IDLE) {
-                UnitsManager_SetNewOrder(&*it, ORDER_POWER_ON, ORDER_STATE_INIT);
+                UnitsManager_SetNewOrder(it->Get(), ORDER_POWER_ON, ORDER_STATE_INIT);
             }
         }
 
         if (fuel_reserves >= 10) {
-            for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                 it != UnitsManager_StationaryUnits.End(); ++it) {
+            for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                 it != it_end; ++it) {
                 if ((*it).team == player_team &&
                     ((*it).GetUnitType() == COMMTWR || (*it).GetUnitType() == GREENHSE ||
                      (*it).GetUnitType() == RESEARCH) &&
                     (*it).GetOrder() != ORDER_POWER_ON && (*it).GetOrder() != ORDER_IDLE) {
-                    UnitsManager_SetNewOrder(&*it, ORDER_POWER_ON, ORDER_STATE_INIT);
+                    UnitsManager_SetNewOrder(it->Get(), ORDER_POWER_ON, ORDER_STATE_INIT);
                 }
             }
         }
@@ -2668,11 +2668,11 @@ void AiPlayer::BeginTurn() {
             }
         }
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-             it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+        for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+             it != it_end; ++it) {
             if ((*it).team == player_team) {
                 if ((*it).GetTask()) {
-                    Task_RemindMoveFinished(&*it);
+                    Task_RemindMoveFinished(it->Get());
                 }
 
                 if ((*it).shots > 0) {
@@ -2681,11 +2681,11 @@ void AiPlayer::BeginTurn() {
             }
         }
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-             it != UnitsManager_MobileAirUnits.End(); ++it) {
+        for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+             ++it) {
             if ((*it).team == player_team) {
                 if ((*it).GetTask()) {
-                    Task_RemindMoveFinished(&*it);
+                    Task_RemindMoveFinished(it->Get());
                 }
 
                 if ((*it).shots > 0) {
@@ -2711,28 +2711,28 @@ void AiPlayer::GuessEnemyAttackDirections() {
             }
         }
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             if ((*it).team == player_team) {
                 units.PushBack(*it);
             }
         }
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-             it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-            if ((*it).team == player_team && IsPotentialSpotter(player_team, &*it)) {
+        for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+             it != it_end; ++it) {
+            if ((*it).team == player_team && IsPotentialSpotter(player_team, it->Get())) {
                 units.PushBack(*it);
             }
         }
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-             it != UnitsManager_MobileAirUnits.End(); ++it) {
-            if ((*it).team == player_team && IsPotentialSpotter(player_team, &*it)) {
+        for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+             ++it) {
+            if ((*it).team == player_team && IsPotentialSpotter(player_team, it->Get())) {
                 units.PushBack(*it);
             }
         }
 
-        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
             ZoneWalker walker(Point((*it).grid_x, (*it).grid_y), (*it).GetBaseValues()->GetAttribute(ATTRIB_SCAN) + 8);
 
             do {
@@ -2753,7 +2753,7 @@ void AiPlayer::GuessEnemyAttackDirections() {
             }
         }
 
-        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
             CircumferenceWalker walker(Point((*it).grid_x, (*it).grid_y),
                                        (*it).GetBaseValues()->GetAttribute(ATTRIB_SCAN) + 10);
 
@@ -2771,8 +2771,8 @@ void AiPlayer::PlanMinefields() {
         const World* world = ResourceManager_GetActiveWorld();
         AccessMap access_map(world);
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             if ((*it).team == player_team) {
                 if ((*it).GetUnitType() == GUNTURRT || (*it).GetUnitType() == ANTIMSSL ||
                     (*it).GetUnitType() == ARTYTRRT) {
@@ -2801,10 +2801,10 @@ void AiPlayer::PlanMinefields() {
             }
         }
 
-        for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
+        for (auto it = TaskManager.GetTaskList().Begin(), it_end = TaskManager.GetTaskList().End(); it != it_end;
              ++it) {
             if ((*it).GetTeam() == player_team && (*it).GetType() == TaskType_TaskCreateBuilding) {
-                TaskCreateBuilding* create_building = dynamic_cast<TaskCreateBuilding*>(&*it);
+                TaskCreateBuilding* create_building = dynamic_cast<TaskCreateBuilding*>(it->Get());
 
                 if (create_building->IsActivelyBuilding()) {
                     if (ResourceManager_GetUnit(create_building->GetUnitType()).GetFlags() & BUILDING) {
@@ -2824,10 +2824,10 @@ void AiPlayer::PlanMinefields() {
         }
 
         /// \todo The entire block is dead code due to the inner for loops.
-        for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
+        for (auto it = TaskManager.GetTaskList().Begin(), it_end = TaskManager.GetTaskList().End(); it != it_end;
              ++it) {
             if ((*it).GetTeam() == player_team && (*it).GetType() == TaskType_TaskCreateBuilding) {
-                TaskCreateBuilding* create_building = dynamic_cast<TaskCreateBuilding*>(&*it);
+                TaskCreateBuilding* create_building = dynamic_cast<TaskCreateBuilding*>(it->Get());
 
                 if (create_building->IsActivelyBuilding()) {
                     Rect bounds;
@@ -2851,8 +2851,8 @@ void AiPlayer::PlanMinefields() {
         }
 
         /// \todo The entire block is dead code due to the inner for loops.
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             Rect bounds;
 
             (*it).GetBounds(&bounds);
@@ -2906,8 +2906,8 @@ void AiPlayer::PlanMinefields() {
             }
         }
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
-             it != UnitsManager_GroundCoverUnits.End(); ++it) {
+        for (auto it = UnitsManager_GroundCoverUnits.Begin(), it_end = UnitsManager_GroundCoverUnits.End();
+             it != it_end; ++it) {
             if ((*it).team == player_team && ((*it).GetUnitType() == LANDMINE || (*it).GetUnitType() == SEAMINE)) {
                 if (access_map((*it).grid_x, (*it).grid_y)) {
                     ++counter3;
@@ -3723,7 +3723,7 @@ void AiPlayer::RemoveUnit(UnitInfo* unit) {
         ground_forces.Remove(*unit);
 
     } else {
-        for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+        for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
             if (unit == (*it).GetUnit()) {
                 spotted_units.Remove(*it);
             }
@@ -3758,7 +3758,7 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
 
             bool is_key_facility = false;
 
-            for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+            for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
                 if (IsKeyFacility((*it).GetUnit()->GetUnitType())) {
                     is_key_facility = true;
                     break;
@@ -3771,11 +3771,11 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
 
             } else if (!is_key_facility && unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0) {
                 if (IsTargetTeam(unit->team)) {
-                    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                         it != UnitsManager_StationaryUnits.End(); ++it) {
+                    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                         it != it_end; ++it) {
                         if ((*it).team == unit->team && IsKeyFacility((*it).GetUnitType()) &&
-                            Access_GetApproximateDistance(unit, &*it) < 30) {
-                            spotted_unit2 = new (std::nothrow) SpottedUnit(&*it, player_team);
+                            Access_GetApproximateDistance(unit, it->Get()) < 30) {
+                            spotted_unit2 = new (std::nothrow) SpottedUnit(it->Get(), player_team);
 
                             spotted_unit2->SetPosition(Point(unit->grid_x, unit->grid_y));
 
@@ -3787,17 +3787,18 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
                         }
                     }
 
-                    for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+                    for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
                         if ((*it).GetUnit()->GetUnitType() == CONSTRCT) {
                             return;
                         }
                     }
 
-                    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-                         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+                    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(),
+                              it_end = UnitsManager_MobileLandSeaUnits.End();
+                         it != it_end; ++it) {
                         if ((*it).team == unit->team && (*it).GetUnitType() == CONSTRCT &&
-                            Access_GetApproximateDistance(unit, &*it) < 30) {
-                            spotted_unit2 = new (std::nothrow) SpottedUnit(&*it, player_team);
+                            Access_GetApproximateDistance(unit, it->Get()) < 30) {
+                            spotted_unit2 = new (std::nothrow) SpottedUnit(it->Get(), player_team);
 
                             spotted_unit2->SetPosition(Point(unit->grid_x, unit->grid_y));
 
@@ -3832,7 +3833,7 @@ bool AiPlayer::MatchPath(TaskPathRequest* request) {
         Point destination;
         int32_t minimum_distance2;
 
-        for (SmartList<TransportOrder>::Iterator it = transport_orders.Begin(); it != transport_orders.End(); ++it) {
+        for (auto it = transport_orders.Begin(), it_end = transport_orders.End(); it != it_end; ++it) {
             if ((*it).GetTransportCategory() == transport_category) {
                 int32_t distance1;
                 int32_t distance2;
@@ -3850,7 +3851,7 @@ bool AiPlayer::MatchPath(TaskPathRequest* request) {
                 if (distance2 < distance / 3 && distance1 < distance / 3 &&
                     (flag || (*it).GetUnitType() == INVALID_ID)) {
                     if (!transport_order || distance1 + distance2 < minimum_distance2) {
-                        transport_order = &*it;
+                        transport_order = it->Get();
                         minimum_distance2 = distance1 + distance2;
                     }
                 }
@@ -4254,7 +4255,7 @@ void AiPlayer::FileSave(SmartFileWriter& file) {
 
     file.WriteObjectCount(spotted_units.GetCount());
 
-    for (SmartList<SpottedUnit>::Iterator it = spotted_units.Begin(); it != spotted_units.End(); ++it) {
+    for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
         (*it).FileSave(file);
     }
 

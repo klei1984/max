@@ -278,8 +278,8 @@ void MessageManager_SaveMessageLogs(SmartFileWriter& file) {
     for (int32_t i = 0; i < PLAYER_TEAM_MAX - 1; ++i) {
         file.WriteObjectCount(MessageManager_TeamMessageLog[i].GetCount());
 
-        for (SmartList<MessageLogEntry>::Iterator it = MessageManager_TeamMessageLog[i].Begin();
-             it != MessageManager_TeamMessageLog[i].End(); ++it) {
+        for (auto it = MessageManager_TeamMessageLog[i].Begin(), it_end = MessageManager_TeamMessageLog[i].End();
+             it != it_end; ++it) {
             (*it).FileSave(file);
         }
     }
@@ -336,7 +336,7 @@ void MessageLogEntry::Select() {
     }
 }
 
-UnitInfo* MessageLogEntry::GetUnit() const { return &*unit; }
+UnitInfo* MessageLogEntry::GetUnit() const { return unit.Get(); }
 
 Point MessageLogEntry::GetPosition() const { return point; }
 

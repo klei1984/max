@@ -179,8 +179,8 @@ UnitInfo* TaskGetMaterials::FindBuilding() {
     int32_t minimum_distance{INT32_MAX};
     AILOG(log, "Task Get Materials: Find Building.");
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == m_team && (*it).storage > 0 && (*it).hits > 0 &&
             ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == Unit::CargoType::CARGO_TYPE_RAW) {
             UnitInfo* candidate_building = FindClosestBuilding((*it).GetComplex());
@@ -203,8 +203,8 @@ void TaskGetMaterials::FindTruck() {
     int32_t minimum_distance{INT32_MAX};
     AILOG(log, "Task Get Materials: Find Truck.");
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
         if ((*it).team == m_team &&
             ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == Unit::CargoType::CARGO_TYPE_RAW &&
             (*it).storage > 0 && (*it).hits > 0 &&

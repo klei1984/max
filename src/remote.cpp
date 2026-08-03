@@ -878,13 +878,13 @@ void Remote_Deinit() {
 }
 
 bool Remote_AnalyzeDesyncHost(SmartList<UnitInfo>& units) {
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).GetUnitType() != MININGST) {
             for (int32_t i = 0; i < TRANSPORT_MAX_TEAM_COUNT; ++i) {
                 Remote_P24_Signals[i] = false;
             }
 
-            Remote_SendNetPacket_23(&*it);
+            Remote_SendNetPacket_23(it->Get());
 
             uint64_t time_stamp = timer_get();
             bool stay_in_loop = true;
@@ -2189,11 +2189,11 @@ void Remote_ReceiveNetPacket_10(NetPacket& packet) {
 }
 
 void Remote_SendNetPacket_11(int32_t team, Complex* complex) {
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetComplex() == complex && (*it).GetUnitType() == MININGST && (*it).GetOrder() != ORDER_POWER_OFF &&
             (*it).GetOrder() != ORDER_DISABLE && (*it).GetOrder() != ORDER_IDLE) {
-            UnitsManager_SetNewOrder(&*it, ORDER_NEW_ALLOCATE, ORDER_STATE_INIT);
+            UnitsManager_SetNewOrder(it->Get(), ORDER_NEW_ALLOCATE, ORDER_STATE_INIT);
         }
     }
 

@@ -39,8 +39,8 @@ void TaskMoveHome::MoveFinishedCallback(Task* task, UnitInfo* unit, char result)
 }
 
 void TaskMoveHome::PopulateTeamZones(AccessMap& map) {
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == m_team) {
             Point site;
             Rect bounds;
@@ -62,8 +62,8 @@ void TaskMoveHome::PopulateTeamZones(AccessMap& map) {
 }
 
 void TaskMoveHome::PopulateDefenses(AccessMap& map, ResourceID unit_type) {
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == m_team && (*it).GetUnitType() == unit_type && (*it).GetOrder() != ORDER_IDLE &&
             (*it).ammo > (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) &&
             (*it).hits == (*it).GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
@@ -93,8 +93,8 @@ void TaskMoveHome::PopulateDefenses(AccessMap& map, ResourceID unit_type) {
 }
 
 void TaskMoveHome::PopulateOccupiedSites(AccessMap& map, SmartList<UnitInfo>* units) {
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).GetOrder() != ORDER_IDLE && (&*it) != &*unit) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+        if ((*it).GetOrder() != ORDER_IDLE && (it->Get()) != &*unit) {
             Point site;
             Rect bounds;
 

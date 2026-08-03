@@ -134,7 +134,7 @@ public:
         list_node->next = list_node;
         list_node->prev = list_node;
 
-        for (Iterator it = other.Begin(); it != other.End(); ++it) {
+        for (auto it = other.Begin(), it_end = other.End(); it != it_end; ++it) {
             PushBack(*it);
         }
     }
@@ -185,8 +185,8 @@ public:
     }
 
     [[nodiscard]] inline Iterator Find(T& object) const noexcept {
-        for (Iterator it = Begin(), end = End(); it != end; ++it) {
-            if (&*it == &object) {
+        for (auto it = Begin(), it_end = End(); it != it_end; ++it) {
+            if (it->Get() == &object) {
                 return Iterator(it.GetNode());
             }
         }
@@ -244,7 +244,7 @@ public:
 
         Clear();
 
-        for (Iterator it = other.Begin(); it != other.End(); ++it) {
+        for (auto it = other.Begin(), it_end = other.End(); it != it_end; ++it) {
             PushBack(*it);
         }
 

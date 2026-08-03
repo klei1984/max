@@ -59,9 +59,9 @@ static MissionCategory SaveLoad_TranslateSaveFileCategory(const uint32_t save_fi
 static void SaveLoad_LoadOptions(SmartFileReader& file, bool mode);
 
 void SaveLoad_TeamClearUnitList(SmartList<UnitInfo>& units, uint16_t team) {
-    for (auto it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).team == team) {
-            UnitsManager_DestroyUnit(&*it, false);
+            UnitsManager_DestroyUnit(it->Get(), false);
         }
     }
 }

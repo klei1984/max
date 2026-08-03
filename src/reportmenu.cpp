@@ -186,7 +186,7 @@ MessageLine::~MessageLine() {}
 
 const char* MessageLine::GetCStr() const { return string.GetCStr(); }
 
-MessageLogEntry* MessageLine::GetMessage() const { return &*message; }
+MessageLogEntry* MessageLine::GetMessage() const { return message.Get(); }
 
 void ReportMenu_Menu() { ReportMenu().Run(); }
 
@@ -634,8 +634,9 @@ void ReportMenu::InitMessages() {
 
     Text_SetFont(GNW_TEXT_FONT_5);
 
-    for (SmartList<MessageLogEntry>::Iterator it = MessageManager_TeamMessageLog[GameManager_PlayerTeam].Begin();
-         it != MessageManager_TeamMessageLog[GameManager_PlayerTeam].End(); ++it) {
+    for (auto it = MessageManager_TeamMessageLog[GameManager_PlayerTeam].Begin(),
+              it_end = MessageManager_TeamMessageLog[GameManager_PlayerTeam].End();
+         it != it_end; ++it) {
         rows = Text_SplitText((*it).GetCStr(), 100, report_screen_image->GetWidth() - 95, &row_count);
 
         if (rows) {
@@ -646,15 +647,15 @@ void ReportMenu::InitMessages() {
             skip_new_paragraph = false;
 
             for (int32_t i = 0; i < (row_limit - row_count) / 2; ++i) {
-                message_lines.Insert(new (std::nothrow) MessageLine(&*it, SmartString()));
+                message_lines.Insert(new (std::nothrow) MessageLine(it->Get(), SmartString()));
             }
 
             for (int32_t i = 0; i < row_count; ++i) {
-                message_lines.Insert(new (std::nothrow) MessageLine(&*it, rows[i]));
+                message_lines.Insert(new (std::nothrow) MessageLine(it->Get(), rows[i]));
             }
 
             for (int32_t i = ((row_limit - row_count) / 2) + row_count; i < row_limit; ++i) {
-                message_lines.Insert(new (std::nothrow) MessageLine(&*it, SmartString()));
+                message_lines.Insert(new (std::nothrow) MessageLine(it->Get(), SmartString()));
             }
 
             delete[] rows;
@@ -1088,8 +1089,8 @@ int64_t ReportMenu::GetWorkingEcoSphereCount(uint16_t team) {
     result = 0;
 
     if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             if ((*it).team == team && (*it).GetUnitType() == GREENHSE && (*it).GetOrder() == ORDER_POWER_ON) {
                 ++result;
             }
@@ -1198,7 +1199,7 @@ void ReportMenu::SelectUnit(Point point) {
 void ReportMenu::AddUnits(SmartList<UnitInfo>* unit_list) {
     int64_t index;
 
-    for (SmartList<UnitInfo>::Iterator it = unit_list->Begin(); it != unit_list->End(); ++it) {
+    for (auto it = unit_list->Begin(), it_end = unit_list->End(); it != it_end; ++it) {
         if ((*it).team == GameManager_PlayerTeam && active_units[(*it).GetUnitType()] &&
             ((*it).GetOrder() != ORDER_IDLE || (*it).GetOrderState() != ORDER_STATE_BUILDING_READY) &&
             (!ReportMenu_ButtonState_DamagedUnits || (*it).hits < (*it).GetBaseValues()->GetAttribute(ATTRIB_HITS))) {
@@ -1212,7 +1213,7 @@ void ReportMenu::AddUnits(SmartList<UnitInfo>* unit_list) {
                 }
             }
 
-            units.Insert(&*it, index);
+            units.Insert(it->Get(), index);
         }
     }
 }

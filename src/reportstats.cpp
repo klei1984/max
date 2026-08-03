@@ -386,8 +386,8 @@ void ReportStats_DrawCommonUnit(UnitInfo* unit, WinID id, Rect* bounds) {
         power_consumption_base = 0;
         power_consumption_current = 0;
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             if ((*it).GetComplex() == unit->GetComplex()) {
                 cargo.power = Cargo_GetPowerConsumptionRate((*it).GetUnitType());
 
@@ -444,8 +444,8 @@ void ReportStats_DrawStorageUnit(UnitInfo* unit, WinID id, Rect* bounds) {
         life_need = 0;
         current_life_need = 0;
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             if ((*it).GetComplex() == unit->GetComplex()) {
                 cargo.life = Cargo_GetLifeConsumptionRate((*it).GetUnitType());
 

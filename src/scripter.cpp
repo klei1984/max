@@ -159,13 +159,15 @@ static inline SmartList<UnitInfo>& GetRelevantUnits(ResourceID unit_type) {
 static lua_Integer HasMaterials(const lua_Integer team, const lua_Integer cargo_type) {
     lua_Integer cargo_sum{0};
 
-    for (auto it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == team && ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == cargo_type) {
             cargo_sum += (*it).storage;
         }
     }
 
-    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(); it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
         if ((*it).team == team && ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == cargo_type) {
             cargo_sum += (*it).storage;
         }
@@ -204,7 +206,7 @@ static lua_Integer CountReadyUnits(const lua_Integer team, const lua_Integer uni
 
     const auto& units = GetRelevantUnits(static_cast<ResourceID>(unit_type));
 
-    for (auto it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).team == team && (*it).GetUnitType() == unit_type &&
             (*it).GetOrderState() != ORDER_STATE_BUILDING_READY) {
             ++ready_units;
@@ -255,7 +257,7 @@ static int HasAttackPower(const lua_Integer team, const lua_Integer unit_class) 
         return false;
     }
 
-    for (auto it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if ((*it).team == team && (*it).ammo > 0 && (*it).GetUnitType() != SUBMARNE &&
             (*it).GetUnitType() != COMMANDO) {
             return true;
@@ -455,7 +457,8 @@ static void CountTotalMining(const lua_Integer team, lua_Integer* const raw_mini
     fuel_mining_max[0] = 0;
     gold_mining_max[0] = 0;
 
-    for (auto it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == team && (*it).GetUnitType() == MININGST && (*it).GetOrder() == ORDER_POWER_ON) {
             raw_mining_max[0] += (*it).raw_mining_max;
             fuel_mining_max[0] += (*it).fuel_mining_max;
@@ -503,7 +506,7 @@ static lua_Integer GetTotalUnitsBeingConstructed(const lua_Integer team, const l
         units = &UnitsManager_StationaryUnits;
     }
 
-    for (auto it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if ((*it).team == team && (*it).GetOrder() == ORDER_BUILD && (*it).build_time != 0 &&
             (*it).GetConstructedUnitType() == unit_type) {
             ++result;
@@ -544,7 +547,8 @@ static void RegisterGetTotalUnitsBeingConstructed(lua_State* lua) {
 static lua_Integer GetTotalPowerConsumption(const lua_Integer team, const lua_Integer unit_type) {
     lua_Integer result = 0;
 
-    for (auto it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == team && (*it).GetUnitType() == unit_type &&
             ((*it).GetOrder() == ORDER_POWER_ON || (*it).GetOrder() == ORDER_BUILD)) {
             ++result;
@@ -584,8 +588,8 @@ static void RegisterGetTotalPowerConsumption(lua_State* lua) {
 static lua_Integer GetTotalMining(const lua_Integer team, const lua_Integer cargo_type) {
     lua_Integer result = 0;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == team && (*it).GetUnitType() == MININGST && (*it).GetOrder() == ORDER_POWER_ON) {
             switch (cargo_type) {
                 case Unit::CargoType::CARGO_TYPE_RAW: {
@@ -635,8 +639,8 @@ static lua_Integer GetTotalConsumption(const lua_Integer team, const lua_Integer
     Cargo cargo;
     lua_Integer result = 0;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == team) {
             cargo = Cargo_GetNetProduction(it->Get());
 
@@ -694,8 +698,8 @@ static void RegisterGetTotalConsumption(lua_State* lua) {
 
 static int HasUnitAboveMarkLevel(const lua_Integer team, const lua_Integer unit_type,
                                  const lua_Integer unit_mark_level) {
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
         if ((*it).team == team && (*it).GetUnitType() == unit_type &&
             (*it).GetBaseValues()->GetVersion() > unit_mark_level) {
             return true;
@@ -737,7 +741,7 @@ static void RegisterHasUnitAboveMarkLevel(lua_State* lua) {
 static lua_Integer HasUnitExperience(const lua_Integer team, const lua_Integer unit_type) {
     const auto& units = GetRelevantUnits(static_cast<ResourceID>(unit_type));
 
-    for (auto it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).team == team && (*it).GetUnitType() == unit_type && (*it).storage > 0) {
             return true;
         }
@@ -806,7 +810,7 @@ static lua_Integer CountDamangedUnits(const lua_Integer team, const lua_Integer 
     const auto& units = GetRelevantUnits(static_cast<ResourceID>(unit_type));
     lua_Integer result{0};
 
-    for (auto it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).team == team && (*it).GetUnitType() == unit_type &&
             (*it).hits != (*it).GetBaseValues()->GetAttribute(ATTRIB_HITS)) {
             ++result;
@@ -848,7 +852,7 @@ static lua_Integer CountUnitsAboveAttribLevel(const lua_Integer team, const lua_
     lua_Integer result{0};
     const auto& units = GetRelevantUnits(static_cast<ResourceID>(unit_type));
 
-    for (auto it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).team == team && (*it).GetUnitType() == unit_type &&
             (*it).GetBaseValues()->GetAttribute(attribute) > level) {
             ++result;
@@ -898,7 +902,7 @@ static lua_Integer CountUnitsWithReducedAttrib(const lua_Integer team, const lua
     lua_Integer result{0};
     const auto& units = GetRelevantUnits(static_cast<ResourceID>(unit_type));
 
-    for (auto it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).team == team && (*it).GetUnitType() == unit_type) {
             auto is_qualified{false};
 

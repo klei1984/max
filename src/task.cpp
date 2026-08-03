@@ -124,12 +124,12 @@ bool Task_IsReadyToTakeOrders(UnitInfo* unit) {
 
 void Task_RemoveMovementTasks(UnitInfo* unit) {
     if (unit->GetOrder() != ORDER_IDLE || unit->hits <= 0) {
-        for (SmartList<Task>::Iterator it = unit->GetTasks().Begin(); it != unit->GetTasks().End(); ++it) {
+        for (auto it = unit->GetTasks().Begin(), it_end = unit->GetTasks().End(); it != it_end; ++it) {
             if ((*it).GetType() == TaskType_TaskMove || (*it).GetType() == TaskType_TaskFindPath) {
                 AILOG(log, "Move {}: removing old move task",
                       ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
-                unit->RemoveTask(&*it, false);
+                unit->RemoveTask(it->Get(), false);
                 (*it).RemoveUnit(*unit);
             }
         }
@@ -192,8 +192,9 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
                   ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), site.x + 1, site.y + 1);
 
             if (Ai_IsDangerousLocation(unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
-                for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[unit->team].GetSpottedUnits().Begin();
-                     it != AiPlayer_Teams[unit->team].GetSpottedUnits().End(); ++it) {
+                for (auto it = AiPlayer_Teams[unit->team].GetSpottedUnits().Begin(),
+                          it_end = AiPlayer_Teams[unit->team].GetSpottedUnits().End();
+                     it != it_end; ++it) {
                     UnitInfo* spotted_unit = (*it).GetUnit();
                     int32_t spotted_unit_range = spotted_unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
 
@@ -333,8 +334,8 @@ int32_t Task_EstimateTurnsTillMissionEnd() {
             if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) {
                 int32_t count = 0;
 
-                for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                     it != UnitsManager_StationaryUnits.End(); ++it) {
+                for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                     it != it_end; ++it) {
                     if ((*it).team == team && (*it).GetUnitType() == GREENHSE && (*it).GetOrder() == ORDER_POWER_ON) {
                         ++count;
                     }
@@ -409,7 +410,7 @@ void Task::ChangeIsScheduledForTurnEnd(bool value) { m_scheduled_for_turn_end = 
 
 uint16_t Task::GetTeam() const { return m_team; }
 
-Task* Task::GetParent() { return &*m_parent; }
+Task* Task::GetParent() { return m_parent.Get(); }
 
 void Task::SetParent(Task* task) { m_parent = task; }
 
@@ -531,7 +532,7 @@ int32_t Task_GetReadyUnitsCount(uint16_t team, ResourceID unit_type) {
     SmartList<UnitInfo>* units = Task_GetUnitList(unit_type);
     int32_t count = 0;
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if ((*it).team == team && (*it).GetUnitType() == unit_type &&
             (*it).GetOrderState() != ORDER_STATE_BUILDING_READY) {
             ++count;

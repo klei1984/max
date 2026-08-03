@@ -43,11 +43,11 @@ TaskTransport::~TaskTransport() {}
 
 void TaskTransport::AddClients(SmartList<TaskMove>* list) {
     if (unit_transporter && unit_transporter->storage) {
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-             it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+        for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+             it != it_end; ++it) {
             if ((*it).GetOrder() == ORDER_IDLE && unit_transporter == (*it).GetParent() && (*it).team == m_team) {
                 if (!(*it).GetTask() || (*it).GetTask()->GetType() != TaskType_TaskMove) {
-                    TaskMove* task = new (std::nothrow) TaskMove(&*it, &TaskTransport_MoveFinishedCallback);
+                    TaskMove* task = new (std::nothrow) TaskMove(it->Get(), &TaskTransport_MoveFinishedCallback);
 
                     TaskManager.AppendTask(*task);
                 }
@@ -85,7 +85,7 @@ bool TaskTransport::WillTransportNewClient(TaskMove* task) {
                         if (move_tasks.GetCount()) {
                             int32_t distance2;
 
-                            for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
+                            for (auto it = move_tasks.Begin(), it_end = move_tasks.End(); it != it_end; ++it) {
                                 if ((*it).GetPassenger()) {
                                     passenger = (*it).GetPassenger();
 
@@ -108,7 +108,7 @@ bool TaskTransport::WillTransportNewClient(TaskMove* task) {
 
                             AddClients(&moves);
 
-                            for (SmartList<TaskMove>::Iterator it = moves.Begin(); it != moves.End(); ++it) {
+                            for (auto it = moves.Begin(), it_end = moves.End(); it != it_end; ++it) {
                                 if ((*it).GetPassenger()) {
                                     distance2 = Access_GetApproximateDistance(position, (*it).GetDestination());
 
@@ -177,14 +177,14 @@ bool TaskTransport::ChooseNewTask() {
                                                                            : CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
             if (move_tasks.GetCount()) {
-                for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
+                for (auto it = move_tasks.Begin(), it_end = move_tasks.End(); it != it_end; ++it) {
                     if ((*it).GetPassenger() && (*it).GetPassenger()->GetOrder() != ORDER_IDLE &&
                         (*it).GetTransporterType() != INVALID_ID) {
                         distance = Access_GetSquaredDistance((*it).GetPassenger(), position);
 
                         if (!task_move || distance < minimum_distance) {
                             minimum_distance = distance;
-                            task_move = &*it;
+                            task_move = it->Get();
                         }
 
                     } else {
@@ -196,18 +196,18 @@ bool TaskTransport::ChooseNewTask() {
                     }
                 }
 
-                for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-                     it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+                for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+                     it != it_end; ++it) {
                     if ((*it).team == m_team && ((*it).flags & MOBILE_LAND_UNIT) && (*it).GetUnitType() != SURVEYOR) {
                         if ((*it).GetTask() && (*it).GetTask()->GetType() == TaskType_TaskMove &&
-                            Task_IsReadyToTakeOrders(&*it)) {
+                            Task_IsReadyToTakeOrders(it->Get())) {
                             TaskMove* move = dynamic_cast<TaskMove*>((*it).GetTask());
 
                             if ((*it).speed == 0 || move->GetTransporterType() != INVALID_ID) {
-                                distance = Access_GetSquaredDistance(&*it, position);
+                                distance = Access_GetSquaredDistance(it->Get(), position);
 
                                 if (!task_move || distance < minimum_distance) {
-                                    if (TaskTransport_Search(&*unit_transporter, &*it, &map)) {
+                                    if (TaskTransport_Search(&*unit_transporter, it->Get(), &map)) {
                                         task_move = move;
                                         minimum_distance = distance;
                                         point.x = (*it).grid_x;
@@ -226,13 +226,13 @@ bool TaskTransport::ChooseNewTask() {
 
             AddClients(&moves);
 
-            for (SmartList<TaskMove>::Iterator it = moves.Begin(); it != moves.End(); ++it) {
+            for (auto it = moves.Begin(), it_end = moves.End(); it != it_end; ++it) {
                 if ((*it).GetPassenger()) {
                     distance = Access_GetSquaredDistance(position, (*it).GetDestination());
 
                     if (!task_move || distance < minimum_distance) {
                         minimum_distance = distance;
-                        task_move = &*it;
+                        task_move = it->Get();
                     }
 
                 } else {
@@ -579,7 +579,7 @@ bool TaskTransport::Execute(UnitInfo& unit) {
 }
 
 void TaskTransport::RemoveSelf() {
-    for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
+    for (auto it = move_tasks.Begin(), it_end = move_tasks.End(); it != it_end; ++it) {
         if ((*it).GetPassenger()) {
             (*it).GetPassenger()->RemoveDelayedTask(this);
         }
@@ -607,8 +607,8 @@ void TaskTransport::RemoveUnit(UnitInfo& unit) {
     if (unit_transporter == &unit) {
         AILOG(log, "Transport: Remove {}.", ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data());
 
-        for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
-            RemoveClient(&*it);
+        for (auto it = move_tasks.Begin(), it_end = move_tasks.End(); it != it_end; ++it) {
+            RemoveClient(it->Get());
         }
 
         move_tasks.Clear();
@@ -621,7 +621,7 @@ void TaskTransport::EventUnitLoaded(UnitInfo& unit1, UnitInfo& unit2) {
     if (unit_transporter == &unit1) {
         AILOG(log, "Transport: {} Loaded.", ResourceManager_GetUnit(unit2.GetUnitType()).GetSingularName().data());
 
-        for (SmartList<TaskMove>::Iterator it = move_tasks.Begin(); it != move_tasks.End(); ++it) {
+        for (auto it = move_tasks.Begin(), it_end = move_tasks.End(); it != it_end; ++it) {
             if ((*it).GetPassenger() == &unit2) {
                 unit2.RemoveDelayedTask(this);
                 move_tasks.Remove(*it);

@@ -304,7 +304,7 @@ void TaskCreateBuilding::Abort() {
     manager = nullptr;
     building = nullptr;
 
-    for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+    for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
         (*it).RemoveSelf();
     }
 
@@ -363,7 +363,7 @@ bool TaskCreateBuilding::RequestMineRemoval() {
 
                 if (units) {
                     // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                         if ((*it).team == m_team &&
                             ((*it).GetUnitType() == LANDMINE || (*it).GetUnitType() == SEAMINE)) {
                             unit = *it;
@@ -403,7 +403,7 @@ bool TaskCreateBuilding::RequestRubbleRemoval() {
 
                 if (units) {
                     // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                         if ((*it).GetUnitType() == SMLRUBLE || (*it).GetUnitType() == LRGRUBLE) {
                             unit = *it;
                             break;
@@ -1078,7 +1078,7 @@ void TaskCreateBuilding::MoveFinishedCallback(Task* task, UnitInfo* unit, char r
     } else if (result == TASKMOVE_RESULT_BLOCKED) {
         search_task->op_state = CREATE_BUILDING_STATE_SITE_BLOCKED;
 
-        for (SmartList<Task>::Iterator it = search_task->tasks.Begin(); it != search_task->tasks.End(); ++it) {
+        for (auto it = search_task->tasks.Begin(), it_end = search_task->tasks.End(); it != it_end; ++it) {
             (*it).RemoveSelf();
         }
 
@@ -1149,8 +1149,8 @@ void TaskCreateBuilding::BuildBridges() {
 
     spot_found = false;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == m_team && (*it).GetUnitType() == MININGST) {
             position.x = (*it).grid_x - 1;
             position.y = (*it).grid_y + 2;
@@ -1213,8 +1213,8 @@ void TaskCreateBuilding::MarkBridgeAreas(AccessMap& map) {
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetUnitType() != CNCT_4W) {
             Rect bounds;
 
@@ -1238,11 +1238,10 @@ void TaskCreateBuilding::MarkBridgeAreas(AccessMap& map) {
         }
     }
 
-    for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
-         ++it) {
+    for (auto it = TaskManager.GetTaskList().Begin(), it_end = TaskManager.GetTaskList().End(); it != it_end; ++it) {
         if ((*it).GetTeam() == m_team && (*it).GetType() == TaskType_TaskCreateBuilding) {
             Rect bounds;
-            TaskCreateBuilding* create_building_task = dynamic_cast<TaskCreateBuilding*>(&*it);
+            TaskCreateBuilding* create_building_task = dynamic_cast<TaskCreateBuilding*>(it->Get());
 
             create_building_task->GetBounds(&bounds);
 
@@ -1259,18 +1258,17 @@ void TaskCreateBuilding::MarkBridgeAreas(AccessMap& map) {
 }
 
 void TaskCreateBuilding::PopulateMap(AccessMap& map) {
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
-         it != UnitsManager_GroundCoverUnits.End(); ++it) {
+    for (auto it = UnitsManager_GroundCoverUnits.Begin(), it_end = UnitsManager_GroundCoverUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetUnitType() == BRIDGE && (*it).IsVisibleToTeam(m_team)) {
             map((*it).grid_x, (*it).grid_y) = 2;
         }
     }
 
-    for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
-         ++it) {
+    for (auto it = TaskManager.GetTaskList().Begin(), it_end = TaskManager.GetTaskList().End(); it != it_end; ++it) {
         if ((*it).GetTeam() == m_team && (*it).GetType() == TaskType_TaskCreateBuilding) {
             Rect bounds;
-            TaskCreateBuilding* create_building_task = dynamic_cast<TaskCreateBuilding*>(&*it);
+            TaskCreateBuilding* create_building_task = dynamic_cast<TaskCreateBuilding*>(it->Get());
 
             create_building_task->GetBounds(&bounds);
 
@@ -1463,18 +1461,18 @@ bool TaskCreateBuilding_IsMorePowerNeeded(uint16_t team) {
     bool result;
     int32_t consumption_rate = 0;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == team) {
             consumption_rate += Cargo_GetPowerConsumptionRate((*it).GetUnitType());
         }
     }
 
     if (consumption_rate > 0) {
-        for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
+        for (auto it = TaskManager.GetTaskList().Begin(), it_end = TaskManager.GetTaskList().End(); it != it_end;
              ++it) {
             if ((*it).GetTeam() == team && (*it).GetType() == TaskType_TaskCreateBuilding) {
-                TaskCreateBuilding* create_building_Task = dynamic_cast<TaskCreateBuilding*>(&*it);
+                TaskCreateBuilding* create_building_Task = dynamic_cast<TaskCreateBuilding*>(it->Get());
 
                 if (create_building_Task->IsActivelyBuilding()) {
                     consumption_rate += Cargo_GetPowerConsumptionRate(create_building_Task->GetUnitType());
@@ -1495,18 +1493,18 @@ bool TaskCreateBuilding_IsMoreLifeNeeded(uint16_t team) {
     bool result;
     int32_t consumption_rate = 0;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == team) {
             consumption_rate += Cargo_GetLifeConsumptionRate((*it).GetUnitType());
         }
     }
 
     if (consumption_rate > 0) {
-        for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
+        for (auto it = TaskManager.GetTaskList().Begin(), it_end = TaskManager.GetTaskList().End(); it != it_end;
              ++it) {
             if ((*it).GetTeam() == team && (*it).GetType() == TaskType_TaskCreateBuilding) {
-                TaskCreateBuilding* create_building_Task = dynamic_cast<TaskCreateBuilding*>(&*it);
+                TaskCreateBuilding* create_building_Task = dynamic_cast<TaskCreateBuilding*>(it->Get());
 
                 if (create_building_Task->IsActivelyBuilding()) {
                     consumption_rate += Cargo_GetLifeConsumptionRate(create_building_Task->GetUnitType());
@@ -1526,8 +1524,8 @@ bool TaskCreateBuilding_IsMoreLifeNeeded(uint16_t team) {
 bool TaskCreateBuilding_IsMoreFuelReservesNeeded(uint16_t team) {
     int32_t fuel_reserves = 0;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == team && (*it).GetUnitType() == FDUMP) {
             fuel_reserves += (*it).storage;
         }

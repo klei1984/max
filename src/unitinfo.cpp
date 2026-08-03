@@ -577,15 +577,15 @@ bool UnitInfo::IsVisibleToTeam(uint16_t team) const { return visible_to_team[tea
 
 void UnitInfo::SetEnemy(UnitInfo* enemy) { enemy_unit = enemy; }
 
-UnitInfo* UnitInfo::GetEnemy() const { return &*enemy_unit; }
+UnitInfo* UnitInfo::GetEnemy() const { return enemy_unit.Get(); }
 
 uint16_t UnitInfo::GetId() const { return id; }
 
 UnitInfo* UnitInfo::GetFirstFromUnitList() const {
     UnitInfo* result;
 
-    if (unit_list != nullptr) {
-        result = &*(unit_list->Begin());
+    if (unit_list != nullptr && unit_list->GetCount()) {
+        result = unit_list->Begin()->Get();
     } else {
         result = nullptr;
     }
@@ -625,7 +625,7 @@ void UnitInfo::AddTask(Task* task) {
 
 void UnitInfo::ScheduleDelayedTasks(bool priority) {
     if (tasks_enabled) {
-        for (SmartList<Task>::Iterator it = delayed_tasks.Begin(); it != delayed_tasks.End(); ++it) {
+        for (auto it = delayed_tasks.Begin(), it_end = delayed_tasks.End(); it != it_end; ++it) {
             (*it).RemindTurnEnd(true);
         }
     }
@@ -651,11 +651,11 @@ SmartList<Task>& UnitInfo::GetTasks() { return tasks; }
 
 void UnitInfo::SetBaseValues(UnitValues* unit_values) { base_values = unit_values; }
 
-UnitValues* UnitInfo::GetBaseValues() const { return &*base_values; }
+UnitValues* UnitInfo::GetBaseValues() const { return base_values.Get(); }
 
 bool UnitInfo::IsDetectedByTeam(uint16_t team) const { return (spotted_by_team[team] || visible_to_team[team]); }
 
-Complex* UnitInfo::GetComplex() const { return &*complex; }
+Complex* UnitInfo::GetComplex() const { return complex.Get(); }
 
 SmartPointer<UnitInfo> UnitInfo::MakeCopy() {
     SmartPointer<UnitInfo> copy = new (std::nothrow) UnitInfo(*this);
@@ -1223,11 +1223,11 @@ void UnitInfo::AddToDrawList(uint32_t override_flags) {
     } else if (unit_flags & STATIONARY) {
         if (unit_flags & GROUND_COVER) {
             int32_t layer_index;
-            SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
+            auto it = UnitsManager_GroundCoverUnits.Begin(), it_end = UnitsManager_GroundCoverUnits.End();
 
             layer_index = GetDrawLayer(unit_type);
 
-            for (; it != UnitsManager_GroundCoverUnits.End(); ++it) {
+            for (; it != it_end; ++it) {
                 if (GetDrawLayer((*it).unit_type) >= layer_index) {
                     break;
                 }
@@ -1237,11 +1237,11 @@ void UnitInfo::AddToDrawList(uint32_t override_flags) {
 
         } else {
             int32_t reference_y;
-            SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
+            auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
 
             reference_y = y;
 
-            for (; it != UnitsManager_StationaryUnits.End(); ++it) {
+            for (; it != it_end; ++it) {
                 if ((*it).y >= reference_y) {
                     break;
                 }
@@ -1251,9 +1251,9 @@ void UnitInfo::AddToDrawList(uint32_t override_flags) {
         }
 
     } else if (unit_flags & MOBILE_AIR_UNIT) {
-        SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
+        auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End();
 
-        for (; it != UnitsManager_MobileAirUnits.End(); ++it) {
+        for (; it != it_end; ++it) {
             if ((*it).flags & HOVERING) {
                 break;
             }
@@ -1266,9 +1266,9 @@ void UnitInfo::AddToDrawList(uint32_t override_flags) {
             UnitsManager_GroundCoverUnits.PushFront(*this);
 
         } else {
-            SmartList<UnitInfo>::Iterator it = UnitsManager_ParticleUnits.Begin();
+            auto it = UnitsManager_ParticleUnits.Begin(), it_end = UnitsManager_ParticleUnits.End();
 
-            for (; it != UnitsManager_ParticleUnits.End(); ++it) {
+            for (; it != it_end; ++it) {
                 if (((*it).flags & EXPLODING) && (*it).unit_type != RKTSMOKE) {
                     break;
                 }
@@ -1323,7 +1323,7 @@ void UnitInfo::RemoveTasks() {
 
     tasks.Clear();
 
-    for (SmartList<Task>::Iterator it = backup_tasks.Begin(); it != backup_tasks.End(); ++it) {
+    for (auto it = backup_tasks.Begin(), it_end = backup_tasks.End(); it != it_end; ++it) {
         (*it).RemoveUnit(*this);
     }
 }
@@ -1533,7 +1533,7 @@ void UnitInfo::GainExperience(int32_t experience_gain) {
 }
 
 void UnitInfo::RemoveDelayedTasks() {
-    for (SmartList<Task>::Iterator it = delayed_tasks.Begin(); it != delayed_tasks.End(); ++it) {
+    for (auto it = delayed_tasks.Begin(), it_end = delayed_tasks.End(); it != it_end; ++it) {
         (*it).RemoveUnit(*this);
     }
 
@@ -2293,8 +2293,8 @@ void UnitInfo::DetachComplex() {
         Access_UpdateResourcesTotal(&*building_complex);
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         (*it).connectors &= ~CONNECTION_BEING_TESTED;
     }
 }
@@ -3412,7 +3412,7 @@ void UnitInfo::SpawnNewUnit() {
 
                 if (units) {
                     // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                         if ((*it).unit_type == SMLRUBLE || (*it).unit_type == LRGRUBLE) {
                             storage += (*it).storage;
 
@@ -3846,9 +3846,9 @@ int32_t UnitInfo::GetAttackRange() {
 void UnitInfo::UpdatePinsFromLists(int32_t grid_x, int32_t grid_y, SmartList<UnitInfo>* units, int32_t pin_units) {
     int32_t attack_radius = base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if (((*it).flags & SELECTABLE) && Access_IsWithinAttackRange(&*it, grid_x, grid_y, attack_radius) &&
-            Access_IsValidAttackTarget(this, &*it, Point(grid_x, grid_y))) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+        if (((*it).flags & SELECTABLE) && Access_IsWithinAttackRange(it->Get(), grid_x, grid_y, attack_radius) &&
+            Access_IsValidAttackTarget(this, it->Get(), Point(grid_x, grid_y))) {
             (*it).pin_count += pin_units;
         }
     }
@@ -3865,10 +3865,10 @@ void UnitInfo::AttackAreaTargets(int32_t grid_x, int32_t grid_y) {
 
         if (units_at_position) {
             // Cache the end iterator in case Hash_MapHash.Remove() deletes the list during iteration
-            for (auto it = units_at_position->Begin(), end = units_at_position->End(); it != end; ++it) {
-                if (((*it).flags & SELECTABLE) && Access_IsValidAttackTarget(this, &*it, Point(grid_x, grid_y))) {
+            for (auto it = units_at_position->Begin(), it_end = units_at_position->End(); it != it_end; ++it) {
+                if (((*it).flags & SELECTABLE) && Access_IsValidAttackTarget(this, it->Get(), Point(grid_x, grid_y))) {
                     if (((*it).unit_type != BRIDGE && (*it).unit_type != WTRPLTFM) ||
-                        !Access_IsUnitBusyAtLocation(&*it)) {
+                        !Access_IsUnitBusyAtLocation(it->Get())) {
                         (*it).AttackUnit(this,
                                          Access_GetApproximateDistance((*it).grid_x - grid_x, (*it).grid_y - grid_y),
                                          UnitsManager_GetTargetAngle((*it).grid_x - grid_x, (*it).grid_y - grid_y));
@@ -4008,7 +4008,7 @@ void UnitInfo::PrepareConstructionSite(ResourceID unit_type) {
 
                 if (units) {
                     // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                         if ((*it).unit_type == COMMANDO || (*it).unit_type == SUBMARNE || (*it).unit_type == CLNTRANS) {
                             (*it).StepMoveUnit(position);
                         }
@@ -4361,7 +4361,7 @@ void UnitInfo::PlaceMine() {
 
             if (units) {
                 // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-                for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                     if ((*it).unit_type == mine_type) {
                         is_found = true;
                         break;
@@ -4386,7 +4386,7 @@ void UnitInfo::PlaceMine() {
 
                     if (units) {
                         // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-                        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                             if ((*it).unit_type == SURVEYOR) {
                                 new_unit->SpotByTeam((*it).team);
                             }
@@ -4418,7 +4418,7 @@ void UnitInfo::PickUpMine() {
 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).unit_type == mine_type) {
                     mine = *it;
                     break;

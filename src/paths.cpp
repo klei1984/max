@@ -443,7 +443,7 @@ bool Paths_IsOccupied(int32_t grid_x, int32_t grid_y, int32_t angle, int32_t tea
 
     if (units) {
         // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
             if (((*it).GetUnitType() == SUBMARNE || (*it).GetUnitType() == COMMANDO ||
                  (*it).GetUnitType() == CLNTRANS) &&
                 !(*it).IsVisibleToTeam(team)) {

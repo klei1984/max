@@ -75,7 +75,7 @@ bool AiAttack_DecideDesperationAttack(UnitInfo* attacker, UnitInfo* target) {
                 if ((*it).team == attacker->team && (*it).IsVisibleToTeam(target->team) &&
                     (*it).GetBaseValues()->GetAttribute(ATTRIB_TURNS) >
                         attacker->GetBaseValues()->GetAttribute(ATTRIB_TURNS) &&
-                    Access_IsValidAttackTarget(target, &*it) &&
+                    Access_IsValidAttackTarget(target, it->Get()) &&
                     Access_IsWithinAttackRange(target, (*it).grid_x, (*it).grid_y,
                                                target->GetBaseValues()->GetAttribute(ATTRIB_RANGE) +
                                                    target->GetBaseValues()->GetAttribute(ATTRIB_SPEED))) {
@@ -279,8 +279,8 @@ bool AiAttack_IsWithinReach(UnitInfo* unit, uint16_t team, bool* relevant_teams)
         distance = distance * distance;
 
         if (distance) {
-            for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                 it != UnitsManager_StationaryUnits.End(); ++it) {
+            for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                 it != it_end; ++it) {
                 if ((*it).team == team) {
                     line_distance.x = unit->grid_x - (*it).grid_x;
                     line_distance.y = unit->grid_y - (*it).grid_y;
@@ -450,9 +450,9 @@ bool AiAttack_FindAttackSupport(UnitInfo* unit, SmartList<UnitInfo>* units, uint
     bool result = false;
 
     if (unit->IsVisibleToTeam(team) && GameManager_IsActiveTurn(team)) {
-        for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-            if ((*it).team == team && (*it).shots > 0 && Task_IsReadyToTakeOrders(&*it) &&
-                AiAttack_CanAttack(&*it, unit)) {
+        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+            if ((*it).team == team && (*it).shots > 0 && Task_IsReadyToTakeOrders(it->Get()) &&
+                AiAttack_CanAttack(it->Get(), unit)) {
                 if ((unit->GetUnitType() != LANDMINE && unit->GetUnitType() != SEAMINE) ||
                     (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK_RADIUS) > 0 ||
                     (*it).GetBaseValues()->GetAttribute(ATTRIB_TURNS) < 6) {
@@ -460,8 +460,9 @@ bool AiAttack_FindAttackSupport(UnitInfo* unit, SmartList<UnitInfo>* units, uint
 
                     if (((*it).GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
                          ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) ||
-                        (AiPlayer_Teams[team].GetDamagePotential(&*it, position, caution_level, true) < (*it).hits)) {
-                        AiAttack_ProcessAttack(&*it, unit);
+                        (AiPlayer_Teams[team].GetDamagePotential(it->Get(), position, caution_level, true) <
+                         (*it).hits)) {
+                        AiAttack_ProcessAttack(it->Get(), unit);
 
                         result = true;
                     }
@@ -575,8 +576,9 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
     range = range * range;
     scan = scan * scan;
 
-    for (SmartList<SpottedUnit>::Iterator it = AiPlayer_Teams[unit->team].GetSpottedUnits().Begin();
-         it != AiPlayer_Teams[unit->team].GetSpottedUnits().End(); ++it) {
+    for (auto it = AiPlayer_Teams[unit->team].GetSpottedUnits().Begin(),
+              it_end = AiPlayer_Teams[unit->team].GetSpottedUnits().End();
+         it != it_end; ++it) {
         UnitInfo* target_unit = (*it).GetUnit();
 
         if (teams[target_unit->team] && target_unit->GetOrder() != ORDER_IDLE &&
@@ -667,7 +669,7 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
                                                            (damage_potential <= minimum_damage &&
                                                             (damage_potential != minimum_damage ||
                                                              spotted_unit->GetUnit()->hits >= target_unit->hits))))) {
-                                        spotted_unit = &*it;
+                                        spotted_unit = it->Get();
                                         minimum_score = score;
                                         minimum_damage = damage_potential;
                                     }
@@ -1095,15 +1097,15 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_priority)
     int32_t minimum_distance{INT32_MAX};
     bool result;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
         if ((*it).team == unit->team) {
-            attack_task = dynamic_cast<TaskAttack*>(AiAttack_GetPrimaryTask(&*it));
+            attack_task = dynamic_cast<TaskAttack*>(AiAttack_GetPrimaryTask(it->Get()));
 
             if (attack_task) {
                 if (!is_execution_phase || attack_task->IsExecutionPhase()) {
                     if (attack_task->ComparePriority(task_priority) <= 0) {
-                        distance = Access_GetSquaredDistance(unit, &*it);
+                        distance = Access_GetSquaredDistance(unit, it->Get());
 
                         if (!leader || distance < minimum_distance ||
                             (!is_execution_phase && attack_task->IsExecutionPhase())) {
@@ -1117,15 +1119,15 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_priority)
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-         it != UnitsManager_MobileAirUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == unit->team) {
-            attack_task = dynamic_cast<TaskAttack*>(AiAttack_GetPrimaryTask(&*it));
+            attack_task = dynamic_cast<TaskAttack*>(AiAttack_GetPrimaryTask(it->Get()));
 
             if (attack_task) {
                 if (!is_execution_phase || attack_task->IsExecutionPhase()) {
                     if (attack_task->ComparePriority(task_priority) <= 0) {
-                        distance = Access_GetSquaredDistance(unit, &*it);
+                        distance = Access_GetSquaredDistance(unit, it->Get());
 
                         if (!leader || distance < minimum_distance ||
                             (!is_execution_phase && attack_task->IsExecutionPhase())) {

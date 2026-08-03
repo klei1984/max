@@ -622,4 +622,4 @@ void CargoMenu::UpdateTeamGold(int32_t factor) {
     }
 }
 
-UnitValues* CargoMenu::GetCurrentUnitValues(ResourceID unit_type) { return &*unitvalues_actual[unit_type]; }
+UnitValues* CargoMenu::GetCurrentUnitValues(ResourceID unit_type) { return unitvalues_actual[unit_type].Get(); }

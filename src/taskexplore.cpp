@@ -55,7 +55,7 @@ bool TaskExplore::IsUnitUsable(UnitInfo& unit) {
 
         AILOG(log, "Can explore task use {}?", ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data());
 
-        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
             if ((*it).GetUnitType() == unit.GetUnitType()) {
                 ++unit_count;
             }

@@ -91,16 +91,16 @@ void TaskReload::SelectOperator() {
             }
         }
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-             it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+        for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+             it != it_end; ++it) {
             if ((*it).team == m_team && (*it).GetUnitType() == unit_type && (*it).hits > 0 &&
                 ((*it).GetOrder() == ORDER_AWAIT || ((*it).GetOrder() == ORDER_MOVE && (*it).speed == 0)) &&
                 target_unit != (*it)) {
                 if ((*it).GetTask() == nullptr || (*it).GetTask()->ComparePriority(m_base_priority) > 0) {
-                    distance = Access_GetApproximateDistance(&*it, &*target_unit);
+                    distance = Access_GetApproximateDistance(it->Get(), &*target_unit);
 
                     if (unit == nullptr || distance < minimum_distance) {
-                        unit = &*it;
+                        unit = it->Get();
                         minimum_distance = distance;
                     }
                 }

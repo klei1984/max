@@ -241,9 +241,9 @@ void ResearchMenu_NewTurn(uint16_t team) {
                     ResourceManager_GetSoundManager().PlayVoice(V_M093, V_F093);
 
                     // Refresh research center units to display "Research Complete" text overlay
-                    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                         it != UnitsManager_StationaryUnits.End(); ++it) {
-                        UnitInfo* unit = &*it;
+                    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                         it != it_end; ++it) {
+                        UnitInfo* unit = it->Get();
                         if (unit->team == team && unit->GetUnitType() == RESEARCH &&
                             unit->GetOrder() == ORDER_POWER_ON && unit->research_topic == i) {
                             unit->RefreshScreen();
@@ -527,8 +527,8 @@ void ResearchMenu_OnClick_Done(ButtonID bid, intptr_t value) {
         research_topics[i] = control->topics[i].GetValue();
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == control->team && (*it).GetUnitType() == RESEARCH && (*it).GetOrder() == ORDER_POWER_ON) {
             if (research_topics[(*it).research_topic] > 0) {
                 --research_topics[(*it).research_topic];
@@ -540,7 +540,7 @@ void ResearchMenu_OnClick_Done(ButtonID bid, intptr_t value) {
                 }
 
                 if (index == RESEARCH_TOPIC_COUNT) {
-                    UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
+                    UnitsManager_SetNewOrder(it->Get(), ORDER_POWER_OFF, ORDER_STATE_INIT);
 
                 } else {
                     ResearchMenu_UpdateResearchProgress(control->team, (*it).research_topic, -1);
@@ -615,8 +615,8 @@ ResearchMenu::ResearchMenu(uint16_t team) : Window(RSRCHPIC, GameManager_GetDial
 
     memset(research_topics, 0, sizeof(research_topics));
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == team && (*it).GetUnitType() == RESEARCH && (*it).GetOrder() == ORDER_POWER_ON) {
             ++active_research_centers;
             ++research_topics[(*it).research_topic];

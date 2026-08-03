@@ -72,8 +72,8 @@ void PathsManager::RemoveRequest(PathRequest* path_request) {
           ResourceManager_GetUnit(protect_request->GetClient()->GetUnitType()).GetSingularName().data());
 
     // Check pending queue first
-    for (SmartList<PathRequest>::Iterator it = m_pending_requests.Begin(); it != m_pending_requests.End(); ++it) {
-        if (&*it == path_request) {
+    for (auto it = m_pending_requests.Begin(), it_end = m_pending_requests.End(); it != it_end; ++it) {
+        if (it->Get() == path_request) {
             protect_request->Cancel();
             m_pending_requests.Remove(it);
 
@@ -99,7 +99,7 @@ void PathsManager::RemoveRequest(UnitInfo* unit) {
     std::vector<uint32_t> to_remove;
 
     // Remove from pending queue - collect items to remove first to avoid iterator invalidation
-    for (SmartList<PathRequest>::Iterator it = m_pending_requests.Begin(); it != m_pending_requests.End(); ++it) {
+    for (auto it = m_pending_requests.Begin(), it_end = m_pending_requests.End(); it != it_end; ++it) {
         if ((*it).GetClient() == unit) {
             AILOG(log, "Remove path request for {}.",
                   ResourceManager_GetUnit((*it).GetClient()->GetUnitType()).GetSingularName().data());
@@ -109,7 +109,7 @@ void PathsManager::RemoveRequest(UnitInfo* unit) {
         }
     }
 
-    for (SmartList<PathRequest>::Iterator it = to_remove_pending.Begin(); it != to_remove_pending.End(); ++it) {
+    for (auto it = to_remove_pending.Begin(), it_end = to_remove_pending.End(); it != it_end; ++it) {
         m_pending_requests.Remove(it);
     }
 
@@ -199,7 +199,7 @@ void PathsManager::DispatchJobs() {
         //
         PollResults();
 
-        SmartList<PathRequest>::Iterator it = m_pending_requests.Begin();
+        auto it = m_pending_requests.Begin();
         SmartPointer<PathRequest> request = it->Get();
         m_pending_requests.Remove(it);
 
@@ -209,7 +209,7 @@ void PathsManager::DispatchJobs() {
 
 bool PathsManager::HasRequest(UnitInfo* unit) const {
     // Check pending queue
-    for (SmartList<PathRequest>::Iterator it = m_pending_requests.Begin(); it != m_pending_requests.End(); ++it) {
+    for (auto it = m_pending_requests.Begin(), it_end = m_pending_requests.End(); it != it_end; ++it) {
         if ((*it).GetClient() == unit) {
             return true;
         }

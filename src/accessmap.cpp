@@ -62,8 +62,8 @@ bool AccessMap::IsProcessed(int32_t grid_x, int32_t grid_y) const {
 void AccessMap::ProcessStationaryUnits(UnitInfo* unit) {
     uint16_t team = unit->team;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetUnitType() != CNCT_4W && ((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team))) {
             (*this)((*it).grid_x, (*it).grid_y) = 0;
 
@@ -80,7 +80,7 @@ void AccessMap::ProcessMobileUnits(SmartList<UnitInfo>* units, UnitInfo* unit, u
     uint16_t team = unit->team;
     bool is_air_pathfinder = (unit->flags & MOBILE_AIR_UNIT);
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if ((*it).GetOrder() != ORDER_IDLE && (*it).IsVisibleToTeam(team)) {
             if ((flags & AccessModifier_SameClassBlocks) ||
                 ((flags & AccessModifier_EnemySameClassBlocks) && (*it).team != team)) {
@@ -91,8 +91,9 @@ void AccessMap::ProcessMobileUnits(SmartList<UnitInfo>* units, UnitInfo* unit, u
 
                 (*this)((*it).grid_x, (*it).grid_y) = 0;
 
-                if ((*it).path != nullptr && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER && (&*it) != unit) {
-                    Point position = (*it).path->GetPosition(&*it);
+                if ((*it).path != nullptr && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER &&
+                    it->Get() != unit) {
+                    Point position = (*it).path->GetPosition(it->Get());
                     (*this)(position.x, position.y) = 0;
                 }
             }
@@ -207,13 +208,13 @@ void AccessMap::ProcessGroundCover(UnitInfo* unit, int32_t surface_type) {
     tape_units.clear();
     mine_units.clear();
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_GroundCoverUnits.Begin();
-         it != UnitsManager_GroundCoverUnits.End(); ++it) {
+    for (auto it = UnitsManager_GroundCoverUnits.Begin(), it_end = UnitsManager_GroundCoverUnits.End(); it != it_end;
+         ++it) {
         if (!((*it).IsVisibleToTeam(team) || (*it).IsDetectedByTeam(team))) {
             continue;
         }
 
-        UnitInfo* const cover = &*it;
+        UnitInfo* const cover = it->Get();
 
         switch (cover->GetUnitType()) {
             case BRIDGE: {
@@ -295,33 +296,33 @@ void AccessMap::ProcessGroundCover(UnitInfo* unit, int32_t surface_type) {
 void AccessMap::ProcessDangers(UnitInfo* unit) {
     uint16_t team = unit->team;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team != team && (*it).IsVisibleToTeam(team) &&
             (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0 && (*it).GetOrder() != ORDER_DISABLE &&
             (*it).GetOrder() != ORDER_IDLE && (*it).hits > 0 &&
             Access_IsValidAttackTargetType((*it).GetUnitType(), unit->GetUnitType())) {
-            ProcessSurface(&*it);
+            ProcessSurface(it->Get());
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
         if ((*it).team != team && (*it).IsVisibleToTeam(team) &&
             (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0 && (*it).GetOrder() != ORDER_DISABLE &&
             (*it).GetOrder() != ORDER_IDLE && (*it).hits > 0 &&
             Access_IsValidAttackTargetType((*it).GetUnitType(), unit->GetUnitType())) {
-            ProcessSurface(&*it);
+            ProcessSurface(it->Get());
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-         it != UnitsManager_MobileAirUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team != team && (*it).IsVisibleToTeam(team) &&
             (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0 && (*it).GetOrder() != ORDER_DISABLE &&
             (*it).GetOrder() != ORDER_IDLE && (*it).hits > 0 &&
             Access_IsValidAttackTargetType((*it).GetUnitType(), unit->GetUnitType())) {
-            ProcessSurface(&*it);
+            ProcessSurface(it->Get());
         }
     }
 }

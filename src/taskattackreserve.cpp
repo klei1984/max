@@ -105,8 +105,8 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
             units.PushBack(unit);
             unit.AddTask(this);
 
-            for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin();
-                 it != TaskManager.GetTaskList().End(); ++it) {
+            for (auto it = TaskManager.GetTaskList().Begin(), it_end = TaskManager.GetTaskList().End(); it != it_end;
+                 ++it) {
                 if ((*it).GetTeam() == unit.team && (*it).GetType() != TaskType_TaskAttackReserve &&
                     (*it).IsUnitUsable(unit)) {
                     Rect bounds;
@@ -172,8 +172,8 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
 
                 memset(unit_types, 0, sizeof(unit_types));
 
-                for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                     it != UnitsManager_StationaryUnits.End(); ++it) {
+                for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                     it != it_end; ++it) {
                     if ((*it).team == m_team) {
                         ++unit_types[(*it).GetUnitType()];
                     }
@@ -232,34 +232,34 @@ void TaskAttackReserve::AddUnit(UnitInfo& unit) {
 void TaskAttackReserve::ChildComplete(Task* task) {}
 
 void TaskAttackReserve::EndTurn() {
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).GetTask() == this) {
             if ((*it).ammo < (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) ||
                 (((*it).flags & STATIONARY) && (*it).ammo < (*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO) / 2)) {
-                SmartPointer<Task> reload_task(new (std::nothrow) TaskReload(&*it));
+                SmartPointer<Task> reload_task(new (std::nothrow) TaskReload(it->Get()));
 
                 TaskManager.AppendTask(*reload_task);
 
             } else if ((*it).hits < (*it).GetBaseValues()->GetAttribute(ATTRIB_HITS) / 2 &&
                        ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_APPRENTICE) {
-                SmartPointer<Task> repair_task(new (std::nothrow) TaskRepair(&*it));
+                SmartPointer<Task> repair_task(new (std::nothrow) TaskRepair(it->Get()));
 
                 TaskManager.AppendTask(*repair_task);
 
             } else if (((*it).flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
                        !((*it).flags & REGENERATING_UNIT) &&
                        ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_EXPERT &&
-                       AiPlayer_Teams[(*it).team].ShouldUpgradeUnit(&*it)) {
-                SmartPointer<Task> upgrade_task(new (std::nothrow) TaskUpgrade(&*it));
+                       AiPlayer_Teams[(*it).team].ShouldUpgradeUnit(it->Get())) {
+                SmartPointer<Task> upgrade_task(new (std::nothrow) TaskUpgrade(it->Get()));
 
                 TaskManager.AppendTask(*upgrade_task);
             }
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).speed > 0 && (*it).IsReadyForOrders(this)) {
-            Task_RemindMoveFinished(&*it);
+            Task_RemindMoveFinished(it->Get());
         }
     }
 }
@@ -283,8 +283,8 @@ bool TaskAttackReserve::Execute(UnitInfo& unit) {
 }
 
 void TaskAttackReserve::RemoveSelf() {
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+        TaskManager.ClearUnitTasksAndRemindAvailable(it->Get());
     }
 
     units.Clear();

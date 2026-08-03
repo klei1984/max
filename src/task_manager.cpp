@@ -66,7 +66,7 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t tas
                 unit_list = &UnitsManager_MobileLandSeaUnits;
             }
 
-            for (SmartList<UnitInfo>::Iterator it = unit_list->Begin(); it != unit_list->End(); ++it) {
+            for (auto it = unit_list->Begin(), it_end = unit_list->End(); it != it_end; ++it) {
                 if ((*it).team == team && (*it).GetUnitType() == unit_type) {
                     ++available_count;
 
@@ -76,17 +76,17 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t tas
                 }
             }
 
-            for (SmartList<TaskObtainUnits>::Iterator it = unit_requests.Begin(); it != unit_requests.End(); ++it) {
+            for (auto it = unit_requests.Begin(), it_end = unit_requests.End(); it != it_end; ++it) {
                 if ((*it).GetTeam() == team && (*it).CountInstancesOfUnitType(unit_type) &&
                     (*it).ComparePriority(task_priority + TASK_PRIORITY_ADJUST_MAJOR) <= 0) {
                     requested_count += (*it).CountInstancesOfUnitType(unit_type);
                 }
             }
 
-            for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+            for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
                 if ((*it).GetTeam() == team &&
                     ((*it).GetType() == TaskType_TaskCreateBuilding || (*it).GetType() == TaskType_TaskCreateUnit)) {
-                    TaskCreate* create_task = dynamic_cast<TaskCreate*>(&*it);
+                    TaskCreate* create_task = dynamic_cast<TaskCreate*>(it->Get());
 
                     if (create_task->GetUnitType() == unit_type) {
                         if (create_task->IsActivelyBuilding() ||
@@ -127,7 +127,7 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t tas
 }
 
 bool TaskManager::AreTasksThinking(uint16_t team) {
-    for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+    for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
         if ((*it).GetTeam() == team && (*it).IsThinking()) {
             AILOG(log, "Task thinking: {}", (*it).WriteStatusLog());
 
@@ -144,7 +144,7 @@ void TaskManager::CheckComputerReactions() {
             UnitsManager_TeamInfo[GameManager_ActiveTurnTeam].team_type == TEAM_TYPE_COMPUTER) {
             AILOG(log, "Checking computer reactions");
 
-            for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+            for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
                 if (GameManager_IsActiveTurn((*it).GetTeam())) {
                     if ((*it).CheckReactions()) {
                         return;
@@ -153,15 +153,15 @@ void TaskManager::CheckComputerReactions() {
             }
 
             if (Ai_GetReactionState() == AI_REACTION_STATE_IDLE) {
-                for (SmartList<UnitInfo>::Iterator it = units_to_check.Begin(); it != units_to_check.End(); ++it) {
+                for (auto it = units_to_check.Begin(), it_end = units_to_check.End(); it != it_end; ++it) {
                     if (GameManager_IsActiveTurn((*it).team) && (*it).hits > 0 && (*it).speed > 0 &&
-                        Task_IsReadyToTakeOrders(&*it) &&
+                        Task_IsReadyToTakeOrders(it->Get()) &&
                         UnitsManager_TeamInfo[(*it).team].team_type == TEAM_TYPE_COMPUTER) {
                         if ((*it).GetTask()) {
-                            Task_RetreatFromDanger((*it).GetTask(), &*it, Ai_DetermineCautionLevel(&*it));
+                            Task_RetreatFromDanger((*it).GetTask(), it->Get(), Ai_DetermineCautionLevel(it->Get()));
 
                         } else {
-                            Task_RetreatIfNecessary(nullptr, &*it, Ai_DetermineCautionLevel(&*it));
+                            Task_RetreatIfNecessary(nullptr, it->Get(), Ai_DetermineCautionLevel(it->Get()));
                         }
 
                         units_to_check.Remove(*it);
@@ -185,22 +185,22 @@ void TaskManager::CollectPotentialAttackTargets(UnitInfo* unit) {
         range = range * range;
 
         if (Access_GetValidAttackTargetTypes(unit->GetUnitType()) & MOBILE_LAND_UNIT) {
-            for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-                 it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+            for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+                 it != it_end; ++it) {
                 if ((*it).team != unit->team && (*it).IsVisibleToTeam(unit->team) &&
                     UnitsManager_TeamInfo[(*it).team].team_type == TEAM_TYPE_COMPUTER &&
-                    Access_GetSquaredDistance(&*it, unit) <= range) {
+                    Access_GetSquaredDistance(it->Get(), unit) <= range) {
                     units_to_check.PushBack(*it);
                 }
             }
         }
 
         if (Access_GetValidAttackTargetTypes(unit->GetUnitType()) & MOBILE_AIR_UNIT) {
-            for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-                 it != UnitsManager_MobileAirUnits.End(); ++it) {
+            for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End();
+                 it != it_end; ++it) {
                 if ((*it).team != unit->team && (*it).IsVisibleToTeam(unit->team) &&
                     UnitsManager_TeamInfo[(*it).team].team_type == TEAM_TYPE_COMPUTER &&
-                    Access_GetSquaredDistance(&*it, unit) <= range) {
+                    Access_GetSquaredDistance(it->Get(), unit) <= range) {
                     units_to_check.PushBack(*it);
                 }
             }
@@ -301,19 +301,19 @@ bool TaskManager::ExecuteReminders() {
 void TaskManager::BeginTurn(uint16_t team) {
     AILOG(log, "Task Manager: begin turn.");
 
-    for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+    for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
         if ((*it).GetTeam() == team && (*it).GetType() != TaskType_TaskTransport) {
             (*it).SetProcessingNeeded(true);
         }
     }
 
-    for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+    for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
         if ((*it).GetTeam() == team && (*it).GetType() != TaskType_TaskTransport) {
             (*it).RemindTurnStart();
         }
     }
 
-    for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+    for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
         if ((*it).GetTeam() == team && (*it).GetType() == TaskType_TaskTransport) {
             (*it).RemindTurnStart();
         }
@@ -324,7 +324,7 @@ void TaskManager::BeginTurn(uint16_t team) {
 
         memset(reminders, 0, sizeof(reminders));
 
-        for (SmartList<Reminder>::Iterator it = normal_reminders.Begin(); it != normal_reminders.End(); ++it) {
+        for (auto it = normal_reminders.Begin(), it_end = normal_reminders.End(); it != it_end; ++it) {
             ++reminders[(*it).GetType()];
         }
 
@@ -339,7 +339,7 @@ void TaskManager::BeginTurn(uint16_t team) {
 void TaskManager::EndTurn(uint16_t team) {
     AILOG(log, "Task Manager: end turn.");
 
-    for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+    for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
         if ((*it).GetTeam() == team) {
             (*it).RemindTurnEnd();
         }
@@ -349,7 +349,7 @@ void TaskManager::EndTurn(uint16_t team) {
 void TaskManager::MarkTasksForProcessing(uint16_t team) {
     AILOG(log, "Task Manager: request task processing.");
 
-    for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+    for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
         if ((*it).GetTeam() == team) {
             (*it).SetProcessingNeeded(true);
         }
@@ -357,7 +357,7 @@ void TaskManager::MarkTasksForProcessing(uint16_t team) {
 }
 
 void TaskManager::Clear() {
-    for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+    for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
         (*it).RemoveSelf();
     }
 
@@ -486,14 +486,14 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                 }
 
                 if (unit->flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
-                    for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+                    for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
                         if ((*it).GetTeam() == unit->team && (*it).ExchangeOperator(*unit)) {
                             return;
                         }
                     }
                 }
 
-                for (SmartList<TaskObtainUnits>::Iterator it = unit_requests.Begin(); it != unit_requests.End(); ++it) {
+                for (auto it = unit_requests.Begin(), it_end = unit_requests.End(); it != it_end; ++it) {
                     if ((*it).GetTeam() == unit->team) {
                         if ((!obtain_units_task || (*it).ComparePriority(task_priority) < 0) &&
                             (*it).CountInstancesOfUnitType(unit->GetUnitType())) {
@@ -513,8 +513,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                     unit->GetUnitType() == SHIPYARD || unit->GetUnitType() == AIRPLT ||
                     unit->GetUnitType() == TRAINHAL || unit->GetUnitType() == CONSTRCT ||
                     unit->GetUnitType() == ENGINEER) {
-                    for (SmartList<TaskObtainUnits>::Iterator it = unit_requests.Begin(); it != unit_requests.End();
-                         ++it) {
+                    for (auto it = unit_requests.Begin(), it_end = unit_requests.End(); it != it_end; ++it) {
                         if ((*it).GetTeam() == unit->team) {
                             (*it).Init();
                         }
@@ -525,7 +524,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                 int32_t distance;
                 int32_t minimum_distance{INT32_MAX};
 
-                for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+                for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
                     if ((*it).GetTeam() == unit->team && (*it).IsUnitUsable(*unit)) {
                         Rect bounds;
 
@@ -563,13 +562,13 @@ void TaskManager::RemoveTask(Task& task) {
 }
 
 void TaskManager::RemoveDestroyedUnit(UnitInfo* unit) {
-    for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+    for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
         (*it).EventUnitDestroyed(*unit);
     }
 }
 
 void TaskManager::AddSpottedUnit(UnitInfo* unit) {
-    for (SmartList<Task>::Iterator it = tasks.Begin(); it != tasks.End(); ++it) {
+    for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
         (*it).EventEnemyUnitSpotted(*unit);
     }
 }

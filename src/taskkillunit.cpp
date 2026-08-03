@@ -173,9 +173,9 @@ bool TaskKillUnit::GetNewUnits() {
             is_found = true;
         }
 
-        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
             if (!weight_table.GetWeight((*it).GetUnitType())) {
-                TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
+                TaskManager.ClearUnitTasksAndRemindAvailable(it->Get());
             }
         }
 
@@ -331,7 +331,7 @@ UnitInfo* TaskKillUnit::FindClosestCombatUnit(SmartList<UnitInfo>* units_, UnitI
     uint32_t task_priority = GetPriority();
     bool is_found;
 
-    for (SmartList<UnitInfo>::Iterator it = units_->Begin(); it != units_->End(); ++it) {
+    for (auto it = units_->Begin(), it_end = units_->End(); it != it_end; ++it) {
         if ((*it).team == m_team && (*it).hits > 0 && (*it).ammo > 0) {
             if ((*it).GetOrder() == ORDER_AWAIT || (*it).GetOrder() == ORDER_SENTRY || (*it).GetOrder() == ORDER_MOVE ||
                 (*it).GetOrder() == ORDER_MOVE_TO_UNIT) {
@@ -349,10 +349,10 @@ UnitInfo* TaskKillUnit::FindClosestCombatUnit(SmartList<UnitInfo>* units_, UnitI
                 if (is_found) {
                     if (IsUnitUsable(*it)) {
                         if (!map || map->Search(Point((*it).grid_x, (*it).grid_y))) {
-                            int32_t distance_ = Access_GetSquaredDistance(&*it, spotted_unit->GetLastPosition());
+                            int32_t distance_ = Access_GetSquaredDistance(it->Get(), spotted_unit->GetLastPosition());
 
                             if (!unit || *distance > distance_) {
-                                unit = &*it;
+                                unit = it->Get();
                                 *distance = distance_;
                             }
                         }
@@ -586,8 +586,8 @@ void TaskKillUnit::RemoveSelf() {
             m_parent = nullptr;
         }
 
-        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-            TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
+        for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+            TaskManager.ClearUnitTasksAndRemindAvailable(it->Get());
         }
 
         managed_unit = nullptr;
@@ -624,8 +624,8 @@ void TaskKillUnit::RemoveUnit(UnitInfo& unit) {
 
 void TaskKillUnit::EventUnitDestroyed(UnitInfo& unit) {
     if (GetUnitSpotted() == &unit) {
-        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-            TaskManager.ClearUnitTasksAndRemindAvailable(&*it, true);
+        for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+            TaskManager.ClearUnitTasksAndRemindAvailable(it->Get(), true);
         }
 
         units.Clear();
@@ -640,9 +640,9 @@ int32_t TaskKillUnit::GetTotalProjectedDamage() {
     int32_t result = 0;
     TaskAttack* attack_task = dynamic_cast<TaskAttack*>(&*m_parent);
 
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        if (attack_task->IsDestinationReached(&*it)) {
-            result += GetProjectedDamage(&*it, spotted_unit->GetUnit());
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+        if (attack_task->IsDestinationReached(it->Get())) {
+            result += GetProjectedDamage(it->Get(), spotted_unit->GetUnit());
         }
     }
 
@@ -650,16 +650,16 @@ int32_t TaskKillUnit::GetTotalProjectedDamage() {
 }
 
 bool TaskKillUnit::MoveUnits() {
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
         if ((*it).speed > 0 && (*it).IsReadyForOrders(this)) {
-            Task_RemindMoveFinished(&*it, false);
+            Task_RemindMoveFinished(it->Get(), false);
         }
     }
 
     return false;
 }
 
-SpottedUnit* TaskKillUnit::GetSpottedUnit() const { return &*spotted_unit; }
+SpottedUnit* TaskKillUnit::GetSpottedUnit() const { return spotted_unit.Get(); }
 
 UnitInfo* TaskKillUnit::GetUnitSpotted() const {
     UnitInfo* result;

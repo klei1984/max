@@ -26,4 +26,4 @@ AdjustRequest::AdjustRequest(UnitInfo* unit, int32_t mode, Point position, Groun
 
 AdjustRequest::~AdjustRequest() {}
 
-GroundPath* AdjustRequest::GetPath() { return &*ground_path; }
+GroundPath* AdjustRequest::GetPath() { return ground_path.Get(); }

@@ -186,7 +186,7 @@ bool SmartFileWriter::Open(const std::string& path) noexcept {
 bool SmartFileWriter::Close() noexcept {
     bool result{false};
 
-    for (auto it = objects.Begin(); it != objects.End(); ++it) {
+    for (auto it = objects.Begin(), it_end = objects.End(); it != it_end; ++it) {
         (*it).SetIndex(0);
     }
 

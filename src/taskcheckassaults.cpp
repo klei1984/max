@@ -89,7 +89,7 @@ void TaskCheckAssaults::SelectNext() {
 }
 
 bool TaskCheckAssaults::EvaluateAssaults() {
-    return AiAttack_EvaluateAssault(&*unit_iterator, this, &MoveFinishedCallback);
+    return AiAttack_EvaluateAssault(unit_iterator->Get(), this, &MoveFinishedCallback);
 }
 
 void TaskCheckAssaults::MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
@@ -122,7 +122,7 @@ void TaskCheckAssaults::RemoveSelf() {
 }
 
 void TaskCheckAssaults::RemoveUnit(UnitInfo& unit) {
-    if ((unit_iterator != UnitsManager_MobileAirUnits.End()) && (&(*unit_iterator) == &unit)) {
+    if ((unit_iterator != UnitsManager_MobileAirUnits.End()) && (unit_iterator->Get() == &unit)) {
         SelectNext();
     }
 }

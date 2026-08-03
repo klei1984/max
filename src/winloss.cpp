@@ -35,7 +35,7 @@ int32_t WinLoss_GetWorthOfAssets(uint16_t team, SmartList<UnitInfo>* units) {
 
     sum_build_turns_value_of_team = 0;
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if ((*it).team == team) {
             sum_build_turns_value_of_team += (*it).GetNormalRateBuildCost();
         }

@@ -138,7 +138,7 @@ void TaskMove::SetFinishOnArrival(bool value) { finish_on_arrival = value; }
 
 void TaskMove::SetOptional(bool value) { is_optional = value; }
 
-UnitInfo* TaskMove::GetPassenger() { return &*passenger; }
+UnitInfo* TaskMove::GetPassenger() { return passenger.Get(); }
 
 void TaskMove::SetDestination(Point site) { passenger_destination = site; }
 
@@ -999,7 +999,7 @@ void TaskMove::MoveAirUnit() {
 
                     if (units) {
                         // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-                        for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                             if ((*it).flags & MOBILE_AIR_UNIT) {
                                 AILOG_LOG(log, "Blocked by {} at [{},{}]",
                                           ResourceManager_GetUnit((*it).GetUnitType()).GetSingularName().data(),
@@ -1043,8 +1043,8 @@ void TaskMove::MoveAirUnit() {
                         }
                     }
 
-                    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-                         it != UnitsManager_MobileAirUnits.End(); ++it) {
+                    for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End();
+                         it != it_end; ++it) {
                         if ((*it).GetOrder() == ORDER_MOVE && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER &&
                             (*it).team == m_team && (*it).move_to_grid_x == passenger_waypoint.x &&
                             (*it).move_to_grid_y == passenger_waypoint.y) {
@@ -1336,9 +1336,9 @@ void TaskMove::MoveUnit(GroundPath* path) {
 }
 
 UnitInfo* TaskMove::FindUnit(SmartList<UnitInfo>* units, uint16_t team, ResourceID unit_type) {
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if ((*it).team == team && (*it).GetUnitType() == unit_type) {
-            return &*it;
+            return it->Get();
         }
     }
 
@@ -1354,10 +1354,9 @@ void TaskMove::FindTransport(ResourceID unit_type) {
 
     transporter_unit_type = unit_type;
 
-    for (SmartList<Task>::Iterator it = TaskManager.GetTaskList().Begin(); it != TaskManager.GetTaskList().End();
-         ++it) {
+    for (auto it = TaskManager.GetTaskList().Begin(), it_end = TaskManager.GetTaskList().End(); it != it_end; ++it) {
         if ((*it).GetTeam() == m_team && (*it).GetType() == TaskType_TaskTransport) {
-            TaskTransport* task = dynamic_cast<TaskTransport*>(&*it);
+            TaskTransport* task = dynamic_cast<TaskTransport*>(it->Get());
 
             if (task->GetTransporterType() == unit_type) {
                 distance = Access_GetApproximateDistance(task->DeterminePosition(),

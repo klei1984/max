@@ -195,15 +195,16 @@ bool TaskRemoveRubble::DumpMaterials(UnitInfo* unit_) {
 
         AILOG(log, "Remove Rubble: attempt to dump materials.");
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             if ((*it).team == m_team && (*it).storage < (*it).GetBaseValues()->GetAttribute(ATTRIB_STORAGE) &&
                 (*it).hits > 0 &&
                 ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == Unit::CargoType::CARGO_TYPE_RAW) {
                 Complex* complex = (*it).GetComplex();
 
-                for (SmartList<UnitInfo>::Iterator building = UnitsManager_StationaryUnits.Begin();
-                     building != UnitsManager_StationaryUnits.End(); ++building) {
+                for (auto building = UnitsManager_StationaryUnits.Begin(),
+                          building_end = UnitsManager_StationaryUnits.End();
+                     building != building_end; ++building) {
                     if ((*building).GetComplex() == complex) {
                         if (Task_IsAdjacent(building->Get(), unit_->grid_x, unit_->grid_y)) {
                             if (GameManager_IsActiveTurn(m_team)) {

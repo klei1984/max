@@ -284,11 +284,11 @@ void TaskSearchDestination::SearchTrySite() {
         units = &UnitsManager_MobileLandSeaUnits;
     }
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if ((*it).team == m_team && (*it).hits > 0 && (*it).GetUnitType() == unit->GetUnitType() && unit != (*it) &&
             ((*it).GetOrder() == ORDER_AWAIT || (*it).GetOrder() == ORDER_SENTRY || (*it).GetOrder() == ORDER_MOVE ||
              (*it).GetOrder() == ORDER_MOVE_TO_UNIT) &&
-            Access_GetSquaredDistance(&*unit, best_site) > Access_GetSquaredDistance(&*it, best_site)) {
+            Access_GetSquaredDistance(&*unit, best_site) > Access_GetSquaredDistance(it->Get(), best_site)) {
             bool flag = false;
 
             if ((*it).GetTask()) {
@@ -302,7 +302,7 @@ void TaskSearchDestination::SearchTrySite() {
 
             if (flag) {
                 SmartPointer<UnitInfo> backup = unit;
-                unit = &*it;
+                unit = it->Get();
 
                 AILOG_LOG(log, "Swapping for {} at [{},{}]",
                           ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), unit->grid_x + 1,

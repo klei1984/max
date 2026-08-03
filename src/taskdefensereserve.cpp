@@ -237,10 +237,10 @@ void TaskDefenseReserve::EndTurn() {
     total_assets_land = 0;
     total_assets_sea = 0;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
         if ((*it).team == m_team && ((*it).flags & BUILDING)) {
-            if (IsAdjacentToWater(&*it)) {
+            if (IsAdjacentToWater(it->Get())) {
                 total_assets_sea += (*it).GetNormalRateBuildCost();
 
             } else {
@@ -249,8 +249,8 @@ void TaskDefenseReserve::EndTurn() {
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == m_team) {
             ++unit_counts[(*it).GetUnitType()];
         }
@@ -269,8 +269,8 @@ void TaskDefenseReserve::EndTurn() {
     if (total_assets_land + total_assets_sea > 0) {
         total_assets_air = 0;
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-             it != UnitsManager_MobileAirUnits.End(); ++it) {
+        for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+             ++it) {
             if ((*it).team == target_team && (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
                 total_assets_air += (*it).GetNormalRateBuildCost();
             }
@@ -290,8 +290,8 @@ void TaskDefenseReserve::EndTurn() {
     total_assets_stealth_land = 0;
     total_assets_stealth_sea = 0;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
         if ((*it).team == target_team && (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
             if ((*it).GetUnitType() == COMMANDO) {
                 total_assets_stealth_land += (*it).GetNormalRateBuildCost();

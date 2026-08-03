@@ -389,7 +389,7 @@ bool QuickBuild_IsPlacementValid(UnitInfo* unit, int32_t grid_x, int32_t grid_y)
                 const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
                 if (units) {
-                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                         const ResourceID other_type = (*it).GetUnitType();
 
                         if (unit_type == LANDMINE) {
@@ -437,7 +437,7 @@ bool QuickBuild_IsPlacementValid(UnitInfo* unit, int32_t grid_x, int32_t grid_y)
                 if (units) {
                     bool landing_pad_present = false;
 
-                    for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+                    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                         if ((*it).GetOrder() != ORDER_IDLE || ((*it).flags & STATIONARY)) {
                             if ((*it).GetUnitType() == LANDPAD) {
                                 landing_pad_present = true;
@@ -525,7 +525,7 @@ UnitInfo* QuickBuild_GetTargetUnit(int32_t grid_x, int32_t grid_y) {
                                              : static_cast<uint16_t>(QuickBuild_SelectedTeam - 1);
 
             // First pass: Check for units of the target team
-            for (auto it = units->Begin(), end = units->End(); it != end; ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 // Skip the quick builder preview unit that follows the mouse cursor
                 if (it->Get() == QuickBuild_PreviewUnit.Get()) {
                     continue;

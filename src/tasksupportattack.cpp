@@ -51,11 +51,11 @@ void TaskSupportAttack::ObtainUnits(uint32_t unit_flags_) {
 
     highest_scan = dynamic_cast<TaskAttack*>(&*m_parent)->GetHighestScan();
 
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        if (((*it).flags & unit_flags) && AiAttack_GetTargetValue(&*it) <= highest_scan) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+        if (((*it).flags & unit_flags) && AiAttack_GetTargetValue(it->Get()) <= highest_scan) {
             if ((*it).GetUnitType() == CARGOSHP || (*it).GetUnitType() == SPLYTRCK || (*it).GetUnitType() == REPAIR) {
                 if ((*it).IsReadyForOrders(this) && (*it).storage < 5) {
-                    SmartPointer<Task> get_materials_task(new (std::nothrow) TaskGetMaterials(this, &*it, 5));
+                    SmartPointer<Task> get_materials_task(new (std::nothrow) TaskGetMaterials(this, it->Get(), 5));
 
                     TaskManager.AppendTask(*get_materials_task);
                 }
@@ -69,7 +69,7 @@ void TaskSupportAttack::ObtainUnits(uint32_t unit_flags_) {
             }
 
         } else {
-            TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
+            TaskManager.ClearUnitTasksAndRemindAvailable(it->Get());
         }
     }
 
@@ -244,8 +244,8 @@ bool TaskSupportAttack::Execute(UnitInfo& unit) {
 void TaskSupportAttack::RemoveSelf() {
     m_parent = nullptr;
 
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+        TaskManager.ClearUnitTasksAndRemindAvailable(it->Get());
     }
 
     units.Clear();
@@ -256,13 +256,13 @@ void TaskSupportAttack::RemoveSelf() {
 void TaskSupportAttack::RemoveUnit(UnitInfo& unit) { units.Remove(unit); }
 
 bool TaskSupportAttack::AddReminders() {
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        if (AiAttack_IsReadyToMove(&*it)) {
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+        if (AiAttack_IsReadyToMove(it->Get())) {
             return true;
 
         } else {
             if ((*it).IsReadyForOrders(this) && (*it).speed > 0) {
-                Task_RemindMoveFinished(&*it);
+                Task_RemindMoveFinished(it->Get());
             }
         }
     }

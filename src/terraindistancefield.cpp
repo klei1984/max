@@ -117,7 +117,8 @@ TerrainDistanceField::TerrainDistanceField(const Point dimensions) : m_dimension
     }
 
     // Step 2: Process ground cover units (bridges and water platforms)
-    for (auto it = UnitsManager_GroundCoverUnits.Begin(); it != UnitsManager_GroundCoverUnits.End(); ++it) {
+    for (auto it = UnitsManager_GroundCoverUnits.Begin(), it_end = UnitsManager_GroundCoverUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetUnitType() == BRIDGE || (*it).GetUnitType() == WTRPLTFM) {
             if ((*it).GetOrder() != ORDER_IDLE && (*it).hits > 0) {
                 const int32_t field_offset = (*it).grid_x + (*it).grid_y * m_dimensions.x;
@@ -141,7 +142,8 @@ TerrainDistanceField::TerrainDistanceField(const Point dimensions) : m_dimension
     // Stationary units can be targeted from either land or water positions
     // They are neither land nor water - both unit types need to calculate range
     // Stationary units can be constructed on top of water platforms
-    for (auto it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetOrder() != ORDER_IDLE && (*it).hits > 0 && (*it).GetUnitType() != CNCT_4W) {
             Rect bounds;
 

@@ -415,8 +415,8 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
     unit_count = 0;
     upgraded_unit = nullptr;
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if (unit->team == (*it).team && unit->GetUnitType() == (*it).GetUnitType() && (*it).IsUpgradeAvailable() &&
             (*it).GetOrderState() != ORDER_STATE_UNIT_READY) {
             for (index = 0; index < complexes.GetCount(); ++index) {
@@ -438,13 +438,13 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
             cost = (*it).GetNormalRateBuildCost() / 4;
 
             if (*costs[index] >= cost) {
-                (*it).SetParent(&*it);
-                UnitsManager_SetNewOrder(&*it, ORDER_UPGRADE, ORDER_STATE_EXECUTING_ORDER);
+                (*it).SetParent(it->Get());
+                UnitsManager_SetNewOrder(it->Get(), ORDER_UPGRADE, ORDER_STATE_EXECUTING_ORDER);
 
                 ++unit_count;
                 material_cost += cost;
 
-                upgraded_unit = &*it;
+                upgraded_unit = it->Get();
 
                 *costs[index] -= cost;
             }
@@ -1806,7 +1806,7 @@ void UnitsManager_ProcessOrders() {
 
     if (!UnitsManager_OrdersPending) {
         if (UnitsManager_PendingAttacks.GetCount() > 0) {
-            SmartList<UnitInfo>::Iterator unit_it(UnitsManager_PendingAttacks.Begin());
+            auto unit_it = UnitsManager_PendingAttacks.Begin();
 
             SDL_assert((*unit_it).hits > 0);
 
@@ -1833,7 +1833,7 @@ void UnitsManager_ProcessOrders() {
                 }
 
                 if (GameManager_SelectedUnit == *unit_it) {
-                    GameManager_UpdateInfoDisplay(&*unit_it);
+                    GameManager_UpdateInfoDisplay(unit_it->Get());
                 }
 
                 UnitsManager_PendingAttacks.Remove(unit_it);
@@ -1851,7 +1851,7 @@ void UnitsManager_ProcessOrders() {
         UnitsManager_PendingAirGroupLeader = nullptr;
     }
 
-    for (SmartList<UnitEvent>::Iterator it = UnitEvent_UnitEvents.Begin(); it != UnitEvent_UnitEvents.End(); ++it) {
+    for (auto it = UnitEvent_UnitEvents.Begin(), it_end = UnitEvent_UnitEvents.End(); it != it_end; ++it) {
         (*it).Process();
     }
 
@@ -2127,7 +2127,7 @@ void UnitsManager_DestroyUnit(UnitInfo* unit, bool count_casualty) {
                 units = &UnitsManager_MobileLandSeaUnits;
             }
 
-            for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+            for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).GetOrder() == ORDER_IDLE && (*it).GetParent() == unit) {
                     const ResourceID held_unit_type = (*it).GetUnitType();
 
@@ -2135,9 +2135,10 @@ void UnitsManager_DestroyUnit(UnitInfo* unit, bool count_casualty) {
 
                     // Recursively count casualties for nested transports
                     if (held_unit_type == SEATRANS || held_unit_type == AIRTRANS || held_unit_type == CLNTRANS) {
-                        for (SmartList<UnitInfo>::Iterator it2 = UnitsManager_MobileLandSeaUnits.Begin();
-                             it2 != UnitsManager_MobileLandSeaUnits.End(); ++it2) {
-                            if ((*it2).GetOrder() == ORDER_IDLE && (*it2).GetParent() == &*it) {
+                        for (auto it2 = UnitsManager_MobileLandSeaUnits.Begin(),
+                                  it2_end = UnitsManager_MobileLandSeaUnits.End();
+                             it2 != it2_end; ++it2) {
+                            if ((*it2).GetOrder() == ORDER_IDLE && (*it2).GetParent() == it->Get()) {
                                 ++UnitsManager_TeamInfo[(*it2).team].casualties[(*it2).GetUnitType()];
                             }
                         }
@@ -2412,7 +2413,7 @@ void UnitsManager_NewOrderWhileScaling(UnitInfo* unit) {
 }
 
 void UnitsManager_ClearPins(SmartList<UnitInfo>* units) {
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         (*it).ClearPins();
     }
 }
@@ -3220,8 +3221,8 @@ void UnitsManager_ProcessOrder(UnitInfo* unit) {
 }
 
 void UnitsManager_ProcessUnitOrders(SmartList<UnitInfo>* units) {
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        UnitsManager_ProcessOrder(&*it);
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+        UnitsManager_ProcessOrder(it->Get());
     }
 }
 
@@ -3261,7 +3262,7 @@ void UnitsManager_AddToDelayedReactionList(UnitInfo* unit) {
 }
 
 void UnitsManager_ClearDelayedReaction(SmartList<UnitInfo>* units) {
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
         if ((*it).delayed_reaction && (*it).hits > 0) {
             (*it).delayed_reaction = 0;
         }
@@ -3540,10 +3541,9 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
         units = &UnitsManager_MobileLandSeaUnits;
     }
 
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); Access_IsHeldByUnit(unit, units, &it);
-         UnitsManager_DestroyUnit(it->Get())) {
+    for (auto it = units->Begin(); Access_IsHeldByUnit(unit, units, &it); UnitsManager_DestroyUnit(it->Get())) {
         if ((*it).GetUnitType() == SEATRANS || (*it).GetUnitType() == AIRTRANS || (*it).GetUnitType() == CLNTRANS) {
-            for (SmartList<UnitInfo>::Iterator it2 = UnitsManager_MobileLandSeaUnits.Begin();
+            for (auto it2 = UnitsManager_MobileLandSeaUnits.Begin();
                  Access_IsHeldByUnit(it->Get(), &UnitsManager_MobileLandSeaUnits, &it2);
                  UnitsManager_DestroyUnit(it2->Get())) {
             }
@@ -4342,8 +4342,8 @@ bool UnitsManager_AssessAttacks() {
 }
 
 bool UnitsManager_IsTeamReactionPending(uint16_t team, UnitInfo* unit, SmartList<UnitInfo>* units) {
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if ((*it).team == team && UnitsManager_CheckReaction(&*it, unit)) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+        if ((*it).team == team && UnitsManager_CheckReaction(it->Get(), unit)) {
             return true;
         }
     }
@@ -4395,26 +4395,27 @@ bool UnitsManager_ShouldAttack(UnitInfo* unit1, UnitInfo* unit2) {
 
                     unit2_distance = unit2_distance * unit2_distance;
 
-                    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-                         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
-                        if ((*it).team == unit1_team && Access_GetSquaredDistance(unit2, &*it) <= unit2_distance &&
-                            Access_IsValidAttackTarget(unit2, &*it)) {
+                    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(),
+                              it_end = UnitsManager_MobileLandSeaUnits.End();
+                         it != it_end; ++it) {
+                        if ((*it).team == unit1_team && Access_GetSquaredDistance(unit2, it->Get()) <= unit2_distance &&
+                            Access_IsValidAttackTarget(unit2, it->Get())) {
                             return true;
                         }
                     }
 
-                    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-                         it != UnitsManager_MobileAirUnits.End(); ++it) {
-                        if ((*it).team == unit1_team && Access_GetSquaredDistance(unit2, &*it) <= unit2_distance &&
-                            Access_IsValidAttackTarget(unit2, &*it)) {
+                    for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End();
+                         it != it_end; ++it) {
+                        if ((*it).team == unit1_team && Access_GetSquaredDistance(unit2, it->Get()) <= unit2_distance &&
+                            Access_IsValidAttackTarget(unit2, it->Get())) {
                             return true;
                         }
                     }
 
-                    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                         it != UnitsManager_StationaryUnits.End(); ++it) {
-                        if ((*it).team == unit1_team && Access_GetSquaredDistance(unit2, &*it) <= unit2_distance &&
-                            Access_IsValidAttackTarget(unit2, &*it)) {
+                    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                         it != it_end; ++it) {
+                        if ((*it).team == unit1_team && Access_GetSquaredDistance(unit2, it->Get()) <= unit2_distance &&
+                            Access_IsValidAttackTarget(unit2, it->Get())) {
                             return true;
                         }
                     }
@@ -4478,8 +4479,8 @@ bool UnitsManager_CheckReaction(UnitInfo* unit1, UnitInfo* unit2) {
 }
 
 bool UnitsManager_IsReactionPending(SmartList<UnitInfo>* units, UnitInfo* unit) {
-    for (SmartList<UnitInfo>::Iterator it = units->Begin(); it != units->End(); ++it) {
-        if (UnitsManager_CheckReaction(&*it, unit)) {
+    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+        if (UnitsManager_CheckReaction(it->Get(), unit)) {
             return true;
         }
     }
@@ -4551,22 +4552,22 @@ void UnitsManager_InitUnitPath(UnitInfo* unit) {
 }
 
 bool UnitsManager_IsAttackScheduled() {
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileAirUnits.Begin();
-         it != UnitsManager_MobileAirUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetOrder() == ORDER_FIRE) {
             return true;
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_MobileLandSeaUnits.Begin();
-         it != UnitsManager_MobileLandSeaUnits.End(); ++it) {
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
         if ((*it).GetOrder() == ORDER_FIRE) {
             return true;
         }
     }
 
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetOrder() == ORDER_FIRE) {
             return true;
         }
@@ -4654,20 +4655,22 @@ bool UnitsManager_CheckDelayedReactions(uint16_t team) {
         } else {
             for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
                 if (team != i) {
-                    for (SmartList<UnitInfo>::Iterator it = UnitsManager_DelayedAttackTargets[i].Begin();
-                         it != UnitsManager_DelayedAttackTargets[i].End(); ++it) {
+                    for (auto it = UnitsManager_DelayedAttackTargets[i].Begin(),
+                              it_end = UnitsManager_DelayedAttackTargets[i].End();
+                         it != it_end; ++it) {
                         if ((*it).IsVisibleToTeam(team) &&
-                            UnitsManager_IsReactionPending(&UnitsManager_DelayedAttackTargets[team], &*it)) {
+                            UnitsManager_IsReactionPending(&UnitsManager_DelayedAttackTargets[team], it->Get())) {
                             return true;
                         }
                     }
 
-                    for (SmartList<UnitInfo>::Iterator it = UnitsManager_DelayedAttackTargets[i].Begin();
-                         it != UnitsManager_DelayedAttackTargets[i].End(); ++it) {
+                    for (auto it = UnitsManager_DelayedAttackTargets[i].Begin(),
+                              it_end = UnitsManager_DelayedAttackTargets[i].End();
+                         it != it_end; ++it) {
                         if ((*it).IsVisibleToTeam(team) &&
-                            (UnitsManager_IsTeamReactionPending(team, &*it, &UnitsManager_MobileLandSeaUnits) ||
-                             UnitsManager_IsTeamReactionPending(team, &*it, &UnitsManager_MobileAirUnits) ||
-                             UnitsManager_IsTeamReactionPending(team, &*it, &UnitsManager_StationaryUnits))) {
+                            (UnitsManager_IsTeamReactionPending(team, it->Get(), &UnitsManager_MobileLandSeaUnits) ||
+                             UnitsManager_IsTeamReactionPending(team, it->Get(), &UnitsManager_MobileAirUnits) ||
+                             UnitsManager_IsTeamReactionPending(team, it->Get(), &UnitsManager_StationaryUnits))) {
                             return true;
                         }
                     }

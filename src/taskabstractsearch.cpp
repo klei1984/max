@@ -80,18 +80,18 @@ void TaskAbstractSearch::EndTurn() {
     AILOG(log, "Abstract search end turn");
 
     if (units.GetCount()) {
-        for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
+        for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
             if ((*it).speed && (*it).IsReadyForOrders(this)) {
                 if ((*it).hits <= ((*it).GetBaseValues()->GetAttribute(ATTRIB_HITS) / 2) &&
                     ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_APPRENTICE) {
                     (*it).RemoveTasks();
 
-                    SmartPointer<Task> repair_task = new (std::nothrow) TaskRepair(&*it);
+                    SmartPointer<Task> repair_task = new (std::nothrow) TaskRepair(it->Get());
 
                     TaskManager.AppendTask(*repair_task);
 
                 } else {
-                    Task_RemindMoveFinished(&*it);
+                    Task_RemindMoveFinished(it->Get());
 
                     if (!(*it).IsReadyForOrders(this)) {
                         break;
@@ -110,8 +110,8 @@ void TaskAbstractSearch::EndTurn() {
 }
 
 void TaskAbstractSearch::RemoveSelf() {
-    for (SmartList<UnitInfo>::Iterator it = units.Begin(); it != units.End(); ++it) {
-        TaskManager.ClearUnitTasksAndRemindAvailable(&*it);
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+        TaskManager.ClearUnitTasksAndRemindAvailable(it->Get());
     }
 
     units.Clear();

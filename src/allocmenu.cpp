@@ -449,8 +449,8 @@ int32_t AllocMenu_Optimize(Complex* complex, int32_t cargo_type1, int32_t materi
         alloc.material_mining = 0;
         alloc.cargo_material_type = cargo_type1 | cargo_type2;
 
-        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-             it != UnitsManager_StationaryUnits.End(); ++it) {
+        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+             ++it) {
             if ((*it).GetComplex() == complex && (*it).GetUnitType() == MININGST &&
                 (*it).GetOrder() != ORDER_POWER_OFF && (*it).GetOrder() != ORDER_DISABLE &&
                 (*it).GetOrder() != ORDER_IDLE) {
@@ -523,8 +523,8 @@ int32_t AllocMenu_Optimize(Complex* complex, int32_t cargo_type1, int32_t materi
 }
 
 void AllocMenu_ReduceProduction(Complex* complex, int32_t cargo_type, int32_t amount) {
-    for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-         it != UnitsManager_StationaryUnits.End(); ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).GetComplex() == complex && (*it).GetUnitType() == MININGST && (*it).GetOrder() != ORDER_POWER_OFF &&
             (*it).GetOrder() != ORDER_DISABLE && (*it).GetOrder() != ORDER_IDLE) {
             uint8_t* production{nullptr};

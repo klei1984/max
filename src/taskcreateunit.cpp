@@ -230,8 +230,8 @@ void TaskCreateUnit::WaitForMaterials() {
                 int32_t power_consumption = 0;
                 int32_t required_mining_stations;
 
-                for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                     it != UnitsManager_StationaryUnits.End(); ++it) {
+                for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
+                     it != it_end; ++it) {
                     if ((*it).team == m_team) {
                         if ((*it).GetUnitType() == MININGST) {
                             ++mining_station_count;
@@ -261,12 +261,13 @@ void TaskCreateUnit::WaitForMaterials() {
                     if (buildings_count > 0) {
                         auto buildings_to_shut_down = buildings_count - required_mining_stations + 1;
 
-                        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                             it != UnitsManager_StationaryUnits.End(); ++it) {
+                        for (auto it = UnitsManager_StationaryUnits.Begin(),
+                                  it_end = UnitsManager_StationaryUnits.End();
+                             it != it_end; ++it) {
                             if (buildings_to_shut_down > 0) {
                                 if ((*it).team == m_team && (*it).GetUnitType() == GREENHSE &&
                                     (*it).GetOrder() == ORDER_POWER_ON) {
-                                    UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
+                                    UnitsManager_SetNewOrder(it->Get(), ORDER_POWER_OFF, ORDER_STATE_INIT);
 
                                     --buildings_to_shut_down;
                                 }
@@ -276,12 +277,13 @@ void TaskCreateUnit::WaitForMaterials() {
                             }
                         }
 
-                        for (SmartList<UnitInfo>::Iterator it = UnitsManager_StationaryUnits.Begin();
-                             it != UnitsManager_StationaryUnits.End(); ++it) {
+                        for (auto it = UnitsManager_StationaryUnits.Begin(),
+                                  it_end = UnitsManager_StationaryUnits.End();
+                             it != it_end; ++it) {
                             if (buildings_to_shut_down > 0) {
                                 if ((*it).team == m_team && (*it).GetUnitType() == COMMTWR &&
                                     (*it).GetOrder() == ORDER_POWER_ON) {
-                                    UnitsManager_SetNewOrder(&*it, ORDER_POWER_OFF, ORDER_STATE_INIT);
+                                    UnitsManager_SetNewOrder(it->Get(), ORDER_POWER_OFF, ORDER_STATE_INIT);
 
                                     --buildings_to_shut_down;
                                 }

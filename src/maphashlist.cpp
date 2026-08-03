@@ -43,7 +43,7 @@ void MapHashList::FileSave(SmartFileWriter& file) {
     file.Write(point);
 }
 
-Task* MapHashList::GetTask() { return &*task; }
+Task* MapHashList::GetTask() { return task.Get(); }
 
 void MapHashList::SetTask(Task* task) { this->task = task; }
 
