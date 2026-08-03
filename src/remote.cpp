@@ -1087,7 +1087,9 @@ void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet) {
     AILOG_LOG(
         log, " type          {}, {}",
         (unit->GetUnitType() < UNIT_END) ? ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data() : "?",
-        (data.unit_type < UNIT_END) ? ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data() : "?");
+        (data.unit_type < UNIT_END)
+            ? ResourceManager_GetUnit(static_cast<ResourceID>(data.unit_type)).GetSingularName().data()
+            : "?");
 
     AILOG_LOG(log, " unit id       {}, {}", unit->unit_id, data.unit_id);
     AILOG_LOG(log, " parent id     {}, {}", unit->GetParent() ? unit->GetParent()->GetId() : 0, data.parent_unit_id);
@@ -2451,12 +2453,16 @@ void Remote_ProcessNetPacket_23(struct Packet23Data& data, NetPacket& packet) {
     local >> data.disabled_reaction_fire;
 
     local >> data.parent_unit_id;
+    local >> data.experience;
 
     local >> data.move_to_grid_x;
     local >> data.move_to_grid_y;
     local >> data.fire_on_grid_x;
     local >> data.fire_on_grid_y;
     local >> data.enemy_unit_id;
+
+    local >> data.transfer_cargo;
+    local >> data.stealth_dice_roll;
 
     local >> data.total_mining;
     local >> data.raw_mining;
@@ -2474,9 +2480,6 @@ void Remote_ProcessNetPacket_23(struct Packet23Data& data, NetPacket& packet) {
     local >> data.speed;
     local >> data.shots;
     local >> data.storage;
-    local >> data.experience;
-    local >> data.transfer_cargo;
-    local >> data.stealth_dice_roll;
     local >> data.ammo;
 }
 
