@@ -865,7 +865,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                     UnitInfo* target = spotted_unit->GetUnit();
                     int32_t distance = Access_GetSquaredDistance(unit, target);
 
-                    if (target->IsVisibleToTeam(unit->team)) {
+                    if (!target->IsVisibleToTeam(unit->team)) {
                         unit_range = std::min(unit_range, unit_values->GetAttribute(ATTRIB_SCAN));
                     }
 
