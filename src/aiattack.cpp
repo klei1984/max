@@ -926,7 +926,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                             distance =
                                 (Access_GetApproximateDistance(unit->grid_x - site.x, unit->grid_y - site.y) + 1) / 2;
 
-                            if (distance > 0 && caution_level < CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE) {
+                            if (distance > (unit->speed / 2) && caution_level < CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE) {
                                 caution_level = CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE;
 
                                 projected_damage = AiPlayer_Teams[unit_team].GetDamagePotential(
