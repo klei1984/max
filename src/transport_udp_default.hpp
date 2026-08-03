@@ -38,7 +38,7 @@ public:
     bool Deinit();
     bool Connect();
     bool Disconnect();
-    bool TransmitPacket(NetPacket& packet);
+    bool TransmitPacket(NetPacket&& packet);
     bool ReceivePacket(NetPacket& packet);
 };
 

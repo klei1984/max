@@ -88,11 +88,16 @@ uint32_t NetPacket::Peek(uint32_t offset, void* data_address, uint32_t length) n
 void NetPacket::Reset() noexcept {
     buffer_read_position = 0;
     buffer_write_position = 0;
-    addresses.Clear();
+    address_count = 0;
 }
 
 NetPacket::NetPacket() noexcept
-    : buffer(nullptr), buffer_capacity(0), buffer_read_position(0), buffer_write_position(0), addresses(5) {}
+    : addresses(),
+      address_count(0),
+      buffer(nullptr),
+      buffer_capacity(0),
+      buffer_read_position(0),
+      buffer_write_position(0) {}
 
 NetPacket::~NetPacket() noexcept { delete[] buffer; }
 
@@ -128,13 +133,27 @@ NetPacket& operator<<(NetPacket& packet, const std::string& string) noexcept {
     return packet;
 }
 
-void NetPacket::AddAddress(NetAddress& address) noexcept { addresses.PushBack(&address); }
+void NetPacket::AddAddress(NetAddress& address) noexcept {
+    SDL_assert(address_count < addresses.size());
 
-[[nodiscard]] NetAddress& NetPacket::GetAddress(uint16_t index) const noexcept { return *addresses[index]; }
+    /* Drop rather than overrun. The table is bounded by the transport's peer count, so overflowing
+     * it means the caller built a recipient list that cannot correspond to connected peers.
+     */
+    if (address_count < addresses.size()) {
+        addresses[address_count] = address;
+        ++address_count;
+    }
+}
 
-[[nodiscard]] uint16_t NetPacket::GetAddressCount() const noexcept { return addresses.GetCount(); }
+[[nodiscard]] NetAddress& NetPacket::GetAddress(uint16_t index) noexcept {
+    SDL_assert(index < address_count);
 
-void NetPacket::ClearAddressTable() noexcept { addresses.Clear(); }
+    return addresses[index];
+}
+
+[[nodiscard]] uint16_t NetPacket::GetAddressCount() const noexcept { return address_count; }
+
+void NetPacket::ClearAddressTable() noexcept { address_count = 0; }
 
 NetPacket& operator>>(NetPacket& packet, SmartString& string) noexcept {
     uint16_t length;
@@ -197,7 +216,8 @@ bool operator==(NetPacket& left, NetPacket& right) noexcept {
 }
 
 NetPacket::NetPacket(NetPacket&& other) noexcept
-    : addresses(other.addresses, true),
+    : addresses(other.addresses),
+      address_count(other.address_count),
       buffer(other.buffer),
       buffer_capacity(other.buffer_capacity),
       buffer_read_position(other.buffer_read_position),
@@ -208,16 +228,20 @@ NetPacket::NetPacket(NetPacket&& other) noexcept
 }
 
 NetPacket& NetPacket::operator=(NetPacket&& other) noexcept {
-    addresses = SmartObjectArray<NetAddress>(other.addresses, true);
-    delete[] buffer;
-    buffer = other.buffer;
-    buffer_capacity = other.buffer_capacity;
-    buffer_read_position = other.buffer_read_position;
-    buffer_write_position = other.buffer_write_position;
+    if (this != &other) {
+        delete[] buffer;
 
-    other.Reset();
-    other.buffer = nullptr;
-    other.buffer_capacity = 0;
+        addresses = other.addresses;
+        address_count = other.address_count;
+        buffer = other.buffer;
+        buffer_capacity = other.buffer_capacity;
+        buffer_read_position = other.buffer_read_position;
+        buffer_write_position = other.buffer_write_position;
+
+        other.Reset();
+        other.buffer = nullptr;
+        other.buffer_capacity = 0;
+    }
 
     return *this;
 }

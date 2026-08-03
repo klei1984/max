@@ -22,12 +22,16 @@
 #ifndef NET_PACKET_HPP
 #define NET_PACKET_HPP
 
+#include <array>
+#include <string>
+#include <vector>
+
 #include "net_address.hpp"
-#include "smartobjectarray.hpp"
 #include "smartstring.hpp"
 
 class NetPacket {
-    SmartObjectArray<NetAddress> addresses;
+    std::array<NetAddress, NetAddress_MaximumCount> addresses;
+    uint16_t address_count;
     char* buffer;
     uint32_t buffer_capacity;
     uint32_t buffer_read_position;
@@ -48,7 +52,7 @@ public:
     [[nodiscard]] int32_t GetDataSize() const noexcept;
 
     void AddAddress(NetAddress& address) noexcept;
-    [[nodiscard]] NetAddress& GetAddress(uint16_t index) const noexcept;
+    [[nodiscard]] NetAddress& GetAddress(uint16_t index) noexcept;
     [[nodiscard]] uint16_t GetAddressCount() const noexcept;
     void ClearAddressTable() noexcept;
 

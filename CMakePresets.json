@@ -971,6 +971,22 @@
             "description": "Package MSYS2 UCRT64 Release"
         },
         {
+            "name": "msys2-ucrt64-release-nsis",
+            "configurePreset": "msys2-ucrt64-release",
+            "description": "Package MSYS2 UCRT64 Release, NSIS installer only. The configure step selects both 7Z and NSIS; this narrows cpack to the installer so a single artifact can be rebuilt without waiting on the other generator.",
+            "generators": [
+                "NSIS"
+            ]
+        },
+        {
+            "name": "msys2-ucrt64-release-7z",
+            "configurePreset": "msys2-ucrt64-release",
+            "description": "Package MSYS2 UCRT64 Release, portable 7Z archive only. Unlike the NSIS run this keeps the .portable marker that cpack_exclude_portable.cmake strips from the installer.",
+            "generators": [
+                "7Z"
+            ]
+        },
+        {
             "name": "msys2-ucrt64-minsizerel",
             "configurePreset": "msys2-ucrt64-minsizerel",
             "description": "Package MSYS2 UCRT64 MinSizeRel"

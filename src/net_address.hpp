@@ -24,6 +24,14 @@
 
 #include <cstdint>
 
+/* Upper bound for the recipient table of a NetPacket.
+ *
+ * A recipient address can only ever be learnt from a peer that is (or was) connected, so the
+ * transport's maximum peer count bounds the table. Kept here rather than in transport.hpp to avoid
+ * a circular include, as transport.hpp includes net_packet.hpp.
+ */
+inline constexpr uint16_t NetAddress_MaximumCount = 32;
+
 struct NetAddress {
     uint32_t host;
     uint16_t port;

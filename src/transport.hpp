@@ -47,7 +47,7 @@ public:
     virtual bool Deinit() = 0;
     virtual bool Connect() = 0;
     virtual bool Disconnect() = 0;
-    virtual bool TransmitPacket(NetPacket& packet) = 0;
+    virtual bool TransmitPacket(NetPacket&& packet) = 0;
     virtual bool ReceivePacket(NetPacket& packet) = 0;
 };
 

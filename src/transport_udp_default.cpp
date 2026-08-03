@@ -31,11 +31,13 @@
 #endif
 
 #include <atomic>
+#include <deque>
 #include <utility>
 
 #include "netlog.hpp"
 #include "resource_manager.hpp"
 #include "settings.hpp"
+#include "smartobjectarray.hpp"
 #include "version.hpp"
 
 enum : uint8_t {
@@ -96,8 +98,8 @@ struct TransportUdpDefault_Context {
     SDL_SpinLock QueueLock;
     SmartObjectArray<ENetPeer*> Peers;
     SmartObjectArray<ENetPeer*> RemotePeers;
-    SmartObjectArray<NetPacket*> TxPackets;
-    SmartObjectArray<NetPacket*> RxPackets;
+    std::deque<NetPacket> TxPackets;
+    std::deque<NetPacket> RxPackets;
     struct UpnpDevice UpnpDevice;
     ENetAddress ServerAddress;
     std::atomic<bool> ExitThread;
@@ -133,6 +135,8 @@ static inline void TransportUdpDefault_ProcessTpPacket(struct TransportUdpDefaul
 static inline void TransportUdpDefault_ProcessApplPacket(struct TransportUdpDefault_Context* const context,
                                                          ENetPeer* const peer, ENetPacket* const enet_packet);
 static inline void TransportUdpDefault_TransmitApplPackets(struct TransportUdpDefault_Context* const context);
+static ENetPeer* TransportUdpDefault_FindPeer(struct TransportUdpDefault_Context* const context,
+                                              const NetAddress& address) noexcept;
 
 #if defined(MAX_ENABLE_UPNP)
 static void TransportUdpDefault_UpnpInit(struct TransportUdpDefault_Context* const context) noexcept;
@@ -188,8 +192,8 @@ bool TransportUdpDefault::Init(int32_t mode) {
         context->QueueLock = 0;
         context->Peers.Clear();
         context->RemotePeers.Clear();
-        context->TxPackets.Clear();
-        context->RxPackets.Clear();
+        context->TxPackets.clear();
+        context->RxPackets.clear();
         context->UpnpDevice.Status = TRANSPORT_IGDSTATUS_ERROR;
         context->ServerAddress.host = ENET_HOST_ANY;
         context->ServerAddress.port = TransportUdpDefault_DefaultHostPort;
@@ -286,17 +290,18 @@ const char* TransportUdpDefault::GetError() const {
     return error;
 }
 
-bool TransportUdpDefault::TransmitPacket(NetPacket& packet) {
+bool TransportUdpDefault::TransmitPacket(NetPacket&& packet) {
+    /* Log before queueing. Once the packet is on the queue it belongs to the network thread, which
+     * may consume and destroy it before this function returns.
+     */
+    NETLOG(log, "Transmit");
+    NETLOG_LOG(log, packet);
+
     SDL_LockSpinlock(&context->QueueLock);
     {
-        NetPacket* local = new (std::nothrow) NetPacket(std::move(packet));
-
-        context->TxPackets.PushBack(&local);
+        context->TxPackets.push_back(std::move(packet));
 
         SDL_UnlockSpinlock(&context->QueueLock);
-
-        NETLOG(log, "Transmit");
-        NETLOG_LOG(log, *local);
     }
 
     return true;
@@ -309,12 +314,9 @@ bool TransportUdpDefault::ReceivePacket(NetPacket& packet) {
 
     SDL_LockSpinlock(&context->QueueLock);
     {
-        if (context->RxPackets.GetCount() > 0) {
-            NetPacket* local = *context->RxPackets[0];
-
-            packet = std::move(*local);
-            delete local;
-            context->RxPackets.Remove(0);
+        if (!context->RxPackets.empty()) {
+            packet = std::move(context->RxPackets.front());
+            context->RxPackets.pop_front();
 
             result = true;
         }
@@ -560,48 +562,110 @@ void TransportUdpDefault_ProcessTpPacket(struct TransportUdpDefault_Context* con
 
 void TransportUdpDefault_ProcessApplPacket(struct TransportUdpDefault_Context* const context, ENetPeer* const peer,
                                            ENetPacket* const enet_packet) {
-    NetPacket* packet = new (std::nothrow) NetPacket();
-    uint8_t packet_type;
+    NetPacket packet;
     NetAddress address;
 
     address.host = peer->address.host;
     address.port = peer->address.port;
 
-    packet->AddAddress(address);
-    packet->Write(enet_packet->data, enet_packet->dataLength);
+    packet.AddAddress(address);
+    packet.Write(enet_packet->data, enet_packet->dataLength);
 
     SDL_LockSpinlock(&context->QueueLock);
     {
-        context->RxPackets.PushBack(&packet);
+        context->RxPackets.push_back(std::move(packet));
 
         SDL_UnlockSpinlock(&context->QueueLock);
     }
 }
 
+/* Resolves a recipient address to a connected peer.
+ *
+ * The peer mesh can hold more than one connection to the same remote host, as both ends dial each
+ * other during the join handshake. Returning the first match collapses those duplicates, so a
+ * packet is delivered once per remote host rather than once per connection.
+ */
+ENetPeer* TransportUdpDefault_FindPeer(struct TransportUdpDefault_Context* const context,
+                                       const NetAddress& address) noexcept {
+    ENetPeer* result{nullptr};
+
+    for (size_t i = 0; i < context->Host->peerCount; ++i) {
+        ENetPeer* const peer = &context->Host->peers[i];
+
+        if (peer->state == ENET_PEER_STATE_CONNECTED && peer->address.host == address.host &&
+            peer->address.port == address.port) {
+            result = peer;
+            break;
+        }
+    }
+
+    return result;
+}
+
 void TransportUdpDefault_TransmitApplPackets(struct TransportUdpDefault_Context* const context) {
-    for (bool packets_pending = true; packets_pending;) {
-        ENetPacket* enet_packet{nullptr};
+    for (;;) {
+        NetPacket local;
+        bool packet_pending{false};
 
         SDL_LockSpinlock(&context->QueueLock);
         {
-            if (context->TxPackets.GetCount() > 0) {
-                NetPacket* local = *context->TxPackets[0];
+            if (!context->TxPackets.empty()) {
+                local = std::move(context->TxPackets.front());
+                context->TxPackets.pop_front();
 
-                enet_packet = enet_packet_create(local->GetBuffer(), local->GetDataSize(), ENET_PACKET_FLAG_RELIABLE);
-
-                context->TxPackets.Remove(0);
-
-            } else {
-                packets_pending = false;
+                packet_pending = true;
             }
 
             SDL_UnlockSpinlock(&context->QueueLock);
         }
 
-        if (enet_packet) {
-            /// \todo Properly support Unicast, Multicast and Broadcast messaging
-            /// \todo Flush buffered packets as soon as a synch packet is found or simply exit loop
+        if (!packet_pending) {
+            break;
+        }
+
+        /// \todo Flush buffered packets as soon as a synch packet is found or simply exit loop
+        ENetPacket* const enet_packet =
+            enet_packet_create(local.GetBuffer(), local.GetDataSize(), ENET_PACKET_FLAG_RELIABLE);
+
+        if (!enet_packet) {
+            /// \todo Handle error
+            continue;
+        }
+
+        const uint16_t address_count = local.GetAddressCount();
+
+        if (address_count == 0) {
+            /* An empty recipient table means broadcast. enet_host_broadcast() releases the packet
+             * itself when no peer took a reference.
+             */
             enet_host_broadcast(context->Host, TRANSPORT_APPL_CHANNEL, enet_packet);
+
+        } else {
+            for (uint16_t index = 0; index < address_count; ++index) {
+                ENetPeer* const target = TransportUdpDefault_FindPeer(context, local.GetAddress(index));
+
+                if (target) {
+                    if (enet_peer_send(target, TRANSPORT_APPL_CHANNEL, enet_packet) < 0) {
+                        /// \todo Handle error
+                    }
+
+                } else {
+                    /* No connected peer carries this address, so the recipient is skipped. Report
+                     * it: unlike a broadcast, an unresolved recipient loses the packet silently and
+                     * surfaces much later as a stalled synchronisation.
+                     */
+                    NETLOG(log, "No connected peer for recipient {:8X}:{:4X}, packet dropped.",
+                           local.GetAddress(index).host, local.GetAddress(index).port);
+                }
+            }
+
+            /* enet_peer_send() takes a reference only when it queues the packet, and unlike
+             * enet_host_broadcast() it does not release an unreferenced one. Undelivered packets
+             * would leak without this.
+             */
+            if (enet_packet->referenceCount == 0) {
+                enet_packet_destroy(enet_packet);
+            }
         }
     }
 }

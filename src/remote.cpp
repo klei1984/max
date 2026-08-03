@@ -22,6 +22,7 @@
 #include "remote.hpp"
 
 #include <format>
+#include <utility>
 
 #include "access.hpp"
 #include "ailog.hpp"
@@ -165,6 +166,7 @@ static void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet);
 static void Remote_SendNetPacket_07(uint16_t team, bool mode);
 static void Remote_SendNetPacket_23(UnitInfo* unit);
 static void Remote_SendNetPacket_45(uint16_t team, uint8_t next_turn_index, uint16_t crc_checksum);
+static void Remote_SendNetPacket_47(NetNode& node);
 
 static void Remote_ReceiveNetPacket_00(NetPacket& packet);
 static void Remote_ReceiveNetPacket_01(NetPacket& packet);
@@ -204,6 +206,7 @@ static void Remote_ReceiveNetPacket_43(NetPacket& packet);
 static void Remote_ReceiveNetPacket_44(NetPacket& packet);
 static void Remote_ReceiveNetPacket_45(NetPacket& packet);
 static void Remote_ReceiveNetPacket_46(NetPacket& packet);
+static void Remote_ReceiveNetPacket_47(NetPacket& packet);
 static void Remote_ReceiveNetPacket_48(NetPacket& packet);
 static void Remote_ReceiveNetPacket_49(NetPacket& packet);
 static void Remote_ReceiveNetPacket_50(NetPacket& packet);
@@ -697,7 +700,7 @@ static void Remote_TransmitPacket(NetPacket& packet, int32_t transmit_mode) {
         } break;
     }
 
-    if (!Remote_Transport->TransmitPacket(packet)) {
+    if (!Remote_Transport->TransmitPacket(std::move(packet))) {
         /// \todo Handle transport layer errors
         Remote_Transport->GetError();
     }
@@ -1030,6 +1033,10 @@ void Remote_ProcessNetPackets() {
 
                 case REMOTE_PACKET_46: {
                     Remote_ReceiveNetPacket_46(packet);
+                } break;
+
+                case REMOTE_PACKET_47: {
+                    Remote_ReceiveNetPacket_47(packet);
                 } break;
 
                 case REMOTE_PACKET_48: {
@@ -2588,6 +2595,17 @@ void Remote_ReceiveNetPacket_29(NetPacket& packet) {
         client_node.is_host = false;
         client_node.name[0] = '\0';
 
+        /* Announce the joiner to the peers that are already in the lobby, before it joins the node
+         * list itself. Multicast then covers exactly those peers, and the joiner does not receive a
+         * redundant announcement about itself -- it learns the full list from packet 30 below.
+         *
+         * Without this the host is the only node whose list stays current: every client would keep
+         * the snapshot it was handed on arrival, and would address its multicasts to the peers that
+         * happened to be present back then. Later joiners never see such a client rename itself, or
+         * chat.
+         */
+        Remote_SendNetPacket_47(client_node);
+
         Remote_Nodes.Add(client_node);
         Remote_SendNetPacket_30(packet.GetAddress(REMOTE_RECEIVED_ADDRESS));
     }
@@ -3182,6 +3200,32 @@ void Remote_ReceiveNetPacket_46(NetPacket& packet) {
     if (counter > UnitsManager_DelayedReactionsSyncCounter) {
         UnitsManager_DelayedReactionsTeam = entity_id;
         UnitsManager_DelayedReactionsSyncCounter = counter;
+    }
+}
+
+void Remote_SendNetPacket_47(NetNode& node) {
+    NetPacket packet;
+
+    packet << static_cast<uint8_t>(REMOTE_PACKET_47);
+    packet << static_cast<uint16_t>(Remote_NetworkMenu->player_node);
+
+    packet << node;
+
+    Remote_TransmitPacket(packet, REMOTE_MULTICAST);
+}
+
+void Remote_ReceiveNetPacket_47(NetPacket& packet) {
+    uint16_t entity_id;
+
+    packet >> entity_id;
+
+    /* Only the host assigns entity identifiers, so only the host may extend the node list. */
+    if (Remote_GameState == 1 && Remote_NetworkMenu->host_node == entity_id) {
+        NetNode peer_node;
+
+        packet >> peer_node;
+
+        Remote_Nodes.Add(peer_node);
     }
 }
 
