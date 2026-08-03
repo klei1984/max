@@ -428,9 +428,9 @@ bool Access_IsWithinAttackRange(UnitInfo* unit, int32_t grid_x, int32_t grid_y, 
         if (unit->GetUnitType() != SUBMARNE && unit->GetUnitType() != CORVETTE) {
             result = true;
         } else {
-            distance = std::max(labs(distance_x), labs(distance_y)) * 64;
+            distance = std::max(labs(distance_x), labs(distance_y)) / 64;
 
-            if (distance) {
+            if (distance > 0) {
                 ratio_x = (distance_x << 16) / distance;
                 ratio_y = (distance_y << 16) / distance;
                 distance_x = ratio_x + (unit->x << 16);
