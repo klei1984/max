@@ -3951,7 +3951,8 @@ void UnitsManager_BuildingReady(UnitInfo* unit) {
     SmartPointer<UnitInfo> parent(unit->GetParent());
     bool is_found = false;
 
-    if (parent) {
+    // a builder stored inside another unit is off the map, its grid position no longer blocks the construction site
+    if (parent && parent->GetOrder() != ORDER_IDLE) {
         if (parent->hits > 0) {
             if (parent->GetOrder() == ORDER_MOVE && parent->GetOrderState() != ORDER_STATE_EXECUTING_ORDER) {
                 is_found = false;
