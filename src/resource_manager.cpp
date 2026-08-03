@@ -31,6 +31,7 @@
 #include <unordered_map>
 
 #include "access.hpp"
+#include "ailog.hpp"
 #include "assertmenu.hpp"
 #include "attributes.hpp"
 #include "cursor.hpp"
@@ -95,6 +96,8 @@ static const std::unordered_map<TeamClanType, std::string> ResourceManager_Clans
     {TEAM_CLAN_SACRED_EIGHTS, "Clan F"}, {TEAM_CLAN_7_KNIGHTS, "Clan G"},  {TEAM_CLAN_AXIS_INC, "Clan H"}};
 
 static std::unique_ptr<std::ofstream> ResourceManager_LogFile;
+static SDL_Mutex* ResourceManager_LogMutex;
+static SDL_ThreadID ResourceManager_MainThreadID;
 static std::shared_ptr<MissionManager> ResourceManager_MissionManager;
 static std::shared_ptr<Attributes> ResourceManager_UnitAttributes;
 static std::shared_ptr<Clans> ResourceManager_Clans;
@@ -182,6 +185,8 @@ static SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_Assert
 static void ResourceManager_LogOutputHandler(void* userdata, int category, SDL_LogPriority priority,
                                              const char* message);
 static void ResourceManager_LogOutputFlush();
+static void ResourceManager_InitLogFile();
+static void ResourceManager_InitAiLog();
 static void Resourcemanager_InitLocale();
 static void ResourceManager_InitLanguageManager();
 static void ResourceManager_InitHelpManager();
@@ -396,6 +401,8 @@ void ResourceManager_InitPrefPath() {
         exit(EXIT_FAILURE);
 
     } else {
+        ResourceManager_InitLogFile();
+
         SDL_SetLogOutputFunction(&ResourceManager_LogOutputHandler, nullptr);
     }
 }
@@ -516,6 +523,8 @@ void ResourceManager_InitInternals() {
     mouse_set_wheel_sensitivity(ResourceManager_GetSettings()->GetNumericValue("mouse_wheel_sensitivity"));
 
     SDL_SetAssertionHandler(&ResourceManager_AssertionHandler, nullptr);
+
+    ResourceManager_InitAiLog();
 
     if (SDL_GetSystemRAM() < ResourceManager_MinimumMemoryEnhancedGfx) {
         ResourceManager_GetSettings()->SetNumericValue("enhanced_graphics", false);
@@ -1341,7 +1350,21 @@ SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData* d
         std::format("Assertion failure at {} ({}:{}), triggered {} {}: '{}'.\n", data->function, data->filename,
                     data->linenum, data->trigger_count, (data->trigger_count == 1) ? "time" : "times", data->condition);
 
-    result = static_cast<SDL_AssertState>(AssertMenu(caption.c_str()).Run());
+    /* Record the assertion before anything else. The popup shows it, but without this the log
+     * file never says why the process died.
+     */
+    SDL_Log("%s", caption.c_str());
+
+    if (SDL_GetCurrentThreadID() == ResourceManager_MainThreadID) {
+        result = static_cast<SDL_AssertState>(AssertMenu(caption.c_str()).Run());
+
+    } else {
+        /* AssertMenu draws a GNW popup and pumps input, which only the main thread may do.
+         * Path searches run on a worker thread, so abort outright rather than hang or die
+         * inside the handler before the log below is written.
+         */
+        result = SDL_ASSERTION_ABORT;
+    }
 
     if (result == SDL_ASSERTION_BREAK || result == SDL_ASSERTION_ABORT) {
         ResourceManager_LogOutputFlush();
@@ -1350,24 +1373,73 @@ SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData* d
     return result;
 }
 
-void ResourceManager_LogOutputHandler(void* userdata, int category, SDL_LogPriority priority, const char* message) {
-    if (!ResourceManager_LogFile) {
-        auto filepath = (ResourceManager_FilePathGamePref / "stdout.txt").lexically_normal();
+void ResourceManager_InitLogFile() {
+    auto filepath = (ResourceManager_FilePathGamePref / "stdout.txt").lexically_normal();
 
-        ResourceManager_LogFile = std::make_unique<std::ofstream>(filepath.string().c_str(), std::ofstream::trunc);
-    }
+    ResourceManager_MainThreadID = SDL_GetCurrentThreadID();
+    ResourceManager_LogMutex = ResourceManager_CreateMutex();
+    ResourceManager_LogFile = std::make_unique<std::ofstream>(filepath.string().c_str(), std::ofstream::trunc);
 
     if (ResourceManager_LogFile && ResourceManager_LogFile->is_open()) {
+        /* The log has to survive abort() from a failed assertion, which neither flushes stream
+         * buffers nor runs static destructors. Unit buffering costs nothing here because only
+         * explicit SDL_Log() calls reach this stream.
+         */
+        ResourceManager_LogFile->setf(std::ios::unitbuf);
+    }
+}
+
+void ResourceManager_LogOutputHandler(void* userdata, int category, SDL_LogPriority priority, const char* message) {
+    /* SDL_Log() may be called from any thread, so the stream is created up front by
+     * ResourceManager_InitLogFile() and every write is serialized.
+     */
+    if (!ResourceManager_LogFile || !ResourceManager_LogMutex) {
+        return;
+    }
+
+    ResourceManager_MutexLock lock(ResourceManager_LogMutex);
+
+    if (ResourceManager_LogFile->is_open()) {
         *ResourceManager_LogFile << message;
     }
 }
 
 void ResourceManager_LogOutputFlush() {
-    if (ResourceManager_LogFile && ResourceManager_LogFile->is_open()) {
+    if (!ResourceManager_LogFile || !ResourceManager_LogMutex) {
+        return;
+    }
+
+    ResourceManager_MutexLock lock(ResourceManager_LogMutex);
+
+    if (ResourceManager_LogFile->is_open()) {
         *ResourceManager_LogFile << std::endl;
 
         ResourceManager_LogFile->flush();
     }
+}
+
+void ResourceManager_InitAiLog() {
+#if !defined(NDEBUG)
+    bool enable = ResourceManager_GetSettings()->GetNumericValue("log_file_debug");
+
+    /* An explicit entry limit means the AI log is wanted, so start with it enabled instead of
+     * requiring the in game task debugger toggle or a network session.
+     */
+    const char* limit_env = SDL_getenv("MAX_AILOG_ENTRY_LIMIT");
+
+    if (limit_env && limit_env[0] != '\0') {
+        try {
+            enable = enable || (std::stoi(limit_env) != 0);
+
+        } catch (...) {
+            /* keep whatever log_file_debug asked for */
+        }
+    }
+
+    if (enable) {
+        AiLog_Open();
+    }
+#endif /* !defined(NDEBUG) */
 }
 
 std::string ResourceManager_Sha256(const ResourceID world) {

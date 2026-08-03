@@ -24,6 +24,9 @@
 #include <SDL3/SDL.h>
 
 #include <cstdarg>
+#include <filesystem>
+#include <mutex>
+#include <system_error>
 
 constexpr int32_t AILOG_FILE_LIMIT_DEFAULT = UINT16_MAX;
 
@@ -35,13 +38,18 @@ int32_t AiLog::AiLog_EntryLimit = AILOG_FILE_LIMIT_DEFAULT;
 std::optional<std::regex> AiLog::AiLog_Filter;
 
 void AiLog::AiLog_InitMutex() {
-    if (!AiLog_Mutex) {
+    /* Worker threads log too, and an unsynchronized lazy create lets two of them build one
+     * mutex each and then lock different objects, leaving the first concurrent use unguarded.
+     */
+    static std::once_flag mutex_once;
+
+    std::call_once(mutex_once, []() {
         AiLog_Mutex = ResourceManager_CreateMutex();
 
         if (!AiLog_Mutex) {
             ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
         }
-    }
+    });
 }
 
 bool AiLog::ShouldFilter() const noexcept {
@@ -99,8 +107,16 @@ AiLog::~AiLog() {
 
         if (AiLog_EntryCount > AiLog_EntryLimit) {
             auto filepath = (ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal();
+            auto rolled = (ResourceManager_FilePathGamePref / "ai_log.prev.txt").lexically_normal();
+            std::error_code error;
 
             AiLog_File.close();
+
+            /* Roll the finished file aside rather than reopening it truncated: the entries
+             * leading up to a crash are the ones worth keeping.
+             */
+            std::filesystem::rename(filepath, rolled, error);
+
             AiLog_File.open(filepath.string().c_str(), std::ios::out);
             AiLog_EntryCount = 0;
         }
