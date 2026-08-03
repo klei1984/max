@@ -6,7 +6,7 @@ permalink: /defects/
 
 The article maintains a comprehensive list of game defects that are present in the original M.A.X. v1.04 runtimes.
 
-Fixed 222 / 258 (86.04%) original M.A.X. defects in M.A.X. Port.
+Fixed 223 / 259 (86.1%) original M.A.X. defects in M.A.X. Port.
 
 1. **[Fixed]** M.A.X. is a 16/32 bit mixed linear executable that is bound to a dos extender stub from Tenberry Software called DOS/4G*W* 1.97. The W in the extender's name stands for Watcom which is the compiler used to build the original M.A.X. executable. A list of defects found in DOS/4GW 1.97 can be found in the [DOS/4GW v2.01 release notes](https://web.archive.org/web/20180611050205/http://www.tenberry.com/dos4g/watcom/rn4gw.html). By replacing DPMI service calls and basically the entire DOS extender stub with cross-platform [SDL library](https://wiki.libsdl.org/) the DOS/4GW 1.97 defects could be considered fixed.
 
@@ -958,3 +958,5 @@ The video clip demonstrates that the enemy mining station disappears when the fr
     <source src="{{ site.baseurl }}/assets/clips/defect_258.mp4" type="video/mp4">
     </video>
 <br>
+
+259. **[Fixed]** There is a path finder class method (cseg01:000BCE26) that transcribes a land or sea path testing for accesability criteria from an access map till the requested maximum movement cost is reached. Diagonal movement costs 50% more which is tested by checking whether each step has both an X axis and an Y axis displacement. The method in addition accumulates each step's displacement into two helper variables to get the absolute map position that is used to index inside the access map. Now problem is that instead of actually using the step X and Y axis displacement to determine diagonal movement, the method incorrectly uses the accumulated displacement helper variables so most steps are calculed in the step cost with the 50% cost boost which means that the path requester units got back a shorter path then they wanted in most cases.

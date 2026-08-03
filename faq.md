@@ -24,7 +24,13 @@ The article mainly focuses on M.A.X. Port related topics.
 <br>
 
 #### **Q:** When will M.A.X. Port be released?
-**A:** While the game did not reach all targeted v1.0.0 goals and will not reach them for years to come, it is already available for download from the [downloads](download.md) page or from the GitHub [releases](https://github.com/klei1984/max/releases) page. Please keep in mind that formal releases are made only when considerable improvements are achieved. So if you want to see the latest improvements you need to have a GitHub account to download CI/CD builds or you need to [build the game](build.md) yourself from source code.
+**A:** While the game did not reach all targeted v1.0.0 goals and will not reach them for years to come, it is already available for download from the [downloads](download.md) page or from the GitHub [releases](https://github.com/klei1984/max/releases) page. Please keep in mind that formal releases are made only when considerable improvements are achieved. So if you want to see the latest improvements you need to grab a [nightly build](#nightly-builds) or you need to [build the game](build.md) yourself from source code.
+<br>
+<br>
+
+#### **Q:** How do I get the latest development builds? {#nightly-builds}
+**A:** Every successful CI build of the `master` branch automatically publishes its artefacts to the [nightly](https://github.com/klei1984/max/releases/tag/nightly) release on GitHub. They are linked from the *Latest Nightly Build* section of the [downloads](download.md) page. No GitHub account is needed and the links never change, they always serve the most recent successful build, so you can simply download the same link again whenever you want to update. The release page itself tells you which commit the current build was made from and it also carries the SHA-256 checksums of every file.<br>
+**Nightly builds are development builds, not releases, and they behave differently from the official downloads.** They are compiled as debug builds, which means without compiler optimizations and with internal consistency checks and verbose diagnostics turned on. Expect noticeably lower frame rates, slower computer player turns and longer loading times than with a release build, especially on large maps and in late game. In exchange they enable the developer only features described [below](#debug-features), such as the mission and scenario editor and the debug menus. Being built from the tip of the development branch they are also work in progress, so they can contain half finished features and regressions that the formal releases do not have, and a saved game created with a nightly build is not guaranteed to load in a release build. If you play a nightly build, please always mention the commit hash from the release page when you report an [issue](https://github.com/klei1984/max/issues).
 <br>
 <br>
 
@@ -60,8 +66,8 @@ There are many M.A.X. 1 and M.A.X. 2 game releases, merchandise and marketing ma
 <br>
 <br>
 
-#### **Q:** I read about a built in mission editor and other cool features, but I cannot find them.
-**A:** There are distinct **release** and **debug** builds. Debug or developer builds contain additional features that can be used to diagnose issues easier or to create new scenarios or missions. These debug features are error prone, they are not meant to be end user proof. Additionally these features can be abused, they also make it possible to cheat and use exploits in ways that the game does not know about which is not fair so normal users are encouraged to use release builds. If you want to use debug builds you need to create a free GitHub account to download CI/CD builds or you need to [build the game](build.md) yourself from source code. You can always visit the [discord](https://discord.gg/TCn8DpeBaY) server for help where the debug features are also described in more details.
+#### **Q:** I read about a built in mission editor and other cool features, but I cannot find them. {#debug-features}
+**A:** There are distinct **release** and **debug** builds. Debug or developer builds contain additional features that can be used to diagnose issues easier or to create new scenarios or missions. These debug features are error prone, they are not meant to be end user proof. Additionally these features can be abused, they also make it possible to cheat and use exploits in ways that the game does not know about which is not fair so normal users are encouraged to use release builds. If you want to use debug builds you can download a [nightly build](#nightly-builds) or you need to [build the game](build.md) yourself from source code. You can always visit the [discord](https://discord.gg/TCn8DpeBaY) server for help where the debug features are also described in more details.
 <br>
 <br>
 
