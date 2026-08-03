@@ -945,7 +945,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
 
                             unit_shots = 0;
 
-                            if (unit->hits < damage_potential) {
+                            if (damage_potential < unit->hits) {
                                 if (unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
                                     unit_shots = unit->shots;
 
