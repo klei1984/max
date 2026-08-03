@@ -491,7 +491,7 @@ bool AiAttack_IsAttackProfitable(UnitInfo* friendly_unit, UnitInfo* enemy_unit, 
 
     if (damage_to_friendly > 0) {
         damage_to_enemy -=
-            (projected_damage * damage_to_friendly) / friendly_unit->GetBaseValues()->GetAttribute(ATTRIB_HITS);
+            (projected_damage * damage_to_friendly) / friendly_unit->GetBaseValues()->GetAttribute(ATTRIB_TURNS);
     }
 
     if (damage_to_enemy > 0) {
