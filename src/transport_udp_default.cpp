@@ -106,6 +106,7 @@ struct TransportUdpDefault_Context {
 
 static int TransportUdpDefault_ClientFunction(void* data) noexcept;
 static int TransportUdpDefault_ServerFunction(void* data) noexcept;
+static inline uint16_t TransportUdpDefault_GetHostPort();
 static inline void TransportUdpDefault_GetServerAddress(ENetAddress& address);
 static inline bool TransportUdpDefault_SendTpPacket(struct TransportUdpDefault_Context* const context,
                                                     ENetPeer* const peer, const NetPacket& packet);
@@ -145,6 +146,21 @@ TransportUdpDefault::~TransportUdpDefault() {
     context = nullptr;
 }
 
+uint16_t TransportUdpDefault_GetHostPort() {
+    int32_t host_port = ResourceManager_GetSettings()->GetNumericValue("host_port");
+
+    if (!host_port || host_port < 1024 || host_port > 65535) {
+        host_port = TransportUdpDefault_DefaultHostPort;
+    }
+
+    return static_cast<uint16_t>(host_port);
+}
+
+/* Resolves the address of the server to connect to.
+ *
+ * This is a client side setting only. A server does not need to know its own address, and must not bind one, as that
+ * would restrict it to a single local interface. See Init().
+ */
 void TransportUdpDefault_GetServerAddress(ENetAddress& address) {
     std::string server_address = ResourceManager_GetSettings()->GetStringValue("host_address");
 
@@ -152,13 +168,7 @@ void TransportUdpDefault_GetServerAddress(ENetAddress& address) {
         (void)enet_address_set_host_ip(&address, "127.0.0.1");
     }
 
-    int32_t server_port = ResourceManager_GetSettings()->GetNumericValue("host_port");
-
-    if (!server_port || server_port < 1024 || server_port > 65535) {
-        server_port = TransportUdpDefault_DefaultHostPort;
-    }
-
-    address.port = server_port;
+    address.port = TransportUdpDefault_GetHostPort();
 }
 
 bool TransportUdpDefault::Init(int32_t mode) {
@@ -189,17 +199,23 @@ bool TransportUdpDefault::Init(int32_t mode) {
 
     if (context->NetState == TRANSPORT_NETSTATE_DEINITED) {
         if (enet_initialize() == 0) {
-            TransportUdpDefault_GetServerAddress(context->ServerAddress);
-
             // safe write access as thread cannot exist yet
             context->NetState = TRANSPORT_NETSTATE_INITED;
 
             SDL_assert(context->Thread == nullptr);
 
             if (mode == TRANSPORT_SERVER) {
+                // ServerAddress is the bind address for a server. Accept on every local interface, so that clients
+                // reach the host regardless of which one they arrive on, and only the port needs to be agreed on.
+                context->ServerAddress.host = ENET_HOST_ANY;
+                context->ServerAddress.port = TransportUdpDefault_GetHostPort();
+
                 context->Thread = SDL_CreateThread(&TransportUdpDefault_ServerFunction, "TransportUdpDefault", context);
 
             } else {
+                // ServerAddress is the peer address to dial for a client.
+                TransportUdpDefault_GetServerAddress(context->ServerAddress);
+
                 context->Thread = SDL_CreateThread(&TransportUdpDefault_ClientFunction, "TransportUdpDefault", context);
             }
 

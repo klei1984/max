@@ -78,10 +78,11 @@ static const std::vector<std::pair<std::string, Settings::SettingDefinition>> se
     {"repair_turns", {10, "DEBUG"}},
     {"alien_seperation", {60, "DEBUG"}},
     {"alien_unit_value", {0, "DEBUG"}},
-    {"red_strategy", {std::string("random"), "DEBUG"}},
-    {"green_strategy", {std::string("random"), "DEBUG"}},
-    {"blue_strategy", {std::string("random"), "DEBUG"}},
-    {"gray_strategy", {std::string("random"), "DEBUG"}},
+    {"red_team_strategy", {std::string("random"), "DEBUG"}},
+    {"green_team_strategy", {std::string("random"), "DEBUG"}},
+    {"blue_team_strategy", {std::string("random"), "DEBUG"}},
+    {"gray_team_strategy", {std::string("random"), "DEBUG"}},
+    {"alien_team_strategy", {std::string("random"), "DEBUG"}},
     {"player_name", {std::string("Player 1"), "SETUP"}},
     {"player_clan", {0, "SETUP"}},
     {"intro_movie", {1, "SETUP"}},
@@ -351,6 +352,42 @@ Settings::~Settings() { (void)Save(); }
     }
 }
 
+/* Looks up the \p T typed default value of \p key, reporting a bad lookup as a programming error.
+ *
+ * Two lookups are programming errors rather than runtime conditions, and both are silent without this check because
+ * the caller just receives its own default value back:
+ *
+ * - \p key is missing from the definition table. It can never be loaded from settings.json either, as LoadScript()
+ *   discards unknown keys, so the setting is permanently stuck at the caller default.
+ * - \p key is defined, but not as type \p T. The caller reads a setting that exists through the wrong getter, so it
+ *   never observes the configured value.
+ *
+ * \return The \p T typed default value of \p key, or nullptr if \p key is not defined as type \p T.
+ */
+template <typename T>
+static const T* Settings_FindDefaultValue(
+    const std::vector<std::pair<std::string, Settings::SettingDefinition>>& definitions, const std::string& key) {
+    auto it = std::find_if(definitions.begin(), definitions.end(),
+                           [&key](const auto& pair) { return pair.first == key; });
+
+    if (it == definitions.end()) {
+        SDL_Log("Error: Settings key \"%s\" is not defined.\n", key.c_str());
+        SDL_assert(0);
+
+        return nullptr;
+    }
+
+    if (!std::holds_alternative<T>(it->second.default_value)) {
+        SDL_Log("Error: Settings key \"%s\" requested as the wrong type, it is defined as %s.\n", key.c_str(),
+                std::holds_alternative<int32_t>(it->second.default_value) ? "numeric" : "string");
+        SDL_assert(0);
+
+        return nullptr;
+    }
+
+    return &std::get<T>(it->second.default_value);
+}
+
 [[nodiscard]] int32_t Settings::GetNumericValue(const std::string& key, int32_t default_value) const {
     auto it = m_loaded_settings->find(key);
 
@@ -358,12 +395,10 @@ Settings::~Settings() { (void)Save(); }
         return std::get<int32_t>(it->second);
     }
 
-    auto default_it = std::find_if(m_setting_definitions->begin(), m_setting_definitions->end(),
-                                   [&key](const auto& pair) { return pair.first == key; });
+    const int32_t* const fallback = Settings_FindDefaultValue<int32_t>(*m_setting_definitions, key);
 
-    if (default_it != m_setting_definitions->end() &&
-        std::holds_alternative<int32_t>(default_it->second.default_value)) {
-        return std::get<int32_t>(default_it->second.default_value);
+    if (fallback) {
+        return *fallback;
     }
 
     return default_value;
@@ -376,12 +411,10 @@ Settings::~Settings() { (void)Save(); }
         return std::get<std::string>(it->second);
     }
 
-    auto default_it = std::find_if(m_setting_definitions->begin(), m_setting_definitions->end(),
-                                   [&key](const auto& pair) { return pair.first == key; });
+    const std::string* const fallback = Settings_FindDefaultValue<std::string>(*m_setting_definitions, key);
 
-    if (default_it != m_setting_definitions->end() &&
-        std::holds_alternative<std::string>(default_it->second.default_value)) {
-        return std::get<std::string>(default_it->second.default_value);
+    if (fallback) {
+        return *fallback;
     }
 
     return default_value;

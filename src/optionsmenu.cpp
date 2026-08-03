@@ -411,8 +411,10 @@ void OptionsMenu::Init() {
             }
 
             if (options_menu_buttons[i].type != OPTIONS_TYPE_SECTION) {
-                options_menu_buttons[i].rest_state = ResourceManager_GetSettings()->GetNumericValue(setting_key);
-                options_menu_buttons[i].last_rest_state = options_menu_buttons[i].rest_state;
+                if (options_menu_buttons[i].type != OPTIONS_TYPE_EDIT_STR) {
+                    options_menu_buttons[i].rest_state = ResourceManager_GetSettings()->GetNumericValue(setting_key);
+                    options_menu_buttons[i].last_rest_state = options_menu_buttons[i].rest_state;
+                }
 
                 switch (options_menu_buttons[i].type) {
                     case OPTIONS_TYPE_SLIDER: {
