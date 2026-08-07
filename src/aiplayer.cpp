@@ -4034,7 +4034,7 @@ bool AiPlayer::SelectStrategy() {
     strategy_scores[AI_STRATEGY_AIR] = continents_in_close_proximity * 2;
 
     if (opponent_class >= OPPONENT_TYPE_EXPERT) {
-        strategy_scores[AI_STRATEGY_TANK_HORDE] = continents.GetCount();
+        strategy_scores[AI_STRATEGY_ESPIONAGE] = continents.GetCount();
     }
 
     strategy_scores[AI_STRATEGY_SEA] = isolated_continents * 2;
