@@ -123,11 +123,10 @@ void TaskActivate::Activate() {
                                                       UnitsManager_Orders[unit_to_activate->GetOrder()],
                                                       static_cast<int>(unit_to_activate->GetOrderState()));
 
-                                            /* abort zone clearing if it was requested */
-                                            if (zone) {
-                                                zone->SetImportance(false);
-                                                zone = nullptr;
-                                            }
+                                            /* stop tracking any zone clearing that was requested earlier so that
+                                             * the next pass evaluates the situation from scratch
+                                             */
+                                            zone = nullptr;
 
                                             return;
                                         }
@@ -145,8 +144,6 @@ void TaskActivate::Activate() {
                                                 zone = new (std::nothrow) Zone(unit_to_activate.Get(), this);
 
                                                 AiPlayer_Teams[m_team].ClearZone(zone.Get());
-
-                                                zone->SetImportance(false);
                                             }
 
                                             if (zone->points.Find(&position) == -1) {

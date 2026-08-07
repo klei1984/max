@@ -24,9 +24,9 @@
 #include "task.hpp"
 #include "unitinfo.hpp"
 
-Zone::Zone(UnitInfo* unit, Task* task) : unit(unit), task(task), is_unimportant(false) {}
+Zone::Zone(UnitInfo* unit, Task* task) : unit(unit), task(task), is_unimportant(true) {}
 
-Zone::Zone(UnitInfo* unit, Task* task, Rect* bounds) : unit(unit), task(task), is_unimportant(false) { Add(bounds); }
+Zone::Zone(UnitInfo* unit, Task* task, Rect* bounds) : unit(unit), task(task), is_unimportant(true) { Add(bounds); }
 
 Zone::~Zone() {}
 
