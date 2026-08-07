@@ -1331,7 +1331,7 @@ Point TaskAttack::FindClosestDirectRoute(UnitInfo* unit, int32_t caution_level) 
 
     map.GetMap().ApplyCautionLevel(unit, caution_level);
 
-    SmartPointer<Continent> continent(new (std::nothrow) Continent(map.GetMap(), 0x03, best_site));
+    SmartPointer<Continent> continent(new (std::nothrow) Continent(map.GetMap(), 0x03, best_site, 0));
 
     rect_init(&bounds, 0, 0, 0, 0);
 
