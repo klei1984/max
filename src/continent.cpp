@@ -91,7 +91,7 @@ Continent::Continent(AccessMap& map, uint16_t filler, Point point, uint8_t value
 Continent::~Continent() {
     if (clear_on_destroy) {
         for (int32_t x = bounds.ulx; x < bounds.lrx; ++x) {
-            for (int32_t y = bounds.uly; y < bounds.lry - 3; ++y) {
+            for (int32_t y = bounds.uly; y < bounds.lry; ++y) {
                 if (map(x, y) == filler) {
                     map(x, y) = 0;
                 }
