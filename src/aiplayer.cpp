@@ -425,26 +425,28 @@ void AiPlayer::UpdateAccessMap(Point point1, Point point2, AccessMap& access_map
 }
 
 bool AiPlayer::CheckAttacks() {
-    if (Ai_GetReactionState() != AI_REACTION_STATE_ANIMATIONS_ACTIVE) {
-        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
-             ++it) {
-            if ((*it).team == player_team && AiAttack_EvaluateAttack(it->Get())) {
-                return true;
-            }
-        }
+    if (Ai_GetReactionState() == AI_REACTION_STATE_ANIMATIONS_ACTIVE) {
+        return true;
+    }
 
-        for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
-             it != it_end; ++it) {
-            if ((*it).team == player_team && AiAttack_EvaluateAttack(it->Get())) {
-                return true;
-            }
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
+        if ((*it).team == player_team && AiAttack_EvaluateAttack(it->Get())) {
+            return true;
         }
+    }
 
-        for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
-             ++it) {
-            if ((*it).team == player_team && AiAttack_EvaluateAttack(it->Get())) {
-                return true;
-            }
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
+        if ((*it).team == player_team && AiAttack_EvaluateAttack(it->Get())) {
+            return true;
+        }
+    }
+
+    for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+         ++it) {
+        if ((*it).team == player_team && AiAttack_EvaluateAttack(it->Get())) {
+            return true;
         }
     }
 
@@ -4468,7 +4470,7 @@ int32_t AiPlayer_CalculateProjectedDamage(UnitInfo* friendly_unit, UnitInfo* ene
         }
 
         if (caution_level > CAUTION_LEVEL_AVOID_REACTION_FIRE && distance <= range * range) {
-            shots = std::min(unit_values->GetAttribute(ATTRIB_ROUNDS), friendly_unit->ammo - shots);
+            shots += std::min(unit_values->GetAttribute(ATTRIB_ROUNDS), friendly_unit->ammo - shots);
         }
 
         if (shots > 0) {
