@@ -668,7 +668,7 @@ bool TaskAttack::EvaluateLandAttack() {
 
         weight_table = AiPlayer_Teams[m_team].GetExtendedWeightTable(unit, 0x03);
 
-        for (uint32_t i = 0; !unit && i < weight_table.GetCount(); ++i) {
+        for (uint32_t i = 0; i < weight_table.GetCount(); ++i) {
             if (weight_table[i].weight > 0 &&
                 !(ResourceManager_GetUnit(weight_table[i].unit_type).GetFlags() & MOBILE_LAND_UNIT) &&
                 (ResourceManager_GetUnit(weight_table[i].unit_type).GetFlags() & MOBILE_SEA_UNIT)) {
@@ -697,7 +697,7 @@ bool TaskAttack::EvaluateLandAttack() {
 
             for (auto it = UnitsManager_GroundCoverUnits.Begin(), it_end = UnitsManager_GroundCoverUnits.End();
                  it != it_end; ++it) {
-                if ((*it).GetUnitType() != BRIDGE && (*it).IsVisibleToTeam(m_team)) {
+                if ((*it).GetUnitType() == BRIDGE && (*it).IsVisibleToTeam(m_team)) {
                     access_map((*it).grid_x, (*it).grid_y) = 2;
                 }
             }
