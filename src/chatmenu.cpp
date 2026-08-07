@@ -95,15 +95,20 @@ ChatMenu::ChatMenu(uint16_t team) : Window(CHATWNDO, WINDOW_MAIN_MAP) {
     button_help->RegisterButton(window.id);
 
     for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX - 1; ++i) {
-        if (UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE) {
+        const bool is_remote_team = UnitsManager_TeamInfo[i].team_type == TEAM_TYPE_REMOTE;
+
+        if (is_remote_team) {
             button_team[i]->SetPValue(i + 1001);
             button_team[i]->SetRValue(i + 1001);
             button_team[i]->SetFlags(0x01);
             button_team[i]->SetSfx(KCARG0);
-            button_team[i]->SetRestState(GameManager_MultiChatTargets[i]);
         }
 
         button_team[i]->RegisterButton(window.id);
+
+        if (is_remote_team) {
+            button_team[i]->SetRestState(GameManager_MultiChatTargets[i]);
+        }
     }
 
     text[0] = '\0';
