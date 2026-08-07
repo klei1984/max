@@ -1169,7 +1169,7 @@ void TaskMove::FindCurrentLocation() {
             unit_hits = 1;
         }
 
-        for (step_index = 0; step_index < planned_path.GetCount(); ++step_index) {
+        for (step_index = 1; step_index < planned_path.GetCount(); ++step_index) {
             path_step = *planned_path[step_index];
 
             if (damage_potential_map && damage_potential_map[path_step.x][path_step.y] >= unit_hits) {
