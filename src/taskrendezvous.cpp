@@ -185,7 +185,7 @@ bool TaskRendezvous::Execute(UnitInfo& unit) {
                         Finish(TASKMOVE_RESULT_SUCCESS);
 
                     } else if (unit2->speed && unit2->IsReadyForOrders(this)) {
-                        if (unit1->IsReadyForOrders(this) &&
+                        if (Task_IsReadyToTakeOrders(&*unit1) &&
                             !Task_RetreatFromDanger(this, &*unit2, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
                             Point destination;
 
