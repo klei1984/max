@@ -480,8 +480,9 @@ void AiPlayer::RegisterIdleUnits() {
     for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
          ++it) {
         if ((*it).team == player_team && !(*it).GetTask()) {
-            if ((*it).ammo > 0 || (*it).GetUnitType() == LIGHTPLT || (*it).GetUnitType() == LANDPLT ||
-                (*it).GetUnitType() == SHIPYARD || (*it).GetUnitType() == AIRPLT || (*it).GetUnitType() == TRAINHAL) {
+            if ((*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0 || (*it).GetUnitType() == LIGHTPLT ||
+                (*it).GetUnitType() == LANDPLT || (*it).GetUnitType() == SHIPYARD || (*it).GetUnitType() == AIRPLT ||
+                (*it).GetUnitType() == TRAINHAL) {
                 TaskManager.ClearUnitTasksAndRemindAvailable(it->Get());
             }
         }
