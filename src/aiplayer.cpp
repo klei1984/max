@@ -1723,7 +1723,7 @@ void AiPlayer::CheckReconnaissanceNeeds(SmartObjectArray<BuildOrder>* build_orde
 SmartObjectArray<BuildOrder> AiPlayer::ChooseStrategicBuildOrders(bool mode) {
     SmartObjectArray<BuildOrder> build_orders;
 
-    if (!!IsTargetTeamDefined()) {
+    if (!IsTargetTeamDefined()) {
         for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
             if (team != player_team) {
                 if (!IsTargetTeamDefined() ||
