@@ -680,7 +680,7 @@ void TaskCreateBuilding::EndTurn() {
         }
 
     } else if (unit_type != INVALID_ID && op_state != CREATE_BUILDING_STATE_GETTING_BUILDER &&
-               op_state != CREATE_BUILDING_STATE_BUILDING && !tasks.GetCount()) {
+               op_state < CREATE_BUILDING_STATE_BUILDING && !tasks.GetCount()) {
         RequestBuilder();
     }
 }
