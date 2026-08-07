@@ -113,7 +113,7 @@ uint16_t Continent::GetFiller() const { return filler; }
 bool Continent::IsCloseProximity() const {
     int32_t proximity_range;
 
-    proximity_range = ResourceManager_GetSettings()->GetNumericValue("proximity_range");
+    proximity_range = ResourceManager_GetSettings()->GetNumericValue("proximity_range") * 2;
 
     return (bounds.lrx - bounds.ulx) <= proximity_range && (bounds.lry - bounds.uly) <= proximity_range;
 }
