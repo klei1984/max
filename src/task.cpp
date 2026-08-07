@@ -203,7 +203,7 @@ bool Task_ShouldReserveShot(UnitInfo* unit, Point site) {
                         Access_IsValidAttackTarget(spotted_unit->GetUnitType(), unit->GetUnitType(), site)) {
                         UnitValues* unit_values = spotted_unit->GetBaseValues();
                         int32_t unit_distance = Access_GetSquaredDistance(unit, (*it).GetLastPosition());
-                        int32_t attack_distance = unit_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
+                        int32_t attack_distance = spotted_unit_range + unit_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
 
                         if (unit_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
                             attack_distance += unit_values->GetAttribute(ATTRIB_SPEED) / 2;
