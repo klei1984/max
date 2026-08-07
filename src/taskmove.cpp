@@ -1223,7 +1223,7 @@ bool TaskMove::FindWaypoint() {
         step_cost = Access_IsAccessible(passenger->GetUnitType(), m_team, planned_path[i]->x, planned_path[i]->y,
                                         AccessModifier_EnemySameClassBlocks);
 
-        if (planned_path[i]->x && planned_path[i]->y) {
+        if (planned_path[i]->x != passenger_waypoint.x && planned_path[i]->y != passenger_waypoint.y) {
             step_cost = (step_cost * 3) / 2;
         }
 
