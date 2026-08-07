@@ -1475,7 +1475,7 @@ void AiPlayer::RollTeamMissionSupplies(int32_t clan) {
                 AddUnitToTeamMissionSupplies(SURVEYOR, 0);
 
                 if (clan != TEAM_CLAN_AXIS_INC) {
-                    AddUnitToTeamMissionSupplies(CONSTRCT, 20);
+                    AddUnitToTeamMissionSupplies(CONSTRCT, 40);
                     AddUnitToTeamMissionSupplies(ENGINEER, 8);
                 }
             }
