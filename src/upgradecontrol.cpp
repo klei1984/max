@@ -25,7 +25,8 @@
 
 #include "sound_manager.hpp"
 
-int32_t UpgradeControl_Factors[UPGRADE_CONTROL_COUNT] = {4, 4, 8, 2, 2, 2, 8, 4, 16};
+/// Indexed by `ATTRIB_*`: attack, rounds, range, armor, hits, speed, scan, turns, ammo.
+int32_t UpgradeControl_Factors[UPGRADE_CONTROL_COUNT] = {4, 4, 8, 2, 2, 4, 8, 16, 2};
 
 UpgradeControl::UpgradeControl(WinID window_id, int32_t ulx, int32_t uly, int32_t button_right_r_value,
                                int32_t button_left_r_value, uint32_t* team_gold)
