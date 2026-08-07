@@ -4715,7 +4715,7 @@ bool UnitsManager_IsAccessible(uint16_t team, ResourceID unit_type, int32_t grid
     bool result;
 
     if (grid_x >= 0 && grid_y >= 0 && grid_x <= ResourceManager_MapSize.x - 2 &&
-        grid_y <= ResourceManager_MapSize.x - 2) {
+        grid_y <= ResourceManager_MapSize.y - 2) {
         result = Access_IsAccessible(unit_type, team, grid_x, grid_y, AccessModifier_SameClassBlocks) &&
                  Access_IsAccessible(unit_type, team, grid_x + 1, grid_y, AccessModifier_SameClassBlocks) &&
                  Access_IsAccessible(unit_type, team, grid_x, grid_y + 1, AccessModifier_SameClassBlocks) &&
