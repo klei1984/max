@@ -185,7 +185,7 @@ UnitInfo* TaskGetMaterials::FindBuilding() {
             ResourceManager_GetUnit((*it).GetUnitType()).GetCargoType() == Unit::CargoType::CARGO_TYPE_RAW) {
             UnitInfo* candidate_building = FindClosestBuilding((*it).GetComplex());
 
-            const int32_t distance = Access_GetApproximateDistance(candidate_building, it->Get());
+            const int32_t distance = Access_GetApproximateDistance(candidate_building, requestor.Get());
 
             if (!building || distance < minimum_distance) {
                 minimum_distance = distance;
