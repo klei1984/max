@@ -56,7 +56,7 @@ bool TaskDefenseReserve::IsAdjacentToWater(UnitInfo* unit) {
     }
 
     position.x = unit->grid_x - 1;
-    position.y = unit->grid_x + unit_size;
+    position.y = unit->grid_y + unit_size;
 
     for (int32_t direction = 0; direction < 8; direction += 2) {
         for (int32_t range = 0; range < unit_size + 1; ++range) {
