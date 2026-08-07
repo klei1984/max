@@ -703,7 +703,7 @@ bool TaskManageBuildings::IsViableMiningSite(uint16_t** construction_map, int32_
                     for (site2.x = site1.x - 1; site2.x <= site1.x; ++site2.x) {
                         for (site2.y = site1.y - 1; site2.y <= site1.y; ++site2.y) {
                             if (site2.x > 0 && site2.x < ResourceManager_MapSize.x - 1 && site2.y > 0 &&
-                                site2.y < ResourceManager_MapSize.y) {
+                                site2.y < ResourceManager_MapSize.y - 1) {
                                 bool is_found = false;
 
                                 for (int32_t x = site2.x; x <= site2.x + 1; ++x) {
