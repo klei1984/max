@@ -399,7 +399,7 @@ void AiPlayer::UpdateAccessMap(Point point1, Point point2, AccessMap& access_map
     } else {
         step = point2.x < point1.x ? -1 : 1;
 
-        if (point2.x < point1.x) {
+        if (point2.y < point1.y) {
             site = point2;
             step = -step;
         }
