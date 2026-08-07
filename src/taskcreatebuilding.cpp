@@ -192,7 +192,7 @@ bool TaskCreateBuilding::BuildRoad() {
 void TaskCreateBuilding::BeginBuilding() {
     SmartObjectArray<ResourceID> build_list = builder->GetBuildList();
 
-    if (!build_list.GetCount()) {
+    if (!tasks.GetCount()) {
         AILOG(log, "Task Create Building: Begin Building");
 
         op_state = CREATE_BUILDING_STATE_BUILDING;
