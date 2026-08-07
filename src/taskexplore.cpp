@@ -102,7 +102,7 @@ bool TaskExplore::Execute(UnitInfo& unit) {
 void TaskExplore::OnUnitReleased(UnitInfo& unit) {
     obtain_requests[unit.GetUnitType()] = false;
 
-    TaskManager.RemoveTask(*this);
+    TaskManager.ClearUnitTasksAndRemindAvailable(&unit);
 }
 
 bool TaskExplore::IsVisited(UnitInfo& unit, Point point) {
