@@ -194,11 +194,14 @@ uint32_t TerrainDistanceField::ComputeDistanceToNearestTraversable(std::vector<u
             (m_dimensions.x - 1) * (m_dimensions.x - 1) + (m_dimensions.y - 1) * (m_dimensions.y - 1);
 
         if (TickTimer_HaveTimeToThink()) {
-            // Stop when ring radius² exceeds both current shortest distance AND maximum map distance
-            const uint32_t search_limit = std::min(shortest_distance, max_map_distance);
-
-            // Expanding ring search: Check cells at increasing distances
-            for (uint32_t i = 1; i * i < search_limit; ++i) {
+            // Expanding ring search: Check cells at increasing distances.
+            //
+            // The bound has to be re-read on every iteration, because shortest_distance shrinks as anchors are found.
+            // A cell on the ring at radius i is at least i² away, so once i² reaches the closest anchor seen so far no
+            // later ring can improve on it and the walk is done. Hoisting the min out of the condition would freeze
+            // shortest_distance at DISTANCE_UNEVALUATED and make every query walk the whole map diagonal for an answer
+            // it already had. max_map_distance only caps the degenerate case where the field holds no anchor at all.
+            for (uint32_t i = 1; i * i < std::min(shortest_distance, max_map_distance); ++i) {
                 // Start position for this ring (south-west corner)
                 --position.x;
                 ++position.y;
