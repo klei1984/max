@@ -93,7 +93,7 @@ bool TaskCheckAssaults::EvaluateAssaults() {
 }
 
 void TaskCheckAssaults::MoveFinishedCallback(Task* task, UnitInfo* unit, char result) {
-    unit->RemoveTask(task);
+    unit->RemoveTask(task, false);
 
     if (result != TASKMOVE_RESULT_SUCCESS) {
         task->RemoveUnit(*unit);
