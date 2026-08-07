@@ -4104,16 +4104,18 @@ bool AiPlayer::SelectStrategy() {
             }
         }
 
-        total_score = Randomizer_Generate(total_score) + 1;
+        if (total_score > 0) {
+            total_score = Randomizer_Generate(total_score) + 1;
 
-        int32_t index = -1;
+            int32_t index = -1;
 
-        do {
-            ++index;
-            total_score -= strategy_scores[index];
-        } while (total_score > 0);
+            do {
+                ++index;
+                total_score -= strategy_scores[index];
+            } while (total_score > 0);
 
-        strategy = index;
+            strategy = index;
+        }
     }
 
     switch (strategy) {
