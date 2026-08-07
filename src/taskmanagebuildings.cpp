@@ -800,7 +800,7 @@ bool TaskManageBuildings::IsSafeSite(uint16_t** construction_map, Point site, Re
             int32_t site_count = 0;
 
             site.x = site_bounds.ulx - 1;
-            site.y = site_bounds.uly;
+            site.y = site_bounds.lry;
 
             for (int32_t direction = 0; direction < 8; direction += 2) {
                 for (int32_t range = 0; range < site_bounds.lrx - site_bounds.ulx; ++range) {
