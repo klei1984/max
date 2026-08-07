@@ -121,7 +121,7 @@ void DefenseManager::MaintainDefences(Task* task) {
                 ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_APPRENTICE) {
                 maintenance_task = new (std::nothrow) TaskRepair(it->Get());
 
-            } else if ((*it).ammo < (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {
+            } else if ((*it).ammo < (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) * 2) {
                 maintenance_task = new (std::nothrow) TaskReload(it->Get());
 
             } else if (((*it).flags & (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
