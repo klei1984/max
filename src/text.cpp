@@ -630,7 +630,7 @@ SmartString* Text_SplitText(const char* text, int32_t max_row_count, int32_t wid
 
                 string_character_count -= 2;
 
-                while (string_character_count > 1 && pixels_remaining > 0) {
+                while (string_character_count > 1 && pixels_remaining < 0) {
                     --string_character_count;
                     pixels_remaining += Text_GetGlyphWidth(string[string_character_count]);
                 }
