@@ -44,7 +44,7 @@ enum {
 
 static ObjectArray<Rect> DrawMap_DirtyRectangles;
 static struct ImageSimpleHeader* DrawMap_BuildMarkImage;
-static int32_t DrawMap_BuildMMarkDelayCounter = 1;
+static int32_t DrawMap_BuildMMarkDelayCounter = 2;
 static int32_t DrawMap_BuildMarkImageIndex;
 static ResourceID DrawMap_BuildMarkImages[] = {BLDMRK1, BLDMRK2, BLDMRK3, BLDMRK4, BLDMRK5};
 
@@ -376,7 +376,7 @@ void DrawMap_RenderBuildMarker() {
                     DrawMap_BuildMarkImageIndex = 0;
                 }
 
-                DrawMap_BuildMMarkDelayCounter = 2;
+                DrawMap_BuildMMarkDelayCounter = 3;
             }
 
             image = reinterpret_cast<struct ImageSimpleHeader*>(
