@@ -4041,7 +4041,7 @@ bool AiPlayer::SelectStrategy() {
 
     strategy_scores[AI_STRATEGY_FAST_ATTACK] = continents.GetCount() - continents_in_close_proximity;
 
-    strategy_scores[AI_STRATEGY_COMBINED_ARMS] = (continents.GetCount() + continents_in_close_proximity) * 2;
+    strategy_scores[AI_STRATEGY_COMBINED_ARMS] = (continents.GetCount() - continents_in_close_proximity) * 2;
 
     strategy = AI_STRATEGY_RANDOM;
 
