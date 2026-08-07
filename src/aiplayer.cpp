@@ -1244,7 +1244,7 @@ void AiPlayer::RollGreenhouseRatio() {
         case AI_STRATEGY_FAST_ATTACK:
         case AI_STRATEGY_COMBINED_ARMS:
         case AI_STRATEGY_ESPIONAGE: {
-            greenhouse_ratio = Randomizer_Generate(2) + 4;
+            greenhouse_ratio = Randomizer_Generate(4) + 4;
         } break;
 
         default: {
