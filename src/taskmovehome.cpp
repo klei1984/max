@@ -78,11 +78,11 @@ void TaskMoveHome::PopulateDefenses(AccessMap& map, ResourceID unit_type) {
                     uint8_t& map_site = map(walker.GetGridX(), walker.GetGridY());
 
                     if (map_site) {
-                        if (map_site + damage_potential < 0x1F) {
+                        if (map_site + damage_potential < 127) {
                             map_site += damage_potential;
 
                         } else {
-                            map_site = 0x1F;
+                            map_site = 127;
                         }
                     }
 
