@@ -32,7 +32,7 @@
 #include "ticktimer.hpp"
 #include "units_manager.hpp"
 
-TaskUpdateTerrain::TaskUpdateTerrain(uint16_t team) : Task(team, nullptr, 0) {}
+TaskUpdateTerrain::TaskUpdateTerrain(uint16_t team) : Task(team, nullptr, TASK_PRIORITY_EMERGENCY) {}
 
 TaskUpdateTerrain::~TaskUpdateTerrain() {}
 

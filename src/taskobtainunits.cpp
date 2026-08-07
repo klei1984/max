@@ -306,7 +306,7 @@ void TaskObtainUnits::RequestUnits(ResourceID unit_type, uint16_t team, int32_t 
 
         for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
             if ((*it).GetTeam() == this->GetTeam() && (*it).GetType() == TaskType_TaskCreateUnit) {
-                if ((*it).ComparePriority(task_priority + TASK_PRIORITY_ADJUST_MAJOR) <= 0) {
+                if ((*it).ComparePriority(task_priority + TASK_PRIORITY_OFFSET_CENSUS_SLACK) <= 0) {
                     ++unit_counters[dynamic_cast<TaskCreateUnit*>(it->Get())->GetUnitType()];
                 }
             }

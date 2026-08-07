@@ -473,7 +473,8 @@ bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int32_t caution_level) 
                 result = false;
 
             } else {
-                SmartPointer<TaskRetreat> retreat_task(new (std::nothrow) TaskRetreat(unit, task, 0x00, caution_level));
+                SmartPointer<TaskRetreat> retreat_task(
+                    new (std::nothrow) TaskRetreat(unit, task, TASK_PRIORITY_EMERGENCY, caution_level));
 
                 TaskManager.AppendTask(*retreat_task);
 

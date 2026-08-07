@@ -96,7 +96,7 @@ void TaskClearZone::PathFindCancelCallback(Task* task, PathRequest* request) {
 }
 
 TaskClearZone::TaskClearZone(uint16_t team, uint32_t flags_)
-    : Task(team, nullptr, 0), unit_flags(flags_), state(CLEARZONE_STATE_WAITING) {}
+    : Task(team, nullptr, TASK_PRIORITY_EMERGENCY), unit_flags(flags_), state(CLEARZONE_STATE_WAITING) {}
 
 TaskClearZone::~TaskClearZone() {}
 

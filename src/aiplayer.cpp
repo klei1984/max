@@ -200,7 +200,7 @@ void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_priority
         }
 
         uint16_t target_task_priority = AiAttack_GetTargetFlags(nullptr, spotted_unit->GetUnit(), player_team) +
-                                        task_priority + TASK_PRIORITY_ADJUST_MAJOR;
+                                        task_priority + TASK_PRIORITY_OFFSET_CENSUS_SLACK;
         int32_t task_index;
 
         for (task_index = 0; task_index < AttackTaskLimit && attack_tasks[task_index]; ++task_index) {

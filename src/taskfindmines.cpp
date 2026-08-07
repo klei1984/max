@@ -29,7 +29,7 @@
 #include "task_manager.hpp"
 
 TaskFindMines::TaskFindMines(uint16_t team_, Point point_)
-    : TaskAbstractSearch(team_, nullptr, TASK_PRIORITY_FOLLOW_ATTACK, point_) {}
+    : TaskAbstractSearch(team_, nullptr, TASK_PRIORITY_FIND_MINES, point_) {}
 
 TaskFindMines::~TaskFindMines() {}
 

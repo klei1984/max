@@ -995,7 +995,7 @@ bool TaskCreateBuilding::RequestWaterPlatform() {
                     needs_water_platforms = true;
 
                     SmartPointer<TaskCreateBuilding> create_building_task(new (std::nothrow) TaskCreateBuilding(
-                        this, GetPriority() - TASK_PRIORITY_ADJUST_MINOR, WTRPLTFM, position, nullptr));
+                        this, GetPriority() - TASK_PRIORITY_OFFSET_HALF_TIER, WTRPLTFM, position, nullptr));
 
                     tasks.PushBack(*create_building_task);
                     TaskManager.AppendTask(*create_building_task);
@@ -1117,8 +1117,9 @@ void TaskCreateBuilding::BuildBoardwalks() {
                     if (map(position.x, position.y) == 1) {
                         AILOG_LOG(log, "Create boardwalk at [{},{}].", position.x + 1, position.y + 1);
 
-                        SmartPointer<TaskCreateBuilding> create_building_task = new (std::nothrow) TaskCreateBuilding(
-                            this, TASK_PRIORITY_BRIDGE_BASE | TASK_PRIORITY_ADJUST_MINOR, BRIDGE, position, &*manager);
+                        SmartPointer<TaskCreateBuilding> create_building_task = new (std::nothrow)
+                            TaskCreateBuilding(this, TASK_PRIORITY_BRIDGE_BASE | TASK_PRIORITY_OFFSET_HALF_TIER, BRIDGE,
+                                               position, &*manager);
 
                         if (manager) {
                             manager->AddCreateOrder(&*create_building_task);
@@ -1335,7 +1336,7 @@ bool TaskCreateBuilding::FindBridgePath(AccessMap& map, int32_t value) {
         }
     }
 
-    bridge_priority = GetPriority() - TASK_PRIORITY_ADJUST_BRIDGE;
+    bridge_priority = GetPriority() - TASK_PRIORITY_OFFSET_BRIDGE;
 
     if (unit_type != LIGHTPLT && unit_type != LANDPLT && unit_type != DEPOT && unit_type != TRAINHAL) {
         bridge_priority = TASK_PRIORITY_BRIDGE_BASE;

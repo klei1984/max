@@ -1016,8 +1016,8 @@ bool TaskManageBuildings::PlanNextBuildJob() {
             CreateBuilding(LIGHTPLT, this, TASK_PRIORITY_BUILDING_LIGHT_PLANT)) {
             result = true;
 
-        } else if (!GetUnitCount(LANDPLT, TASK_PRIORITY_LAND_ACCESS_THRESHOLD) &&
-                   CreateBuilding(LANDPLT, this, TASK_PRIORITY_LAND_ACCESS_THRESHOLD)) {
+        } else if (!GetUnitCount(LANDPLT, TASK_PRIORITY_BUILDING_HEAVY_PLANT) &&
+                   CreateBuilding(LANDPLT, this, TASK_PRIORITY_BUILDING_HEAVY_PLANT)) {
             result = true;
 
         } else {
@@ -1030,8 +1030,8 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                                        unit_count_shipyard + unit_count_trainhall;
 
             if (unit_count_lightplant > 0 && unit_count_landplant > 0) {
-                if (!GetUnitCount(AIRPLT, TASK_PRIORITY_LAND_ACCESS_THRESHOLD) &&
-                    CreateBuilding(AIRPLT, this, TASK_PRIORITY_LAND_ACCESS_THRESHOLD)) {
+                if (!GetUnitCount(AIRPLT, TASK_PRIORITY_BUILDING_HEAVY_PLANT) &&
+                    CreateBuilding(AIRPLT, this, TASK_PRIORITY_BUILDING_HEAVY_PLANT)) {
                     return true;
                 }
 
@@ -1072,7 +1072,7 @@ bool TaskManageBuildings::PlanNextBuildJob() {
 
             switch (AiPlayer_Teams[m_team].GetStrategy()) {
                 case AI_STRATEGY_DEFENSIVE: {
-                    if (CreateBuildings(total_unit_count, LIGHTPLT, TASK_PRIORITY_FOLLOW_DEFENSE)) {
+                    if (CreateBuildings(total_unit_count, LIGHTPLT, TASK_PRIORITY_BUILDING_EXPANSION)) {
                         return true;
                     }
                 } break;
@@ -1081,62 +1081,62 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                 } break;
 
                 case AI_STRATEGY_AIR: {
-                    if (!GetUnitCount(AIRPLT, TASK_PRIORITY_LAND_ACCESS_THRESHOLD) &&
-                        CreateBuilding(AIRPLT, this, TASK_PRIORITY_LAND_ACCESS_THRESHOLD)) {
+                    if (!GetUnitCount(AIRPLT, TASK_PRIORITY_BUILDING_HEAVY_PLANT) &&
+                        CreateBuilding(AIRPLT, this, TASK_PRIORITY_BUILDING_HEAVY_PLANT)) {
                         return true;
                     }
 
-                    if (CreateBuildings(total_unit_count, AIRPLT, TASK_PRIORITY_FOLLOW_DEFENSE)) {
+                    if (CreateBuildings(total_unit_count, AIRPLT, TASK_PRIORITY_BUILDING_EXPANSION)) {
                         return true;
                     }
                 } break;
 
                 case AI_STRATEGY_SEA: {
-                    if (!GetUnitCount(SHIPYARD, TASK_PRIORITY_LAND_ACCESS_THRESHOLD) &&
-                        CreateBuilding(SHIPYARD, this, TASK_PRIORITY_LAND_ACCESS_THRESHOLD)) {
+                    if (!GetUnitCount(SHIPYARD, TASK_PRIORITY_BUILDING_HEAVY_PLANT) &&
+                        CreateBuilding(SHIPYARD, this, TASK_PRIORITY_BUILDING_HEAVY_PLANT)) {
                         return true;
                     }
 
-                    if (CreateBuildings(total_unit_count, SHIPYARD, TASK_PRIORITY_FOLLOW_DEFENSE)) {
+                    if (CreateBuildings(total_unit_count, SHIPYARD, TASK_PRIORITY_BUILDING_EXPANSION)) {
                         return true;
                     }
                 } break;
 
                 case AI_STRATEGY_SCOUT_HORDE: {
-                    if (CreateBuildings(total_unit_count, LIGHTPLT, TASK_PRIORITY_FOLLOW_DEFENSE)) {
+                    if (CreateBuildings(total_unit_count, LIGHTPLT, TASK_PRIORITY_BUILDING_EXPANSION)) {
                         return true;
                     }
                 } break;
 
                 case AI_STRATEGY_TANK_HORDE: {
-                    if (CreateBuildings(total_unit_count, LANDPLT, TASK_PRIORITY_FOLLOW_DEFENSE)) {
+                    if (CreateBuildings(total_unit_count, LANDPLT, TASK_PRIORITY_BUILDING_EXPANSION)) {
                         return true;
                     }
                 } break;
 
                 case AI_STRATEGY_FAST_ATTACK: {
-                    if (CreateBuildings(total_unit_count / 2, LIGHTPLT, TASK_PRIORITY_FOLLOW_DEFENSE)) {
+                    if (CreateBuildings(total_unit_count / 2, LIGHTPLT, TASK_PRIORITY_BUILDING_EXPANSION)) {
                         return true;
                     }
 
-                    if (CreateBuildings(total_unit_count / 2, LANDPLT, TASK_PRIORITY_FOLLOW_DEFENSE)) {
+                    if (CreateBuildings(total_unit_count / 2, LANDPLT, TASK_PRIORITY_BUILDING_EXPANSION)) {
                         return true;
                     }
                 } break;
 
                 case AI_STRATEGY_COMBINED_ARMS: {
-                    if (CreateBuildings(total_unit_count, LANDPLT, TASK_PRIORITY_FOLLOW_DEFENSE)) {
+                    if (CreateBuildings(total_unit_count, LANDPLT, TASK_PRIORITY_BUILDING_EXPANSION)) {
                         return true;
                     }
                 } break;
 
                 case AI_STRATEGY_ESPIONAGE: {
-                    if (!GetUnitCount(TRAINHAL, TASK_PRIORITY_LAND_ACCESS_THRESHOLD) &&
-                        CreateBuilding(TRAINHAL, this, TASK_PRIORITY_LAND_ACCESS_THRESHOLD)) {
+                    if (!GetUnitCount(TRAINHAL, TASK_PRIORITY_BUILDING_HEAVY_PLANT) &&
+                        CreateBuilding(TRAINHAL, this, TASK_PRIORITY_BUILDING_HEAVY_PLANT)) {
                         return true;
                     }
 
-                    if (CreateBuildings(total_unit_count, TRAINHAL, TASK_PRIORITY_FOLLOW_DEFENSE)) {
+                    if (CreateBuildings(total_unit_count, TRAINHAL, TASK_PRIORITY_BUILDING_EXPANSION)) {
                         return true;
                     }
                 } break;
@@ -1158,8 +1158,8 @@ bool TaskManageBuildings::PlanNextBuildJob() {
                        CreateBuilding(BARRACKS, this, TASK_PRIORITY_MANAGE_BUILDINGS)) {
                 result = true;
 
-            } else if (unit_count_airplant > 0 && !GetUnitCount(SHIPYARD, TASK_PRIORITY_LAND_ACCESS_THRESHOLD) &&
-                       CreateBuilding(SHIPYARD, this, TASK_PRIORITY_LAND_ACCESS_THRESHOLD)) {
+            } else if (unit_count_airplant > 0 && !GetUnitCount(SHIPYARD, TASK_PRIORITY_BUILDING_HEAVY_PLANT) &&
+                       CreateBuilding(SHIPYARD, this, TASK_PRIORITY_BUILDING_HEAVY_PLANT)) {
                 result = true;
 
             } else {
@@ -2367,7 +2367,7 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
             memset(&unit_counters, 0, sizeof(unit_counters));
 
             for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
-                if ((*it).ComparePriority(task_priority + TASK_PRIORITY_ADJUST_MAJOR) <= 0) {
+                if ((*it).ComparePriority(task_priority + TASK_PRIORITY_OFFSET_CENSUS_SLACK) <= 0) {
                     ++unit_counters[(*it).GetUnitType()];
                 }
             }

@@ -78,7 +78,7 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t tas
 
             for (auto it = unit_requests.Begin(), it_end = unit_requests.End(); it != it_end; ++it) {
                 if ((*it).GetTeam() == team && (*it).CountInstancesOfUnitType(unit_type) &&
-                    (*it).ComparePriority(task_priority + TASK_PRIORITY_ADJUST_MAJOR) <= 0) {
+                    (*it).ComparePriority(task_priority + TASK_PRIORITY_OFFSET_CENSUS_SLACK) <= 0) {
                     requested_count += (*it).CountInstancesOfUnitType(unit_type);
                 }
             }
@@ -90,7 +90,7 @@ bool TaskManager::IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t tas
 
                     if (create_task->GetUnitType() == unit_type) {
                         if (create_task->IsActivelyBuilding() ||
-                            create_task->ComparePriority(task_priority + TASK_PRIORITY_ADJUST_MAJOR) <= 0) {
+                            create_task->ComparePriority(task_priority + TASK_PRIORITY_OFFSET_CENSUS_SLACK) <= 0) {
                             return false;
                         }
                     }

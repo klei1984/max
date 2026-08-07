@@ -81,68 +81,88 @@ enum : uint8_t {
     TaskType_TaskWaitToAttack = 48
 };
 
-// Task Priority System Constants
-// These values determine task precedence in the AI's resource allocation and unit assignment system.
-// Higher values indicate higher priority tasks that can preempt lower priority tasks.
+// Task Urgency Scale (the original binary calls this field the task "flags").
+//
+// A priority is one 16-bit scalar; the LOWER the value, the MORE urgent the task. The high byte is the urgency tier
+// (rank), the low byte a fine bias within a tier, always applied with +/-. Urgency decides unit contention, not
+// execution order: TaskManager's task list is FIFO. A task may take a unit from another task only if the owner's
+// value is numerically greater (Task::ComparePriority > 0), and a freed unit goes to the pending request with the
+// numerically smallest value. ComparePriority compares coarsely by the static tier outside the
+// +/-TASK_PRIORITY_TOLERANCE window (saturating to +/-1) and finely by the dynamic virtual GetPriority() inside it.
 enum : uint16_t {
-    // Priority tolerance window for task comparison
-    TASK_PRIORITY_TOLERANCE = 0xFF,  // ±255 range for comparable priorities
+    // Comparability window of Task::ComparePriority; also the "least urgent in my tier" penalty a task without
+    // targets reports through GetPriority()
+    TASK_PRIORITY_TOLERANCE = 0xFF,
 
-    // Priority mask for comparing base priority tiers (masks lower 8 bits)
+    // Extracts the tier byte from an effective priority (used to merge attack tasks of the same tier)
     TASK_PRIORITY_MASK = 0xFF00,
 
-    // Priority adjustment constants used in comparisons
-    TASK_PRIORITY_ADJUST_MINOR = 0x80,   // Minor priority adjustment
-    TASK_PRIORITY_ADJUST_MEDIUM = 0xAF,  // Medium priority adjustment
-    TASK_PRIORITY_ADJUST_BRIDGE = 0xC8,  // Bridge construction priority reduction
-    TASK_PRIORITY_ADJUST_MAJOR = 0xFA,   // Major priority adjustment
+    // Low-byte offsets (within-tier bias)
+    TASK_PRIORITY_OFFSET_HALF_TIER = 0x80,     // subtracted: a prerequisite child build (water platform) outranks its
+                                               // parent building; added: boardwalks trail TASK_PRIORITY_BRIDGE_BASE
+    TASK_PRIORITY_OFFSET_BRIDGE = 0xC8,        // subtracted: access bridges outrank the factory they serve; each
+                                               // further bridge of the chain adds +1 on top
+    TASK_PRIORITY_OFFSET_CENSUS_SLACK = 0xFA,  // added to the query priority when censusing pending work, so peers up
+                                               // to ~one tier less urgent still count against the cap
 
-    // Background and monitoring tasks (lowest priority)
-    TASK_PRIORITY_CHECK_ASSAULTS = 0x001E,     // Background air unit assault monitoring
-    TASK_PRIORITY_REMOVE_RUBBLE_LOW = 0x0100,  // Low priority rubble removal (mines)
-    TASK_PRIORITY_REMOVE_RUBBLE = 0x0200,      // Standard rubble removal
+    // Emergency reactions (most urgent)
+    TASK_PRIORITY_EMERGENCY = 0x0000,       // retreat from danger, clear a landing zone, terrain bookkeeping
+    TASK_PRIORITY_CHECK_ASSAULTS = 0x001E,  // air assault monitoring; comparable with the emergency tier, just behind
 
-    // Offensive operations (low to medium priority)
-    TASK_PRIORITY_FRONTAL_ATTACK = 0x0400,        // Aggressive frontal assault operations
-    TASK_PRIORITY_BUILDING_LOW = 0x0500,          // Low priority building construction
-    TASK_PRIORITY_BUILDING_LIGHT_PLANT = 0x0700,  // Light plant construction priority
-    TASK_PRIORITY_BUILDING_CONNECTOR = 0x0800,    // Connector (CNCT_4W) construction priority
-    TASK_PRIORITY_BUILDING_DUMP = 0x0A00,         // Dump (ADUMP, FDUMP, GOLDSM) construction priority
-    TASK_PRIORITY_BUILDING_POWER = 0x0B00,        // Power station/generator construction priority
-    TASK_PRIORITY_BUILDING_HABITAT = 0x0C00,      // Habitat construction priority
-    TASK_PRIORITY_BUILDING_RADAR = 0x0D00,        // Radar construction priority
-    TASK_PRIORITY_BUILDING_MEDIUM = 0x0E00,       // Medium priority building construction
-    TASK_PRIORITY_ESCORT = 0x0F00,                // Unit escort and protection
-    TASK_PRIORITY_ATTACK_MOBILE = 0x1000,         // Mobile unit attack operations
-    TASK_PRIORITY_REPAIR = 0x1100,                // Unit repair and maintenance
+    // Site clearing - blocked build sites stall the whole economy
+    TASK_PRIORITY_REMOVE_RUBBLE_LOW = 0x0100,  // land mine removal at build sites
+    TASK_PRIORITY_REMOVE_RUBBLE = 0x0200,      // rubble removal at build sites
 
-    // Strategic operations (medium to high priority)
-    TASK_PRIORITY_BUILDING_DEFENSE = 0x1200,        // Defense building (turrets) construction priority
-    TASK_PRIORITY_LAND_ACCESS_THRESHOLD = 0x1300,   // Threshold for requiring land access to buildings
-    TASK_PRIORITY_BUILDING_REPAIR_SHOP = 0x1400,    // Repair shop (DEPOT, HANGAR, DOCK) construction priority
-    TASK_PRIORITY_BUILDING_UPGRADES = 0x1500,       // Research facility construction priority
-    TASK_PRIORITY_BUILDING_GREENHOUSE = 0x1600,     // Greenhouse construction priority
-    TASK_PRIORITY_ATTACK_PRIORITY_TARGET = 0x1700,  // High-value target attacks (GREENHSE, MININGST)
-    TASK_PRIORITY_FOLLOW_DEFENSE = 0x1800,          // Defense reserve follow attacker threshold
-    TASK_PRIORITY_DEFENSE_RESERVE = 0x1900,         // Defensive unit reserves
-    TASK_PRIORITY_FRONTIER = 0x1A00,                // Frontier expansion and mining
-    TASK_PRIORITY_EXPLORE = 0x1B00,                 // Map exploration and reconnaissance
-    TASK_PRIORITY_BRIDGE_BASE = 0x1C00,             // Base priority for bridge construction
-    TASK_PRIORITY_MANAGE_BUILDINGS = 0x1D00,        // Building management and infrastructure (also BARRACKS)
-    TASK_PRIORITY_ATTACK_RESERVE = 0x1E00,          // Attack reserve forces
-    TASK_PRIORITY_ATTACK_DEFAULT = 0x1F00,          // Default attack task priority
-    TASK_PRIORITY_FOLLOW_ATTACK = 0x2000,           // Attack reserve follow attacker threshold
+    // Combat operations and base construction
+    TASK_PRIORITY_FRONTAL_ATTACK = 0x0400,        // massed frontal assault
+    TASK_PRIORITY_BUILDING_LOW = 0x0500,          // first mining station of a new base
+    TASK_PRIORITY_BUILDING_LIGHT_PLANT = 0x0700,  // light plant construction
+    TASK_PRIORITY_BUILDING_CONNECTOR = 0x0800,    // connector (CNCT_4W) construction
+    TASK_PRIORITY_BUILDING_DUMP = 0x0A00,         // storage (ADUMP, FDUMP, GOLDSM) construction
+    TASK_PRIORITY_BUILDING_POWER = 0x0B00,        // power station/generator construction
+    TASK_PRIORITY_BUILDING_HABITAT = 0x0C00,      // habitat construction
+    TASK_PRIORITY_BUILDING_RADAR = 0x0D00,        // radar construction
+    TASK_PRIORITY_BUILDING_MEDIUM = 0x0E00,       // replacement mining station
+    TASK_PRIORITY_ESCORT = 0x0F00,                // unit escort and protection
+    TASK_PRIORITY_ATTACK_MOBILE = 0x1000,         // attack escalated against mobile threats; also the fallback tier
+                                                  // of a parentless TaskMove
+    TASK_PRIORITY_REPAIR = 0x1100,                // unit repair, reload and upgrade
+    TASK_PRIORITY_BUILDING_DEFENSE = 0x1200,      // defense turret construction
 
-    // Support operations (high priority)
-    TASK_PRIORITY_SCAVENGE = 0x2100,             // Resource scavenging and recovery
-    TASK_PRIORITY_AUTO_SURVEY = 0x2200,          // Automated surveying operations
-    TASK_PRIORITY_GET_RESOURCE = 0x2300,         // Resource gathering and retrieval
-    TASK_PRIORITY_SUPPORT_ATTACK = 0x2500,       // Attack support operations
-    TASK_PRIORITY_ATTACK_RESERVE_POOL = 0x2600,  // Attack reserve pool management
+    // 0x1300 plays two roles; both names denote the same tier
+    TASK_PRIORITY_BUILDING_HEAVY_PLANT = 0x1300,   // tier: first land/air/ship factory and training hall
+    TASK_PRIORITY_LAND_ACCESS_THRESHOLD = 0x1300,  // threshold: requests at least this urgent waive the land-access
+                                                   // siting constraint
 
-    // Critical operations (highest priority)
-    TASK_PRIORITY_ASSIST_MOVE = 0x2800,  // Movement assistance (critical pathing)
-    TASK_PRIORITY_MOVE = 0x2900,         // Direct unit movement and obtain units
+    TASK_PRIORITY_BUILDING_REPAIR_SHOP = 0x1400,    // repair shop (DEPOT, HANGAR, DOCK) construction
+    TASK_PRIORITY_BUILDING_UPGRADES = 0x1500,       // research facility construction
+    TASK_PRIORITY_BUILDING_GREENHOUSE = 0x1600,     // greenhouse construction
+    TASK_PRIORITY_ATTACK_PRIORITY_TARGET = 0x1700,  // attack escalated against GREENHSE/MININGST of a leading enemy
+
+    // 0x1800 plays two roles; both names denote the same tier
+    TASK_PRIORITY_BUILDING_EXPANSION = 0x1800,  // tier: strategy-driven factory expansion
+    TASK_PRIORITY_FOLLOW_DEFENSE = 0x1800,      // threshold: defense reserve units follow attackers this urgent
+
+    TASK_PRIORITY_DEFENSE_RESERVE = 0x1900,   // defensive unit reserve
+    TASK_PRIORITY_FRONTIER = 0x1A00,          // frontier mining and mine laying
+    TASK_PRIORITY_EXPLORE = 0x1B00,           // map exploration
+    TASK_PRIORITY_BRIDGE_BASE = 0x1C00,       // bridge construction base tier
+    TASK_PRIORITY_MANAGE_BUILDINGS = 0x1D00,  // building management (also BARRACKS construction)
+    TASK_PRIORITY_ATTACK_DEFAULT = 0x1F00,    // default attack task tier
+
+    // 0x2000 plays two roles; both names denote the same tier
+    TASK_PRIORITY_FIND_MINES = 0x2000,     // tier: enemy minefield sweeping
+    TASK_PRIORITY_FOLLOW_ATTACK = 0x2000,  // threshold: attack reserve units follow attackers this urgent
+
+    // Recon and logistics (weakest claims on units)
+    TASK_PRIORITY_SCAVENGE = 0x2100,             // resource scavenging
+    TASK_PRIORITY_AUTO_SURVEY = 0x2200,          // surveying (TaskAutoSurvey and TaskSurvey)
+    TASK_PRIORITY_GET_RESOURCE = 0x2300,         // orphan default of resource fetching; replaced by the parent's
+                                                 // priority when one exists
+    TASK_PRIORITY_SUPPORT_ATTACK = 0x2500,       // attack support
+    TASK_PRIORITY_ATTACK_RESERVE_POOL = 0x2600,  // attack reserve pool
+    TASK_PRIORITY_ASSIST_MOVE = 0x2800,          // air transport assistance
+    TASK_PRIORITY_MOVE = 0x2900,                 // weakest claim: bare callback moves and orphaned unit requests
 };
 
 class UnitInfo;
@@ -302,19 +322,19 @@ public:
     /**
      * \brief Sets the base priority for this task.
      *
-     * \param priority New priority value. Higher values indicate higher priority.
+     * \param priority New priority value. Lower values indicate more urgent tasks.
      *                 See TASK_PRIORITY constants for standard values.
      */
     void SetPriority(uint16_t priority);
 
     /**
-     * \brief Compares this task's priority against another priority value.
+     * \brief Compares this task's urgency against another priority value.
      *
-     * Uses TASK_PRIORITY_TOLERANCE and TASK_PRIORITY_MASK for comparison.
-     * Priorities within the tolerance range are considered equal.
+     * Outside the +/-TASK_PRIORITY_TOLERANCE window the result saturates to +/-1 based on the static base priority;
+     * inside it, the signed difference of the dynamic virtual GetPriority() and the argument is returned.
      *
      * \param priority The priority value to compare against.
-     * \return Negative if this task has lower priority, 0 if equal, positive if higher.
+     * \return Negative if this task is more urgent (numerically lower), 0 if equal, positive if less urgent.
      */
     int16_t ComparePriority(uint16_t priority);
 
