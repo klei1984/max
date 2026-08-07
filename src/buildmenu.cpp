@@ -21,6 +21,7 @@
 
 #include "buildmenu.hpp"
 
+#include "abstractmenu.hpp"
 #include "builder.hpp"
 #include "cargo.hpp"
 #include "cursor.hpp"
@@ -53,7 +54,7 @@ public:
     void Draw();
 };
 
-class AbstractBuildMenu : public Window {
+class AbstractBuildMenu : public AbstractMenu {
 protected:
     WindowInfo window;
     UnitInfo* unit;
@@ -87,8 +88,6 @@ protected:
     Image* cost_background_x2;
     Image* turns_background_x4;
     Image* cost_background_x4;
-
-    static bool button_description_rest_state;
 
 public:
     AbstractBuildMenu(ResourceID resource_id, UnitInfo* unit);
@@ -139,8 +138,6 @@ public:
     void Build();
     bool Select(UnitTypeSelector* type_selector, bool mode);
 };
-
-bool AbstractBuildMenu::button_description_rest_state = true;
 
 BuildUnitTypeSelector::BuildUnitTypeSelector(Window* window, WindowInfo* window_info,
                                              SmartObjectArray<ResourceID> unit_types, UnitInfo* unit, int32_t key_code,
@@ -207,7 +204,7 @@ void BuildUnitTypeSelector::Draw() {
 }
 
 AbstractBuildMenu::AbstractBuildMenu(ResourceID resource_id, UnitInfo* unit)
-    : Window(resource_id, GameManager_GetDialogWindowCenterMode()), unit(unit) {
+    : AbstractMenu(resource_id, GameManager_GetDialogWindowCenterMode()), unit(unit) {
     event_success = false;
     event_click_cancel = false;
     event_click_path_build = false;

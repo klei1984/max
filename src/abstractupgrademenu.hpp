@@ -22,13 +22,14 @@
 #ifndef ABSTRACTUPGRADEMENU_H
 #define ABSTRACTUPGRADEMENU_H
 
+#include "abstractmenu.hpp"
 #include "button.hpp"
 #include "unittypeselector.hpp"
 #include "unitvalues.hpp"
 #include "upgradecontrol.hpp"
 #include "window.hpp"
 
-class AbstractUpgradeMenu : public Window {
+class AbstractUpgradeMenu : public AbstractMenu {
 protected:
     WindowInfo dialog_window;
     WindowInfo unit_portrait_window;
@@ -69,7 +70,6 @@ protected:
     static bool button_sea_rest_state;
     static bool button_building_rest_state;
     static bool button_combat_rest_state;
-    static bool button_description_rest_state;
 
     void AddUpgrade(int32_t id, int32_t value1, int32_t value2, uint16_t* attribute, int32_t value);
     void AddUpgradeMilitary(ResourceID unit_type);

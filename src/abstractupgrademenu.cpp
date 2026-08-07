@@ -39,7 +39,7 @@
 #include "window_manager.hpp"
 
 AbstractUpgradeMenu::AbstractUpgradeMenu(uint16_t team, ResourceID resource_id)
-    : Window(resource_id, GameManager_GetDialogWindowCenterMode()),
+    : AbstractMenu(resource_id, GameManager_GetDialogWindowCenterMode()),
       team(team),
       upgrade_control_count(0),
       upgrade_control_next_uly(0),
@@ -91,7 +91,6 @@ bool AbstractUpgradeMenu::button_air_rest_state = true;
 bool AbstractUpgradeMenu::button_sea_rest_state = true;
 bool AbstractUpgradeMenu::button_building_rest_state = true;
 bool AbstractUpgradeMenu::button_combat_rest_state = false;
-bool AbstractUpgradeMenu::button_description_rest_state = true;
 
 void AbstractUpgradeMenu::Init() {
     SDL_assert(stats_background);
