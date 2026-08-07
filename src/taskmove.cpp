@@ -428,6 +428,8 @@ void TaskMove::FindWaypointUsingTransport() {
     if (Access_IsAccessible(passenger->GetUnitType(), m_team, site.x, site.y, AccessModifier_SameClassBlocks) &&
         !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
         destination_waypoint = passenger_destination;
+
+        return;
     }
 
     for (int32_t range_limit = 2; keep_searching; range_limit += 2) {
