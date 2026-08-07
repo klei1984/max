@@ -86,7 +86,7 @@ uint8_t TaskGetMaterials::GetType() const { return TaskType_TaskGetMaterials; }
 void TaskGetMaterials::EndTurn() {
     if (requestor) {
         if (materials_needed > requestor->storage) {
-            if (source && requestor->GetTask() == this && source->storage == 0) {
+            if (source && requestor->GetTask() == this && source->storage <= 0) {
                 ReleaseSource();
             }
 
