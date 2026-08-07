@@ -195,24 +195,24 @@ bool TaskTransport::ChooseNewTask() {
                         move_tasks.Remove(*it);
                     }
                 }
+            }
 
-                for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
-                     it != it_end; ++it) {
-                    if ((*it).team == m_team && ((*it).flags & MOBILE_LAND_UNIT) && (*it).GetUnitType() != SURVEYOR) {
-                        if ((*it).GetTask() && (*it).GetTask()->GetType() == TaskType_TaskMove &&
-                            Task_IsReadyToTakeOrders(it->Get())) {
-                            TaskMove* move = dynamic_cast<TaskMove*>((*it).GetTask());
+            for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+                 it != it_end; ++it) {
+                if ((*it).team == m_team && ((*it).flags & MOBILE_LAND_UNIT) && (*it).GetUnitType() != SURVEYOR) {
+                    if ((*it).GetTask() && (*it).GetTask()->GetType() == TaskType_TaskMove &&
+                        Task_IsReadyToTakeOrders(it->Get())) {
+                        TaskMove* move = dynamic_cast<TaskMove*>((*it).GetTask());
 
-                            if ((*it).speed == 0 || move->GetTransporterType() != INVALID_ID) {
-                                distance = Access_GetSquaredDistance(it->Get(), position);
+                        if ((*it).speed == 0 || move->GetTransporterType() != INVALID_ID) {
+                            distance = Access_GetSquaredDistance(it->Get(), position);
 
-                                if (!task_move || distance < minimum_distance) {
-                                    if (TaskTransport_Search(&*unit_transporter, it->Get(), &map)) {
-                                        task_move = move;
-                                        minimum_distance = distance;
-                                        point.x = (*it).grid_x;
-                                        point.y = (*it).grid_y;
-                                    }
+                            if (!task_move || distance < minimum_distance) {
+                                if (TaskTransport_Search(&*unit_transporter, it->Get(), &map)) {
+                                    task_move = move;
+                                    minimum_distance = distance;
+                                    point.x = (*it).grid_x;
+                                    point.y = (*it).grid_y;
                                 }
                             }
                         }
