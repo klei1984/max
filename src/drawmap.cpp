@@ -857,23 +857,25 @@ void DrawMap_RenderMiniMapUnitList(SmartList<UnitInfo>* units) {
                 color = COLOR_YELLOW;
             }
 
-            const int32_t grid_x{(*it).grid_x};
-            const int32_t grid_y{(*it).grid_y};
+            int32_t grid_x{(*it).grid_x};
+            int32_t grid_y{(*it).grid_y};
 
-            if ((*it).flags & BUILDING) {
-                SDL_assert(grid_x >= 0 && grid_x + 1 < ResourceManager_MapSize.x);
-                SDL_assert(grid_y >= 0 && grid_y + 1 < ResourceManager_MapSize.y);
+            if (GameManager_DisplayButtonMinimap2x && !((*it).flags & BUILDING)) {
+                SDL_assert(grid_x >= 0 && grid_x < ResourceManager_MapSize.x);
+                SDL_assert(grid_y >= 0 && grid_y < ResourceManager_MapSize.y);
+
+                ResourceManager_MinimapUnits[grid_y * ResourceManager_MapSize.x + grid_x] = color;
+
+            } else {
+                grid_x = std::min<int32_t>(grid_x, ResourceManager_MapSize.x - 2);
+                grid_y = std::min<int32_t>(grid_y, ResourceManager_MapSize.y - 2);
+
+                SDL_assert(grid_x >= 0 && grid_y >= 0);
 
                 ResourceManager_MinimapUnits[grid_y * ResourceManager_MapSize.x + grid_x] = color;
                 ResourceManager_MinimapUnits[grid_y * ResourceManager_MapSize.x + grid_x + 1] = color;
                 ResourceManager_MinimapUnits[(grid_y + 1) * ResourceManager_MapSize.x + grid_x] = color;
                 ResourceManager_MinimapUnits[(grid_y + 1) * ResourceManager_MapSize.x + grid_x + 1] = color;
-
-            } else {
-                SDL_assert(grid_x >= 0 && grid_x < ResourceManager_MapSize.x);
-                SDL_assert(grid_y >= 0 && grid_y < ResourceManager_MapSize.y);
-
-                ResourceManager_MinimapUnits[grid_y * ResourceManager_MapSize.x + grid_x] = color;
             }
         }
     }
