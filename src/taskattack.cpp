@@ -103,7 +103,7 @@ uint16_t TaskAttack::GetPriority() const {
         result = secondary_targets[0].GetPriority();
 
     } else {
-        result = m_base_priority;
+        result = m_base_priority + TASK_PRIORITY_TOLERANCE;
     }
 
     return result;
