@@ -2367,7 +2367,7 @@ bool TaskManageBuildings::CreateBuilding(ResourceID unit_type, Task* task, uint1
             memset(&unit_counters, 0, sizeof(unit_counters));
 
             for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
-                if ((*it).ComparePriority(task_priority + TASK_PRIORITY_ADJUST_MEDIUM) <= 0) {
+                if ((*it).ComparePriority(task_priority + TASK_PRIORITY_ADJUST_MAJOR) <= 0) {
                     ++unit_counters[(*it).GetUnitType()];
                 }
             }
