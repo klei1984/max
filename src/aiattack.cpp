@@ -1242,7 +1242,7 @@ uint32_t AiAttack_GetTargetFlags(UnitInfo* attacker, UnitInfo* target, uint16_t 
         if (AiAttack_IsValidSabotageTarget(attacker, target)) {
             result += UnitsManager_GetStealthChancePercentage(attacker, target, ORDER_AWAIT_DISABLE_UNIT) / 13;
 
-            if (target->flags & STATIONARY) {
+            if (!(target->flags & STATIONARY)) {
                 result += 0x40;
             }
 
