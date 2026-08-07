@@ -234,11 +234,11 @@ void TaskRendezvous::RemoveSelf() {
 void TaskRendezvous::RemoveUnit(UnitInfo& unit) {
     if (unit1 == unit || unit2 == unit) {
         if (unit1 != unit) {
-            unit1->RemoveTask(this);
+            unit1->RemoveTask(this, false);
         }
 
         if (unit2 != unit) {
-            unit2->RemoveTask(this);
+            unit2->RemoveTask(this, false);
         }
 
         RemoveTask();
