@@ -2413,6 +2413,11 @@ void GameManager_UpdateGui(uint16_t team, int32_t game_state, bool enable_autosa
             }
 
             if (game_state != GAME_STATE_10_LOAD_GAME) {
+                if (ini_setting_victory_type == VICTORY_TYPE_DURATION &&
+                    GameManager_TurnCounter == (ini_setting_victory_limit - 9)) {
+                    DialogMenu_Menu(_(4556));
+                }
+
                 GameManager_ProgressBuildState(team);
 
                 if (GameManager_SelectedUnit != nullptr) {

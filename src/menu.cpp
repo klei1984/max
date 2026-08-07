@@ -587,14 +587,6 @@ bool menu_check_end_game_conditions(int32_t turn_counter, int32_t turn_counter_s
             return true;
         }
 
-        if (ini_setting_victory_type == VICTORY_TYPE_DURATION) {
-            if (turn_counter == (ini_setting_victory_limit - 10) && status.teams_non_computers > 0) {
-                if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER) {
-                    DialogMenu_Menu(_(4556));
-                }
-            }
-        }
-
         if (status.team_status[GameManager_PlayerTeam] == VICTORY_STATE_GENERIC) {
             if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_PLAYER &&
                 status.team_status[team] == VICTORY_STATE_LOST) {
