@@ -2886,22 +2886,23 @@ void AiPlayer::PlanMinefields() {
             }
         }
 
-        int32_t counter1 = 0;
-        int32_t counter2 = 0;
-        int32_t counter3 = 0;
+        int32_t mineable_cell_count = 0;
+        int32_t pending_mine_order_count = 0;
+        int32_t existing_mine_count = 0;
 
         for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
             for (int32_t y = 0; y < ResourceManager_MapSize.y; ++y) {
                 if (access_map(x, y)) {
-                    ++counter1;
+                    ++mineable_cell_count;
 
                     if (info_map[x][y] & INFO_MAP_MINE_FIELD) {
-                        ++counter2;
+                        ++pending_mine_order_count;
 
                         access_map(x, y) = 0x00;
                     }
 
                 } else {
+                    info_map[x][y] &= ~INFO_MAP_MINE_FIELD;
                 }
             }
         }
@@ -2910,7 +2911,7 @@ void AiPlayer::PlanMinefields() {
              it != it_end; ++it) {
             if ((*it).team == player_team && ((*it).GetUnitType() == LANDMINE || (*it).GetUnitType() == SEAMINE)) {
                 if (access_map((*it).grid_x, (*it).grid_y)) {
-                    ++counter3;
+                    ++existing_mine_count;
 
                     info_map[(*it).grid_x][(*it).grid_y] &= ~INFO_MAP_MINE_FIELD;
                     access_map((*it).grid_x, (*it).grid_y) = 0x00;
@@ -2918,24 +2919,27 @@ void AiPlayer::PlanMinefields() {
             }
         }
 
-        int32_t probability = ((minefield_density * counter1) / 100) - counter2 - counter3;
+        int32_t mine_orders_to_add =
+            ((minefield_density * mineable_cell_count) / 100) - pending_mine_order_count - existing_mine_count;
 
-        if (probability >= 32 - counter2) {
-            probability = 32 - counter2;
+        constexpr int32_t MaximumPendingMineOrders{32};
+
+        if (mine_orders_to_add >= MaximumPendingMineOrders - pending_mine_order_count) {
+            mine_orders_to_add = MaximumPendingMineOrders - pending_mine_order_count;
         }
 
-        counter1 -= counter2 + counter3;
+        mineable_cell_count -= pending_mine_order_count + existing_mine_count;
 
-        if (probability > 0) {
-            for (int32_t x = 0; x < ResourceManager_MapSize.x && probability; ++x) {
-                for (int32_t y = 0; y < ResourceManager_MapSize.y && probability; ++y) {
+        if (mine_orders_to_add > 0) {
+            for (int32_t x = 0; x < ResourceManager_MapSize.x && mine_orders_to_add; ++x) {
+                for (int32_t y = 0; y < ResourceManager_MapSize.y && mine_orders_to_add; ++y) {
                     if (access_map(x, y)) {
-                        if (Randomizer_Generate(counter1) + 1 <= probability) {
+                        if (Randomizer_Generate(mineable_cell_count) + 1 <= mine_orders_to_add) {
                             info_map[x][y] |= INFO_MAP_MINE_FIELD;
-                            --probability;
+                            --mine_orders_to_add;
                         }
 
-                        --counter1;
+                        --mineable_cell_count;
                     }
                 }
             }
