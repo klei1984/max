@@ -49,10 +49,10 @@ CargoMenu::CargoMenu(uint16_t team) : AbstractUpgradeMenu(team, CARGOPIC) {
     cargos = UnitsManager_TeamMissionSupplies[team].cargos;
 
     if (unit_types2->GetCount()) {
-        // Restore previous session's gold amounts on re-entering cargo menu
+        // Restore previous session's gold amounts and loadout size on re-entering cargo menu
         start_gold = UnitsManager_TeamMissionSupplies[team].start_gold;
         team_gold = UnitsManager_TeamMissionSupplies[team].team_gold;
-        unit_count = UnitsManager_TeamMissionSupplies[team].units.GetCount();
+        unit_count = UnitsManager_TeamMissionSupplies[team].unit_count;
 
         for (int32_t i = UNIT_START; i < UNIT_END; ++i) {
             unitvalues_base[i] = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(i);
@@ -80,6 +80,8 @@ CargoMenu::CargoMenu(uint16_t team) : AbstractUpgradeMenu(team, CARGOPIC) {
                 unit_count = UnitsManager_TeamMissionSupplies[team].units.GetCount();
             }
         }
+
+        UnitsManager_TeamMissionSupplies[team].unit_count = unit_count;
     }
 
     stats_background = new (std::nothrow) Image(11, 293, 250, 174);

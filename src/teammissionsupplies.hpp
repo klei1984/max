@@ -33,6 +33,8 @@ public:
     Point starting_position;
     uint16_t team_gold;
     uint16_t start_gold;
+    /// Size of the free mission loadout, which `units` no longer reveals once purchases are appended to it.
+    uint16_t unit_count;
     uint8_t proximity_alert_ack;
 
     TeamMissionSupplies();
