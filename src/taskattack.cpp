@@ -1156,7 +1156,7 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
     } else if (Task_GetReadyUnitsCount(m_team, AIRPLT) > 0) {
         transporter = AIRTRANS;
 
-    } else if (Task_GetReadyUnitsCount(m_team, SHIPYARD) > 0) {
+    } else if ((Task_GetReadyUnitsCount(m_team, SHIPYARD) > 0) || (unit == leader)) {
         transporter = SEATRANS;
     }
 
