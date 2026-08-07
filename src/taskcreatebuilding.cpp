@@ -1398,12 +1398,12 @@ bool TaskCreateBuilding::SearchPathStep(AccessMap& map, Point position, int32_t*
         site3 += DIRECTION_OFFSETS[(local_direction + 6) & 7];
 
         if (site2.x < 0 || site2.x >= ResourceManager_MapSize.x || site2.y < 0 ||
-            site2.y >= ResourceManager_MapSize.x) {
+            site2.y >= ResourceManager_MapSize.y) {
             site2 = site1;
         }
 
         if (site3.x < 0 || site3.x >= ResourceManager_MapSize.x || site3.y < 0 ||
-            site3.y >= ResourceManager_MapSize.x) {
+            site3.y >= ResourceManager_MapSize.y) {
             site3 = site1;
         }
 
