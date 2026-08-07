@@ -160,7 +160,7 @@ BuildUnitTypeSelector::BuildUnitTypeSelector(Window* window, WindowInfo* window_
     local_image->width = width;
     local_image->height = height;
 
-    buf_to_buf(window_info->buffer, width, height, window_info->width, &local_image->transparent_color, width);
+    buf_to_buf(&window_info->buffer[115], width, height, window_info->width, &local_image->transparent_color, width);
 }
 
 BuildUnitTypeSelector::~BuildUnitTypeSelector() { delete[] sprite; }
