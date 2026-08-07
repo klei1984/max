@@ -65,7 +65,7 @@ ThreatMap AiPlayer_ThreatMaps[AIPLAYER_THREAT_MAP_CACHE_ENTRIES];
 
 void AiPlayer::AddBuilding(UnitInfo* unit) { FindManager(Point(unit->grid_x, unit->grid_y))->AddUnit(*unit); }
 
-void AiPlayer::RebuildWeightTable(WeightTable table, ResourceID unit_type, int32_t factor) {
+void AiPlayer::RebuildWeightTable(WeightTable& table, ResourceID unit_type, int32_t factor) {
     for (uint32_t i = 0; i < table.GetCount(); ++i) {
         if (table[i].unit_type == unit_type) {
             table[i].weight *= factor;

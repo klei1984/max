@@ -103,7 +103,7 @@ class AiPlayer {
     WeightTable weight_table_generic;
 
     void AddBuilding(UnitInfo* unit);
-    void RebuildWeightTable(WeightTable table, ResourceID unit_type, int32_t factor);
+    void RebuildWeightTable(WeightTable& table, ResourceID unit_type, int32_t factor);
     void RebuildWeightTables(ResourceID unit_type, int32_t factor);
     void UpdateWeightTables();
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
