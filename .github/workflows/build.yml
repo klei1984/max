@@ -120,6 +120,7 @@ jobs:
          with:
             name: ${{github.job}}
             path: build/linux-x64-${{steps.build_configuration.outputs.preset}}/Artifacts
+            retention-days: 3
 
    Linux-x86:
       name: Linux x86
@@ -212,6 +213,7 @@ jobs:
          with:
             name: ${{github.job}}
             path: build/linux-x86-${{steps.build_configuration.outputs.preset}}/Artifacts
+            retention-days: 3
 
    WindowsXP-x64:
       name: Windows XP x64
@@ -303,6 +305,7 @@ jobs:
          with:
             name: ${{github.job}}
             path: build/cross-winxp-x64-${{steps.build_configuration.outputs.preset}}/Artifacts
+            retention-days: 3
 
    WindowsXP-x86:
       name: Windows XP x86
@@ -396,6 +399,7 @@ jobs:
          with:
             name: ${{github.job}}
             path: build/cross-winxp-x86-${{steps.build_configuration.outputs.preset}}/Artifacts
+            retention-days: 3
 
    Windows-x64:
       name: Windows x64
@@ -487,6 +491,7 @@ jobs:
          with:
             name: ${{github.job}}
             path: build/ucrt64-${{steps.build_configuration.outputs.preset}}/Artifacts
+            retention-days: 3
 
    Windows-x86:
       name: Windows x86
@@ -578,6 +583,7 @@ jobs:
          with:
             name: ${{github.job}}
             path: build/mingw32-${{steps.build_configuration.outputs.preset}}/Artifacts
+            retention-days: 3
 
    Linux-deb-x64:
       name: Linux Debian x64
@@ -674,6 +680,7 @@ jobs:
          with:
             name: Linux-deb-x64
             path: ${{steps.build_configuration.outputs.build_type}}/Artifacts
+            retention-days: 3
 
    Linux-arch-x64:
       name: Linux Arch x64
@@ -804,6 +811,7 @@ jobs:
          with:
             name: Linux-arch-x64
             path: /home/builder/Artifacts
+            retention-days: 3
 
    Linux-flatpak-x64:
       name: Linux Flatpak x64
@@ -869,6 +877,7 @@ jobs:
          with:
             name: Linux-flatpak-x64
             path: ${{steps.build_configuration.outputs.build_type}}/Artifacts
+            retention-days: 3
 
    Nightly-Release:
       name: Nightly Release
