@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <ctime>
+#include <memory>
 
 #include "button.hpp"
 #include "chooseplayermenu.hpp"
@@ -676,7 +677,7 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
         int32_t map_dim_x{map_dimensions.x};
         int32_t map_dim_y{map_dimensions.y};
 
-        uint8_t* minimap{new (std::nothrow) uint8_t[map_dimensions.x * map_dimensions.y]};
+        auto minimap{std::make_unique<uint8_t[]>(map_dimensions.x * map_dimensions.y)};
 
         for (int32_t i = 0; i < map_dimensions.x; ++i) {
             ReadFile(fp, &minimap[map_dimensions.y * i], map_dimensions.y);
@@ -701,7 +702,7 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
         }
 
         if (map_dimensions.x == minimap_slot_size && map_dimensions.y == minimap_slot_size) {
-            buf_to_buf(minimap, map_dimensions.x, map_dimensions.y, map_dimensions.x, buffer, width);
+            buf_to_buf(minimap.get(), map_dimensions.x, map_dimensions.y, map_dimensions.x, buffer, width);
 
         } else {
             if (map_dimensions.x > map_dimensions.y) {
@@ -737,7 +738,7 @@ int32_t Menu_LoadPlanetMinimap(int32_t planet_index, uint8_t* buffer, int32_t wi
                 }
             }
 
-            cscale(minimap, map_dimensions.x, map_dimensions.y, map_dimensions.x, &buffer[off_y * width + off_x],
+            cscale(minimap.get(), map_dimensions.x, map_dimensions.y, map_dimensions.x, &buffer[off_y * width + off_x],
                    minimap_slot_size - off_x * 2, minimap_slot_size - off_y * 2, width);
         }
 
