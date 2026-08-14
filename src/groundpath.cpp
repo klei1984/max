@@ -93,7 +93,7 @@ void GroundPath::FileSave(SmartFileWriter& file) noexcept {
 
 Point GroundPath::GetPosition(UnitInfo* unit) const {
     Point position(unit->grid_x, unit->grid_y);
-    int32_t speed = unit->speed;
+    int32_t speed = unit->speed * 4;
 
     if (unit->GetOrder() != ORDER_BUILD && unit->GetOrderState() == ORDER_STATE_EXECUTING_ORDER && speed > 0) {
         int32_t move_fraction;
@@ -105,6 +105,10 @@ Point GroundPath::GetPosition(UnitInfo* unit) const {
 
         for (uint32_t i = m_step_index; i < m_steps->GetCount(); ++i) {
             step = m_steps[i];
+
+            if (step->x == 0 && step->y == 0) {
+                continue;
+            }
 
             point.x = position.x + step->x;
             point.y = position.y + step->y;
