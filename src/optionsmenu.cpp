@@ -698,11 +698,11 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
                     } break;
 
                     case 1001: {
-                        button_help->PlaySound();
+                        button_cancel->PlaySound();
                     } break;
 
                     case GNW_KB_KEY_SHIFT_DIVIDE: {
-                        button_cancel->PlaySound();
+                        button_help->PlaySound();
                     } break;
 
                     default: {
