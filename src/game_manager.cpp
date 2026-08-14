@@ -5482,7 +5482,7 @@ void GameManager_ProcessKey() {
 
         case GNW_KB_KEY_F1: {
             if ((GameManager_IsMainMenuEnabled ||
-                 UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type == TEAM_TYPE_PLAYER) &&
+                 UnitsManager_TeamInfo[GameManager_PlayerTeam].team_type != TEAM_TYPE_PLAYER) &&
                 GameManager_SpottedEnemyPosition.x != -1) {
                 GameManager_ManagePlayerAction();
                 GameManager_UpdateMainMapView(MAP_VIEW_CENTER, GameManager_SpottedEnemyPosition.x,
