@@ -2736,7 +2736,10 @@ void Remote_ReceiveNetPacket_20(NetPacket& packet) {
     SmartPointer<UnitInfo> unit(Hash_UnitHash[entity_id]);
 
     if (unit) {
-        SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
+        /* The unit shares its base values with every other unit of its type until someone copies
+         * them, so the upgrade has to land on a copy. The send side copies before it upgrades.
+         */
+        SmartPointer<UnitValues> unit_values(new (std::nothrow) UnitValues(*unit->GetBaseValues()));
 
         unit_values->UpdateVersion();
         unit_values->MarkAsInUse();
