@@ -566,7 +566,7 @@ void UnitStatsMenu::Run() {
             GameManager_ProcessState(false);
 
         } else if (!event_release) {
-            if (GNW_KB_KEY_KP_ENTER + GNW_INPUT_PRESS) {
+            if (key == GNW_KB_KEY_KP_ENTER + GNW_INPUT_PRESS) {
                 button_done->PlaySound();
 
             } else {
