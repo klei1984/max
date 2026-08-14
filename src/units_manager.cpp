@@ -4607,7 +4607,7 @@ Point UnitsManager_GetAttackPosition(UnitInfo* unit1, UnitInfo* unit2) {
                 }
 
                 position.x = unit2->grid_x + (direction & 0x01);
-                position.y = unit2->grid_y + (direction & 0x02);
+                position.y = unit2->grid_y + ((direction & 0x02) ? 1 : 0);
 
                 --direction;
             }
