@@ -1994,6 +1994,10 @@ void Remote_ReceiveNetPacket_07(NetPacket& packet) {
 
     packet >> entity_id;
 
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
+
     packet >> request_id;
     packet >> request_mode;
 
@@ -3592,6 +3596,11 @@ void Remote_ReceiveNetPacket_46(NetPacket& packet) {
     uint32_t counter;
 
     packet >> entity_id;
+
+    if (!Remote_IsValidTeamIndex(packet, entity_id)) {
+        return;
+    }
+
     packet >> state;
     packet >> counter;
 
