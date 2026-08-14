@@ -25,7 +25,6 @@
 #include "resource_manager.hpp"
 
 static constexpr uint32_t RGB555_COLOR_COUNT{1 << 15};
-static constexpr uint32_t PALETTE_FILE_TAG{0x4E455743} /* 'NEWC' */;
 
 static int8_t Color_Inited;
 static uint8_t Color_ColorPalette[PALETTE_STRIDE * PALETTE_SIZE];
@@ -105,16 +104,8 @@ int32_t Color_Init(void) {
             result = 0;
 
         } else {
-            uint32_t tag;
-
             fread(Color_ColorPalette, sizeof(Color_ColorPalette), 1, fp);
             fread(Color_RgbIndexTable, sizeof(Color_RgbIndexTable), 1, fp);
-
-            fread(&tag, sizeof(tag), 1, fp);
-
-            if (tag == PALETTE_FILE_TAG) {
-                fread(Color_IntensityColorTable, sizeof(Color_IntensityColorTable), 1, fp);
-            }
 
             fclose(fp);
 
