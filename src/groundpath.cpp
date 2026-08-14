@@ -412,7 +412,7 @@ bool GroundPath::Execute(UnitInfo* unit) {
 
 void GroundPath::UpdateUnitAngle(UnitInfo* unit) {
     if (m_step_index + 1 < m_steps.GetCount()) {
-        unit->UpdateAngle(Paths_GetAngle(m_steps[m_step_index + 1]->x, m_steps[m_step_index + 1]->y));
+        Paths_UpdateAngle(unit, Paths_GetAngle(m_steps[m_step_index + 1]->x, m_steps[m_step_index + 1]->y));
     }
 }
 
