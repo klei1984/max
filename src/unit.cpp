@@ -29,7 +29,7 @@
 
 Unit::Unit(uint32_t flags, ResourceID sprite, ResourceID shadow, ResourceID data, ResourceID flics_animation,
            ResourceID portrait, ResourceID icon, ResourceID armory_portrait, uint8_t land_type, CargoType cargo_type,
-           Gender gender, uint32_t singular_name, uint32_t plural_name, uint32_t description,
+           LocalizedGender&& gender, uint32_t singular_name, uint32_t plural_name, uint32_t description,
            uint32_t tutorial_description, std::unordered_map<SfxType, SoundEffectInfo>&& sound_effects)
     : m_flags(flags),
       m_sprite(sprite),
@@ -41,7 +41,7 @@ Unit::Unit(uint32_t flags, ResourceID sprite, ResourceID shadow, ResourceID data
       m_armory_portrait(armory_portrait),
       m_land_type(land_type),
       m_cargo_type(cargo_type),
-      m_gender(gender),
+      m_gender(std::move(gender)),
       m_singular_name(singular_name),
       m_plural_name(plural_name),
       m_description(description),
@@ -105,7 +105,11 @@ uint8_t Unit::GetLandType() const { return m_land_type; }
 
 Unit::CargoType Unit::GetCargoType() const { return m_cargo_type; }
 
-Unit::Gender Unit::GetGender() const { return m_gender; }
+Unit::Gender Unit::GetGender() const {
+    auto it = m_gender.find(ResourceManager_GetSystemLocale());
+
+    return (it != m_gender.end()) ? it->second : m_gender.at("en-US");
+}
 
 std::string_view Unit::GetSingularName() const { return ResourceManager_GetLanguageEntry(m_singular_name); }
 

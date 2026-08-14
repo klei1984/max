@@ -99,6 +99,7 @@ static uint32_t ParseFlags(const json& flags_array);
 static uint8_t ParseLandType(const json& land_type_array);
 static Unit::CargoType ParseCargoType(const std::string& cargo_type_str);
 static Unit::Gender ParseGender(const std::string& gender_str);
+static Unit::LocalizedGender ParseGenders(const json& gender_data);
 static uint32_t ParseHexString(const std::string& hex_str);
 static ResourceID ParseResourceID(const std::string& resource_str);
 static std::unordered_map<Unit::SfxType, Unit::SoundEffectInfo> ParseSoundEffects(
@@ -169,6 +170,22 @@ Unit::Gender ParseGender(const std::string& gender_str) {
         SDL_Log("Units: Unknown gender '%s'\n", gender_str.c_str());
 
         result = Unit::Gender::GENDER_NEUTER;
+    }
+
+    return result;
+}
+
+Unit::LocalizedGender ParseGenders(const json& gender_data) {
+    Unit::LocalizedGender result;
+
+    for (const auto& [locale, gender] : gender_data.items()) {
+        result[locale] = ParseGender(gender.get<std::string>());
+    }
+
+    if (!result.count("en-US")) {
+        SDL_Log("Units: Gender table has no en-US fallback\n");
+
+        result["en-US"] = Unit::Gender::GENDER_NEUTER;
     }
 
     return result;
@@ -292,7 +309,7 @@ Unit* CreateUnitFromJson(const json& sfx_types_data, const json& default_sound_e
     ResourceID armory_portrait = ParseResourceID(unit_data.at("armory_portrait").get<std::string>());
     uint8_t land_type = ParseLandType(unit_data.at("land_type"));
     Unit::CargoType cargo_type = ParseCargoType(unit_data.at("cargo_type").get<std::string>());
-    Unit::Gender gender = ParseGender(unit_data.at("gender").get<std::string>());
+    Unit::LocalizedGender gender = ParseGenders(unit_data.at("gender"));
     uint32_t singular_name = ParseHexString(unit_data.value("singular_name", "0xffff"));
     uint32_t plural_name = ParseHexString(unit_data.value("plural_name", "0xffff"));
     uint32_t description = ParseHexString(unit_data.value("description", "0xffff"));
@@ -301,9 +318,9 @@ Unit* CreateUnitFromJson(const json& sfx_types_data, const json& default_sound_e
     std::unordered_map<Unit::SfxType, Unit::SoundEffectInfo> sound_effects =
         ParseSoundEffects(sfx_types_data, default_sound_effects_data, unit_sound_effects);
 
-    return new (std::nothrow)
-        Unit(flags, sprite, shadow, data, flics_animation, portrait, icon, armory_portrait, land_type, cargo_type,
-             gender, singular_name, plural_name, description, tutorial_description, std::move(sound_effects));
+    return new (std::nothrow) Unit(flags, sprite, shadow, data, flics_animation, portrait, icon, armory_portrait,
+                                   land_type, cargo_type, std::move(gender), singular_name, plural_name, description,
+                                   tutorial_description, std::move(sound_effects));
 }
 
 Units::Units() : m_units(std::make_unique<std::unordered_map<std::string, Unit*>>()) {}

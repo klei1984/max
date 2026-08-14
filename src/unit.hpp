@@ -23,6 +23,7 @@
 #define UNIT_HPP
 
 #include <cstdint>
+#include <string>
 #include <string_view>
 #include <unordered_map>
 
@@ -125,6 +126,8 @@ public:
         GENDER_FEMININE,
     };
 
+    using LocalizedGender = std::unordered_map<std::string, Gender>;
+
 private:
     const ResourceID m_sprite;
     const ResourceID m_shadow;
@@ -135,7 +138,7 @@ private:
     const ResourceID m_armory_portrait;
     const uint8_t m_land_type;
     const CargoType m_cargo_type;
-    const Gender m_gender;
+    const LocalizedGender m_gender;
     const uint32_t m_singular_name;
     const uint32_t m_plural_name;
     const uint32_t m_description;
@@ -150,7 +153,7 @@ private:
 public:
     Unit(uint32_t flags, ResourceID sprite, ResourceID shadow, ResourceID data, ResourceID flics_animation,
          ResourceID portrait, ResourceID icon, ResourceID armory_portrait, uint8_t land_type, CargoType cargo_type,
-         Gender gender, uint32_t singular_name, uint32_t plural_name, uint32_t description,
+         LocalizedGender&& gender, uint32_t singular_name, uint32_t plural_name, uint32_t description,
          uint32_t tutorial_description, std::unordered_map<SfxType, SoundEffectInfo>&& sound_effects);
 
     ~Unit();
