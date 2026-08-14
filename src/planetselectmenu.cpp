@@ -73,15 +73,20 @@ void PlanetSelectMenu::DrawMaps(int32_t draw_to_screen) {
 
         minimap_bg_images[i % PLANET_SELECT_MENU_MAP_SLOT_COUNT]->Write(window);
 
-        buffer_position =
-            &window->buffer[WindowManager_ScaleOffset(window, planet_select_menu_controls[menu_item_index].bounds.ulx,
-                                                      planet_select_menu_controls[menu_item_index].bounds.uly)];
+        const Rect* const bounds = &planet_select_menu_controls[menu_item_index].bounds;
+
+        buffer_position = &window->buffer[WindowManager_ScaleOffset(window, bounds->ulx, bounds->uly)];
 
         if (Menu_LoadPlanetMinimap(i, buffer_position, window->width)) {
             ++menu_item_index;
 
             if (draw_to_screen) {
-                win_draw_rect(window->id, &planet_select_menu_controls[menu_item_index].bounds);
+                Rect refresh_bounds = {WindowManager_ScaleUlx(window, bounds->ulx),
+                                       WindowManager_ScaleUly(window, bounds->uly),
+                                       WindowManager_ScaleLrx(window, bounds->ulx, bounds->lrx),
+                                       WindowManager_ScaleLry(window, bounds->uly, bounds->lry)};
+
+                win_draw_rect(window->id, &refresh_bounds);
             }
         }
     }
