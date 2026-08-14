@@ -546,8 +546,10 @@ void SoundManager::HaltSfxPlayback(const bool disable) noexcept {
         }
 
     } else if (GameManager_SelectedUnit != nullptr) {
+        const Unit::SfxType sound{GameManager_SelectedUnit->GetSfxType()};
+
         PlaySfx(&*GameManager_SelectedUnit, Unit::SFX_TYPE_INVALID, false);
-        PlaySfx(&*GameManager_SelectedUnit, GameManager_SelectedUnit->GetSfxType(), false);
+        PlaySfx(&*GameManager_SelectedUnit, sound, false);
     }
 }
 
@@ -625,6 +627,8 @@ void SoundManager::FreeAllSamples() noexcept {
             FreeSample(it->Get());
         }
     }
+
+    m_jobs.Clear();
 }
 
 void SoundManager::SetVolume(const int32_t type, const float volume) noexcept {
