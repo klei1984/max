@@ -106,7 +106,7 @@ int32_t screendump_pcx(int32_t width, int32_t length, uint8_t* buffer, uint8_t* 
                 ;
             }
 
-            if ((repeat_count > 1) || (buffer[scan_line_pos] & 0xC0)) {
+            if ((repeat_count > 1) || ((buffer[scan_line_pos] & 0xC0) == 0xC0)) {
                 fputc(repeat_count | 0xC0, fp);
             }
 
