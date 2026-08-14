@@ -394,7 +394,7 @@ void UnitsManager_Popup_OnClick_Sentry(ButtonID bid, UnitInfo* unit) {
 }
 
 void UnitsManager_Popup_OnClick_Upgrade(ButtonID bid, UnitInfo* unit) {
-    GameManager_DeinitPopupButtons(false);
+    GameManager_DeinitPopupButtons(true);
     unit->SetParent(unit);
     UnitsManager_SetNewOrder(unit, ORDER_UPGRADE, ORDER_STATE_INIT);
 }
@@ -754,7 +754,7 @@ void UnitsManager_RegisterButton(PopupButtons* buttons, bool state, const char* 
 }
 
 void UnitsManager_PerformAction(UnitInfo* unit) {
-    GameManager_DeinitPopupButtons(false);
+    GameManager_DeinitPopupButtons(true);
 
     if (unit->GetOrderState() == ORDER_STATE_SELECT_SITE) {
         GameManager_SelectBuildSite(unit);
