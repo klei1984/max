@@ -2581,6 +2581,12 @@ bool GameManager_ProcessPopupMenuInput(int32_t key) {
         return false;
     }
 
+    if (GameManager_SelectedUnit->GetOrder() == ORDER_DISABLE ||
+        ((GameManager_SelectedUnit->flags & MOBILE_LAND_UNIT) &&
+         GameManager_SelectedUnit->GetOrderState() == ORDER_STATE_UNIT_READY)) {
+        return false;
+    }
+
     switch (GameManager_SelectedUnit->GetOrder()) {
         case ORDER_SENTRY: {
         } break;
