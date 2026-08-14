@@ -348,7 +348,7 @@ static void GameManager_UpdateHumanPlayerCount();
 static void GameManager_MenuAnimateDisplayControls();
 static void GameManager_ManagePlayerAction();
 static bool GameManager_InitPopupButtons(UnitInfo* unit);
-static void GameManager_UpdateGridCenterOffset();
+static void GameManager_UpdateGridCenterOffset(bool minimap_zoom_state);
 static void GameManager_UpdatePanelButtons(uint16_t team);
 static bool GameManager_ScrollMainMapView(int32_t& offset_x, int32_t& offset_y);
 static bool GameManager_CenterMainMapView(int32_t ulx, int32_t uly);
@@ -1754,7 +1754,7 @@ void GameManager_UpdateMainMapView(int32_t mode, int32_t ulx, int32_t uly, bool 
         } break;
     }
 
-    GameManager_UpdateGridCenterOffset();
+    GameManager_UpdateGridCenterOffset(GameManager_DisplayButtonMinimap2x);
     GameManager_DeinitPopupButtons(false);
     GameManager_UpdateDrawBounds();
 
@@ -3660,19 +3660,27 @@ void GameManager_DeinitPopupButtons(bool clear_mouse_events) {
     }
 }
 
-void GameManager_UpdateGridCenterOffset() {
-    if (GameManager_MapViewCenter.x <= GameManager_GridCenterOffset.x) {
-        GameManager_GridCenterOffset.x -= 4;
+void GameManager_UpdateGridCenterOffset(bool minimap_zoom_state) {
+    if (minimap_zoom_state) {
+        if (GameManager_MapViewCenter.x <= GameManager_GridCenterOffset.x) {
+            GameManager_GridCenterOffset.x -= 4;
 
-    } else if (GameManager_MapViewCenter.x >= GameManager_GridCenterOffset.x + (ResourceManager_MapSize.x / 2 - 1)) {
-        GameManager_GridCenterOffset.x += 4;
-    }
+        } else if (GameManager_MapViewCenter.x >=
+                   GameManager_GridCenterOffset.x + (ResourceManager_MapSize.x / 2 - 1)) {
+            GameManager_GridCenterOffset.x += 4;
+        }
 
-    if (GameManager_MapViewCenter.y <= GameManager_GridCenterOffset.y) {
-        GameManager_GridCenterOffset.y -= 4;
+        if (GameManager_MapViewCenter.y <= GameManager_GridCenterOffset.y) {
+            GameManager_GridCenterOffset.y -= 4;
 
-    } else if (GameManager_MapViewCenter.y >= GameManager_GridCenterOffset.y + (ResourceManager_MapSize.y / 2 - 1)) {
-        GameManager_GridCenterOffset.y += 4;
+        } else if (GameManager_MapViewCenter.y >=
+                   GameManager_GridCenterOffset.y + (ResourceManager_MapSize.y / 2 - 1)) {
+            GameManager_GridCenterOffset.y += 4;
+        }
+
+    } else {
+        GameManager_GridCenterOffset.x = GameManager_MapViewCenter.x - (ResourceManager_MapSize.x / 4);
+        GameManager_GridCenterOffset.y = GameManager_MapViewCenter.y - (ResourceManager_MapSize.y / 4);
     }
 
     GameManager_GridCenterOffset.x =
@@ -3826,7 +3834,9 @@ void GameManager_MenuClickFindButton() {
         GameManager_SelectNextUnit(1);
     }
 
-    GameManager_UpdateGridCenterOffset();
+    if (GameManager_DisplayButtonMinimap2x) {
+        GameManager_UpdateGridCenterOffset(false);
+    }
 }
 
 void GameManager_MenuClickScanButton(bool rest_state) {
