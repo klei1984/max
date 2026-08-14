@@ -120,9 +120,9 @@ public:
     };
 
     enum Gender : uint8_t {
+        GENDER_NEUTER,
         GENDER_MASCULINE,
         GENDER_FEMININE,
-        GENDER_NEUTER,
     };
 
 private:
