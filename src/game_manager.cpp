@@ -3366,16 +3366,15 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
         GameManager_UpdateMainMapView(MAP_VIEW_ZOOM, Gfx_ZoomLevel, 0);
     }
 
-    GameManager_MenuAnimateDisplayControls();
-
-    GameManager_MenuInitDisplayControls();
-
     GameManager_ProcessTick(true);
 
     WindowManager_FadeIn(0);
 
     ResourceManager_GetSoundManager().PlayMusic(
         static_cast<ResourceID>(ResourceManager_GetSettings()->GetNumericValue("world") / 6 + SNOW_MSC), true);
+
+    GameManager_MenuAnimateDisplayControls();
+    GameManager_MenuInitDisplayControls();
 
     if (load_successful) {
         GameManager_UpdatePanelButtons(GameManager_PlayerTeam);
@@ -7162,22 +7161,30 @@ void GameManager_MenuUnitSelect(UnitInfo* unit) {
 
 void GameManager_FillOrRestoreWindow(uint8_t id, int32_t color, bool redraw) {
     WindowInfo* window;
+    Image* image;
 
     window = WindowManager_GetWindow(id);
 
     switch (id) {
         case WINDOW_CORNER_FLIC: {
-            GameManager_MenuDisplayControls[MENU_DISPLAY_CONTROL_CORNER_FLIC].image->Write(window);
+            image = GameManager_MenuDisplayControls[MENU_DISPLAY_CONTROL_CORNER_FLIC].image;
         } break;
 
         case WINDOW_STAT_WINDOW: {
-            GameManager_MenuDisplayControls[MENU_DISPLAY_CONTROL_STAT_WINDOW].image->Write(window);
+            image = GameManager_MenuDisplayControls[MENU_DISPLAY_CONTROL_STAT_WINDOW].image;
         } break;
 
         default: {
-            buf_fill(window->buffer, window->window.lrx - window->window.ulx, window->window.lry - window->window.uly,
-                     window->width, color);
+            image = nullptr;
         } break;
+    }
+
+    if (image) {
+        image->Write(window);
+
+    } else {
+        buf_fill(window->buffer, window->window.lrx - window->window.ulx, window->window.lry - window->window.uly,
+                 window->width, color);
     }
 
     if (redraw) {
