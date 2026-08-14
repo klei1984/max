@@ -308,6 +308,10 @@ void AirPath::Draw(UnitInfo* unit, WindowInfo* window) {
 
     steps = m_length / unit->max_velocity;
 
+    if (steps == 0) {
+        return;
+    }
+
     grid_x = unit->grid_x;
     grid_y = unit->grid_y;
 
