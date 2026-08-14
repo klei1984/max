@@ -1699,10 +1699,10 @@ int32_t UnitsManager_GetFiringAngle(int32_t distance_x, int32_t distance_y) {
 
     if (distance_x > 0 || distance_y > 0) {
         if (distance_x >= 0 && distance_y >= 0) {
-            if (level_y / 2 > level_x || level_x == 0) {
+            if (level_y / 4 > level_x || level_x == 0) {
                 result = 8;
 
-            } else if (level_x / 2 > level_y || level_y == 0) {
+            } else if (level_x / 4 > level_y || level_y == 0) {
                 result = 4;
 
             } else if (level_y / 2 >= level_x) {
@@ -1716,10 +1716,10 @@ int32_t UnitsManager_GetFiringAngle(int32_t distance_x, int32_t distance_y) {
             }
 
         } else if (distance_x > 0) {
-            if (level_y / 2 > level_x || level_x == 0) {
+            if (level_y / 4 > level_x || level_x == 0) {
                 result = 0;
 
-            } else if (level_x / 2 > level_y || level_y == 0) {
+            } else if (level_x / 4 > level_y || level_y == 0) {
                 result = 4;
 
             } else if (level_y / 2 >= level_x) {
@@ -1733,10 +1733,10 @@ int32_t UnitsManager_GetFiringAngle(int32_t distance_x, int32_t distance_y) {
             }
 
         } else {
-            if (level_y / 2 > level_x || level_x == 0) {
+            if (level_y / 4 > level_x || level_x == 0) {
                 result = 8;
 
-            } else if (level_x / 2 > level_y || level_y == 0) {
+            } else if (level_x / 4 > level_y || level_y == 0) {
                 result = 12;
 
             } else if (level_y / 2 >= level_x) {
@@ -1751,10 +1751,10 @@ int32_t UnitsManager_GetFiringAngle(int32_t distance_x, int32_t distance_y) {
         }
 
     } else {
-        if (level_y / 2 > level_x || level_x == 0) {
+        if (level_y / 4 > level_x || level_x == 0) {
             result = 0;
 
-        } else if (level_x / 2 > level_y || level_y == 0) {
+        } else if (level_x / 4 > level_y || level_y == 0) {
             result = 12;
 
         } else if (level_y / 2 >= level_x) {
