@@ -2496,11 +2496,12 @@ void UnitsManager_ProcessOrderTransform(UnitInfo* unit) {
         case ORDER_STATE_FINISH_TRANSFORMING: {
             unit->SetOrder(ORDER_POWER_ON);
             unit->SetOrderState(ORDER_STATE_INIT);
-            UnitsManager_TeamInfo[unit->team].team_type = TEAM_TYPE_PLAYER;
 
-            GameManager_OptimizeProduction(unit->team, unit->GetComplex(), true, true);
-            GameManager_AutoSelectNext(unit);
-            GameManager_EnableMainMenu(nullptr);
+            if (UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_PLAYER) {
+                GameManager_OptimizeProduction(unit->team, unit->GetComplex(), true, true);
+                GameManager_AutoSelectNext(unit);
+                GameManager_EnableMainMenu(nullptr);
+            }
         } break;
     }
 }
