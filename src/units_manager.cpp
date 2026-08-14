@@ -948,11 +948,11 @@ void UnitsManager_Popup_OnClick_BuyUpgrade(ButtonID bid, UnitInfo* unit) {
 }
 
 void UnitsManager_Popup_InitGoldRefinery(UnitInfo* unit, struct PopupButtons* buttons) {
-    if (unit->GetOrder() == ORDER_POWER_ON) {
-        UnitsManager_RegisterButton(buttons, false, _(3f13), '7', &UnitsManager_Popup_OnClick_PowerOff);
+    if (unit->GetOrder() == ORDER_POWER_OFF) {
+        UnitsManager_RegisterButton(buttons, false, _(53c3), '2', &UnitsManager_Popup_OnClick_PowerOn);
 
     } else {
-        UnitsManager_RegisterButton(buttons, false, _(53c3), '2', &UnitsManager_Popup_OnClick_PowerOn);
+        UnitsManager_RegisterButton(buttons, false, _(3f13), '7', &UnitsManager_Popup_OnClick_PowerOff);
     }
 
     UnitsManager_RegisterButton(buttons, false, _(1da0), '1', &UnitsManager_Popup_OnClick_BuyUpgrade);
@@ -1057,11 +1057,11 @@ void UnitsManager_Popup_InitEcoSphere(UnitInfo* unit, struct PopupButtons* butto
 }
 
 void UnitsManager_Popup_InitPowerGenerators(UnitInfo* unit, struct PopupButtons* buttons) {
-    if (unit->GetOrder() == ORDER_POWER_ON) {
-        UnitsManager_RegisterButton(buttons, false, _(7a07), '7', &UnitsManager_Popup_OnClick_PowerOff);
+    if (unit->GetOrder() == ORDER_POWER_OFF) {
+        UnitsManager_RegisterButton(buttons, false, _(e7b6), '2', &UnitsManager_Popup_OnClick_PowerOn);
 
     } else {
-        UnitsManager_RegisterButton(buttons, false, _(e7b6), '2', &UnitsManager_Popup_OnClick_PowerOn);
+        UnitsManager_RegisterButton(buttons, false, _(7a07), '7', &UnitsManager_Popup_OnClick_PowerOff);
     }
 
     UnitsManager_Popup_InitCommons(unit, buttons);
