@@ -1219,7 +1219,7 @@ bool UnitsManager_IsMasterBuilderPlaceable(UnitInfo* unit, int32_t grid_x, int32
             Hash_MapHash.Add(&*GameManager_TempTape);
         }
 
-        Hash_MapHash.Add(&*GameManager_TempTape);
+        Hash_MapHash.Add(unit);
     }
 
     return result;
