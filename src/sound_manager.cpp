@@ -39,9 +39,7 @@
 #define SOUND_MANAGER_CHANNELS (2)
 
 #define SOUND_MANAGER_MAX_VOLUME (1.f)
-#define SOUND_MANAGER_PANNING_LEFT (-1.f)
 #define SOUND_MANAGER_PANNING_CENTER (0.f)
-#define SOUND_MANAGER_PANNING_RIGHT (1.f)
 
 enum JOB_TYPE { JOB_TYPE_INVALID, JOB_TYPE_SFX0, JOB_TYPE_SFX1, JOB_TYPE_SFX2, JOB_TYPE_VOICE, JOB_TYPE_MUSIC };
 
@@ -838,10 +836,10 @@ float SoundManager::GetPanning(int32_t distance, const bool reverse) noexcept {
         distance = -distance;
     }
 
-    panning = (SOUND_MANAGER_PANNING_RIGHT * (distance + 56)) / 112;
+    panning = static_cast<float>(distance) / 56;
 
     if (ResourceManager_GetSettings()->GetNumericValue("channels_reversed")) {
-        panning = SOUND_MANAGER_PANNING_RIGHT - panning;
+        panning = -panning;
     }
 
     return panning;
@@ -1007,7 +1005,7 @@ void SoundManager::LoadLoopPoints(FILE* const fp, SoundSample& sample) noexcept 
                                              sampler_chunk.sample_period) /
                                             1000000000LL;
 
-                                        sample.loop_point_length = loop_point_end - sample_loop.start;
+                                        sample.loop_point_length = loop_point_end - sample.loop_point_start;
 
                                         return; /* only one loop point is supported */
                                     }
