@@ -378,7 +378,7 @@ void GameSetupMenu::DrawDescriptionPanel() {
     bounds.ulx = WindowManager_ScaleUlx(window, menu_item->bounds.ulx);
     bounds.uly = WindowManager_ScaleUly(window, menu_item->bounds.uly);
     bounds.lrx = WindowManager_ScaleLrx(window, menu_item->bounds.ulx, menu_item->bounds.lrx);
-    bounds.lry = WindowManager_ScaleLrx(window, menu_item->bounds.uly, menu_item->bounds.lry);
+    bounds.lry = WindowManager_ScaleLry(window, menu_item->bounds.uly, menu_item->bounds.lry);
 
     width = bounds.lrx - bounds.ulx;
     buffer_position = &window->buffer[window->width * bounds.uly + bounds.ulx];
