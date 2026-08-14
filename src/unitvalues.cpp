@@ -50,7 +50,7 @@ UnitValues::UnitValues(const UnitValues& other)
       armor(other.armor),
       attack(other.attack),
       speed(other.speed),
-      fuel(other.speed),
+      fuel(other.fuel),
       range(other.range),
       rounds(other.rounds),
       move_and_fire(other.move_and_fire),
