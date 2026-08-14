@@ -6047,7 +6047,7 @@ bool GameManager_IsValidDisableTarget(UnitInfo* unit1, UnitInfo* unit2) {
     bool result;
 
     if (!(unit2->flags & ELECTRONIC_UNIT) || unit2->GetOrder() == ORDER_TRANSFORM || unit2->GetOrder() == ORDER_FIRE ||
-        unit2->GetOrder() == ORDER_EXPLODE || unit2->GetOrder() == ORDER_TAKE_OFF ||
+        unit2->GetOrder() == ORDER_EXPLODE || unit2->GetOrderState() == ORDER_STATE_DESTROY ||
         unit2->GetOrder() == ORDER_DISABLE) {
         result = false;
 
