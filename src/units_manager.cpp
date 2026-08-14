@@ -3303,8 +3303,8 @@ void UnitsManager_DeployMasterBuilder(UnitInfo* unit) {
 
     UnitsManager_FindValidPowerGeneratorPosition(unit_team, &power_generator_grid_x, &power_generator_grid_y);
 
-    power_generator = UnitsManager_DeployUnit(POWGEN, unit_team, mining_station->GetComplex(), mining_station_grid_x,
-                                              mining_station_grid_y, 0);
+    power_generator = UnitsManager_DeployUnit(POWGEN, unit_team, mining_station->GetComplex(), power_generator_grid_x,
+                                              power_generator_grid_y, 0);
 
     small_slab =
         UnitsManager_DeployUnit(SMLSLAB, unit_team, nullptr, power_generator_grid_x, power_generator_grid_y,
