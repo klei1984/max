@@ -4464,7 +4464,7 @@ bool UnitsManager_CheckReaction(UnitInfo* unit1, UnitInfo* unit2) {
 
         UnitsManager_SetNewOrder(unit1, ORDER_FIRE, ORDER_STATE_INIT);
 
-        if (GameManager_PlayerTeam == unit1->team && GameManager_SelectedUnit == unit1 &&
+        if (GameManager_PlayerTeam == unit1->team && GameManager_SelectedUnit != unit1 &&
             !GameManager_IsInsideMapView(unit1)) {
             ResourceManager_GetSoundManager().PlayVoice(V_M250, V_F251);
         }
@@ -4641,7 +4641,7 @@ bool UnitsManager_CheckDelayedReactions(uint16_t team) {
 
             UnitsManager_SetNewOrder(unit1, ORDER_FIRE, ORDER_STATE_INIT);
 
-            if (GameManager_PlayerTeam == unit1->team && GameManager_SelectedUnit == unit1 &&
+            if (GameManager_PlayerTeam == unit1->team && GameManager_SelectedUnit != unit1 &&
                 !GameManager_IsInsideMapView(unit1)) {
                 ResourceManager_GetSoundManager().PlayVoice(V_M250, V_F251);
             }
