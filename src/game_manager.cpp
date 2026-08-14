@@ -1831,6 +1831,8 @@ Point GameManager_GetStartingPositionPowerGenerator(Point point, uint16_t team) 
                 return point;
             }
         }
+
+        point += DIRECTION_OFFSETS[direction];
     }
 
     point.y -= 1;
