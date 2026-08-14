@@ -330,7 +330,7 @@ bool Paths_CalculateStep(UnitInfo* unit, int32_t cost, bool is_diagonal_step) {
     normalized_cost = (cost + 3) / 4;
 
     if (normalized_cost > unit->speed) {
-        unit->move_fraction = unit->speed * 4;
+        unit->move_fraction += unit->speed * 4;
         unit->speed = 0;
 
         if (unit->group_speed != 0) {
