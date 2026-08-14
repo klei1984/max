@@ -41,6 +41,10 @@
 #define SOUND_MANAGER_MAX_VOLUME (1.f)
 #define SOUND_MANAGER_PANNING_CENTER (0.f)
 
+/* Distance in grid cells over which a positional sound effect fades to silence. Fixed rather than relative to the map
+ * size, so a sound carries the same distance on any map. */
+#define SOUND_MANAGER_ATTENUATION_RANGE (112)
+
 enum JOB_TYPE { JOB_TYPE_INVALID, JOB_TYPE_SFX0, JOB_TYPE_SFX1, JOB_TYPE_SFX2, JOB_TYPE_VOICE, JOB_TYPE_MUSIC };
 
 enum { SOUND_MANAGER_NO_FADING, SOUND_MANAGER_REQUEST_FADING, SOUND_MANAGER_FADING };
@@ -476,9 +480,8 @@ void SoundManager::PlaySfx(UnitInfo* const unit, const Unit::SfxType sound, cons
             const float volume = static_cast<float>(sfx_info.volume) / 100.0f;
 
             job->volume_2 = volume;
-            job->volume_1 = (job->volume_2 - job->volume_2 * std::max(grid_distance_x, grid_distance_y) /
-                                                 std::max(ResourceManager_MapSize.x, ResourceManager_MapSize.y)) *
-                            GetZoomAttenuation();
+            job->volume_1 =
+                job->volume_2 * GetDistanceAttenuation(grid_distance_x, grid_distance_y) * GetZoomAttenuation();
 
             job->panning = GetPanning(grid_distance_x, grid_offset_x < 0);
 
@@ -504,9 +507,8 @@ void SoundManager::UpdateSfxPosition() noexcept {
 
             ma_sound_set_pan(&(*it).sound, GetPanning(grid_distance_x, grid_offset_x < 0));
 
-            float sound_level = ((*it).volume_2 - (*it).volume_2 * std::max(grid_distance_x, grid_distance_y) /
-                                                      std::max(ResourceManager_MapSize.x, ResourceManager_MapSize.y)) *
-                                GetZoomAttenuation();
+            float sound_level =
+                (*it).volume_2 * GetDistanceAttenuation(grid_distance_x, grid_distance_y) * GetZoomAttenuation();
 
             ma_sound_set_volume(&(*it).sound, sound_level);
         }
@@ -529,9 +531,8 @@ void SoundManager::UpdateSfxPosition(UnitInfo* const unit) noexcept {
 
         ma_sound_set_pan(&m_sfx->sound, GetPanning(grid_distance_x, grid_offset_x < 0));
 
-        float sound_level = (m_sfx->volume_2 - m_sfx->volume_2 * std::max(grid_distance_x, grid_distance_y) /
-                                                   std::max(ResourceManager_MapSize.x, ResourceManager_MapSize.y)) *
-                            GetZoomAttenuation();
+        float sound_level =
+            m_sfx->volume_2 * GetDistanceAttenuation(grid_distance_x, grid_distance_y) * GetZoomAttenuation();
 
         ma_sound_set_volume(&m_sfx->sound, sound_level);
     }
@@ -843,6 +844,12 @@ float SoundManager::GetPanning(int32_t distance, const bool reverse) noexcept {
     }
 
     return panning;
+}
+
+float SoundManager::GetDistanceAttenuation(const int32_t distance_x, const int32_t distance_y) noexcept {
+    const int32_t distance{std::min(std::max(distance_x, distance_y), SOUND_MANAGER_ATTENUATION_RANGE)};
+
+    return 1.f - static_cast<float>(distance) / SOUND_MANAGER_ATTENUATION_RANGE;
 }
 
 float SoundManager::GetZoomAttenuation() noexcept {

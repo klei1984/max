@@ -241,6 +241,7 @@ private:
     void FreeVoice(const ResourceID id1, const ResourceID id2) noexcept;
     [[nodiscard]] bool IsVoiceGroupScheduled(const ResourceID id1, const ResourceID id2) noexcept;
     [[nodiscard]] static float GetPanning(int32_t distance, const bool reverse) noexcept;
+    [[nodiscard]] static float GetDistanceAttenuation(const int32_t distance_x, const int32_t distance_y) noexcept;
     [[nodiscard]] static float GetZoomAttenuation() noexcept;
     [[nodiscard]] bool PlayMusic(const ResourceID id) noexcept;
     int32_t LoadSound(SoundJob& job, SoundSample& sample) noexcept;
