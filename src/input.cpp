@@ -249,6 +249,8 @@ void GNW_unregister_utf8_input(void) { utf8_input_callback = NULL; }
 void GNW_process_message(void) {
     SDL_Event ev;
 
+    mouse_reset_wheel_events();
+
     while (SDL_PollEvent(&ev)) {
         switch (ev.type) {
             case SDL_EVENT_KEY_UP:
