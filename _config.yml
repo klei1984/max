@@ -13,9 +13,10 @@ plugins:
 
 header_pages:
   "About": about.md
-  "Evolution": evolution.md
   "Roadmap": roadmap.md
   "Articles ▼":
+    - "Lore of the M.A.X. Universe": lore.md
+    - "Evolution": evolution.md
     - "Installation Guideline": install.md
     - "Frequently Asked Questions": faq.md
     - "Build Instructions": build.md

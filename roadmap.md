@@ -6,7 +6,7 @@ permalink: /roadmap/
 
 This article tries to maintain a high level overview of the work packages and challenges that need to be solved to step by step complete the port.
 
-Last updated: 2025-08-17.
+Last updated: 2026-08-15.
 
 The list is subject to change at any time. The outlined order of work packages, priorities, could be rearranged depending on the difficulty, available time or available help from others. I am new to many of the GitHub and open source toolings and hope to get help from friendly enthusiasts. Obvious work packages like fix all software defects identified and such are not mentioned explicitly in the list.
 
@@ -221,13 +221,17 @@ To support as many languages as possible and eventually high DPI displays and mu
 - <span class="legend-done">
   Support utf-8 encoded glyphs
   </span>
-- Support keyboard locales
+- <span class="legend-done">
+  Support keyboard locales
+  </span>
 - Support custom key bindings
-- <span class="legend-inwork">
+- <span class="legend-done">
   Support multiple languages
   </span>
-- Support subtitles in MVE video clips
-- <span class="legend-inwork">
+- <span class="legend-done">
+  Support subtitles in MVE video clips
+  </span>
+- <span class="legend-done">
   Externalize hard coded language dependent text
   </span>
 - Develop translation tools
@@ -236,7 +240,7 @@ To support as many languages as possible and eventually high DPI displays and mu
 - <span class="legend-inwork">
   Setup workflows to improve code quality
   </span>
-- <span class="legend-inwork">
+- <span class="legend-close">
   Fix original game defects and remaining reimplementation issues (retain backwards compatibility with save game format version 70)
   </span>
 - <span class="legend-done">
@@ -258,10 +262,10 @@ To support as many languages as possible and eventually high DPI displays and mu
 ### 9 Support multiple operating systems
 Each operating system expects user specific files to be stored in a specific location following an OS distributor specific folder structure and file system standard. Each operating system has unique file system quirks that makes interoperability difficult. For example CD-ROMs could be mounted using ISO 9660 extensions like Rock Ridge, Joilet. One file system is case sensitive another is case insensitive. One supports utf8 encoded object names, another does not.
 
-- <span class="legend-inwork">
+- <span class="legend-close">
   Support OS specific line delimiters
   </span>
-- <span class="legend-inwork">
+- <span class="legend-close">
   Support long file system paths and utf8 file names
   </span>
 - <span class="legend-done">
@@ -283,24 +287,26 @@ Many missions have hard coded game rules, while configurability of normal custom
 - <span class="legend-close">
   Expose interfaces to instanced lua contexts
   </span>
-- Document the scripting engine capabilities in a programmer's manual
+- <span class="legend-inwork">
+  Document the scripting engine capabilities in a programmer's manual
+  </span>
 
 ### 11 Support more missions
 The list of missions and their game rules are all hard coded into the game executables. The English executable hardcodes English mission descriptions as each original MS-DOS executable used their own language specific MS-DOS code pages in text files. Main goal of this work package is to allow content creators to add new missions and to expand the versatility of missions via scripting and story telling.
 
-- <span class="legend-inwork">
+- <span class="legend-done">
   Support arbitrary number of save game slots (9999 to be more precise)
   </span>
 - <span class="legend-close">
   Support arbitrary number of missions
   </span>
-- <span class="legend-close">
+- <span class="legend-done">
   Generalize and externalize mission win & loss conditions
   </span>
-- <span class="legend-close">
+- <span class="legend-done">
   Generalize and externalize mission construction and manufacturing capability rules
   </span>
-- <span class="legend-close">
+- <span class="legend-done">
   Externalize mission briefings
   </span>
 - <span class="legend-close">
@@ -323,13 +329,13 @@ The list of worlds and their descriptions are all hard coded into the game execu
 - <span class="legend-inwork">
   Develop new save file format
   </span>
-- <span class="legend-inwork">
+- <span class="legend-done">
   Fix original defects caused by save file format version 70 quirks and limitations
   </span>
 - <span class="legend-inwork">
   Fix original defects in original missions that were produced with save file format version 70
   </span>
-- <span class="legend-inwork">
+- <span class="legend-close">
   Expand parameter limits to allow "infinite" progressions
   </span>
 - Remove language dependencies from the message manager database
@@ -337,7 +343,9 @@ The list of worlds and their descriptions are all hard coded into the game execu
 ### 14 Replace the GNW engine
 GNW is a 30 years old technology. Goal is to make the graphical user interfaces high DPI aware, support sane monitor aspect ratios out of the box, be highly flexible, preferably scriptable and render the assets using a modern GPU render pipeline. The game has two distinct rendering modes. System menus, and in-game menus with tactical map rendering.
 
-- Switch to SDL3 backend
+- <span class="legend-close">
+  Switch to SDL3 backend
+  </span>
 - Integrate the RmlUI library
 - Develop GL 3.3 and GLES 3.0 rendering pipelines and relevant shaders
 - Reimplement and redesign system menus
