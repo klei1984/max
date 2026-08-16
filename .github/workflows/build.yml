@@ -71,6 +71,8 @@ jobs:
 
       -  name: Checkout
          uses: actions/checkout@v7
+         with:
+            fetch-depth: 0
 
       -  name: Cache dependencies
          uses: actions/cache@v6
@@ -164,6 +166,8 @@ jobs:
 
       -  name: Checkout
          uses: actions/checkout@v7
+         with:
+            fetch-depth: 0
 
       -  name: Cache dependencies
          uses: actions/cache@v6
@@ -255,6 +259,8 @@ jobs:
 
       -  name: Checkout
          uses: actions/checkout@v7
+         with:
+            fetch-depth: 0
 
       -  name: Cache dependencies
          uses: actions/cache@v6
@@ -349,6 +355,8 @@ jobs:
 
       -  name: Checkout
          uses: actions/checkout@v7
+         with:
+            fetch-depth: 0
 
       -  name: Cache dependencies
          uses: actions/cache@v6
@@ -433,6 +441,8 @@ jobs:
 
       -  name: Checkout
          uses: actions/checkout@v7
+         with:
+            fetch-depth: 0
 
       -  name: Cache dependencies
          uses: actions/cache@v6
@@ -525,6 +535,8 @@ jobs:
 
       -  name: Checkout
          uses: actions/checkout@v7
+         with:
+            fetch-depth: 0
 
       -  name: Cache dependencies
          uses: actions/cache@v6
