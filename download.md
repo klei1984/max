@@ -42,6 +42,8 @@ Nightly builds are rebuilt automatically from the tip of the `master` branch aft
 
 **These are development builds, not releases.** They are compiled without optimizations, they run noticeably slower than the release above and they enable developer only debug features. They may also be unstable or contain regressions. See the [FAQ](faq.md#nightly-builds) before you use them.
 
+**Saved games are not guaranteed to be interoperable between development builds!** The `V71` save file format is still under development and changes without notice. Saved games in the original `V70` format are loadable by all development builds.
+
 - <img class="themed-svg" style="float: left" src="{{ site.baseurl }}/assets/images/windows.svg" width="18px" height="18px"/> &ensp; **[Windows installer 64 bit]({{ page.dl_url }}/{{ page.nightly_tag }}/{{ page.nightly }}-Windows_x86_64.exe)**
 - <img class="themed-svg" style="float: left" src="{{ site.baseurl }}/assets/images/windows.svg" width="18px" height="18px"/> &ensp; **[Windows 7-Zip file 64 bit]({{ page.dl_url }}/{{ page.nightly_tag }}/{{ page.nightly }}-Windows_x86_64.7z)**
 - <img class="themed-svg" style="float: left" src="{{ site.baseurl }}/assets/images/windows.svg" width="18px" height="18px"/> &ensp; **[Windows installer 32 bit]({{ page.dl_url }}/{{ page.nightly_tag }}/{{ page.nightly }}-Windows_x86.exe)**
