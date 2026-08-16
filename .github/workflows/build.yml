@@ -999,6 +999,10 @@ jobs:
             They run noticeably slower than the official releases and they may be unstable.
             Use the official [releases](https://github.com/${GH_REPO}/releases) for playing.
 
+            **Saved games are not guaranteed to be interoperable between development builds!**
+            The \`V71\` save file format is still under development and changes without notice.
+            Saved games in the original \`V70\` format are loadable by all development builds.
+
             \`${NIGHTLY_PREFIX}-SHA256SUMS.txt\` lists the checksums of every asset of this build.
             EOF
 
