@@ -5352,12 +5352,44 @@
 					"ru-RU": "Нажмите сюда чтобы выключить речь."
 				}
 			},
-			"AUTO_SAVE": {
+			"VIDEO_VOLUME": {
 				"coordinates": {
 					"ux": 225,
 					"uy": 160,
 					"lx": 406,
 					"ly": 180
+				},
+				"text": {
+					"en-US": "Use this slider to adjust the video playback volume.",
+					"fr-FR": "Utilisez ce curseur pour régler le volume de lecture des vidéos.",
+					"de-DE": "Benutzen Sie diesen Regler, um die Lautstärke der Videowiedergabe einzustellen.",
+					"it-IT": "Utilizza questo cursore per regolare il volume di riproduzione dei video.",
+					"es-ES": "Con este tirador puedes ajustar el volumen de reproducción de vídeo.",
+					"ru-RU": "Используйте это чтобы регулировать громкость видеороликов."
+				}
+			},
+			"DISABLE_VIDEO": {
+				"coordinates": {
+					"ux": 406,
+					"uy": 160,
+					"lx": 584,
+					"ly": 180
+				},
+				"text": {
+					"en-US": "Click this button to turn off the video playback sound.",
+					"fr-FR": "Cliquez sur ce bouton pour arrêter le son des vidéos.",
+					"de-DE": "Klicken Sie auf diesen Button, um den Ton der Videowiedergabe auszuschalten.",
+					"it-IT": "Clicca su questo bottone per escludere l'audio dei video.",
+					"es-ES": "Haz clic en este botón para desactivar el sonido de los vídeos.",
+					"ru-RU": "Нажмите на эту кнопку чтобы выключить звук видеороликов."
+				}
+			},
+			"AUTO_SAVE": {
+				"coordinates": {
+					"ux": 225,
+					"uy": 180,
+					"lx": 406,
+					"ly": 200
 				},
 				"text": {
 					"en-US": "The \"Auto-Save\" feature automatically saves your game. The number signifies how often the game will be saved. A value of (1) means the game will be saved every turn.",
@@ -5371,9 +5403,9 @@
 			"PLAYER_NAME": {
 				"coordinates": {
 					"ux": 225,
-					"uy": 180,
+					"uy": 200,
 					"lx": 584,
-					"ly": 200
+					"ly": 220
 				},
 				"text": {
 					"en-US": "Use this field to enter your name for use in Multiplayer Games.",
@@ -5387,9 +5419,9 @@
 			"ANIMATE_EFFECTS": {
 				"coordinates": {
 					"ux": 225,
-					"uy": 220,
+					"uy": 240,
 					"lx": 406,
-					"ly": 240
+					"ly": 260
 				},
 				"text": {
 					"en-US": "Clicking \"Animate Effects\" turns the unit animations on and off. If you're playing the game on a slower computer, turning off the animations will increase the speed of the game.",
@@ -5403,9 +5435,9 @@
 			"FAST_UNIT_MOVES": {
 				"coordinates": {
 					"ux": 225,
-					"uy": 240,
+					"uy": 260,
 					"lx": 406,
-					"ly": 260
+					"ly": 280
 				},
 				"text": {
 					"en-US": "When checked, the \"Double Unit Steps\" will cause your units to move at a faster pace across the game screen, rather than at the normal realistic speed.",
@@ -5419,9 +5451,9 @@
 			"ENEMY_SPOTTED": {
 				"coordinates": {
 					"ux": 225,
-					"uy": 260,
+					"uy": 280,
 					"lx": 406,
-					"ly": 280
+					"ly": 300
 				},
 				"text": {
 					"en-US": "When checked, this feature will immediately halt any moving unit as soon as an enemy is detected by its radar. If a unit is part of a group then the entire group will stop also. When unchecked, the unit will continue to move until it reaches the end of its path or its speed points are exhausted.",
@@ -5435,9 +5467,9 @@
 			"QUICK_SCROLL": {
 				"coordinates": {
 					"ux": 225,
-					"uy": 280,
+					"uy": 300,
 					"lx": 406,
-					"ly": 300
+					"ly": 320
 				},
 				"text": {
 					"en-US": "The position of the slider indicates the rate at which the screen will scroll. Positioned to the right will scroll quicker. Positioned to the left will scroll slower.",
@@ -5451,9 +5483,9 @@
 			"CLICK_TO_SCROLL": {
 				"coordinates": {
 					"ux": 406,
-					"uy": 220,
+					"uy": 240,
 					"lx": 584,
-					"ly": 240
+					"ly": 260
 				},
 				"text": {
 					"en-US": "When checked, the \"Click to Scroll\" button requires the left mouse button to be held in order to scroll the map window. When not checked simply moving your mouse cursor to the edge of the map will scroll it.",
@@ -5467,9 +5499,9 @@
 			"FOLLOW_UNIT": {
 				"coordinates": {
 					"ux": 406,
-					"uy": 240,
+					"uy": 260,
 					"lx": 584,
-					"ly": 260
+					"ly": 280
 				},
 				"text": {
 					"en-US": "When the \"Track Selected Unit\" button is checked, the screen will automatically scroll to follow the movements of the selected unit.",
@@ -5483,9 +5515,9 @@
 			"AUTO_SELECT_UNIT": {
 				"coordinates": {
 					"ux": 406,
-					"uy": 260,
+					"uy": 280,
 					"lx": 584,
-					"ly": 280
+					"ly": 300
 				},
 				"text": {
 					"en-US": "When \"Auto-Select\" is on, the game will automatically switch to the next unit when the selected unit has run out of movement points.",
@@ -5499,9 +5531,9 @@
 			"TURN_TIME": {
 				"coordinates": {
 					"ux": 225,
-					"uy": 320,
+					"uy": 340,
 					"lx": 406,
-					"ly": 340
+					"ly": 360
 				},
 				"text": {
 					"en-US": "The Turn Timer sets the amount of time allowed for each turn.",
@@ -5515,9 +5547,9 @@
 			"END_TURN_TIME": {
 				"coordinates": {
 					"ux": 406,
-					"uy": 320,
+					"uy": 340,
 					"lx": 584,
-					"ly": 340
+					"ly": 360
 				},
 				"text": {
 					"en-US": "The \"End Turn Time\" sets the amount of grace time given to players once one player has ended turn.",
@@ -5740,12 +5772,44 @@
 					"ru-RU": "Нажмите сюда чтобы выключить речь."
 				}
 			},
-			"AUTO_SAVE": {
+			"VIDEO_VOLUME": {
 				"coordinates": {
 					"ux": 225,
 					"uy": 160,
 					"lx": 406,
 					"ly": 180
+				},
+				"text": {
+					"en-US": "Use this slider to adjust the video playback volume.",
+					"fr-FR": "Utilisez ce curseur pour régler le volume de lecture des vidéos.",
+					"de-DE": "Benutzen Sie diesen Regler, um die Lautstärke der Videowiedergabe einzustellen.",
+					"it-IT": "Utilizza questo cursore per regolare il volume di riproduzione dei video.",
+					"es-ES": "Con este tirador puedes ajustar el volumen de reproducción de vídeo.",
+					"ru-RU": "Используйте это чтобы регулировать громкость видеороликов."
+				}
+			},
+			"DISABLE_VIDEO": {
+				"coordinates": {
+					"ux": 406,
+					"uy": 160,
+					"lx": 584,
+					"ly": 180
+				},
+				"text": {
+					"en-US": "Click this button to turn off the video playback sound.",
+					"fr-FR": "Cliquez sur ce bouton pour arrêter le son des vidéos.",
+					"de-DE": "Klicken Sie auf diesen Button, um den Ton der Videowiedergabe auszuschalten.",
+					"it-IT": "Clicca su questo bottone per escludere l'audio dei video.",
+					"es-ES": "Haz clic en este botón para desactivar el sonido de los vídeos.",
+					"ru-RU": "Нажмите на эту кнопку чтобы выключить звук видеороликов."
+				}
+			},
+			"AUTO_SAVE": {
+				"coordinates": {
+					"ux": 225,
+					"uy": 180,
+					"lx": 406,
+					"ly": 200
 				},
 				"text": {
 					"en-US": "The \"Auto-Save\" feature automatically saves your game at the begining of every turn.",
@@ -5759,9 +5823,9 @@
 			"HOST_ADDRESS": {
 				"coordinates": {
 					"ux": 225,
-					"uy": 180,
+					"uy": 200,
 					"lx": 584,
-					"ly": 200
+					"ly": 220
 				},
 				"text": {
 					"en-US": "Use this field to enter the name or the IP address of the computer that hosts the Multiplayer Game you want to join.",
@@ -5775,9 +5839,9 @@
 			"HOST_PORT": {
 				"coordinates": {
 					"ux": 225,
-					"uy": 200,
+					"uy": 220,
 					"lx": 584,
-					"ly": 220
+					"ly": 240
 				},
 				"text": {
 					"en-US": "Use this field to enter the network port of the Multiplayer Game if it is different from the default value.",
@@ -5791,9 +5855,9 @@
 			"PLAYER_NAME": {
 				"coordinates": {
 					"ux": 225,
-					"uy": 220,
+					"uy": 240,
 					"lx": 584,
-					"ly": 240
+					"ly": 260
 				},
 				"text": {
 					"en-US": "Use this field to enter your name for use in Multiplayer Games.",

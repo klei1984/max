@@ -4873,6 +4873,22 @@
 			"es-ES": "Voz desactivada",
 			"ru-RU": "Голос отменен"
 		},
+		"a006": {
+			"en-US": "Video",
+			"fr-FR": "Vidéo",
+			"de-DE": "Video",
+			"it-IT": "Video",
+			"es-ES": "Vídeo",
+			"ru-RU": "Видео"
+		},
+		"a007": {
+			"en-US": "Disable Video",
+			"fr-FR": "Vidéo désactivée",
+			"de-DE": "Video ausschalten",
+			"it-IT": "Disattivato Video",
+			"es-ES": "Desactivar vídeo",
+			"ru-RU": "Отмен.Видео"
+		},
 		"64fb": {
 			"en-US": "Auto-Save Enabled",
 			"fr-FR": "Auto-Sauv. Activé",

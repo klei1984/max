@@ -39,7 +39,7 @@ enum OptionsType {
     OPTIONS_TYPE_LABEL,
 };
 
-#define OPTIONS_BUTTON_COUNT 34
+#define OPTIONS_BUTTON_COUNT 36
 #define OPTIONS_PLAY_MODE_ITEM_COUNT 2
 #define OPTIONS_OPPONENT_ITEM_COUNT 6
 #define OPTIONS_VICTORY_TYPE_ITEM_COUNT 2
@@ -77,6 +77,8 @@ class OptionsMenu : public Window {
         OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(2eeb), "disable_fx", 210, 0, 1),
         OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, _(87bf), "voice_level", 25, 0, 100),
         OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(e9db), "disable_voice", 210, 0, 1),
+        OPTIONS_BUTTON_DEF(OPTIONS_TYPE_SLIDER, _(a006), "movie_level", 25, 0, 100),
+        OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(a007), "disable_movie", 210, 0, 1),
         OPTIONS_BUTTON_DEF(OPTIONS_TYPE_CHECKBOX, _(64fb), "auto_save", 25, 0, 1),
         OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_STR, _(a001), "host_address", 25, 0, 0),
         OPTIONS_BUTTON_DEF(OPTIONS_TYPE_EDIT_INT, _(a002), "host_port", 25, 1024, 65535),

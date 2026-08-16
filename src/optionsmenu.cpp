@@ -36,6 +36,8 @@
 #include "text.hpp"
 #include "window_manager.hpp"
 
+static constexpr int32_t OPTIONS_AUDIO_TYPE_NONE = -1;
+
 OptionsMenu::OptionsMenu(uint16_t team, ResourceID variant)
     : Window(PREFSPIC, GameManager_GetDialogWindowCenterMode()),
       team(team),
@@ -218,7 +220,8 @@ void OptionsMenu::InitCheckboxControl(int32_t id, int32_t ulx, int32_t uly) {
     button->SetFlags(1);
 
     if (strcmp(setting_key.c_str(), "disable_music") == 0 || strcmp(setting_key.c_str(), "disable_fx") == 0 ||
-        strcmp(setting_key.c_str(), "disable_voice") == 0 || strcmp(setting_key.c_str(), "enhanced_graphics") == 0) {
+        strcmp(setting_key.c_str(), "disable_voice") == 0 || strcmp(setting_key.c_str(), "disable_movie") == 0 ||
+        strcmp(setting_key.c_str(), "enhanced_graphics") == 0) {
         button->SetPValue(1002 + id);
         button->SetRValue(1002 + id);
 
@@ -318,6 +321,8 @@ void OptionsMenu::UpdateSlider(int32_t id) {
             audio_type = AUDIO_TYPE_MUSIC;
         } else if (strcmp(button_key.c_str(), "fx_sound_level") == 0) {
             audio_type = AUDIO_TYPE_SFX2;
+        } else if (strcmp(button_key.c_str(), "movie_level") == 0) {
+            audio_type = OPTIONS_AUDIO_TYPE_NONE;
         } else {
             audio_type = AUDIO_TYPE_VOICE;
         }
@@ -327,7 +332,10 @@ void OptionsMenu::UpdateSlider(int32_t id) {
 }
 
 void OptionsMenu::SetVolume(int32_t id, int32_t audio_type, int32_t value) {
-    ResourceManager_GetSoundManager().SetVolume(audio_type, static_cast<float>(value) / 100);
+    if (audio_type != OPTIONS_AUDIO_TYPE_NONE) {
+        ResourceManager_GetSoundManager().SetVolume(audio_type, static_cast<float>(value) / 100);
+    }
+
     ResourceManager_GetSettings()->SetNumericValue(options_menu_buttons[id].setting_key, value);
 }
 
@@ -400,9 +408,12 @@ void OptionsMenu::Init() {
     window_uly = 20;
 
 #if !defined(NDEBUG)
-    /* Only the in game variant can grow by a whole debug section, so only it has to start higher. */
+    /* Only the in game variant can grow by a whole debug section, so only it has to start higher.
+     * The four volume rows leave just enough room for the debug section to end above the dialog
+     * buttons, so this offset has to track any row added to or removed from the shared block.
+     */
     if (variant == PREFSPIC && ResourceManager_GetSettings()->GetNumericValue("debug")) {
-        window_uly = 0;
+        window_uly = -20;
     }
 #endif /* !defined(NDEBUG) */
 
@@ -596,6 +607,8 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
                         SetVolume(i, AUDIO_TYPE_SFX2, last_value);
                     } else if (strcmp(setting_key.c_str(), "voice_level") == 0) {
                         SetVolume(i, AUDIO_TYPE_VOICE, last_value);
+                    } else if (strcmp(setting_key.c_str(), "movie_level") == 0) {
+                        SetVolume(i, OPTIONS_AUDIO_TYPE_NONE, last_value);
                     } else if (strcmp(setting_key.c_str(), "disable_music") == 0) {
                         ResourceManager_GetSettings()->SetNumericValue("disable_music", last_value);
                         ResourceManager_GetSoundManager().HaltMusicPlayback(last_value);
@@ -605,6 +618,8 @@ int32_t OptionsMenu::ProcessKeyPress(int32_t key) {
                     } else if (strcmp(setting_key.c_str(), "disable_voice") == 0) {
                         ResourceManager_GetSettings()->SetNumericValue("disable_voice", last_value);
                         ResourceManager_GetSoundManager().HaltVoicePlayback(last_value);
+                    } else if (strcmp(setting_key.c_str(), "disable_movie") == 0) {
+                        ResourceManager_GetSettings()->SetNumericValue("disable_movie", last_value);
                     }
                 }
             }
