@@ -1,4 +1,4 @@
-/* Copyright (c) 2022 M.A.X. Port Team
+/* Copyright (c) 2026 M.A.X. Port Team
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,48 +19,11 @@
  * SOFTWARE.
  */
 
-#include <SDL3/SDL_main.h>
+#ifndef CRASH_CONTEXT_HPP
+#define CRASH_CONTEXT_HPP
 
 #include "crash_reporter.hpp"
-#include "menu.hpp"
-#include "movie.hpp"
-#include "resource_manager.hpp"
-#include "sound_manager.hpp"
-#include "transport.hpp"
 
-int main(int argc, char* argv[]) {
-    try {
-        ResourceManager_InitResources();
+void CrashContext_Register();
 
-        if (!Transport_Init()) {
-            SDL_Log("Transport_Init() failed, networked play is unavailable.");
-        }
-
-        if (Movie_PlayIntro()) {
-            menu_draw_logo(ILOGO, 3000);
-        }
-
-        ResourceManager_GetSoundManager().PlayMusic(MAIN_MSC, false);
-        menu_draw_logo(MLOGO, 3000);
-
-        main_menu();
-
-    } catch (const std::exception& e) {
-        SDL_Log("\n%s\n", (std::string("Unhandled exception: ") + e.what()).c_str());
-
-        ResourceManager_Exit();
-
-        return EXIT_FAILURE;
-
-    } catch (...) {
-        SDL_Log("\nUnhandled exception of unknown type.\n");
-
-        ResourceManager_Exit();
-
-        return EXIT_FAILURE;
-    }
-
-    CrashReporter_Shutdown();
-
-    return EXIT_SUCCESS;
-}
+#endif /* CRASH_CONTEXT_HPP */

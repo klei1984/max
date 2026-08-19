@@ -1,0 +1,283 @@
+diff --git CMakeLists.txt CMakeLists.txt
+new file mode 100644
+--- /dev/null
++++ CMakeLists.txt
+@@ -0,0 +1,189 @@
++cmake_minimum_required(VERSION 3.16)
++
++project(libbacktrace LANGUAGES C)
++
++# CMake build for libbacktrace.
++#
++# Upstream ships an autotools build only. This file reproduces the parts of
++# configure that the library actually reads, so the sources can be consumed
++# directly by a CMake project without carrying a shell and an autotools
++# toolchain along for the ride.
++#
++# configure picks exactly one source file from each of the FORMAT, VIEW and
++# ALLOC groups and writes two headers; that is the entirety of what is
++# reproduced here. The probes below are limited to the macros the compiled
++# sources test, not the full autoheader set.
++
++include(CheckCSourceCompiles)
++include(CheckIncludeFile)
++include(CheckIncludeFiles)
++include(CheckSymbolExists)
++
++# ---------------------------------------------------------------------------
++# configure probes
++# ---------------------------------------------------------------------------
++
++check_include_file("dlfcn.h" HAVE_DLFCN_H)
++check_include_file("inttypes.h" HAVE_INTTYPES_H)
++check_include_file("link.h" HAVE_LINK_H)
++check_include_file("memory.h" HAVE_MEMORY_H)
++check_include_file("stdint.h" HAVE_STDINT_H)
++check_include_file("stdlib.h" HAVE_STDLIB_H)
++check_include_file("string.h" HAVE_STRING_H)
++check_include_file("strings.h" HAVE_STRINGS_H)
++check_include_file("sys/mman.h" HAVE_SYS_MMAN_H)
++check_include_file("sys/stat.h" HAVE_SYS_STAT_H)
++check_include_file("sys/types.h" HAVE_SYS_TYPES_H)
++check_include_file("unistd.h" HAVE_UNISTD_H)
++check_include_file("windows.h" HAVE_WINDOWS_H)
++
++# tlhelp32.h has no includes of its own and needs the Win32 base types, so
++# probing it alone always fails. A false negative costs pecoff.c its module
++# enumeration, leaving every frame outside the main executable unresolved.
++check_include_files("windows.h;tlhelp32.h" HAVE_TLHELP32_H)
++
++check_symbol_exists(fcntl "fcntl.h" HAVE_FCNTL)
++check_symbol_exists(lstat "sys/stat.h" HAVE_LSTAT)
++check_symbol_exists(readlink "unistd.h" HAVE_READLINK)
++
++# glibc only declares dl_iterate_phdr under __USE_GNU, so the probe has to be
++# run the way the sources are compiled. A false negative here is silent and
++# expensive: elf.c substitutes a stub that enumerates no modules at all, and
++# every backtrace comes out unresolved.
++set(LIBBACKTRACE_REQUIRED_DEFINITIONS_BACKUP ${CMAKE_REQUIRED_DEFINITIONS})
++list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
++
++check_symbol_exists(dl_iterate_phdr "link.h" HAVE_DL_ITERATE_PHDR)
++
++set(CMAKE_REQUIRED_DEFINITIONS ${LIBBACKTRACE_REQUIRED_DEFINITIONS_BACKUP})
++
++if(NOT WIN32 AND NOT HAVE_DL_ITERATE_PHDR)
++	message(WARNING
++		"libbacktrace: dl_iterate_phdr was not found. Loaded modules cannot be "
++		"located and backtraces will not resolve to symbols.")
++endif()
++
++# HAVE_DECL_* are tri-state: the sources test the macro's value rather than its
++# existence, so it must always be defined, to 1 or to 0.
++check_symbol_exists(getpagesize "unistd.h" LIBBACKTRACE_HAVE_GETPAGESIZE)
++check_symbol_exists(strnlen "string.h" LIBBACKTRACE_HAVE_STRNLEN)
++check_symbol_exists(_pgmptr "stdlib.h" LIBBACKTRACE_HAVE_PGMPTR)
++
++foreach(LIBBACKTRACE_PROBE GETPAGESIZE STRNLEN PGMPTR)
++	if(LIBBACKTRACE_HAVE_${LIBBACKTRACE_PROBE})
++		set(LIBBACKTRACE_DECL_${LIBBACKTRACE_PROBE} 1)
++	else()
++		set(LIBBACKTRACE_DECL_${LIBBACKTRACE_PROBE} 0)
++	endif()
++endforeach()
++
++check_c_source_compiles("
++	int main(void) {
++		int i = 0;
++		__atomic_load_n(&i, __ATOMIC_ACQUIRE);
++		__atomic_store_n(&i, 1, __ATOMIC_RELEASE);
++		return i;
++	}"
++	HAVE_ATOMIC_FUNCTIONS)
++
++check_c_source_compiles("
++	int main(void) {
++		int i = 0;
++		__sync_bool_compare_and_swap(&i, 0, 1);
++		__sync_lock_test_and_set(&i, 1);
++		return i;
++	}"
++	HAVE_SYNC_FUNCTIONS)
++
++# _Unwind_GetIPInfo lives in libgcc, so this probe has to link rather than only
++# compile. Without it every reported line is the one after the call site.
++check_c_source_compiles("
++	#include <unwind.h>
++	extern _Unwind_Ptr _Unwind_GetIPInfo(struct _Unwind_Context *, int *);
++	int main(void) { return _Unwind_GetIPInfo(0, 0) != 0; }"
++	HAVE_GETIPINFO)
++
++# ---------------------------------------------------------------------------
++# per-format source selection
++#
++# PE targets have no mmap, so they take the malloc allocator and the read based
++# file view. ELF targets take the mmap pair, which additionally keeps malloc
++# out of any signal handler that walks a stack.
++# ---------------------------------------------------------------------------
++
++set(LIBBACKTRACE_SOURCES
++	atomic.c
++	backtrace.c
++	dwarf.c
++	fileline.c
++	posix.c
++	print.c
++	simple.c
++	sort.c
++	state.c
++)
++
++if(WIN32)
++	list(APPEND LIBBACKTRACE_SOURCES pecoff.c read.c alloc.c)
++
++	set(LIBBACKTRACE_ELF_SIZE unused)
++	set(LIBBACKTRACE_USES_MALLOC 1)
++else()
++	list(APPEND LIBBACKTRACE_SOURCES elf.c mmapio.c mmap.c)
++
++	set(LIBBACKTRACE_USES_MALLOC 0)
++
++	# elf.c refuses to compile on any other value.
++	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
++		set(LIBBACKTRACE_ELF_SIZE 64)
++	else()
++		set(LIBBACKTRACE_ELF_SIZE 32)
++	endif()
++endif()
++
++configure_file(
++	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.h.in"
++	"${CMAKE_CURRENT_BINARY_DIR}/config.h"
++	@ONLY
++)
++
++configure_file(
++	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/backtrace-supported.h.in"
++	"${CMAKE_CURRENT_BINARY_DIR}/backtrace-supported.h"
++	@ONLY
++)
++
++# ---------------------------------------------------------------------------
++# library
++# ---------------------------------------------------------------------------
++
++add_library(backtrace STATIC ${LIBBACKTRACE_SOURCES})
++
++target_include_directories(backtrace
++	PUBLIC
++		"${CMAKE_CURRENT_SOURCE_DIR}"
++		"${CMAKE_CURRENT_BINARY_DIR}"
++)
++
++if(NOT WIN32)
++	# Matches the dl_iterate_phdr probe above; link.h hides the declaration
++	# without it and elf.c falls back to a stub that finds nothing.
++	target_compile_definitions(backtrace PRIVATE _GNU_SOURCE)
++endif()
++
++# The unwinder walks whatever frames the faulting thread left behind, so every
++# frame it may cross needs unwind tables. 64 bit targets emit them anyway, 32
++# bit ones only for functions that can throw.
++target_compile_options(backtrace PRIVATE -fasynchronous-unwind-tables)
++
++# Consumers routinely build with a stricter warning set than this code was
++# written against, and none of it is theirs to fix.
++target_compile_options(backtrace PRIVATE -w)
++
++# A consuming executable may well be position independent even when this
++# library is built static.
++set_target_properties(backtrace PROPERTIES POSITION_INDEPENDENT_CODE ON)
++
++if(NOT TARGET libbacktrace::backtrace)
++	add_library(libbacktrace::backtrace ALIAS backtrace)
++endif()
+diff --git cmake/config.h.in cmake/config.h.in
+new file mode 100644
+--- /dev/null
++++ cmake/config.h.in
+@@ -0,0 +1,60 @@
++/* CMake counterpart of the autotools config.h.
++ *
++ * The probe results are computed by the top level CMakeLists.txt and
++ * substituted here. Only the subset of knobs the compiled sources actually
++ * read is listed: atomic.c dwarf.c fileline.c posix.c print.c sort.c state.c
++ * backtrace.c simple.c, plus elf.c/mmap.c/mmapio.c (ELF) or
++ * pecoff.c/read.c/alloc.c (PE).
++ */
++
++#ifndef LIBBACKTRACE_CONFIG_H
++#define LIBBACKTRACE_CONFIG_H
++
++/* 32 or 64 on ELF targets, the literal "unused" everywhere else. elf.c
++ * #errors on any other value, so this must never be left empty. */
++#define BACKTRACE_ELF_SIZE @LIBBACKTRACE_ELF_SIZE@
++#define BACKTRACE_XCOFF_SIZE unused
++
++#cmakedefine HAVE_ATOMIC_FUNCTIONS 1
++#cmakedefine HAVE_SYNC_FUNCTIONS 1
++
++/* _Unwind_GetIPInfo tells backtrace.c whether a pc is a return address that
++ * needs the -1 adjustment before a line lookup. Present in every libgcc we
++ * build against; without it line numbers land one statement too late. */
++#cmakedefine HAVE_GETIPINFO 1
++
++#define HAVE_DECL_GETPAGESIZE @LIBBACKTRACE_DECL_GETPAGESIZE@
++#define HAVE_DECL_STRNLEN @LIBBACKTRACE_DECL_STRNLEN@
++#define HAVE_DECL__PGMPTR @LIBBACKTRACE_DECL_PGMPTR@
++
++#cmakedefine HAVE_DLFCN_H 1
++#cmakedefine HAVE_DL_ITERATE_PHDR 1
++#cmakedefine HAVE_FCNTL 1
++#cmakedefine HAVE_INTTYPES_H 1
++#cmakedefine HAVE_LINK_H 1
++#cmakedefine HAVE_LSTAT 1
++#cmakedefine HAVE_MEMORY_H 1
++#cmakedefine HAVE_READLINK 1
++#cmakedefine HAVE_STDINT_H 1
++#cmakedefine HAVE_STDLIB_H 1
++#cmakedefine HAVE_STRINGS_H 1
++#cmakedefine HAVE_STRING_H 1
++#cmakedefine HAVE_SYS_MMAN_H 1
++#cmakedefine HAVE_SYS_STAT_H 1
++#cmakedefine HAVE_SYS_TYPES_H 1
++#cmakedefine HAVE_TLHELP32_H 1
++#cmakedefine HAVE_UNISTD_H 1
++#cmakedefine HAVE_WINDOWS_H 1
++
++#define STDC_HEADERS 1
++
++#define PACKAGE_BUGREPORT ""
++#define PACKAGE_NAME "libbacktrace"
++#define PACKAGE_STRING "libbacktrace vendored"
++#define PACKAGE_TARNAME "libbacktrace"
++#define PACKAGE_URL ""
++#define PACKAGE_VERSION "@LIBBACKTRACE_VERSION@"
++
++#define _FILE_OFFSET_BITS 64
++
++#endif /* LIBBACKTRACE_CONFIG_H */
+diff --git cmake/backtrace-supported.h.in cmake/backtrace-supported.h.in
+new file mode 100644
+--- /dev/null
++++ cmake/backtrace-supported.h.in
+@@ -0,0 +1,19 @@
++/* CMake counterpart of the autotools backtrace-supported.h.
++ * See cmake/config.h.in.
++ */
++
++#ifndef BACKTRACE_SUPPORTED_H
++#define BACKTRACE_SUPPORTED_H
++
++#define BACKTRACE_SUPPORTED 1
++
++/* 0 when the mmap allocator is compiled in (ELF targets), 1 for the malloc
++ * one (PE targets, which have no mmap). CrashReporter reads this to decide
++ * whether symbolisation is safe enough to attempt before or after the raw
++ * frame dump — malloc from a corrupted heap can deadlock. */
++#define BACKTRACE_USES_MALLOC @LIBBACKTRACE_USES_MALLOC@
++
++#define BACKTRACE_SUPPORTS_THREADS 1
++#define BACKTRACE_SUPPORTS_DATA 0
++
++#endif /* BACKTRACE_SUPPORTED_H */

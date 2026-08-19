@@ -58,7 +58,6 @@ add_compile_options(
 	-Wtype-limits
 	-Wvla
 	-Wlogical-op
-	-fno-eliminate-unused-debug-types
 	# gcc speculatively devirtualizes the delete in SmartObject::Decrement(), so it
 	# inlines every ~Task override at each SmartPointer<Task> teardown. The guard
 	# almost always fails, so this is bloat, and -Warray-bounds then reports the

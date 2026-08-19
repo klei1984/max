@@ -15,6 +15,7 @@ source=("$pkgname::git+https://github.com/klei1984/max.git")
 provides=("$pkgname")
 conflicts=("$pkgname")
 sha256sums=("SKIP")
+options=("debug")
 
 pkgver() {
     cd "$pkgname"
@@ -28,6 +29,7 @@ build() {
         DESTDIR=$pkgdir cmake --no-warn-unused-cli -Wno-dev -G "Ninja" \
         -DCMAKE_TOOLCHAIN_FILE=./cmake/toolchain-linux-${CARCH}.cmake \
         -DMAXPORT_PKGMAKE_BUILD=TRUE \
+        -DMAX_SPLIT_DEBUG_SYMBOLS=OFF \
         -DCMAKE_BUILD_TYPE=None \
         -DBUILD_SHARED_LIBS=ON \
         -DCMAKE_INSTALL_PREFIX=/usr \

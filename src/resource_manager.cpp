@@ -34,6 +34,8 @@
 #include "ailog.hpp"
 #include "assertmenu.hpp"
 #include "attributes.hpp"
+#include "crash_context.hpp"
+#include "crash_reporter.hpp"
 #include "cursor.hpp"
 #include "drawloadbar.hpp"
 #include "enums.hpp"
@@ -186,7 +188,9 @@ static void ResourceManager_LogOutputHandler(void* userdata, int category, SDL_L
                                              const char* message);
 static void ResourceManager_LogOutputFlush();
 static void ResourceManager_InitLogFile();
+static void ResourceManager_InitCrashReporter();
 static void ResourceManager_InitAiLog();
+static constexpr std::uintmax_t ResourceManager_LogFileSizeLimit = 1u * 1024u * 1024u;
 static void Resourcemanager_InitLocale();
 static void ResourceManager_InitLanguageManager();
 static void ResourceManager_InitHelpManager();
@@ -404,6 +408,8 @@ void ResourceManager_InitPrefPath() {
         ResourceManager_InitLogFile();
 
         SDL_SetLogOutputFunction(&ResourceManager_LogOutputHandler, nullptr);
+
+        ResourceManager_InitCrashReporter();
     }
 }
 
@@ -1375,10 +1381,15 @@ SDL_AssertState SDLCALL ResourceManager_AssertionHandler(const SDL_AssertData* d
 
 void ResourceManager_InitLogFile() {
     auto filepath = (ResourceManager_FilePathGamePref / "stdout.txt").lexically_normal();
+    std::error_code ec;
 
     ResourceManager_MainThreadID = SDL_GetCurrentThreadID();
     ResourceManager_LogMutex = ResourceManager_CreateMutex();
-    ResourceManager_LogFile = std::make_unique<std::ofstream>(filepath.string().c_str(), std::ofstream::trunc);
+    const auto size = std::filesystem::file_size(filepath, ec);
+    const bool truncate = ec || size >= ResourceManager_LogFileSizeLimit;
+
+    ResourceManager_LogFile = std::make_unique<std::ofstream>(filepath.string().c_str(),
+                                                              truncate ? std::ofstream::trunc : std::ofstream::app);
 
     if (ResourceManager_LogFile && ResourceManager_LogFile->is_open()) {
         /* The log has to survive abort() from a failed assertion, which neither flushes stream
@@ -1387,6 +1398,17 @@ void ResourceManager_InitLogFile() {
          */
         ResourceManager_LogFile->setf(std::ios::unitbuf);
     }
+}
+
+void ResourceManager_InitCrashReporter() {
+    if (!CrashReporter_Init(ResourceManager_FilePathGamePref)) {
+        return;
+    }
+
+    CrashContext_Register();
+
+    SDL_Log("=== M.A.X. Port session start ===\n%s", CrashReporter_GetSystemInfo());
+    SDL_Log("Crash reports  : %s\n", CrashReporter_GetReportPath().string().c_str());
 }
 
 void ResourceManager_LogOutputHandler(void* userdata, int category, SDL_LogPriority priority, const char* message) {

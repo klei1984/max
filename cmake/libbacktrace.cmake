@@ -1,0 +1,40 @@
+include(versions)
+include(FetchContent)
+
+if(EXISTS ${PROJECT_SOURCE_DIR}/dependencies/${LIBBACKTRACE_FILE})
+	file(${LIBBACKTRACE_HASH_TYPE} ${PROJECT_SOURCE_DIR}/dependencies/${LIBBACKTRACE_FILE} LIBBACKTRACE_FILE_HASH)
+
+	if(${LIBBACKTRACE_FILE_HASH} STREQUAL ${LIBBACKTRACE_HASH})
+		set(LIBBACKTRACE_URI file://${PROJECT_SOURCE_DIR}/dependencies/${LIBBACKTRACE_FILE})
+	endif()
+endif()
+
+find_package(Patch)
+
+if(NOT Patch_FOUND)
+	message(FATAL_ERROR "Patch tool is required.")
+endif()
+
+set(LIBBACKTRACE_PATCH ${Patch_EXECUTABLE} -p0 < ${PROJECT_SOURCE_DIR}/cmake/patches/libbacktrace.patch)
+
+FetchContent_Declare(
+	LIBBACKTRACE
+	TIMEOUT 60
+	URL ${LIBBACKTRACE_URI}
+	URL_HASH ${LIBBACKTRACE_HASH_TYPE}=${LIBBACKTRACE_HASH}
+	DOWNLOAD_EXTRACT_TIMESTAMP FALSE
+	OVERRIDE_FIND_PACKAGE
+	PATCH_COMMAND ${LIBBACKTRACE_PATCH}
+	UPDATE_DISCONNECTED TRUE
+)
+
+set(CMAKE_BUILD_TYPE_BACKUP ${CMAKE_BUILD_TYPE})
+set(CMAKE_BUILD_TYPE Release)
+
+FetchContent_MakeAvailable(LIBBACKTRACE)
+
+set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE_BACKUP})
+
+if(NOT TARGET Libbacktrace::Libbacktrace)
+	add_library(Libbacktrace::Libbacktrace ALIAS backtrace)
+endif()

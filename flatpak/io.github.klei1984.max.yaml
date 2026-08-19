@@ -1,5 +1,5 @@
 ---
-app-id: io.github.max-port
+app-id: io.github.klei1984.max
 runtime: org.freedesktop.Platform
 runtime-version: '24.08'
 sdk: org.freedesktop.Sdk
@@ -16,13 +16,15 @@ modules:
   buildsystem: cmake-ninja
   builddir: true
   build-options:
-    strip: true
     config-opts:
-    - -DCMAKE_BUILD_TYPE=Release
+    - -DCMAKE_BUILD_TYPE=RelWithDebInfo
+    - -DCMAKE_C_FLAGS_RELWITHDEBINFO=-O3 -g -DNDEBUG
+    - -DCMAKE_CXX_FLAGS_RELWITHDEBINFO=-O3 -g -DNDEBUG
+    - -DMAX_SPLIT_DEBUG_SYMBOLS=OFF
     - -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-linux-x86_64.cmake
     - -DBUILD_SHARED_LIBS=ON
     - -DMAXPORT_FLATPAK_BUILD=TRUE
-    - -DFLATPAK_ID=io.github.max-port
+    - -DFLATPAK_ID=io.github.klei1984.max
   sources:
   - type: dir
     path: ..

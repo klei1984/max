@@ -64,6 +64,12 @@ set(LUA_URI https://www.lua.org/ftp/${LUA_FILE})
 set(LUA_HASH 81cf5265b8634967d8a7480d238168ce)
 set(LUA_HASH_TYPE MD5)
 
+set(LIBBACKTRACE_VERSION 6f8310e238fc3ce68f42f391cbe93fd156bb2c23)
+set(LIBBACKTRACE_FILE libbacktrace-${LIBBACKTRACE_VERSION}.tar.gz)
+set(LIBBACKTRACE_URI https://github.com/ianlancetaylor/libbacktrace/archive/${LIBBACKTRACE_VERSION}.tar.gz)
+set(LIBBACKTRACE_HASH ce816287b28fa793074870867df210be)
+set(LIBBACKTRACE_HASH_TYPE MD5)
+
 set(XOSHIRO_VERSION 1.1)
 set(XOSHIRO_FILE Xoshiro-cpp-${XOSHIRO_VERSION}.tar.gz)
 set(XOSHIRO_URI https://github.com/Reputeless/Xoshiro-cpp/archive/refs/tags/v${XOSHIRO_VERSION}.tar.gz)

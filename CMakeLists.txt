@@ -13,10 +13,25 @@ endif()
 option(MAX_BUILD_TESTS "Build unit tests by default" ON)
 option(MAX_ENABLE_UPNP "Use miniupnpc library" ON)
 
+if(WIN32)
+	set(MAX_SPLIT_DEBUG_SYMBOLS_DEFAULT ON)
+else()
+	set(MAX_SPLIT_DEBUG_SYMBOLS_DEFAULT OFF)
+endif()
+
+option(MAX_SPLIT_DEBUG_SYMBOLS
+	"Split debug info into a sidecar, strip the executable and package the sidecar separately"
+	${MAX_SPLIT_DEBUG_SYMBOLS_DEFAULT})
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 include(setup)
+
+# Ensure crash reporter works on 32 bit targets.
+if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+	add_compile_options(-fasynchronous-unwind-tables)
+endif()
 
 set(GAME_INCLUDES "")
 set(GAME_SOURCES "")
@@ -57,7 +72,7 @@ if(MAX_ENABLE_UPNP)
 endif()
 
 if(NOT BUILD_SHARED_LIBS)
-	set(${PROJECT_NAME}_deps SDL3::SDL3-static utf8proc Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::static Xoshiro::Xoshiro Enet::Enet Freetype::Freetype)
+	set(${PROJECT_NAME}_deps SDL3::SDL3-static utf8proc Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::static Xoshiro::Xoshiro Enet::Enet Freetype::Freetype Libbacktrace::Libbacktrace)
 
 	if(MAX_ENABLE_UPNP)
 		list(APPEND ${PROJECT_NAME}_deps miniupnpc::miniupnpc)
@@ -66,7 +81,7 @@ if(NOT BUILD_SHARED_LIBS)
 	target_link_options(${PROJECT_NAME} PUBLIC -static -static-libgcc -static-libstdc++)
 	target_link_libraries(${PROJECT_NAME} PRIVATE ${${PROJECT_NAME}_deps})
 else()
-	set(${PROJECT_NAME}_deps SDL3::SDL3-shared utf8proc Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::shared Xoshiro::Xoshiro Enet::Enet Freetype::Freetype)
+	set(${PROJECT_NAME}_deps SDL3::SDL3-shared utf8proc Miniaudio::Miniaudio Sha2::Sha2 nlohmann_json::nlohmann_json nlohmann_json_schema_validator::validator lua::shared Xoshiro::Xoshiro Enet::Enet Freetype::Freetype Libbacktrace::Libbacktrace)
 
 	if(MAX_ENABLE_UPNP)
 		list(APPEND ${PROJECT_NAME}_deps miniupnpc::miniupnpc)
@@ -80,6 +95,7 @@ if(MINGW)
 endif()
 
 include(sdl3)
+include(libbacktrace)
 include(utf8proc)
 include(freetype)
 include(miniaudio)
@@ -96,11 +112,13 @@ if(MAX_ENABLE_UPNP)
 	include(miniupnp)
 endif()
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-	COMMAND ${CMAKE_OBJCOPY} ARGS --only-keep-debug	 $<TARGET_FILE:${PROJECT_NAME}> $<TARGET_FILE_BASE_NAME:${PROJECT_NAME}>.debug
-	COMMAND ${CMAKE_STRIP} ARGS --strip-debug --strip-unneeded $<TARGET_FILE:${PROJECT_NAME}>
-	COMMAND ${CMAKE_OBJCOPY} ARGS --add-gnu-debuglink $<TARGET_FILE_BASE_NAME:${PROJECT_NAME}>.debug $<TARGET_FILE:${PROJECT_NAME}>
-)
+if(MAX_SPLIT_DEBUG_SYMBOLS)
+	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+		COMMAND ${CMAKE_OBJCOPY} ARGS --only-keep-debug	 $<TARGET_FILE:${PROJECT_NAME}> $<TARGET_FILE_BASE_NAME:${PROJECT_NAME}>.debug
+		COMMAND ${CMAKE_STRIP} ARGS --strip-debug --strip-unneeded $<TARGET_FILE:${PROJECT_NAME}>
+		COMMAND ${CMAKE_OBJCOPY} ARGS --add-gnu-debuglink $<TARGET_FILE_BASE_NAME:${PROJECT_NAME}>.debug $<TARGET_FILE:${PROJECT_NAME}>
+	)
+endif()
 
 if(MAX_BUILD_TESTS)
 	enable_testing()
@@ -268,5 +286,24 @@ if(MINGW)
 endif()
 
 add_subdirectory(assets)
+
+if(MAX_SPLIT_DEBUG_SYMBOLS)
+	set(CPACK_MAX_SYMBOLS_FILE "${CMAKE_BINARY_DIR}/max-port.debug")
+	set(CPACK_MAX_SYMBOLS_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+
+	if(MINGW)
+		set(CPACK_MAX_SYMBOLS_GENERATOR "7Z")
+		set(CPACK_MAX_SYMBOLS_FORMAT "7zip")
+		set(CPACK_MAX_SYMBOLS_TAR_FLAGS "cf")
+		set(CPACK_MAX_SYMBOLS_SUFFIX "-symbols.7z")
+	else()
+		set(CPACK_MAX_SYMBOLS_GENERATOR "TGZ")
+		set(CPACK_MAX_SYMBOLS_FORMAT "gnutar")
+		set(CPACK_MAX_SYMBOLS_TAR_FLAGS "czf")
+		set(CPACK_MAX_SYMBOLS_SUFFIX "-symbols.tar.gz")
+	endif()
+
+	list(APPEND CPACK_POST_BUILD_SCRIPTS "${CMAKE_SOURCE_DIR}/cmake/scripts/cpack_symbols_package.cmake")
+endif()
 
 include(CPack)

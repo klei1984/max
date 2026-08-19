@@ -27,6 +27,7 @@
 
 #include <atomic>
 #include <deque>
+#include <exception>
 #include <functional>
 #include <memory>
 #include <utility>
@@ -214,7 +215,24 @@ private:
 
             if (job) {
                 // Execute outside the lock
-                TResult result = job->Execute();
+                TResult result{};
+
+                /* An exception leaving this frame would unwind through SDL's C thread entry
+                 * point, which is undefined behaviour and in practice calls std::terminate.
+                 * The process dies without main() ever seeing it and, before the crash
+                 * reporter existed, without anything being written anywhere. Failing the
+                 * single job is the only sane recovery: the submitter still gets a completion
+                 * and does not wait forever.
+                 */
+                try {
+                    result = job->Execute();
+
+                } catch (const std::exception& e) {
+                    SDL_Log("WorkerThread: job threw \"%s\", result discarded.\n", e.what());
+
+                } catch (...) {
+                    SDL_Log("WorkerThread: job threw an unknown exception, result discarded.\n");
+                }
 
                 // Store result - minimize lock duration
                 SDL_LockSpinlock(&m_queue_lock);

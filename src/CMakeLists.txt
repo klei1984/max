@@ -197,6 +197,8 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/saveload.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/utf8.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/randomizer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/crash_reporter.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/crash_context.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 )
 
