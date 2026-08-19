@@ -63,7 +63,7 @@ Nightly builds are rebuilt automatically from the tip of the `master` branch aft
 - **[Source .7z]({{ page.dl_url }}/{{ page.nightly_tag }}/{{ page.nightly }}-Source.7z)**
 - **[Source .tar.gz]({{ page.dl_url }}/{{ page.nightly_tag }}/{{ page.nightly }}-Source.tar.gz)**
 
-Debug symbol archives, the Debian `.ddeb` debug package and the [SHA-256 checksums]({{ page.dl_url }}/{{ page.nightly_tag }}/{{ page.nightly }}-SHA256SUMS.txt) of all the above files are attached to the [nightly release](https://github.com/klei1984/max/releases/tag/{{ page.nightly_tag }}) page, which also states the exact commit the build was made from.
+Debug symbols are only needed to turn a crash report into a readable stack trace, and they must come from the very same build as the package they belong to. The Windows symbol archives, the Debian `.ddeb` debug package, the Flatpak debug symbol bundle, the Arch Linux debug package and the [SHA-256 checksums]({{ page.dl_url }}/{{ page.nightly_tag }}/{{ page.nightly }}-SHA256SUMS.txt) of all the above files are attached to the [nightly release](https://github.com/klei1984/max/releases/tag/{{ page.nightly_tag }}) page, which also states the exact commit the build was made from.
 
 ### Previous Releases
 
