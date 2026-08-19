@@ -67,7 +67,7 @@ jobs:
             test -f /usr/share/doc/kitware-archive-keyring/copyright ||
             sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg
             sudo apt-get install kitware-archive-keyring
-            sudo apt install -y file build-essential cmake=$CMAKE_APT_VERSION ninja-build ccache wget gettext p7zip-full libasound2-dev libpulse-dev libx11-dev libxext-dev libxcursor-dev libxrandr-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev libxkbcommon-dev libwayland-dev wayland-protocols libdecor-0-dev libdbus-1-dev libgl-dev libegl-dev libudev-dev
+            sudo apt install -y git file build-essential cmake=$CMAKE_APT_VERSION ninja-build ccache wget gettext p7zip-full libasound2-dev libpulse-dev libx11-dev libxext-dev libxcursor-dev libxrandr-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev libxkbcommon-dev libwayland-dev wayland-protocols libdecor-0-dev libdbus-1-dev libgl-dev libegl-dev libudev-dev
 
       -  name: Checkout
          uses: actions/checkout@v7
@@ -162,7 +162,7 @@ jobs:
             test -f /usr/share/doc/kitware-archive-keyring/copyright ||
             sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg
             sudo apt-get install kitware-archive-keyring
-            sudo apt-get install -y file build-essential cmake=$CMAKE_APT_VERSION debmake dh-make gcc-multilib g++-multilib ninja-build:i386 ccache wget gettext p7zip-full libasound2-dev:i386 libpulse-dev:i386 libx11-dev:i386 libxext-dev:i386 libxcursor-dev:i386 libxrandr-dev:i386 libxfixes-dev:i386 libxi-dev:i386 libxss-dev:i386 libxtst-dev:i386 libxkbcommon-dev:i386 libwayland-dev:i386 wayland-protocols libdecor-0-dev:i386 libdbus-1-dev:i386 libgl-dev:i386 libegl-dev:i386 libudev-dev:i386
+            sudo apt-get install -y git file build-essential cmake=$CMAKE_APT_VERSION debmake dh-make gcc-multilib g++-multilib ninja-build:i386 ccache wget gettext p7zip-full libasound2-dev:i386 libpulse-dev:i386 libx11-dev:i386 libxext-dev:i386 libxcursor-dev:i386 libxrandr-dev:i386 libxfixes-dev:i386 libxi-dev:i386 libxss-dev:i386 libxtst-dev:i386 libxkbcommon-dev:i386 libwayland-dev:i386 wayland-protocols libdecor-0-dev:i386 libdbus-1-dev:i386 libgl-dev:i386 libegl-dev:i386 libudev-dev:i386
 
       -  name: Checkout
          uses: actions/checkout@v7
@@ -255,7 +255,7 @@ jobs:
             test -f /usr/share/doc/kitware-archive-keyring/copyright ||
             sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg
             sudo apt-get install kitware-archive-keyring
-            sudo apt-get install -y file build-essential binutils-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-x86-64 ninja-build cmake=$CMAKE_APT_VERSION ccache nsis gettext p7zip-full
+            sudo apt-get install -y git file build-essential binutils-mingw-w64-x86-64 g++-mingw-w64-x86-64 gcc-mingw-w64-x86-64 ninja-build cmake=$CMAKE_APT_VERSION ccache nsis gettext p7zip-full
 
       -  name: Checkout
          uses: actions/checkout@v7
@@ -351,7 +351,7 @@ jobs:
             test -f /usr/share/doc/kitware-archive-keyring/copyright ||
             sudo rm /usr/share/keyrings/kitware-archive-keyring.gpg
             sudo apt-get install kitware-archive-keyring
-            sudo apt-get install -y file build-essential binutils-mingw-w64-i686 g++-mingw-w64-i686 gcc-mingw-w64-i686 ninja-build:i386 cmake=$CMAKE_APT_VERSION ccache nsis gettext p7zip-full
+            sudo apt-get install -y git file build-essential binutils-mingw-w64-i686 g++-mingw-w64-i686 gcc-mingw-w64-i686 ninja-build:i386 cmake=$CMAKE_APT_VERSION ccache nsis gettext p7zip-full
 
       -  name: Checkout
          uses: actions/checkout@v7
