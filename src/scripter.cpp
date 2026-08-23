@@ -1577,7 +1577,7 @@ std::string LoadDefaultWinLossConditions() {
 
 void Init() {
     if (MaxRegistryMutex == nullptr) {
-        MaxRegistryMutex = ResourceManager_CreateMutex();
+        MaxRegistryMutex = ResourceManager_CreateMutex(&MaxRegistryMutex);
 
         if (MaxRegistryMutex == nullptr) {
             ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
@@ -1585,7 +1585,7 @@ void Init() {
     }
 
     if (MaxRegistryFunctionsMutex == nullptr) {
-        MaxRegistryFunctionsMutex = ResourceManager_CreateMutex();
+        MaxRegistryFunctionsMutex = ResourceManager_CreateMutex(&MaxRegistryFunctionsMutex);
 
         if (MaxRegistryFunctionsMutex == nullptr) {
             ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);

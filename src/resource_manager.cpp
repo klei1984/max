@@ -110,7 +110,7 @@ static std::shared_ptr<Help> ResourceManager_HelpManager;
 static std::unique_ptr<PathsManager> ResourceManager_PathsManager;
 static std::unique_ptr<SoundManager> ResourceManager_SoundManager;
 static std::unique_ptr<std::unordered_map<std::string, ResourceID>> ResourceManager_ResourceIDLUT;
-static std::unique_ptr<std::vector<SDL_Mutex*>> ResourceManager_SDLMutexes;
+static std::unique_ptr<std::vector<SDL_Mutex**>> ResourceManager_SDLMutexes;
 static std::string ResourceManager_SystemLocale{"en-US"};
 
 FILE* res_file_handle_array[2];
@@ -566,10 +566,11 @@ void ResourceManager_ExitGame(int32_t error_code) {
 void ResourceManager_Exit() {
     ResourceManager_DeinitSoundManager();
     win_exit();
-    ResourceManager_DestroyMutexes();
     ResourceManager_PathsManager.reset();
     Paths_ClearSiteReservations();
     SDL_Quit();
+
+    ResourceManager_DestroyMutexes();
 
     exit(0);
 }
@@ -1384,7 +1385,7 @@ void ResourceManager_InitLogFile() {
     std::error_code ec;
 
     ResourceManager_MainThreadID = SDL_GetCurrentThreadID();
-    ResourceManager_LogMutex = ResourceManager_CreateMutex();
+    ResourceManager_LogMutex = ResourceManager_CreateMutex(&ResourceManager_LogMutex);
     const auto size = std::filesystem::file_size(filepath, ec);
     const bool truncate = ec || size >= ResourceManager_LogFileSizeLimit;
 
@@ -1662,9 +1663,11 @@ std::string ResourceManager_GetClanID(const TeamClanType clan_id) {
 
 std::shared_ptr<MissionManager> ResourceManager_GetMissionManager() { return ResourceManager_MissionManager; }
 
-[[nodiscard]] SDL_Mutex* ResourceManager_CreateMutex() {
+[[nodiscard]] SDL_Mutex* ResourceManager_CreateMutex(SDL_Mutex** holder) {
+    SDL_assert(holder != nullptr);
+
     if (!ResourceManager_SDLMutexes) {
-        ResourceManager_SDLMutexes = std::make_unique<std::vector<SDL_Mutex*>>();
+        ResourceManager_SDLMutexes = std::make_unique<std::vector<SDL_Mutex**>>();
 
         if (!ResourceManager_SDLMutexes) {
             ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
@@ -1674,17 +1677,18 @@ std::shared_ptr<MissionManager> ResourceManager_GetMissionManager() { return Res
     auto mutex = SDL_CreateMutex();
 
     if (mutex) {
-        ResourceManager_SDLMutexes->push_back(mutex);
+        *holder = mutex;
+
+        ResourceManager_SDLMutexes->push_back(holder);
     }
 
     return mutex;
 }
 
 void ResourceManager_DestroyMutexes() {
-    for (SDL_Mutex*& mutex : *ResourceManager_SDLMutexes) {
-        SDL_DestroyMutex(mutex);
-
-        mutex = nullptr;
+    for (SDL_Mutex** holder : *ResourceManager_SDLMutexes) {
+        SDL_DestroyMutex(*holder);
+        *holder = nullptr;
     }
 
     ResourceManager_SDLMutexes->clear();

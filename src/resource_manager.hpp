@@ -158,7 +158,14 @@ public:
     virtual ~ResourceManager_MutexLock() { SDL_UnlockMutex(m_mutex); }
 };
 
-[[nodiscard]] SDL_Mutex* ResourceManager_CreateMutex();
+/**
+ * \brief Create a mutex and register the caller's pointer for destruction.
+ *
+ * \param holder address of the variable that owns the mutex. The registry keeps
+ *        this address so ResourceManager_DestroyMutexes can null the owner's own
+ *        pointer rather than a copy of it.
+ */
+[[nodiscard]] SDL_Mutex* ResourceManager_CreateMutex(SDL_Mutex** holder);
 void ResourceManager_DestroyMutexes();
 std::vector<std::filesystem::path> ResourceManager_GetFileList(const std::filesystem::path& folder,
                                                                const std::string& extension);

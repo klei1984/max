@@ -44,7 +44,7 @@ void AiLog::AiLog_InitMutex() {
     static std::once_flag mutex_once;
 
     std::call_once(mutex_once, []() {
-        AiLog_Mutex = ResourceManager_CreateMutex();
+        AiLog_Mutex = ResourceManager_CreateMutex(&AiLog_Mutex);
 
         if (!AiLog_Mutex) {
             ResourceManager_ExitGame(EXIT_CODE_INSUFFICIENT_MEMORY);
