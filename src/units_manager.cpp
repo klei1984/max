@@ -3470,6 +3470,8 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
     int32_t cargo_amount = 0;
     int32_t unit_orders = unit->GetOrder();
 
+    const bool is_build_unfinished = unit->build_time != 0;
+
     unit->RefreshScreen();
 
     if (unit_flags & STATIONARY) {
@@ -3568,18 +3570,21 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
         UnitsManager_TeamInfo[unit_team].team_units->OptimizeComplexes(unit_team);
     }
 
-    if ((unit_flags & (BUILDING | STANDALONE)) || unit_orders == ORDER_BUILD || unit_orders == ORDER_CLEAR) {
+    if ((unit_flags & (BUILDING | STANDALONE)) || (unit_orders == ORDER_BUILD && is_build_unfinished) ||
+        unit_orders == ORDER_CLEAR) {
         if (unit_type == CONSTRCT && unit_orders == ORDER_BUILD && rubble_type == SMLRUBLE) {
             SmartPointer<UnitInfo> utility_unit(Access_GetConstructionUtility(unit_team, unit_grid_x, unit_grid_y));
 
-            unit_grid_x = utility_unit->grid_x;
-            unit_grid_y = utility_unit->grid_y;
+            if (utility_unit) {
+                unit_grid_x = utility_unit->grid_x;
+                unit_grid_y = utility_unit->grid_y;
 
-            if (Access_IsFullyLandCovered(unit_grid_x, unit_grid_y, utility_unit->flags)) {
-                rubble_type = LRGRUBLE;
+                if (Access_IsFullyLandCovered(unit_grid_x, unit_grid_y, utility_unit->flags)) {
+                    rubble_type = LRGRUBLE;
 
-            } else {
-                rubble_type = INVALID_ID;
+                } else {
+                    rubble_type = INVALID_ID;
+                }
             }
         }
 
