@@ -373,6 +373,11 @@ public:
     void ProcessRepair();
     void ProcessTransfer();
 
+    static constexpr uint16_t MOVEMENT_WAIT_LIMIT = 512u;
+
+    [[nodiscard]] bool RegisterMovementWait() noexcept;
+    void ClearMovementWait() noexcept;
+
     struct PopupFunctions* popup;
     uint32_t flags;
     uint16_t x;
@@ -434,6 +439,7 @@ public:
     uint8_t engine;
     uint8_t weapon;
     uint8_t move_fraction;
+    uint16_t movement_wait_count;
     SmartPointer<UnitPath> path;
     uint16_t connectors;
     uint8_t shake_effect_state;

@@ -150,6 +150,7 @@ UnitInfo::UnitInfo()
       engine(0),
       weapon(0),
       move_fraction(0),
+      movement_wait_count(0),
       connectors(0),
       shake_effect_state(0),
       build_rate(0),
@@ -236,6 +237,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
       engine(0),
       weapon(0),
       move_fraction(0),
+      movement_wait_count(0),
       connectors(0),
       shake_effect_state(0),
       base_values(UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)),
@@ -381,6 +383,7 @@ UnitInfo::UnitInfo(const UnitInfo& other)
       engine(other.engine),
       weapon(other.weapon),
       move_fraction(other.move_fraction),
+      movement_wait_count(other.movement_wait_count),
       path(other.path),
       connectors(other.connectors),
       shake_effect_state(other.shake_effect_state),
@@ -2476,8 +2479,11 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
         file.Read(move_fraction);
         file.Read(energized);
 
+        movement_wait_count = 0;
+
     } else {
         file.Read(move_fraction);
+        file.Read(movement_wait_count);
     }
 
     file.Read(repeat_build);
@@ -2599,6 +2605,7 @@ void UnitInfo::FileSave(SmartFileWriter& file) noexcept {
     file.Write(engine);
     file.Write(weapon);
     file.Write(move_fraction);
+    file.Write(movement_wait_count);
     file.Write(repeat_build);
     file.Write(build_rate);
     file.Write(disabled_reaction_fire);
@@ -3570,6 +3577,16 @@ int32_t UnitInfo::GetExperience() {
     return result;
 }
 
+bool UnitInfo::RegisterMovementWait() noexcept {
+    if (movement_wait_count < MOVEMENT_WAIT_LIMIT) {
+        ++movement_wait_count;
+    }
+
+    return movement_wait_count >= MOVEMENT_WAIT_LIMIT;
+}
+
+void UnitInfo::ClearMovementWait() noexcept { movement_wait_count = 0; }
+
 void UnitInfo::BlockedOnPathRequest(bool mode, bool skip_notification) {
     path = nullptr;
 
@@ -3601,6 +3618,8 @@ void UnitInfo::MoveFinished(bool mode) {
 
     velocity = 0;
     moved = 0;
+
+    ClearMovementWait();
 
     ScheduleDelayedTasks(true);
 

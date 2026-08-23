@@ -379,6 +379,7 @@ bool GroundPath::Execute(UnitInfo* unit) {
 
             unit->MoveInTransitUnitInMapHash(target_grid_x, target_grid_y);
             unit->moved = 0;
+            unit->ClearMovementWait();
             unit->SetOrderState(ORDER_STATE_IN_TRANSITION);
 
             if (GameManager_SelectedUnit == unit) {
@@ -395,9 +396,21 @@ bool GroundPath::Execute(UnitInfo* unit) {
         }
 
     } else {
-        if (!Access_SetUnitDestination(unit->grid_x, unit->grid_y, target_grid_x, target_grid_y,
-                                       !(unit->flags & MOBILE_SEA_UNIT))) {
+        if (Access_SetUnitDestination(unit->grid_x, unit->grid_y, target_grid_x, target_grid_y,
+                                      !(unit->flags & MOBILE_SEA_UNIT))) {
+            if (unit->RegisterMovementWait()) {
+                SmartPointer<UnitPath> path(this);
+
+                AILOG(log, "Abandon wait for movement from [{},{}] to [{},{}].",
+                      unit->grid_x + 1, unit->grid_y + 1, target_grid_x + 1, target_grid_y + 1);
+
+                unit->BlockedOnPathRequest();
+            }
+
+        } else {
             SmartPointer<UnitPath> path(this);
+
+            unit->ClearMovementWait();
 
             if (unit->GetOrder() == ORDER_BUILD ||
                 UnitsManager_TeamInfo[unit->team].team_type == TEAM_TYPE_ELIMINATED ||
