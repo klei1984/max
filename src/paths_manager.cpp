@@ -84,10 +84,13 @@ void PathsManager::RemoveRequest(PathRequest* path_request) {
     // Check dispatched requests - mark for cancellation
     for (auto& [job_id, req] : m_dispatched_requests) {
         if (req.Get() == path_request) {
-            m_cancelled_job_ids.insert(job_id);
+            /* prevent early deletion of node */
+            const uint32_t cancelled_job_id = job_id;
+
+            m_cancelled_job_ids.insert(cancelled_job_id);
             protect_request->Cancel();
 
-            m_dispatched_requests.erase(job_id);
+            m_dispatched_requests.erase(cancelled_job_id);
 
             return;
         }
@@ -97,6 +100,7 @@ void PathsManager::RemoveRequest(PathRequest* path_request) {
 void PathsManager::RemoveRequest(UnitInfo* unit) {
     SmartList<PathRequest> to_remove_pending;
     std::vector<uint32_t> to_remove;
+    std::vector<SmartPointer<PathRequest>> to_cancel;
 
     // Remove from pending queue - collect items to remove first to avoid iterator invalidation
     for (auto it = m_pending_requests.Begin(), it_end = m_pending_requests.End(); it != it_end; ++it) {
@@ -113,7 +117,9 @@ void PathsManager::RemoveRequest(UnitInfo* unit) {
         m_pending_requests.Remove(it);
     }
 
-    // Remove from dispatched - mark job IDs for cancellation
+    /* Remove from dispatched - mark job IDs for cancellation.
+     * Nothing re-entrant shall run inside the loop.
+     */
     for (auto& [job_id, req] : m_dispatched_requests) {
         if (req && req->GetClient() == unit) {
             AILOG(log, "Remove dispatched path request for {}.",
@@ -121,9 +127,13 @@ void PathsManager::RemoveRequest(UnitInfo* unit) {
 
             m_cancelled_job_ids.insert(job_id);
 
-            req->Cancel();
             to_remove.push_back(job_id);
+            to_cancel.push_back(req);
         }
+    }
+
+    for (auto& request : to_cancel) {
+        request->Cancel();
     }
 
     for (uint32_t job_id : to_remove) {
@@ -198,6 +208,10 @@ void PathsManager::DispatchJobs() {
 
         //
         PollResults();
+
+        if (m_pending_requests.GetCount() == 0) {
+            break;
+        }
 
         auto it = m_pending_requests.Begin();
         SmartPointer<PathRequest> request = it->Get();
