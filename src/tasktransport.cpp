@@ -31,16 +31,6 @@
 #include "unit.hpp"
 #include "units_manager.hpp"
 
-static UnitInfo* TaskTransport_FindActiveLoader(const UnitInfo* passenger, const UnitInfo* except) noexcept {
-    for (auto& unit : UnitsManager_MobileAirUnits) {
-        if (&unit != except && unit.GetOrder() == ORDER_LOAD && unit.GetParent() == passenger) {
-            return &unit;
-        }
-    }
-
-    return nullptr;
-}
-
 TaskTransport::TaskTransport(TaskMove* task_move_, ResourceID transporter)
     : Task(task_move_->GetTeam(), nullptr, task_move_->GetPriority()) {
     transporter_unit_type = transporter;
@@ -215,7 +205,7 @@ bool TaskTransport::ChooseNewTask() {
                         TaskMove* move = dynamic_cast<TaskMove*>((*it).GetTask());
 
                         if (((*it).speed == 0 || move->GetTransporterType() != INVALID_ID) &&
-                            !TaskTransport_FindActiveLoader(it->Get(), &*unit_transporter)) {
+                            !Access_GetActiveLoader(it->Get(), &*unit_transporter)) {
                             distance = Access_GetSquaredDistance(it->Get(), position);
 
                             if (!task_move || distance < minimum_distance) {
@@ -768,7 +758,7 @@ bool TaskTransport::LoadUnit(UnitInfo* unit) {
 
         if (Task_IsReadyToTakeOrders(unit) && GameManager_IsActiveTurn(m_team)) {
             int32_t distance = Access_GetApproximateDistance(unit, &*unit_transporter);
-            UnitInfo* const active_loader = TaskTransport_FindActiveLoader(unit, &*unit_transporter);
+            UnitInfo* const active_loader = Access_GetActiveLoader(unit, &*unit_transporter);
 
             if (active_loader) {
                 AILOG_LOG(log, "Already being loaded by {} {}, choosing another client.",

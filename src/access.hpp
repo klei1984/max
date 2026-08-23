@@ -82,6 +82,20 @@ UnitInfo* Access_GetBridge(int32_t grid_x, int32_t grid_y);
 UnitInfo* Access_GetUnit2(int32_t grid_x, int32_t grid_y, uint16_t team);
 UnitInfo* Access_GetEnemyUnit(uint16_t team, int32_t grid_x, int32_t grid_y, uint32_t flags);
 UnitInfo* Access_GetConstructionUtility(uint16_t team, int32_t grid_x, int32_t grid_y);
+
+/**
+ * \brief Find a transporter that is in the middle of loading the given unit.
+ *
+ * A pickup is recorded on the transporter alone, as ORDER_LOAD plus a parent
+ * link to the passenger. The passenger keeps its own order and therefore still
+ * looks available, so this is the only way to ask whether it has already been
+ * claimed.
+ *
+ * \param passenger the unit to test
+ * \param except a transporter to ignore, for a caller asking about rivals
+ * \return the loading transporter, or nullptr when the unit is unclaimed
+ */
+UnitInfo* Access_GetActiveLoader(const UnitInfo* passenger, const UnitInfo* except = nullptr);
 UnitInfo* Access_GetTeamUnit(int32_t grid_x, int32_t grid_y, uint16_t team, uint32_t flags);
 uint32_t Access_GetValidAttackTargetTypes(ResourceID unit_type);
 bool Access_IsValidAttackTargetType(ResourceID attacker, ResourceID target);

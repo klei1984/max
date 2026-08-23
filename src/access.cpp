@@ -1788,6 +1788,17 @@ UnitInfo* Access_GetConstructionUtility(uint16_t team, int32_t grid_x, int32_t g
     return unit;
 }
 
+UnitInfo* Access_GetActiveLoader(const UnitInfo* passenger, const UnitInfo* except) {
+    /* Only air transports ever hold ORDER_LOAD. */
+    for (auto& unit : UnitsManager_MobileAirUnits) {
+        if (&unit != except && unit.GetOrder() == ORDER_LOAD && unit.GetParent() == passenger) {
+            return &unit;
+        }
+    }
+
+    return nullptr;
+}
+
 UnitInfo* Access_GetTeamUnit(int32_t grid_x, int32_t grid_y, uint16_t team, uint32_t flags) {
     SmartPointer<UnitInfo> unit;
 
