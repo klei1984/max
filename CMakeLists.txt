@@ -92,6 +92,14 @@ endif()
 
 if(MINGW)
 	target_link_options(${PROJECT_NAME} PRIVATE -mwindows)
+
+	# Link a CodeView record to PE images when available for the crash report.
+	include(CheckLinkerFlag)
+	check_linker_flag(CXX "-Wl,--build-id" HAVE_LINKER_BUILD_ID)
+
+	if(HAVE_LINKER_BUILD_ID)
+		target_link_options(${PROJECT_NAME} PRIVATE -Wl,--build-id)
+	endif()
 endif()
 
 include(sdl3)

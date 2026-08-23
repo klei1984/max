@@ -53,6 +53,7 @@ dkms.conf
 
 # CMake
 build/**
+cmake/version.cmake
 
 # IDE
 .vscode/**

@@ -76,6 +76,7 @@ char CrashReporter_SystemInfo[kSystemInfoSize];
 char CrashReporter_ReportPathUtf8[kPathSize];
 char CrashReporter_SymbolPathUtf8[kPathSize];
 char CrashReporter_ModuleName[128];
+char CrashReporter_BuildId[80];
 
 uintptr_t CrashReporter_ModuleBase;
 uintptr_t CrashReporter_ModuleSize;
@@ -693,7 +694,51 @@ LONG WINAPI CrashReporter_VectoredHandler(EXCEPTION_POINTERS* pointers) {
 /* startup                                                                  */
 /* ------------------------------------------------------------------------ */
 
+void CrashReporter_StoreBuildId(const uint8_t* data, size_t length) {
+    static constexpr char kDigits[] = "0123456789abcdef";
+    const size_t limit = (sizeof(CrashReporter_BuildId) - 1u) / 2u;
+    size_t offset = 0u;
+
+    if (length > limit) {
+        length = limit;
+    }
+
+    for (size_t index = 0u; index < length; ++index) {
+        CrashReporter_BuildId[offset++] = kDigits[data[index] >> 4];
+        CrashReporter_BuildId[offset++] = kDigits[data[index] & 0x0Fu];
+    }
+
+    CrashReporter_BuildId[offset] = '\0';
+}
+
 #if defined(__linux__) && !defined(_WIN32)
+#if !defined(NT_GNU_BUILD_ID)
+#define NT_GNU_BUILD_ID 3
+#endif
+
+void CrashReporter_ReadBuildIdNotes(const struct dl_phdr_info* info, const ElfW(Phdr) & header) {
+    const uint8_t* cursor = reinterpret_cast<const uint8_t*>(info->dlpi_addr + header.p_vaddr);
+    const uint8_t* const end = cursor + header.p_memsz;
+
+    while (static_cast<size_t>(end - cursor) >= sizeof(ElfW(Nhdr))) {
+        const auto* note = reinterpret_cast<const ElfW(Nhdr)*>(cursor);
+        const uint8_t* const name = cursor + sizeof(ElfW(Nhdr));
+        const uint8_t* const descriptor = name + ((note->n_namesz + 3u) & ~3u);
+        const uint8_t* const next = descriptor + ((note->n_descsz + 3u) & ~3u);
+
+        if (next > end || next <= cursor) {
+            break;
+        }
+
+        if (note->n_type == NT_GNU_BUILD_ID && note->n_namesz == 4u && std::memcmp(name, "GNU", 4u) == 0) {
+            CrashReporter_StoreBuildId(descriptor, note->n_descsz);
+            break;
+        }
+
+        cursor = next;
+    }
+}
+
 int CrashReporter_VisitMainObject(struct dl_phdr_info* info, size_t /* size */, void* /* data */) {
     CrashReporter_ModuleBase = static_cast<uintptr_t>(info->dlpi_addr);
 
@@ -706,6 +751,9 @@ int CrashReporter_VisitMainObject(struct dl_phdr_info* info, size_t /* size */, 
             if (end > CrashReporter_ModuleSize) {
                 CrashReporter_ModuleSize = end;
             }
+
+        } else if (header.p_type == PT_NOTE && CrashReporter_BuildId[0] == '\0') {
+            CrashReporter_ReadBuildIdNotes(info, header);
         }
     }
 
@@ -754,6 +802,45 @@ uint64_t CrashReporter_ReadFileImageBase(const char* path) {
 
     return image_base;
 }
+
+void CrashReporter_ReadBuildIdCodeView(const uint8_t* module, const IMAGE_NT_HEADERS* nt_headers) {
+    const IMAGE_DATA_DIRECTORY& directory = nt_headers->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG];
+
+    if (directory.VirtualAddress != 0u && directory.Size >= sizeof(IMAGE_DEBUG_DIRECTORY)) {
+        const auto* entries = reinterpret_cast<const IMAGE_DEBUG_DIRECTORY*>(module + directory.VirtualAddress);
+        const size_t count = directory.Size / sizeof(IMAGE_DEBUG_DIRECTORY);
+
+        for (size_t index = 0u; index < count; ++index) {
+            if (entries[index].Type != IMAGE_DEBUG_TYPE_CODEVIEW || entries[index].AddressOfRawData == 0u ||
+                entries[index].SizeOfData < 24u) {
+                continue;
+            }
+
+            const uint8_t* const record = module + entries[index].AddressOfRawData;
+
+            if (std::memcmp(record, "RSDS", 4u) == 0) {
+                GUID guid;
+                uint32_t age;
+
+                std::memcpy(&guid, record + 4, sizeof(guid));
+                std::memcpy(&age, record + 20, sizeof(age));
+
+                SDL_snprintf(CrashReporter_BuildId, sizeof(CrashReporter_BuildId),
+                             "%08X%04X%04X%02X%02X%02X%02X%02X%02X%02X%02X%X",
+                             static_cast<unsigned int>(guid.Data1), static_cast<unsigned int>(guid.Data2),
+                             static_cast<unsigned int>(guid.Data3), guid.Data4[0], guid.Data4[1], guid.Data4[2],
+                             guid.Data4[3], guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7],
+                             static_cast<unsigned int>(age));
+
+                return;
+            }
+        }
+    }
+
+    SDL_snprintf(CrashReporter_BuildId, sizeof(CrashReporter_BuildId), "%08X%X",
+                 static_cast<unsigned int>(nt_headers->FileHeader.TimeDateStamp),
+                 static_cast<unsigned int>(nt_headers->OptionalHeader.SizeOfImage));
+}
 #endif
 
 void CrashReporter_ResolveModule() {
@@ -774,6 +861,8 @@ void CrashReporter_ResolveModule() {
 
         if (nt_headers->Signature == IMAGE_NT_SIGNATURE) {
             CrashReporter_ModuleSize = nt_headers->OptionalHeader.SizeOfImage;
+
+            CrashReporter_ReadBuildIdCodeView(reinterpret_cast<const uint8_t*>(module), nt_headers);
         }
     }
 
@@ -894,6 +983,7 @@ void CrashReporter_BuildSystemInfo() {
     SDL_snprintf(CrashReporter_SystemInfo, sizeof(CrashReporter_SystemInfo),
                  "Version         : M.A.X. Port %d.%d.%d\n"
                  "Revision        : %s\n"
+                 "Build ID        : %s\n"
                  "Build           : %s %s, %s, built %s %s\n"
                  "Compiler        : %s\n"
                  "SDL             : %d.%d.%d headers, %d.%d.%d runtime (%s)\n"
@@ -906,6 +996,7 @@ void CrashReporter_BuildSystemInfo() {
 #else
                  "unknown",
 #endif
+                 CrashReporter_BuildId[0] != '\0' ? CrashReporter_BuildId : "unavailable",
                  CrashReporter_BuildType(), CrashReporter_Architecture(),
 #if defined(CROSS)
                  "cross compiled",
