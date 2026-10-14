@@ -307,6 +307,7 @@ public:
     int32_t GetRawConsumptionRate();
     void UpdateProduction();
     int32_t GetNormalRateBuildCost() const;
+    int32_t GetUpgradeCost() const;
     SmartObjectArray<ResourceID> GetBuildList();
     ResourceID GetConstructedUnitType() const;
     void CancelBuilding();

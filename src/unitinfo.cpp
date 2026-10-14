@@ -3681,6 +3681,8 @@ int32_t UnitInfo::GetNormalRateBuildCost() const {
     return result;
 }
 
+int32_t UnitInfo::GetUpgradeCost() const { return GetNormalRateBuildCost() / 4; }
+
 SmartObjectArray<ResourceID> UnitInfo::GetBuildList() { return build_list; }
 
 void UnitInfo::RemoveTask(Task* task, bool mode) {
@@ -4248,7 +4250,7 @@ bool UnitInfo::Upgrade(UnitInfo* parent) {
 
         complex->GetCargoInfo(materials, capacity);
 
-        int32_t materials_cost = parent->GetNormalRateBuildCost() / 4;
+        int32_t materials_cost = parent->GetUpgradeCost();
 
         if (materials.raw >= materials_cost) {
             parent->UpgradeInt();

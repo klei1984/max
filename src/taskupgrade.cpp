@@ -40,7 +40,7 @@ int32_t TaskUpgrade::GetTurnsToComplete() {
     int32_t result;
 
     if (AiPlayer_Teams[m_team].ShouldUpgradeUnit(&*target_unit)) {
-        result = target_unit->GetNormalRateBuildCost() / 4;
+        result = target_unit->GetUpgradeCost();
 
     } else {
         result = 1;
@@ -80,12 +80,22 @@ void TaskUpgrade::CreateUnit() {
 void TaskUpgrade::IssueOrder() {
     AILOG(log, "Upgrading {}.", ResourceManager_GetUnit(target_unit->GetUnitType()).GetSingularName().data());
 
-    operator_unit->SetParent(&*target_unit);
+    bool is_upgrade_affordable{false};
 
     if (AiPlayer_Teams[m_team].ShouldUpgradeUnit(&*target_unit)) {
+        Cargo materials;
+        Cargo capacity;
+
+        operator_unit->GetComplex()->GetCargoInfo(materials, capacity);
+        is_upgrade_affordable = materials.raw >= target_unit->GetUpgradeCost();
+    }
+
+    if (is_upgrade_affordable) {
+        operator_unit->SetParent(target_unit.Get());
         UnitsManager_SetNewOrder(&*operator_unit, ORDER_UPGRADE, ORDER_STATE_INIT);
 
     } else if (target_unit->ammo < target_unit->GetBaseValues()->GetAttribute(ATTRIB_AMMO)) {
+        operator_unit->SetParent(target_unit.Get());
         UnitsManager_SetNewOrder(&*operator_unit, ORDER_RELOAD, ORDER_STATE_INIT);
     }
 }

@@ -435,7 +435,7 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
                 costs.Append(&materials.raw);
             }
 
-            cost = (*it).GetNormalRateBuildCost() / 4;
+            cost = (*it).GetUpgradeCost();
 
             if (*costs[index] >= cost) {
                 (*it).SetParent(it->Get());
@@ -458,7 +458,7 @@ void UnitsManager_Popup_OnClick_UpgradeAll(ButtonID bid, UnitInfo* unit) {
     if (unit_count <= 0) {
         SmartString string;
 
-        MessageManager_DrawMessage(string.Sprintf(80, _(a0ee), unit->GetNormalRateBuildCost() / 4).GetCStr(),
+        MessageManager_DrawMessage(string.Sprintf(80, _(a0ee), unit->GetUpgradeCost()).GetCStr(),
                                    MESSAGE_BOX_WARNING, MESSAGE_BOX_MODELESS);
 
     } else if (unit_count == 1) {

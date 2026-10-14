@@ -651,7 +651,7 @@ bool RepairShopMenu::IsUpgradeViable(UnitInfo* target_unit) {
 
     repairshop->GetComplex()->GetCargoInfo(materials, capacity);
 
-    return materials.raw >= (target_unit->GetNormalRateBuildCost() / 4);
+    return materials.raw >= target_unit->GetUpgradeCost();
 }
 
 bool RepairShopMenu::IsActivateViable(UnitInfo* target_unit) {
