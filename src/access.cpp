@@ -1500,8 +1500,11 @@ UnitInfo* Access_GetActiveUnitWithFlags(int32_t grid_x, int32_t grid_y, uint32_t
         const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
         if (units) {
+            uint32_t units_to_examine = units->GetCount();
+
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-            for (it = units->Begin(), it_end = units->End(), unit = *it; it != it_end;) {
+            for (it = units->Begin(), it_end = units->End(), unit = *it; it != it_end && units_to_examine > 0;
+                 --units_to_examine) {
                 if (((*it).flags & flags) && !((*it).flags & GROUND_COVER) && (*it).GetOrder() != ORDER_IDLE) {
                     return it->Get();
                 }
