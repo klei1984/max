@@ -376,7 +376,7 @@ void AbstractUpgradeMenu::DrawUnitInfo(ResourceID unit_type) {
     upgrade_control_next_uly = static_cast<uint16_t>(cost_background->GetULY());
     button_background->Write(&dialog_window);
 
-    if (unit_type != INVALID_ID && Builder_IsBuildable(team, unit_type)) {
+    if (unit_type != INVALID_ID && IsBuildable(unit_type)) {
         AddUpgradeMilitary(unit_type);
         AdjustRowStorage(unit_type);
         AdjustRowConsumptions(unit_type);
@@ -678,16 +678,12 @@ bool AbstractUpgradeMenu::ProcessKey(int32_t key) {
     return result;
 }
 
-bool AbstractUpgradeMenu::IsUnitFiltered(ResourceID unit_type) {
-    bool result;
-    uint32_t flags;
-
-    flags = ResourceManager_GetUnit(unit_type).GetFlags();
+bool AbstractUpgradeMenu::IsBuildable(ResourceID unit_type) {
+    const uint32_t flags = ResourceManager_GetUnit(unit_type).GetFlags();
 
     bool is_buildable = Builder_IsBuildable(team, unit_type);
 
-    // Mines are upgradable but not buildable. They should appear in upgrade menus only if their deployer unit is
-    // buildable.
+    // Mines are upgradable but not buildable. They should be upgradable only if their deployer unit is buildable.
     if (!is_buildable && (flags & GROUND_COVER) && (flags & STATIONARY) && (flags & SENTRY_UNIT)) {
         if (unit_type == LANDMINE) {
             is_buildable = Builder_IsBuildable(team, MINELAYR);
@@ -697,7 +693,16 @@ bool AbstractUpgradeMenu::IsUnitFiltered(ResourceID unit_type) {
         }
     }
 
-    if ((flags & UPGRADABLE) && is_buildable) {
+    return is_buildable;
+}
+
+bool AbstractUpgradeMenu::IsUnitFiltered(ResourceID unit_type) {
+    bool result;
+    uint32_t flags;
+
+    flags = ResourceManager_GetUnit(unit_type).GetFlags();
+
+    if ((flags & UPGRADABLE) && IsBuildable(unit_type)) {
         if (((flags & MOBILE_LAND_UNIT) && button_ground_rest_state) ||
             ((flags & MOBILE_AIR_UNIT) && button_air_rest_state) ||
             ((flags & MOBILE_SEA_UNIT) && button_sea_rest_state) ||

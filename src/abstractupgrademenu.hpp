@@ -77,6 +77,7 @@ protected:
     void AdjustRowConsumptions(ResourceID unit_type);
     void AddUpgradeGeneric(ResourceID unit_type);
     void AddUpgradeMobile(ResourceID unit_type);
+    bool IsBuildable(ResourceID unit_type);
     bool IsUnitFiltered(ResourceID unit_type);
     bool IsBetterUnit(ResourceID unit_type1, ResourceID unit_type2);
 
