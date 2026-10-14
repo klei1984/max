@@ -79,7 +79,7 @@ bool MovieSubtitle::LoadFromResource(ResourceID resource_id) {
     char* filename = reinterpret_cast<char*>(ResourceManager_ReadResource(resource_id));
 
     if (!filename) {
-        SDL_Log("MovieSubtitle: Failed to read filename from resource %d\n", resource_id);
+        SDL_Log("MovieSubtitle: Failed to read filename from resource %d.", resource_id);
         return false;
     }
 
@@ -90,7 +90,7 @@ bool MovieSubtitle::LoadFromResource(ResourceID resource_id) {
     std::ifstream fs(filepath);
 
     if (!fs) {
-        SDL_Log("MovieSubtitle: Failed to open file: %s\n", filepath.string().c_str());
+        SDL_Log("MovieSubtitle: Failed to open file: %s.", filepath.string().c_str());
         return false;
     }
 
@@ -112,14 +112,14 @@ bool MovieSubtitle::ParseJson(const std::string& json_content, const std::string
                 schema_validator.validate(j);
 
             } catch (const std::exception& e) {
-                SDL_Log("MovieSubtitle: Schema validation failed: %s\n", e.what());
+                SDL_Log("MovieSubtitle: Schema validation failed: %s.", e.what());
 
                 return false;
             }
         }
 
         if (!j.contains("subtitle") || !j["subtitle"].is_object()) {
-            SDL_Log("MovieSubtitle: JSON missing 'subtitle' object\n");
+            SDL_Log("MovieSubtitle: JSON missing 'subtitle' object.");
 
             return false;
         }
@@ -135,7 +135,7 @@ bool MovieSubtitle::ParseJson(const std::string& json_content, const std::string
             selected_language = "en-US";
 
         } else {
-            SDL_Log("MovieSubtitle: No subtitle languages available\n");
+            SDL_Log("MovieSubtitle: No subtitle languages available.");
 
             return false;
         }
@@ -150,7 +150,7 @@ bool MovieSubtitle::ParseJson(const std::string& json_content, const std::string
             caption.caption = entry["caption"].get<std::string>();
 
             if (caption.start_frame >= caption.end_frame) {
-                SDL_Log("MovieSubtitle: Skipping entry with start >= end: '%s' (start=%d, end=%d)\n",
+                SDL_Log("MovieSubtitle: Skipping entry with start >= end: '%s' (start=%d, end=%d).",
                         caption.caption.substr(0, 40).c_str(), caption.start_frame, caption.end_frame);
                 continue;
             }
@@ -167,11 +167,11 @@ bool MovieSubtitle::ParseJson(const std::string& json_content, const std::string
         return m_loaded;
 
     } catch (const json::parse_error& e) {
-        SDL_Log("MovieSubtitle: JSON parse error: %s\n", e.what());
+        SDL_Log("MovieSubtitle: JSON parse error: %s.", e.what());
         return false;
 
     } catch (const std::exception& e) {
-        SDL_Log("MovieSubtitle: Error parsing subtitles: %s\n", e.what());
+        SDL_Log("MovieSubtitle: Error parsing subtitles: %s.", e.what());
         return false;
     }
 }

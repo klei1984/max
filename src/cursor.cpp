@@ -96,7 +96,7 @@ static SDL_Surface* Cursor_CreateScaledSurface(uint8_t* indexed_data, int32_t wi
     SDL_Surface* surface = SDL_CreateSurface(scaled_w, scaled_h, SDL_PIXELFORMAT_ARGB8888);
 
     if (!surface) {
-        SDL_Log("Cursor_CreateScaledSurface: SDL_CreateSurface failed: %s", SDL_GetError());
+        SDL_Log("Cursor_CreateScaledSurface: SDL_CreateSurface failed: %s.", SDL_GetError());
 
         return nullptr;
     }
@@ -105,7 +105,7 @@ static SDL_Surface* Cursor_CreateScaledSurface(uint8_t* indexed_data, int32_t wi
     SDL_Palette* palette = Svga_GetPalette();
 
     if (!palette || !palette->colors) {
-        SDL_Log("Cursor_CreateScaledSurface: No palette available");
+        SDL_Log("Cursor_CreateScaledSurface: No palette available.");
         SDL_DestroySurface(surface);
 
         return nullptr;
@@ -171,7 +171,7 @@ static SDL_Cursor* Cursor_CreateHardwareCursor(Cursor_Descriptor* desc, int32_t 
     SDL_DestroySurface(surface);
 
     if (!cursor) {
-        SDL_Log("Cursor_CreateHardwareCursor: SDL_CreateColorCursor failed: %s", SDL_GetError());
+        SDL_Log("Cursor_CreateHardwareCursor: SDL_CreateColorCursor failed: %s.", SDL_GetError());
     }
 
     return cursor;

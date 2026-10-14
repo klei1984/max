@@ -471,7 +471,7 @@ void ResourceManager_InitSDL() {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, _(cf05), _(438a), nullptr);
         SDL_Log("%s", _(438a));
-        SDL_Log("%s", SDL_GetError());
+        SDL_Log("%s.", SDL_GetError());
 
         SDL_Quit();
         exit(EXIT_FAILURE);
@@ -558,7 +558,14 @@ void ResourceManager_ExitGame(int32_t error_code) {
         menu_draw_exit_logos();
     }
 
-    SDL_Log("%s", ResourceManager_ErrorCodes[error_code]);
+    std::string_view exit_message{ResourceManager_ErrorCodes[error_code]};
+    const auto first = exit_message.find_first_not_of(" \r\n");
+
+    if (first != std::string_view::npos) {
+        exit_message = exit_message.substr(first, exit_message.find_last_not_of(" \r\n") - first + 1);
+
+        SDL_Log("%.*s", static_cast<int>(exit_message.size()), exit_message.data());
+    }
 
     ResourceManager_Exit();
 }
@@ -1189,7 +1196,7 @@ void ResourceManager_InitInGameAssets(int32_t world) {
     DrawLoadBar load_bar(_(df4f));
 
     if (!ResourceManager_ActiveWorld->LoadFullMap(&load_bar)) {
-        SDL_Log("ResourceManager: Failed to load full World data");
+        SDL_Log("ResourceManager: Failed to load full World data.");
         ResourceManager_ExitGame(EXIT_CODE_CANNOT_READ_RES_FILE);
     }
 
@@ -1409,7 +1416,7 @@ void ResourceManager_InitCrashReporter() {
     CrashContext_Register();
 
     SDL_Log("=== M.A.X. Port session start ===\n%s", CrashReporter_GetSystemInfo());
-    SDL_Log("Crash reports  : %s\n", CrashReporter_GetReportPath().string().c_str());
+    SDL_Log("Crash reports   : %s", CrashReporter_GetReportPath().string().c_str());
 }
 
 void ResourceManager_LogOutputHandler(void* userdata, int category, SDL_LogPriority priority, const char* message) {
@@ -1423,7 +1430,7 @@ void ResourceManager_LogOutputHandler(void* userdata, int category, SDL_LogPrior
     ResourceManager_MutexLock lock(ResourceManager_LogMutex);
 
     if (ResourceManager_LogFile->is_open()) {
-        *ResourceManager_LogFile << message;
+        *ResourceManager_LogFile << message << '\n';
     }
 }
 
@@ -1435,8 +1442,6 @@ void ResourceManager_LogOutputFlush() {
     ResourceManager_MutexLock lock(ResourceManager_LogMutex);
 
     if (ResourceManager_LogFile->is_open()) {
-        *ResourceManager_LogFile << std::endl;
-
         ResourceManager_LogFile->flush();
     }
 }
@@ -1575,7 +1580,7 @@ void ResourceManager_InitUnitAttributes() {
 
     if (ResourceManager_UnitAttributes && ResourceManager_UnitAttributes->LoadResource()) {
     } else {
-        SDL_Log("Warning: Failed to load unit attributes definitions.\n");
+        SDL_Log("Warning: Failed to load unit attributes definitions.");
     }
 }
 
@@ -1584,7 +1589,7 @@ void ResourceManager_InitClans() {
 
     if (ResourceManager_Clans && ResourceManager_Clans->LoadResource()) {
     } else {
-        SDL_Log("Warning: Failed to load clans definitions.\n");
+        SDL_Log("Warning: Failed to load clans definitions.");
     }
 }
 
@@ -1597,7 +1602,7 @@ void ResourceManager_InitSettings() {
         std::error_code ec;
         if (!std::filesystem::exists(settings_path, ec) || ec) {
             if (!ResourceManager_Settings->Save()) {
-                SDL_Log("Warning: Failed to create default settings file.\n");
+                SDL_Log("Warning: Failed to create default settings file.");
             }
         }
 
@@ -1612,7 +1617,7 @@ void ResourceManager_InitUnits() {
 
     if (ResourceManager_Units && ResourceManager_Units->LoadResource()) {
     } else {
-        SDL_Log("Warning: Failed to load unit definitions.\n");
+        SDL_Log("Warning: Failed to load unit definitions.");
     }
 }
 

@@ -118,7 +118,7 @@ uint32_t ParseFlags(const json& flags_array) {
             flags |= it->second;
 
         } else {
-            SDL_Log("Units: Unknown flag '%s'\n", flag.c_str());
+            SDL_Log("Units: Unknown flag '%s'.", flag.c_str());
         }
     }
 
@@ -135,7 +135,7 @@ uint8_t ParseLandType(const json& land_type_array) {
             land_type |= it->second;
 
         } else {
-            SDL_Log("Units: Unknown surface type '%s'\n", type.c_str());
+            SDL_Log("Units: Unknown surface type '%s'.", type.c_str());
         }
     }
 
@@ -149,7 +149,7 @@ Unit::CargoType ParseCargoType(const std::string& cargo_type_str) {
         return it->second;
     }
 
-    SDL_Log("Units: Unknown cargo type '%s'\n", cargo_type_str.c_str());
+    SDL_Log("Units: Unknown cargo type '%s'.", cargo_type_str.c_str());
 
     return Unit::CargoType::CARGO_TYPE_NONE;
 }
@@ -167,7 +167,7 @@ Unit::Gender ParseGender(const std::string& gender_str) {
         result = Unit::Gender::GENDER_NEUTER;
 
     } else {
-        SDL_Log("Units: Unknown gender '%s'\n", gender_str.c_str());
+        SDL_Log("Units: Unknown gender '%s'.", gender_str.c_str());
 
         result = Unit::Gender::GENDER_NEUTER;
     }
@@ -183,7 +183,7 @@ Unit::LocalizedGender ParseGenders(const json& gender_data) {
     }
 
     if (!result.count("en-US")) {
-        SDL_Log("Units: Gender table has no en-US fallback\n");
+        SDL_Log("Units: Gender table has no en-US fallback.");
 
         result["en-US"] = Unit::Gender::GENDER_NEUTER;
     }
@@ -202,7 +202,7 @@ uint32_t ParseHexString(const std::string& hex_str) {
             result = static_cast<uint32_t>(std::stoul(hex_str, nullptr, 16));
 
         } catch (const std::exception& e) {
-            SDL_Log("Units: Failed to parse hex string '%s': %s\n", hex_str.c_str(), e.what());
+            SDL_Log("Units: Failed to parse hex string '%s': %s.", hex_str.c_str(), e.what());
 
             result = 0;
         }
@@ -378,17 +378,17 @@ Units::~Units() {
                 (*m_units)[unit_name] = unit;
 
             } else {
-                SDL_Log("Units: Failed to create unit '%s'\n", unit_name.c_str());
+                SDL_Log("Units: Failed to create unit '%s'.", unit_name.c_str());
             }
         }
 
         result = true;
 
     } catch (const json::parse_error& e) {
-        SDL_Log("\n%s\n", (std::string("JSON parse error: ") + e.what()).c_str());
+        SDL_Log("JSON parse error: %s.", e.what());
 
     } catch (const std::exception& e) {
-        SDL_Log("\n%s\n", (std::string("JSON error: ") + e.what()).c_str());
+        SDL_Log("JSON error: %s.", e.what());
     }
 
     return result;

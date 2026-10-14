@@ -55,7 +55,7 @@ static void SDLCALL GameSetup_FolderDialogCallback(void* userdata, const char* c
     auto context = static_cast<struct GameSetup_FolderDialogContext*>(userdata);
 
     if (!filelist) {
-        SDL_Log("Folder dialog failed: %s\n", SDL_GetError());
+        SDL_Log("Folder dialog failed: %s.", SDL_GetError());
         context->State.store(GAMESETUP_DIALOG_FAILED, std::memory_order_release);
 
     } else if (!filelist[0]) {
@@ -127,7 +127,7 @@ static void GameSetup_MigrateSaveFiles(const std::filesystem::path& game_data_pa
                 if (std::filesystem::copy_file(entry.path(),
                                                ResourceManager_FilePathGamePref / entry.path().filename(),
                                                std::filesystem::copy_options::skip_existing, copy_ec)) {
-                    SDL_Log("Migrated save file %s\n", entry.path().filename().string().c_str());
+                    SDL_Log("Migrated save file %s.", entry.path().filename().string().c_str());
                 }
 
                 break;
@@ -162,7 +162,7 @@ bool GameSetup_Run(std::filesystem::path& game_data_path) {
         int32_t button_id{GAMESETUP_BUTTON_QUIT};
 
         if (!SDL_ShowMessageBox(&message_box, &button_id)) {
-            SDL_Log("%s\n", SDL_GetError());
+            SDL_Log("%s.", SDL_GetError());
 
             return false;
         }
@@ -202,7 +202,7 @@ bool GameSetup_Run(std::filesystem::path& game_data_path) {
         ResourceManager_GetSettings()->SetStringValue("game_data", folder.string());
 
         if (!ResourceManager_GetSettings()->Save()) {
-            SDL_Log("Failed to persist the game data folder into the settings.\n");
+            SDL_Log("Failed to persist the game data folder into the settings.");
         }
 
         GameSetup_MigrateSaveFiles(folder);

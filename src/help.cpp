@@ -127,10 +127,10 @@ bool Help::LoadFile(const std::string& path) {
             result = true;
 
         } catch (const json::parse_error& e) {
-            SDL_Log("\n%s\n", (std::string("JSON parse error: ") + e.what()).c_str());
+            SDL_Log("JSON parse error: %s.", e.what());
 
         } catch (const std::exception& e) {
-            SDL_Log("\n%s\n", (std::string("JSON parse error: ") + e.what()).c_str());
+            SDL_Log("JSON parse error: %s.", e.what());
         }
     }
 

@@ -67,7 +67,7 @@ MissionRegistry::MissionRegistry(const std::filesystem::path& root) {
         }
 
     } else {
-        SDL_Log("\nInvalid folder path to mission descriptors: %s\n", root.string().c_str());
+        SDL_Log("Invalid folder path to mission descriptors: %s.", root.string().c_str());
     }
 
     for (uint32_t i = 0; i < MISSION_CATEGORY_COUNT; ++i) {

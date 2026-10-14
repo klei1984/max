@@ -80,7 +80,7 @@ std::string utf8_tolower_str(const std::string& input) {
         result = codepoints_to_utf8(codepoints);
 
     } catch (const std::exception& e) {
-        SDL_Log("\n%s\n", (std::string("UTF-8 parse error: ") + e.what()).c_str());
+        SDL_Log("UTF-8 parse error: %s.", e.what());
     }
 
     return result;
@@ -99,7 +99,7 @@ std::string utf8_toupper_str(const std::string& input) {
         result = codepoints_to_utf8(codepoints);
 
     } catch (const std::exception& e) {
-        SDL_Log("\n%s\n", (std::string("UTF-8 parse error: ") + e.what()).c_str());
+        SDL_Log("UTF-8 parse error: %s.", e.what());
     }
 
     return result;
@@ -116,7 +116,7 @@ size_t utf8_strlen(const char* str) {
         return codepoints.size();
 
     } catch (const std::exception& e) {
-        SDL_Log("\nUTF-8 strlen error: %s\n", e.what());
+        SDL_Log("UTF-8 strlen error: %s.", e.what());
 
         return strlen(str);
     }

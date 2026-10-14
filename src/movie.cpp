@@ -194,7 +194,7 @@ int32_t movie_run(ResourceID resource_id, int32_t track, ResourceID subtitle_id)
             if (!movie_subtitle->LoadFromResource(subtitle_id)) {
                 movie_subtitle.reset();
 
-                SDL_Log("movie_run: Failed to load subtitle resource %d", subtitle_id);
+                SDL_Log("movie_run: Failed to load subtitle resource %d.", subtitle_id);
             }
         }
 

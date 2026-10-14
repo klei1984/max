@@ -85,7 +85,7 @@ Uint32 Svga_SetupDisplayMode(SDL_Rect* bounds) {
         display_mode = *detected_display_mode;
 
     } else {
-        SDL_Log("SDL_GetCurrentDisplayMode failed: %s\n", SDL_GetError());
+        SDL_Log("SDL_GetCurrentDisplayMode failed: %s.", SDL_GetError());
 
         display_mode.refresh_rate = SVGA_DEFAULT_REFRESH_RATE;
         display_mode.format = SDL_PIXELFORMAT_XRGB8888;
@@ -128,7 +128,7 @@ Uint32 Svga_SetupDisplayMode(SDL_Rect* bounds) {
         } break;
 
         default: {
-            SDL_Log("Unsupported screen mode: %d\n", Svga_ScreenMode);
+            SDL_Log("Unsupported screen mode: %d.", Svga_ScreenMode);
         } break;
     }
 
@@ -137,7 +137,7 @@ Uint32 Svga_SetupDisplayMode(SDL_Rect* bounds) {
 
     } else {
         if (!SDL_GetDisplayBounds(Svga_DisplayID, bounds)) {
-            SDL_Log("SDL_GetDisplayBounds failed: %s\n", SDL_GetError());
+            SDL_Log("SDL_GetDisplayBounds failed: %s.", SDL_GetError());
 
             *bounds = {0, 0, Svga_ScreenWidth, Svga_ScreenHeight};
         }
@@ -176,21 +176,21 @@ int32_t Svga_Init(void) {
 
     if ((sdlWindow = SDL_CreateWindow("M.A.X.: Mechanized Assault & Exploration", bounds.w, bounds.h, flags)) ==
         nullptr) {
-        SDL_Log("SDL_CreateWindow failed: %s\n", SDL_GetError());
+        SDL_Log("SDL_CreateWindow failed: %s.", SDL_GetError());
     }
 
     if ((sdlRenderer = SDL_CreateRenderer(sdlWindow, nullptr)) == nullptr) {
-        SDL_Log("SDL_CreateRenderer failed: %s\n", SDL_GetError());
+        SDL_Log("SDL_CreateRenderer failed: %s.", SDL_GetError());
     }
 
     // Disable VSync to prevent blocking the game loop.
     if (!SDL_SetRenderVSync(sdlRenderer, 0)) {
-        SDL_Log("SDL_SetRenderVSync failed: %s\n", SDL_GetError());
+        SDL_Log("SDL_SetRenderVSync failed: %s.", SDL_GetError());
     }
 
     if (!SDL_SetRenderLogicalPresentation(sdlRenderer, Svga_ScreenWidth, Svga_ScreenHeight,
                                           SDL_LOGICAL_PRESENTATION_LETTERBOX)) {
-        SDL_Log("SDL_SetRenderLogicalPresentation failed: %s\n", SDL_GetError());
+        SDL_Log("SDL_SetRenderLogicalPresentation failed: %s.", SDL_GetError());
     }
 
     sdlWindowSurface = SDL_CreateSurface(Svga_ScreenWidth, Svga_ScreenHeight, Svga_DisplayPixelFormat);
@@ -231,11 +231,11 @@ int32_t Svga_Init(void) {
     scr_size.uly = 0;
 
     if (!SDL_RenderClear(sdlRenderer)) {
-        SDL_Log("SDL_RenderClear failed: %s\n", SDL_GetError());
+        SDL_Log("SDL_RenderClear failed: %s.", SDL_GetError());
     }
 
     if (!SDL_RenderPresent(sdlRenderer)) {
-        SDL_Log("SDL_RenderPresent failed: %s\n", SDL_GetError());
+        SDL_Log("SDL_RenderPresent failed: %s.", SDL_GetError());
     }
 
     if (sdlWindowSurface && sdlTexture && sdlPaletteSurface) {
@@ -305,7 +305,7 @@ static inline void svga_stage_palette_to_rgb(SDL_Rect* bounds) {
     }
 
     if (!SDL_BlitSurfaceUnchecked(sdlPaletteSurface, bounds, sdlWindowSurface, bounds)) {
-        SDL_Log("SDL_BlitSurface failed: %s\n", SDL_GetError());
+        SDL_Log("SDL_BlitSurface failed: %s.", SDL_GetError());
     }
 }
 
@@ -326,14 +326,14 @@ static inline void svga_stage_rgb_to_texture(const SDL_Rect* bounds) {
             SDL_UnlockTexture(sdlTexture);
 
         } else {
-            SDL_Log("SDL_LockTexture failed: %s\n", SDL_GetError());
+            SDL_Log("SDL_LockTexture failed: %s.", SDL_GetError());
         }
 
     } else {
         if (!SDL_UpdateTexture(sdlTexture, bounds,
                                &((Uint32*)sdlWindowSurface->pixels)[bounds->x + sdlPaletteSurface->pitch * bounds->y],
                                sdlWindowSurface->pitch)) {
-            SDL_Log("SDL_UpdateTexture failed: %s\n", SDL_GetError());
+            SDL_Log("SDL_UpdateTexture failed: %s.", SDL_GetError());
         }
     }
 }
@@ -416,11 +416,11 @@ void Svga_BackgroundProcess(void) {
 
         // Ensure the current texture state is rendered before presenting
         if (!SDL_RenderTexture(sdlRenderer, sdlTexture, nullptr, nullptr)) {
-            SDL_Log("SDL_RenderTexture failed: %s\n", SDL_GetError());
+            SDL_Log("SDL_RenderTexture failed: %s.", SDL_GetError());
         }
 
         if (!SDL_RenderPresent(sdlRenderer)) {
-            SDL_Log("SDL_RenderPresent failed: %s\n", SDL_GetError());
+            SDL_Log("SDL_RenderPresent failed: %s.", SDL_GetError());
         }
     }
 }
@@ -459,7 +459,7 @@ void Svga_SetPaletteColor(int32_t index, SDL_Color* color) {
     auto palette = SDL_GetSurfacePalette(sdlPaletteSurface);
 
     if (!palette || !SDL_SetPaletteColors(palette, color, index, 1)) {
-        SDL_Log("SDL_SetPaletteColors failed: %s\n", SDL_GetError());
+        SDL_Log("SDL_SetPaletteColors failed: %s.", SDL_GetError());
     }
 
     Svga_RefreshSystemPalette(index == PALETTE_SIZE - 1);
@@ -467,7 +467,7 @@ void Svga_SetPaletteColor(int32_t index, SDL_Color* color) {
 
 void Svga_SetPalette(SDL_Palette* palette) {
     if (!SDL_SetSurfacePalette(sdlPaletteSurface, palette)) {
-        SDL_Log("SDL_SetSurfacePalette failed: %s\n", SDL_GetError());
+        SDL_Log("SDL_SetSurfacePalette failed: %s.", SDL_GetError());
     }
 
     Svga_RefreshSystemPalette(true);
@@ -576,43 +576,43 @@ void Svga_ToggleFullscreen(void) {
         }
 
         if (!SDL_GetDisplayBounds(Svga_DisplayID, &bounds)) {
-            SDL_Log("SDL_GetDisplayBounds failed: %s\n", SDL_GetError());
+            SDL_Log("SDL_GetDisplayBounds failed: %s.", SDL_GetError());
             return;
         }
 
         switch (new_mode) {
             case WINDOW_MODE_WINDOWED: {
                 if (!SDL_SetWindowFullscreen(sdlWindow, false)) {
-                    SDL_Log("SDL_SetWindowFullscreen(false) failed: %s\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowFullscreen(false) failed: %s.", SDL_GetError());
                     return;
                 }
 
                 // Ensure window has a border (might have been borderless)
                 if (!SDL_SetWindowBordered(sdlWindow, true)) {
-                    SDL_Log("SDL_SetWindowBordered failed: %s\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowBordered failed: %s.", SDL_GetError());
                 }
 
                 // Set window size to logical resolution (aspect ratio corrected)
                 if (!SDL_SetWindowSize(sdlWindow, Svga_ScreenWidth, Svga_ScreenHeight)) {
-                    SDL_Log("SDL_SetWindowSize failed: %s\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowSize failed: %s.", SDL_GetError());
                 }
 
                 // Center the window on the display
                 if (!SDL_SetWindowPosition(sdlWindow, SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex),
                                            SDL_WINDOWPOS_CENTERED_DISPLAY(Svga_DisplayIndex))) {
-                    SDL_Log("SDL_SetWindowPosition failed: %s\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowPosition failed: %s.", SDL_GetError());
                 }
             } break;
 
             case WINDOW_MODE_FULLSCREEN: {
                 // Set window size to desktop resolution before going fullscreen
                 if (!SDL_SetWindowSize(sdlWindow, bounds.w, bounds.h)) {
-                    SDL_Log("SDL_SetWindowSize failed: %s\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowSize failed: %s.", SDL_GetError());
                 }
 
                 // Enter exclusive fullscreen mode
                 if (!SDL_SetWindowFullscreen(sdlWindow, true)) {
-                    SDL_Log("SDL_SetWindowFullscreen(true) failed: %s\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowFullscreen(true) failed: %s.", SDL_GetError());
                     return;
                 }
             } break;
@@ -620,18 +620,18 @@ void Svga_ToggleFullscreen(void) {
             case WINDOW_MODE_BORDERLESS: {
                 // Set window size to desktop resolution before going fullscreen
                 if (!SDL_SetWindowSize(sdlWindow, bounds.w, bounds.h)) {
-                    SDL_Log("SDL_SetWindowSize failed: %s\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowSize failed: %s.", SDL_GetError());
                 }
 
                 // Enter borderless fullscreen mode (uses SDL_WINDOW_FULLSCREEN in SDL3, but with borderless behavior)
                 if (!SDL_SetWindowFullscreen(sdlWindow, true)) {
-                    SDL_Log("SDL_SetWindowFullscreen(true) failed: %s\n", SDL_GetError());
+                    SDL_Log("SDL_SetWindowFullscreen(true) failed: %s.", SDL_GetError());
                     return;
                 }
             } break;
 
             default: {
-                SDL_Log("Svga_ToggleFullscreen: Unknown mode %d\n", new_mode);
+                SDL_Log("Svga_ToggleFullscreen: Unknown mode %d.", new_mode);
                 return;
             }
         }

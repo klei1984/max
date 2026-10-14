@@ -109,10 +109,10 @@ bool Language::LoadFile(const std::string& path) {
             result = true;
 
         } catch (const json::parse_error& e) {
-            SDL_Log("\n%s\n", (std::string("JSON parse error: ") + e.what()).c_str());
+            SDL_Log("JSON parse error: %s.", e.what());
 
         } catch (const std::exception& e) {
-            SDL_Log("\n%s\n", (std::string("JSON parse error: ") + e.what()).c_str());
+            SDL_Log("JSON parse error: %s.", e.what());
         }
     }
 
@@ -155,7 +155,7 @@ const std::string& Language::GetMissingEntry(const uint32_t key) {
          * any conversion specifier. It carries the key in the same notation the _() macro uses in the sources. */
         it->second = std::format("<missing string {:04x}>", key);
 
-        SDL_Log("Language: key %04x is not in the loaded string catalog.\n", key);
+        SDL_Log("Language: key %04x is not in the loaded string catalog.", key);
     }
 
     return it->second;

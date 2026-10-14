@@ -81,7 +81,7 @@ bool WinLossHandler::TestWinLossConditions(const int64_t team, WinLossState& sta
             result = true;
 
         } else {
-            SDL_Log("\n%s\n", error.c_str());
+            SDL_Log("%s.", error.c_str());
             SDL_assert(0);
 
             result = false;

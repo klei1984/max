@@ -1282,7 +1282,7 @@ static int LuaPrintRedirect(lua_State* lua) {
         if (lua_pcall(lua, 1, 1, 0) != LUA_OK) {
             const char* error = lua_tostring(lua, -1);
 
-            SDL_Log("\n%s\n", (std::string("Script error: ") + error).c_str());
+            SDL_Log("Script error: %s.", error);
 
             lua_pop(lua, 1);
         }
@@ -1302,7 +1302,7 @@ static int LuaPrintRedirect(lua_State* lua) {
         lua_pop(lua, 1);
     }
 
-    SDL_Log("\nScript message: %s\n", string.c_str());
+    SDL_Log("Script message: %s", string.c_str());
 
     return 0;
 }

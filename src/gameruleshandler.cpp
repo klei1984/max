@@ -59,7 +59,7 @@ bool GameRulesHandler::LoadScript(const Mission& mission) {
                     result = true;
 
                 } else {
-                    SDL_Log("\n%s\n", error.c_str());
+                    SDL_Log("%s.", error.c_str());
                     SDL_assert(0);
 
                     result = false;
@@ -76,7 +76,7 @@ bool GameRulesHandler::LoadScript(const Mission& mission) {
             }
 
         } else {
-            SDL_Log("\n%s\n", error.c_str());
+            SDL_Log("%s.", error.c_str());
             SDL_assert(0);
 
             result = false;
@@ -116,7 +116,7 @@ ResourceID GameRulesHandler::GetBuilderType(const uint16_t team, const ResourceI
             }
 
         } else {
-            SDL_Log("\n%s\n", error.c_str());
+            SDL_Log("%s.", error.c_str());
         }
     }
 
@@ -138,7 +138,7 @@ bool GameRulesHandler::IsBuildable(const uint16_t team, const ResourceID unit_ty
             }
 
         } else {
-            SDL_Log("\n%s\n", error.c_str());
+            SDL_Log("%s.", error.c_str());
         }
     }
 
@@ -167,7 +167,7 @@ std::vector<ResourceID> GameRulesHandler::GetBuildableUnits(const uint16_t team,
             }
 
         } else {
-            SDL_Log("\n%s\n", error.c_str());
+            SDL_Log("%s.", error.c_str());
         }
     }
 
@@ -186,7 +186,7 @@ bool GameRulesHandler::InitClanLoadoutRules() {
                 std::string error;
 
                 if (!Scripter::RunScript(m_interpreter, clan_script, arguments, results, &error)) {
-                    SDL_Log("\n%s\n", error.c_str());
+                    SDL_Log("%s.", error.c_str());
 
                     return false;
                 }
@@ -229,7 +229,7 @@ bool GameRulesHandler::GetMissionLoadout(const uint16_t team, const std::string&
             }
 
         } else {
-            SDL_Log("\n%s\n", error.c_str());
+            SDL_Log("%s.", error.c_str());
         }
     }
 

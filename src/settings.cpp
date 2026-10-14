@@ -233,7 +233,7 @@ static void Settings_RelaxAdditionalProperties(json& schema) {
             validator.validate(jscript);
 
         } catch (const std::exception& e) {
-            SDL_Log("Error: Settings validation failed: %s\n", e.what());
+            SDL_Log("Error: Settings validation failed: %s.", e.what());
             return false;
         }
 
@@ -255,7 +255,7 @@ static void Settings_RelaxAdditionalProperties(json& schema) {
 
                     } else {
                         SDL_Log("Warning: Settings key \"%s\" is not known, it is ignored and will be dropped when the "
-                                "settings are saved.\n",
+                                "settings are saved.",
                                 key.c_str());
                     }
                 }
@@ -267,10 +267,10 @@ static void Settings_RelaxAdditionalProperties(json& schema) {
         ValidateNames();
 
     } catch (const json::parse_error& e) {
-        SDL_Log("\n%s\n", (std::string("JSON parse error: ") + e.what()).c_str());
+        SDL_Log("JSON parse error: %s.", e.what());
 
     } catch (const std::exception& e) {
-        SDL_Log("\n%s\n", (std::string("JSON error: ") + e.what()).c_str());
+        SDL_Log("JSON error: %s.", e.what());
     }
 
     return result;
@@ -287,7 +287,7 @@ static void Settings_RelaxAdditionalProperties(json& schema) {
         result = LoadScript(contents);
 
     } else {
-        SDL_Log("Settings file not found at %s, using defaults\n", m_filepath.string().c_str());
+        SDL_Log("Settings file not found at %s, using defaults.", m_filepath.string().c_str());
 
         result = true;
     }
@@ -358,13 +358,13 @@ static void Settings_RelaxAdditionalProperties(json& schema) {
 
             for (const auto& key : stale_keys) {
                 section_data.erase(key);
-                SDL_Log("Dropped unknown settings key \"%s\".\n", key.c_str());
+                SDL_Log("Dropped unknown settings key \"%s\".", key.c_str());
             }
         }
 
         for (const auto& section_name : stale_sections) {
             settings_obj.erase(section_name);
-            SDL_Log("Dropped unknown settings section \"%s\".\n", section_name.c_str());
+            SDL_Log("Dropped unknown settings section \"%s\".", section_name.c_str());
         }
 
     } else {
@@ -432,14 +432,14 @@ static const T* Settings_FindDefaultValue(
                            [&key](const auto& pair) { return pair.first == key; });
 
     if (it == definitions.end()) {
-        SDL_Log("Error: Settings key \"%s\" is not defined.\n", key.c_str());
+        SDL_Log("Error: Settings key \"%s\" is not defined.", key.c_str());
         SDL_assert(0);
 
         return nullptr;
     }
 
     if (!std::holds_alternative<T>(it->second.default_value)) {
-        SDL_Log("Error: Settings key \"%s\" requested as the wrong type, it is defined as %s.\n", key.c_str(),
+        SDL_Log("Error: Settings key \"%s\" requested as the wrong type, it is defined as %s.", key.c_str(),
                 std::holds_alternative<int32_t>(it->second.default_value) ? "numeric" : "string");
         SDL_assert(0);
 

@@ -216,7 +216,7 @@ bool SaveLoad_GetSaveFileInfoV70(SmartFileReader& file, struct SaveFileInfo& sav
     } catch (const std::exception& e) {
         result = false;
 
-        SDL_Log("\n%s\n", (std::format("Save Format V71 error: {}.", e.what()).c_str()));
+        SDL_Log("Save Format V71 error: %s.", e.what());
     };
 
     return result;
@@ -303,7 +303,7 @@ bool SaveLoad_GetSaveFileInfoV71(SmartFileReader& file, struct SaveFileInfo& sav
     } catch (const std::exception& e) {
         result = false;
 
-        SDL_Log("\n%s\n", (std::format("Save Format V71 error: {}.", e.what()).c_str()));
+        SDL_Log("Save Format V71 error: %s.", e.what());
     };
 
     return result;

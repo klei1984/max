@@ -1065,7 +1065,7 @@ bool CrashReporter_Init(const std::filesystem::path& pref_path) {
     std::filesystem::create_directories(directory, error);
 
     if (error) {
-        SDL_Log("CrashReporter: unable to create \"%s\", crash reports are disabled.\n", directory.string().c_str());
+        SDL_Log("CrashReporter: unable to create \"%s\", crash reports are disabled.", directory.string().c_str());
 
         return false;
     }

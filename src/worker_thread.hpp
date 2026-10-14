@@ -228,10 +228,10 @@ private:
                     result = job->Execute();
 
                 } catch (const std::exception& e) {
-                    SDL_Log("WorkerThread: job threw \"%s\", result discarded.\n", e.what());
+                    SDL_Log("WorkerThread: job threw \"%s\", result discarded.", e.what());
 
                 } catch (...) {
-                    SDL_Log("WorkerThread: job threw an unknown exception, result discarded.\n");
+                    SDL_Log("WorkerThread: job threw an unknown exception, result discarded.");
                 }
 
                 // Store result - minimize lock duration

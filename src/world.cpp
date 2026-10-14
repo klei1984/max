@@ -48,7 +48,7 @@ World::World(ResourceID resource_id)
     char* resource_name = reinterpret_cast<char*>(ResourceManager_ReadResource(resource_id));
 
     if (!resource_name) {
-        SDL_Log("World: Failed to resolve ResourceID %d to filename", resource_id);
+        SDL_Log("World: Failed to resolve ResourceID %d to filename.", resource_id);
 
         return;
     }
@@ -67,7 +67,7 @@ World::World(ResourceID resource_id)
         m_file_path = (path_prefix / ResourceManager_StringToUpperCase(filename)).lexically_normal();
 
         if (!std::filesystem::exists(m_file_path, ec) || ec) {
-            SDL_Log("World: WRL file not found: %s", filename.c_str());
+            SDL_Log("World: WRL file not found: %s.", filename.c_str());
 
             return;
         }
@@ -76,13 +76,13 @@ World::World(ResourceID resource_id)
     FILE* fp = fopen(m_file_path.string().c_str(), "rb");
 
     if (!fp) {
-        SDL_Log("World: Failed to open WRL file: %s", m_file_path.string().c_str());
+        SDL_Log("World: Failed to open WRL file: %s.", m_file_path.string().c_str());
 
         return;
     }
 
     if (!ParseWrlFilePreview(fp)) {
-        SDL_Log("World: Failed to parse WRL preview: %s", m_file_path.string().c_str());
+        SDL_Log("World: Failed to parse WRL preview: %s.", m_file_path.string().c_str());
     }
 
     fclose(fp);
@@ -92,13 +92,13 @@ World::~World() {}
 
 bool World::LoadFullMap(DrawLoadBar* load_bar) {
     if (!load_bar) {
-        SDL_Log("World: LoadFullMap called with null load_bar");
+        SDL_Log("World: LoadFullMap called with null load_bar.");
 
         return false;
     }
 
     if (m_is_fully_loaded) {
-        SDL_Log("World: LoadFullMap called but map already fully loaded");
+        SDL_Log("World: LoadFullMap called but map already fully loaded.");
 
         return true;
     }
@@ -106,7 +106,7 @@ bool World::LoadFullMap(DrawLoadBar* load_bar) {
     FILE* fp = fopen(m_file_path.string().c_str(), "rb");
 
     if (!fp) {
-        SDL_Log("World: Failed to open WRL file for full load: %s", m_file_path.string().c_str());
+        SDL_Log("World: Failed to open WRL file for full load: %s.", m_file_path.string().c_str());
 
         return false;
     }
@@ -573,7 +573,7 @@ void World::ApplyBugFixes() {
                     }
                 }
 
-                SDL_Log("World: Applied GREEN_4 bug fix (tile 190 pass table correction)");
+                SDL_Log("World: Applied GREEN_4 bug fix (tile 190 pass table correction).");
             }
         } break;
 
@@ -589,7 +589,7 @@ void World::ApplyBugFixes() {
 
                 m_tile_ids[m_map_size.x * grid_y_57 + grid_x_57] = tile_55;
 
-                SDL_Log("World: Applied SNOW_3 bug fix (grid 57,57 tile correction)");
+                SDL_Log("World: Applied SNOW_3 bug fix (grid 57,57 tile correction).");
             }
         } break;
 
@@ -743,7 +743,7 @@ void World::ApplyBugFixes() {
                 auto new_tile_buffer = std::make_unique<uint8_t[]>(new_buffer_size);
 
                 if (!new_tile_buffer) {
-                    SDL_Log("World: Failed to allocate memory for SNOW_5 bug fix");
+                    SDL_Log("World: Failed to allocate memory for SNOW_5 bug fix.");
                     return;
                 }
 
@@ -776,7 +776,7 @@ void World::ApplyBugFixes() {
                 // Update surface map
                 m_surface_map[m_map_size.x * grid_y_66 + grid_x_55] = SURFACE_TYPE_AIR;
 
-                SDL_Log("World: Applied SNOW_5 bug fix (injected missing tile 411 art)");
+                SDL_Log("World: Applied SNOW_5 bug fix (injected missing tile 411 art).");
             }
         } break;
     }
