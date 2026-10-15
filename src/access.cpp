@@ -923,7 +923,7 @@ void Access_UpdateResourcesTotal(Complex* complex) {
     for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
          ++it) {
         if ((*it).GetComplex() == complex) {
-            inventory = Cargo_GetNetProduction(it->Get(), true);
+            inventory = Cargo_GetNetProduction(it->Get(), false);
             inventory += Cargo_GetInventory(it->Get());
 
             complex->material += inventory.raw;
