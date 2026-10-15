@@ -8713,6 +8713,22 @@
 			"it-IT": "Verifica della sincronizzazione della partita...\n\nPremere Annulla per interrompere la verifica e uscire dalla partita.",
 			"es-ES": "Verificando la sincronización de la partida...\n\nPulse Cancelar para cancelar la verificación y abandonar la partida.",
 			"ru-RU": "Проверка синхронизации игры...\n\nНажмите Отмена, чтобы прервать проверку и покинуть игру."
+		},
+		"bd00": {
+			"en-US": "Credit",
+			"fr-FR": "Credit",
+			"de-DE": "Kredit",
+			"it-IT": "Credito",
+			"es-ES": "Crédito",
+			"ru-RU": "Ресурс"
+		},
+		"7423": {
+			"en-US": "Credits",
+			"fr-FR": "Credits",
+			"de-DE": "Kredite",
+			"it-IT": "Crediti",
+			"es-ES": "Créditos",
+			"ru-RU": "Ресурсов"
 		}
 	}
 }

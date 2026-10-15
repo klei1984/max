@@ -356,11 +356,11 @@ void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_pl
             ++visible_team;
             lrx = ulx + 90;
 
+            const uint32_t credits_spent = UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades;
+
             Text_TypeWriter_TextBox(
                 window,
-                SmartString()
-                    .Sprintf(12, "%i %s", UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades, _(6249))
-                    .GetCStr(),
+                SmartString().Sprintf(32, "%u %s", credits_spent, (credits_spent == 1) ? _(bd00) : _(7423)).GetCStr(),
                 ulx, 326, lrx - ulx, 2);
         }
     }
