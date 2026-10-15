@@ -142,6 +142,7 @@ static void UnitsManager_BuildingReady(UnitInfo* unit);
 static bool UnitsManager_AttemptStealthAction(UnitInfo* unit);
 static void UnitsManager_CaptureUnit(UnitInfo* unit);
 static void UnitsManager_DisableUnit(UnitInfo* unit);
+static void UnitsManager_UpdateSabotagedUnitSelection(UnitInfo* unit, uint16_t old_team);
 static bool UnitsManager_AssessAttacks();
 static bool UnitsManager_IsTeamReactionPending(uint16_t team, UnitInfo* unit, SmartList<UnitInfo>* units);
 static bool UnitsManager_ShouldAttack(UnitInfo* unit1, UnitInfo* unit2);
@@ -4168,6 +4169,35 @@ void UnitsManager_CaptureUnit(UnitInfo* unit) {
     parent->ChangeTeam(old_team);
 
     Ai_UnitSpotted(unit, new_team);
+
+    UnitsManager_UpdateSabotagedUnitSelection(&*parent, old_team);
+}
+
+void UnitsManager_UpdateSabotagedUnitSelection(UnitInfo* unit, uint16_t old_team) {
+    if (GameManager_SelectedUnit != unit) {
+        return;
+    }
+
+    GameManager_DeinitPopupButtons(false);
+
+    if (old_team == GameManager_PlayerTeam && unit->team != GameManager_PlayerTeam) {
+        GameManager_MenuUnitSelect(nullptr);
+
+        if (ResourceManager_GetSettings()->GetNumericValue("auto_select")) {
+            GameManager_SelectNextUnit(1);
+        }
+
+    } else {
+        if (GameManager_DisplayControlsInitialized) {
+            Gamemanager_FlicButton->Enable(unit->team == GameManager_PlayerTeam);
+        }
+
+        GameManager_UpdateInfoDisplay(unit);
+
+        if (unit->team == GameManager_PlayerTeam) {
+            GameManager_AutoSelectNext(unit);
+        }
+    }
 }
 
 void UnitsManager_DisableUnit(UnitInfo* unit) {
@@ -4263,6 +4293,8 @@ void UnitsManager_DisableUnit(UnitInfo* unit) {
         ProductionManager_OptimizeProduction(parent->team, parent->GetComplex(), &*parent,
                                              GameManager_PlayerTeam == parent->team);
     }
+
+    UnitsManager_UpdateSabotagedUnitSelection(&*parent, parent->team);
 }
 
 bool UnitsManager_AssessAttacks() {
