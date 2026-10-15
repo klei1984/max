@@ -1711,7 +1711,7 @@ void Access_ValidateUnitsOnTerrain(int32_t grid_x, int32_t grid_y, const UnitInf
 
             // Landed aircraft require a landing pad - destroy if no landing pad present
             if ((unit->flags & MOBILE_AIR_UNIT) && !(unit->flags & HOVERING) && !has_landing_pad) {
-                UnitsManager_DestroyUnit(unit);
+                UnitsManager_DestroyUnit(unit, true);
                 continue;
             }
 
@@ -1723,7 +1723,7 @@ void Access_ValidateUnitsOnTerrain(int32_t grid_x, int32_t grid_y, const UnitInf
 
             // Check if unit's land type is compatible with surface type
             if (!(unit_land_type & surface_type)) {
-                UnitsManager_DestroyUnit(unit);
+                UnitsManager_DestroyUnit(unit, true);
             }
         }
     }

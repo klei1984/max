@@ -3580,11 +3580,11 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
         units = &UnitsManager_MobileLandSeaUnits;
     }
 
-    for (auto it = units->Begin(); Access_IsHeldByUnit(unit, units, &it); UnitsManager_DestroyUnit(it->Get())) {
+    for (auto it = units->Begin(); Access_IsHeldByUnit(unit, units, &it); UnitsManager_DestroyUnit(it->Get(), true)) {
         if ((*it).GetUnitType() == SEATRANS || (*it).GetUnitType() == AIRTRANS || (*it).GetUnitType() == CLNTRANS) {
             for (auto it2 = UnitsManager_MobileLandSeaUnits.Begin();
                  Access_IsHeldByUnit(it->Get(), &UnitsManager_MobileLandSeaUnits, &it2);
-                 UnitsManager_DestroyUnit(it2->Get())) {
+                 UnitsManager_DestroyUnit(it2->Get(), true)) {
             }
         }
     }
@@ -3600,7 +3600,8 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
         skip_rubble_removal = true;
     }
 
-    UnitsManager_DestroyUnit(unit);
+    // only a destroyed unit is a casualty, a unit removed via the quick build menu is not
+    UnitsManager_DestroyUnit(unit, mode);
 
     if ((unit_flags & STATIONARY) && UnitsManager_TeamInfo[unit_team].team_type != TEAM_TYPE_REMOTE) {
         UnitsManager_TeamInfo[unit_team].team_units->OptimizeComplexes(unit_team);
@@ -3839,7 +3840,11 @@ void UnitsManager_StartExplosion(UnitInfo* unit) {
 
 void UnitsManager_ProgressExplosion(UnitInfo* unit) {
     if (unit->GetImageIndex() == unit->image_index_max) {
-        UnitsManager_DestroyUnit(unit);
+        // Units in ORDER_EXPLODE are either explosion effects, which the casualty filter of UnitsManager_DestroyUnit()
+        // rejects (EXPLODING, not SELECTABLE), or infantry and commandos that die by their own animation. Any other
+        // dying unit restored its orders in UnitsManager_StartExplosion() and is destroyed by
+        // UnitsManager_BuildClearing().
+        UnitsManager_DestroyUnit(unit, true);
 
     } else {
         if (unit->GetParent() && unit->GetImageIndex() == unit->image_index_max / 2) {
