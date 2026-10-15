@@ -22,6 +22,8 @@
 #ifndef TEAMMISSIONSUPPLIES_HPP
 #define TEAMMISSIONSUPPLIES_HPP
 
+#include <vector>
+
 #include "resource_manager.hpp"
 #include "smartobjectarray.hpp"
 
@@ -35,6 +37,8 @@ public:
     uint16_t start_gold;
     /// Size of the free mission loadout, which `units` no longer reveals once purchases are appended to it.
     uint16_t unit_count;
+    /// Free cargo of each mission loadout unit, which `cargos` no longer reveals once the player changes it.
+    std::vector<uint16_t> loadout_cargos;
     uint8_t proximity_alert_ack;
 
     TeamMissionSupplies();

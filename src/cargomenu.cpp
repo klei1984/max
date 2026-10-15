@@ -73,11 +73,17 @@ CargoMenu::CargoMenu(uint16_t team) : AbstractUpgradeMenu(team, CARGOPIC) {
         team_gold = start_gold;
         unit_count = 0;
 
+        UnitsManager_TeamMissionSupplies[team].loadout_cargos.clear();
+
         auto mission_manager = ResourceManager_GetMissionManager();
         if (mission_manager && mission_manager->GetGameRulesHandler()) {
             if (mission_manager->GetGameRulesHandler()->GetMissionLoadout(team, clan_id,
                                                                           UnitsManager_TeamMissionSupplies[team])) {
                 unit_count = UnitsManager_TeamMissionSupplies[team].units.GetCount();
+
+                for (uint32_t i = 0; i < unit_count; ++i) {
+                    UnitsManager_TeamMissionSupplies[team].loadout_cargos.push_back(*cargos[i]);
+                }
             }
         }
 
@@ -292,15 +298,12 @@ void CargoMenu::Select(uint32_t index) {
     ResourceID unit;
     ResourceID vbar;
 
-    if (index) {
-        if (index == 1) {
-            scrollbar->SetXferTakeMax(4);
-        } else {
-            scrollbar->SetXferTakeMax(0);
-        }
+    // the free cargo of a mission loadout unit cannot be sold
+    if (index < unit_count) {
+        scrollbar->SetXferTakeMax(UnitsManager_TeamMissionSupplies[team].loadout_cargos[index] / 5);
 
     } else {
-        scrollbar->SetXferTakeMax(8);
+        scrollbar->SetXferTakeMax(0);
     }
 
     if (index >= unit_count) {
@@ -425,35 +428,34 @@ void CargoMenu::DrawUnitStats(ResourceID unit_type) {
 }
 
 void CargoMenu::CommitUpgradeChanges() {
-    int32_t cargo;
+    const auto& loadout_cargos = UnitsManager_TeamMissionSupplies[team].loadout_cargos;
+    uint32_t& credits_spent = UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades;
 
     AbstractUpgradeMenu::CommitUpgradeChanges();
 
     UnitsManager_TeamMissionSupplies[team].start_gold = start_gold;
     UnitsManager_TeamMissionSupplies[team].team_gold = team_gold;
 
+    // purchased units were bought
     for (uint32_t i = unit_count; i < unit_types2->GetCount(); ++i) {
-        UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades -=
-            UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], *unit_types2[i])
-                ->GetAttribute(ATTRIB_TURNS) *
-            Cargo_GetRawConsumptionRate(LANDPLT, 1);
+        credits_spent -= UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], *unit_types2[i])
+                             ->GetAttribute(ATTRIB_TURNS) *
+                         Cargo_GetRawConsumptionRate(LANDPLT, 1);
     }
+
+    // cargo costs a flat rate of 1 credit per 5 units, except the free cargo of the mission loadout units
+    uint32_t cargo_total = 0;
+    uint32_t cargo_free = 0;
 
     for (uint32_t i = 0; i < unit_types2->GetCount(); ++i) {
-        cargo = *cargos[i];
-
-        switch (i) {
-            case 0: {
-                cargo -= 40;
-            } break;
-
-            case 1: {
-                cargo -= 20;
-            } break;
-        }
-
-        UnitsManager_TeamInfo[team].stats_gold_spent_on_upgrades -= cargo / 5;
+        cargo_total += *cargos[i];
     }
+
+    for (const auto cargo : loadout_cargos) {
+        cargo_free += cargo;
+    }
+
+    credits_spent -= (cargo_total - cargo_free) / 5;
 }
 
 bool CargoMenu::ProcessKey(int32_t key) {
