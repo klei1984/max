@@ -788,6 +788,8 @@ int32_t NetworkMenu::SetupScenario(int32_t mode) {
             if (file_exists && rng_seed == save_file_info.random_seed) {
                 if (ResourceManager_GetMissionManager()->LoadMission(
                         static_cast<MissionCategory>(save_file_info.save_file_category), multi_scenario_id - 1)) {
+                    ResourceManager_GetMissionManager()->SetMissionStart(true);
+
                     is_incompatible_save_file = false;
                 }
             }
@@ -805,6 +807,7 @@ int32_t NetworkMenu::SetupScenario(int32_t mode) {
                     if (ResourceManager_GetMissionManager()->LoadMission(MISSION_CATEGORY_MULTI_PLAYER_SCENARIO,
                                                                          mission_hash)) {
                         ResourceManager_GetMissionManager()->GetMission()->SetMission(file_path);
+                        ResourceManager_GetMissionManager()->SetMissionStart(true);
 
                         is_incompatible_save_file = false;
                     }

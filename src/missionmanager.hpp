@@ -36,6 +36,7 @@ class MissionManager {
     std::shared_ptr<Mission> m_mission;
     std::unique_ptr<GameRulesHandler> m_gameruleshandler;
     std::unique_ptr<WinLossHandler> m_winlosshandler;
+    bool m_mission_start{false};
 
     void SetupMission();
 
@@ -55,6 +56,8 @@ public:
     const std::shared_ptr<Mission> FindMission(const MissionCategory category, const std::string hash) const;
     void HandleMissionStateChanges();
     void ResetMission();
+    void SetMissionStart(const bool mission_start);
+    [[nodiscard]] bool IsMissionStart() const;
     const std::vector<std::shared_ptr<Mission>>& GetMissions(const MissionCategory category) const noexcept;
     int32_t GetMissionIndex(const MissionCategory category, const std::vector<std::string>& hashes) const;
     int32_t GetMissionIndex(const MissionCategory category, const std::string hash) const;

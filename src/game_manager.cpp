@@ -1924,6 +1924,12 @@ void GameManager_GameSetup(int32_t game_state) {
         GameManager_GameState = GAME_STATE_10_LOAD_GAME;
 
         if (SaveLoad_Load(filepath, mission_category, !Remote_IsNetworkGame, Remote_IsNetworkGame)) {
+            if (ResourceManager_GetMissionManager()->IsMissionStart()) {
+                ResourceManager_GetMissionManager()->SetMissionStart(false);
+
+                UnitsManager_RecountBuiltStatistics();
+            }
+
             GameManager_UpdateDrawBounds();
             Access_UpdateVisibilityStatus(GameManager_AllVisible, false);
 

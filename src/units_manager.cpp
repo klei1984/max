@@ -1926,6 +1926,42 @@ bool UnitsManager_IsUnitUnderWater(UnitInfo* unit) {
     return result;
 }
 
+void UnitsManager_RecountBuiltStatistics() {
+    for (auto& team_info : UnitsManager_TeamInfo) {
+        team_info.stats_factories_built = 0;
+        team_info.stats_mines_built = 0;
+        team_info.stats_buildings_built = 0;
+        team_info.stats_units_built = 0;
+    }
+
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
+        CTInfo* team_info = &UnitsManager_TeamInfo[(*it).team];
+
+        if (UnitsManager_IsFactory((*it).GetUnitType())) {
+            ++team_info->stats_factories_built;
+        }
+
+        if ((*it).GetUnitType() == MININGST) {
+            ++team_info->stats_mines_built;
+        }
+
+        if (((*it).flags & BUILDING) && !((*it).flags & GROUND_COVER)) {
+            ++team_info->stats_buildings_built;
+        }
+    }
+
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
+        ++UnitsManager_TeamInfo[(*it).team].stats_units_built;
+    }
+
+    for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+         ++it) {
+        ++UnitsManager_TeamInfo[(*it).team].stats_units_built;
+    }
+}
+
 void UnitsManager_UpdateConnectors(UnitInfo* unit) {
     unit->RefreshScreen();
 

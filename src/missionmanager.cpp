@@ -35,6 +35,8 @@ MissionManager::MissionManager() : m_language(ResourceManager_GetSystemLocale())
 MissionManager::~MissionManager() {}
 
 void MissionManager::SetupMission() {
+    m_mission_start = false;
+
     if (m_mission) {
         MaxRegistryHandler::Init();
         m_mission->SetLanguage(m_language);
@@ -104,8 +106,13 @@ const std::shared_ptr<Mission> MissionManager::FindMission(const MissionCategory
 
 void MissionManager::ResetMission() {
     m_mission.reset();
+    m_mission_start = false;
     MaxRegistryHandler::Reset();
 }
+
+void MissionManager::SetMissionStart(const bool mission_start) { m_mission_start = mission_start; }
+
+bool MissionManager::IsMissionStart() const { return m_mission_start; }
 
 const std::vector<std::shared_ptr<Mission>>& MissionManager::GetMissions(
     const MissionCategory category) const noexcept {

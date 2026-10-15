@@ -1279,6 +1279,7 @@ int32_t play_attract_demo(const int32_t save_slot) {
             backup_blue_team_name = settings->GetStringValue("blue_team_name");
             backup_gray_team_name = settings->GetStringValue("gray_team_name");
 
+            ResourceManager_GetMissionManager()->SetMissionStart(true);
             GameManager_GameLoop(GAME_STATE_10_LOAD_GAME);
 
             settings->SetNumericValue("opponent", backup_opponent);
@@ -2082,6 +2083,7 @@ int32_t GameSetupMenu_Menu(const MissionCategory mission_category, bool flag1, c
                     }
 
                     if (menu_choose_player_menu_loop(is_single_player)) {
+                        ResourceManager_GetMissionManager()->SetMissionStart(true);
                         GameManager_GameLoop(GAME_STATE_10_LOAD_GAME);
                         palette_from_image = true;
                     } else {
@@ -2089,6 +2091,7 @@ int32_t GameSetupMenu_Menu(const MissionCategory mission_category, bool flag1, c
                     }
 
                 } else {
+                    ResourceManager_GetMissionManager()->SetMissionStart(true);
                     GameManager_GameLoop(GAME_STATE_10_LOAD_GAME);
                     palette_from_image = true;
                 }
