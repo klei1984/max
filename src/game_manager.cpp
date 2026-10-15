@@ -5520,8 +5520,10 @@ void GameManager_ProcessKey() {
 
         case GNW_KB_KEY_LALT_D: {
 #if !defined(NDEBUG)
-            UnitsManager_SetNewOrder(GameManager_SelectedUnit.Get(), ORDER_EXPLODE, ORDER_STATE_EXPLODE);
-            GameManager_AutoSelectNext(GameManager_SelectedUnit.Get());
+            if (GameManager_SelectedUnit) {
+                UnitsManager_SetNewOrder(GameManager_SelectedUnit.Get(), ORDER_EXPLODE, ORDER_STATE_EXPLODE);
+                GameManager_AutoSelectNext(GameManager_SelectedUnit.Get());
+            }
 #endif /* !defined(NDEBUG) */
         } break;
 
