@@ -334,8 +334,10 @@ void menu_draw_game_over_screen(WindowInfo* window, const int32_t* const team_pl
             team_info = &UnitsManager_TeamInfo[team];
             casualties = 0;
 
+            // units built counts mobile units only, so units lost must not include buildings, connectors or mines
             for (int32_t j = 0; j < UNIT_END; ++j) {
-                if (ResourceManager_GetUnit(static_cast<ResourceID>(j)).GetFlags() & SELECTABLE) {
+                if (ResourceManager_GetUnit(static_cast<ResourceID>(j)).GetFlags() &
+                    (MOBILE_AIR_UNIT | MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) {
                     casualties += team_info->casualties[j];
                 }
             }
