@@ -1809,14 +1809,22 @@ void UnitsManager_ProcessOrders() {
         if (UnitsManager_PendingAttacks.GetCount() > 0) {
             auto unit_it = UnitsManager_PendingAttacks.Begin();
 
-            SDL_assert((*unit_it).hits > 0);
+            if ((*unit_it).hits == 0 || (*unit_it).GetOrderState() == ORDER_STATE_DESTROY) {
+                // the attacker is dying, UnitsManager_DestroyUnit() releases its pin
+                UnitsManager_PendingAttacks.Remove(unit_it);
 
-            if ((*unit_it).shots > 0) {
-                if ((*unit_it).GetOrder() == ORDER_FIRE) {
-                    (*unit_it).SetOrderState(ORDER_STATE_ATTACK_BEGINNING);
+            } else if ((*unit_it).GetOrder() != ORDER_FIRE) {
+                // a hit animation only suspends the fire order, any other order abandons the attack
+                if ((*unit_it).GetOrder() != ORDER_EXPLODE || (*unit_it).GetPriorOrder() != ORDER_FIRE) {
+                    (*unit_it).UpdatePinCount((*unit_it).fire_on_grid_x, (*unit_it).fire_on_grid_y, -1);
 
                     UnitsManager_PendingAttacks.Remove(unit_it);
                 }
+
+            } else if ((*unit_it).shots > 0) {
+                (*unit_it).SetOrderState(ORDER_STATE_ATTACK_BEGINNING);
+
+                UnitsManager_PendingAttacks.Remove(unit_it);
 
             } else {
                 AILOG(log, "{} at [{},{}] cannot fire.",
