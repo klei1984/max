@@ -2212,6 +2212,12 @@ void UnitsManager_DestroyUnit(UnitInfo* unit, bool count_casualty) {
         }
     }
 
+    // the temporary tape of an open build site selection belongs to the selecting unit
+    if (GameManager_TempTape != nullptr && GameManager_TempTape->GetParent() == unit) {
+        UnitsManager_DestroyUnit(&*GameManager_TempTape);
+        GameManager_TempTape = nullptr;
+    }
+
     if (unit->GetPriorOrder() == ORDER_FIRE && unit->GetPriorOrderState() != ORDER_STATE_INIT) {
         unit->UpdatePinCount(unit->fire_on_grid_x, unit->fire_on_grid_y, -1);
     }
