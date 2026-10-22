@@ -22,20 +22,7 @@
 #ifndef VERSION_HPP
 #define VERSION_HPP
 
-#if !defined(GAME_VERSION_MAJOR)
-#define GAME_VERSION_MAJOR 0
-#warning "Game major version number is not set by CMake."
-#endif
-
-#if !defined(GAME_VERSION_MINOR)
-#define GAME_VERSION_MINOR 0
-#warning "Game minor version number is not set by CMake."
-#endif
-
-#if !defined(GAME_VERSION_PATCH)
-#define GAME_VERSION_PATCH 0
-#warning "Game patch version number is not set by CMake."
-#endif
+#include "version_info.hpp"
 
 #define GAME_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | ((patch) << 0))
 

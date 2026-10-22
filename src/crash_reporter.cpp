@@ -37,6 +37,7 @@
 
 #include "backtrace-supported.h"
 #include "backtrace.h"
+#include "version.hpp"
 
 #if defined(_WIN32)
 #include <fcntl.h>
