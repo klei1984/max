@@ -1861,7 +1861,6 @@ void GameManager_GameSetup(int32_t game_state) {
     Ai_Init();
 
     ResourceManager_GetPathsManager().Clear();
-    Paths_ClearSiteReservations();
 
     if (game_state == GAME_STATE_6_GAME_SETUP) {
         const auto mission_category = ResourceManager_GetMissionManager()->GetMission()->GetCategory();
@@ -3314,7 +3313,6 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
         Ai_Init();
 
         ResourceManager_GetPathsManager().Clear();
-        Paths_ClearSiteReservations();
 
         GameManager_LockedUnits.Clear();
 

@@ -48,7 +48,6 @@
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
-#include "paths.hpp"
 #include "paths_manager.hpp"
 #include "randomizer.hpp"
 #include "screendump.h"
@@ -574,7 +573,6 @@ void ResourceManager_Exit() {
     ResourceManager_DeinitSoundManager();
     win_exit();
     ResourceManager_PathsManager.reset();
-    Paths_ClearSiteReservations();
     SDL_Quit();
 
     ResourceManager_DestroyMutexes();

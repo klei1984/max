@@ -34,8 +34,6 @@
 #include "units_manager.hpp"
 #include "window_manager.hpp"
 
-SmartObjectArray<Point> Paths_SiteReservations;
-
 static constexpr Point Paths_8DirPointsArrayMarkerA[DIRECTION_COUNT] = {{0, -10}, {8, -8}, {10, 0},  {8, 8},
                                                                         {0, 10},  {-8, 8}, {-10, 0}, {-8, -8}};
 
@@ -457,19 +455,3 @@ bool Paths_IsOccupied(int32_t grid_x, int32_t grid_y, int32_t angle, int32_t tea
 
     return false;
 }
-
-void Paths_ReserveSite(const Point site) noexcept { Paths_SiteReservations.PushBack(&site); }
-
-void Paths_RemoveSiteReservation(const Point site) noexcept {
-    const int64_t position{Paths_SiteReservations->Find(&site)};
-
-    SDL_assert(position != -1);
-
-    if (position != -1) {
-        Paths_SiteReservations.Remove(position);
-    }
-}
-
-void Paths_ClearSiteReservations() noexcept { Paths_SiteReservations.Clear(); }
-
-[[nodiscard]] bool Paths_IsSiteReserved(const Point site) noexcept { return Paths_SiteReservations->Find(&site) != -1; }

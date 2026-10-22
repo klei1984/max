@@ -136,6 +136,7 @@ static void UnitsManager_ActivateUnit(UnitInfo* unit);
 static void UnitsManager_StartExplosion(UnitInfo* unit);
 static void UnitsManager_ProgressExplosion(UnitInfo* unit);
 static void UnitsManager_ProgressUnloading(UnitInfo* unit);
+static bool UnitsManager_IsUnloadSiteTaken(UnitInfo* unit);
 static void UnitsManager_StartClearing(UnitInfo* unit);
 static void UnitsManager_ProgressLoading(UnitInfo* unit);
 static void UnitsManager_BuildingReady(UnitInfo* unit);
@@ -2877,14 +2878,11 @@ void UnitsManager_ProcessOrderUnload(UnitInfo* unit) {
             unit->moved = 0;
             unit->SetOrderState(ORDER_STATE_UNLOADING_IN_PROGRESS);
 
-            const Point site{unit->grid_x, unit->grid_y};
-
-            if (Paths_IsSiteReserved(site) || Paths_IsOccupied(unit->grid_x, unit->grid_y, 0, unit->team)) {
+            if (UnitsManager_IsUnloadSiteTaken(unit) || Paths_IsOccupied(unit->grid_x, unit->grid_y, 0, unit->team)) {
                 unit->SetOrder(ORDER_AWAIT);
                 unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
 
             } else {
-                Paths_ReserveSite(site);
                 UnitsManager_ProgressUnloading(unit);
             }
         } break;
@@ -3924,14 +3922,30 @@ void UnitsManager_ProgressUnloading(UnitInfo* unit) {
 
         unit->SetOrderState(ORDER_STATE_FINISH_UNLOADING);
 
-        const Point site{client->grid_x, client->grid_y};
-
-        Paths_RemoveSiteReservation(site);
-
         if (GameManager_SelectedUnit == unit) {
             GameManager_UpdateInfoDisplay(unit);
         }
     }
+}
+
+bool UnitsManager_IsUnloadSiteTaken(UnitInfo* unit) {
+    // the unit lowered by another air transport occupies the site only once it is placed
+    for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
+         ++it) {
+        if (it->Get() != unit && (*it).hits > 0 && (*it).grid_x == unit->grid_x && (*it).grid_y == unit->grid_y) {
+            // a disable or a hit animation only suspends the unloading
+            const bool is_suspended =
+                ((*it).GetOrder() == ORDER_DISABLE || (*it).GetOrder() == ORDER_EXPLODE) &&
+                (*it).GetPriorOrder() == ORDER_UNLOAD && (*it).GetPriorOrderState() == ORDER_STATE_UNLOADING_IN_PROGRESS;
+
+            if (((*it).GetOrder() == ORDER_UNLOAD && (*it).GetOrderState() == ORDER_STATE_UNLOADING_IN_PROGRESS) ||
+                is_suspended) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 void UnitsManager_StartClearing(UnitInfo* unit) {
