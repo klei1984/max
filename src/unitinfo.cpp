@@ -4742,7 +4742,7 @@ void UnitInfo::ChangeTeam(uint16_t target_team) {
     path = nullptr;
     RemoveTasks();
     Ai_RemoveUnit(this);
-    Access_UpdateMapStatus(this, true);
+    Access_UpdateMapStatus(this, false);
 
     if (UnitsManager_TeamInfo[team].heat_map) {
         visible_to_team[team] = UnitsManager_TeamInfo[team].heat_map->GetComplete(grid_x, grid_y) > 0;
