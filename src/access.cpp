@@ -1670,7 +1670,8 @@ void Access_DestroyGroundCovers(UnitInfo* unit) {
     }
 }
 
-void Access_ValidateUnitsOnTerrain(int32_t grid_x, int32_t grid_y, const UnitInfo* destroyed_unit) {
+void Access_FindUnitsOnInvalidTerrain(int32_t grid_x, int32_t grid_y, const UnitInfo* destroyed_unit,
+                                      SmartList<UnitInfo>* stranded_units) {
     const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
     if (units) {
@@ -1709,9 +1710,9 @@ void Access_ValidateUnitsOnTerrain(int32_t grid_x, int32_t grid_y, const UnitInf
                 continue;
             }
 
-            // Landed aircraft require a landing pad - destroy if no landing pad present
+            // Landed aircraft require a landing pad - stranded if no landing pad present
             if ((unit->flags & MOBILE_AIR_UNIT) && !(unit->flags & HOVERING) && !has_landing_pad) {
-                UnitsManager_DestroyUnit(unit, true);
+                stranded_units->PushBack(*unit);
                 continue;
             }
 
@@ -1723,7 +1724,7 @@ void Access_ValidateUnitsOnTerrain(int32_t grid_x, int32_t grid_y, const UnitInf
 
             // Check if unit's land type is compatible with surface type
             if (!(unit_land_type & surface_type)) {
-                UnitsManager_DestroyUnit(unit, true);
+                stranded_units->PushBack(*unit);
             }
         }
     }

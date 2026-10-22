@@ -3550,17 +3550,19 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
         }
     }
 
+    SmartList<UnitInfo> stranded_units;
+
     if ((unit_flags & (MOBILE_AIR_UNIT | MOBILE_LAND_UNIT | STATIONARY)) && !(unit->flags & HOVERING)) {
         Access_DestroyGroundCovers(unit);
 
         if (unit->flags & BUILDING) {
-            Access_ValidateUnitsOnTerrain(unit_grid_x, unit_grid_y, unit);
-            Access_ValidateUnitsOnTerrain(unit_grid_x + 1, unit_grid_y, unit);
-            Access_ValidateUnitsOnTerrain(unit_grid_x, unit_grid_y + 1, unit);
-            Access_ValidateUnitsOnTerrain(unit_grid_x + 1, unit_grid_y + 1, unit);
+            Access_FindUnitsOnInvalidTerrain(unit_grid_x, unit_grid_y, unit, &stranded_units);
+            Access_FindUnitsOnInvalidTerrain(unit_grid_x + 1, unit_grid_y, unit, &stranded_units);
+            Access_FindUnitsOnInvalidTerrain(unit_grid_x, unit_grid_y + 1, unit, &stranded_units);
+            Access_FindUnitsOnInvalidTerrain(unit_grid_x + 1, unit_grid_y + 1, unit, &stranded_units);
 
         } else {
-            Access_ValidateUnitsOnTerrain(unit_grid_x, unit_grid_y, unit);
+            Access_FindUnitsOnInvalidTerrain(unit_grid_x, unit_grid_y, unit, &stranded_units);
         }
     }
 
@@ -3646,6 +3648,19 @@ void UnitsManager_BuildClearing(UnitInfo* unit, bool mode) {
             &*UnitsManager_DeployUnit(rubble_type, unit_team, nullptr, unit_grid_x, unit_grid_y, image_index);
 
         rubble_unit->storage = cargo_amount;
+    }
+
+    // stranded units are cleared once this unit is gone, a unit in transit may be listed twice
+    for (auto it = stranded_units.Begin(), it_end = stranded_units.End(); it != it_end; ++it) {
+        if ((*it).hits > 0) {
+            if ((*it).GetUnitType() == LANDMINE || (*it).GetUnitType() == SEAMINE) {
+                // a sunken mine does not detonate
+                UnitsManager_DestroyUnit(it->Get(), true);
+
+            } else {
+                UnitsManager_BuildClearing(it->Get(), true);
+            }
+        }
     }
 
     GameManager_RenderMinimapDisplay = true;
