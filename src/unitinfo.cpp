@@ -3603,7 +3603,9 @@ void UnitInfo::BlockedOnPathRequest(bool mode, bool skip_notification) {
     MoveFinished(mode);
 
     if (Remote_IsNetworkGame) {
-        if (!skip_notification) {
+        // every peer runs the movement code, only the peer that controls the unit's team notifies the others
+        if (!skip_notification && UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_REMOTE &&
+            UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED) {
             Remote_SendNetPacket_41(this, mode);
         }
     }
