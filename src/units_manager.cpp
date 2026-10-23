@@ -1392,7 +1392,7 @@ static bool UnitsManager_IsStealthActionInProgress(UnitInfo* unit) {
              (prior_order == ORDER_AWAIT_STEAL_UNIT || prior_order == ORDER_AWAIT_DISABLE_UNIT)));
 }
 
-bool UnitsManager_IsEngagedByInfiltrator(UnitInfo* unit) {
+static bool UnitsManager_IsEngagedByInfiltrator(UnitInfo* unit) {
     // the infiltrator holds its target from the order to the resolution; derived from the infiltrator's own order
     // and parent, so the hold cannot leak, survives saving and ends with the sequence or the infiltrator
     for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
@@ -1404,6 +1404,12 @@ bool UnitsManager_IsEngagedByInfiltrator(UnitInfo* unit) {
     }
 
     return false;
+}
+
+bool UnitsManager_IsEngaged(UnitInfo* unit) {
+    // the one test of every primitive that takes a unit off its cell or off the map: an attack pins its target and
+    // an infiltrator holds its target, and both have to find the unit where it was
+    return unit->AreTherePins() || UnitsManager_IsEngagedByInfiltrator(unit);
 }
 
 SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, uint16_t team, int32_t grid_x, int32_t grid_y,
@@ -2992,6 +2998,11 @@ void UnitsManager_ProcessOrderSentry(UnitInfo* unit) {
 void UnitsManager_ProcessOrderLand(UnitInfo* unit) {
     Ai_SetTasksPendingFlag("Landing");
 
+    // an engaged aircraft holds its descent into a hangar, a landing pad keeps it on the map
+    if (unit->GetParent() && UnitsManager_IsEngaged(unit)) {
+        return;
+    }
+
     switch (unit->GetOrderState()) {
         case ORDER_STATE_INIT: {
             unit->moved = 0;
@@ -3038,12 +3049,15 @@ void UnitsManager_ProcessOrderLoad(UnitInfo* unit) {
 
     switch (unit->GetOrderState()) {
         case ORDER_STATE_INIT: {
-            unit->moved = 0;
-            unit->SetOrderState(ORDER_STATE_LOADING_IN_PROGRESS);
+            // an engaged passenger is not picked up until the attack or stealth action is over
+            if (!UnitsManager_IsEngaged(unit->GetParent())) {
+                unit->moved = 0;
+                unit->SetOrderState(ORDER_STATE_LOADING_IN_PROGRESS);
 
-            UnitsManager_ScaleUnit(unit->GetParent(), ORDER_STATE_SHRINK);
+                UnitsManager_ScaleUnit(unit->GetParent(), ORDER_STATE_SHRINK);
 
-            UnitsManager_ProgressLoading(unit);
+                UnitsManager_ProgressLoading(unit);
+            }
         } break;
 
         case ORDER_STATE_LOADING_IN_PROGRESS: {
@@ -4056,6 +4070,11 @@ void UnitsManager_StartClearing(UnitInfo* unit) {
 }
 
 void UnitsManager_ProgressLoading(UnitInfo* unit) {
+    // a passenger engaged during the descent stays on the map, the transporter holds until it is free
+    if (UnitsManager_IsEngaged(unit->GetParent())) {
+        return;
+    }
+
     if (unit->Land()) {
         UnitValues* base_values = unit->GetBaseValues();
         SmartPointer<UnitInfo> parent(unit->GetParent());

@@ -1632,7 +1632,7 @@ bool UnitInfo::ExecuteMove() {
 
     RefreshScreen();
 
-    if (pin_count > 0 || UnitsManager_IsEngagedByInfiltrator(this)) {
+    if (UnitsManager_IsEngaged(this)) {
         result = false;
     } else {
         if (path) {
@@ -1727,7 +1727,7 @@ void UnitInfo::Move() {
     bool team_visibility;
 
     do {
-        if (pin_count > 0 || UnitsManager_IsEngagedByInfiltrator(this)) {
+        if (UnitsManager_IsEngaged(this)) {
             return;
         }
 
@@ -3220,7 +3220,8 @@ void UnitInfo::ClearPins() { pin_count = 0; }
 bool UnitInfo::AttemptSideStep(int32_t grid_x, int32_t grid_y, int32_t angle) {
     bool result;
 
-    if (orders == ORDER_AWAIT || orders == ORDER_SENTRY || orders == ORDER_MOVE) {
+    // an engaged unit keeps its cell and its order, the mover has to treat it as a blocker
+    if ((orders == ORDER_AWAIT || orders == ORDER_SENTRY || orders == ORDER_MOVE) && !UnitsManager_IsEngaged(this)) {
         if (speed > 0 || UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER) {
             if (this->grid_x != grid_x || this->grid_y != grid_y) {
                 int32_t backup_grid_x = this->grid_x;
@@ -4035,11 +4036,9 @@ void UnitInfo::StepMoveUnit(Point position) {
     }
 }
 
-void UnitInfo::PrepareConstructionSite(ResourceID unit_type) {
-    uint32_t unit_flags = ResourceManager_GetUnit(unit_type).GetFlags();
-    SmartPointer<UnitInfo> utility_unit(Access_GetConstructionUtility(team, grid_x, grid_y));
-    Point position(utility_unit->grid_x, utility_unit->grid_y);
-
+/* the hidden units that the start of a building moves off its site */
+template <typename Function>
+static void UnitInfo_ForEachUnitToDisplace(Point position, uint32_t unit_flags, Function&& function) {
     if (unit_flags & BUILDING) {
         Point site;
 
@@ -4050,14 +4049,34 @@ void UnitInfo::PrepareConstructionSite(ResourceID unit_type) {
                 if (units) {
                     // the end node must be cached in case Hash_MapHash.Remove() deletes the list
                     for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
-                        if ((*it).unit_type == COMMANDO || (*it).unit_type == SUBMARNE || (*it).unit_type == CLNTRANS) {
-                            (*it).StepMoveUnit(position);
+                        if ((*it).GetUnitType() == COMMANDO || (*it).GetUnitType() == SUBMARNE ||
+                            (*it).GetUnitType() == CLNTRANS) {
+                            function(*it);
                         }
                     }
                 }
             }
         }
     }
+}
+
+static bool UnitInfo_IsSiteEngaged(UnitInfo* builder, ResourceID unit_type) {
+    SmartPointer<UnitInfo> utility_unit(Access_GetConstructionUtility(builder->team, builder->grid_x, builder->grid_y));
+    bool result{false};
+
+    UnitInfo_ForEachUnitToDisplace(Point(utility_unit->grid_x, utility_unit->grid_y),
+                                   ResourceManager_GetUnit(unit_type).GetFlags(),
+                                   [&result](UnitInfo& unit) { result = result || UnitsManager_IsEngaged(&unit); });
+
+    return result;
+}
+
+void UnitInfo::PrepareConstructionSite(ResourceID unit_type) {
+    uint32_t unit_flags = ResourceManager_GetUnit(unit_type).GetFlags();
+    SmartPointer<UnitInfo> utility_unit(Access_GetConstructionUtility(team, grid_x, grid_y));
+    Point position(utility_unit->grid_x, utility_unit->grid_y);
+
+    UnitInfo_ForEachUnitToDisplace(position, unit_flags, [&position](UnitInfo& unit) { unit.StepMoveUnit(position); });
 
     if (unit_flags & REQUIRES_SLAB) {
         ResourceID slab_type = (unit_flags & BUILDING) ? LRGSLAB : SMLSLAB;
@@ -4356,6 +4375,13 @@ void UnitInfo::PositionInTape() {
     RefreshScreen();
 
     if (moved >= 4) {
+        // the site is prepared only when nothing that it takes off its cell or off the map is engaged
+        if ((unit_type == MASTER && (UnitsManager_IsEngaged(this) || UnitInfo_IsSiteEngaged(this, MININGST))) ||
+            (unit_type == CONSTRCT && state == ORDER_STATE_TAPE_POSITIONING_ENTER &&
+             UnitInfo_IsSiteEngaged(this, GetConstructedUnitType()))) {
+            return;
+        }
+
         uint8_t old_state = state;
 
         RestoreOrders();

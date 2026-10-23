@@ -69,7 +69,7 @@ bool UnitsManager_IsMasterBuilderPlaceable(UnitInfo* unit, int32_t grid_x, int32
 void UnitsManager_InitPopupMenus();
 int32_t UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2, int32_t order);
 bool UnitsManager_IsValidStealthTarget(UnitInfo* unit, UnitInfo* target, int32_t order);
-bool UnitsManager_IsEngagedByInfiltrator(UnitInfo* unit);
+bool UnitsManager_IsEngaged(UnitInfo* unit);
 SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, uint16_t team, int32_t grid_x, int32_t grid_y,
                                               UnitInfo* parent);
 void UnitsManager_ProcessOrders();
