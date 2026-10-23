@@ -721,30 +721,16 @@ bool TaskAttack::EvaluateLandAttack() {
 
             for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
                  it != it_end; ++it) {
-                if ((*it).team == m_team && (*it).hits > 0 && (*it).ammo > 0 &&
-                    (*it).ammo >= (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) &&
+                if ((*it).ammo > 0 && (*it).ammo >= (*it).GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) &&
                     !((*it).flags & MOBILE_AIR_UNIT) &&
                     (((*it).flags & MOBILE_SEA_UNIT) || access_map((*it).grid_x, (*it).grid_y) == 3) &&
-                    ((*it).GetOrder() == ORDER_AWAIT || (*it).GetOrder() == ORDER_SENTRY ||
-                     (*it).GetOrder() == ORDER_MOVE || (*it).GetOrder() == ORDER_MOVE_TO_UNIT)) {
-                    bool is_relevant = false;
-
-                    if ((*it).GetTask()) {
-                        if ((*it).GetTask()->ComparePriority(task_priority) > 0) {
-                            is_relevant = (*it).GetTask()->IsUnitTransferable(*it);
-                        }
+                    Task_IsRecruitable(it->Get(), m_team, task_priority) &&
+                    weight_table.GetWeight((*it).GetUnitType())) {
+                    if ((*it).flags & MOBILE_SEA_UNIT) {
+                        worth_of_sea_units += (*it).GetBaseValues()->GetAttribute(ATTRIB_TURNS);
 
                     } else {
-                        is_relevant = true;
-                    }
-
-                    if (is_relevant && weight_table.GetWeight((*it).GetUnitType())) {
-                        if ((*it).flags & MOBILE_SEA_UNIT) {
-                            worth_of_sea_units += (*it).GetBaseValues()->GetAttribute(ATTRIB_TURNS);
-
-                        } else {
-                            worth_of_land_units += (*it).GetBaseValues()->GetAttribute(ATTRIB_TURNS);
-                        }
+                        worth_of_land_units += (*it).GetBaseValues()->GetAttribute(ATTRIB_TURNS);
                     }
                 }
             }
@@ -870,10 +856,8 @@ bool TaskAttack::FindReconUnit(ResourceID unit_type, int32_t safe_distance) {
 
         for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
             // a damaged recon unit is not taken back from its repair task, Execute() would send it there again
-            if ((*it).team == m_team && (*it).GetUnitType() == unit_type &&
-                (*it).GetBaseValues()->GetAttribute(ATTRIB_SCAN) >= safe_distance &&
-                !Task_IsRepairDue(it->Get(), true) &&
-                (!(*it).GetTask() || (*it).GetTask()->ComparePriority(task_priority) > 0)) {
+            if ((*it).GetUnitType() == unit_type && (*it).GetBaseValues()->GetAttribute(ATTRIB_SCAN) >= safe_distance &&
+                !Task_IsRepairDue(it->Get(), true) && Task_IsRecruitable(it->Get(), m_team, task_priority)) {
                 if (!new_recon_unit || (new_recon_unit->GetTask() && !(*it).GetTask())) {
                     new_recon_unit = it->Get();
                 }

@@ -177,6 +177,7 @@ bool Task_RetreatIfNecessary(Task* task, UnitInfo* unit, int32_t caution_level);
 bool Task_RetreatFromDanger(Task* task, UnitInfo* unit, int32_t caution_level);
 bool Task_IsAdjacent(UnitInfo* unit, int16_t grid_x, int16_t grid_y);
 bool Task_IsRepairDue(UnitInfo* unit, bool is_lead_unit);
+bool Task_IsRecruitable(UnitInfo* unit, uint16_t team, uint16_t task_priority);
 int32_t Task_EstimateTurnsTillMissionEnd();
 int32_t Task_GetReadyUnitsCount(uint16_t team, ResourceID unit_type);
 

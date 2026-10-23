@@ -328,34 +328,17 @@ bool TaskKillUnit::GetNewUnits() {
 
 UnitInfo* TaskKillUnit::FindClosestCombatUnit(SmartList<UnitInfo>* units_, UnitInfo* unit, int32_t* distance,
                                               TransporterMap* map) {
-    uint32_t task_priority = GetPriority();
-    bool is_found;
+    uint16_t task_priority = GetPriority();
 
     for (auto it = units_->Begin(), it_end = units_->End(); it != it_end; ++it) {
-        if ((*it).team == m_team && (*it).hits > 0 && (*it).ammo > 0) {
-            if ((*it).GetOrder() == ORDER_AWAIT || (*it).GetOrder() == ORDER_SENTRY || (*it).GetOrder() == ORDER_MOVE ||
-                (*it).GetOrder() == ORDER_MOVE_TO_UNIT) {
-                is_found = false;
+        if ((*it).ammo > 0 && Task_IsRecruitable(it->Get(), m_team, task_priority)) {
+            if (IsUnitUsable(*it)) {
+                if (!map || map->Search(Point((*it).grid_x, (*it).grid_y))) {
+                    int32_t distance_ = Access_GetSquaredDistance(it->Get(), spotted_unit->GetLastPosition());
 
-                if ((*it).GetTask()) {
-                    if ((*it).GetTask()->ComparePriority(task_priority) > 0) {
-                        is_found = (*it).GetTask()->IsUnitTransferable(*it);
-                    }
-
-                } else {
-                    is_found = true;
-                }
-
-                if (is_found) {
-                    if (IsUnitUsable(*it)) {
-                        if (!map || map->Search(Point((*it).grid_x, (*it).grid_y))) {
-                            int32_t distance_ = Access_GetSquaredDistance(it->Get(), spotted_unit->GetLastPosition());
-
-                            if (!unit || *distance > distance_) {
-                                unit = it->Get();
-                                *distance = distance_;
-                            }
-                        }
+                    if (!unit || *distance > distance_) {
+                        unit = it->Get();
+                        *distance = distance_;
                     }
                 }
             }

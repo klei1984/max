@@ -328,6 +328,25 @@ bool Task_IsRepairDue(UnitInfo* unit, bool is_lead_unit) {
     return unit->hits < base_hits / 4 || (is_lead_unit && unit->hits < base_hits / 2);
 }
 
+bool Task_IsRecruitable(UnitInfo* unit, uint16_t team, uint16_t task_priority) {
+    // the one test by which attacks take units: the unit takes new orders, and its current task, if any, ranks
+    // below the recruiting task and agrees to give the unit away
+    bool result;
+
+    if (unit->team == team && unit->hits > 0 &&
+        (unit->GetOrder() == ORDER_AWAIT || unit->GetOrder() == ORDER_SENTRY || unit->GetOrder() == ORDER_MOVE ||
+         unit->GetOrder() == ORDER_MOVE_TO_UNIT)) {
+        Task* task = unit->GetTask();
+
+        result = !task || (task->ComparePriority(task_priority) > 0 && task->IsUnitTransferable(*unit));
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
 int32_t Task_EstimateTurnsTillMissionEnd() {
     int32_t victory_limit = ini_setting_victory_limit;
     int32_t result;
