@@ -311,7 +311,6 @@ static bool GameManager_DebugDelayedEndTurn(SmartList<UnitInfo>& units);
 static void GameManager_ProcessKey();
 static int32_t GameManager_GetBuilderUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2);
 static int32_t GameManager_GetAirUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2);
-static bool GameManager_IsUnitNotInAir(UnitInfo* unit);
 static UnitInfo* GameManager_GetUnitWithCargoType(Complex* complex, int32_t cargo_type);
 static int32_t GameManager_GetUnitActionCursor(UnitInfo* unit1, int32_t grid_x, int32_t grid_y, UnitInfo* unit2);
 static bool GameManager_IsValidTransferTarget(UnitInfo* unit1, UnitInfo* unit2);
@@ -5881,10 +5880,6 @@ int32_t GameManager_GetAirUnitCursor(UnitInfo* unit1, int32_t grid_x, int32_t gr
     return result;
 }
 
-bool GameManager_IsUnitNotInAir(UnitInfo* unit) {
-    return !(unit->flags & MOBILE_AIR_UNIT) || !(unit->flags & HOVERING);
-}
-
 UnitInfo* GameManager_GetUnitWithCargoType(Complex* complex, int32_t cargo_type) {
     for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
          ++it) {
@@ -6042,14 +6037,7 @@ bool GameManager_IsValidTransferTarget(UnitInfo* unit1, UnitInfo* unit2) {
 bool GameManager_IsValidStealTarget(UnitInfo* unit1, UnitInfo* unit2) {
     bool result;
 
-    if ((unit2->flags & STATIONARY) || !(unit2->flags & ELECTRONIC_UNIT) || unit2->GetOrder() == ORDER_TRANSFORM ||
-        unit2->GetOrder() == ORDER_FIRE || unit2->GetOrder() == ORDER_EXPLODE ||
-        unit2->GetOrderState() == ORDER_STATE_DESTROY) {
-        result = false;
-
-    } else if ((unit2->GetUnitType() == CLNTRANS || unit2->GetUnitType() == SEATRANS ||
-                unit2->GetUnitType() == AIRTRANS) &&
-               unit2->storage) {
+    if (!UnitsManager_IsValidStealthTarget(unit1, unit2, ORDER_AWAIT_STEAL_UNIT)) {
         result = false;
 
     } else {
@@ -6065,9 +6053,7 @@ bool GameManager_IsValidStealTarget(UnitInfo* unit1, UnitInfo* unit2) {
 bool GameManager_IsValidDisableTarget(UnitInfo* unit1, UnitInfo* unit2) {
     bool result;
 
-    if (!(unit2->flags & ELECTRONIC_UNIT) || unit2->GetOrder() == ORDER_TRANSFORM || unit2->GetOrder() == ORDER_FIRE ||
-        unit2->GetOrder() == ORDER_EXPLODE || unit2->GetOrderState() == ORDER_STATE_DESTROY ||
-        unit2->GetOrder() == ORDER_DISABLE) {
+    if (!UnitsManager_IsValidStealthTarget(unit1, unit2, ORDER_AWAIT_DISABLE_UNIT)) {
         result = false;
 
     } else {
@@ -6102,8 +6088,7 @@ int32_t GameManager_GetMilitaryCursor(UnitInfo* unit, int32_t grid_x, int32_t gr
 
         if (target) {
             if (GameManager_SelectedUnit->GetUnitType() == COMMANDO && GameManager_SelectedUnit->targeting_mode == 0) {
-                if (GameManager_IsUnitNextToPosition(GameManager_SelectedUnit.Get(), grid_x, grid_y) &&
-                    GameManager_IsUnitNotInAir(target)) {
+                if (GameManager_IsUnitNextToPosition(GameManager_SelectedUnit.Get(), grid_x, grid_y)) {
                     if (GameManager_SelectedUnit->cursor == CURSOR_ARROW_NW ||
                         GameManager_SelectedUnit->cursor == CURSOR_HIDDEN) {
                         if (GameManager_IsValidDisableTarget(GameManager_SelectedUnit.Get(), target)) {

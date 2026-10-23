@@ -1632,7 +1632,7 @@ bool UnitInfo::ExecuteMove() {
 
     RefreshScreen();
 
-    if (pin_count > 0) {
+    if (pin_count > 0 || UnitsManager_IsEngagedByInfiltrator(this)) {
         result = false;
     } else {
         if (path) {
@@ -1727,7 +1727,7 @@ void UnitInfo::Move() {
     bool team_visibility;
 
     do {
-        if (pin_count > 0) {
+        if (pin_count > 0 || UnitsManager_IsEngagedByInfiltrator(this)) {
             return;
         }
 

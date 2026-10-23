@@ -48,6 +48,7 @@
 #include "smartlist.hpp"
 #include "sound_manager.hpp"
 #include "survey.hpp"
+#include "task.hpp"
 #include "teamunits.hpp"
 #include "unitevents.hpp"
 #include "unitinfo.hpp"
@@ -1353,6 +1354,56 @@ int32_t UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2
     }
 
     return chance;
+}
+
+bool UnitsManager_IsValidStealthTarget(UnitInfo* unit, UnitInfo* target, int32_t order) {
+    // the one rule for the target of an infiltrator: the cursor offers the action by it and the action resolves by
+    // it, so a target that moved away, boarded, started firing or transforming, or died meanwhile escapes
+    const auto target_order = target->GetOrder();
+    bool result;
+
+    if (target->team == unit->team || target->hits == 0 || !(target->flags & ELECTRONIC_UNIT) ||
+        ((target->flags & MOBILE_AIR_UNIT) && (target->flags & HOVERING)) || target_order == ORDER_IDLE ||
+        (target_order == ORDER_AWAIT_SCALING && target->GetPriorOrder() == ORDER_IDLE) ||
+        target_order == ORDER_TRANSFORM || target_order == ORDER_FIRE || target_order == ORDER_EXPLODE ||
+        target->GetOrderState() == ORDER_STATE_DESTROY || !Task_IsAdjacent(target, unit->grid_x, unit->grid_y)) {
+        result = false;
+
+    } else if (order == ORDER_AWAIT_STEAL_UNIT) {
+        result = !(target->flags & STATIONARY) &&
+                 !((target->GetUnitType() == CLNTRANS || target->GetUnitType() == SEATRANS ||
+                    target->GetUnitType() == AIRTRANS) &&
+                   target->storage);
+
+    } else {
+        result = target_order != ORDER_DISABLE;
+    }
+
+    return result;
+}
+
+static bool UnitsManager_IsStealthActionInProgress(UnitInfo* unit) {
+    const auto order = unit->GetOrder();
+    const auto prior_order = unit->GetPriorOrder();
+
+    return unit->hits > 0 && unit->GetOrderState() != ORDER_STATE_DESTROY &&
+           (order == ORDER_AWAIT_STEAL_UNIT || order == ORDER_AWAIT_DISABLE_UNIT ||
+            (order == ORDER_AWAIT_SCALING &&
+             (prior_order == ORDER_AWAIT_STEAL_UNIT || prior_order == ORDER_AWAIT_DISABLE_UNIT)));
+}
+
+bool UnitsManager_IsEngagedByInfiltrator(UnitInfo* unit) {
+    // the infiltrator holds its target from the order to the resolution; derived from the infiltrator's own order
+    // and parent, so the hold cannot leak, survives saving and ends with the sequence or the infiltrator
+    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+         it != it_end; ++it) {
+        if ((*it).GetUnitType() == COMMANDO && (*it).GetParent() == unit &&
+            UnitsManager_IsStealthActionInProgress(it->Get())) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 SmartPointer<UnitInfo> UnitsManager_SpawnUnit(ResourceID unit_type, uint16_t team, int32_t grid_x, int32_t grid_y,
@@ -4120,7 +4171,7 @@ bool UnitsManager_AttemptStealthAction(UnitInfo* unit) {
     int32_t stealth_chance = UnitsManager_GetStealthChancePercentage(unit, &*parent, unit->GetOrder());
     bool result;
 
-    if (unit->team == parent->team) {
+    if (!UnitsManager_IsValidStealthTarget(unit, &*parent, unit->GetOrder())) {
         result = false;
 
     } else {

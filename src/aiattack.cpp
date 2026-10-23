@@ -387,22 +387,37 @@ bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target) {
 
             if (attacker->shots > 0 || attacker->GetUnitType() != COMMANDO) {
                 if (attacker->GetUnitType() == COMMANDO && attack_range == 1) {
-                    Ai_SetReactionState(AI_REACTION_STATE_ANIMATIONS_ACTIVE);
-
-                    attacker->SetParent(target);
-                    attacker->stealth_dice_roll = Randomizer_Generate(101);
+                    UnitOrderType order;
 
                     if (target->GetOrder() == ORDER_DISABLE ||
                         (!(target->flags & STATIONARY) &&
                          UnitsManager_GetStealthChancePercentage(attacker, target, ORDER_AWAIT_STEAL_UNIT) >=
                              ResourceManager_GetSettings()->GetNumericValue("max_percent"))) {
-                        UnitsManager_SetNewOrder(attacker, ORDER_AWAIT_STEAL_UNIT, ORDER_STATE_INIT);
+                        order = ORDER_AWAIT_STEAL_UNIT;
 
                     } else {
-                        UnitsManager_SetNewOrder(attacker, ORDER_AWAIT_DISABLE_UNIT, ORDER_STATE_INIT);
+                        order = ORDER_AWAIT_DISABLE_UNIT;
                     }
 
-                    result = true;
+                    // the action resolves by the same rule, an action it refuses would only be repeated
+                    if (order == ORDER_AWAIT_STEAL_UNIT &&
+                        !UnitsManager_IsValidStealthTarget(attacker, target, ORDER_AWAIT_STEAL_UNIT)) {
+                        order = ORDER_AWAIT_DISABLE_UNIT;
+                    }
+
+                    if (UnitsManager_IsValidStealthTarget(attacker, target, order)) {
+                        Ai_SetReactionState(AI_REACTION_STATE_ANIMATIONS_ACTIVE);
+
+                        attacker->SetParent(target);
+                        attacker->stealth_dice_roll = Randomizer_Generate(101);
+
+                        UnitsManager_SetNewOrder(attacker, order, ORDER_STATE_INIT);
+
+                        result = true;
+
+                    } else {
+                        result = false;
+                    }
 
                 } else {
                     if (attacker->shots > 0) {
