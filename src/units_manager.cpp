@@ -2633,8 +2633,10 @@ void UnitsManager_ProcessOrderMove(UnitInfo* unit) {
 
             } else {
                 if (!unit->IsBridgeElevated()) {
-                    UnitsManager_GroundCoverUnits.Remove(*unit);
-                    unit->AddToDrawList(STATIONARY | UPGRADABLE | SELECTABLE);
+                    // a bridge raised again before its lowering finished is still in the stationary list
+                    if (UnitsManager_GroundCoverUnits.Remove(*unit)) {
+                        unit->AddToDrawList(STATIONARY | UPGRADABLE | SELECTABLE);
+                    }
                 }
 
                 unit->DrawSpriteFrame(unit->GetImageIndex() + 1);
