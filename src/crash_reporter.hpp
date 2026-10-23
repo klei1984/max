@@ -31,6 +31,7 @@ struct CrashContext {
     char mission_kind[32];
     char mission_hash[48];
     char save_file[64];
+    char play_mode_name[32];
 
     int32_t turn;
     int32_t game_state;

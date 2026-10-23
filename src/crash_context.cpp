@@ -97,6 +97,31 @@ const char* CrashContext_GetPhase(const uint8_t game_state) {
     return phase;
 }
 
+const char* CrashContext_GetPlayMode(const uint8_t play_mode) {
+    const char* name;
+
+    switch (play_mode) {
+        case PLAY_MODE_TURN_BASED: {
+            name = "turn based";
+        } break;
+
+        case PLAY_MODE_SIMULTANEOUS_MOVES: {
+            name = "simultaneous moves";
+        } break;
+
+        case PLAY_MODE_UNKNOWN: {
+            // simultaneous moves games switch to it while the units of an ended turn finish moving
+            name = "simultaneous moves, turn ending";
+        } break;
+
+        default: {
+            name = "";
+        } break;
+    }
+
+    return name;
+}
+
 const char* CrashContext_GetMissionKind(const MissionCategory category) {
     const char* kind;
 
@@ -196,6 +221,8 @@ void CrashContext_Fill(CrashContext& context) {
     context.world_index = -1;
 
     CrashContext_CopyText(context.phase, sizeof(context.phase), CrashContext_GetPhase(GameManager_GameState));
+    CrashContext_CopyText(context.play_mode_name, sizeof(context.play_mode_name),
+                          CrashContext_GetPlayMode(GameManager_PlayMode));
 
     try {
         const auto settings = ResourceManager_GetSettings();
