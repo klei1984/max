@@ -539,7 +539,7 @@ bool TaskKillUnit::Execute(UnitInfo& unit) {
               ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data());
 
         if (unit.IsReadyForOrders(this) && unit.speed > 0) {
-            if (unit.hits < unit.GetBaseValues()->GetAttribute(ATTRIB_HITS) / 4) {
+            if (Task_IsRepairDue(&unit, false)) {
                 unit.RemoveTasks();
 
                 SmartPointer<Task> repair_task(new (std::nothrow) TaskRepair(&unit));

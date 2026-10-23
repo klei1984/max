@@ -359,9 +359,7 @@ bool TaskAttack::Execute(UnitInfo& unit) {
         if (unit.speed > 0 && unit.IsReadyForOrders(this)) {
             AILOG(log, "Task Attack: move finished.");
 
-            if ((unit.hits < unit.GetBaseValues()->GetAttribute(ATTRIB_HITS) / 4) ||
-                ((leader == unit || recon_unit == unit) &&
-                 (unit.hits < unit.GetBaseValues()->GetAttribute(ATTRIB_HITS) / 2))) {
+            if (Task_IsRepairDue(&unit, leader == unit || recon_unit == unit)) {
                 unit.RemoveTasks();
 
                 SmartPointer<Task> repair_task(new (std::nothrow) TaskRepair(&unit));
@@ -871,8 +869,10 @@ bool TaskAttack::FindReconUnit(ResourceID unit_type, int32_t safe_distance) {
         }
 
         for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+            // a damaged recon unit is not taken back from its repair task, Execute() would send it there again
             if ((*it).team == m_team && (*it).GetUnitType() == unit_type &&
                 (*it).GetBaseValues()->GetAttribute(ATTRIB_SCAN) >= safe_distance &&
+                !Task_IsRepairDue(it->Get(), true) &&
                 (!(*it).GetTask() || (*it).GetTask()->ComparePriority(task_priority) > 0)) {
                 if (!new_recon_unit || (new_recon_unit->GetTask() && !(*it).GetTask())) {
                     new_recon_unit = it->Get();
@@ -908,8 +908,9 @@ bool TaskAttack::FindReconUnit(ResourceID unit_type, int32_t safe_distance) {
 bool TaskAttack::IsReconUnitUsable(UnitInfo* unit) {
     bool result;
 
-    if (unit->GetUnitType() == AWAC || unit->GetUnitType() == SCOUT || unit->GetUnitType() == SCANNER ||
-        unit->GetUnitType() == FASTBOAT) {
+    if ((unit->GetUnitType() == AWAC || unit->GetUnitType() == SCOUT || unit->GetUnitType() == SCANNER ||
+         unit->GetUnitType() == FASTBOAT) &&
+        !Task_IsRepairDue(unit, true)) {
         int32_t safe_distance_ground;
         int32_t safe_distance_air;
 

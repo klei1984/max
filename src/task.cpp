@@ -322,6 +322,12 @@ bool Task_IsAdjacent(UnitInfo* unit, int16_t grid_x, int16_t grid_y) {
            unit->grid_y + unit_size >= grid_y;
 }
 
+bool Task_IsRepairDue(UnitInfo* unit, bool is_lead_unit) {
+    const int32_t base_hits = unit->GetBaseValues()->GetAttribute(ATTRIB_HITS);
+
+    return unit->hits < base_hits / 4 || (is_lead_unit && unit->hits < base_hits / 2);
+}
+
 int32_t Task_EstimateTurnsTillMissionEnd() {
     int32_t victory_limit = ini_setting_victory_limit;
     int32_t result;

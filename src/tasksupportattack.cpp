@@ -105,7 +105,7 @@ bool TaskSupportAttack::IssueOrders(UnitInfo* unit) {
               ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
         if (unit->ammo >= unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {
-            if (unit->hits < unit->GetBaseValues()->GetAttribute(ATTRIB_HITS) / 4) {
+            if (Task_IsRepairDue(unit, false)) {
                 unit->RemoveTasks();
 
                 SmartPointer<Task> repair_task(new (std::nothrow) TaskRepair(unit));
