@@ -2650,8 +2650,10 @@ void UnitsManager_ProcessOrderMove(UnitInfo* unit) {
                     unit->DrawSpriteFrame(unit->GetImageIndex() - 1);
 
                 } else {
-                    UnitsManager_StationaryUnits.Remove(*unit);
-                    unit->AddToDrawList();
+                    if (UnitsManager_StationaryUnits.Remove(*unit)) {
+                        unit->AddToDrawList();
+                    }
+
                     UnitsManager_SetNewOrderInt(unit, ORDER_AWAIT, ORDER_STATE_EXECUTING_ORDER);
                 }
             }
