@@ -35,6 +35,7 @@
 #include "game_manager.hpp"
 #include "hash.hpp"
 #include "message_manager.hpp"
+#include "order_log.hpp"
 #include "paths_manager.hpp"
 #include "production_manager.hpp"
 #include "quickbuild.hpp"
@@ -1774,6 +1775,8 @@ int32_t UnitsManager_GetFiringAngle(int32_t distance_x, int32_t distance_y) {
 }
 
 void UnitsManager_ScaleUnit(UnitInfo* unit, const UnitOrderStateType state) {
+    ORDER_LOG_ISSUER();
+
     if (GameManager_PlayerTeam == unit->team) {
         ResourceManager_GetSoundManager().PlaySfx(
             unit, state == ORDER_STATE_EXPAND ? Unit::SFX_TYPE_EXPAND : Unit::SFX_TYPE_SHRINK);
@@ -1785,6 +1788,8 @@ void UnitsManager_ScaleUnit(UnitInfo* unit, const UnitOrderStateType state) {
 }
 
 void UnitsManager_ProcessOrders() {
+    ORDER_LOG_TICK();
+
     UnitsManager_BobEffectQuota = 5;
 
     Ai_ClearTasksPendingFlags();
@@ -1871,6 +1876,8 @@ void UnitsManager_ProcessOrders() {
 }
 
 void UnitsManager_SetNewOrderInt(UnitInfo* unit, const UnitOrderType order, const UnitOrderStateType state) {
+    ORDER_LOG_ISSUER();
+
     if (unit->GetOrder() != ORDER_EXPLODE && unit->GetOrderState() != ORDER_STATE_DESTROY) {
         bool delete_path = false;
 
@@ -1908,6 +1915,8 @@ void UnitsManager_SetNewOrderInt(UnitInfo* unit, const UnitOrderType order, cons
 }
 
 void UnitsManager_SetNewOrder(UnitInfo* unit, const UnitOrderType order, const UnitOrderStateType state) {
+    ORDER_LOG_ISSUER();
+
     UnitsManager_SetNewOrderInt(unit, order, state);
 
     if (Remote_IsNetworkGame) {

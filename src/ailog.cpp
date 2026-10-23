@@ -28,14 +28,19 @@
 #include <mutex>
 #include <system_error>
 
-constexpr int32_t AILOG_FILE_LIMIT_DEFAULT = UINT16_MAX;
+#include "order_log.hpp"
+#include "settings.hpp"
 
 std::ofstream AiLog::AiLog_File;
 SDL_Mutex* AiLog::AiLog_Mutex = nullptr;
 int32_t AiLog::AiLog_SectionCount = 0;
 int32_t AiLog::AiLog_EntryCount = 0;
-int32_t AiLog::AiLog_EntryLimit = AILOG_FILE_LIMIT_DEFAULT;
+int32_t AiLog::AiLog_EntryLimit = 0;
 std::optional<std::regex> AiLog::AiLog_Filter;
+
+#if !defined(NDEBUG)
+static uint32_t AiLog_Tick;
+#endif /* !defined(NDEBUG) */
 
 void AiLog::AiLog_InitMutex() {
     /* Worker threads log too, and an unsynchronized lazy create lets two of them build one
@@ -70,6 +75,16 @@ bool AiLog::ShouldFilter() const noexcept {
 }
 
 void AiLog::WriteLog(std::string_view message) {
+#if !defined(NDEBUG)
+    /* the order log tick in progress matches the entries with the records of order_log.txt */
+    const uint32_t tick = OrderLog_GetTick();
+
+    if (tick != AiLog_Tick) {
+        AiLog_File << std::format("\n# tick {}", tick);
+        AiLog_Tick = tick;
+    }
+#endif /* !defined(NDEBUG) */
+
     AiLog_File << std::format("\n{:3d}: ", AiLog_SectionCount + 1);
 
     if (AiLog_SectionCount > 0) {
@@ -98,14 +113,13 @@ AiLog::~AiLog() {
 
         constexpr int64_t THRESHOLD_MS = 1000;
 
+        /* the depth of the next entry already shows where a section ended, only a slow one gets a line */
         if (elapsed_time >= THRESHOLD_MS) {
             NoLockLog(std::format("log section complete, {} msecs elapsed", elapsed_time));
-
-        } else {
-            NoLockLog("log section complete");
         }
 
-        if (AiLog_EntryCount > AiLog_EntryLimit) {
+        /* a limit of 0 keeps the whole log in one file */
+        if (AiLog_EntryLimit > 0 && AiLog_EntryCount > AiLog_EntryLimit) {
             auto filepath = (ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal();
             auto rolled = (ResourceManager_FilePathGamePref / "ai_log.prev.txt").lexically_normal();
             std::error_code error;
@@ -119,6 +133,10 @@ AiLog::~AiLog() {
 
             AiLog_File.open(filepath.string().c_str(), std::ios::out);
             AiLog_EntryCount = 0;
+
+#if !defined(NDEBUG)
+            AiLog_Tick = 0;
+#endif /* !defined(NDEBUG) */
         }
     }
 }
@@ -133,40 +151,27 @@ void AiLog_Open() {
 
         AiLog::AiLog_File.open(filepath.string().c_str(), std::ios::out);
         AiLog::AiLog_EntryCount = 0;
+        AiLog::AiLog_EntryLimit = ResourceManager_GetSettings()->GetNumericValue("ai_log_entry_limit");
 
-        const char* filter_env = SDL_getenv("MAX_AILOG_FILTER");
+#if !defined(NDEBUG)
+        AiLog_Tick = 0;
+#endif /* !defined(NDEBUG) */
 
-        if (filter_env && filter_env[0] != '\0') {
+        /* the filter is matched against the source file and function of each log section */
+        const std::string filter = ResourceManager_GetSettings()->GetStringValue("ai_log_filter");
+
+        if (!filter.empty()) {
             try {
-                AiLog::AiLog_Filter = std::regex(filter_env, std::regex::icase);
+                AiLog::AiLog_Filter = std::regex(filter, std::regex::icase);
 
             } catch (const std::regex_error&) {
+                SDL_Log("Warning: ai_log_filter is not a valid regular expression, the AI log is not filtered.");
+
                 AiLog::AiLog_Filter = std::nullopt;
             }
 
         } else {
             AiLog::AiLog_Filter = std::nullopt;
-        }
-
-        const char* limit_env = SDL_getenv("MAX_AILOG_ENTRY_LIMIT");
-
-        if (limit_env && limit_env[0] != '\0') {
-            try {
-                int32_t limit = std::stoi(limit_env);
-
-                if (limit > 0) {
-                    AiLog::AiLog_EntryLimit = limit;
-
-                } else {
-                    AiLog::AiLog_EntryLimit = AILOG_FILE_LIMIT_DEFAULT;
-                }
-
-            } catch (...) {
-                AiLog::AiLog_EntryLimit = AILOG_FILE_LIMIT_DEFAULT;
-            }
-
-        } else {
-            AiLog::AiLog_EntryLimit = AILOG_FILE_LIMIT_DEFAULT;
         }
     }
 }

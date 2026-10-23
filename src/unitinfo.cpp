@@ -35,6 +35,7 @@
 #include "hash.hpp"
 #include "message_manager.hpp"
 #include "mouseevent.hpp"
+#include "order_log.hpp"
 #include "paths_manager.hpp"
 #include "randomizer.hpp"
 #include "registerarray.hpp"
@@ -1663,6 +1664,7 @@ bool UnitInfo::ExecuteMove() {
             } else {
                 orders = ORDER_AWAIT;
                 state = ORDER_STATE_EXECUTING_ORDER;
+                ORDER_LOG_WRITE_HERE(this);
                 result = false;
             }
         }
@@ -1682,6 +1684,8 @@ void UnitInfo::ClearBuildListAndPath() {
         state = ORDER_STATE_EXECUTING_ORDER;
     }
 
+    ORDER_LOG_WRITE(this);
+
     build_list.Clear();
 }
 
@@ -1690,6 +1694,7 @@ void UnitInfo::Build() {
 
     build_unit_type = *build_list[0];
     orders = ORDER_BUILD;
+    ORDER_LOG_WRITE_HERE(this);
 
     if (path != nullptr) {
         if (UnitsManager_IssueBuildOrder(this, &grid_x, &grid_y, build_unit_type)) {
@@ -2742,6 +2747,7 @@ void UnitInfo::StartBuilding() {
         complex->workers -= Cargo_GetLifeConsumptionRate(unit_type);
 
         state = ORDER_STATE_EXECUTING_ORDER;
+        ORDER_LOG_WRITE_HERE(this);
 
         if (GameManager_PlayerTeam == team) {
             GameManager_OptimizeProduction(team, &*complex, true, true);
@@ -2761,6 +2767,7 @@ void UnitInfo::StartBuilding() {
 
         moved = 0;
         state = ORDER_STATE_BUILD_IN_PROGRESS;
+        ORDER_LOG_WRITE_HERE(this);
 
         if (unit_type == CONSTRCT) {
             UnitsManager_SetNewOrderInt(this, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_TAPE_POSITIONING_INIT);
@@ -2966,6 +2973,7 @@ void UnitInfo::UpdateProduction() {
 
     if (state == ORDER_STATE_READY_TO_EXECUTE_ORDER) {
         state = ORDER_STATE_EXECUTING_ORDER;
+        ORDER_LOG_WRITE_HERE(this);
     }
 
     if (complex) {
@@ -3338,6 +3346,7 @@ bool UnitInfo::AttemptSideStep(int32_t grid_x, int32_t grid_y, int32_t angle) {
 
                     orders = ORDER_MOVE;
                     state = ORDER_STATE_IN_PROGRESS;
+                    ORDER_LOG_WRITE_HERE(this);
 
                     result = true;
 
@@ -3437,6 +3446,7 @@ void UnitInfo::SpawnNewUnit() {
 
         orders = ORDER_AWAIT;
         state = ORDER_STATE_EXECUTING_ORDER;
+        ORDER_LOG_WRITE_HERE(this);
 
         if (GetParent()->flags & BUILDING) {
             move_to_grid_x = grid_x;
@@ -3478,6 +3488,7 @@ void UnitInfo::SpawnNewUnit() {
             storage = 1;
             orders = ORDER_BUILD;
             state = ORDER_STATE_UNIT_READY;
+            ORDER_LOG_WRITE_HERE(this);
 
             DrawSpriteFrame(image_base);
             ScheduleDelayedTasks(true);
@@ -3538,6 +3549,8 @@ void UnitInfo::SpawnNewUnit() {
                     state = ORDER_STATE_EXECUTING_ORDER;
                 }
 
+                ORDER_LOG_WRITE_HERE(this);
+
                 SetSpriteFrameForTerrain(grid_x, grid_y);
 
                 if (GetTask()) {
@@ -3547,6 +3560,7 @@ void UnitInfo::SpawnNewUnit() {
             } else {
                 orders = ORDER_BUILD;
                 state = ORDER_STATE_UNIT_READY;
+                ORDER_LOG_WRITE_HERE(this);
 
                 if (GetTask()) {
                     utility_unit->AddTask(GetTask());
@@ -3595,6 +3609,8 @@ void UnitInfo::BlockedOnPathRequest(bool mode, bool skip_notification) {
     }
 
     state = ORDER_STATE_EXECUTING_ORDER;
+
+    ORDER_LOG_WRITE(this);
 
     if (!ResourceManager_GetSettings()->GetNumericValue("disable_fire")) {
         delayed_reaction = true;
@@ -3740,6 +3756,8 @@ void UnitInfo::RestoreOrders() {
 
     orders = prior_orders;
     state = prior_state;
+
+    ORDER_LOG_WRITE(this);
 }
 
 void UnitInfo::AddDelayedTask(Task* task) { delayed_tasks.PushBack(*task); }
@@ -4161,6 +4179,8 @@ void UnitInfo::CancelBuilding() {
             build_time = 0;
         }
 
+        ORDER_LOG_WRITE(this);
+
         if (GameManager_SelectedUnit == this) {
             ResourceManager_GetSoundManager().PlaySfx(this, Unit::SFX_TYPE_POWER_CONSUMPTION_END);
 
@@ -4182,6 +4202,8 @@ void UnitInfo::CancelBuilding() {
 
         orders = ORDER_AWAIT;
         state = ORDER_STATE_EXECUTING_ORDER;
+
+        ORDER_LOG_WRITE(this);
 
         if (unit_type == CONSTRCT || (unit_type == BULLDOZR && (GetParent()->flags & BUILDING))) {
             move_to_grid_x = grid_x;
@@ -4323,10 +4345,12 @@ void UnitInfo::PositionInTape() {
     if (state == ORDER_STATE_TAPE_POSITIONING_INIT) {
         moved = 0;
         state = ORDER_STATE_TAPE_POSITIONING_ENTER;
+        ORDER_LOG_WRITE_HERE(this);
 
     } else if (state == ORDER_STATE_TAPE_POSITIONING_DEINIT) {
         moved = 0;
         state = ORDER_STATE_TAPE_POSITIONING_LEAVE;
+        ORDER_LOG_WRITE_HERE(this);
     }
 
     RefreshScreen();
@@ -4684,6 +4708,7 @@ void UnitInfo::PrepareFire() {
     }
 
     state = ORDER_STATE_FIRE_IN_PROGRESS;
+    ORDER_LOG_WRITE_HERE(this);
 }
 
 void UnitInfo::ProgressFire() {
@@ -4808,6 +4833,8 @@ UnitOrderType UnitInfo::SetOrder(const UnitOrderType order) noexcept {
 
     this->orders = order;
 
+    ORDER_LOG_WRITE(this);
+
     return previous_order;
 }
 
@@ -4827,6 +4854,8 @@ UnitOrderStateType UnitInfo::SetOrderState(const UnitOrderStateType order_state)
     auto previous_order_state{this->state};
 
     this->state = order_state;
+
+    ORDER_LOG_WRITE(this);
 
     return previous_order_state;
 }

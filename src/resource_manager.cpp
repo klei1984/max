@@ -48,6 +48,7 @@
 #include "menu.hpp"
 #include "message_manager.hpp"
 #include "missionmanager.hpp"
+#include "order_log.hpp"
 #include "paths_manager.hpp"
 #include "randomizer.hpp"
 #include "screendump.h"
@@ -570,6 +571,8 @@ void ResourceManager_ExitGame(int32_t error_code) {
 }
 
 void ResourceManager_Exit() {
+    ORDER_LOG_SHUTDOWN();
+
     ResourceManager_DeinitSoundManager();
     win_exit();
     ResourceManager_PathsManager.reset();
@@ -1446,23 +1449,7 @@ void ResourceManager_LogOutputFlush() {
 
 void ResourceManager_InitAiLog() {
 #if !defined(NDEBUG)
-    bool enable = ResourceManager_GetSettings()->GetNumericValue("log_file_debug");
-
-    /* An explicit entry limit means the AI log is wanted, so start with it enabled instead of
-     * requiring the in game task debugger toggle or a network session.
-     */
-    const char* limit_env = SDL_getenv("MAX_AILOG_ENTRY_LIMIT");
-
-    if (limit_env && limit_env[0] != '\0') {
-        try {
-            enable = enable || (std::stoi(limit_env) != 0);
-
-        } catch (...) {
-            /* keep whatever log_file_debug asked for */
-        }
-    }
-
-    if (enable) {
+    if (ResourceManager_GetSettings()->GetNumericValue("log_file_debug")) {
         AiLog_Open();
     }
 #endif /* !defined(NDEBUG) */

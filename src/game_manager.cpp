@@ -45,6 +45,7 @@
 #include "missionmanager.hpp"
 #include "mouseevent.hpp"
 #include "movie.hpp"
+#include "order_log.hpp"
 #include "paths.hpp"
 #include "paths_manager.hpp"
 #include "production_manager.hpp"
@@ -1965,9 +1966,13 @@ void GameManager_GameSetup(int32_t game_state) {
     mouse_hide();
     mouse_set_position(WindowManager_GetWidth(window) / 2, WindowManager_GetHeight(window) / 2);
     mouse_show();
+
+    ORDER_LOG_GAME_START();
 }
 
 void GameManager_GameLoopCleanup() {
+    ORDER_LOG_GAME_END();
+
     Remote_UpdatePauseTimer = false;
     GameManager_RequestMenuExit = false;
     GameManager_TurnTimerValue = 0;
