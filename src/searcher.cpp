@@ -55,6 +55,7 @@ Searcher::Searcher(const AccessMap& access_map, const Point start_point, const P
       m_direction_map(static_cast<size_t>(m_map_size.x) * m_map_size.y, DIRECTION_INVALID),
       m_min_cost_at_distance(m_distance_array_size, DISTANCE_INFINITY),
       m_max_explored_distance(0),
+      m_best_route_cost(COST_UNVISITED),
       m_destination(end_point),
       m_use_air_transport(air_support) {
     m_open_set.push(PathSquare(start_point, 0));
@@ -93,11 +94,9 @@ void Searcher::EvaluateSquare(const Point neighbor, const uint32_t cost, const i
             best_cost = other_searcher->m_min_cost_at_distance[line_distance];
         }
 
-        if (cost + best_cost <= m_cost_map[m_destination.x * m_map_size.y + m_destination.y]) {
-            if (other_searcher->m_cost_map[neighbor.x * m_map_size.y + neighbor.y] + cost <
-                m_cost_map[m_destination.x * m_map_size.y + m_destination.y]) {
-                m_cost_map[m_destination.x * m_map_size.y + m_destination.y] =
-                    other_searcher->m_cost_map[neighbor.x * m_map_size.y + neighbor.y] + cost;
+        if (cost + best_cost <= m_best_route_cost) {
+            if (other_searcher->m_cost_map[neighbor.x * m_map_size.y + neighbor.y] + cost < m_best_route_cost) {
+                m_best_route_cost = other_searcher->m_cost_map[neighbor.x * m_map_size.y + neighbor.y] + cost;
             }
 
             m_open_set.push(PathSquare(neighbor, cost));
@@ -256,6 +255,9 @@ void Searcher::Process(Point start_point, const bool is_forward) {
 
         m_open_set.push(path_square);
     }
+
+    // the straight line reached the destination, the first complete route
+    m_best_route_cost = path_square.cost;
 }
 
 bool Searcher::ForwardSearch(Searcher* const backward_searcher) {

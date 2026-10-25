@@ -81,6 +81,9 @@ private:
     std::vector<uint8_t> m_direction_map;
     std::vector<uint32_t> m_min_cost_at_distance;
     int32_t m_max_explored_distance;
+    // the cost of the cheapest complete route found so far; kept apart from the cost map, so that the cost and
+    // the direction of the destination describe the same route
+    uint32_t m_best_route_cost;
     std::priority_queue<PathSquare, std::vector<PathSquare>, std::greater<PathSquare>> m_open_set;
     Point m_destination;
     bool m_use_air_transport;
