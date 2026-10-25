@@ -307,8 +307,10 @@ bool AiAttack_IsWithinReach(UnitInfo* unit, uint16_t team, bool* relevant_teams)
 bool AiAttack_IsValidSabotageTarget(UnitInfo* unit, UnitInfo* target) {
     bool result;
 
+    // as for a player, an infiltrator sabotages only what it could target, which leaves submarines out
     if (unit->GetUnitType() == COMMANDO && (target->flags & ELECTRONIC_UNIT) && !(target->flags & HOVERING) &&
-        (target->GetOrder() != ORDER_DISABLE || !(target->flags & STATIONARY))) {
+        (target->GetOrder() != ORDER_DISABLE || !(target->flags & STATIONARY)) &&
+        Access_IsValidAttackTarget(unit, target)) {
         result = true;
 
     } else {

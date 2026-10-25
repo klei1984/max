@@ -1358,7 +1358,8 @@ int32_t UnitsManager_GetStealthChancePercentage(UnitInfo* unit1, UnitInfo* unit2
 
 bool UnitsManager_IsValidStealthTarget(UnitInfo* unit, UnitInfo* target, int32_t order) {
     // the one rule for the target of an infiltrator: the cursor offers the action by it and the action resolves by
-    // it, so a target that moved away, boarded, started firing or transforming, or died meanwhile escapes
+    // it, so a target that moved away, boarded, started firing or transforming, or died meanwhile escapes; only what
+    // the infiltrator could target qualifies, as the cursor finds its targets that way, which leaves submarines out
     const auto target_order = target->GetOrder();
     bool result;
 
@@ -1366,7 +1367,8 @@ bool UnitsManager_IsValidStealthTarget(UnitInfo* unit, UnitInfo* target, int32_t
         ((target->flags & MOBILE_AIR_UNIT) && (target->flags & HOVERING)) || target_order == ORDER_IDLE ||
         (target_order == ORDER_AWAIT_SCALING && target->GetPriorOrder() == ORDER_IDLE) ||
         target_order == ORDER_TRANSFORM || target_order == ORDER_FIRE || target_order == ORDER_EXPLODE ||
-        target->GetOrderState() == ORDER_STATE_DESTROY || !Task_IsAdjacent(target, unit->grid_x, unit->grid_y)) {
+        target->GetOrderState() == ORDER_STATE_DESTROY || !Task_IsAdjacent(target, unit->grid_x, unit->grid_y) ||
+        !Access_IsValidAttackTarget(unit, target)) {
         result = false;
 
     } else if (order == ORDER_AWAIT_STEAL_UNIT) {
