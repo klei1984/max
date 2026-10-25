@@ -56,6 +56,7 @@ public:
 
 int32_t TaskDebugger_GetDebugMode();
 void TaskDebugger_SetDebugMode();
+void TaskDebugger_EnableTaskLog();
 void TaskDebugger_DebugBreak(int32_t task_id);
 
 #endif /* TASKDEBUGGER_HPP */

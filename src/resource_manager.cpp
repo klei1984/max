@@ -31,7 +31,6 @@
 #include <unordered_map>
 
 #include "access.hpp"
-#include "ailog.hpp"
 #include "assertmenu.hpp"
 #include "attributes.hpp"
 #include "crash_context.hpp"
@@ -56,6 +55,7 @@
 #include "settings.hpp"
 #include "sha2.h"
 #include "sound_manager.hpp"
+#include "taskdebugger.hpp"
 #include "units_manager.hpp"
 #include "utf8.hpp"
 #include "window_manager.hpp"
@@ -1449,8 +1449,9 @@ void ResourceManager_LogOutputFlush() {
 
 void ResourceManager_InitAiLog() {
 #if !defined(NDEBUG)
+    /* the setting starts in the task log mode of the in game toggle, so the task debug info is on as well */
     if (ResourceManager_GetSettings()->GetNumericValue("log_file_debug")) {
-        AiLog_Open();
+        TaskDebugger_EnableTaskLog();
     }
 #endif /* !defined(NDEBUG) */
 }

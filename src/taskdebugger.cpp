@@ -197,6 +197,12 @@ void TaskDebugger::SetLimits(int32_t limit) {
 
 int32_t TaskDebugger_GetDebugMode() { return TaskDebugger_DebugMode; }
 
+void TaskDebugger_EnableTaskLog() {
+    TaskDebugger_DebugMode = 2;
+
+    AiLog_Open();
+}
+
 void TaskDebugger_SetDebugMode() {
     TaskDebugger_DebugMode = (TaskDebugger_DebugMode + 1) % 3;
 
@@ -212,7 +218,7 @@ void TaskDebugger_SetDebugMode() {
 
         case 2: {
             MessageManager_DrawMessage("Task Log ON.", MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
-            AiLog_Open();
+            TaskDebugger_EnableTaskLog();
         } break;
     }
 }
