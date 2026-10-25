@@ -39,6 +39,8 @@ class TaskKillUnit : public Task {
     SmartPointer<UnitInfo> managed_unit;
     WeightTable weight_table;
     bool seek_target;
+    // a square next to the target that is being cleared for an infiltrator
+    SmartPointer<Zone> zone;
 
     static int32_t GetProjectedDamage(UnitInfo* attacker, UnitInfo* target);
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
@@ -47,6 +49,8 @@ class TaskKillUnit : public Task {
     bool GetNewUnits();
     UnitInfo* FindClosestCombatUnit(SmartList<UnitInfo>* units, UnitInfo* unit, int32_t* distance, TransporterMap* map);
     bool GiveOrdersToUnit(UnitInfo* unit);
+    bool SabotageTarget(UnitInfo* unit);
+    void ClearSiteToSabotage(UnitInfo* unit, UnitInfo* target);
 
 public:
     TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit, uint16_t priority);
@@ -68,6 +72,7 @@ public:
     void RemoveUnit(UnitInfo& unit);
     void EventUnitDestroyed(UnitInfo& unit);
     void EventEnemyUnitSpotted(UnitInfo& unit);
+    void EventZoneCleared(Zone* zone, bool status);
 
     int32_t GetTotalProjectedDamage();
     bool MoveUnits();

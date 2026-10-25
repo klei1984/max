@@ -32,6 +32,7 @@
 #include "taskattack.hpp"
 #include "taskmove.hpp"
 #include "taskrepair.hpp"
+#include "taskwaittoattack.hpp"
 #include "ticktimer.hpp"
 #include "unit.hpp"
 #include "units_manager.hpp"
@@ -358,7 +359,12 @@ bool TaskKillUnit::GiveOrdersToUnit(UnitInfo* unit) {
               ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
 
         if (spotted_unit && unit->ammo >= unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS)) {
-            result = dynamic_cast<TaskAttack*>(&*m_parent)->MoveCombatUnit(this, unit);
+            if (SabotageTarget(unit)) {
+                result = true;
+
+            } else {
+                result = dynamic_cast<TaskAttack*>(&*m_parent)->MoveCombatUnit(this, unit);
+            }
 
         } else {
             if (spotted_unit) {
@@ -379,6 +385,118 @@ bool TaskKillUnit::GiveOrdersToUnit(UnitInfo* unit) {
     }
 
     return result;
+}
+
+bool TaskKillUnit::SabotageTarget(UnitInfo* unit) {
+    UnitInfo* target = spotted_unit->GetUnit();
+    bool result = false;
+
+    // a disabled target neither moves nor fires, so an infiltrator goes for it itself instead of waiting until it is
+    // the one chosen among the targets around, and has a square next to it cleared that only our own units take
+    if (unit->GetUnitType() == COMMANDO && target->GetOrder() == ORDER_DISABLE &&
+        AiAttack_IsValidSabotageTarget(unit, target)) {
+        if (Task_IsAdjacent(target, unit->grid_x, unit->grid_y)) {
+            if (unit->shots > 0) {
+                AILOG(log, "Kill {}: {} next to the target.",
+                      ResourceManager_GetUnit(target->GetUnitType()).GetSingularName().data(),
+                      ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
+
+                if (target->AreTherePins()) {
+                    SmartPointer<Task> wait_to_attack_task(new (std::nothrow) TaskWaitToAttack(unit));
+
+                    TaskManager.AppendTask(*wait_to_attack_task);
+
+                } else {
+                    AiAttack_ProcessAttack(unit, target);
+                }
+
+            } else {
+                // without a shot left the infiltrator waits next to the target, unless it is in danger there
+                Task_RetreatFromDanger(this, unit, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE);
+            }
+
+            result = true;
+
+        } else {
+            int32_t reach = unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED) + 1;
+
+            if (Access_GetSquaredDistance(unit, target) <= reach * reach) {
+                Point site;
+                int32_t projected_damage;
+
+                if (AiAttack_ChooseSiteToSabotage(unit, target, &site, &projected_damage,
+                                                  CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
+                    if (projected_damage < unit->hits) {
+                        AILOG(log, "Kill {}: move {} next to the target at [{},{}].",
+                              ResourceManager_GetUnit(target->GetUnitType()).GetSingularName().data(),
+                              ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), site.x + 1,
+                              site.y + 1);
+
+                        SmartPointer<TaskMove> move_task(new (std::nothrow) TaskMove(
+                            unit, this, 0, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, site, &MoveFinishedCallback));
+
+                        unit->attack_site = site;
+
+                        TaskManager.AppendTask(*move_task);
+
+                        result = true;
+                    }
+
+                } else {
+                    ClearSiteToSabotage(unit, target);
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+void TaskKillUnit::ClearSiteToSabotage(UnitInfo* unit, UnitInfo* target) {
+    if (!zone) {
+        Rect bounds;
+        Point site;
+        Point best_site;
+        int32_t distance;
+        int32_t minimum_distance{INT32_MAX};
+
+        rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
+
+        // the clear zone task moves away units that await orders, so only a square that such a unit of ours takes
+        // and nothing else blocks can be freed; infiltrators are left alone, they may be after a target of their own
+        for (int32_t direction = 0; direction < DIRECTION_COUNT; ++direction) {
+            site.x = target->grid_x + DIRECTION_OFFSETS[direction].x;
+            site.y = target->grid_y + DIRECTION_OFFSETS[direction].y;
+
+            if (Access_IsInsideBounds(&bounds, &site) &&
+                Access_IsAccessible(unit->GetUnitType(), m_team, site.x, site.y, AccessModifier_EnemySameClassBlocks)) {
+                UnitInfo* blocker = Access_GetTeamUnit(site.x, site.y, m_team, MOBILE_SEA_UNIT | MOBILE_LAND_UNIT);
+
+                if (blocker && blocker->GetUnitType() != COMMANDO &&
+                    (blocker->GetOrder() == ORDER_AWAIT || blocker->GetOrder() == ORDER_SENTRY) &&
+                    Task_IsReadyToTakeOrders(blocker)) {
+                    distance = Access_GetSquaredDistance(unit, site);
+
+                    if (distance < minimum_distance) {
+                        best_site = site;
+                        minimum_distance = distance;
+                    }
+                }
+            }
+        }
+
+        if (minimum_distance != INT32_MAX) {
+            AILOG(log, "Kill {}: clear [{},{}] next to the target for {}.",
+                  ResourceManager_GetUnit(target->GetUnitType()).GetSingularName().data(), best_site.x + 1,
+                  best_site.y + 1, ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
+
+            zone = new (std::nothrow) Zone(unit, this);
+
+            zone->Add(&best_site);
+
+            AiPlayer_Teams[m_team].ClearZone(&*zone);
+        }
+    }
 }
 
 bool TaskKillUnit::IsUnitUsable(UnitInfo& unit) {
@@ -574,6 +692,7 @@ void TaskKillUnit::RemoveSelf() {
         }
 
         managed_unit = nullptr;
+        zone = nullptr;
         units.Clear();
 
         TaskManager.RemoveTask(*this);
@@ -591,6 +710,10 @@ void TaskKillUnit::RemoveUnit(UnitInfo& unit) {
           ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data());
 
     units.Remove(unit);
+
+    if (zone && zone->unit == unit) {
+        zone = nullptr;
+    }
 
     if (spotted_unit) {
         projected_damage -= GetProjectedDamage(&unit, spotted_unit->GetUnit());
@@ -618,6 +741,21 @@ void TaskKillUnit::EventUnitDestroyed(UnitInfo& unit) {
 }
 
 void TaskKillUnit::EventEnemyUnitSpotted(UnitInfo& unit) {}
+
+void TaskKillUnit::EventZoneCleared(Zone* zone_, bool status) {
+    if (zone == zone_) {
+        zone = nullptr;
+
+        // the infiltrator goes on to the square cleared for it
+        if (status && spotted_unit && zone_->unit->GetTask() == this) {
+            AILOG(log, "Kill {}: square cleared for {}.",
+                  ResourceManager_GetUnit(spotted_unit->GetUnit()->GetUnitType()).GetSingularName().data(),
+                  ResourceManager_GetUnit(zone_->unit->GetUnitType()).GetSingularName().data());
+
+            Task_RemindMoveFinished(&*zone_->unit, true);
+        }
+    }
+}
 
 int32_t TaskKillUnit::GetTotalProjectedDamage() {
     int32_t result = 0;

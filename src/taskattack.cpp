@@ -498,21 +498,19 @@ bool TaskAttack::MoveCombatUnit(Task* task, UnitInfo* unit) {
                         return true;
                     }
 
+                    AILOG_LOG(log, "Attack square found, but it's too dangerous.");
+
                 } else {
-                    AILOG_LOG(log, "Attack with {} impossible.",
+                    // the unit waits with the group like a unit whose square is too dangerous; given away, it would be
+                    // taken back at once by its kill task, which still needs it
+                    AILOG_LOG(log, "Attack with {} impossible, no free square in range.",
                               ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data());
-
-                    TaskManager.ClearUnitTasksAndRemindAvailable(unit);
-
-                    return false;
                 }
 
             } else {
                 return false;
             }
         }
-
-        AILOG_LOG(log, "Attack square found, but it's too dangerous.");
 
         if (DetermineLeader()) {
             if (leader != unit) {
