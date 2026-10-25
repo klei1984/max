@@ -108,6 +108,7 @@ UnitInfo* Access_GetAttackTarget(UnitInfo* unit, int32_t grid_x, int32_t grid_y,
 UnitInfo* Access_GetEnemyMineOnSentry(uint16_t team, int32_t grid_x, int32_t grid_y);
 UnitInfo* Access_GetAttackTarget2(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
 UnitInfo* Access_GetReceiverUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y);
+bool Access_CanReceiveUnits(const UnitInfo* receiver);
 UnitInfo* Access_GetTeamBuilding(uint16_t team, int32_t grid_x, int32_t grid_y);
 void Access_MultiSelect(UnitInfo* unit, Rect* bounds);
 bool Access_AreTaskEventsPending();

@@ -2471,7 +2471,9 @@ void UnitsManager_FinishUnitScaling(UnitInfo* unit) {
     if (unit->GetOrder() == ORDER_IDLE) {
         SmartPointer<UnitInfo> parent = unit->GetParent();
 
-        if (parent->storage < parent->GetBaseValues()->GetAttribute(ATTRIB_STORAGE) && parent->team == unit->team) {
+        // a container destroyed during the shrink was cleared without the unit, which comes back out on its cell
+        if (Access_CanReceiveUnits(&*parent) &&
+            parent->storage < parent->GetBaseValues()->GetAttribute(ATTRIB_STORAGE) && parent->team == unit->team) {
             unit->SetOrder(ORDER_AWAIT);
 
             Access_UpdateMapStatus(unit, false);
@@ -2490,6 +2492,10 @@ void UnitsManager_FinishUnitScaling(UnitInfo* unit) {
             }
 
         } else {
+            if (!Access_CanReceiveUnits(&*parent)) {
+                unit->SetParent(nullptr);
+            }
+
             unit->SetOrder(ORDER_AWAIT);
             unit->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
 

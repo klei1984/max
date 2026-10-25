@@ -2115,7 +2115,7 @@ UnitInfo* Access_GetReceiverUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y)
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
             for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
-                if ((*it).team == team && (*it).GetOrder() != ORDER_IDLE) {
+                if ((*it).team == team && (*it).GetOrder() != ORDER_IDLE && Access_CanReceiveUnits(it->Get())) {
                     if (flags & MOBILE_LAND_UNIT) {
                         if (((*it).GetUnitType() == BARRACKS || (*it).GetUnitType() == CLNTRANS ||
                              (*it).GetUnitType() == SEATRANS) &&
@@ -2149,6 +2149,11 @@ UnitInfo* Access_GetReceiverUnit(UnitInfo* unit, int32_t grid_x, int32_t grid_y)
     }
 
     return result;
+}
+
+bool Access_CanReceiveUnits(const UnitInfo* receiver) {
+    // a destroyed or exploding unit takes nothing in, what it holds is destroyed with it
+    return receiver->hits > 0 && receiver->GetOrderState() != ORDER_STATE_DESTROY;
 }
 
 UnitInfo* Access_GetTeamBuilding(uint16_t team, int32_t grid_x, int32_t grid_y) {
