@@ -50,6 +50,7 @@ class AiLog {
     const bool m_is_filtered;
 
     static void AiLog_InitMutex();
+    static void AiLog_OpenNewFile();
     void WriteLog(std::string_view message);
     void NoLockLog(std::string_view message);
     [[nodiscard]] bool ShouldFilter() const noexcept;

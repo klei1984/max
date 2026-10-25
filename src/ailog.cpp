@@ -120,25 +120,29 @@ AiLog::~AiLog() {
 
         /* a limit of 0 keeps the whole log in one file */
         if (AiLog_EntryLimit > 0 && AiLog_EntryCount > AiLog_EntryLimit) {
-            auto filepath = (ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal();
-            auto rolled = (ResourceManager_FilePathGamePref / "ai_log.prev.txt").lexically_normal();
-            std::error_code error;
-
             AiLog_File.close();
 
-            /* Roll the finished file aside rather than reopening it truncated: the entries
-             * leading up to a crash are the ones worth keeping.
-             */
-            std::filesystem::rename(filepath, rolled, error);
-
-            AiLog_File.open(filepath.string().c_str(), std::ios::out);
-            AiLog_EntryCount = 0;
-
-#if !defined(NDEBUG)
-            AiLog_Tick = 0;
-#endif /* !defined(NDEBUG) */
+            AiLog_OpenNewFile();
         }
     }
+}
+
+void AiLog::AiLog_OpenNewFile() {
+    auto filepath = (ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal();
+    auto rolled = (ResourceManager_FilePathGamePref / "ai_log.prev.txt").lexically_normal();
+    std::error_code error;
+
+    /* Roll the last file aside rather than reopening it truncated, whether it filled up or an earlier run or
+     * session wrote it: the entries leading up to a crash or a restart are the ones worth keeping.
+     */
+    std::filesystem::rename(filepath, rolled, error);
+
+    AiLog_File.open(filepath.string().c_str(), std::ios::out);
+    AiLog_EntryCount = 0;
+
+#if !defined(NDEBUG)
+    AiLog_Tick = 0;
+#endif /* !defined(NDEBUG) */
 }
 
 void AiLog_Open() {
@@ -147,15 +151,8 @@ void AiLog_Open() {
     ResourceManager_MutexLock lock(AiLog::AiLog_Mutex);
 
     if (!AiLog::AiLog_File.is_open()) {
-        auto filepath = (ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal();
-
-        AiLog::AiLog_File.open(filepath.string().c_str(), std::ios::out);
-        AiLog::AiLog_EntryCount = 0;
+        AiLog::AiLog_OpenNewFile();
         AiLog::AiLog_EntryLimit = ResourceManager_GetSettings()->GetNumericValue("ai_log_entry_limit");
-
-#if !defined(NDEBUG)
-        AiLog_Tick = 0;
-#endif /* !defined(NDEBUG) */
 
         /* the filter is matched against the source file and function of each log section */
         const std::string filter = ResourceManager_GetSettings()->GetStringValue("ai_log_filter");
