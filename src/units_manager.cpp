@@ -3210,6 +3210,11 @@ void UnitsManager_ProcessOrderLayMine(UnitInfo* unit) {
 }
 
 void UnitsManager_ProcessOrder(UnitInfo* unit) {
+    if (unit->shake_effect_state && !UnitsManager_IsEngagedByInfiltrator(unit)) {
+        // the infiltrator that shook the unit died or left its stealth action before the shake cycle ended
+        unit->FinishShakeSabotage();
+    }
+
     if ((unit->flags & SPINNING_TURRET) && unit->GetOrder() != ORDER_DISABLE &&
         ResourceManager_GetSettings()->GetNumericValue("effects")) {
         unit->SpinningTurretAdvanceAnimation();

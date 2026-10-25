@@ -347,6 +347,7 @@ public:
     bool ShakeWater();
     bool ShakeAir();
     void ShakeSabotage();
+    void FinishShakeSabotage();
     bool Land();
     bool Take();
     void PrepareFire();

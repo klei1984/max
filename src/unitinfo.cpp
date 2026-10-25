@@ -1440,6 +1440,15 @@ void UnitInfo::Redraw() {
 
     OffsetDrawZones(offset_x, offset_y);
 
+    // the unit is back at the center of its cell, a shake under way goes on from there with the steps it has done
+    const uint8_t shake_steps = shake_effect_state;
+
+    shake_effect_state = 0;
+
+    while (shake_effect_state != shake_steps) {
+        ShakeSabotage();
+    }
+
     if ((flags & MOBILE_AIR_UNIT) && (flags & HOVERING)) {
         shadow_offset.x = -GFX_MAP_TILE_SIZE;
         shadow_offset.y = -GFX_MAP_TILE_SIZE;
@@ -4623,6 +4632,13 @@ void UnitInfo::ShakeSabotage() {
         }
 
         RefreshScreen();
+    }
+}
+
+void UnitInfo::FinishShakeSabotage() {
+    // the steps of a shake add up to nothing over the full cycle only, so a shake cut short is run to its end
+    while (shake_effect_state) {
+        ShakeSabotage();
     }
 }
 
