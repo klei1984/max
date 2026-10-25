@@ -22,6 +22,12 @@
 #ifndef NETLOG_HPP
 #define NETLOG_HPP
 
+/* Network log of debug builds: network events and packets, recorded into the AI log. Release builds compile every
+ * hook to nothing.
+ */
+
+#if !defined(NDEBUG)
+
 #include <format>
 
 #include "ailog.hpp"
@@ -72,14 +78,16 @@ public:
     inline void Log(NetPacket& packet) noexcept { ProcessLog(packet); }
 };
 
-#if !defined(NDEBUG)
 #define NETLOG(log, ...) NetLog log(__FILE__, __func__, __VA_ARGS__)
 #define NETLOG_LOG(log, ...) (log).Log(__VA_ARGS__)
-#else
-#define NETLOG(log, ...)
-#define NETLOG_LOG(log, ...)
-#endif /* !defined(NDEBUG) */
 
 inline void NetLog_Enable() noexcept { AiLog_Open(); }
+
+#else
+
+#define NETLOG(log, ...)
+#define NETLOG_LOG(log, ...)
+
+#endif /* !defined(NDEBUG) */
 
 #endif /* NETLOG_HPP */

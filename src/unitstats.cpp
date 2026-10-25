@@ -37,7 +37,9 @@
 
 class UnitStatsMenu : public Window {
     WindowInfo window;
+#if !defined(NDEBUG)
     TaskDebugger* task_debugger = nullptr;
+#endif /* !defined(NDEBUG) */
     Button* button_done;
     Button* button_help;
     SmartPointer<UnitInfo> unit;
@@ -498,10 +500,13 @@ UnitStatsMenu::UnitStatsMenu(UnitInfo* unit_)
     debug_window.window.lrx = 311;
     debug_window.window.lry = 253;
 
+#if !defined(NDEBUG)
     if (TaskDebugger_GetDebugMode() && unit->GetTask()) {
         task_debugger = new (std::nothrow) TaskDebugger(&debug_window, unit->GetTask(), 2000, 2001, 2002);
 
-    } else {
+    } else
+#endif /* !defined(NDEBUG) */
+    {
         if (!WindowManager_LoadBigImage(base_unit.GetPortrait(), &debug_window, window.width, false)) {
             flicsmgr_construct(base_unit.GetFlicsAnimation(), &window, window.width, 100, 74, false, false);
         }
@@ -520,15 +525,19 @@ UnitStatsMenu::UnitStatsMenu(UnitInfo* unit_)
     Text_SetFont(GNW_TEXT_FONT_5);
     Text_TextBox(window.buffer, window.width, _(94b7), 327, 7, 158, 18, COLOR_GREEN, true);
 
+#if !defined(NDEBUG)
     if (task_debugger) {
         task_debugger->DrawRows();
     }
+#endif /* !defined(NDEBUG) */
 
     win_draw(window.id);
 }
 
 UnitStatsMenu::~UnitStatsMenu() {
+#if !defined(NDEBUG)
     delete task_debugger;
+#endif /* !defined(NDEBUG) */
     delete button_done;
     delete button_help;
 
@@ -555,9 +564,11 @@ void UnitStatsMenu::Run() {
                 HelpMenu_Menu("STATS_SETUP", WINDOW_MAIN_WINDOW);
             }
 
+#if !defined(NDEBUG)
             if (task_debugger && key >= 0) {
                 task_debugger->ProcessKeyPress(key);
             }
+#endif /* !defined(NDEBUG) */
 
             if (GameManager_RequestMenuExit) {
                 key = GNW_KB_KEY_KP_ENTER;

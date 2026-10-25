@@ -21,6 +21,8 @@
 
 #include "tasktransport.hpp"
 
+#include <format>
+
 #include "access.hpp"
 #include "ailog.hpp"
 #include "aiplayer.hpp"

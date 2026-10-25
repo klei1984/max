@@ -34,6 +34,7 @@
 #include <deque>
 #include <utility>
 
+#include "ailog.hpp"
 #include "netlog.hpp"
 #include "resource_manager.hpp"
 #include "settings.hpp"
@@ -216,9 +217,11 @@ bool TransportUdpDefault::Init(int32_t mode) {
         context->NetRole = -1;
         context->LastError = "No error.";
 
+#if !defined(NDEBUG)
         if (ResourceManager_GetSettings()->GetNumericValue("log_file_debug")) {
             NetLog_Enable();
         }
+#endif /* !defined(NDEBUG) */
     }
 
     if (context->NetState.load(std::memory_order_acquire) == TRANSPORT_NETSTATE_DEINITED) {

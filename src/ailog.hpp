@@ -22,6 +22,13 @@
 #ifndef AILOG_HPP
 #define AILOG_HPP
 
+/* AI log of debug builds, opened by the log_file_debug setting or the task log of the task debugger. Records the
+ * decisions of the computer players' tasks and the network events into ai_log.txt in the preferences folder. Release
+ * builds compile every hook to nothing.
+ */
+
+#if !defined(NDEBUG)
+
 #include <SDL3/SDL_mutex.h>
 
 #include <chrono>
@@ -93,16 +100,18 @@ public:
     }
 };
 
-#if !defined(NDEBUG)
 #define AILOG(log, ...) AiLog log(__FILE__, __func__, __VA_ARGS__)
 #define AILOG_LOG(log, ...) (log).Log(__VA_ARGS__)
-#else
-#define AILOG(log, ...)
-#define AILOG_LOG(log, ...)
-#endif /* !defined(NDEBUG) */
 
 void AiLog_Open();
 void AiLog_Close();
 [[nodiscard]] bool AiLog_IsEnabled() noexcept;
+
+#else
+
+#define AILOG(log, ...)
+#define AILOG_LOG(log, ...)
+
+#endif /* !defined(NDEBUG) */
 
 #endif /* AILOG_HPP */

@@ -40,7 +40,9 @@ void RemindTurnStart::Execute() {
     AILOG(log, "Begin turn for {}", task->WriteStatusLog());
 
     task->ChangeIsScheduledForTurnStart(false);
+#if !defined(NDEBUG)
     TaskDebugger_DebugBreak(task->GetId());
+#endif /* !defined(NDEBUG) */
     task->BeginTurn();
 }
 
@@ -54,7 +56,9 @@ void RemindTurnEnd::Execute() {
     AILOG(log, "End turn for {}", task->WriteStatusLog());
 
     task->ChangeIsScheduledForTurnEnd(false);
+#if !defined(NDEBUG)
     TaskDebugger_DebugBreak(task->GetId());
+#endif /* !defined(NDEBUG) */
     task->EndTurn();
 }
 

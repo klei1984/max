@@ -21,6 +21,8 @@
 
 #include "ailog.hpp"
 
+#if !defined(NDEBUG)
+
 #include <SDL3/SDL.h>
 
 #include <cstdarg>
@@ -38,9 +40,7 @@ int32_t AiLog::AiLog_EntryCount = 0;
 int32_t AiLog::AiLog_EntryLimit = 0;
 std::optional<std::regex> AiLog::AiLog_Filter;
 
-#if !defined(NDEBUG)
 static uint32_t AiLog_Tick;
-#endif /* !defined(NDEBUG) */
 
 void AiLog::AiLog_InitMutex() {
     /* Worker threads log too, and an unsynchronized lazy create lets two of them build one
@@ -75,7 +75,6 @@ bool AiLog::ShouldFilter() const noexcept {
 }
 
 void AiLog::WriteLog(std::string_view message) {
-#if !defined(NDEBUG)
     /* the order log tick in progress matches the entries with the records of order_log.txt */
     const uint32_t tick = OrderLog_GetTick();
 
@@ -83,7 +82,6 @@ void AiLog::WriteLog(std::string_view message) {
         AiLog_File << std::format("\n# tick {}", tick);
         AiLog_Tick = tick;
     }
-#endif /* !defined(NDEBUG) */
 
     AiLog_File << std::format("\n{:3d}: ", AiLog_SectionCount + 1);
 
@@ -139,10 +137,7 @@ void AiLog::AiLog_OpenNewFile() {
 
     AiLog_File.open(filepath.string().c_str(), std::ios::out);
     AiLog_EntryCount = 0;
-
-#if !defined(NDEBUG)
     AiLog_Tick = 0;
-#endif /* !defined(NDEBUG) */
 }
 
 void AiLog_Open() {
@@ -191,3 +186,5 @@ void AiLog_Close() {
 
     return result;
 }
+
+#endif /* !defined(NDEBUG) */

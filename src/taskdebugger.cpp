@@ -21,6 +21,8 @@
 
 #include "taskdebugger.hpp"
 
+#if !defined(NDEBUG)
+
 #include <format>
 
 #include "ailog.hpp"
@@ -291,3 +293,5 @@ bool TaskDebugger::ProcessKeyPress(uint32_t key) {
 
     return result;
 }
+
+#endif /* !defined(NDEBUG) */

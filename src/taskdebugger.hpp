@@ -22,6 +22,12 @@
 #ifndef TASKDEBUGGER_HPP
 #define TASKDEBUGGER_HPP
 
+/* Task debugger of debug builds, switched by Alt+F3 in game: the task list of the unit info window and the task log.
+ * Release builds have none of it.
+ */
+
+#if !defined(NDEBUG)
+
 #include "button.hpp"
 #include "buttonmanager.hpp"
 #include "task.hpp"
@@ -58,5 +64,7 @@ int32_t TaskDebugger_GetDebugMode();
 void TaskDebugger_SetDebugMode();
 void TaskDebugger_EnableTaskLog();
 void TaskDebugger_DebugBreak(int32_t task_id);
+
+#endif /* !defined(NDEBUG) */
 
 #endif /* TASKDEBUGGER_HPP */

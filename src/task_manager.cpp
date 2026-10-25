@@ -319,6 +319,7 @@ void TaskManager::BeginTurn(uint16_t team) {
         }
     }
 
+#if !defined(NDEBUG)
     if (AiLog_IsEnabled()) {
         uint16_t reminders[REMINDER_TYPE_COUNT];
 
@@ -334,6 +335,7 @@ void TaskManager::BeginTurn(uint16_t team) {
         AILOG_LOG(log, "Move reminders: {}", reminders[REMINDER_TYPE_MOVE]);
         AILOG_LOG(log, "Attack reminders: {}", reminders[REMINDER_TYPE_ATTACK]);
     }
+#endif /* !defined(NDEBUG) */
 }
 
 void TaskManager::EndTurn(uint16_t team) {
@@ -397,6 +399,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
                 SmartPointer<TaskObtainUnits> obtain_units_task;
                 uint16_t task_priority{UINT16_MAX};
 
+#if !defined(NDEBUG)
                 if (AiLog_IsEnabled()) {
                     char unit_name[300];
 
@@ -404,6 +407,7 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
 
                     AILOG(log, "Task manager: find a task for {}.", unit_name);
                 }
+#endif /* !defined(NDEBUG) */
 
                 {
                     /* in case a builder unit is blocked from activating another unit is disabled
