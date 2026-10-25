@@ -31,6 +31,7 @@
 #include <format>
 
 #include "ailog.hpp"
+#include "taskdebugger.hpp"
 #include "transport.hpp"
 
 class NetLog {
@@ -81,7 +82,8 @@ public:
 #define NETLOG(log, ...) NetLog log(__FILE__, __func__, __VA_ARGS__)
 #define NETLOG_LOG(log, ...) (log).Log(__VA_ARGS__)
 
-inline void NetLog_Enable() noexcept { AiLog_Open(); }
+/* starts the task log as the in game toggle does, task debug info included */
+inline void NetLog_Enable() noexcept { TaskDebugger_EnableTaskLog(); }
 
 #else
 
