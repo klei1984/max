@@ -3292,10 +3292,11 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
 
     load_successful = false;
 
-    GameManager_MaxSpy = false;
-    GameManager_MaxSurvey = false;
-
     if (save_slot) {
+        // cheats active in the game left behind do not carry over into the loaded one
+        GameManager_MaxSpy = false;
+        GameManager_MaxSurvey = false;
+
         if (GameManager_SelectedUnit != nullptr) {
             ResourceManager_GetSoundManager().PlaySfx(&*GameManager_SelectedUnit, Unit::SFX_TYPE_INVALID);
         }
