@@ -85,6 +85,9 @@ public:
     void DispatchJobs();
     [[nodiscard]] bool HasRequest(UnitInfo* unit) const;
 
+    /// True while a dispatched job has not been polled back from the worker thread.
+    [[nodiscard]] bool HasDispatchedJobs() const { return !m_dispatched_requests.empty(); }
+
     [[nodiscard]] AccessMap& GetAccessMap() { return *m_access_map; }
 };
 

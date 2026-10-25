@@ -45,6 +45,7 @@ static const std::vector<std::pair<std::string, Settings::SettingDefinition>> se
     {"ai_log_filter", {std::string(""), "DEBUG"}},
     {"ai_log_entry_limit", {65535, "DEBUG"}},
     {"order_log", {0, "DEBUG"}},
+    {"timer_mode", {1, "DEBUG"}},
     {"raw_normal_low", {0, "DEBUG"}},
     {"raw_normal_high", {5, "DEBUG"}},
     {"raw_concentrate_low", {13, "DEBUG"}},

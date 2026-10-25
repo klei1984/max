@@ -224,6 +224,11 @@ uint8_t GameManager_PlayMode;
 bool GameManager_FastMovement;
 uint16_t GameManager_MultiChatTargets[PLAYER_TEAM_MAX - 1];
 
+#if !defined(NDEBUG)
+static bool GameManager_TimerMode{true};
+static uint64_t GameManager_TimerModeRenderTimeStamp;
+#endif /* !defined(NDEBUG) */
+
 uint32_t GameManager_LastZoomLevel;
 
 static Point GameManager_GridOffset;
@@ -416,6 +421,11 @@ static void GameManager_DrawInfoDisplayType2(UnitInfo* unit);
 static void GameManager_DrawInfoDisplayType1(UnitInfo* unit);
 static void GameManager_DrawInfoDisplayType3(UnitInfo* unit);
 static bool GameManager_SyncTurnTimer();
+static bool GameManager_IsTickDue();
+static bool GameManager_IsTickRenderDue();
+#if !defined(NDEBUG)
+static void GameManager_ToggleTimerMode();
+#endif /* !defined(NDEBUG) */
 static void GameManager_MenuCreateFlic(ResourceID unit_type, int32_t ulx, int32_t uly);
 static void GameManager_DrawFlic(Rect* bounds);
 static void GameManager_AdvanceFlic();
@@ -3002,6 +3012,10 @@ void GameManager_InitUnitsAndGameState() {
     GameManager_PlayMode = ResourceManager_GetSettings()->GetNumericValue("play_mode");
     GameManager_FastMovement = ResourceManager_GetSettings()->GetNumericValue("fast_movement");
 
+#if !defined(NDEBUG)
+    GameManager_TimerMode = ResourceManager_GetSettings()->GetNumericValue("timer_mode");
+#endif /* !defined(NDEBUG) */
+
     GameManager_ArrowKeyFlags = 0;
 
     GameManager_TurnCounter = 1;
@@ -5069,6 +5083,47 @@ void GameManager_ProcessState(bool process_tick, bool clear_mouse_events) {
     }
 }
 
+bool GameManager_IsTickDue() {
+    if (!TickTimer_HaveTimeToThink(TIMER_FPS_TO_MS(24))) {
+        return true;
+    }
+
+#if !defined(NDEBUG)
+    if (!GameManager_TimerMode && !Remote_IsNetworkGame && !ResourceManager_GetPathsManager().HasDispatchedJobs()) {
+        return true;
+    }
+#endif /* !defined(NDEBUG) */
+
+    return false;
+}
+
+bool GameManager_IsTickRenderDue() {
+#if !defined(NDEBUG)
+    if (!GameManager_TimerMode && !Remote_IsNetworkGame) {
+        const uint64_t time_stamp = timer_get();
+
+        if (time_stamp - GameManager_TimerModeRenderTimeStamp < TIMER_FPS_TO_MS(Svga_GetScreenRefreshRate())) {
+            return false;
+        }
+
+        GameManager_TimerModeRenderTimeStamp = time_stamp;
+    }
+#endif /* !defined(NDEBUG) */
+
+    return true;
+}
+
+#if !defined(NDEBUG)
+void GameManager_ToggleTimerMode() {
+    if (!Remote_IsNetworkGame) {
+        GameManager_TimerMode = !GameManager_TimerMode;
+
+        MessageManager_DrawMessage(GameManager_TimerMode ? "Timer mode now ON." : "Timer mode now OFF.",
+                                   MESSAGE_BOX_INFO, MESSAGE_BOX_MODELESS);
+    }
+}
+#endif /* !defined(NDEBUG) */
+
 bool GameManager_ProcessTick(bool render_screen) {
     uint64_t time_stamp;
     bool result;
@@ -5094,7 +5149,7 @@ bool GameManager_ProcessTick(bool render_screen) {
     // Always poll path results regardless of frame budget
     ResourceManager_GetPathsManager().PollResults();
 
-    if (!TickTimer_HaveTimeToThink(TIMER_FPS_TO_MS(24))) {
+    if (GameManager_IsTickDue()) {
         if (GameManager_IsCheater && GameManager_PlayMode != PLAY_MODE_UNKNOWN) {
             GameManager_PunishCheater();
         }
@@ -5110,7 +5165,9 @@ bool GameManager_ProcessTick(bool render_screen) {
             UnitsManager_ProcessOrders();
         }
 
-        GameManager_RenderMap();
+        if (GameManager_IsTickRenderDue()) {
+            GameManager_RenderMap();
+        }
 
         if (GameManager_GameState != GAME_STATE_11_TURN_ACTIVE && !UnitsManager_OrdersPending) {
             TickTimer_UpdateTimeLimit();
@@ -5518,6 +5575,12 @@ void GameManager_ProcessKey() {
         case GNW_KB_KEY_LALT_F3: {
 #if !defined(NDEBUG)
             TaskDebugger_SetDebugMode();
+#endif /* !defined(NDEBUG) */
+        } break;
+
+        case GNW_KB_KEY_LALT_T: {
+#if !defined(NDEBUG)
+            GameManager_ToggleTimerMode();
 #endif /* !defined(NDEBUG) */
         } break;
 
