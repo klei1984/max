@@ -31,6 +31,29 @@
 #include "unit.hpp"
 #include "units_manager.hpp"
 
+bool TaskActivate_IsComplete(UnitInfo* unit, UnitInfo* container) {
+    // the one test of a finished activation: the unit takes orders again and stands outside the unit it left
+    bool result;
+
+    if (unit->GetOrder() != ORDER_IDLE && unit->GetOrder() != ORDER_BUILD && unit->GetOrder() != ORDER_EXPLODE &&
+        unit->GetOrder() != ORDER_AWAIT_SCALING && unit->GetOrderState() != ORDER_STATE_DESTROY) {
+        Rect bounds;
+
+        rect_init(&bounds, 0, 0, 0, 0);
+
+        container->GetBounds(&bounds);
+
+        Point position(unit->grid_x, unit->grid_y);
+
+        result = !Access_IsInsideBounds(&bounds, &position);
+
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
 TaskActivate::TaskActivate(UnitInfo* unit, Task* task, UnitInfo* parent_)
     : Task(unit->team, task, task->GetPriority()) {
     unit_to_activate = unit;
@@ -217,42 +240,31 @@ bool TaskActivate::Execute(UnitInfo& unit) {
     bool result;
 
     if (unit_to_activate != nullptr && unit_to_activate == unit) {
-        if (unit_to_activate->GetOrder() != ORDER_IDLE && unit_to_activate->GetOrder() != ORDER_BUILD &&
-            unit_to_activate->GetOrder() != ORDER_EXPLODE && unit_to_activate->GetOrder() != ORDER_AWAIT_SCALING &&
-            unit_to_activate->GetOrderState() != ORDER_STATE_DESTROY) {
+        if (TaskActivate_IsComplete(&*unit_to_activate, &*unit_parent)) {
             SmartPointer<Task> task(this);
-            Rect bounds;
 
-            rect_init(&bounds, 0, 0, 0, 0);
+            AILOG(log, "Completed activation of {} {}.",
+                  ResourceManager_GetUnit(unit_to_activate->GetUnitType()).GetSingularName().data(),
+                  unit_to_activate->unit_id);
 
-            unit_parent->GetBounds(&bounds);
+            unit_to_activate->RemoveTask(this);
 
-            Point position(unit_to_activate->grid_x, unit_to_activate->grid_y);
-
-            if (!Access_IsInsideBounds(&bounds, &position)) {
-                AILOG(log, "Completed activation of {} {}.",
-                      ResourceManager_GetUnit(unit_to_activate->GetUnitType()).GetSingularName().data(),
-                      unit_to_activate->unit_id);
-
-                unit_to_activate->RemoveTask(this);
-
-                if (m_parent->GetType() == TaskType_TaskCreateUnit) {
-                    m_parent->AddUnit(*unit_to_activate);
-                }
-
-                if (!unit_to_activate->GetTask()) {
-                    TaskManager.ClearUnitTasksAndRemindAvailable(unit_to_activate.Get());
-                }
-
-                unit_to_activate = nullptr;
-                unit_parent = nullptr;
-
-                TaskManager.RemoveTask(*this);
-
-                result = false;
-
-                return result;
+            if (m_parent->GetType() == TaskType_TaskCreateUnit) {
+                m_parent->AddUnit(*unit_to_activate);
             }
+
+            if (!unit_to_activate->GetTask()) {
+                TaskManager.ClearUnitTasksAndRemindAvailable(unit_to_activate.Get());
+            }
+
+            unit_to_activate = nullptr;
+            unit_parent = nullptr;
+
+            TaskManager.RemoveTask(*this);
+
+            result = false;
+
+            return result;
         }
 
         Activate();

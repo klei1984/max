@@ -51,4 +51,6 @@ public:
     [[nodiscard]] const UnitInfo* GetPayload() const noexcept;
 };
 
+bool TaskActivate_IsComplete(UnitInfo* unit, UnitInfo* container);
+
 #endif /* TASKACTIVATE_HPP */
