@@ -47,6 +47,7 @@ class TaskClearZone : public Task {
     static void PathFindCancelCallback(Task* task, PathRequest* request);
 
     bool ExamineZones();
+    void EraseZone(uint32_t index);
     bool IsNewSite(Point site);
     void EvaluateSite(ZoneSquare* zone_square, Point site);
     void SearchMap();

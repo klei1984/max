@@ -270,7 +270,7 @@ bool TaskClearZone::ExamineZones() {
             if (IsNewSite(site)) {
                 if (unit) {
                     if (unit->team != m_team) {
-                        zones.Erase(i);
+                        EraseZone(i);
 
                         zone->Finished(false);
 
@@ -282,7 +282,7 @@ bool TaskClearZone::ExamineZones() {
 
                     } else {
                         if (zone->IsImportant() && unit->speed < 2) {
-                            zones.Erase(i);
+                            EraseZone(i);
 
                             zone->Finished(false);
 
@@ -297,7 +297,7 @@ bool TaskClearZone::ExamineZones() {
                         } else {
                             if ((unit->GetOrder() == ORDER_BUILD && unit->GetOrderState() != ORDER_STATE_UNIT_READY) ||
                                 zone->IsImportant()) {
-                                zones.Erase(i);
+                                EraseZone(i);
 
                                 zone->Finished(false);
 
@@ -323,7 +323,7 @@ bool TaskClearZone::ExamineZones() {
         }
 
         if (!is_found) {
-            zones.Erase(i);
+            EraseZone(i);
 
             zone->Finished(true);
 
@@ -332,6 +332,29 @@ bool TaskClearZone::ExamineZones() {
     }
 
     return true;
+}
+
+void TaskClearZone::EraseZone(uint32_t index) {
+    auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
+
+    // the squares of an ended zone are not to be cleared out any more, except the ones another zone still holds
+    if (info_map) {
+        Zone& zone = zones[index];
+
+        for (uint32_t i = 0; i < zone.points.GetCount(); ++i) {
+            info_map[zone.points[i]->x][zone.points[i]->y] &= ~INFO_MAP_CLEAR_OUT_ZONE;
+        }
+    }
+
+    zones.Erase(index);
+
+    if (info_map) {
+        for (uint32_t i = 0; i < zones.GetCount(); ++i) {
+            for (uint32_t j = 0; j < zones[i].points.GetCount(); ++j) {
+                info_map[zones[i].points[j]->x][zones[i].points[j]->y] |= INFO_MAP_CLEAR_OUT_ZONE;
+            }
+        }
+    }
 }
 
 bool TaskClearZone::IsNewSite(Point site) {
