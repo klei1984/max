@@ -1642,31 +1642,48 @@ void AiPlayer::AddBuildOrder(SmartObjectArray<BuildOrder>* build_orders, uint16_
     }
 }
 
-void AiPlayer::CheckReconnaissanceNeeds(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type, uint16_t team,
-                                        uint16_t enemy_team, bool mode) {
+void AiPlayer::CheckReconnaissanceNeeds(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type, bool mode) {
+    TeamUnits* team_units = UnitsManager_TeamInfo[player_team].team_units;
     int32_t unit_range_max = 0;
-    int32_t unit_scan = UnitsManager_TeamInfo[team].team_units->GetBaseUnitValues(unit_type)->GetAttribute(ATTRIB_SCAN);
-    CTInfo* team_info = &UnitsManager_TeamInfo[enemy_team];
+    int32_t unit_scan = team_units->GetBaseUnitValues(unit_type)->GetAttribute(ATTRIB_SCAN);
 
-    for (int32_t i = 0; i < UNIT_END; ++i) {
-        UnitValues* unit_values = UnitsManager_GetCurrentUnitValues(team_info, static_cast<ResourceID>(i));
+    // ranges come from the armed enemy units the team has spotted, never from the enemies' unit tables
+    for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
+        UnitInfo* unit = (*it).GetUnit();
 
-        if (unit_values->GetAttribute(ATTRIB_ATTACK) > 0 && (mode || unit_values->GetAttribute(ATTRIB_SPEED)) &&
-            Access_IsValidAttackTargetType(static_cast<ResourceID>(i), unit_type)) {
-            if (team_info->team_units->GetBaseUnitValues(static_cast<ResourceID>(i))->GetAttribute(ATTRIB_RANGE) >
-                unit_scan) {
-                // do not compete with units that are in another league
-                continue;
+        if (unit && IsTargetTeam(unit->team)) {
+            UnitValues* unit_values = unit->GetBaseValues();
+
+            if (unit_values->GetAttribute(ATTRIB_ATTACK) > 0 && (mode || unit_values->GetAttribute(ATTRIB_SPEED)) &&
+                Access_IsValidAttackTargetType(unit->GetUnitType(), unit_type)) {
+                if (team_units->GetBaseUnitValues(unit->GetUnitType())->GetAttribute(ATTRIB_RANGE) > unit_scan) {
+                    // do not compete with units that are in another league
+                    continue;
+                }
+
+                unit_range_max = std::max(unit_range_max, unit_values->GetAttribute(ATTRIB_RANGE) + 1);
             }
-
-            unit_range_max = std::max(unit_range_max, unit_values->GetAttribute(ATTRIB_RANGE) + 1);
         }
     }
 
     if (unit_range_max >
-        UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[team], unit_type)->GetAttribute(ATTRIB_SCAN)) {
-        AddBuildOrder(build_orders, team, unit_type, ATTRIB_SCAN);
+        UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[player_team], unit_type)->GetAttribute(ATTRIB_SCAN)) {
+        AddBuildOrder(build_orders, player_team, unit_type, ATTRIB_SCAN);
     }
+}
+
+int32_t AiPlayer::GetMaxSpottedScan(ResourceID unit_type) {
+    int32_t result = 0;
+
+    for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
+        UnitInfo* unit = (*it).GetUnit();
+
+        if (unit && unit->GetUnitType() == unit_type && IsTargetTeam(unit->team)) {
+            result = std::max(result, unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN));
+        }
+    }
+
+    return result;
 }
 
 SmartObjectArray<BuildOrder> AiPlayer::ChooseStrategicBuildOrders(bool mode) {
@@ -1690,33 +1707,31 @@ SmartObjectArray<BuildOrder> AiPlayer::ChooseStrategicBuildOrders(bool mode) {
             switch (strategy) {
                 case AI_STRATEGY_MISSILES:
                 case AI_STRATEGY_COMBINED_ARMS: {
-                    CheckReconnaissanceNeeds(&build_orders, SCANNER, player_team, target_team, false);
+                    CheckReconnaissanceNeeds(&build_orders, SCANNER, false);
                 } break;
 
                 case AI_STRATEGY_AIR: {
-                    CheckReconnaissanceNeeds(&build_orders, AWAC, player_team, target_team, true);
+                    CheckReconnaissanceNeeds(&build_orders, AWAC, true);
                 } break;
 
                 case AI_STRATEGY_SEA: {
-                    CheckReconnaissanceNeeds(&build_orders, FASTBOAT, player_team, target_team, true);
+                    CheckReconnaissanceNeeds(&build_orders, FASTBOAT, true);
                 } break;
             }
 
         } else {
-            CheckReconnaissanceNeeds(&build_orders, SCANNER, player_team, target_team, true);
-            CheckReconnaissanceNeeds(&build_orders, AWAC, player_team, target_team, true);
-            CheckReconnaissanceNeeds(&build_orders, FASTBOAT, player_team, target_team, true);
-            CheckReconnaissanceNeeds(&build_orders, SCOUT, player_team, target_team, true);
+            CheckReconnaissanceNeeds(&build_orders, SCANNER, true);
+            CheckReconnaissanceNeeds(&build_orders, AWAC, true);
+            CheckReconnaissanceNeeds(&build_orders, FASTBOAT, true);
+            CheckReconnaissanceNeeds(&build_orders, SCOUT, true);
 
-            if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[target_team], INFANTRY)
-                    ->GetAttribute(ATTRIB_SCAN) >=
+            if (GetMaxSpottedScan(INFANTRY) >=
                 UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[player_team], COMMANDO)
                     ->GetAttribute(ATTRIB_SCAN)) {
                 AddBuildOrder(&build_orders, player_team, COMMANDO, ATTRIB_SCAN);
             }
 
-            if (UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[target_team], CORVETTE)
-                    ->GetAttribute(ATTRIB_SCAN) >=
+            if (GetMaxSpottedScan(CORVETTE) >=
                 UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[player_team], SUBMARNE)
                     ->GetAttribute(ATTRIB_SCAN)) {
                 AddBuildOrder(&build_orders, player_team, SUBMARNE, ATTRIB_SCAN);

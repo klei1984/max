@@ -146,8 +146,8 @@ class AiPlayer {
     void RollTeamMissionSupplies(int32_t clan);
     static void AddBuildOrder(SmartObjectArray<BuildOrder>* build_orders, uint16_t team, ResourceID unit_type,
                               int32_t attribute);
-    static void CheckReconnaissanceNeeds(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type,
-                                         uint16_t team, uint16_t enemy_team, bool mode);
+    void CheckReconnaissanceNeeds(SmartObjectArray<BuildOrder>* build_orders, ResourceID unit_type, bool mode);
+    int32_t GetMaxSpottedScan(ResourceID unit_type);
     SmartObjectArray<BuildOrder> ChooseStrategicBuildOrders(bool mode);
     void ProcessBuildOrders(SmartObjectArray<BuildOrder> build_orders);
     SmartObjectArray<BuildOrder> ChooseGenericBuildOrders();
