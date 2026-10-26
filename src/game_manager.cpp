@@ -1961,7 +1961,7 @@ void GameManager_GameSetup(int32_t game_state) {
 
     GameManager_GameState = GAME_STATE_8_IN_GAME;
 
-    Access_UpdateVisibilityStatus(GameManager_AllVisible);
+    Access_UpdateVisibilityStatus(GameManager_AllVisible, game_state == GAME_STATE_6_GAME_SETUP);
 
     ResourceManager_GetSoundManager().PlayMusic(
         static_cast<ResourceID>(ResourceManager_GetSettings()->GetNumericValue("world") / 6 + SNOW_MSC), true);
