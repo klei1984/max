@@ -816,39 +816,10 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
         }
 
         if (is_for_attacking) {
-            if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_MASTER &&
-                ResourceManager_GetSettings()->GetNumericValue("cheating_computer") >=
-                    COMPUTER_CHEATING_LEVEL_SHAMELESS) {
-                for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
-                     it != it_end; ++it) {
-                    if (IsAbleToAttack(it->Get(), risk_group_unit, player_team) && (*it).team != player_team) {
-                        DetermineThreats(it->Get(), Point((*it).grid_x, (*it).grid_y), caution_level, teams,
-                                         &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
-                    }
-                }
-
-                for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
-                     it != it_end; ++it) {
-                    if (IsAbleToAttack(it->Get(), risk_group_unit, player_team) && (*it).team != player_team) {
-                        DetermineThreats(it->Get(), Point((*it).grid_x, (*it).grid_y), caution_level, teams,
-                                         &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
-                    }
-                }
-
-                for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End();
-                     it != it_end; ++it) {
-                    if (IsAbleToAttack(it->Get(), risk_group_unit, player_team) && (*it).team != player_team) {
-                        DetermineThreats(it->Get(), Point((*it).grid_x, (*it).grid_y), caution_level, teams,
-                                         &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
-                    }
-                }
-
-            } else {
-                for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
-                    if (IsAbleToAttack((*it).GetUnit(), risk_group_unit, player_team)) {
-                        DetermineThreats((*it).GetUnit(), Point((*it).GetUnit()->grid_x, (*it).GetUnit()->grid_y),
-                                         caution_level, teams, &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
-                    }
+            for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
+                if (IsAbleToAttack((*it).GetUnit(), risk_group_unit, player_team)) {
+                    DetermineThreats((*it).GetUnit(), Point((*it).GetUnit()->grid_x, (*it).GetUnit()->grid_y),
+                                     caution_level, teams, &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
                 }
             }
 
@@ -2249,78 +2220,18 @@ void AiPlayer::AddMilitaryUnit(UnitInfo* unit) {
 bool AiPlayer::IsTargetTeamDefined() const { return (target_team >= PLAYER_TEAM_RED && target_team < PLAYER_TEAM_MAX); }
 
 bool AiPlayer::IsTargetTeam(const uint8_t team) const {
-    bool result;
-
-    if (ResourceManager_GetSettings()->GetNumericValue("cheating_computer") >= COMPUTER_CHEATING_LEVEL_INSUFFERABLE) {
-        result = (team == target_team);
-
-    } else {
-        result = (team != player_team) && (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) &&
-                 (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED);
-    }
-
-    return result;
+    return (team != player_team) && (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) &&
+           (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED);
 }
 
 void AiPlayer::DetermineTargetTeam() {
-    if (ResourceManager_GetSettings()->GetNumericValue("cheating_computer") >= COMPUTER_CHEATING_LEVEL_SHAMELESS) {
-        int32_t player_team_points = UnitsManager_TeamInfo[player_team].team_points;
-        int32_t team_building_counts[PLAYER_TEAM_MAX];
-        int32_t target_team_points;
-        int32_t enemy_team_points;
-
-        memset(team_building_counts, 0, sizeof(team_building_counts));
-
-        for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
-             ++it) {
-            ++team_building_counts[(*it).team];
-        }
-
-        if (IsTargetTeamDefined()) {
-            target_team_points = UnitsManager_TeamInfo[target_team].team_points;
-
-            if (UnitsManager_TeamInfo[target_team].team_type != TEAM_TYPE_COMPUTER) {
-                if (target_team_points < player_team_points) {
-                    ++target_team_points;
-                } else {
-                    target_team_points += 1000;
-                }
-            }
-
-        } else {
-            target_team_points = -1;
-        }
-
-        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-            if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE && player_team != team && target_team != team) {
-                enemy_team_points = UnitsManager_TeamInfo[team].team_points;
-
-                if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_COMPUTER) {
-                    if (enemy_team_points < player_team_points) {
-                        ++enemy_team_points;
-                    } else {
-                        enemy_team_points += 1000;
-                    }
-                }
-
-                if (!IsTargetTeamDefined() || target_team_points < enemy_team_points ||
-                    (target_team_points == enemy_team_points &&
-                     team_building_counts[target_team] < team_building_counts[team])) {
-                    target_team = team;
-                    target_team_points = enemy_team_points;
-                }
-            }
-        }
-
-    } else {
-        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-            if (team != player_team) {
-                if (!IsTargetTeamDefined() ||
-                    (UnitsManager_TeamInfo[team].team_points > UnitsManager_TeamInfo[target_team].team_points &&
-                     (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
-                      UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED))) {
-                    target_team = team;
-                }
+    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
+        if (team != player_team) {
+            if (!IsTargetTeamDefined() ||
+                (UnitsManager_TeamInfo[team].team_points > UnitsManager_TeamInfo[target_team].team_points &&
+                 (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
+                  UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED))) {
+                target_team = team;
             }
         }
     }
@@ -2522,18 +2433,6 @@ void AiPlayer::BeginTurn() {
                 if ((*it).team == player_team) {
                     if ((*it).GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0) {
                         AddMilitaryUnit(it->Get());
-                    }
-                }
-            }
-
-            if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_EXPERT &&
-                ResourceManager_GetSettings()->GetNumericValue("cheating_computer") >=
-                    COMPUTER_CHEATING_LEVEL_TOLERABLE) {
-                for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
-                     it != it_end; ++it) {
-                    if ((*it).team != player_team &&
-                        ((*it).GetUnitType() == MININGST || (*it).GetUnitType() == GREENHSE)) {
-                        Ai_UnitSpotted(it->Get(), player_team);
                     }
                 }
             }

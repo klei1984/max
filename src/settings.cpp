@@ -106,7 +106,6 @@ static const std::vector<std::pair<std::string, Settings::SettingDefinition>> se
     {"language", {std::string("en-US"), "SETUP"}},
     {"voiceover", {std::string("en-US"), "SETUP"}},
     {"game_data", {std::string("."), "SETUP"}},
-    {"cheating_computer", {3, "SETUP"}},
     {"mouse_wheel_sensitivity", {3, "SETUP"}},
     {"disable_subtitles", {0, "SETUP"}},
     {"subtitle_text_color", {static_cast<int32_t>(0xFFFFFFFF), "SETUP"}},
