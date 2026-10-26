@@ -217,7 +217,6 @@ void TaskDefenseReserve::BeginTurn() {
 void TaskDefenseReserve::EndTurn() {
     SmartPointer<TaskObtainUnits> obtain_units_task;
     int32_t unit_counts[UNIT_END];
-    uint16_t target_team;
     int32_t total_assets_land;
     int32_t total_assets_sea;
     int32_t total_assets_air;
@@ -225,8 +224,6 @@ void TaskDefenseReserve::EndTurn() {
     int32_t total_assets_stealth_sea;
 
     memset(unit_counts, 0, sizeof(unit_counts));
-
-    target_team = AiPlayer_Teams[m_team].GetTargetTeam();
 
     for (int32_t i = 0; i < TASK_DEFENSE_MANAGER_COUNT; ++i) {
         managers[i].MaintainDefences(this);
@@ -269,10 +266,15 @@ void TaskDefenseReserve::EndTurn() {
     if (total_assets_land + total_assets_sea > 0) {
         total_assets_air = 0;
 
-        for (auto it = UnitsManager_MobileAirUnits.Begin(), it_end = UnitsManager_MobileAirUnits.End(); it != it_end;
-             ++it) {
-            if ((*it).team == target_team && (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
-                total_assets_air += (*it).GetNormalRateBuildCost();
+        // defenses are sized from the armed enemy units the team has spotted, never from the enemies' unit lists
+        for (auto it = AiPlayer_Teams[m_team].GetSpottedUnits().Begin(),
+                  it_end = AiPlayer_Teams[m_team].GetSpottedUnits().End();
+             it != it_end; ++it) {
+            UnitInfo* unit = (*it).GetUnit();
+
+            if (unit && (unit->flags & MOBILE_AIR_UNIT) && AiPlayer_Teams[m_team].IsTargetTeam(unit->team) &&
+                unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
+                total_assets_air += unit->GetNormalRateBuildCost();
             }
         }
 
@@ -290,20 +292,24 @@ void TaskDefenseReserve::EndTurn() {
     total_assets_stealth_land = 0;
     total_assets_stealth_sea = 0;
 
-    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
+    for (auto it = AiPlayer_Teams[m_team].GetSpottedUnits().Begin(),
+              it_end = AiPlayer_Teams[m_team].GetSpottedUnits().End();
          it != it_end; ++it) {
-        if ((*it).team == target_team && (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
-            if ((*it).GetUnitType() == COMMANDO) {
-                total_assets_stealth_land += (*it).GetNormalRateBuildCost();
+        UnitInfo* unit = (*it).GetUnit();
 
-            } else if ((*it).GetUnitType() == SUBMARNE) {
-                total_assets_stealth_sea += (*it).GetNormalRateBuildCost();
+        if (unit && (unit->flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
+            AiPlayer_Teams[m_team].IsTargetTeam(unit->team) && unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
+            if (unit->GetUnitType() == COMMANDO) {
+                total_assets_stealth_land += unit->GetNormalRateBuildCost();
 
-            } else if ((*it).flags & MOBILE_SEA_UNIT) {
-                total_assets_sea += (*it).GetNormalRateBuildCost();
+            } else if (unit->GetUnitType() == SUBMARNE) {
+                total_assets_stealth_sea += unit->GetNormalRateBuildCost();
+
+            } else if (unit->flags & MOBILE_SEA_UNIT) {
+                total_assets_sea += unit->GetNormalRateBuildCost();
 
             } else {
-                total_assets_land += (*it).GetNormalRateBuildCost();
+                total_assets_land += unit->GetNormalRateBuildCost();
             }
         }
     }
