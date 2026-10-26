@@ -4597,7 +4597,8 @@ bool UnitsManager_ShouldAttack(UnitInfo* unit1, UnitInfo* unit2) {
                 result = false;
 
             } else if (UnitsManager_TeamInfo[unit1->team].team_type == TEAM_TYPE_COMPUTER) {
-                result = Ai_IsTargetTeam(unit1, unit2);
+                // computer players treat every other team as hostile
+                result = true;
 
             } else {
                 if (GameManager_PlayMode == PLAY_MODE_TURN_BASED || unit1->GetOrder() == ORDER_SENTRY) {

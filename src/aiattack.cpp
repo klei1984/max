@@ -257,7 +257,7 @@ bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, i
     return result;
 }
 
-bool AiAttack_IsWithinReach(UnitInfo* unit, uint16_t team, bool* relevant_teams) {
+bool AiAttack_IsWithinReach(UnitInfo* unit, uint16_t team) {
     bool result;
     int32_t distance;
     Point line_distance;
@@ -267,7 +267,7 @@ bool AiAttack_IsWithinReach(UnitInfo* unit, uint16_t team, bool* relevant_teams)
     if (unit->team == PLAYER_TEAM_ALIEN) {
         result = false;
 
-    } else if (relevant_teams[unit->team]) {
+    } else {
         if (unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
             distance += unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED);
         }
@@ -296,9 +296,6 @@ bool AiAttack_IsWithinReach(UnitInfo* unit, uint16_t team, bool* relevant_teams)
         } else {
             result = false;
         }
-
-    } else {
-        result = false;
     }
 
     return result;
@@ -539,36 +536,6 @@ bool AiAttack_IsAttackProfitable(UnitInfo* friendly_unit, UnitInfo* enemy_unit, 
                                        is_desperation_attack);
 }
 
-void AiAttack_GetTargetTeams(uint16_t team, bool* teams) {
-    if (ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) {
-        int16_t target_team;
-
-        memset(teams, 0, PLAYER_TEAM_MAX * sizeof(bool));
-
-        teams[PLAYER_TEAM_ALIEN] = true;
-
-        target_team = AiPlayer_Teams[team].GetTargetTeam();
-
-        if (target_team >= PLAYER_TEAM_RED) {
-            teams[target_team] = true;
-        }
-
-        for (target_team = PLAYER_TEAM_RED; target_team < PLAYER_TEAM_MAX - 1; ++target_team) {
-            if (UnitsManager_TeamInfo[target_team].team_type == TEAM_TYPE_PLAYER ||
-                UnitsManager_TeamInfo[target_team].team_type == TEAM_TYPE_REMOTE) {
-                teams[target_team] = true;
-
-            } else if (UnitsManager_TeamInfo[target_team].team_type == TEAM_TYPE_COMPUTER &&
-                       AiPlayer_Teams[target_team].GetTargetTeam() == team) {
-                teams[target_team] = true;
-            }
-        }
-
-    } else {
-        memset(teams, 1, PLAYER_TEAM_MAX * sizeof(bool));
-    }
-}
-
 SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_t scan, int32_t caution_level,
                                            bool mode) {
     SpottedUnit* spotted_unit = nullptr;
@@ -581,10 +548,7 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
     int32_t unit_range = base_values->GetAttribute(ATTRIB_RANGE);
     uint8_t surface_type = ResourceManager_GetUnit(unit->GetUnitType()).GetLandType();
     Point unit_position;
-    bool teams[PLAYER_TEAM_MAX];
     int32_t distance;
-
-    AiAttack_GetTargetTeams(unit_team, teams);
 
     unit_scan = std::min(unit_scan, unit_range);
     unit_scan = unit_scan * unit_scan;
@@ -598,9 +562,8 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
          it != it_end; ++it) {
         UnitInfo* target_unit = (*it).GetUnit();
 
-        if (teams[target_unit->team] && target_unit->GetOrder() != ORDER_IDLE &&
-            target_unit->GetOrderState() != ORDER_STATE_DESTROY && target_unit->hits > 0 &&
-            target_unit->GetOrder() != ORDER_EXPLODE) {
+        if (target_unit->GetOrder() != ORDER_IDLE && target_unit->GetOrderState() != ORDER_STATE_DESTROY &&
+            target_unit->hits > 0 && target_unit->GetOrder() != ORDER_EXPLODE) {
             unit_position = (*it).GetLastPosition();
             distance = Access_GetSquaredDistance(unit, unit_position);
 

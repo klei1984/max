@@ -1929,15 +1929,12 @@ void TaskAttack::RemoveTask(TaskKillUnit* task) {
 }
 
 void TaskAttack::AssessEnemyUnits() {
-    bool teams[PLAYER_TEAM_MAX];
     uint16_t enemy_team;
     bool is_relevant;
 
     AILOG(log, "Assess which enemy units protect primary targets.");
 
     access_flags |= MOBILE_AIR_UNIT;
-
-    AiAttack_GetTargetTeams(m_team, teams);
 
     enemy_team = AiPlayer_Teams[m_team].GetTargetTeam();
 
@@ -1966,7 +1963,7 @@ void TaskAttack::AssessEnemyUnits() {
                 if (target->team == PLAYER_TEAM_ALIEN) {
                     is_relevant = true;
 
-                } else if (AiAttack_IsWithinReach(target, m_team, teams)) {
+                } else if (AiAttack_IsWithinReach(target, m_team)) {
                     is_relevant = true;
 
                     m_base_priority = TASK_PRIORITY_ATTACK_MOBILE;

@@ -616,92 +616,76 @@ void AiPlayer::DetermineDefenses(SmartList<UnitInfo>* units, int16_t** map) {
     }
 }
 
-void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int32_t caution_level, bool* teams,
-                                ThreatMap* air_force_map, ThreatMap* ground_forces_map) {
+void AiPlayer::DetermineThreats(UnitInfo* unit, Point position, int32_t caution_level, ThreatMap* air_force_map,
+                                ThreatMap* ground_forces_map) {
     if ((unit->flags & MOBILE_AIR_UNIT) && air_force_map->shots_map) {
         ground_forces_map = air_force_map;
     }
 
-    if (!(unit->speed > 0 && !teams[unit->team])) {
-        UnitValues* base_values = unit->GetBaseValues();
-        int32_t unit_range = base_values->GetAttribute(ATTRIB_RANGE);
-        int32_t attack_range = unit_range + base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
-        int32_t unit_attack = base_values->GetAttribute(ATTRIB_ATTACK);
-        int32_t unit_shots = base_values->GetAttribute(ATTRIB_ROUNDS);
-        int32_t unit_ammo = unit->ammo;
-        int32_t unit_speed = base_values->GetAttribute(ATTRIB_SPEED);
+    UnitValues* base_values = unit->GetBaseValues();
+    int32_t unit_range = base_values->GetAttribute(ATTRIB_RANGE);
+    int32_t attack_range = unit_range + base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
+    int32_t unit_attack = base_values->GetAttribute(ATTRIB_ATTACK);
+    int32_t unit_shots = base_values->GetAttribute(ATTRIB_ROUNDS);
+    int32_t unit_ammo = unit->ammo;
+    int32_t unit_speed = base_values->GetAttribute(ATTRIB_SPEED);
 
-        switch (caution_level) {
-            case CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE: {
-                if (base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
-                    UpdateThreatMaps(ground_forces_map, unit, position, unit_range, unit_attack, unit->shots, unit_ammo,
-                                     true);
-
-                    int32_t movement_range = 0;
-
-                    if (teams[unit->team]) {
-                        movement_range = unit_speed / 2;
-
-                        UpdateThreatMaps(ground_forces_map, unit, position, attack_range + movement_range, unit_attack,
-                                         unit_shots, unit_ammo, false);
-
-                    } else {
-                        UpdateThreatMaps(ground_forces_map, unit, position, attack_range + movement_range, unit_attack,
-                                         unit_shots, unit_ammo, false);
-                    }
-
-                } else {
-                    UpdateThreatMaps(ground_forces_map, unit, position, unit_range, unit_attack, unit->shots + 1,
-                                     unit_ammo, true);
-
-                    if (teams[unit->team]) {
-                        for (;;) {
-                            --unit_shots;
-
-                            if (unit_shots <= 0) {
-                                break;
-                            }
-
-                            int32_t movement_range = ((unit_speed + 1) * unit_shots) / (unit_shots + 1);
-
-                            UpdateThreatMaps(ground_forces_map, unit, position, movement_range + attack_range,
-                                             unit_attack, 1, unit_ammo, false);
-                        }
-                    }
-                }
-            } break;
-
-            case CAUTION_LEVEL_AVOID_ALL_DAMAGE: {
-                UpdateThreatMaps(ground_forces_map, unit, position, attack_range, unit_attack, unit_shots, unit_ammo,
+    switch (caution_level) {
+        case CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE: {
+            if (base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
+                UpdateThreatMaps(ground_forces_map, unit, position, unit_range, unit_attack, unit->shots, unit_ammo,
                                  true);
 
-                if (teams[unit->team]) {
-                    int32_t movement_range = 0;
+                int32_t movement_range = unit_speed / 2;
 
-                    if (base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
-                        movement_range = unit_speed / 2;
+                UpdateThreatMaps(ground_forces_map, unit, position, attack_range + movement_range, unit_attack,
+                                 unit_shots, unit_ammo, false);
 
-                    } else {
-                        movement_range = ((unit_speed + 1) * (unit_shots - 1)) / (unit_shots);
+            } else {
+                UpdateThreatMaps(ground_forces_map, unit, position, unit_range, unit_attack, unit->shots + 1, unit_ammo,
+                                 true);
 
-                        if (GameManager_PlayMode != PLAY_MODE_TURN_BASED) {
-                            movement_range = std::max<int32_t>(movement_range, unit->speed);
-                        }
+                for (;;) {
+                    --unit_shots;
+
+                    if (unit_shots <= 0) {
+                        break;
                     }
 
-                    if (movement_range > 0) {
-                        UpdateThreatMaps(ground_forces_map, unit, position, movement_range + attack_range, unit_attack,
-                                         unit_shots, unit_ammo, false);
-                    }
+                    int32_t movement_range = ((unit_speed + 1) * unit_shots) / (unit_shots + 1);
+
+                    UpdateThreatMaps(ground_forces_map, unit, position, movement_range + attack_range, unit_attack, 1,
+                                     unit_ammo, false);
                 }
+            }
+        } break;
 
-            } break;
+        case CAUTION_LEVEL_AVOID_ALL_DAMAGE: {
+            UpdateThreatMaps(ground_forces_map, unit, position, attack_range, unit_attack, unit_shots, unit_ammo, true);
 
-            case CAUTION_LEVEL_AVOID_REACTION_FIRE: {
-                UpdateThreatMaps(ground_forces_map, unit, position, unit_range, unit_attack, unit->shots, unit_ammo,
-                                 false);
-            } break;
-        }
+            int32_t movement_range = 0;
+
+            if (base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
+                movement_range = unit_speed / 2;
+
+            } else {
+                movement_range = ((unit_speed + 1) * (unit_shots - 1)) / (unit_shots);
+
+                if (GameManager_PlayMode != PLAY_MODE_TURN_BASED) {
+                    movement_range = std::max<int32_t>(movement_range, unit->speed);
+                }
+            }
+
+            if (movement_range > 0) {
+                UpdateThreatMaps(ground_forces_map, unit, position, movement_range + attack_range, unit_attack,
+                                 unit_shots, unit_ammo, false);
+            }
+
+        } break;
+
+        case CAUTION_LEVEL_AVOID_REACTION_FIRE: {
+            UpdateThreatMaps(ground_forces_map, unit, position, unit_range, unit_attack, unit->shots, unit_ammo, false);
+        } break;
     }
 }
 
@@ -802,9 +786,6 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
         ThreatMap air_force_threat_map;
         const ResourceID risk_group[] = {INVALID_ID, TANK, SURVEYOR, FIGHTER, COMMANDO, COMMANDO, SUBMARNE, CLNTRANS};
         ResourceID risk_group_unit = risk_group[risk_level];
-        bool teams[PLAYER_TEAM_MAX];
-
-        AiAttack_GetTargetTeams(player_team, teams);
 
         if (caution_level > CAUTION_LEVEL_AVOID_REACTION_FIRE) {
             air_force_threat_map.Init();
@@ -819,15 +800,15 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
             for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
                 if (IsAbleToAttack((*it).GetUnit(), risk_group_unit, player_team)) {
                     DetermineThreats((*it).GetUnit(), Point((*it).GetUnit()->grid_x, (*it).GetUnit()->grid_y),
-                                     caution_level, teams, &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
+                                     caution_level, &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
                 }
             }
 
         } else {
             for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
                 if (IsAbleToAttack((*it).GetUnit(), risk_group_unit, player_team)) {
-                    DetermineThreats((*it).GetUnit(), (*it).GetLastPosition(), caution_level, teams,
-                                     &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
+                    DetermineThreats((*it).GetUnit(), (*it).GetLastPosition(), caution_level, &air_force_threat_map,
+                                     &AiPlayer_ThreatMaps[index]);
                 }
             }
         }
@@ -2480,15 +2461,11 @@ void AiPlayer::BeginTurn() {
             need_init = false;
         }
 
-        bool teams[PLAYER_TEAM_MAX];
-
-        AiAttack_GetTargetTeams(player_team, teams);
-
         for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
             if (!(*it).GetTask()) {
                 UnitInfo* target = (*it).GetUnit();
 
-                if (AiAttack_IsWithinReach(target, player_team, teams)) {
+                if (AiAttack_IsWithinReach(target, player_team)) {
                     DetermineAttack(it->Get(), TASK_PRIORITY_ATTACK_MOBILE);
 
                 } else if (IsTargetTeam(target->team) || target->team == PLAYER_TEAM_ALIEN) {

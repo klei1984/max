@@ -22,7 +22,6 @@
 #include "ai.hpp"
 
 #include "access.hpp"
-#include "aiattack.hpp"
 #include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "buildmenu.hpp"
@@ -352,14 +351,6 @@ void Ai_UnitSpotted(UnitInfo* unit, uint16_t team) {
     }
 
     TaskManager.AddSpottedUnit(unit);
-}
-
-bool Ai_IsTargetTeam(UnitInfo* unit, UnitInfo* target) {
-    bool teams[PLAYER_TEAM_MAX];
-
-    AiAttack_GetTargetTeams(unit->team, teams);
-
-    return teams[target->team];
 }
 
 void Ai_EvaluateAttackTargets(UnitInfo* unit) { TaskManager.CollectPotentialAttackTargets(unit); }

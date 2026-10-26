@@ -208,14 +208,11 @@ void TaskEscort::EndTurn() {
             } else {
                 if (!is_escort_requested) {
                     if (unit_type == FIGHTER || unit_type == SP_FLAK || unit_type == FASTBOAT) {
-                        bool teams[PLAYER_TEAM_MAX];
                         SmartList<UnitInfo>::Iterator it;
-
-                        AiAttack_GetTargetTeams(m_team, teams);
 
                         for (it = UnitsManager_StationaryUnits.Begin(); it != UnitsManager_StationaryUnits.End();
                              ++it) {
-                            if ((*it).team != m_team && teams[(*it).team] && (*it).GetUnitType() == AIRPLT) {
+                            if ((*it).team != m_team && (*it).GetUnitType() == AIRPLT) {
                                 break;
                             }
                         }
@@ -223,7 +220,7 @@ void TaskEscort::EndTurn() {
                         if (it == UnitsManager_StationaryUnits.End()) {
                             for (it = UnitsManager_MobileAirUnits.Begin(); it != UnitsManager_MobileAirUnits.End();
                                  ++it) {
-                                if ((*it).team != m_team && teams[(*it).team]) {
+                                if ((*it).team != m_team) {
                                     break;
                                 }
                             }
