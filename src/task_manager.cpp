@@ -499,8 +499,9 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
 
                 for (auto it = unit_requests.Begin(), it_end = unit_requests.End(); it != it_end; ++it) {
                     if ((*it).GetTeam() == unit->team) {
+                        /* a request whose parent no longer needs units takes none, it drops itself at its turn end */
                         if ((!obtain_units_task || (*it).ComparePriority(task_priority) < 0) &&
-                            (*it).CountInstancesOfUnitType(unit->GetUnitType())) {
+                            (*it).CountInstancesOfUnitType(unit->GetUnitType()) && (*it).IsNeeded()) {
                             obtain_units_task = *it;
                             task_priority = obtain_units_task->GetPriority();
                         }

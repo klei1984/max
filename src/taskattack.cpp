@@ -795,6 +795,9 @@ void TaskAttack::Finish() {
     primary_targets.Clear();
     secondary_targets.Clear();
 
+    /* after a merge the kill task belongs to the attack that took the targets over */
+    kill_unit_task = nullptr;
+
     TaskManager.RemoveTask(*this);
 }
 
