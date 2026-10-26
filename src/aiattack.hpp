@@ -55,5 +55,6 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_priority)
 bool AiAttack_IsReadyToMove(UnitInfo* unit);
 uint32_t AiAttack_GetTargetFlags(UnitInfo* attacker, UnitInfo* target, uint16_t team);
 uint32_t AiAttack_GetTargetWorth(UnitInfo* attacker, UnitInfo* target);
+bool AiAttack_IsPriorityTarget(UnitInfo* target, uint16_t team);
 
 #endif /* AIATTACK_HPP */

@@ -1273,3 +1273,11 @@ uint32_t AiAttack_GetTargetWorth(UnitInfo* attacker, UnitInfo* target) {
 
     return result;
 }
+
+/* Eco-spheres and mining stations of a team that is ahead of \p team in score are priority targets. Destroying an
+ * eco-sphere takes the points it stored from its team's score, and the score leader is ahead of every other team.
+ */
+bool AiAttack_IsPriorityTarget(UnitInfo* target, uint16_t team) {
+    return (target->GetUnitType() == GREENHSE || target->GetUnitType() == MININGST) &&
+           UnitsManager_TeamInfo[target->team].team_points > UnitsManager_TeamInfo[team].team_points;
+}

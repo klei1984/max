@@ -192,10 +192,7 @@ Point AiPlayer::GetTeamClusterCoordinates(uint16_t team) {
 void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_priority) {
     if (!spotted_unit->GetTask()) {
         if (task_priority > TASK_PRIORITY_ATTACK_MOBILE &&
-            UnitsManager_TeamInfo[spotted_unit->GetUnit()->team].team_points >
-                UnitsManager_TeamInfo[player_team].team_points &&
-            (spotted_unit->GetUnit()->GetUnitType() == GREENHSE ||
-             spotted_unit->GetUnit()->GetUnitType() == MININGST)) {
+            AiAttack_IsPriorityTarget(spotted_unit->GetUnit(), player_team)) {
             task_priority = TASK_PRIORITY_ATTACK_PRIORITY_TARGET;
         }
 
