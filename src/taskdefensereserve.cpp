@@ -234,8 +234,8 @@ void TaskDefenseReserve::EndTurn() {
     total_assets_land = 0;
     total_assets_sea = 0;
 
-    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(), it_end = UnitsManager_MobileLandSeaUnits.End();
-         it != it_end; ++it) {
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
         if ((*it).team == m_team && ((*it).flags & BUILDING)) {
             if (IsAdjacentToWater(it->Get())) {
                 total_assets_sea += (*it).GetNormalRateBuildCost();
