@@ -34,7 +34,7 @@ class TaskKillUnit : public Task {
     SmartPointer<SpottedUnit> spotted_unit;
     SmartList<UnitInfo> units;
     uint16_t required_damage;
-    uint16_t projected_damage;
+    int16_t projected_damage;
     uint16_t hits;
     SmartPointer<UnitInfo> managed_unit;
     WeightTable weight_table;
@@ -80,7 +80,7 @@ public:
     UnitInfo* GetUnitSpotted() const;
     SmartList<UnitInfo>& GetUnits();
     uint16_t GetRequiredDamage() const;
-    uint16_t GetProjectedDamage() const;
+    int16_t GetProjectedDamage() const;
 };
 
 #endif /* TASKKILLUNIT_HPP */

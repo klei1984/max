@@ -799,4 +799,4 @@ SmartList<UnitInfo>& TaskKillUnit::GetUnits() { return units; }
 
 uint16_t TaskKillUnit::GetRequiredDamage() const { return required_damage; }
 
-uint16_t TaskKillUnit::GetProjectedDamage() const { return projected_damage; }
+int16_t TaskKillUnit::GetProjectedDamage() const { return projected_damage; }
