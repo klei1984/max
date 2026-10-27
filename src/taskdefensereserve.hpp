@@ -27,6 +27,8 @@
 #define TASK_DEFENSE_MANAGER_COUNT 8
 
 class TaskDefenseReserve : public Task {
+    static constexpr int32_t GoalPercent{50};
+
     SmartList<UnitInfo> units;
     Point site;
     DefenseManager managers[TASK_DEFENSE_MANAGER_COUNT];

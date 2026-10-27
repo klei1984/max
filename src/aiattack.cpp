@@ -257,25 +257,31 @@ bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, i
     return result;
 }
 
+int32_t AiAttack_GetReach(UnitInfo* unit) {
+    UnitValues* base_values = unit->GetBaseValues();
+    int32_t result = base_values->GetAttribute(ATTRIB_RANGE);
+
+    if (base_values->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
+        result += base_values->GetAttribute(ATTRIB_SPEED);
+    }
+
+    if (base_values->GetAttribute(ATTRIB_SCAN) > result) {
+        result = base_values->GetAttribute(ATTRIB_SCAN);
+    }
+
+    return result;
+}
+
 bool AiAttack_IsWithinReach(UnitInfo* unit, uint16_t team) {
     bool result;
     int32_t distance;
     Point line_distance;
 
-    distance = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
-
     if (unit->team == PLAYER_TEAM_ALIEN) {
         result = false;
 
     } else {
-        if (unit->GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE)) {
-            distance += unit->GetBaseValues()->GetAttribute(ATTRIB_SPEED);
-        }
-
-        if (unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN) > distance) {
-            distance = unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN);
-        }
-
+        distance = AiAttack_GetReach(unit);
         distance = distance * distance;
 
         if (distance) {

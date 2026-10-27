@@ -33,6 +33,7 @@ bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site
                                    int32_t caution_level);
 bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, int32_t* projected_damage,
                                     int32_t caution_level, int32_t range, bool mode = false);
+int32_t AiAttack_GetReach(UnitInfo* unit);
 bool AiAttack_IsWithinReach(UnitInfo* unit, uint16_t team);
 bool AiAttack_IsValidSabotageTarget(UnitInfo* unit, UnitInfo* target);
 bool AiAttack_ProcessAttack(UnitInfo* attacker, UnitInfo* target);

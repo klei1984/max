@@ -21,6 +21,9 @@
 
 #include "taskdefensereserve.hpp"
 
+#include <algorithm>
+#include <vector>
+
 #include "access.hpp"
 #include "aiattack.hpp"
 #include "aiplayer.hpp"
@@ -40,6 +43,87 @@ enum {
     DEFENSE_TYPE_ADVANCED_SEA,
     DEFENSE_TYPE_SEA_ANTIAIR,
 };
+
+/* Distance from every cell of the map to the nearest stationary unit of a team.
+ */
+static std::vector<int32_t> TaskDefenseReserve_GetBaseDistances(uint16_t team) {
+    const int32_t width = ResourceManager_MapSize.x;
+    const int32_t height = ResourceManager_MapSize.y;
+    std::vector<int32_t> distances(width * height, INT32_MAX / 2);
+
+    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End(); it != it_end;
+         ++it) {
+        if ((*it).team == team) {
+            distances[(*it).grid_x * height + (*it).grid_y] = 0;
+        }
+    }
+
+    for (int32_t x = 0; x < width; ++x) {
+        for (int32_t y = 0; y < height; ++y) {
+            int32_t& distance = distances[x * height + y];
+
+            if (y > 0) {
+                distance = std::min(distance, distances[x * height + y - 1] + 2);
+            }
+
+            if (x > 0) {
+                distance = std::min(distance, distances[(x - 1) * height + y] + 2);
+
+                if (y > 0) {
+                    distance = std::min(distance, distances[(x - 1) * height + y - 1] + 3);
+                }
+
+                if (y < height - 1) {
+                    distance = std::min(distance, distances[(x - 1) * height + y + 1] + 3);
+                }
+            }
+        }
+    }
+
+    for (int32_t x = width - 1; x >= 0; --x) {
+        for (int32_t y = height - 1; y >= 0; --y) {
+            int32_t& distance = distances[x * height + y];
+
+            if (y < height - 1) {
+                distance = std::min(distance, distances[x * height + y + 1] + 2);
+            }
+
+            if (x < width - 1) {
+                distance = std::min(distance, distances[(x + 1) * height + y] + 2);
+
+                if (y < height - 1) {
+                    distance = std::min(distance, distances[(x + 1) * height + y + 1] + 3);
+                }
+
+                if (y > 0) {
+                    distance = std::min(distance, distances[(x + 1) * height + y - 1] + 3);
+                }
+            }
+        }
+    }
+
+    return distances;
+}
+
+/* Returns the unit of spotted_unit if it is an armed unit of an active enemy team whose last known position is
+ * within its reach of a stationary unit of team, otherwise nullptr.
+ */
+static UnitInfo* TaskDefenseReserve_GetBaseThreat(SpottedUnit& spotted_unit, uint16_t team,
+                                                  const std::vector<int32_t>& base_distances) {
+    UnitInfo* unit = spotted_unit.GetUnit();
+    UnitInfo* result = nullptr;
+
+    if (unit && AiPlayer_Teams[team].IsTargetTeam(unit->team) &&
+        unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
+        const Point position = spotted_unit.GetLastPosition();
+
+        if (base_distances[position.x * ResourceManager_MapSize.y + position.y] <= 2 * AiAttack_GetReach(unit)) {
+            result = unit;
+        }
+    }
+
+    return result;
+}
 
 bool TaskDefenseReserve::IsAdjacentToWater(UnitInfo* unit) {
     Point position;
@@ -263,20 +347,25 @@ void TaskDefenseReserve::EndTurn() {
         managers[i].EvaluateNeeds(m_team, unit_counts);
     }
 
+    /* defenses are sized from the armed enemy units that the team has spotted within their reach of its buildings,
+     * never from the enemies' unit lists, and aim for GoalPercent of their value
+     */
+    const std::vector<int32_t> base_distances = TaskDefenseReserve_GetBaseDistances(m_team);
+
     if (total_assets_land + total_assets_sea > 0) {
         total_assets_air = 0;
 
-        // defenses are sized from the armed enemy units the team has spotted, never from the enemies' unit lists
         for (auto it = AiPlayer_Teams[m_team].GetSpottedUnits().Begin(),
                   it_end = AiPlayer_Teams[m_team].GetSpottedUnits().End();
              it != it_end; ++it) {
-            UnitInfo* unit = (*it).GetUnit();
+            UnitInfo* unit = TaskDefenseReserve_GetBaseThreat(*it, m_team, base_distances);
 
-            if (unit && (unit->flags & MOBILE_AIR_UNIT) && AiPlayer_Teams[m_team].IsTargetTeam(unit->team) &&
-                unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
+            if (unit && (unit->flags & MOBILE_AIR_UNIT)) {
                 total_assets_air += unit->GetNormalRateBuildCost();
             }
         }
+
+        total_assets_air = (total_assets_air * GoalPercent) / 100;
 
         managers[DEFENSE_TYPE_LAND_ANTIAIR].PlanDefenses(
             (total_assets_land * total_assets_air) / (total_assets_land + total_assets_sea), &*obtain_units_task,
@@ -295,10 +384,9 @@ void TaskDefenseReserve::EndTurn() {
     for (auto it = AiPlayer_Teams[m_team].GetSpottedUnits().Begin(),
               it_end = AiPlayer_Teams[m_team].GetSpottedUnits().End();
          it != it_end; ++it) {
-        UnitInfo* unit = (*it).GetUnit();
+        UnitInfo* unit = TaskDefenseReserve_GetBaseThreat(*it, m_team, base_distances);
 
-        if (unit && (unit->flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT)) &&
-            AiPlayer_Teams[m_team].IsTargetTeam(unit->team) && unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
+        if (unit && (unit->flags & (MOBILE_SEA_UNIT | MOBILE_LAND_UNIT))) {
             if (unit->GetUnitType() == COMMANDO) {
                 total_assets_stealth_land += unit->GetNormalRateBuildCost();
 
@@ -313,6 +401,11 @@ void TaskDefenseReserve::EndTurn() {
             }
         }
     }
+
+    total_assets_land = (total_assets_land * GoalPercent) / 100;
+    total_assets_sea = (total_assets_sea * GoalPercent) / 100;
+    total_assets_stealth_land = (total_assets_stealth_land * GoalPercent) / 100;
+    total_assets_stealth_sea = (total_assets_stealth_sea * GoalPercent) / 100;
 
     managers[DEFENSE_TYPE_LAND_STEALTH].PlanDefenses(total_assets_stealth_land, &*obtain_units_task, unit_counts);
     managers[DEFENSE_TYPE_BASIC_LAND].PlanDefenses(total_assets_land / 2, &*obtain_units_task, unit_counts);
