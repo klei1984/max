@@ -1651,7 +1651,7 @@ void AiPlayer::CheckReconnaissanceNeeds(SmartObjectArray<BuildOrder>* build_orde
     for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
         UnitInfo* unit = (*it).GetUnit();
 
-        if (unit && IsTargetTeam(unit->team)) {
+        if (unit && IsEnemyTeam(unit->team)) {
             UnitValues* unit_values = unit->GetBaseValues();
 
             if (unit_values->GetAttribute(ATTRIB_ATTACK) > 0 && (mode || unit_values->GetAttribute(ATTRIB_SPEED)) &&
@@ -1678,7 +1678,7 @@ int32_t AiPlayer::GetMaxSpottedScan(ResourceID unit_type) {
     for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
         UnitInfo* unit = (*it).GetUnit();
 
-        if (unit && unit->GetUnitType() == unit_type && IsTargetTeam(unit->team)) {
+        if (unit && unit->GetUnitType() == unit_type && IsEnemyTeam(unit->team)) {
             result = std::max(result, unit->GetBaseValues()->GetAttribute(ATTRIB_SCAN));
         }
     }
@@ -1689,56 +1689,41 @@ int32_t AiPlayer::GetMaxSpottedScan(ResourceID unit_type) {
 SmartObjectArray<BuildOrder> AiPlayer::ChooseStrategicBuildOrders(bool mode) {
     SmartObjectArray<BuildOrder> build_orders;
 
-    if (!IsTargetTeamDefined()) {
-        for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-            if (team != player_team) {
-                if (!IsTargetTeamDefined() ||
-                    (UnitsManager_TeamInfo[team].team_points > UnitsManager_TeamInfo[target_team].team_points &&
-                     (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
-                      UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED))) {
-                    target_team = team;
-                }
-            }
+    if (mode) {
+        switch (strategy) {
+            case AI_STRATEGY_MISSILES:
+            case AI_STRATEGY_COMBINED_ARMS: {
+                CheckReconnaissanceNeeds(&build_orders, SCANNER, false);
+            } break;
+
+            case AI_STRATEGY_AIR: {
+                CheckReconnaissanceNeeds(&build_orders, AWAC, true);
+            } break;
+
+            case AI_STRATEGY_SEA: {
+                CheckReconnaissanceNeeds(&build_orders, FASTBOAT, true);
+            } break;
         }
-    }
 
-    if (IsTargetTeamDefined()) {
-        if (mode) {
-            switch (strategy) {
-                case AI_STRATEGY_MISSILES:
-                case AI_STRATEGY_COMBINED_ARMS: {
-                    CheckReconnaissanceNeeds(&build_orders, SCANNER, false);
-                } break;
+    } else {
+        CheckReconnaissanceNeeds(&build_orders, SCANNER, true);
+        CheckReconnaissanceNeeds(&build_orders, AWAC, true);
+        CheckReconnaissanceNeeds(&build_orders, FASTBOAT, true);
+        CheckReconnaissanceNeeds(&build_orders, SCOUT, true);
 
-                case AI_STRATEGY_AIR: {
-                    CheckReconnaissanceNeeds(&build_orders, AWAC, true);
-                } break;
-
-                case AI_STRATEGY_SEA: {
-                    CheckReconnaissanceNeeds(&build_orders, FASTBOAT, true);
-                } break;
-            }
-
-        } else {
-            CheckReconnaissanceNeeds(&build_orders, SCANNER, true);
-            CheckReconnaissanceNeeds(&build_orders, AWAC, true);
-            CheckReconnaissanceNeeds(&build_orders, FASTBOAT, true);
-            CheckReconnaissanceNeeds(&build_orders, SCOUT, true);
-
-            if (GetMaxSpottedScan(INFANTRY) >=
-                UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[player_team], COMMANDO)
-                    ->GetAttribute(ATTRIB_SCAN)) {
-                AddBuildOrder(&build_orders, player_team, COMMANDO, ATTRIB_SCAN);
-            }
-
-            if (GetMaxSpottedScan(CORVETTE) >=
-                UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[player_team], SUBMARNE)
-                    ->GetAttribute(ATTRIB_SCAN)) {
-                AddBuildOrder(&build_orders, player_team, SUBMARNE, ATTRIB_SCAN);
-            }
-
-            ProcessBuildOrders(build_orders);
+        if (GetMaxSpottedScan(INFANTRY) >=
+            UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[player_team], COMMANDO)
+                ->GetAttribute(ATTRIB_SCAN)) {
+            AddBuildOrder(&build_orders, player_team, COMMANDO, ATTRIB_SCAN);
         }
+
+        if (GetMaxSpottedScan(CORVETTE) >=
+            UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[player_team], SUBMARNE)
+                ->GetAttribute(ATTRIB_SCAN)) {
+            AddBuildOrder(&build_orders, player_team, SUBMARNE, ATTRIB_SCAN);
+        }
+
+        ProcessBuildOrders(build_orders);
     }
 
     if (!build_orders->GetCount()) {
@@ -2131,8 +2116,6 @@ AiPlayer::~AiPlayer() {
 
 int32_t AiPlayer::GetStrategy() const { return strategy; }
 
-int16_t AiPlayer::GetTargetTeam() const { return target_team; }
-
 uint8_t** AiPlayer::GetInfoMap() { return info_map; }
 
 Point AiPlayer::GetTargetLocation() const { return target_location; }
@@ -2210,24 +2193,9 @@ void AiPlayer::AddMilitaryUnit(UnitInfo* unit) {
     }
 }
 
-bool AiPlayer::IsTargetTeamDefined() const { return (target_team >= PLAYER_TEAM_RED && target_team < PLAYER_TEAM_MAX); }
-
-bool AiPlayer::IsTargetTeam(const uint8_t team) const {
+bool AiPlayer::IsEnemyTeam(const uint8_t team) const {
     return (team != player_team) && (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE) &&
            (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED);
-}
-
-void AiPlayer::DetermineTargetTeam() {
-    for (int32_t team = PLAYER_TEAM_RED; team < PLAYER_TEAM_MAX - 1; ++team) {
-        if (team != player_team) {
-            if (!IsTargetTeamDefined() ||
-                (UnitsManager_TeamInfo[team].team_points > UnitsManager_TeamInfo[target_team].team_points &&
-                 (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE &&
-                  UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_ELIMINATED))) {
-                target_team = team;
-            }
-        }
-    }
 }
 
 void AiPlayer::BeginTurn() {
@@ -2256,8 +2224,6 @@ void AiPlayer::BeginTurn() {
         DetermineTargetLocation(position);
 
         UpdatePriorityTasks();
-
-        DetermineTargetTeam();
 
         if (need_init) {
             SDL_assert(check_assaults_task == nullptr);
@@ -2431,7 +2397,7 @@ void AiPlayer::BeginTurn() {
             }
 
             for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
-                if (IsKeyFacility((*it).GetUnit()->GetUnitType()) && IsTargetTeam((*it).GetUnit()->team)) {
+                if (IsKeyFacility((*it).GetUnit()->GetUnitType()) && IsEnemyTeam((*it).GetUnit()->team)) {
                     DetermineAttack(it->Get(), TASK_PRIORITY_ATTACK_DEFAULT);
                 }
             }
@@ -2480,7 +2446,7 @@ void AiPlayer::BeginTurn() {
                 if (AiAttack_IsWithinReach(target, player_team)) {
                     DetermineAttack(it->Get(), TASK_PRIORITY_ATTACK_MOBILE);
 
-                } else if (IsTargetTeam(target->team) || target->team == PLAYER_TEAM_ALIEN) {
+                } else if (IsEnemyTeam(target->team) || target->team == PLAYER_TEAM_ALIEN) {
                     if ((target->GetUnitType() == CONSTRCT && target->GetOrder() == ORDER_BUILD) ||
                         IsKeyFacility(target->GetUnitType()) ||
                         (target->team == PLAYER_TEAM_ALIEN &&
@@ -2921,7 +2887,6 @@ bool AiPlayer::CreateBuilding(ResourceID unit_type, Point position, Task* task) 
 
 void AiPlayer::Init(uint16_t team) {
     strategy = AI_STRATEGY_RANDOM;
-    target_team = -1;
     greenhouse_ratio = -1;
     minefield_density = -1;
 
@@ -3661,11 +3626,11 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
             }
 
             if ((IsKeyFacility(unit->GetUnitType()) || (!is_key_facility && unit->GetUnitType() == CONSTRCT)) &&
-                IsTargetTeam(unit->team)) {
+                IsEnemyTeam(unit->team)) {
                 DetermineAttack(&*spotted_unit2, TASK_PRIORITY_ATTACK_DEFAULT);
 
             } else if (!is_key_facility && unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0) {
-                if (IsTargetTeam(unit->team)) {
+                if (IsEnemyTeam(unit->team)) {
                     for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
                          it != it_end; ++it) {
                         if ((*it).team == unit->team && IsKeyFacility((*it).GetUnitType()) &&
@@ -4148,7 +4113,6 @@ void AiPlayer::FileSave(SmartFileWriter& file) {
     file.Write(strategy);
     file.Write(greenhouse_ratio);
     file.Write(minefield_density);
-    file.Write(target_team);
 
     file.WriteObjectCount(spotted_units.GetCount());
 
@@ -4192,7 +4156,11 @@ void AiPlayer::FileLoad(SmartFileReader& file) {
 
     file.Read(greenhouse_ratio);
     file.Read(minefield_density);
-    file.Read(target_team);
+
+    if (file.GetFormat() == SmartFileFormat::V70) {
+        int16_t target_team;
+        file.Read(target_team);
+    }
 
     item_count = file.ReadObjectCount();
 

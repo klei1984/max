@@ -113,7 +113,7 @@ static UnitInfo* TaskDefenseReserve_GetBaseThreat(SpottedUnit& spotted_unit, uin
     UnitInfo* unit = spotted_unit.GetUnit();
     UnitInfo* result = nullptr;
 
-    if (unit && AiPlayer_Teams[team].IsTargetTeam(unit->team) &&
+    if (unit && AiPlayer_Teams[team].IsEnemyTeam(unit->team) &&
         unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
         const Point position = spotted_unit.GetLastPosition();
 

@@ -81,7 +81,6 @@ class AiPlayer {
     SmartList<TransportOrder> transport_orders;
 
     Point target_location;
-    int16_t target_team;
 
     WeightTable weight_table_ground_defense;
     WeightTable weight_table_scout;
@@ -159,7 +158,6 @@ public:
     ~AiPlayer();
 
     int32_t GetStrategy() const;
-    int16_t GetTargetTeam() const;
     uint8_t** GetInfoMap();
     Point GetTargetLocation() const;
     uint16_t GetGreenhouseRatio() const;
@@ -168,9 +166,7 @@ public:
     Task* FindManager(Point site);
     SmartList<SpottedUnit>& GetSpottedUnits();
     void AddMilitaryUnit(UnitInfo* unit);
-    bool IsTargetTeamDefined() const;
-    bool IsTargetTeam(const uint8_t team) const;
-    void DetermineTargetTeam();
+    bool IsEnemyTeam(const uint8_t team) const;
     void BeginTurn();
     void GuessEnemyAttackDirections();
     void PlanMinefields();

@@ -1948,7 +1948,7 @@ void TaskAttack::AssessEnemyUnits() {
             is_relevant = false;
 
             if ((target->flags & BUILDING) || target->GetUnitType() == CONSTRCT) {
-                is_relevant = AiPlayer_Teams[m_team].IsTargetTeam(target->team);
+                is_relevant = AiPlayer_Teams[m_team].IsEnemyTeam(target->team);
 
                 if (is_relevant && m_base_priority > TASK_PRIORITY_ATTACK_PRIORITY_TARGET &&
                     AiAttack_IsPriorityTarget(target, m_team)) {
@@ -1991,7 +1991,7 @@ void TaskAttack::AssessEnemyUnits() {
          it != it_end; ++it) {
         UnitInfo* target = (*it).GetUnit();
 
-        if (target && AiPlayer_Teams[m_team].IsTargetTeam(target->team) && (*it).GetTask() != this &&
+        if (target && AiPlayer_Teams[m_team].IsEnemyTeam(target->team) && (*it).GetTask() != this &&
             IsDefenderDangerous(it->Get())) {
             TaskAttack* attack_task = dynamic_cast<TaskAttack*>((*it).GetTask());
 
