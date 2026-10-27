@@ -106,6 +106,10 @@ public:
     bool IsDestinationReached(UnitInfo* unit);
     uint32_t GetAccessFlags() const;
     bool IsExecutionPhase();
+
+#if !defined(NDEBUG)
+    std::string GetCensus();
+#endif /* !defined(NDEBUG) */
 };
 
 #endif /* TASKATTACK_HPP */

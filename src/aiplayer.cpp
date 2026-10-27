@@ -24,6 +24,7 @@
 #include "access.hpp"
 #include "ai.hpp"
 #include "aiattack.hpp"
+#include "attack_census.hpp"
 #include "builder.hpp"
 #include "circumferencewalker.hpp"
 #include "complex.hpp"
@@ -2224,6 +2225,8 @@ void AiPlayer::BeginTurn() {
         DetermineTargetLocation(position);
 
         UpdatePriorityTasks();
+
+        ATTACK_CENSUS_LOG(player_team);
 
         if (need_init) {
             SDL_assert(check_assaults_task == nullptr);

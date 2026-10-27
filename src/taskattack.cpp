@@ -28,6 +28,7 @@
 #include "aiattack.hpp"
 #include "ailog.hpp"
 #include "aiplayer.hpp"
+#include "attack_census.hpp"
 #include "continent.hpp"
 #include "randomizer.hpp"
 #include "resource_manager.hpp"
@@ -186,6 +187,43 @@ std::string TaskAttack::WriteStatusLog() const {
     }
 }
 
+#if !defined(NDEBUG)
+std::string TaskAttack::GetCensus() {
+    static const char* const state_names[] = {"init",      "wait",   "gather",      "advance",
+                                              "transport", "search", "bold_search", "attack"};
+    int32_t unit_count = 0;
+    int32_t unit_value = 0;
+    int32_t projected_damage = 0;
+    int32_t required_damage = 0;
+    std::string target_name("none");
+
+    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+        for (auto it2 = (*it).GetUnits().Begin(), it2_end = (*it).GetUnits().End(); it2 != it2_end; ++it2) {
+            ++unit_count;
+            unit_value += (*it2).GetNormalRateBuildCost();
+        }
+
+        projected_damage += (*it).GetProjectedDamage();
+        required_damage += (*it).GetRequiredDamage();
+    }
+
+    if (kill_unit_task && kill_unit_task->GetUnitSpotted()) {
+        UnitInfo* target = kill_unit_task->GetUnitSpotted();
+
+        target_name = std::format("{} of team {} at [{},{}]",
+                                  ResourceManager_GetUnit(target->GetUnitType()).GetSingularName().data(), target->team,
+                                  target->grid_x + 1, target->grid_y + 1);
+    }
+
+    return std::format(
+        "priority=0x{:04X} state={} primary_targets={} kill_tasks={} units={} value={} "
+        "projected={} required={} recon={} target={}",
+        GetPriority(), op_state <= ATTACK_STATE_ATTACK ? state_names[op_state] : "unknown", primary_targets.GetCount(),
+        secondary_targets.GetCount(), unit_count, unit_value, projected_damage, required_damage,
+        recon_unit ? "yes" : "no", target_name);
+}
+#endif /* !defined(NDEBUG) */
+
 Rect* TaskAttack::GetBounds(Rect* bounds) {
     if (kill_unit_task) {
         kill_unit_task->GetBounds(bounds);
@@ -269,6 +307,8 @@ void TaskAttack::BeginTurn() {
 void TaskAttack::ChildComplete(Task* task) {
     if (task->GetType() == TaskType_TaskKillUnit) {
         AILOG(log, "Task Attack: kill unit task is complete.");
+
+        ATTACK_CENSUS_COUNT_KILL_TASK_END(m_team);
 
         secondary_targets.Remove(*dynamic_cast<TaskKillUnit*>(task));
 
@@ -1856,6 +1896,10 @@ void TaskAttack::EvaluateAttackReadiness() {
                         AILOG_LOG(log, "{} at [{},{}] is in assault range, shifting to attack mode.",
                                   ResourceManager_GetUnit((*it2).GetUnitType()).GetSingularName().data(),
                                   (*it2).grid_x + 1, (*it2).grid_y + 1);
+
+                        if (op_state < ATTACK_STATE_NORMAL_SEARCH) {
+                            ATTACK_CENSUS_COUNT_ASSAULT(m_team);
+                        }
 
                         op_state = ATTACK_STATE_NORMAL_SEARCH;
                         attack_zone_reached = false;
