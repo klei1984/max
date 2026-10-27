@@ -22,6 +22,8 @@
 #ifndef TASKKILLUNIT_HPP
 #define TASKKILLUNIT_HPP
 
+#include <vector>
+
 #include "spottedunit.hpp"
 #include "task.hpp"
 #include "transportermap.hpp"
@@ -30,11 +32,17 @@
 class TaskAttack;
 
 class TaskKillUnit : public Task {
+    struct UnitDamage {
+        SmartPointer<UnitInfo> unit;
+        int32_t damage;
+    };
+
     uint16_t unit_requests;
     SmartPointer<SpottedUnit> spotted_unit;
     SmartList<UnitInfo> units;
+    // the damage each unit was expected to deal when it joined the task
+    std::vector<UnitDamage> unit_damages;
     uint16_t required_damage;
-    int16_t projected_damage;
     uint16_t hits;
     SmartPointer<UnitInfo> managed_unit;
     WeightTable weight_table;
@@ -80,7 +88,7 @@ public:
     UnitInfo* GetUnitSpotted() const;
     SmartList<UnitInfo>& GetUnits();
     uint16_t GetRequiredDamage() const;
-    int16_t GetProjectedDamage() const;
+    int32_t GetProjectedDamage() const;
 };
 
 #endif /* TASKKILLUNIT_HPP */

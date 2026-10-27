@@ -52,8 +52,6 @@ TaskKillUnit::TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit_, 
     } else {
         required_damage = 1;
     }
-
-    projected_damage = 0;
 }
 
 TaskKillUnit::~TaskKillUnit() {}
@@ -180,7 +178,7 @@ bool TaskKillUnit::GetNewUnits() {
             }
         }
 
-        if (hits > projected_damage) {
+        if (hits > GetProjectedDamage()) {
             if (seek_target) {
                 SmartPointer<UnitInfo> unit1;
                 SmartPointer<UnitInfo> unit2;
@@ -243,14 +241,14 @@ bool TaskKillUnit::GetNewUnits() {
                         }
                     }
 
-                } while (unit1 && hits > projected_damage);
+                } while (unit1 && hits > GetProjectedDamage());
 
                 delete map;
 
                 seek_target = false;
             }
 
-            if (hits > projected_damage) {
+            if (hits > GetProjectedDamage()) {
                 if (!unit_requests) {
                     if (!is_found) {
                         FindVaildTypes();
@@ -275,7 +273,7 @@ bool TaskKillUnit::GetNewUnits() {
                         }
                     }
 
-                    remaining_hits = hits - projected_damage;
+                    remaining_hits = hits - GetProjectedDamage();
 
                     do {
                         unit_type = table.RollUnitType();
@@ -505,7 +503,7 @@ bool TaskKillUnit::IsUnitUsable(UnitInfo& unit) {
     if (spotted_unit && unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0 &&
         unit.ammo >= unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) && managed_unit != unit) {
         if (weight_table.GetWeight(unit.GetUnitType())) {
-            result = hits > projected_damage;
+            result = hits > GetProjectedDamage();
 
         } else {
             result = false;
@@ -537,6 +535,7 @@ std::string TaskKillUnit::WriteStatusLog() const {
             std::format("Kill {} at [{},{}]",
                         ResourceManager_GetUnit(spotted_unit->GetUnit()->GetUnitType()).GetSingularName().data(),
                         spotted_unit->GetLastPositionX() + 1, spotted_unit->GetLastPositionY() + 1);
+        int32_t projected_damage = GetProjectedDamage();
 
         if (required_damage > projected_damage) {
             result += std::format(" ({} points needed)", required_damage - projected_damage);
@@ -567,7 +566,9 @@ Rect* TaskKillUnit::GetBounds(Rect* bounds) {
 
 uint8_t TaskKillUnit::GetType() const { return TaskType_TaskKillUnit; }
 
-bool TaskKillUnit::IsNeeded() { return hits > projected_damage && spotted_unit && spotted_unit->GetUnit()->hits > 0; }
+bool TaskKillUnit::IsNeeded() {
+    return hits > GetProjectedDamage() && spotted_unit && spotted_unit->GetUnit()->hits > 0;
+}
 
 void TaskKillUnit::AddUnit(UnitInfo& unit) {
     AILOG(log, "Kill {}: Add {}.",
@@ -575,8 +576,12 @@ void TaskKillUnit::AddUnit(UnitInfo& unit) {
                        : "unit",
           ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data());
 
-    if (spotted_unit) {
-        projected_damage += GetProjectedDamage(&unit, spotted_unit->GetUnit());
+    if (units.Find(unit) != units.End()) {
+        // a unit is counted once, with the damage it joined with
+        AILOG_LOG(log, "unit already added.");
+
+    } else if (spotted_unit) {
+        unit_damages.push_back({unit, GetProjectedDamage(&unit, spotted_unit->GetUnit())});
 
         unit.AddTask(this);
         units.PushBack(unit);
@@ -694,6 +699,7 @@ void TaskKillUnit::RemoveSelf() {
         managed_unit = nullptr;
         zone = nullptr;
         units.Clear();
+        unit_damages.clear();
 
         TaskManager.RemoveTask(*this);
     }
@@ -715,8 +721,12 @@ void TaskKillUnit::RemoveUnit(UnitInfo& unit) {
         zone = nullptr;
     }
 
-    if (spotted_unit) {
-        projected_damage -= GetProjectedDamage(&unit, spotted_unit->GetUnit());
+    // the unit takes back exactly the damage it was counted with when it joined
+    for (auto it = unit_damages.begin(); it != unit_damages.end(); ++it) {
+        if (it->unit == unit) {
+            unit_damages.erase(it);
+            break;
+        }
     }
 
     if (m_parent) {
@@ -799,4 +809,12 @@ SmartList<UnitInfo>& TaskKillUnit::GetUnits() { return units; }
 
 uint16_t TaskKillUnit::GetRequiredDamage() const { return required_damage; }
 
-int16_t TaskKillUnit::GetProjectedDamage() const { return projected_damage; }
+int32_t TaskKillUnit::GetProjectedDamage() const {
+    int32_t result = 0;
+
+    for (const auto& unit_damage : unit_damages) {
+        result += unit_damage.damage;
+    }
+
+    return result;
+}
