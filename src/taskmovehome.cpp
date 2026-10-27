@@ -23,6 +23,7 @@
 
 #include "access.hpp"
 #include "accessmap.hpp"
+#include "ai.hpp"
 #include "aiplayer.hpp"
 #include "task_manager.hpp"
 #include "taskmove.hpp"
@@ -158,6 +159,13 @@ bool TaskMoveHome::Execute(UnitInfo& unit_) {
             int32_t maximum_safety = map1(unit->grid_x, unit->grid_y);
             int32_t distance;
             int32_t minimum_distance = 0;
+
+            // a unit in its base zone stays put unless its cell is dangerous or wanted for construction, as moving
+            // costs a unit that cannot move and fire its shots
+            if (maximum_safety > 0 && !(info_map[destination.x][destination.y] & INFO_MAP_CLEAR_OUT_ZONE) &&
+                !Ai_IsDangerousLocation(&*unit, destination, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true)) {
+                return false;
+            }
 
             map2.GetMap().Init(&*unit, 2, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 

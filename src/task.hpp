@@ -126,8 +126,13 @@ enum : uint16_t {
     TASK_PRIORITY_ESCORT = 0x0F00,                // unit escort and protection
     TASK_PRIORITY_ATTACK_MOBILE = 0x1000,         // attack escalated against mobile threats; also the fallback tier
                                                   // of a parentless TaskMove
-    TASK_PRIORITY_REPAIR = 0x1100,                // unit repair, reload and upgrade
-    TASK_PRIORITY_BUILDING_DEFENSE = 0x1200,      // defense turret construction
+
+    // 0x1100 plays two roles; both names denote the same tier
+    TASK_PRIORITY_REPAIR = 0x1100,          // tier: unit repair, reload and upgrade
+    TASK_PRIORITY_FOLLOW_DEFENSE = 0x1100,  // threshold: defense reserve units follow attackers this urgent, the
+                                            // attacks escalated against mobile threats near the team's buildings
+
+    TASK_PRIORITY_BUILDING_DEFENSE = 0x1200,  // defense turret construction
 
     // 0x1300 plays two roles; both names denote the same tier
     TASK_PRIORITY_BUILDING_HEAVY_PLANT = 0x1300,   // tier: first land/air/ship factory and training hall
@@ -138,10 +143,7 @@ enum : uint16_t {
     TASK_PRIORITY_BUILDING_UPGRADES = 0x1500,       // research facility construction
     TASK_PRIORITY_BUILDING_GREENHOUSE = 0x1600,     // greenhouse construction
     TASK_PRIORITY_ATTACK_PRIORITY_TARGET = 0x1700,  // attack escalated against GREENHSE/MININGST of a leading enemy
-
-    // 0x1800 plays two roles; both names denote the same tier
-    TASK_PRIORITY_BUILDING_EXPANSION = 0x1800,  // tier: strategy-driven factory expansion
-    TASK_PRIORITY_FOLLOW_DEFENSE = 0x1800,      // threshold: defense reserve units follow attackers this urgent
+    TASK_PRIORITY_BUILDING_EXPANSION = 0x1800,      // strategy-driven factory expansion
 
     TASK_PRIORITY_DEFENSE_RESERVE = 0x1900,   // defensive unit reserve
     TASK_PRIORITY_FRONTIER = 0x1A00,          // frontier mining and mine laying
