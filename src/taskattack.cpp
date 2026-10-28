@@ -327,6 +327,123 @@ void TaskAttack::ChildComplete(Task* task) {
     }
 }
 
+// a unit can strike a target this turn if it may attack it and fires at it now or from a site it reaches this turn
+static bool TaskAttack_CanStrikeThisTurn(UnitInfo* unit, UnitInfo* target, int32_t caution_level) {
+    bool result = false;
+
+    if (unit->hits > 0 && unit->shots > 0 && Access_IsValidAttackTarget(unit, target)) {
+        if (AiAttack_CanAttack(unit, target)) {
+            result = true;
+
+        } else if (unit->speed > 0) {
+            const int32_t range = unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE);
+            const int32_t reach = range + unit->speed;
+
+            if (Access_GetSquaredDistance(unit, target) <= reach * reach) {
+                Point site;
+                int32_t projected_damage;
+
+                result = AiAttack_ChooseSiteForAttacker(unit, Point(target->grid_x, target->grid_y), &site,
+                                                        &projected_damage, caution_level, range, true);
+            }
+        }
+    }
+
+    return result;
+}
+
+void TaskAttack::HandOverUnit(UnitInfo& unit, TaskKillUnit& task) {
+    AILOG(log, "{} at [{},{}] takes on {} at [{},{}].", ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data(),
+          unit.grid_x + 1, unit.grid_y + 1,
+          ResourceManager_GetUnit(task.GetUnitSpotted()->GetUnitType()).GetSingularName().data(),
+          task.GetUnitSpotted()->grid_x + 1, task.GetUnitSpotted()->grid_y + 1);
+
+    TaskManager.ClearUnitTasksAndRemindAvailable(&unit);
+    task.AddUnit(unit);
+    Task_RemindMoveFinished(&unit, true);
+}
+
+void TaskAttack::AddTargetsWithinReach(SmartList<UnitInfo>& units) {
+    AILOG(log, "Task Attack: look for targets within reach.");
+
+    for (auto it = AiPlayer_Teams[m_team].GetSpottedUnits().Begin(), it_end = AiPlayer_Teams[m_team].GetSpottedUnits().End();
+         it != it_end && units.GetCount() > 0; ++it) {
+        UnitInfo* target = (*it).GetUnit();
+
+        if (target && target->hits > 0 && (!(*it).GetTask() || (*it).GetTask() == this) &&
+            AiPlayer_Teams[m_team].IsEnemyTeam(target->team) &&
+            ((target->flags & (MOBILE_LAND_UNIT | MOBILE_SEA_UNIT | MOBILE_AIR_UNIT)) ||
+             target->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0)) {
+            SmartList<UnitInfo> strikers;
+            int32_t projected_damage = 0;
+
+            for (auto it2 = units.Begin(), it2_end = units.End(); it2 != it2_end; ++it2) {
+                if (TaskAttack_CanStrikeThisTurn(it2->Get(), target, GetCautionLevel(*it2))) {
+                    strikers.PushBack(*it2);
+                    projected_damage += TaskKillUnit::GetProjectedDamage(it2->Get(), target);
+                }
+            }
+
+            if (strikers.GetCount() > 0) {
+                SmartPointer<TaskKillUnit> kill_task(new (std::nothrow) TaskKillUnit(this, it->Get(), m_base_priority));
+
+                // the units on site alone must be able to destroy the target
+                if (projected_damage >= kill_task->GetRequiredDamage()) {
+                    AILOG_LOG(log, "Add {} at [{},{}].", ResourceManager_GetUnit(target->GetUnitType()).GetSingularName().data(),
+                              target->grid_x + 1, target->grid_y + 1);
+
+                    kill_task->HoldRecruitsThisTurn();
+                    (*it).SetTask(this);
+                    secondary_targets.PushBack(*kill_task);
+                    TaskManager.AppendTask(*kill_task);
+
+                    for (auto it2 = strikers.Begin(), it2_end = strikers.End(); it2 != it2_end; ++it2) {
+                        HandOverUnit(*it2, *kill_task);
+                        units.Remove(*it2);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void TaskAttack::PressOn(TaskKillUnit& task) {
+    SmartList<UnitInfo> units;
+    bool is_last_target = true;
+
+    for (auto it = task.GetUnits().Begin(), it_end = task.GetUnits().End(); it != it_end; ++it) {
+        if ((*it).hits > 0 && (*it).shots > 0) {
+            units.PushBack(*it);
+        }
+    }
+
+    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+        if (it->Get() != &task && (*it).GetUnitSpotted()) {
+            is_last_target = false;
+        }
+    }
+
+    if (units.GetCount() > 0) {
+        AILOG(log, "Task Attack: press on after a kill.");
+
+        if (is_last_target) {
+            AddTargetsWithinReach(units);
+
+        } else {
+            for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+                for (auto it2 = secondary_targets.Begin(), it2_end = secondary_targets.End(); it2 != it2_end; ++it2) {
+                    UnitInfo* target = (*it2).GetUnitSpotted();
+
+                    if (it2->Get() != &task && target && TaskAttack_CanStrikeThisTurn(it->Get(), target, GetCautionLevel(*it))) {
+                        HandOverUnit(*it, *it2);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void TaskAttack::EndTurn() {
     EvaluateAttackReadiness();
 
@@ -1858,7 +1975,10 @@ void TaskAttack::EvaluateAttackReadiness() {
         }
     }
 
-    if (projected_damage >= required_damage) {
+    const bool has_target = kill_unit_task && kill_unit_task->GetUnitSpotted();
+
+    // without a target there is nothing to be ready for
+    if (has_target && projected_damage >= required_damage) {
         if (op_state == ATTACK_STATE_WAIT) {
             AILOG_LOG(log, "Enough units available.");
 
@@ -1866,7 +1986,7 @@ void TaskAttack::EvaluateAttackReadiness() {
             attack_zone_reached = false;
         }
 
-    } else {
+    } else if (has_target) {
         if (op_state > ATTACK_STATE_WAIT && (op_state < ATTACK_STATE_ATTACK || !IsAnyTargetInRange())) {
             AILOG_LOG(log, "Halt attack, too many losses.");
 

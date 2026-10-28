@@ -49,8 +49,9 @@ class TaskKillUnit : public Task {
     bool seek_target;
     // a square next to the target that is being cleared for an infiltrator
     SmartPointer<Zone> zone;
+    // the turn from which the task recruits, a target added within reach of an attack keeps to the units on site
+    int32_t recruit_turn{0};
 
-    static int32_t GetProjectedDamage(UnitInfo* attacker, UnitInfo* target);
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
     void FindVaildTypes();
@@ -63,6 +64,10 @@ class TaskKillUnit : public Task {
 public:
     TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit, uint16_t priority);
     ~TaskKillUnit();
+
+    static int32_t GetProjectedDamage(UnitInfo* attacker, UnitInfo* target);
+
+    void HoldRecruitsThisTurn();
 
     bool IsUnitUsable(UnitInfo& unit);
     uint16_t GetPriority() const;

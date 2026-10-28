@@ -56,6 +56,8 @@ TaskKillUnit::TaskKillUnit(TaskAttack* task_attack, SpottedUnit* spotted_unit_, 
 
 TaskKillUnit::~TaskKillUnit() {}
 
+void TaskKillUnit::HoldRecruitsThisTurn() { recruit_turn = GameManager_TurnCounter + 1; }
+
 int32_t TaskKillUnit::GetProjectedDamage(UnitInfo* attacker, UnitInfo* target) {
     int32_t damage_potential =
         AiAttack_GetAttackPotential(attacker, target) * attacker->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS);
@@ -178,7 +180,7 @@ bool TaskKillUnit::GetNewUnits() {
             }
         }
 
-        if (hits > GetProjectedDamage()) {
+        if (hits > GetProjectedDamage() && GameManager_TurnCounter >= recruit_turn) {
             if (seek_target) {
                 SmartPointer<UnitInfo> unit1;
                 SmartPointer<UnitInfo> unit2;
@@ -500,7 +502,7 @@ void TaskKillUnit::ClearSiteToSabotage(UnitInfo* unit, UnitInfo* target) {
 bool TaskKillUnit::IsUnitUsable(UnitInfo& unit) {
     bool result;
 
-    if (spotted_unit && unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0 &&
+    if (spotted_unit && GameManager_TurnCounter >= recruit_turn && unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0 &&
         unit.ammo >= unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) && managed_unit != unit) {
         if (weight_table.GetWeight(unit.GetUnitType())) {
             result = hits > GetProjectedDamage();
@@ -740,6 +742,13 @@ void TaskKillUnit::RemoveUnit(UnitInfo& unit) {
 
 void TaskKillUnit::EventUnitDestroyed(UnitInfo& unit) {
     if (GetUnitSpotted() == &unit) {
+        TaskAttack* attack = dynamic_cast<TaskAttack*>(m_parent.Get());
+
+        // the attack keeps the units that can strike one of its targets this turn
+        if (attack) {
+            attack->PressOn(*this);
+        }
+
         for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
             TaskManager.ClearUnitTasksAndRemindAvailable(it->Get(), true);
         }

@@ -78,10 +78,16 @@ class TaskAttack : public Task {
     bool IsDefenderDangerous(SpottedUnit* spotted_unit);
     void RemoveTask(TaskKillUnit* task);
     void AssessEnemyUnits();
+    void HandOverUnit(UnitInfo& unit, TaskKillUnit& task);
+    void AddTargetsWithinReach(SmartList<UnitInfo>& units);
 
 public:
     TaskAttack(SpottedUnit* spotted_unit, uint16_t task_priority);
     ~TaskAttack();
+
+    /* Keeps the units of a kill task whose target was destroyed for the targets they can strike this turn.
+     */
+    void PressOn(TaskKillUnit& task);
 
     bool IsUnitUsable(UnitInfo& unit);
     int32_t GetCautionLevel(UnitInfo& unit);
