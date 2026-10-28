@@ -3397,7 +3397,13 @@ bool UnitsManager_IsFactory(ResourceID unit_type) {
 
 void UnitsManager_AddToDelayedReactionList(UnitInfo* unit) {
     if (!ResourceManager_GetSettings()->GetNumericValue("disable_fire")) {
-        UnitsManager_DelayedAttackTargets[unit->team].PushBack(*unit);
+        auto& targets = UnitsManager_DelayedAttackTargets[unit->team];
+
+        // a unit is listed once so that removing it when it dies or changes team takes it out
+        if (targets.Find(*unit) == targets.End()) {
+            targets.PushBack(*unit);
+        }
+
         UnitsManager_DelayedReactionsPending = true;
     }
 }
