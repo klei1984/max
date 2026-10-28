@@ -409,7 +409,6 @@ void TaskAttack::AddTargetsWithinReach(SmartList<UnitInfo>& units) {
 
 void TaskAttack::PressOn(TaskKillUnit& task) {
     SmartList<UnitInfo> units;
-    bool is_last_target = true;
 
     for (auto it = task.GetUnits().Begin(), it_end = task.GetUnits().End(); it != it_end; ++it) {
         if ((*it).hits > 0 && (*it).shots > 0) {
@@ -417,29 +416,33 @@ void TaskAttack::PressOn(TaskKillUnit& task) {
         }
     }
 
-    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
-        if (it->Get() != &task && (*it).GetUnitSpotted()) {
-            is_last_target = false;
-        }
-    }
-
     if (units.GetCount() > 0) {
+        SmartList<UnitInfo> remaining;
+
         AILOG(log, "Task Attack: press on after a kill.");
 
-        if (is_last_target) {
-            AddTargetsWithinReach(units);
+        // the attack's own targets come first
+        for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+            bool is_handed_over = false;
 
-        } else {
-            for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
-                for (auto it2 = secondary_targets.Begin(), it2_end = secondary_targets.End(); it2 != it2_end; ++it2) {
-                    UnitInfo* target = (*it2).GetUnitSpotted();
+            for (auto it2 = secondary_targets.Begin(), it2_end = secondary_targets.End(); it2 != it2_end; ++it2) {
+                UnitInfo* target = (*it2).GetUnitSpotted();
 
-                    if (it2->Get() != &task && target && TaskAttack_CanStrikeThisTurn(it->Get(), target, GetCautionLevel(*it))) {
-                        HandOverUnit(*it, *it2);
-                        break;
-                    }
+                if (it2->Get() != &task && target && TaskAttack_CanStrikeThisTurn(it->Get(), target, GetCautionLevel(*it))) {
+                    HandOverUnit(*it, *it2);
+                    is_handed_over = true;
+                    break;
                 }
             }
+
+            if (!is_handed_over) {
+                remaining.PushBack(*it);
+            }
+        }
+
+        // the others take on enemies within reach that they can destroy this turn
+        if (remaining.GetCount() > 0) {
+            AddTargetsWithinReach(remaining);
         }
     }
 }
