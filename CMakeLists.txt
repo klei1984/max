@@ -33,6 +33,9 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 	add_compile_options(-fasynchronous-unwind-tables)
 endif()
 
+# Debug builds run long unattended AI games, -Og keeps them debuggable at a fraction of the -O0 cost.
+add_compile_options($<$<CONFIG:Debug>:-Og> $<$<CONFIG:Debug>:-ggdb>)
+
 set(GAME_INCLUDES "")
 set(GAME_SOURCES "")
 
