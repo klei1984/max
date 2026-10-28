@@ -222,6 +222,7 @@ static void Settings_RelaxAdditionalProperties(json& schema) {
     bool result{false};
 
     m_loaded_settings->clear();
+    ++m_revision;
 
     try {
         json jscript = json::parse(script);
@@ -468,6 +469,32 @@ static const T* Settings_FindDefaultValue(
     return default_value;
 }
 
+[[nodiscard]] int32_t Settings::GetNumericValue(const char* key, int32_t default_value) const {
+    struct CacheEntry {
+        const Settings* settings;
+        uint32_t revision;
+        int32_t default_value;
+        int32_t value;
+        std::string key;
+    };
+
+    // literals have fixed addresses, the stored key catches a buffer reused for another key
+    thread_local std::unordered_map<const char*, CacheEntry> cache;
+    const uint32_t revision = m_revision.load(std::memory_order_acquire);
+    CacheEntry& entry = cache[key];
+
+    if (entry.settings != this || entry.revision != revision || entry.default_value != default_value ||
+        entry.key != key) {
+        entry.settings = this;
+        entry.revision = revision;
+        entry.default_value = default_value;
+        entry.key = key;
+        entry.value = GetNumericValue(entry.key, default_value);
+    }
+
+    return entry.value;
+}
+
 [[nodiscard]] std::string Settings::GetStringValue(const std::string& key, const std::string& default_value) const {
     auto it = m_loaded_settings->find(key);
 
@@ -490,6 +517,7 @@ void Settings::SetNumericValue(const std::string& key, int32_t value) {
 
     if (it != m_setting_definitions->end() && std::holds_alternative<int32_t>(it->second.default_value)) {
         (*m_loaded_settings)[key] = value;
+        ++m_revision;
     }
 }
 
@@ -499,6 +527,7 @@ void Settings::SetStringValue(const std::string& key, const std::string& value) 
 
     if (it != m_setting_definitions->end() && std::holds_alternative<std::string>(it->second.default_value)) {
         (*m_loaded_settings)[key] = value;
+        ++m_revision;
     }
 }
 
@@ -521,6 +550,7 @@ void Settings::ValidateNames() {
                 const auto& default_name = ResourceManager_GetLanguageEntry(setting.default_name_key);
 
                 (*m_loaded_settings)[setting.key] = default_name;
+                ++m_revision;
             }
         }
     }

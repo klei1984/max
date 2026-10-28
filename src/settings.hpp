@@ -22,6 +22,8 @@
 #ifndef SETTINGS_HPP
 #define SETTINGS_HPP
 
+#include <atomic>
+#include <cstdint>
 #include <filesystem>
 #include <map>
 #include <memory>
@@ -47,6 +49,8 @@ public:
     [[nodiscard]] bool Save();
 
     [[nodiscard]] int32_t GetNumericValue(const std::string& key, int32_t default_value = 0) const;
+    // a lookup by string literal, kept per thread until the settings change
+    [[nodiscard]] int32_t GetNumericValue(const char* key, int32_t default_value = 0) const;
     [[nodiscard]] std::string GetStringValue(const std::string& key, const std::string& default_value = "") const;
 
     void SetNumericValue(const std::string& key, int32_t value);
@@ -60,6 +64,8 @@ private:
     std::filesystem::path m_filepath;
     std::unique_ptr<std::unordered_map<std::string, SettingValue>> m_loaded_settings;
     std::unique_ptr<std::vector<std::pair<std::string, SettingDefinition>>> m_setting_definitions;
+    // changes whenever a setting changes, so cached lookups know they are stale
+    std::atomic<uint32_t> m_revision{0};
 };
 
 #endif /* SETTINGS_HPP */
