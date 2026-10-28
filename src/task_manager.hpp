@@ -60,7 +60,8 @@ class TaskManager {
     SmartList<TaskObtainUnits> unit_requests;
     SmartList<Reminder> normal_reminders;
     SmartList<Reminder> priority_reminders;
-    SmartList<UnitInfo> units_to_check;
+    // units whose reaction check waits until they can act
+    SmartList<UnitInfo> units_awaiting_reaction;
     uint32_t reminder_counter;
 
     bool IsUnitNeeded(ResourceID unit_type, uint16_t team, uint16_t task_priority);
@@ -89,10 +90,9 @@ public:
     bool AreTasksThinking(uint16_t team);
 
     /**
-     * \brief Processes computer-controlled units that require reaction checks.
+     * \brief Lets the tasks of computer players react to the latest events.
      *
-     * Evaluates queued units to determine if they need task reassignment or
-     * reactions to changed battlefield conditions.
+     * Reaction checks that waited for their units to be able to act are queued again.
      */
     void CheckComputerReactions();
 
@@ -104,11 +104,15 @@ public:
     void CollectPotentialAttackTargets(UnitInfo* unit);
 
     /**
-     * \brief Adds a unit to the queue for later reaction evaluation.
+     * \brief Queues a reaction check for a unit unless one is already pending.
      *
-     * \param unit Reference to the unit that should be checked during the next reaction phase.
+     * \param unit Reference to the unit whose exposure to threats should be checked.
      */
     void EnqueueUnitForReactionCheck(UnitInfo& unit);
+
+    /* Lets a unit retreat if it is in danger, or keeps the check until the unit can act.
+     */
+    void CheckUnitReaction(UnitInfo& unit);
 
     /**
      * \brief Requests construction of a building at the specified location.

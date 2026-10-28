@@ -113,3 +113,13 @@ void RemindAttack::Execute() {
 }
 
 int32_t RemindAttack::GetType() { return REMINDER_TYPE_ATTACK; }
+
+RemindRetreat::RemindRetreat(UnitInfo& unit) : unit(unit) {
+    this->unit->ChangeAiStateBits(UnitInfo::AI_STATE_RETREAT_REMINDER, true);
+}
+
+RemindRetreat::~RemindRetreat() {}
+
+void RemindRetreat::Execute() { TaskManager.CheckUnitReaction(*unit); }
+
+int32_t RemindRetreat::GetType() { return REMINDER_TYPE_RETREAT; }

@@ -2506,7 +2506,7 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
     file.Read(auto_survey);
     file.Read(ai_state_bits);
 
-    ai_state_bits &= ~AI_STATE_MOVE_FINISHED_REMINDER;
+    ai_state_bits &= ~(AI_STATE_MOVE_FINISHED_REMINDER | AI_STATE_RETREAT_REMINDER);
 
     if (build_rate == 0) {
         build_rate = 1;

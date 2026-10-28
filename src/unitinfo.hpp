@@ -96,6 +96,7 @@ public:
     static constexpr uint32_t AI_STATE_NO_RETREAT = 0x00000001;
     static constexpr uint32_t AI_STATE_TARGET_COOLDOWN_MASK = 0x000000FE;
     static constexpr uint32_t AI_STATE_MOVE_FINISHED_REMINDER = 0x00000100;
+    static constexpr uint32_t AI_STATE_RETREAT_REMINDER = 0x00000200;
 
     /**
      * The default constructor is only usable in special use cases.
