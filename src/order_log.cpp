@@ -39,6 +39,7 @@
 
 #include "game_manager.hpp"
 #include "hash.hpp"
+#include "logwriter.hpp"
 #include "resource_manager.hpp"
 #include "resourcetable.hpp"
 #include "settings.hpp"
@@ -275,7 +276,8 @@ struct OrderLogReportHash {
     }
 };
 
-static FILE* OrderLog_File;
+static LogWriter OrderLog_Writer;
+static bool OrderLog_IsOpen;
 static bool OrderLog_Enabled;
 static bool OrderLog_BulkStopped;
 static bool OrderLog_Stopped;
@@ -305,7 +307,7 @@ static SmartList<UnitInfo>* const OrderLog_UnitLists[] = {&UnitsManager_MobileLa
                                                           &UnitsManager_GroundCoverUnits, &UnitsManager_ParticleUnits};
 
 static void OrderLog_Line(bool is_bulk, const char* format, ...) noexcept {
-    if (!OrderLog_File || OrderLog_Stopped || (is_bulk && OrderLog_BulkStopped)) {
+    if (!OrderLog_IsOpen || OrderLog_Stopped || (is_bulk && OrderLog_BulkStopped)) {
         return;
     }
 
@@ -322,42 +324,29 @@ static void OrderLog_Line(bool is_bulk, const char* format, ...) noexcept {
 
     length = std::min<int32_t>(length, sizeof(buffer) - 1);
 
-    /* every line goes to the operating system at once, so a crash loses nothing that was logged */
-    fwrite(buffer, 1, length, OrderLog_File);
-    fflush(OrderLog_File);
+    OrderLog_Writer.Write(std::string_view(buffer, length));
 
     OrderLog_Size += length;
 
     if (!OrderLog_BulkStopped && OrderLog_Size >= ORDER_LOG_BULK_LIMIT) {
         OrderLog_BulkStopped = true;
 
-        fputs("# size limit reached, X and H records stop\n", OrderLog_File);
-        fflush(OrderLog_File);
+        OrderLog_Writer.Write("# size limit reached, X and H records stop\n");
     }
 
     if (OrderLog_Size >= ORDER_LOG_SIZE_LIMIT) {
         OrderLog_Stopped = true;
 
-        fputs("# size limit reached, all records stop\n", OrderLog_File);
-        fflush(OrderLog_File);
+        OrderLog_Writer.Write("# size limit reached, all records stop\n");
     }
 }
 
 static bool OrderLog_Open() noexcept {
-    const auto filepath = (ResourceManager_FilePathGamePref / "order_log.txt").lexically_normal();
-    const auto rolled = (ResourceManager_FilePathGamePref / "order_log.prev.txt").lexically_normal();
-    std::error_code error;
+    /* the writer thread creates the file and reports when it cannot */
+    OrderLog_Writer.Open((ResourceManager_FilePathGamePref / "order_log.txt").lexically_normal(),
+                         (ResourceManager_FilePathGamePref / "order_log.prev.txt").lexically_normal(), true);
 
-    std::filesystem::rename(filepath, rolled, error);
-
-    OrderLog_File = fopen(filepath.string().c_str(), "wb");
-
-    if (!OrderLog_File) {
-        SDL_Log("Order log: cannot create %s.", filepath.string().c_str());
-
-        return false;
-    }
-
+    OrderLog_IsOpen = true;
     OrderLog_Size = 0;
     OrderLog_BulkStopped = false;
     OrderLog_Stopped = false;
@@ -762,7 +751,7 @@ static void OrderLog_Scan(bool is_baseline) noexcept {
 void OrderLog_GameStart() noexcept {
     OrderLog_Enabled = ResourceManager_GetSettings()->GetNumericValue("order_log") != 0;
 
-    if (OrderLog_Enabled && (OrderLog_File || OrderLog_Open())) {
+    if (OrderLog_Enabled && (OrderLog_IsOpen || OrderLog_Open())) {
         OrderLog_MainThread = SDL_GetCurrentThreadID();
         OrderLog_Shadows.clear();
         OrderLog_Transitions.clear();
@@ -812,9 +801,9 @@ void OrderLog_GameEnd() noexcept {
 void OrderLog_Shutdown() noexcept {
     OrderLog_GameEnd();
 
-    if (OrderLog_File) {
-        fclose(OrderLog_File);
-        OrderLog_File = nullptr;
+    if (OrderLog_IsOpen) {
+        OrderLog_Writer.Close();
+        OrderLog_IsOpen = false;
     }
 }
 

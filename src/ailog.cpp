@@ -26,14 +26,13 @@
 #include <SDL3/SDL.h>
 
 #include <cstdarg>
-#include <filesystem>
 #include <mutex>
-#include <system_error>
 
+#include "logwriter.hpp"
 #include "order_log.hpp"
 #include "settings.hpp"
 
-std::ofstream AiLog::AiLog_File;
+std::atomic<bool> AiLog::AiLog_Enabled{false};
 SDL_Mutex* AiLog::AiLog_Mutex = nullptr;
 int32_t AiLog::AiLog_SectionCount = 0;
 int32_t AiLog::AiLog_EntryCount = 0;
@@ -41,6 +40,7 @@ int32_t AiLog::AiLog_EntryLimit = 0;
 std::optional<std::regex> AiLog::AiLog_Filter;
 
 static uint32_t AiLog_Tick;
+static LogWriter AiLog_Writer;
 
 void AiLog::AiLog_InitMutex() {
     /* Worker threads log too, and an unsynchronized lazy create lets two of them build one
@@ -77,20 +77,22 @@ bool AiLog::ShouldFilter() const noexcept {
 void AiLog::WriteLog(std::string_view message) {
     /* the order log tick in progress matches the entries with the records of order_log.txt */
     const uint32_t tick = OrderLog_GetTick();
+    std::string text;
 
     if (tick != AiLog_Tick) {
-        AiLog_File << std::format("\n# tick {}", tick);
+        text = std::format("\n# tick {}", tick);
         AiLog_Tick = tick;
     }
 
-    AiLog_File << std::format("\n{:3d}: ", AiLog_SectionCount + 1);
+    text += std::format("\n{:3d}: ", AiLog_SectionCount + 1);
 
     if (AiLog_SectionCount > 0) {
-        AiLog_File << std::format("{:{}}", "", AiLog_SectionCount);
+        text += std::format("{:{}}", "", AiLog_SectionCount);
     }
 
-    AiLog_File << message;
-    AiLog_File.flush();
+    text += message;
+
+    AiLog_Writer.Write(text);
 
     ++AiLog_EntryCount;
 }
@@ -104,7 +106,7 @@ AiLog::~AiLog() {
 
     --AiLog_SectionCount;
 
-    if (AiLog_File.is_open() && !m_is_filtered) {
+    if (AiLog_Enabled.load(std::memory_order_relaxed) && !m_is_filtered) {
         auto elapsed_time =
             std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_time_stamp)
                 .count();
@@ -118,26 +120,11 @@ AiLog::~AiLog() {
 
         /* a limit of 0 keeps the whole log in one file */
         if (AiLog_EntryLimit > 0 && AiLog_EntryCount > AiLog_EntryLimit) {
-            AiLog_File.close();
-
-            AiLog_OpenNewFile();
+            AiLog_Writer.Roll();
+            AiLog_EntryCount = 0;
+            AiLog_Tick = 0;
         }
     }
-}
-
-void AiLog::AiLog_OpenNewFile() {
-    auto filepath = (ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal();
-    auto rolled = (ResourceManager_FilePathGamePref / "ai_log.prev.txt").lexically_normal();
-    std::error_code error;
-
-    /* Roll the last file aside rather than reopening it truncated, whether it filled up or an earlier run or
-     * session wrote it: the entries leading up to a crash or a restart are the ones worth keeping.
-     */
-    std::filesystem::rename(filepath, rolled, error);
-
-    AiLog_File.open(filepath.string().c_str(), std::ios::out);
-    AiLog_EntryCount = 0;
-    AiLog_Tick = 0;
 }
 
 void AiLog_Open() {
@@ -145,8 +132,12 @@ void AiLog_Open() {
 
     ResourceManager_MutexLock lock(AiLog::AiLog_Mutex);
 
-    if (!AiLog::AiLog_File.is_open()) {
-        AiLog::AiLog_OpenNewFile();
+    if (!AiLog::AiLog_Enabled.load()) {
+        AiLog_Writer.Open((ResourceManager_FilePathGamePref / "ai_log.txt").lexically_normal(),
+                          (ResourceManager_FilePathGamePref / "ai_log.prev.txt").lexically_normal(), false);
+
+        AiLog::AiLog_EntryCount = 0;
+        AiLog_Tick = 0;
         AiLog::AiLog_EntryLimit = ResourceManager_GetSettings()->GetNumericValue("ai_log_entry_limit");
 
         /* the filter is matched against the source file and function of each log section */
@@ -165,6 +156,8 @@ void AiLog_Open() {
         } else {
             AiLog::AiLog_Filter = std::nullopt;
         }
+
+        AiLog::AiLog_Enabled = true;
     }
 }
 
@@ -173,18 +166,14 @@ void AiLog_Close() {
 
     ResourceManager_MutexLock lock(AiLog::AiLog_Mutex);
 
-    AiLog::AiLog_File.close();
+    if (AiLog::AiLog_Enabled.load()) {
+        AiLog_Writer.Close();
+        AiLog::AiLog_Enabled = false;
+    }
+
     AiLog::AiLog_Filter = std::nullopt;
 }
 
-[[nodiscard]] bool AiLog_IsEnabled() noexcept {
-    AiLog::AiLog_InitMutex();
-
-    ResourceManager_MutexLock lock(AiLog::AiLog_Mutex);
-
-    auto result = AiLog::AiLog_File.is_open();
-
-    return result;
-}
+[[nodiscard]] bool AiLog_IsEnabled() noexcept { return AiLog::AiLog_Enabled.load(std::memory_order_relaxed); }
 
 #endif /* !defined(NDEBUG) */

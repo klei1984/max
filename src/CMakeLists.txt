@@ -134,6 +134,7 @@ set(LOCAL_GAME_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/taskwaittoattack.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/taskdebugger.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ailog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/logwriter.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/attack_census.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/order_log.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/reminders.cpp
