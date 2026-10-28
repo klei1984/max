@@ -823,6 +823,12 @@ void TaskAttack::Finish() {
         support_attack_task = nullptr;
     }
 
+    // the leader would otherwise keep scheduling turn ends for the finished attack
+    if (leader) {
+        leader->RemoveDelayedTask(this);
+        leader = nullptr;
+    }
+
     if (recon_unit) {
         TaskManager.ClearUnitTasksAndRemindAvailable(&*recon_unit);
     }
