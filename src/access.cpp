@@ -1655,7 +1655,8 @@ void Access_DestroyGroundCovers(UnitInfo* unit) {
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
             for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
-                if (unit != it->Get()) {
+                // an exploding ground cover is cleared by its own explosion
+                if (unit != it->Get() && (*it).GetOrderState() != ORDER_STATE_DESTROY) {
                     switch ((*it).GetUnitType()) {
                         case ROAD:
                         case LANDPAD:
