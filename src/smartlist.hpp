@@ -100,18 +100,20 @@ public:
 
     public:
         ListIterator() noexcept : SmartPointer<ListNode<T>>() {}
-        ListIterator(ListIterator& other) noexcept : SmartPointer<ListNode<T>>(other.GetNode()) {}
-        ListIterator(const ListIterator& other) noexcept : SmartPointer<ListNode<T>>(other.GetNode()) {}
+        [[gnu::always_inline]] ListIterator(ListIterator& other) noexcept
+            : SmartPointer<ListNode<T>>(other.GetNode()) {}
+        [[gnu::always_inline]] ListIterator(const ListIterator& other) noexcept
+            : SmartPointer<ListNode<T>>(other.GetNode()) {}
 
-        inline T& operator*() const noexcept { return *(this->Get()->Get()); }
+        [[gnu::always_inline]] inline T& operator*() const noexcept { return *(this->Get()->Get()); }
 
-        inline ListIterator& operator++() noexcept {
+        [[gnu::always_inline]] inline ListIterator& operator++() noexcept {
             // must not use operator=(ConstReference other) as the node could be deleted
             SmartPointer<ListNode<T>>::operator=(*this->Get()->next);
             return *this;
         }
 
-        inline ListIterator& operator--() noexcept {
+        [[gnu::always_inline]] inline ListIterator& operator--() noexcept {
             // must not use operator=(ConstReference other) as the node could be deleted
             SmartPointer<ListNode<T>>::operator=(*this->Get()->prev);
             return *this;

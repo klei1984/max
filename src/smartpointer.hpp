@@ -33,15 +33,10 @@ class SmartObject {
     uint32_t reference_count{0};
 
 protected:
-    inline void Increment() noexcept {
-        SDL_assert(reference_count != UINT32_MAX);
+    // every pointer copy and list step counts references, so even debug builds inline them
+    [[gnu::always_inline]] inline void Increment() noexcept { ++reference_count; }
 
-        ++reference_count;
-    }
-
-    inline void Decrement() noexcept {
-        SDL_assert(reference_count != 0);
-
+    [[gnu::always_inline]] inline void Decrement() noexcept {
         --reference_count;
         if (reference_count == 0) {
             delete this;
@@ -64,35 +59,35 @@ public:
 
     SmartPointer() noexcept = default;
 
-    SmartPointer(T* object) noexcept : object_pointer(object) {
+    [[gnu::always_inline]] SmartPointer(T* object) noexcept : object_pointer(object) {
         if (object_pointer) {
             object_pointer->Increment();
         }
     }
 
-    SmartPointer(T& object) noexcept : object_pointer(&object) {
+    [[gnu::always_inline]] SmartPointer(T& object) noexcept : object_pointer(&object) {
         if (object_pointer) {
             object_pointer->Increment();
         }
     }
 
-    SmartPointer(ConstReference other) noexcept : object_pointer(other.object_pointer) {
+    [[gnu::always_inline]] SmartPointer(ConstReference other) noexcept : object_pointer(other.object_pointer) {
         if (object_pointer) {
             object_pointer->Increment();
         }
     }
 
-    ~SmartPointer() noexcept {
+    [[gnu::always_inline]] ~SmartPointer() noexcept {
         if (object_pointer) {
             object_pointer->Decrement();
         }
     }
 
-    inline T* operator->() const noexcept { return object_pointer; }
+    [[gnu::always_inline]] inline T* operator->() const noexcept { return object_pointer; }
 
-    inline T& operator*() const noexcept { return *object_pointer; }
+    [[gnu::always_inline]] inline T& operator*() const noexcept { return *object_pointer; }
 
-    Reference operator=(ConstReference other) noexcept {
+    [[gnu::always_inline]] Reference operator=(ConstReference other) noexcept {
         if (other.object_pointer) {
             other.object_pointer->Increment();
         }
@@ -106,7 +101,7 @@ public:
         return *this;
     }
 
-    Reference operator=(T* other) noexcept {
+    [[gnu::always_inline]] Reference operator=(T* other) noexcept {
         if (other) {
             other->Increment();
         }
@@ -120,7 +115,7 @@ public:
         return *this;
     }
 
-    Reference operator=(T& other) noexcept {
+    [[gnu::always_inline]] Reference operator=(T& other) noexcept {
         other.Increment();
 
         if (object_pointer) {
@@ -134,7 +129,7 @@ public:
 
     inline explicit operator bool() const noexcept { return object_pointer != nullptr; }
 
-    inline T* Get() const noexcept { return object_pointer; };
+    [[gnu::always_inline]] inline T* Get() const noexcept { return object_pointer; };
 
     friend inline bool operator==(ConstReference lhs, ConstReference rhs) noexcept { return lhs.Get() == rhs.Get(); }
 
