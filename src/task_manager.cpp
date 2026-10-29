@@ -369,7 +369,7 @@ void TaskManager::EndTurn(uint16_t team) {
     AILOG(log, "Task Manager: end turn.");
 
     for (auto it = tasks.Begin(), it_end = tasks.End(); it != it_end; ++it) {
-        if ((*it).GetTeam() == team) {
+        if ((*it).GetTeam() == team && (*it).IsEndTurnNeeded()) {
             (*it).RemindTurnEnd();
         }
     }

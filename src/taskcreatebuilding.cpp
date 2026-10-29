@@ -696,6 +696,12 @@ void TaskCreateBuilding::EndTurn() {
     }
 }
 
+// without a builder the end turn only asks for one, unless it is already getting one
+bool TaskCreateBuilding::IsEndTurnNeeded() {
+    return builder || (unit_type != INVALID_ID && op_state != CREATE_BUILDING_STATE_GETTING_BUILDER &&
+                       op_state < CREATE_BUILDING_STATE_BUILDING && !tasks.GetCount());
+}
+
 bool TaskCreateBuilding::ExchangeOperator(UnitInfo& unit_) {
     bool result;
 

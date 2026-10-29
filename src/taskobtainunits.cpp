@@ -287,6 +287,11 @@ void TaskObtainUnits::EndTurn() {
     }
 }
 
+// once the units are requested, the end turn only drops a request that is no longer needed
+bool TaskObtainUnits::IsEndTurnNeeded() {
+    return init || !units.GetCount() || m_parent == nullptr || !m_parent->IsNeeded();
+}
+
 void TaskObtainUnits::RequestUnits(ResourceID unit_type, uint16_t team, int32_t requested_amount, Point site) {
     uint16_t task_priority = this->GetPriority();
     uint16_t task_team = this->GetTeam();

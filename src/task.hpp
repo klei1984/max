@@ -471,6 +471,16 @@ public:
     virtual void EndTurn();
 
     /**
+     * \brief Tells whether an end turn could do anything for the task right now.
+     *
+     * The end turn retries of a computer player remind every task of the team, a task that waits for a unit or a
+     * request has nothing to do there and is left out.
+     *
+     * \return true unless the task's end turn would do nothing.
+     */
+    virtual bool IsEndTurnNeeded();
+
+    /**
      * \brief Attempts to exchange the operator of a building or complex unit.
      *
      * \param unit Reference to the unit whose operator should be exchanged.

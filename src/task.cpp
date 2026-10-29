@@ -634,6 +634,8 @@ void Task::ChildComplete(Task* task) {}
 
 void Task::EndTurn() {}
 
+bool Task::IsEndTurnNeeded() { return true; }
+
 bool Task::ExchangeOperator(UnitInfo& unit) { return false; }
 
 bool Task::Execute(UnitInfo& unit) { return false; }

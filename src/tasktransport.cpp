@@ -490,6 +490,9 @@ void TaskTransport::EndTurn() {
     }
 }
 
+// a transporter that arrives starts its work in AddUnit()
+bool TaskTransport::IsEndTurnNeeded() { return unit_transporter != nullptr; }
+
 bool TaskTransport::Execute(UnitInfo& unit) {
     bool result;
 

@@ -48,6 +48,7 @@ public:
     void Init();
     void BeginTurn();
     void EndTurn();
+    bool IsEndTurnNeeded();
     void RemoveSelf();
 
     void AddUnit(ResourceID unit_type);

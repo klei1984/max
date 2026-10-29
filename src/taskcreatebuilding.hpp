@@ -72,6 +72,7 @@ public:
     void BeginTurn();
     void ChildComplete(Task* task);
     void EndTurn();
+    bool IsEndTurnNeeded();
     bool ExchangeOperator(UnitInfo& unit);
     bool Execute(UnitInfo& unit);
     void RemoveSelf();
