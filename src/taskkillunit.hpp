@@ -55,6 +55,9 @@ class TaskKillUnit : public Task {
     static void MoveFinishedCallback(Task* task, UnitInfo* unit, char result);
 
     void FindVaildTypes();
+    void UpdateDemand();
+    bool IsUnitSuitable(UnitInfo& unit);
+    bool IsAttackShareLeft();
     bool GetNewUnits();
     UnitInfo* FindClosestCombatUnit(SmartList<UnitInfo>* units, UnitInfo* unit, int32_t* distance, TransporterMap* map);
     bool GiveOrdersToUnit(UnitInfo* unit);

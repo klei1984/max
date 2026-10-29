@@ -30,6 +30,7 @@
 #include "aiplayer.hpp"
 #include "attack_census.hpp"
 #include "continent.hpp"
+#include "game_manager.hpp"
 #include "randomizer.hpp"
 #include "resource_manager.hpp"
 #include "settings.hpp"
@@ -217,9 +218,9 @@ std::string TaskAttack::GetCensus() {
 
     return std::format(
         "priority=0x{:04X} state={} primary_targets={} kill_tasks={} units={} value={} "
-        "projected={} required={} recon={} target={}",
+        "projected={} required={} fire={} recon={} target={}",
         GetPriority(), op_state <= ATTACK_STATE_ATTACK ? state_names[op_state] : "unknown", primary_targets.GetCount(),
-        secondary_targets.GetCount(), unit_count, unit_value, projected_damage, required_damage,
+        secondary_targets.GetCount(), unit_count, unit_value, projected_damage, required_damage, GetDefendersFire(),
         recon_unit ? "yes" : "no", target_name);
 }
 #endif /* !defined(NDEBUG) */
@@ -2200,3 +2201,52 @@ void TaskAttack::AssessEnemyUnits() {
 }
 
 bool TaskAttack::IsExecutionPhase() { return op_state >= ATTACK_STATE_ADVANCE; }
+
+int32_t TaskAttack::GetUnitValue() {
+    int32_t result = 0;
+
+    for (auto it = secondary_targets.Begin(), it_end = secondary_targets.End(); it != it_end; ++it) {
+        for (auto it2 = (*it).GetUnits().Begin(), it2_end = (*it).GetUnits().End(); it2 != it2_end; ++it2) {
+            result += (*it2).GetNormalRateBuildCost();
+        }
+    }
+
+    return result;
+}
+
+int32_t TaskAttack::GetDefendersFire() {
+    UnitInfo* target = kill_unit_task ? kill_unit_task->GetUnitSpotted() : nullptr;
+
+    if (!target) {
+        return 0;
+    }
+
+    if (target != fire_target || fire_turn != GameManager_TurnCounter) {
+        const Point position = kill_unit_task->GetSpottedUnit()->GetLastPosition();
+
+        fire_target = target;
+        fire_turn = GameManager_TurnCounter;
+        defenders_fire = 0;
+
+        // the armed enemies covering the target fire at the attackers on their way in, each counts once
+        for (auto it = AiPlayer_Teams[m_team].GetSpottedUnits().Begin(),
+                  it_end = AiPlayer_Teams[m_team].GetSpottedUnits().End();
+             it != it_end; ++it) {
+            UnitInfo* unit = (*it).GetUnit();
+
+            if (unit && unit != target && unit->hits > 0 && unit->ammo > 0 &&
+                AiPlayer_Teams[m_team].IsEnemyTeam(unit->team)) {
+                const int32_t range = unit->GetAttackRange();
+
+                if (range > 0 && Access_GetSquaredDistance(unit, position) <= range * range) {
+                    defenders_fire +=
+                        unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK) * unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS);
+                }
+            }
+        }
+    }
+
+    return defenders_fire;
+}
+
+bool TaskAttack::IsCurrentTarget(const TaskKillUnit* task) const { return kill_unit_task.Get() == task; }

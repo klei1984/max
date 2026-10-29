@@ -237,6 +237,8 @@ void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_priority
     }
 }
 
+int32_t AiPlayer::GetAttackValueShare() const { return attack_value_share; }
+
 int32_t AiPlayer::GetMilitaryValue() const {
     SmartList<UnitInfo>* const lists[] = {&UnitsManager_MobileLandSeaUnits, &UnitsManager_MobileAirUnits};
     int32_t result = 0;
@@ -258,7 +260,10 @@ void AiPlayer::UpdatePriorityTasks() {
     const int32_t task_limit =
         std::clamp((military_value + AttackValue - 1) / AttackValue, AttackTaskLimitMin, AttackTaskLimitMax);
 
-    AILOG(log, "Attack limit {} for military value {}.", task_limit, military_value);
+    // an attack may draw twice its even share, as the slots are rarely all taken
+    attack_value_share = std::max(AttackValue, (2 * military_value) / task_limit);
+
+    AILOG(log, "Attack limit {} for military value {}, share {}.", task_limit, military_value, attack_value_share);
 
     attack_tasks.assign(task_limit, nullptr);
 

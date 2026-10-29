@@ -180,7 +180,7 @@ bool TaskKillUnit::GetNewUnits() {
             }
         }
 
-        if (hits > GetProjectedDamage() && GameManager_TurnCounter >= recruit_turn) {
+        if (hits > GetProjectedDamage() && GameManager_TurnCounter >= recruit_turn && IsAttackShareLeft()) {
             if (seek_target) {
                 SmartPointer<UnitInfo> unit1;
                 SmartPointer<UnitInfo> unit2;
@@ -243,14 +243,14 @@ bool TaskKillUnit::GetNewUnits() {
                         }
                     }
 
-                } while (unit1 && hits > GetProjectedDamage());
+                } while (unit1 && hits > GetProjectedDamage() && IsAttackShareLeft());
 
                 delete map;
 
                 seek_target = false;
             }
 
-            if (hits > GetProjectedDamage()) {
+            if (hits > GetProjectedDamage() && IsAttackShareLeft()) {
                 if (!unit_requests) {
                     if (!is_found) {
                         FindVaildTypes();
@@ -333,7 +333,7 @@ UnitInfo* TaskKillUnit::FindClosestCombatUnit(SmartList<UnitInfo>* units_, UnitI
 
     for (auto it = units_->Begin(), it_end = units_->End(); it != it_end; ++it) {
         if ((*it).ammo > 0 && Task_IsRecruitable(it->Get(), m_team, task_priority)) {
-            if (IsUnitUsable(*it)) {
+            if (IsUnitSuitable(*it)) {
                 if (!map || map->Search(Point((*it).grid_x, (*it).grid_y))) {
                     int32_t distance_ = Access_GetSquaredDistance(it->Get(), spotted_unit->GetLastPosition());
 
@@ -499,7 +499,39 @@ void TaskKillUnit::ClearSiteToSabotage(UnitInfo* unit, UnitInfo* target) {
     }
 }
 
-bool TaskKillUnit::IsUnitUsable(UnitInfo& unit) {
+bool TaskKillUnit::IsUnitUsable(UnitInfo& unit) { return IsUnitSuitable(unit) && IsAttackShareLeft(); }
+
+bool TaskKillUnit::IsAttackShareLeft() {
+    TaskAttack* attack = dynamic_cast<TaskAttack*>(m_parent.Get());
+
+    // an attack draws units up to its share of the team's military value
+    return !attack || attack->GetUnitValue() < AiPlayer_Teams[m_team].GetAttackValueShare();
+}
+
+void TaskKillUnit::UpdateDemand() {
+    UnitInfo* target = spotted_unit->GetUnit();
+    TaskAttack* attack = dynamic_cast<TaskAttack*>(m_parent.Get());
+    int32_t wanted;
+
+    if (target->GetBaseValues()->GetAttribute(ATTRIB_AMMO) > 0 && target->team != PLAYER_TEAM_ALIEN) {
+        required_damage = target->hits;
+        wanted = 2 * target->hits;
+
+    } else {
+        required_damage = 1;
+        wanted = target->hits;
+    }
+
+    // the fire of the defenders counts once per attack, so only its current target recruits for it
+    if (attack && attack->IsCurrentTarget(this)) {
+        wanted += attack->GetDefendersFire();
+    }
+
+    // the margin makes up for losses the fire estimate misses
+    hits = std::min<int32_t>((wanted * 5) / 4, INT16_MAX);
+}
+
+bool TaskKillUnit::IsUnitSuitable(UnitInfo& unit) {
     bool result;
 
     if (spotted_unit && GameManager_TurnCounter >= recruit_turn && unit.GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0 &&
@@ -612,6 +644,14 @@ void TaskKillUnit::BeginTurn() {
         managed_unit = nullptr;
 
         position = spotted_unit->GetLastPosition();
+
+        // a target added within reach keeps to the units on site, the others weigh their target anew and look for
+        // units every turn
+        if (GameManager_TurnCounter >= recruit_turn) {
+            UpdateDemand();
+
+            seek_target = true;
+        }
 
         GetNewUnits();
         MoveUnits();

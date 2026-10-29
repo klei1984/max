@@ -73,6 +73,8 @@ class AiPlayer {
     SmartPointer<TaskAttackReserve> attack_reserve_task;
     // ranked from the most to the least urgent, sized at each turn start
     std::vector<SmartPointer<Task>> attack_tasks;
+    // the military value one attack may draw, set at each turn start
+    int32_t attack_value_share{AttackValue};
 
     SmartList<SpottedUnit> spotted_units;
 
@@ -172,6 +174,7 @@ public:
     void AddTransportOrder(TransportOrder* transport_order);
     Task* FindManager(Point site);
     SmartList<SpottedUnit>& GetSpottedUnits();
+    int32_t GetAttackValueShare() const;
     void AddMilitaryUnit(UnitInfo* unit);
     bool IsEnemyTeam(const uint8_t team) const;
     void BeginTurn();
