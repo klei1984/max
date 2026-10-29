@@ -76,6 +76,7 @@ static constexpr uint32_t ORDER_LOG_UNIT_TURN_LINES = 64;
 static constexpr uint32_t ORDER_LOG_STALL_TICKS = 2400;
 static constexpr uint32_t ORDER_LOG_QUEUE_STALL_TICKS = 1200;
 static constexpr uint32_t ORDER_LOG_STALE_PIN_TICKS = 240;
+static constexpr uint32_t ORDER_LOG_PARENT_CHECK_TICKS = 8;
 static constexpr uint32_t ORDER_LOG_ANOMALY_LIMIT = 20000;
 static constexpr uint64_t ORDER_LOG_BULK_LIMIT = 256ull * 1024ull * 1024ull;
 static constexpr uint64_t ORDER_LOG_SIZE_LIMIT = 320ull * 1024ull * 1024ull;
@@ -550,7 +551,12 @@ static void OrderLog_CheckUnit(const UnitInfo* unit, OrderLogShadow& shadow, boo
         }
     }
 
-    if (parent && !OrderLog_IsAlive(parent)) {
+    /* the unit hash lookup makes the parent checks the costliest part of the scan, a lasting fault shows every few
+     * ticks as well
+     */
+    const bool check_parent = parent && (is_baseline || OrderLog_Tick % ORDER_LOG_PARENT_CHECK_TICKS == 0);
+
+    if (check_parent && !OrderLog_IsAlive(parent)) {
         if (OrderLog_IsStored(unit)) {
             OrderLog_Report(ORDER_LOG_ORPHAN_HELD, unit, parent->GetId(), 0, parent, is_baseline);
 
@@ -573,7 +579,7 @@ static void OrderLog_CheckUnit(const UnitInfo* unit, OrderLogShadow& shadow, boo
             OrderLog_Report(ORDER_LOG_ORPHAN_UTILITY, unit, parent->GetId(), 0, parent, is_baseline);
         }
 
-    } else if (parent) {
+    } else if (check_parent) {
         if (order == ORDER_AWAIT_STEAL_UNIT || order == ORDER_AWAIT_DISABLE_UNIT) {
             if (OrderLog_IsStored(parent)) {
                 OrderLog_Report(ORDER_LOG_TARGET_STORED, unit, parent->GetId(), 0, parent, is_baseline);
