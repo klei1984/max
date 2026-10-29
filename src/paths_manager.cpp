@@ -392,6 +392,16 @@ bool PathsManager::PrepareAndDispatchJob(SmartPointer<PathRequest> request) {
           ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), position.x + 1, position.y + 1,
           destination.x + 1, destination.y + 1);
 
+    // the searchers index their maps by the destination
+    if (destination.x < 0 || destination.x >= ResourceManager_MapSize.x || destination.y < 0 ||
+        destination.y >= ResourceManager_MapSize.y) {
+        AILOG_LOG(log, "Destination is off the map.");
+
+        CompleteRequest(request, nullptr);
+
+        return false;
+    }
+
     // Trivial case: already at destination
     if (position == destination) {
         AILOG_LOG(log, "Start and destination are the same.");

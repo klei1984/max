@@ -540,8 +540,9 @@ bool TaskTransport::Execute(UnitInfo& unit) {
 
                 if (Task_IsReadyToTakeOrders(&*passenger)) {
                     if (Access_GetApproximateDistance(&*unit_transporter, &*passenger) > distance) {
+                        // a passenger without a planned waypoint is met where it stands
                         if (unit_transporter->GetUnitType() == AIRTRANS ||
-                            unit_transporter->GetUnitType() == CLNTRANS) {
+                            unit_transporter->GetUnitType() == CLNTRANS || position.x < 0 || position.y < 0) {
                             position.x = passenger->grid_x;
                             position.y = passenger->grid_y;
                         }
