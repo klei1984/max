@@ -45,6 +45,7 @@
 #include "settings.hpp"
 #include "unitinfo.hpp"
 #include "units_manager.hpp"
+#include "world.hpp"
 
 /* order_log.txt holds one record per line. Fields are tab separated decimal numbers unless noted, lines starting
  * with # are comments. The header names the orders, order states, unit types and anomaly kinds.
@@ -354,6 +355,7 @@ static bool OrderLog_Open() noexcept {
 
     OrderLog_Line(false, "# max-port order log, format 1\n");
     OrderLog_Line(false, "# S tick turn play_mode team_type...\n");
+    OrderLog_Line(false, "# W world map_width map_height\n");
     OrderLog_Line(false, "# E tick turn\n");
     OrderLog_Line(false, "# T tick turn active_team units\n");
     OrderLog_Line(false,
@@ -778,6 +780,11 @@ void OrderLog_GameStart() noexcept {
         }
 
         OrderLog_Line(false, "\n");
+
+        if (const World* world = ResourceManager_GetActiveWorld()) {
+            OrderLog_Line(false, "W\t%s\t%d\t%d\n", ResourceManager_GetResourceID(world->GetResourceId()),
+                          world->GetMapSize().x, world->GetMapSize().y);
+        }
 
         /* missions and saves already carry defects of the original game, they are reported as the baseline */
         OrderLog_Scan(true);

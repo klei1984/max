@@ -1976,6 +1976,13 @@ void GameManager_GameSetup(int32_t game_state) {
     mouse_set_position(WindowManager_GetWidth(window) / 2, WindowManager_GetHeight(window) / 2);
     mouse_show();
 
+#if !defined(NDEBUG)
+    if (const World* world = ResourceManager_GetActiveWorld()) {
+        AILOG(log, "Game start on world {}, {}x{} map.", ResourceManager_GetResourceID(world->GetResourceId()),
+              world->GetMapSize().x, world->GetMapSize().y);
+    }
+#endif /* !defined(NDEBUG) */
+
     ORDER_LOG_GAME_START();
 }
 

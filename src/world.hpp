@@ -173,6 +173,7 @@ public:
      */
     [[nodiscard]] uint8_t GetGridOverlayColor(uint8_t surface_type) const;
 
+    [[nodiscard]] ResourceID GetResourceId() const { return m_resource_id; }
     [[nodiscard]] const Point& GetMapSize() const { return m_map_size; }
     [[nodiscard]] const uint16_t* GetTileIds() const { return m_tile_ids.get(); }
     [[nodiscard]] const uint8_t* GetTileBuffer() const { return m_tile_buffer.get(); }
