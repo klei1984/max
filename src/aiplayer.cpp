@@ -24,6 +24,7 @@
 #include "access.hpp"
 #include "ai.hpp"
 #include "aiattack.hpp"
+#include "ailog.hpp"
 #include "attack_census.hpp"
 #include "builder.hpp"
 #include "circumferencewalker.hpp"
@@ -199,12 +200,13 @@ void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_priority
 
         uint16_t target_task_priority = AiAttack_GetTargetFlags(nullptr, spotted_unit->GetUnit(), player_team) +
                                         task_priority + TASK_PRIORITY_OFFSET_CENSUS_SLACK;
+        const int32_t task_limit = attack_tasks.size();
         int32_t task_index;
 
-        for (task_index = 0; task_index < AttackTaskLimit && attack_tasks[task_index]; ++task_index) {
+        for (task_index = 0; task_index < task_limit && attack_tasks[task_index]; ++task_index) {
         }
 
-        if (task_index == AttackTaskLimit) {
+        if (task_index == task_limit) {
             for (--task_index; task_index >= 0 && attack_tasks[task_index]->ComparePriority(target_task_priority) <= 0;
                  --task_index) {
             }
@@ -235,30 +237,50 @@ void AiPlayer::DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_priority
     }
 }
 
-void AiPlayer::UpdatePriorityTasks() {
-    for (int32_t i = 0; i < AttackTaskLimit; ++i) {
-        attack_tasks[i] = nullptr;
+int32_t AiPlayer::GetMilitaryValue() const {
+    SmartList<UnitInfo>* const lists[] = {&UnitsManager_MobileLandSeaUnits, &UnitsManager_MobileAirUnits};
+    int32_t result = 0;
+
+    // armed mobile units by build cost, as the attack census counts them
+    for (auto units : lists) {
+        for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+            if ((*it).team == player_team && (*it).hits > 0 && (*it).GetBaseValues()->GetAttribute(ATTRIB_ATTACK) > 0) {
+                result += (*it).GetNormalRateBuildCost();
+            }
+        }
     }
+
+    return result;
+}
+
+void AiPlayer::UpdatePriorityTasks() {
+    const int32_t military_value = GetMilitaryValue();
+    const int32_t task_limit =
+        std::clamp((military_value + AttackValue - 1) / AttackValue, AttackTaskLimitMin, AttackTaskLimitMax);
+
+    AILOG(log, "Attack limit {} for military value {}.", task_limit, military_value);
+
+    attack_tasks.assign(task_limit, nullptr);
 
     for (auto it = TaskManager.GetTaskList().Begin(), it_end = TaskManager.GetTaskList().End(); it != it_end; ++it) {
         if ((*it).GetTeam() == player_team && (*it).GetType() == TaskType_TaskAttack) {
             uint16_t task_priority = (*it).GetPriority();
             int32_t task_index;
 
-            for (task_index = 0; task_index < AttackTaskLimit && attack_tasks[task_index] &&
+            for (task_index = 0; task_index < task_limit && attack_tasks[task_index] &&
                                  attack_tasks[task_index]->ComparePriority(task_priority) <= 0;
                  ++task_index) {
             }
 
-            if (task_index == AttackTaskLimit) {
+            if (task_index == task_limit) {
                 (*it).RemoveSelf();
 
             } else {
-                if (attack_tasks[AttackTaskLimit - 1]) {
-                    attack_tasks[AttackTaskLimit - 1]->RemoveSelf();
+                if (attack_tasks[task_limit - 1]) {
+                    attack_tasks[task_limit - 1]->RemoveSelf();
                 }
 
-                for (int32_t i = AttackTaskLimit - 1; i > task_index; --i) {
+                for (int32_t i = task_limit - 1; i > task_index; --i) {
                     attack_tasks[i] = attack_tasks[i - 1];
                 }
 
@@ -2093,7 +2115,8 @@ void AiPlayer::UpgradeUnitType() {
     }
 }
 
-AiPlayer::AiPlayer() : info_map(nullptr), mine_map(nullptr), target_location(1, 1) {}
+AiPlayer::AiPlayer()
+    : attack_tasks(AttackTaskLimitMin), info_map(nullptr), mine_map(nullptr), target_location(1, 1) {}
 
 AiPlayer::~AiPlayer() {
     if (info_map) {
@@ -2935,9 +2958,7 @@ void AiPlayer::Init(uint16_t team) {
     attack_reserve_task = nullptr;
     defense_reserve_task = nullptr;
 
-    for (int32_t i = 0; i < AttackTaskLimit; ++i) {
-        attack_tasks[i] = nullptr;
-    }
+    attack_tasks.assign(AttackTaskLimitMin, nullptr);
 
     int32_t opponent = ResourceManager_GetSettings()->GetNumericValue("opponent");
 

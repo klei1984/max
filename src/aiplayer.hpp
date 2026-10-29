@@ -22,6 +22,8 @@
 #ifndef AI_PLAYER_HPP
 #define AI_PLAYER_HPP
 
+#include <vector>
+
 #include "spottedunit.hpp"
 #include "taskattackreserve.hpp"
 #include "taskclearzone.hpp"
@@ -44,7 +46,10 @@ struct BuildOrder {
 };
 
 class AiPlayer {
-    static constexpr uint8_t AttackTaskLimit{3};
+    // attacks at the same time: at least the minimum, one per AttackValue of military value, at most the maximum
+    static constexpr int32_t AttackTaskLimitMin{3};
+    static constexpr int32_t AttackTaskLimitMax{8};
+    static constexpr int32_t AttackValue{600};
 
     uint16_t player_team;
     uint8_t strategy;
@@ -66,7 +71,8 @@ class AiPlayer {
     SmartPointer<Task> find_mines_task;
     SmartPointer<Task> place_mines_task;
     SmartPointer<TaskAttackReserve> attack_reserve_task;
-    SmartPointer<Task> attack_tasks[AttackTaskLimit];
+    // ranked from the most to the least urgent, sized at each turn start
+    std::vector<SmartPointer<Task>> attack_tasks;
 
     SmartList<SpottedUnit> spotted_units;
 
@@ -110,6 +116,7 @@ class AiPlayer {
     Point GetTeamClusterCoordinates(uint16_t team);
     void DetermineAttack(SpottedUnit* spotted_unit, uint16_t task_priority);
     void UpdatePriorityTasks();
+    int32_t GetMilitaryValue() const;
     void DetermineTargetLocation(Point position);
     bool IsKeyFacility(ResourceID unit_type);
     void DetermineResearchProjects();
