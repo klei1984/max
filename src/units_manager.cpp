@@ -3791,9 +3791,12 @@ void UnitsManager_ActivateUnit(UnitInfo* unit) {
 
     SDL_assert(client.Get());
 
+    // the square was open when it was chosen, another unit may have taken it since
     if (((client->flags & MOBILE_AIR_UNIT) && client->speed > 0) ||
         (!Paths_IsOccupied(unit->move_to_grid_x, unit->move_to_grid_y, 0, unit->team) &&
-         !(client->flags & MOBILE_AIR_UNIT))) {
+         !(client->flags & MOBILE_AIR_UNIT) &&
+         Access_IsAccessible(client->GetUnitType(), unit->team, unit->move_to_grid_x, unit->move_to_grid_y,
+                             AccessModifier_SameClassBlocks))) {
         SDL_assert(unit->storage > 0);
 
         --unit->storage;
