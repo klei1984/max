@@ -540,7 +540,7 @@ void ResourceManager_InitInternals() {
 
     ResourceManager_InitSoundManager();
     register_pause(-1, nullptr);
-    screendump_register(GNW_KB_KEY_LALT_C, screendump_pcx);
+    screendump_register(GNW_KB_KEY_LALT_C, screendump_save);
 }
 
 void ResourceManager_TestMouse() {

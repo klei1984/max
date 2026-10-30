@@ -112,6 +112,7 @@ static const std::vector<std::pair<std::string, Settings::SettingDefinition>> se
     {"subtitle_outline_color", {static_cast<int32_t>(0xFF000000), "SETUP"}},
     {"subtitle_bg_color", {0x00000000, "SETUP"}},
     {"complex_grid_overlay", {0, "SETUP"}},
+    {"screenshot_format", {std::string("png"), "SETUP"}},
     {"world", {0, "OPTIONS"}},
     {"timer", {180, "OPTIONS"}},
     {"endturn", {45, "OPTIONS"}},

@@ -23,6 +23,7 @@
 
 #include "cursor.hpp"
 #include "resource_manager.hpp"
+#include "settings.hpp"
 #include "smartstring.hpp"
 #include "svga.h"
 
@@ -53,11 +54,8 @@ typedef struct {
 
 static int32_t screendump_default(int32_t width, int32_t length, uint8_t* buffer, uint8_t* palette);
 
-int32_t screendump_pcx(int32_t width, int32_t length, uint8_t* buffer, uint8_t* palette) {
-    PcxHeader pcx_header;
+static std::filesystem::path screendump_get_file_path(const char* extension) {
     int32_t file_index;
-    uint8_t pcx_palette[PALETTE_STRIDE * PALETTE_SIZE];
-    FILE* fp;
     SmartString filename;
     std::filesystem::path filepath;
     std::error_code ec;
@@ -65,10 +63,72 @@ int32_t screendump_pcx(int32_t width, int32_t length, uint8_t* buffer, uint8_t* 
     file_index = 0;
 
     do {
-        filename.Sprintf(20, "MAX%4.4i.PCX", file_index);
+        filename.Sprintf(20, "MAX%4.4i.%s", file_index, extension);
         ++file_index;
         filepath = (ResourceManager_FilePathGamePref / filename.GetCStr()).lexically_normal();
     } while (std::filesystem::exists(filepath, ec));
+
+    return filepath;
+}
+
+int32_t screendump_save(int32_t width, int32_t length, uint8_t* buffer, uint8_t* palette) {
+    int32_t result;
+
+    const std::string format = ResourceManager_GetSettings()->GetStringValue("screenshot_format");
+
+    if (format == "pcx") {
+        result = screendump_pcx(width, length, buffer, palette);
+
+    } else if (format == "bmp") {
+        result = screendump_default(width, length, buffer, palette);
+
+    } else {
+        result = screendump_png(width, length, buffer, palette);
+    }
+
+    return result;
+}
+
+int32_t screendump_png(int32_t width, int32_t length, uint8_t* buffer, uint8_t* palette) {
+    const std::filesystem::path filepath = screendump_get_file_path("png");
+    SDL_Surface* surface = SDL_CreateSurfaceFrom(width, length, SDL_PIXELFORMAT_INDEX8, buffer, width);
+    int32_t result = -1;
+
+    if (surface) {
+        SDL_Palette* surface_palette = SDL_CreateSurfacePalette(surface);
+
+        if (surface_palette) {
+            SDL_Color colors[PALETTE_SIZE];
+
+            // the screen shows the 6 bit palette entries multiplied by 4
+            for (int32_t i = 0; i < PALETTE_SIZE; ++i) {
+                colors[i].r = palette[PALETTE_STRIDE * i + 0] * 4;
+                colors[i].g = palette[PALETTE_STRIDE * i + 1] * 4;
+                colors[i].b = palette[PALETTE_STRIDE * i + 2] * 4;
+                colors[i].a = SDL_ALPHA_OPAQUE;
+            }
+
+            if (SDL_SetPaletteColors(surface_palette, colors, 0, PALETTE_SIZE) &&
+                SDL_SavePNG(surface, filepath.string().c_str())) {
+                result = 0;
+            }
+        }
+
+        SDL_DestroySurface(surface);
+    }
+
+    if (result != 0) {
+        SDL_Log("Screendump: failed to save %s: %s", filepath.string().c_str(), SDL_GetError());
+    }
+
+    return result;
+}
+
+int32_t screendump_pcx(int32_t width, int32_t length, uint8_t* buffer, uint8_t* palette) {
+    PcxHeader pcx_header;
+    uint8_t pcx_palette[PALETTE_STRIDE * PALETTE_SIZE];
+    FILE* fp;
+    const std::filesystem::path filepath = screendump_get_file_path("PCX");
 
     fp = fopen(filepath.string().c_str(), "wb");
 
@@ -137,24 +197,21 @@ int32_t screendump_default(int32_t width, int32_t length, uint8_t* buffer, uint8
 
     int32_t i;
     FILE* fp;
-    char fname[13];
+    const std::filesystem::path filepath = screendump_get_file_path("bmp");
+
+    // BMP rows are padded to a multiple of 4 bytes
+    const int32_t row_padding = (4 - (width % 4)) % 4;
+    const uint8_t padding_bytes[3] = {0, 0, 0};
 
     int32_t temp_signed_32;
     uint32_t temp_unsigned_32;
     uint16_t temp_unsigned_16;
 
-    for (i = 0; i < 100000; ++i) {
-        sprintf(fname, "scr%.5d.bmp", i);
-        fp = fopen(fname, "rb");
-        if (!fp) break;
-        fclose(fp);
-    }
-
-    if (i != 100000 && (fp = fopen(fname, "wb")) != 0) {
+    if ((fp = fopen(filepath.string().c_str(), "wb")) != 0) {
         temp_unsigned_16 = 'B' + ('M' << 8);
         fwrite(&temp_unsigned_16, sizeof(temp_unsigned_16), 1, fp);
 
-        temp_unsigned_32 = length * width + 1078;
+        temp_unsigned_32 = length * (width + row_padding) + 1078;
         fwrite(&temp_unsigned_32, sizeof(temp_unsigned_32), 1, fp);
 
         temp_unsigned_16 = 0;
@@ -213,6 +270,7 @@ int32_t screendump_default(int32_t width, int32_t length, uint8_t* buffer, uint8
 
         for (i = length - 1; i >= 0; --i) {
             fwrite(&buffer[width * i], sizeof(uint8_t), width, fp);
+            fwrite(padding_bytes, sizeof(uint8_t), row_padding, fp);
         }
 
         fflush(fp);

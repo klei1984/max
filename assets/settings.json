@@ -24,7 +24,8 @@
 			"subtitle_text_color": -1,
 			"subtitle_outline_color": -16777216,
 			"subtitle_bg_color": 0,
-			"complex_grid_overlay": 0
+			"complex_grid_overlay": 0,
+			"screenshot_format": "png"
 		},
 		"OPTIONS": {
 			"world": 0,
