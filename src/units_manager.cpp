@@ -4160,6 +4160,13 @@ void UnitsManager_BuildingReady(UnitInfo* unit) {
                 unit->GetBounds(&bounds);
 
                 is_found = !Access_IsInsideBounds(&bounds, &position);
+
+                // a builder whose way off a 2x2 site failed waits on one of its squares, where the building blocks
+                // every square around it but the five next to the builder, so it goes back to the middle first
+                if (!is_found && (unit->flags & BUILDING) && parent->GetOrder() == ORDER_AWAIT &&
+                    parent->GetOrderState() == ORDER_STATE_EXECUTING_ORDER) {
+                    parent->ReturnToConstructionSite(unit);
+                }
             }
 
         } else {

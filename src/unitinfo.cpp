@@ -4418,6 +4418,11 @@ void UnitInfo::PositionInTape() {
 
             Access_UpdateMapStatus(this, true);
             Access_UpdateMapStatus(&*copy, false);
+
+            // back in the middle of its site after a failed way off, the builder is ready to leave again
+            if (orders == ORDER_BUILD) {
+                ScheduleDelayedTasks(true);
+            }
         }
 
     } else {
@@ -4431,6 +4436,21 @@ void UnitInfo::PositionInTape() {
             RefreshScreen();
         }
     }
+}
+
+/* Takes a builder that failed to leave the 2x2 building it finished back to the middle of the site the way it left, so
+ * that it can leave again towards any square around the building.
+ */
+void UnitInfo::ReturnToConstructionSite(UnitInfo* building) {
+    // heading for the square of the site opposite its own, the positioning stops in the middle of the site
+    move_to_grid_x = (grid_x == building->grid_x) ? building->grid_x + 1 : building->grid_x;
+    move_to_grid_y = (grid_y == building->grid_y) ? building->grid_y + 1 : building->grid_y;
+
+    SetParent(building);
+    SetOrder(ORDER_BUILD);
+    SetOrderState(ORDER_STATE_UNIT_READY);
+
+    UnitsManager_SetNewOrderInt(this, ORDER_AWAIT_TAPE_POSITIONING, ORDER_STATE_TAPE_POSITIONING_DEINIT);
 }
 
 void UnitInfo::PlaceMine() {

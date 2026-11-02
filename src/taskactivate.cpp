@@ -83,6 +83,16 @@ void TaskActivate::Activate() {
                                     RemindTurnEnd(true);
                                     return;
                                 }
+
+                                /* the finished building takes its builder back to the middle of the site after a
+                                 * failed way off, the activation goes on from there
+                                 */
+                                if ((unit_parent->flags & BUILDING) &&
+                                    unit_parent->GetParent() == unit_to_activate.Get() &&
+                                    unit_parent->GetOrder() == ORDER_IDLE &&
+                                    unit_parent->GetOrderState() == ORDER_STATE_BUILDING_READY) {
+                                    return;
+                                }
                             }
 
                             AILOG(log, "Activate {} {} at [{},{}] from {} {} at [{},{}].",

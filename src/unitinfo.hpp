@@ -343,6 +343,7 @@ public:
     void Render(Rect* bounds);
     void RenderWithConnectors(Rect* bounds);
     void PositionInTape();
+    void ReturnToConstructionSite(UnitInfo* building);
     void PlaceMine();
     void PickUpMine();
     bool ShakeWater();
