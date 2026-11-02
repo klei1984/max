@@ -423,6 +423,13 @@ void TaskManager::FindTaskForUnit(UnitInfo* unit) {
             unit->GetUnitType() == LIGHTPLT || unit->GetUnitType() == LANDPLT || unit->GetUnitType() == SHIPYARD ||
             unit->GetUnitType() == AIRPLT || unit->GetUnitType() == TRAINHAL) {
             if (!unit->GetTask() && unit->hits > 0) {
+                // a disabled unit gets no task: the disable removed its tasks, and the first turn start after the
+                // disable offers the unit again
+                if (unit->GetOrder() == ORDER_DISABLE ||
+                    (unit->GetOrder() == ORDER_IDLE && unit->GetPriorOrder() == ORDER_DISABLE)) {
+                    return;
+                }
+
                 SmartPointer<TaskObtainUnits> obtain_units_task;
                 uint16_t task_priority{UINT16_MAX};
 
