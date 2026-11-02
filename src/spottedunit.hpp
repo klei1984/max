@@ -45,7 +45,6 @@ public:
     Point GetLastPosition() const;
     int32_t GetLastPositionX() const;
     int32_t GetLastPositionY() const;
-    void SetPosition(Point position);
     void UpdatePosition();
     void SetVisible(bool visible);
 

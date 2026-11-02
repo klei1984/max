@@ -3640,48 +3640,6 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
             if ((IsKeyFacility(unit->GetUnitType()) || (!is_key_facility && unit->GetUnitType() == CONSTRCT)) &&
                 IsEnemyTeam(unit->team)) {
                 DetermineAttack(&*spotted_unit2, TASK_PRIORITY_ATTACK_DEFAULT);
-
-            } else if (!is_key_facility && unit->GetBaseValues()->GetAttribute(ATTRIB_ROUNDS) > 0) {
-                if (IsEnemyTeam(unit->team)) {
-                    for (auto it = UnitsManager_StationaryUnits.Begin(), it_end = UnitsManager_StationaryUnits.End();
-                         it != it_end; ++it) {
-                        if ((*it).team == unit->team && IsKeyFacility((*it).GetUnitType()) &&
-                            Access_GetApproximateDistance(unit, it->Get()) < 30) {
-                            spotted_unit2 = new (std::nothrow) SpottedUnit(it->Get(), player_team);
-
-                            spotted_unit2->SetPosition(Point(unit->grid_x, unit->grid_y));
-
-                            spotted_units.PushBack(*spotted_unit2);
-
-                            DetermineAttack(&*spotted_unit2, TASK_PRIORITY_ATTACK_DEFAULT);
-
-                            return;
-                        }
-                    }
-
-                    for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
-                        if ((*it).GetUnit()->GetUnitType() == CONSTRCT) {
-                            return;
-                        }
-                    }
-
-                    for (auto it = UnitsManager_MobileLandSeaUnits.Begin(),
-                              it_end = UnitsManager_MobileLandSeaUnits.End();
-                         it != it_end; ++it) {
-                        if ((*it).team == unit->team && (*it).GetUnitType() == CONSTRCT &&
-                            Access_GetApproximateDistance(unit, it->Get()) < 30) {
-                            spotted_unit2 = new (std::nothrow) SpottedUnit(it->Get(), player_team);
-
-                            spotted_unit2->SetPosition(Point(unit->grid_x, unit->grid_y));
-
-                            spotted_units.PushBack(*spotted_unit2);
-
-                            DetermineAttack(&*spotted_unit2, TASK_PRIORITY_ATTACK_DEFAULT);
-
-                            return;
-                        }
-                    }
-                }
             }
         }
     }

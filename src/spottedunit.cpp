@@ -69,8 +69,6 @@ int32_t SpottedUnit::GetLastPositionX() const { return GetLastPosition().x; }
 
 int32_t SpottedUnit::GetLastPositionY() const { return GetLastPosition().y; }
 
-void SpottedUnit::SetPosition(Point position) { last_position = position; }
-
 void SpottedUnit::UpdatePosition() {
     last_position.x = unit->grid_x;
     last_position.y = unit->grid_y;
