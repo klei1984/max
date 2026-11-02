@@ -758,7 +758,7 @@ bool AiPlayer::IsAbleToAttack(UnitInfo* attacker, ResourceID target_type, uint16
     return result;
 }
 
-ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, bool is_for_attacking) {
+ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level) {
     ThreatMap* result;
 
     if (ResourceManager_MapSize.x > 0) {
@@ -766,15 +766,9 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
             BeginTurn();
         }
 
-        if (ResourceManager_GetSettings()->GetNumericValue("opponent") < OPPONENT_TYPE_EXPERT) {
-            is_for_attacking = false;
-        }
-
         for (int32_t i = 0; i < AIPLAYER_THREAT_MAP_CACHE_ENTRIES; ++i) {
             if (AiPlayer_ThreatMaps[i].risk_level == risk_level &&
-                AiPlayer_ThreatMaps[i].caution_level == caution_level &&
-                AiPlayer_ThreatMaps[i].for_attacking == is_for_attacking &&
-                AiPlayer_ThreatMaps[i].team == player_team) {
+                AiPlayer_ThreatMaps[i].caution_level == caution_level && AiPlayer_ThreatMaps[i].team == player_team) {
                 AiPlayer_ThreatMaps[i].id = 0;
 
                 result = &AiPlayer_ThreatMaps[i];
@@ -800,7 +794,6 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
         AiPlayer_ThreatMaps[index].risk_level = risk_level;
         AiPlayer_ThreatMaps[index].armor = 0;
         AiPlayer_ThreatMaps[index].caution_level = caution_level;
-        AiPlayer_ThreatMaps[index].for_attacking = is_for_attacking;
         AiPlayer_ThreatMaps[index].team = player_team;
         AiPlayer_ThreatMaps[index].id = 0;
 
@@ -821,20 +814,10 @@ ThreatMap* AiPlayer::GetThreatMap(int32_t risk_level, int32_t caution_level, boo
             DetermineDefenses(&ground_forces, AiPlayer_ThreatMaps[index].damage_potential_map);
         }
 
-        if (is_for_attacking) {
-            for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
-                if (IsAbleToAttack((*it).GetUnit(), risk_group_unit, player_team)) {
-                    DetermineThreats((*it).GetUnit(), Point((*it).GetUnit()->grid_x, (*it).GetUnit()->grid_y),
-                                     caution_level, &air_force_threat_map, &AiPlayer_ThreatMaps[index]);
-                }
-            }
-
-        } else {
-            for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
-                if (IsAbleToAttack((*it).GetUnit(), risk_group_unit, player_team)) {
-                    DetermineThreats((*it).GetUnit(), (*it).GetLastPosition(), caution_level, &air_force_threat_map,
-                                     &AiPlayer_ThreatMaps[index]);
-                }
+        for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
+            if (IsAbleToAttack((*it).GetUnit(), risk_group_unit, player_team)) {
+                DetermineThreats((*it).GetUnit(), (*it).GetLastPosition(), caution_level, &air_force_threat_map,
+                                 &AiPlayer_ThreatMaps[index]);
             }
         }
 
@@ -3326,9 +3309,9 @@ int32_t AiPlayer::GetPredictedAttack(UnitInfo* unit, int32_t caution_level) {
            GetTotalProjectedDamage(unit, caution_level, player_team, &UnitsManager_MobileAirUnits);
 }
 
-int16_t** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, int32_t caution_level, bool is_for_attacking) {
+int16_t** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, int32_t caution_level) {
     int16_t** result;
-    ThreatMap* threat_map = GetThreatMap(ThreatMap::GetRiskLevel(unit), caution_level, is_for_attacking);
+    ThreatMap* threat_map = GetThreatMap(ThreatMap::GetRiskLevel(unit), caution_level);
 
     if (threat_map) {
         threat_map->Update(unit->GetBaseValues()->GetAttribute(ATTRIB_ARMOR));
@@ -3342,9 +3325,9 @@ int16_t** AiPlayer::GetDamagePotentialMap(UnitInfo* unit, int32_t caution_level,
     return result;
 }
 
-int16_t** AiPlayer::GetDamagePotentialMap(ResourceID unit_type, int32_t caution_level, bool is_for_attacking) {
+int16_t** AiPlayer::GetDamagePotentialMap(ResourceID unit_type, int32_t caution_level) {
     int16_t** result;
-    ThreatMap* threat_map = GetThreatMap(ThreatMap::GetRiskLevel(unit_type), caution_level, is_for_attacking);
+    ThreatMap* threat_map = GetThreatMap(ThreatMap::GetRiskLevel(unit_type), caution_level);
 
     if (threat_map) {
         threat_map->Update(UnitsManager_GetCurrentUnitValues(&UnitsManager_TeamInfo[player_team], unit_type)
@@ -3359,14 +3342,14 @@ int16_t** AiPlayer::GetDamagePotentialMap(ResourceID unit_type, int32_t caution_
     return result;
 }
 
-int32_t AiPlayer::GetDamagePotential(UnitInfo* unit, Point site, int32_t caution_level, bool is_for_attacking) {
+int32_t AiPlayer::GetDamagePotential(UnitInfo* unit, Point site, int32_t caution_level) {
     int32_t result;
 
     if (caution_level == CAUTION_LEVEL_NONE) {
         result = 0;
 
     } else {
-        ThreatMap* threat_map = GetThreatMap(ThreatMap::GetRiskLevel(unit), caution_level, is_for_attacking);
+        ThreatMap* threat_map = GetThreatMap(ThreatMap::GetRiskLevel(unit), caution_level);
 
         if (threat_map) {
             result = threat_map->damage_potential_map[site.x][site.y] +

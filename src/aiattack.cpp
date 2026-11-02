@@ -103,7 +103,7 @@ bool AiAttack_ChooseSiteToSabotage(UnitInfo* unit1, UnitInfo* unit2, Point* site
     auto info_map = AiPlayer_Teams[unit1->team].GetInfoMap();
     Point position;
     bool result = false;
-    int16_t** damage_potential_map = AiPlayer_Teams[unit1->team].GetDamagePotentialMap(unit1, caution_level, true);
+    int16_t** damage_potential_map = AiPlayer_Teams[unit1->team].GetDamagePotentialMap(unit1, caution_level);
     int32_t distance;
     int32_t minimum_distance = INT16_MAX;
     int32_t damage_potential = 0;
@@ -193,7 +193,7 @@ bool AiAttack_ChooseSiteForAttacker(UnitInfo* unit, Point target, Point* site, i
 
     distance1 = distance1 * distance1;
 
-    damage_potential_map = AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, caution_level, true);
+    damage_potential_map = AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, caution_level);
 
     *projected_damage = INT16_MAX;
 
@@ -480,8 +480,7 @@ bool AiAttack_FindAttackSupport(UnitInfo* unit, SmartList<UnitInfo>* units, uint
 
                     if (((*it).GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
                          ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) ||
-                        (AiPlayer_Teams[team].GetDamagePotential(it->Get(), position, caution_level, true) <
-                         (*it).hits)) {
+                        (AiPlayer_Teams[team].GetDamagePotential(it->Get(), position, caution_level) < (*it).hits)) {
                         AiAttack_ProcessAttack(it->Get(), unit);
 
                         result = true;
@@ -636,7 +635,7 @@ SpottedUnit* AiAttack_SelectTargetToAttack(UnitInfo* unit, int32_t range, int32_
 
                                     if (caution_level > CAUTION_LEVEL_NONE && !damage_potential_map) {
                                         damage_potential_map =
-                                            AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, caution_level, true);
+                                            AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, caution_level);
                                     }
 
                                     if (damage_potential_map) {
@@ -759,8 +758,7 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
                                          unit->GetBaseValues()->GetAttribute(ATTRIB_TURNS) ||
                                      unit->shots * UnitsManager_GetAttackDamage(unit, target, 0) < target->hits)) {
                                     int32_t damage_potential = AiPlayer_Teams[unit->team].GetDamagePotential(
-                                        unit, Point(unit->grid_x, unit->grid_y), CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE,
-                                        true);
+                                        unit, Point(unit->grid_x, unit->grid_y), CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE);
 
                                     if (damage_potential >= unit->hits) {
                                         if (AiAttack_FindAttackSupport(target, &UnitsManager_MobileAirUnits, unit->team,
@@ -916,7 +914,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                                 caution_level = CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE;
 
                                 projected_damage = AiPlayer_Teams[unit_team].GetDamagePotential(
-                                    unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true);
+                                    unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE);
                             }
 
                             attack_potential = AiAttack_GetAttackPotential(unit, target);
@@ -926,7 +924,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
 
                             } else {
                                 damage_potential = AiPlayer_Teams[unit_team].GetDamagePotential(
-                                    unit, site, CAUTION_LEVEL_AVOID_REACTION_FIRE, true);
+                                    unit, site, CAUTION_LEVEL_AVOID_REACTION_FIRE);
                             }
 
                             unit_shots = 0;
@@ -974,7 +972,7 @@ bool AiAttack_EvaluateAssault(UnitInfo* unit, Task* task,
                                         caution_level = CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE;
 
                                         projected_damage = AiPlayer_Teams[unit_team].GetDamagePotential(
-                                            unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true);
+                                            unit, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE);
 
                                         if (AiAttack_IsAttackProfitable(unit, target, projected_damage,
                                                                         CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, 0x00)) {
@@ -1145,7 +1143,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_priority)
 
         TransporterMap map(unit, 0x02, CAUTION_LEVEL_NONE, transporter_type);
         int16_t** damage_potential_map =
-            AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true);
+            AiPlayer_Teams[unit->team].GetDamagePotentialMap(unit, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE);
         int32_t range = Access_GetApproximateDistance(&*leader, unit) / 2;
 
         target_location = unit_position;

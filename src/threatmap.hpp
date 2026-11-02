@@ -45,7 +45,6 @@ public:
     uint16_t id;
     uint8_t risk_level;
     uint8_t caution_level;
-    bool for_attacking;
     int16_t armor;
     int16_t** damage_potential_map;
     int16_t** shots_map;

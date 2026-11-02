@@ -141,7 +141,7 @@ class AiPlayer {
     static void SumUpMaps(int16_t** map1, int16_t** map2);
     static void NormalizeThreatMap(ThreatMap* threat_map);
     static bool IsAbleToAttack(UnitInfo* attacker, ResourceID target_type, uint16_t team);
-    ThreatMap* GetThreatMap(int32_t risk_level, int32_t caution_level, bool is_for_attacking);
+    ThreatMap* GetThreatMap(int32_t risk_level, int32_t caution_level);
     WeightTable GetWeightTable(ResourceID unit_type);
     void AddThreatToMineMap(int32_t grid_x, int32_t grid_y, int32_t range, int32_t damage_potential, int32_t factor);
     void MineSpotted(UnitInfo* unit);
@@ -185,9 +185,9 @@ public:
     bool CreateBuilding(ResourceID unit_type, Point position, Task* task);
     void Init(uint16_t team);
     int32_t GetPredictedAttack(UnitInfo* unit, int32_t caution_level);
-    int16_t** GetDamagePotentialMap(UnitInfo* unit, int32_t caution_level, bool is_for_attacking);
-    int16_t** GetDamagePotentialMap(ResourceID unit_type, int32_t caution_level, bool is_for_attacking);
-    int32_t GetDamagePotential(UnitInfo* unit, Point site, int32_t caution_level, bool is_for_attacking);
+    int16_t** GetDamagePotentialMap(UnitInfo* unit, int32_t caution_level);
+    int16_t** GetDamagePotentialMap(ResourceID unit_type, int32_t caution_level);
+    int32_t GetDamagePotential(UnitInfo* unit, Point site, int32_t caution_level);
     void ClearZone(Zone* zone);
     WeightTable GetFilteredWeightTable(ResourceID unit_type, uint16_t flags);
     void SetInfoMapPoint(Point site);

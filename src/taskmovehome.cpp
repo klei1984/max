@@ -163,7 +163,7 @@ bool TaskMoveHome::Execute(UnitInfo& unit_) {
             // a unit in its base zone stays put unless its cell is dangerous or wanted for construction, as moving
             // costs a unit that cannot move and fire its shots
             if (maximum_safety > 0 && !(info_map[destination.x][destination.y] & INFO_MAP_CLEAR_OUT_ZONE) &&
-                !Ai_IsDangerousLocation(&*unit, destination, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true)) {
+                !Ai_IsDangerousLocation(&*unit, destination, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
                 return false;
             }
 

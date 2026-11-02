@@ -421,7 +421,7 @@ bool PathsManager::PrepareAndDispatchJob(SmartPointer<PathRequest> request) {
         } else {
             if (Access_IsAccessible(unit->GetUnitType(), unit->team, destination.x, destination.y,
                                     request->GetFlags()) &&
-                !Ai_IsDangerousLocation(&*unit, destination, request->GetCautionLevel(), true)) {
+                !Ai_IsDangerousLocation(&*unit, destination, request->GetCautionLevel())) {
                 is_path_viable = true;
             }
         }

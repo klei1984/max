@@ -182,8 +182,7 @@ bool TaskSearchDestination::Search() {
         ResourceManager_GetUnit(unit->GetUnitType()).GetLandType() & SURFACE_TYPE_WATER ? INVALID_ID : AIRTRANS);
 
     if (!is_doomed) {
-        damage_potential_map =
-            AiPlayer_Teams[m_team].GetDamagePotentialMap(&*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
+        damage_potential_map = AiPlayer_Teams[m_team].GetDamagePotentialMap(&*unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
     }
 
     position.x = unit->grid_x;
@@ -270,7 +269,7 @@ void TaskSearchDestination::SearchTrySite() {
 
     for (int32_t i = search_radius;
          i > 0 && Access_IsInsideBounds(&bounds, &site) &&
-         (is_doomed || !Ai_IsDangerousLocation(&*unit, site, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true)) &&
+         (is_doomed || !Ai_IsDangerousLocation(&*unit, site, CAUTION_LEVEL_AVOID_ALL_DAMAGE)) &&
          sub_3DFCF(&*unit, site);
          --i) {
         best_site = site;

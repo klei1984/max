@@ -192,7 +192,7 @@ void TaskFrontalAttack::IssueOrders() {
                         }
 
                         damage_potential_on_friendly_unit =
-                            AiPlayer_Teams[m_team].GetDamagePotential(attacker, site, local_caution_level, true);
+                            AiPlayer_Teams[m_team].GetDamagePotential(attacker, site, local_caution_level);
 
                         if (!AiAttack_IsAttackProfitable(attacker, target, damage_potential_on_friendly_unit,
                                                          local_caution_level, total_predicted_damage_to_enemy, true)) {
@@ -207,7 +207,7 @@ void TaskFrontalAttack::IssueOrders() {
                                 }
 
                                 damage_potential_on_friendly_unit = AiPlayer_Teams[m_team].GetDamagePotential(
-                                    attacker, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true);
+                                    attacker, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE);
 
                                 if (AiAttack_IsAttackProfitable(attacker, target, damage_potential_on_friendly_unit,
                                                                 CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE,

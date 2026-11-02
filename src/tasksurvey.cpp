@@ -70,8 +70,7 @@ bool TaskSurvey::Execute(UnitInfo& unit) {
             bounds.uly = std::max(1, unit.grid_y - 5);
             bounds.lry = std::min(ResourceManager_MapSize.y - 1, unit.grid_y + 6);
 
-            damage_potential_map =
-                AiPlayer_Teams[m_team].GetDamagePotentialMap(&unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
+            damage_potential_map = AiPlayer_Teams[m_team].GetDamagePotentialMap(&unit, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
             for (site.x = bounds.ulx; site.x < bounds.lrx; ++site.x) {
                 for (site.y = bounds.uly; site.y < bounds.lry; ++site.y) {

@@ -262,7 +262,7 @@ void TaskManageBuildings::ClearBuildingAreas(uint16_t** construction_map, TaskCr
     AILOG(log, "Clear building areas.");
 
     int16_t** damage_potential_map =
-        AiPlayer_Teams[m_team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
+        AiPlayer_Teams[m_team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
     if (damage_potential_map) {
         for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {
@@ -1485,7 +1485,7 @@ void TaskManageBuildings::ClearAreasNearBuildings(AccessMap& access_map, int32_t
 
 void TaskManageBuildings::EvaluateDangers(AccessMap& access_map) {
     int16_t** damage_potential_map =
-        AiPlayer_Teams[m_team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true);
+        AiPlayer_Teams[m_team].GetDamagePotentialMap(ENGINEER, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
     if (damage_potential_map) {
         for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {

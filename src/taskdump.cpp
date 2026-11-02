@@ -119,7 +119,7 @@ void TaskDump::Search() {
 
             if (Access_IsAccessible(passenger->GetUnitType(), m_team, destination.x, destination.y,
                                     AccessModifier_EnemySameClassBlocks)) {
-                if (!Ai_IsDangerousLocation(&*passenger, destination, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
+                if (!Ai_IsDangerousLocation(&*passenger, destination, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
                     TaskPathRequest* request = new (std::nothrow)
                         TaskPathRequest(&*transporter_unit, AccessModifier_EnemySameClassBlocks, destination);
 

@@ -52,8 +52,8 @@ void TaskScavenge::BeginTurn() {
         for (auto it = UnitsManager_GroundCoverUnits.Begin(), it_end = UnitsManager_GroundCoverUnits.End();
              it != it_end; ++it) {
             if ((*it).IsVisibleToTeam(m_team) && ((*it).GetUnitType() == SMLRUBLE || (*it).GetUnitType() == LRGRUBLE) &&
-                !Ai_IsDangerousLocation(&*dummy_unit, Point((*it).grid_x, (*it).grid_y), CAUTION_LEVEL_AVOID_ALL_DAMAGE,
-                                        true)) {
+                !Ai_IsDangerousLocation(&*dummy_unit, Point((*it).grid_x, (*it).grid_y),
+                                        CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
                 SmartPointer<TaskObtainUnits> obtain_task(new (std::nothrow)
                                                               TaskObtainUnits(this, Point((*it).grid_x, (*it).grid_y)));
                 obtain_task->AddUnit(BULLDOZR);
@@ -101,7 +101,7 @@ bool TaskScavenge::Execute(UnitInfo& unit) {
                 distance = Access_GetSquaredDistance(&unit, it->Get());
 
                 if ((!target || distance < minimum_distance) &&
-                    !Ai_IsDangerousLocation(&unit, position, CAUTION_LEVEL_AVOID_ALL_DAMAGE, true) &&
+                    !Ai_IsDangerousLocation(&unit, position, CAUTION_LEVEL_AVOID_ALL_DAMAGE) &&
                     Access_GetRemovableRubble(m_team, (*it).grid_x, (*it).grid_y)) {
                     target = it->Get();
                     minimum_distance = distance;

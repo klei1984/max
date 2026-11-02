@@ -426,7 +426,7 @@ void TaskMove::FindWaypointUsingTransport() {
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
     if (Access_IsAccessible(passenger->GetUnitType(), m_team, site.x, site.y, AccessModifier_SameClassBlocks) &&
-        !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
+        !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
         destination_waypoint = passenger_destination;
 
         return;
@@ -446,7 +446,7 @@ void TaskMove::FindWaypointUsingTransport() {
 
                     if (Access_IsAccessible(passenger->GetUnitType(), m_team, site.x, site.y,
                                             AccessModifier_EnemySameClassBlocks) &&
-                        !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE, true)) {
+                        !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
                         passenger_destination = site;
                         destination_waypoint = site;
 
@@ -931,7 +931,7 @@ bool TaskMove::CheckAirPath() {
         result = true;
 
     } else {
-        int16_t** damage_potential_map = AiPlayer_Teams[m_team].GetDamagePotentialMap(&*passenger, caution_level, true);
+        int16_t** damage_potential_map = AiPlayer_Teams[m_team].GetDamagePotentialMap(&*passenger, caution_level);
 
         if (damage_potential_map) {
             int32_t line_distance_x = passenger_waypoint.x - passenger->grid_x;
@@ -1160,7 +1160,7 @@ void TaskMove::FindCurrentLocation() {
         minimum_distance = Access_GetApproximateDistance(position, *planned_path[0]) / 2;
 
         if (caution_level > CAUTION_LEVEL_NONE) {
-            damage_potential_map = AiPlayer_Teams[m_team].GetDamagePotentialMap(&*passenger, caution_level, true);
+            damage_potential_map = AiPlayer_Teams[m_team].GetDamagePotentialMap(&*passenger, caution_level);
         }
 
         unit_hits = passenger->hits;
@@ -1238,7 +1238,7 @@ bool TaskMove::FindWaypoint() {
         int16_t** damage_potential_map = nullptr;
 
         if (caution_level > CAUTION_LEVEL_NONE) {
-            damage_potential_map = AiPlayer_Teams[m_team].GetDamagePotentialMap(&*passenger, caution_level, true);
+            damage_potential_map = AiPlayer_Teams[m_team].GetDamagePotentialMap(&*passenger, caution_level);
         }
 
         if (damage_potential_map && damage_potential_map[passenger_waypoint.x][passenger_waypoint.y] >= unit_hits) {

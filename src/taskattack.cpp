@@ -1289,7 +1289,7 @@ bool TaskAttack::MoveUnit(Task* task, UnitInfo* unit, Point site, int32_t cautio
     Point target_position(unit->grid_x, unit->grid_y);
     Point position;
     auto info_map = AiPlayer_Teams[m_team].GetInfoMap();
-    int16_t** damage_potential_map = AiPlayer_Teams[m_team].GetDamagePotentialMap(unit, caution_level, false);
+    int16_t** damage_potential_map = AiPlayer_Teams[m_team].GetDamagePotentialMap(unit, caution_level);
     Rect bounds;
     ResourceID transporter = INVALID_ID;
     bool result;

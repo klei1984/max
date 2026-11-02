@@ -94,8 +94,8 @@ bool TaskRemoveRubble::Execute(UnitInfo& unit_) {
             target = Access_GetRemovableRubble(unit_.team, target->grid_x, target->grid_y);
         }
 
-        if (target && !Ai_IsDangerousLocation(&unit_, Point(target->grid_x, target->grid_y),
-                                              CAUTION_LEVEL_AVOID_ALL_DAMAGE, true)) {
+        if (target &&
+            !Ai_IsDangerousLocation(&unit_, Point(target->grid_x, target->grid_y), CAUTION_LEVEL_AVOID_ALL_DAMAGE)) {
             AILOG(log, "Remove Rubble: move finished.");
 
             if (unit_.GetBaseValues()->GetAttribute(ATTRIB_STORAGE) != unit_.storage) {
