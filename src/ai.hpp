@@ -50,6 +50,7 @@ void Ai_UpdateTerrainDistanceField(UnitInfo* unit);
 int32_t Ai_DetermineCautionLevel(UnitInfo* unit);
 void Ai_RemoveUnit(UnitInfo* unit);
 void Ai_UnitSpotted(UnitInfo* unit, uint16_t team);
+void Ai_UnitHidden(UnitInfo* unit, uint16_t team);
 void Ai_EvaluateAttackTargets(UnitInfo* unit);
 void Ai_CheckComputerReactions();
 void Ai_CheckMines(UnitInfo* unit);

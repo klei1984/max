@@ -579,6 +579,17 @@ void UnitInfo::Init() {
 
 bool UnitInfo::IsVisibleToTeam(uint16_t team) const { return visible_to_team[team]; }
 
+void UnitInfo::SetVisibleToTeam(uint16_t team, bool visible) {
+    const bool was_visible = visible_to_team[team];
+
+    visible_to_team[team] = visible;
+
+    // the computer players remember where the unit left their sight
+    if (was_visible && !visible && team != this->team) {
+        Ai_UnitHidden(this, team);
+    }
+}
+
 void UnitInfo::SetEnemy(UnitInfo* enemy) { enemy_unit = enemy; }
 
 UnitInfo* UnitInfo::GetEnemy() const { return enemy_unit.Get(); }
@@ -1862,7 +1873,7 @@ void UnitInfo::Move() {
             if (mine) {
                 mine->SetOrder(ORDER_EXPLODE);
                 mine->state = ORDER_STATE_EXPLODE;
-                mine->visible_to_team[team] = true;
+                mine->SetVisibleToTeam(team, true);
 
                 Ai_UnitSpotted(&*mine, team);
 
@@ -2702,7 +2713,7 @@ void UnitInfo::Attack(int32_t grid_x, int32_t grid_y) {
         target = Access_GetAttackTarget2(this, grid_x, grid_y);
 
         if (target) {
-            target->visible_to_team[team] = true;
+            target->SetVisibleToTeam(team, true);
 
         } else {
             enemy = Access_GetTeamUnit(grid_x, grid_y, team, SELECTABLE);
@@ -2793,20 +2804,20 @@ void UnitInfo::StartBuilding() {
 void UnitInfo::InitStealthStatus() {
     for (int32_t i = PLAYER_TEAM_RED; i < PLAYER_TEAM_MAX; ++i) {
         if (unit_type == LANDMINE || unit_type == SEAMINE || unit_type == COMMANDO || unit_type == SUBMARNE) {
-            visible_to_team[i] = 0;
+            SetVisibleToTeam(i, false);
         } else {
-            visible_to_team[i] = GameManager_AllVisible;
+            SetVisibleToTeam(i, GameManager_AllVisible);
         }
 
         spotted_by_team[i] = 0;
     }
 
-    visible_to_team[team] = 1;
+    SetVisibleToTeam(team, true);
 }
 
 void UnitInfo::SpotByTeam(uint16_t team) {
     if (this->team != team && orders != ORDER_IDLE && !visible_to_team[team]) {
-        visible_to_team[team] = true;
+        SetVisibleToTeam(team, true);
         spotted_by_team[team] = true;
 
         if (UnitsManager_TeamInfo[this->team].team_type == TEAM_TYPE_COMPUTER) {
@@ -2840,7 +2851,7 @@ void UnitInfo::Draw(uint16_t team) {
     if (this->team != team &&
         (visible_to_team[team] ||
          ((unit_type == COMMANDO || unit_type == SUBMARNE || unit_type == CLNTRANS) && image_base >= 8))) {
-        visible_to_team[team] = false;
+        SetVisibleToTeam(team, false);
 
         if (unit_type == COMMANDO || unit_type == SUBMARNE || unit_type == CLNTRANS) {
             for (team = PLAYER_TEAM_RED;
@@ -4834,10 +4845,10 @@ void UnitInfo::ChangeTeam(uint16_t target_team) {
     Access_UpdateMapStatus(this, false);
 
     if (UnitsManager_TeamInfo[team].heat_map) {
-        visible_to_team[team] = UnitsManager_TeamInfo[team].heat_map->GetComplete(grid_x, grid_y) > 0;
+        SetVisibleToTeam(team, UnitsManager_TeamInfo[team].heat_map->GetComplete(grid_x, grid_y) > 0);
 
     } else {
-        visible_to_team[team] = false;
+        SetVisibleToTeam(team, false);
     }
 
     flags &= ~UnitsManager_TeamInfo[team].team_units->hash_team_id;
@@ -4854,7 +4865,7 @@ void UnitInfo::ChangeTeam(uint16_t target_team) {
 
     Access_UpdateMapStatus(this, true);
 
-    visible_to_team[target_team] = true;
+    SetVisibleToTeam(target_team, true);
 
     Ai_UpdateTerrainDistanceField(this);
     Ai_UnitSpotted(this, old_team);

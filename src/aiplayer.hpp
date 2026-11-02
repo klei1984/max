@@ -199,6 +199,7 @@ public:
     bool ShouldUpgradeUnit(UnitInfo* unit);
     void RemoveUnit(UnitInfo* unit);
     void UnitSpotted(UnitInfo* unit);
+    void UnitHidden(UnitInfo* unit);
     bool MatchPath(TaskPathRequest* request);
     bool SelectStrategy();
     void FileSave(SmartFileWriter& file);

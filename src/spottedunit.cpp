@@ -56,23 +56,18 @@ Task* SpottedUnit::GetTask() const { return task.Get(); }
 
 void SpottedUnit::SetTask(Task* task_) { task = task_; }
 
-Point SpottedUnit::GetLastPosition() {
-    UpdatePositionIfVisible();
+Point SpottedUnit::GetLastPosition() const {
+    // a unit in sight is where it stands, one out of sight where the team saw it last
+    if (unit->IsVisibleToTeam(team)) {
+        return Point(unit->grid_x, unit->grid_y);
+    }
 
     return last_position;
 }
 
-int32_t SpottedUnit::GetLastPositionX() {
-    UpdatePositionIfVisible();
+int32_t SpottedUnit::GetLastPositionX() const { return GetLastPosition().x; }
 
-    return last_position.x;
-}
-
-int32_t SpottedUnit::GetLastPositionY() {
-    UpdatePositionIfVisible();
-
-    return last_position.y;
-}
+int32_t SpottedUnit::GetLastPositionY() const { return GetLastPosition().y; }
 
 void SpottedUnit::SetPosition(Point position) { last_position = position; }
 
@@ -81,13 +76,11 @@ void SpottedUnit::UpdatePosition() {
     last_position.y = unit->grid_y;
 }
 
-void SpottedUnit::UpdatePositionIfVisible() {
-    if (visible_to_team || unit->IsVisibleToTeam(team)) {
-        last_position.x = unit->grid_x;
-        last_position.y = unit->grid_y;
+// the unit came into or left the team's sight where it stands now
+void SpottedUnit::SetVisible(bool visible) {
+    visible_to_team = visible;
 
-        visible_to_team = unit->IsVisibleToTeam(team);
-    }
+    UpdatePosition();
 }
 
 UnitInfo* SpottedUnit::GetUnit() const { return unit.Get(); }

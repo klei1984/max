@@ -3617,7 +3617,7 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
         }
 
         if (spotted_unit != spotted_units.End()) {
-            (*spotted_unit).UpdatePosition();
+            (*spotted_unit).SetVisible(true);
 
         } else {
             SmartPointer<SpottedUnit> spotted_unit2(new (std::nothrow) SpottedUnit(unit, player_team));
@@ -3682,6 +3682,18 @@ void AiPlayer::UnitSpotted(UnitInfo* unit) {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+void AiPlayer::UnitHidden(UnitInfo* unit) {
+    if (unit->team != player_team &&
+        (!(unit->flags & GROUND_COVER) || unit->GetUnitType() == LANDMINE || unit->GetUnitType() == SEAMINE)) {
+        for (auto it = spotted_units.Begin(), it_end = spotted_units.End(); it != it_end; ++it) {
+            if ((*it).GetUnit() == unit) {
+                (*it).SetVisible(false);
+                break;
             }
         }
     }

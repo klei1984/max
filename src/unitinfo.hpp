@@ -238,6 +238,7 @@ public:
     void FileSave(SmartFileWriter& file) noexcept;
     static int32_t GetDrawLayer(ResourceID unit_type);
     bool IsVisibleToTeam(uint16_t team) const;
+    void SetVisibleToTeam(uint16_t team, bool visible);
     void SetEnemy(UnitInfo* enemy);
     UnitInfo* GetEnemy() const;
     uint16_t GetId() const;

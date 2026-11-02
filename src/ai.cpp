@@ -352,6 +352,12 @@ void Ai_UnitSpotted(UnitInfo* unit, uint16_t team) {
     TaskManager.AddSpottedUnit(unit);
 }
 
+void Ai_UnitHidden(UnitInfo* unit, uint16_t team) {
+    if (UnitsManager_TeamInfo[team].team_type == TEAM_TYPE_COMPUTER && (unit->flags & SELECTABLE)) {
+        AiPlayer_Teams[team].UnitHidden(unit);
+    }
+}
+
 void Ai_EvaluateAttackTargets(UnitInfo* unit) { TaskManager.CollectPotentialAttackTargets(unit); }
 
 void Ai_CheckComputerReactions() { TaskManager.CheckComputerReactions(); }

@@ -2071,7 +2071,7 @@ void Access_TriggerEnemyMine(uint16_t team, int32_t grid_x, int32_t grid_y) {
     if (mine) {
         mine->SetOrder(ORDER_EXPLODE);
         mine->SetOrderState(ORDER_STATE_EXPLODE);
-        mine->visible_to_team[team] = true;
+        mine->SetVisibleToTeam(team, true);
 
         Ai_UnitSpotted(&*mine, team);
     }

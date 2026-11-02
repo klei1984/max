@@ -42,12 +42,12 @@ public:
     Task* GetTask() const;
     void SetTask(Task* task);
 
-    Point GetLastPosition();
-    int32_t GetLastPositionX();
-    int32_t GetLastPositionY();
+    Point GetLastPosition() const;
+    int32_t GetLastPositionX() const;
+    int32_t GetLastPositionY() const;
     void SetPosition(Point position);
     void UpdatePosition();
-    void UpdatePositionIfVisible();
+    void SetVisible(bool visible);
 
     UnitInfo* GetUnit() const;
 
