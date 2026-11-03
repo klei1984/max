@@ -31,6 +31,7 @@ class MapHash {
     uint16_t x_shift;
     SmartList<MapHashObject>* entry;
 
+    void Init(uint16_t size);
     void AddEx(UnitInfo* unit, uint16_t grid_x, uint16_t grid_y, bool mode);
     void RemoveEx(UnitInfo* unit, uint16_t grid_x, uint16_t grid_y);
 
@@ -38,6 +39,8 @@ public:
     MapHash(uint16_t hash_size);
     ~MapHash();
 
+    // clears the hash and sizes it for the map
+    void SetMapSize(const Point& map_size);
     void Add(UnitInfo* unit, bool mode = false);
     void Remove(UnitInfo* unit);
     void Clear();

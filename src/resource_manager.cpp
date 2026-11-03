@@ -1186,6 +1186,8 @@ void ResourceManager_InitInGameAssets(int32_t world) {
 
     ResourceManager_MapSize = ResourceManager_ActiveWorld->GetMapSize();
 
+    Hash_MapHash.SetMapSize(ResourceManager_MapSize);
+
     ResourceManager_InitMainmapResources();
     ResourceManager_InitMinimapResources();
 

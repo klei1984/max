@@ -24,10 +24,11 @@
 #include "resource_manager.hpp"
 
 #define HASH_UNIT_HASH_SIZE 8192
-#define HASH_MAP_HASH_SIZE 512
+#define HASH_MAP_HASH_SIZE_MIN 512
+#define HASH_MAP_HASH_SIZE_MAX 32768
 
 UnitHash Hash_UnitHash(HASH_UNIT_HASH_SIZE);
-MapHash Hash_MapHash(HASH_MAP_HASH_SIZE);
+MapHash Hash_MapHash(HASH_MAP_HASH_SIZE_MIN);
 
 void SmartList_UnitInfo_FileLoad(SmartList<UnitInfo>& list, SmartFileReader& file) {
     list.Clear();
@@ -120,15 +121,34 @@ void MapHashObject::PushBack(UnitInfo* unit) { list.PushBack(*unit); }
 
 void MapHashObject::Remove(UnitInfo* unit) { list.Remove(*unit); }
 
-MapHash::MapHash(uint16_t hash_size)
-    : hash_size(hash_size), x_shift(0), entry(new (std::nothrow) SmartList<MapHashObject>[hash_size]) {
-    while (hash_size > 128) {
+MapHash::MapHash(uint16_t hash_size) : hash_size(0), x_shift(0), entry(nullptr) { Init(hash_size); }
+
+MapHash::~MapHash() { delete[] entry; }
+
+void MapHash::Init(uint16_t size) {
+    Clear();
+    delete[] entry;
+
+    hash_size = size;
+    x_shift = 0;
+    entry = new (std::nothrow) SmartList<MapHashObject>[hash_size];
+
+    while (size > 128) {
         ++x_shift;
-        hash_size >>= 1;
+        size >>= 1;
     }
 }
 
-MapHash::~MapHash() { delete[] entry; }
+void MapHash::SetMapSize(const Point& map_size) {
+    uint16_t size = HASH_MAP_HASH_SIZE_MIN;
+
+    // about 8 map cells per bucket
+    while (size < HASH_MAP_HASH_SIZE_MAX && size * 8 < map_size.x * map_size.y) {
+        size <<= 1;
+    }
+
+    Init(size);
+}
 
 void MapHash::AddEx(UnitInfo* unit, uint16_t grid_x, uint16_t grid_y, bool mode) {
     SmartList<MapHashObject>* list = &entry[(grid_y ^ (grid_x << x_shift)) % hash_size];
@@ -218,20 +238,21 @@ void MapHash::Clear() {
 }
 
 void MapHash::FileLoad(SmartFileReader& file) {
+    uint16_t saved_hash_size;
+    uint16_t saved_x_shift;
+
     Clear();
-    delete[] entry;
 
-    file.Read(hash_size);
-    file.Read(x_shift);
+    file.Read(saved_hash_size);
+    file.Read(saved_x_shift);
 
-    entry = new (std::nothrow) SmartList<MapHashObject>[hash_size];
-
-    for (uint32_t index = 0; index < hash_size; ++index) {
+    // saves of another hash size are rehashed into the size of the loaded map
+    for (uint32_t index = 0; index < saved_hash_size; ++index) {
         for (int64_t count = file.ReadObjectCount(); count; --count) {
             MapHashObject* object = new (std::nothrow) MapHashObject(0, 0);
 
             object->FileLoad(file);
-            entry[index].PushBack(*object);
+            entry[(object->GetY() ^ (object->GetX() << x_shift)) % hash_size].PushBack(*object);
         }
     }
 }
