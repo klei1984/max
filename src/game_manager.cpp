@@ -306,6 +306,7 @@ static void GameManager_DrawSelectSiteMessage(uint16_t team);
 static bool GameManager_SelectSite(uint16_t team);
 static void GameManager_InitMap();
 static void GameManager_GameSetup(int32_t game_state);
+static void GameManager_LogGameStart();
 static void GameManager_GameLoopCleanup();
 static uint16_t GameManager_EvaluateWinner();
 static void GameManager_AnnounceWinner(uint16_t team);
@@ -1976,6 +1977,12 @@ void GameManager_GameSetup(int32_t game_state) {
     mouse_set_position(WindowManager_GetWidth(window) / 2, WindowManager_GetHeight(window) / 2);
     mouse_show();
 
+    GameManager_LogGameStart();
+}
+
+/* Marks a new or loaded game in the AI log and starts its order log game.
+ */
+void GameManager_LogGameStart() {
 #if !defined(NDEBUG)
     if (const World* world = ResourceManager_GetActiveWorld()) {
         AILOG(log, "Game start on world {}, {}x{} map.", ResourceManager_GetResourceID(world->GetResourceId()),
@@ -3327,6 +3334,8 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
         GameManager_PlayFlic = false;
         GameManager_GameState = GAME_STATE_10_LOAD_GAME;
 
+        ORDER_LOG_GAME_END();
+
         UnitsManager_GroundCoverUnits.Clear();
         UnitsManager_MobileLandSeaUnits.Clear();
         UnitsManager_ParticleUnits.Clear();
@@ -3382,6 +3391,8 @@ bool GameManager_LoadGame(int32_t save_slot, Color* palette_buffer) {
         }
 
         if (load_successful) {
+            GameManager_LogGameStart();
+
             if (Remote_IsNetworkGame) {
                 Remote_WaitBeginTurnAcknowledge();
             }

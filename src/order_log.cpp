@@ -51,7 +51,7 @@
  * with # are comments. The header names the orders, order states, unit types and anomaly kinds.
  *
  * S tick turn play_mode team_type...  a game started or was loaded, followed by its baseline anomalies
- * E tick turn                          the game ended
+ * E tick turn                          the game ended or a loaded save replaced it
  * T tick turn active_team units        the turn or the active team changed
  * X tick id type team order0 state0 order1 state1 prior_order prior_state parent hits writer
  *                                      order or order state changed between two ticks, movement steps excluded,
