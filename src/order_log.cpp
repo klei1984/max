@@ -103,6 +103,7 @@ enum OrderLogAnomaly : uint8_t {
     ORDER_LOG_GHOST_DEAD,
     ORDER_LOG_GHOST_CELL,
     ORDER_LOG_HELD_ON_MAP,
+    ORDER_LOG_AIR_STACK,
     ORDER_LOG_LISTED_TWICE,
 };
 
@@ -110,7 +111,7 @@ static const char* const OrderLog_AnomalyNames[] = {
     "STALL",           "QUEUE_STALL",     "STORAGE",      "ORPHAN_HELD",   "ORPHAN_ENTERING",    "ORPHAN_LANDING",
     "ORPHAN_UTILITY",  "DANGLING_TARGET", "TARGET_MOVED", "TARGET_STORED", "DANGLING_PASSENGER", "PASSENGER_MOVED",
     "DANGLING_CLIENT", "PIN_NEGATIVE",    "PIN_STALE",    "ZOMBIE",        "DEAD_ACTIVE",        "GHOST_DEAD",
-    "GHOST_CELL",      "HELD_ON_MAP",     "LISTED_TWICE",
+    "GHOST_CELL",      "HELD_ON_MAP",     "AIR_STACK",    "LISTED_TWICE",
 };
 
 static const char* const OrderLog_AnomalyHelp[] = {
@@ -134,6 +135,7 @@ static const char* const OrderLog_AnomalyHelp[] = {
     "map hash holds a destroyed unit, a b = cell",
     "map hash holds a unit at a cell it does not occupy, a b = cell",
     "unit stored in a container is still in the map hash, a b = cell",
+    "aircraft at rest shares its cell with another one, a b = cell",
     "unit is listed a second time, a = list of the first entry, b = list of the second entry",
 };
 
@@ -634,6 +636,8 @@ static void OrderLog_CheckMapHash(bool is_baseline) noexcept {
             const auto units = Hash_MapHash[Point(grid_x, grid_y)];
 
             if (units) {
+                const UnitInfo* aircraft = nullptr;
+
                 for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                     const UnitInfo* unit = it->Get();
 
@@ -654,6 +658,15 @@ static void OrderLog_CheckMapHash(bool is_baseline) noexcept {
                         if (grid_x < unit->grid_x || grid_x >= unit->grid_x + size || grid_y < unit->grid_y ||
                             grid_y >= unit->grid_y + size) {
                             OrderLog_Report(ORDER_LOG_GHOST_CELL, unit, grid_x, grid_y, nullptr, is_baseline);
+
+                        } else if ((unit->flags & MOBILE_AIR_UNIT) && !OrderLog_IsBlockingEndTurn(unit)) {
+                            /* aircraft block each other's cells, the partner is the first one at rest there */
+                            if (aircraft) {
+                                OrderLog_Report(ORDER_LOG_AIR_STACK, unit, grid_x, grid_y, aircraft, is_baseline);
+
+                            } else {
+                                aircraft = unit;
+                            }
                         }
                     }
                 }
@@ -844,6 +857,14 @@ OrderLogTick::~OrderLogTick() noexcept {
 }
 
 uint32_t OrderLog_GetTick() noexcept { return OrderLog_TickInProgress.load(std::memory_order_relaxed); }
+
+const char* OrderLog_GetOrderName(uint32_t order) noexcept {
+    return order < std::size(OrderLog_OrderNames) ? OrderLog_OrderNames[order] : "?";
+}
+
+const char* OrderLog_GetStateName(uint32_t state) noexcept {
+    return state < std::size(OrderLog_StateNames) ? OrderLog_StateNames[state] : "?";
+}
 
 OrderLogIssuer::OrderLogIssuer(const void* issuer) noexcept {
     if (OrderLog_IssuerDepth++ == 0) {

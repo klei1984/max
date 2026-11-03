@@ -40,6 +40,10 @@ void OrderLog_NoteWrite(const UnitInfo* unit, const void* writer) noexcept;
 /* the tick in progress, its records in order_log.txt carry the same number, safe on any thread */
 uint32_t OrderLog_GetTick() noexcept;
 
+/* order and order state names as the header of order_log.txt lists them */
+const char* OrderLog_GetOrderName(uint32_t order) noexcept;
+const char* OrderLog_GetStateName(uint32_t state) noexcept;
+
 class OrderLogTick {
 public:
     OrderLogTick() noexcept;

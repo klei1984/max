@@ -33,6 +33,7 @@
 #include "builder.hpp"
 #include "game_manager.hpp"
 #include "hash.hpp"
+#include "order_log.hpp"
 #include "resource_manager.hpp"
 #include "task_manager.hpp"
 #include "taskfindpath.hpp"
@@ -217,8 +218,9 @@ bool TaskMove::Execute(UnitInfo& unit) {
     bool result;
 
     if (passenger == &unit) {
-        AILOG(log, "Move finished for {} at [{},{}].",
-              ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data(), unit.grid_x + 1, unit.grid_y + 1);
+        AILOG(log, "Move finished for {} id {} at [{},{}].",
+              ResourceManager_GetUnit(unit.GetUnitType()).GetSingularName().data(), unit.GetId(), unit.grid_x + 1,
+              unit.grid_y + 1);
 
         if (unit.IsReadyForOrders(this)) {
             if (UnitsManager_TeamInfo[passenger->team].team_type == TEAM_TYPE_COMPUTER) {
@@ -1003,9 +1005,15 @@ void TaskMove::MoveAirUnit() {
                         // the end node must be cached in case Hash_MapHash.Remove() deletes the list
                         for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                             if ((*it).flags & MOBILE_AIR_UNIT) {
-                                AILOG_LOG(log, "Blocked by {} at [{},{}]",
+                                AILOG_LOG(log,
+                                          "Blocked by {} id {} at [{},{}], order {}/{}, speed {}, destination [{},{}], "
+                                          "task '{}'",
                                           ResourceManager_GetUnit((*it).GetUnitType()).GetSingularName().data(),
-                                          (*it).grid_x + 1, (*it).grid_y + 1);
+                                          (*it).GetId(), (*it).grid_x + 1, (*it).grid_y + 1,
+                                          OrderLog_GetOrderName((*it).GetOrder()),
+                                          OrderLog_GetStateName((*it).GetOrderState()), (*it).speed,
+                                          (*it).move_to_grid_x + 1, (*it).move_to_grid_y + 1,
+                                          (*it).GetTask() ? (*it).GetTask()->WriteStatusLog() : std::string("none"));
 
                                 if ((*it).GetOrder() == ORDER_MOVE &&
                                     (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER) {
@@ -1050,10 +1058,10 @@ void TaskMove::MoveAirUnit() {
                         if ((*it).GetOrder() == ORDER_MOVE && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER &&
                             (*it).team == m_team && (*it).move_to_grid_x == passenger_waypoint.x &&
                             (*it).move_to_grid_y == passenger_waypoint.y) {
-                            AILOG_LOG(log, "[{},{}] is a destination for {} at [{},{}].", passenger_waypoint.x + 1,
-                                      passenger_waypoint.y + 1,
+                            AILOG_LOG(log, "[{},{}] is a destination for {} id {} at [{},{}].",
+                                      passenger_waypoint.x + 1, passenger_waypoint.y + 1,
                                       ResourceManager_GetUnit((*it).GetUnitType()).GetSingularName().data(),
-                                      (*it).grid_x + 1, (*it).grid_y + 1);
+                                      (*it).GetId(), (*it).grid_x + 1, (*it).grid_y + 1);
 
                             if (step_index) {
                                 flag = false;

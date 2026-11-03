@@ -23,6 +23,7 @@
 
 #include "access.hpp"
 #include "ai.hpp"
+#include "ailog.hpp"
 #include "aiplayer.hpp"
 #include "game_manager.hpp"
 #include "randomizer.hpp"
@@ -481,7 +482,13 @@ bool AiAttack_FindAttackSupport(UnitInfo* unit, SmartList<UnitInfo>* units, uint
                     if (((*it).GetBaseValues()->GetAttribute(ATTRIB_MOVE_AND_FIRE) &&
                          ResourceManager_GetSettings()->GetNumericValue("opponent") >= OPPONENT_TYPE_AVERAGE) ||
                         (AiPlayer_Teams[team].GetDamagePotential(it->Get(), position, caution_level) < (*it).hits)) {
-                        AiAttack_ProcessAttack(it->Get(), unit);
+                        if (!AiAttack_ProcessAttack(it->Get(), unit)) {
+                            AILOG(log, "Support by {} id {} at [{},{}] on {} id {} at [{},{}] was not ordered.",
+                                  ResourceManager_GetUnit((*it).GetUnitType()).GetSingularName().data(), (*it).GetId(),
+                                  (*it).grid_x + 1, (*it).grid_y + 1,
+                                  ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(), unit->GetId(),
+                                  unit->grid_x + 1, unit->grid_y + 1);
+                        }
 
                         result = true;
                     }
@@ -738,6 +745,12 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
                                 result = false;
 
                             } else if (target->AreTherePins()) {
+                                AILOG(log, "Attack by {} id {} at [{},{}] waits, {} id {} at [{},{}] has {} pins.",
+                                      ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(),
+                                      unit->GetId(), unit->grid_x + 1, unit->grid_y + 1,
+                                      ResourceManager_GetUnit(target->GetUnitType()).GetSingularName().data(),
+                                      target->GetId(), target->grid_x + 1, target->grid_y + 1, target->pin_count);
+
                                 SmartPointer<Task> wait_to_attack_task(new (std::nothrow) TaskWaitToAttack(unit));
 
                                 TaskManager.AppendTask(*wait_to_attack_task);
@@ -766,6 +779,15 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
                                             AiAttack_FindAttackSupport(target, &UnitsManager_MobileLandSeaUnits,
                                                                        unit->team,
                                                                        CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
+                                            AILOG(
+                                                log,
+                                                "Attack by {} id {} at [{},{}] on {} id {} at [{},{}] "
+                                                "waits for support.",
+                                                ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(),
+                                                unit->GetId(), unit->grid_x + 1, unit->grid_y + 1,
+                                                ResourceManager_GetUnit(target->GetUnitType()).GetSingularName().data(),
+                                                target->GetId(), target->grid_x + 1, target->grid_y + 1);
+
                                             return true;
                                         }
 
@@ -784,7 +806,18 @@ bool AiAttack_EvaluateAttack(UnitInfo* unit, bool mode) {
                                     }
                                 }
 
-                                AiAttack_ProcessAttack(unit, target);
+                                if (!AiAttack_ProcessAttack(unit, target)) {
+                                    AILOG(log,
+                                          "Attack by {} id {} at [{},{}] on {} id {} at [{},{}] was not ordered, "
+                                          "range {}, target {} sight, last seen at [{},{}].",
+                                          ResourceManager_GetUnit(unit->GetUnitType()).GetSingularName().data(),
+                                          unit->GetId(), unit->grid_x + 1, unit->grid_y + 1,
+                                          ResourceManager_GetUnit(target->GetUnitType()).GetSingularName().data(),
+                                          target->GetId(), target->grid_x + 1, target->grid_y + 1,
+                                          unit->GetBaseValues()->GetAttribute(ATTRIB_RANGE),
+                                          target->IsVisibleToTeam(unit->team) ? "in" : "out of",
+                                          spotted_unit->GetLastPositionX() + 1, spotted_unit->GetLastPositionY() + 1);
+                                }
 
                                 result = true;
                             }
