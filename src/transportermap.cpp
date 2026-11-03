@@ -48,7 +48,7 @@ bool TransporterMap::Search(Point site) {
         if (unit_type != INVALID_ID && (unit->flags & MOBILE_LAND_UNIT)) {
             const World* world = ResourceManager_GetActiveWorld();
             AccessMap access_map(world);
-            SmartPointer<UnitInfo> transporter(new (std::nothrow) UnitInfo(unit_type, unit->team, 0xFFFF));
+            SmartPointer<UnitInfo> transporter(new (std::nothrow) UnitInfo(unit_type, unit->team, UnitInfo::NO_ID));
             access_map.GetMap().Init(&*transporter, 0x01, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
             for (int32_t x = 0; x < ResourceManager_MapSize.x; ++x) {

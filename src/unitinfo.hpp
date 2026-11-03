@@ -98,6 +98,9 @@ public:
     static constexpr uint32_t AI_STATE_MOVE_FINISHED_REMINDER = 0x00000100;
     static constexpr uint32_t AI_STATE_RETREAT_REMINDER = 0x00000200;
 
+    // id of units that are not in the unit hash
+    static constexpr uint32_t NO_ID = UINT32_MAX;
+
     /**
      * The default constructor is only usable in special use cases.
      */
@@ -108,10 +111,10 @@ public:
      *
      * \param unit_type one of the ResourceID enum values below UNIT_END
      * \param team unit one of the PlayerTeamType enum values
-     * \param id unit hash between 0x0000 - 0xFFFE, 0xFFFF is the invalid id
+     * \param id unique unit id, NO_ID for units that are not in the unit hash
      * \param angle one of the UnitAngle enum values
      */
-    UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t angle = 0);
+    UnitInfo(ResourceID unit_type, uint16_t team, uint32_t id, uint8_t angle = 0);
 
     /** Copy constructor. */
     UnitInfo(const UnitInfo& other);
@@ -241,7 +244,7 @@ public:
     void SetVisibleToTeam(uint16_t team, bool visible);
     void SetEnemy(UnitInfo* enemy);
     UnitInfo* GetEnemy() const;
-    uint16_t GetId() const;
+    uint32_t GetId() const;
     UnitInfo* GetFirstFromUnitList() const;
     SmartList<UnitInfo>* GetUnitList() const;
     uint32_t GetAiStateBits() const;
@@ -453,7 +456,7 @@ public:
     SmartObjectArray<ResourceID> build_list;
     uint16_t build_rate;
     uint8_t repeat_build;
-    uint16_t id;
+    uint32_t id;
     SmartList<UnitInfo>* unit_list;
     SmartPointer<UnitInfo> enemy_unit;
     SmartList<Task> tasks;

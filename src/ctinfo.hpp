@@ -57,7 +57,6 @@ struct CTInfo {
         }
 
         team_points = 0;
-        number_of_objects_created = 0;
 
         for (auto& screen_location : screen_locations) {
             screen_location = {-1, -1};
@@ -105,7 +104,6 @@ struct CTInfo {
     uint8_t team_clan;
     ResearchTopic research_topics[RESEARCH_TOPIC_COUNT];
     uint32_t team_points;
-    uint16_t number_of_objects_created;
     ScreenLocation screen_locations[4];
     TeamUnits* team_units;
     SmartPointer<UnitInfo> selected_unit;

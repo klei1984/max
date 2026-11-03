@@ -2320,7 +2320,7 @@ uint16_t GameManager_GetCrc16(uint16_t data, uint16_t crc_checksum) {
 uint16_t GameManager_GetUnitListChecksum(SmartList<UnitInfo>* units, uint16_t team, uint16_t crc_checksum) {
     if (UnitsManager_TeamInfo[team].team_type != TEAM_TYPE_NONE || team == PLAYER_TEAM_ALIEN) {
         for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
-            if ((*it).GetId() != 0xFFFF && !((*it).flags & EXPLODING) && (*it).team == team) {
+            if ((*it).GetId() != UnitInfo::NO_ID && !((*it).flags & EXPLODING) && (*it).team == team) {
                 crc_checksum = GameManager_GetCrc16((*it).team, crc_checksum);
                 crc_checksum = GameManager_GetCrc16((*it).GetUnitType(), crc_checksum);
                 crc_checksum = GameManager_GetCrc16((*it).unit_id, crc_checksum);

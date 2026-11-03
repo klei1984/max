@@ -237,7 +237,7 @@ struct OrderLogStep {
 };
 
 struct OrderLogShadow {
-    uint16_t id;
+    uint32_t id;
     uint16_t unit_type;
     uint8_t order;
     uint8_t state;
@@ -390,7 +390,7 @@ static bool OrderLog_Open() noexcept {
 }
 
 static bool OrderLog_IsAlive(const UnitInfo* unit) noexcept {
-    return unit->GetId() != 0xFFFF && Hash_UnitHash[unit->GetId()] == unit;
+    return unit->GetId() != UnitInfo::NO_ID && Hash_UnitHash[unit->GetId()] == unit;
 }
 
 static bool OrderLog_IsStored(const UnitInfo* unit) noexcept {
@@ -637,7 +637,7 @@ static void OrderLog_CheckMapHash(bool is_baseline) noexcept {
                 for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                     const UnitInfo* unit = it->Get();
 
-                    if (unit->GetId() == 0xFFFF) {
+                    if (unit->GetId() == UnitInfo::NO_ID) {
                         continue;
                     }
 

@@ -36,6 +36,8 @@ extern uint16_t UnitsManager_DelayedReactionsTeam;
 
 extern uint32_t UnitsManager_DelayedReactionsSyncCounter;
 
+extern uint32_t UnitsManager_UnitIdCounter;
+
 extern SmartList<UnitInfo> UnitsManager_GroundCoverUnits;
 extern SmartList<UnitInfo> UnitsManager_MobileLandSeaUnits;
 extern SmartList<UnitInfo> UnitsManager_ParticleUnits;

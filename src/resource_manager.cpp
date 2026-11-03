@@ -1339,6 +1339,8 @@ void ResourceManager_InitTeamInfo() {
         }
     }
 
+    UnitsManager_UnitIdCounter = 0;
+
     ResourceManager_TeamUnitsRed.ClearComplexes();
     ResourceManager_TeamUnitsGreen.ClearComplexes();
     ResourceManager_TeamUnitsBlue.ClearComplexes();

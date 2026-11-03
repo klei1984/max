@@ -61,7 +61,7 @@ public:
     int16_t grid_y{-1};
     int16_t priority{0};
     int32_t sound{Unit::SFX_TYPE_INVALID};
-    uint16_t unit_id{0xFFFF};
+    uint32_t unit_id{UnitInfo::NO_ID};
 };
 
 class SoundSample : public SmartObject {
@@ -293,7 +293,7 @@ void SoundManager::FreeSfx(UnitInfo* const unit) noexcept {
 
     m_sfx = nullptr;
 
-    const uint16_t unit_id = unit->GetId();
+    const uint32_t unit_id = unit->GetId();
 
     unit->SetSfxType(Unit::SFX_TYPE_INVALID);
 

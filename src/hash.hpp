@@ -63,7 +63,7 @@ public:
     void FileLoad(SmartFileReader& file);
     void FileSave(SmartFileWriter& file);
 
-    UnitInfo* operator[](const uint16_t& key);
+    UnitInfo* operator[](const uint32_t& key);
 };
 
 extern UnitHash Hash_UnitHash;

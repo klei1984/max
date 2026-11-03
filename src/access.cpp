@@ -1568,7 +1568,8 @@ UnitInfo* Access_GetUnit2(int32_t grid_x, int32_t grid_y, uint16_t team) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
             for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).team == team && ((*it).flags & SELECTABLE) && !((*it).flags & (HOVERING | GROUND_COVER)) &&
-                    (*it).GetUnitType() != LANDPAD && (*it).GetOrder() != ORDER_IDLE && (*it).GetId() != 0xFFFF) {
+                    (*it).GetUnitType() != LANDPAD && (*it).GetOrder() != ORDER_IDLE &&
+                    (*it).GetId() != UnitInfo::NO_ID) {
                     unit = it->Get();
                     break;
                 }
@@ -1814,8 +1815,8 @@ UnitInfo* Access_GetTeamUnit(int32_t grid_x, int32_t grid_y, uint16_t team, uint
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
             for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                 if ((*it).team == team && ((*it).flags & flags) && (*it).GetOrder() != ORDER_IDLE &&
-                    (*it).GetId() != 0xFFFF && (*it).GetUnitType() != LRGTAPE && (*it).GetUnitType() != SMLTAPE &&
-                    !((*it).flags & GROUND_COVER)) {
+                    (*it).GetId() != UnitInfo::NO_ID && (*it).GetUnitType() != LRGTAPE &&
+                    (*it).GetUnitType() != SMLTAPE && !((*it).flags & GROUND_COVER)) {
                     unit = *it;
                     break;
                 }
@@ -1825,7 +1826,7 @@ UnitInfo* Access_GetTeamUnit(int32_t grid_x, int32_t grid_y, uint16_t team, uint
                 // the end node must be cached in case Hash_MapHash.Remove() deletes the list
                 for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
                     if ((*it).team == team && ((*it).flags & flags) && (*it).GetOrder() != ORDER_IDLE &&
-                        (*it).GetId() != 0xFFFF) {
+                        (*it).GetId() != UnitInfo::NO_ID) {
                         unit = *it;
                         break;
                     }
@@ -2166,7 +2167,7 @@ UnitInfo* Access_GetTeamBuilding(uint16_t team, int32_t grid_x, int32_t grid_y) 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
             for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
-                if ((*it).team == team && (*it).GetOrder() != ORDER_IDLE && (*it).GetId() != 0xFFFF &&
+                if ((*it).team == team && (*it).GetOrder() != ORDER_IDLE && (*it).GetId() != UnitInfo::NO_ID &&
                     (((*it).flags & (CONNECTOR_UNIT | STANDALONE)) ||
                      (((*it).flags) & (GROUND_COVER | BUILDING)) == BUILDING)) {
                     unit = it->Get();

@@ -170,7 +170,7 @@ UnitInfo::UnitInfo()
       turret_image_index(0),
       ai_state_bits(0) {}
 
-UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t angle)
+UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint32_t id, uint8_t angle)
     : name(nullptr),
       sound(Unit::SFX_TYPE_INVALID),
       unit_type(unit_type),
@@ -311,7 +311,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint16_t id, uint8_t ang
 
     InitStealthStatus();
 
-    if ((flags & (CONNECTOR_UNIT | BUILDING | STANDALONE)) && !(flags & GROUND_COVER) && id != 0xFFFF) {
+    if ((flags & (CONNECTOR_UNIT | BUILDING | STANDALONE)) && !(flags & GROUND_COVER) && id != NO_ID) {
         AttachComplex(CreateComplex(team));
     }
 }
@@ -594,7 +594,7 @@ void UnitInfo::SetEnemy(UnitInfo* enemy) { enemy_unit = enemy; }
 
 UnitInfo* UnitInfo::GetEnemy() const { return enemy_unit.Get(); }
 
-uint16_t UnitInfo::GetId() const { return id; }
+uint32_t UnitInfo::GetId() const { return id; }
 
 UnitInfo* UnitInfo::GetFirstFromUnitList() const {
     UnitInfo* result;
@@ -1311,7 +1311,7 @@ void UnitInfo::SetPosition(int32_t grid_x, int32_t grid_y, bool skip_map_status_
 
     Hash_MapHash.Add(this, flags & GROUND_COVER);
 
-    if (!skip_map_status_update && ((GetId() != 0xFFFF) || (flags & (EXPLODING | MISSILE_UNIT)))) {
+    if (!skip_map_status_update && ((GetId() != NO_ID) || (flags & (EXPLODING | MISSILE_UNIT)))) {
         Access_UpdateMapStatus(this, true);
     }
 
@@ -2329,7 +2329,18 @@ void UnitInfo::DetachComplex() {
 
 void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
     file.Read(unit_type);
-    file.Read(id);
+
+    if (file.GetFormat() == SmartFileFormat::V70) {
+        uint16_t id_v70;
+
+        file.Read(id_v70);
+
+        id = (id_v70 == 0xFFFF) ? NO_ID : id_v70;
+
+    } else {
+        file.Read(id);
+    }
+
     file.Read(flags);
     file.Read(x);
     file.Read(y);

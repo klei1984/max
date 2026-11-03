@@ -47,7 +47,7 @@ void TaskScavenge::AddUnit(UnitInfo& unit) {
 
 void TaskScavenge::BeginTurn() {
     if (units.GetCount() == 0 && !wait_for_unit) {
-        SmartPointer<UnitInfo> dummy_unit(new (std::nothrow) UnitInfo(BULLDOZR, m_team, 0xFFFF));
+        SmartPointer<UnitInfo> dummy_unit(new (std::nothrow) UnitInfo(BULLDOZR, m_team, UnitInfo::NO_ID));
 
         for (auto it = UnitsManager_GroundCoverUnits.Begin(), it_end = UnitsManager_GroundCoverUnits.End();
              it != it_end; ++it) {

@@ -76,12 +76,12 @@ struct Packet23Data {
     uint8_t prior_orders;
     uint8_t prior_state;
     bool disabled_reaction_fire;
-    uint16_t parent_unit_id;
+    uint32_t parent_unit_id;
     int16_t move_to_grid_x;
     int16_t move_to_grid_y;
     int16_t fire_on_grid_x;
     int16_t fire_on_grid_y;
-    uint16_t enemy_unit_id;
+    uint32_t enemy_unit_id;
     uint8_t total_mining;
     uint8_t raw_mining;
     uint8_t fuel_mining;
@@ -131,7 +131,7 @@ static uint8_t Remote_LeaveGameRequestId[TRANSPORT_MAX_TEAM_COUNT];
 static uint8_t Remote_TurnIndices[TRANSPORT_MAX_TEAM_COUNT];
 static uint8_t Remote_NextTurnIndices[TRANSPORT_MAX_TEAM_COUNT];
 static uint16_t Remote_TeamDataCrc16[TRANSPORT_MAX_TEAM_COUNT];
-static uint16_t Remote_P23_UnitId;
+static uint32_t Remote_P23_UnitId;
 static NetPacket Remote_P23_Packet;
 static bool Remote_P24_Signals[TRANSPORT_MAX_TEAM_COUNT];
 static bool Remote_P49_Signal;
@@ -169,7 +169,7 @@ static bool Remote_DrawBarrierWaitIndicator(bool is_drawn, uint64_t time_stamp);
 static void Remote_ClearBarrierWaitIndicator(bool is_drawn);
 static void Remote_CreateNetPacket_23(UnitInfo* unit, NetPacket& packet);
 static void Remote_ProcessNetPacket_23(struct Packet23Data& data, NetPacket& packet);
-static void Remote_NetErrorUnknownUnit(uint16_t unit_id);
+static void Remote_NetErrorUnknownUnit(uint32_t unit_id);
 static void Remote_NetErrorUnitInfoOutOfSync(UnitInfo* unit, NetPacket& packet);
 
 static void Remote_SendNetPacket_07(uint16_t team, bool mode);
@@ -417,7 +417,7 @@ void Remote_OrderProcessor2_Write(UnitInfo* unit, NetPacket& packet) {
         packet << unit->GetParent()->GetId();
 
     } else {
-        packet << static_cast<uint16_t>(0);
+        packet << static_cast<uint32_t>(0);
     }
 
     packet << unit->experience;
@@ -426,7 +426,7 @@ void Remote_OrderProcessor2_Write(UnitInfo* unit, NetPacket& packet) {
 void Remote_OrderProcessor2_Read(UnitInfo* unit, NetPacket& packet) {
     Remote_OrderProcessor1_Read(unit, packet);
 
-    uint16_t unit_id;
+    uint32_t unit_id;
 
     packet >> unit_id;
 
@@ -452,7 +452,7 @@ void Remote_OrderProcessor3_Write(UnitInfo* unit, NetPacket& packet) {
         packet << unit->GetEnemy()->GetId();
 
     } else {
-        packet << static_cast<uint16_t>(0);
+        packet << static_cast<uint32_t>(0);
     }
 
     packet << unit->transfer_cargo;
@@ -466,7 +466,7 @@ void Remote_OrderProcessor3_Read(UnitInfo* unit, NetPacket& packet) {
     packet >> unit->move_to_grid_y;
     packet >> unit->fire_on_grid_x;
     packet >> unit->fire_on_grid_y;
-    uint16_t unit_id;
+    uint32_t unit_id;
 
     packet >> unit_id;
 
@@ -1275,7 +1275,7 @@ void Remote_ProcessNetPackets() {
     };
 }
 
-void Remote_NetErrorUnknownUnit(uint16_t unit_id) {
+void Remote_NetErrorUnknownUnit(uint32_t unit_id) {
     char message[100];
 
     sprintf(message, _(ef35), unit_id);
@@ -2015,7 +2015,7 @@ void Remote_SendNetPacket_08(UnitInfo* unit) {
     NetPacket packet;
 
     packet << static_cast<uint8_t>(REMOTE_PACKET_08);
-    packet << static_cast<uint16_t>(unit->GetId());
+    packet << unit->GetId();
 
     if (unit->GetOrder() >= ORDER_COUNT_MAX) {
         AILOG(log, "Remote: Refusing to transmit unit {} with out of range order {}.\n", unit->GetId(),
@@ -2030,7 +2030,7 @@ void Remote_SendNetPacket_08(UnitInfo* unit) {
 }
 
 void Remote_ReceiveNetPacket_08(NetPacket& packet) {
-    uint16_t entity_id;
+    uint32_t entity_id;
 
     packet >> entity_id;
 
@@ -2712,7 +2712,7 @@ void Remote_SendNetPacket_20(UnitInfo* unit) {
     SmartPointer<UnitValues> unit_values(unit->GetBaseValues());
 
     packet << static_cast<uint8_t>(REMOTE_PACKET_20);
-    packet << static_cast<uint16_t>(unit->GetId());
+    packet << unit->GetId();
 
     packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_TURNS));
     packet << static_cast<uint16_t>(unit_values->GetAttribute(ATTRIB_HITS));
@@ -2732,7 +2732,7 @@ void Remote_SendNetPacket_20(UnitInfo* unit) {
 }
 
 void Remote_ReceiveNetPacket_20(NetPacket& packet) {
-    uint16_t entity_id;
+    uint32_t entity_id;
     uint16_t value;
 
     packet >> entity_id;
@@ -2816,7 +2816,7 @@ void Remote_CreateNetPacket_23(UnitInfo* unit, NetPacket& packet) {
 void Remote_ProcessNetPacket_23(struct Packet23Data& data, NetPacket& packet) {
     NetPacket local;
     uint8_t packet_type;
-    uint16_t entity_id;
+    uint32_t entity_id;
 
     local.Write(packet.GetBuffer(), packet.GetDataSize());
 
@@ -2872,7 +2872,7 @@ void Remote_SendNetPacket_23(UnitInfo* unit) {
 }
 
 void Remote_ReceiveNetPacket_23(NetPacket& packet) {
-    uint16_t entity_id;
+    uint32_t entity_id;
 
     packet >> entity_id;
 
@@ -2881,7 +2881,7 @@ void Remote_ReceiveNetPacket_23(NetPacket& packet) {
     Remote_P23_Packet.Reset();
 
     Remote_P23_Packet << static_cast<uint8_t>(REMOTE_PACKET_23);
-    Remote_P23_Packet << static_cast<uint16_t>(entity_id);
+    Remote_P23_Packet << entity_id;
 
     Remote_P23_Packet.Write(packet.GetBuffer(), packet.GetDataSize());
 }
@@ -3318,7 +3318,7 @@ void Remote_SendNetPacket_38(UnitInfo* unit) {
     NetPacket packet;
 
     packet << static_cast<uint8_t>(REMOTE_PACKET_38);
-    packet << static_cast<uint16_t>(unit->GetId());
+    packet << unit->GetId();
 
     packet << unit->GetOrder();
     packet << unit->GetOrderState();
@@ -3357,7 +3357,7 @@ void Remote_SendNetPacket_38(UnitInfo* unit) {
 }
 
 void Remote_ReceiveNetPacket_38(NetPacket& packet) {
-    uint16_t entity_id;
+    uint32_t entity_id;
 
     packet >> entity_id;
 
@@ -3443,14 +3443,14 @@ void Remote_SendNetPacket_41(UnitInfo* unit, bool mode) {
     NetPacket packet;
 
     packet << static_cast<uint8_t>(REMOTE_PACKET_41);
-    packet << static_cast<uint16_t>(unit->GetId());
+    packet << unit->GetId();
     packet << mode;
 
     Remote_TransmitPacket(packet, REMOTE_MULTICAST);
 }
 
 void Remote_ReceiveNetPacket_41(NetPacket& packet) {
-    uint16_t entity_id;
+    uint32_t entity_id;
     bool mode;
 
     packet >> entity_id;
@@ -3485,7 +3485,7 @@ void Remote_SendNetPacket_43(UnitInfo* unit, const char* name) {
     NetPacket packet;
 
     packet << static_cast<uint8_t>(REMOTE_PACKET_43);
-    packet << static_cast<uint16_t>(unit->GetId());
+    packet << unit->GetId();
 
     packet << SmartString(name);
 
@@ -3493,7 +3493,7 @@ void Remote_SendNetPacket_43(UnitInfo* unit, const char* name) {
 }
 
 void Remote_ReceiveNetPacket_43(NetPacket& packet) {
-    uint16_t entity_id;
+    uint32_t entity_id;
 
     packet >> entity_id;
 
@@ -3665,13 +3665,13 @@ void Remote_SendNetPacket_50(UnitInfo* unit) {
     NetPacket packet;
 
     packet << static_cast<uint8_t>(REMOTE_PACKET_50);
-    packet << static_cast<uint16_t>(unit->GetId());
+    packet << unit->GetId();
 
     Remote_TransmitPacket(packet, REMOTE_MULTICAST);
 }
 
 void Remote_ReceiveNetPacket_50(NetPacket& packet) {
-    uint16_t entity_id;
+    uint32_t entity_id;
 
     packet >> entity_id;
 

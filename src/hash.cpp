@@ -23,10 +23,11 @@
 
 #include "resource_manager.hpp"
 
-#define HASH_HASH_SIZE 512
+#define HASH_UNIT_HASH_SIZE 8192
+#define HASH_MAP_HASH_SIZE 512
 
-UnitHash Hash_UnitHash(HASH_HASH_SIZE);
-MapHash Hash_MapHash(HASH_HASH_SIZE);
+UnitHash Hash_UnitHash(HASH_UNIT_HASH_SIZE);
+MapHash Hash_MapHash(HASH_MAP_HASH_SIZE);
 
 void SmartList_UnitInfo_FileLoad(SmartList<UnitInfo>& list, SmartFileReader& file) {
     list.Clear();
@@ -292,17 +293,23 @@ void UnitHash::Clear() {
 }
 
 void UnitHash::FileLoad(SmartFileReader& file) {
+    uint16_t saved_hash_size;
+
     Clear();
-    delete[] list;
 
-    file.Read(hash_size);
+    file.Read(saved_hash_size);
 
-    SDL_assert(hash_size > 0);
+    SDL_assert(saved_hash_size > 0);
 
-    list = new (std::nothrow) SmartList<UnitInfo>[hash_size];
+    // saves of another hash size are rehashed
+    for (int32_t index = 0; index < saved_hash_size; ++index) {
+        SmartList<UnitInfo> units;
 
-    for (int32_t index = 0; index < hash_size; ++index) {
-        SmartList_UnitInfo_FileLoad(list[index], file);
+        SmartList_UnitInfo_FileLoad(units, file);
+
+        for (auto unit = units.Begin(), unit_end = units.End(); unit != unit_end; ++unit) {
+            PushBack(unit->Get());
+        }
     }
 }
 
@@ -314,7 +321,7 @@ void UnitHash::FileSave(SmartFileWriter& file) {
     }
 }
 
-UnitInfo* UnitHash::operator[](const uint16_t& key) {
+UnitInfo* UnitHash::operator[](const uint32_t& key) {
     const auto& units = list[key % hash_size];
 
     for (auto unit = units.Begin(), unit_end = units.End(); unit != unit_end; ++unit) {

@@ -100,7 +100,7 @@ void PathRequest::CreateTransport(ResourceID unit_type) {
     if (unit_type != INVALID_ID) {
         AILOG(log, "Use {}.", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
-        transporter = new (std::nothrow) UnitInfo(unit_type, client->team, 0xFFFF);
+        transporter = new (std::nothrow) UnitInfo(unit_type, client->team, UnitInfo::NO_ID);
 
     } else {
         transporter = nullptr;

@@ -283,7 +283,7 @@ bool TaskKillUnit::GetNewUnits() {
                         if (unit_type != INVALID_ID) {
                             AILOG_LOG(log, "adding {}", ResourceManager_GetUnit(unit_type).GetSingularName().data());
 
-                            unit = new (std::nothrow) UnitInfo(unit_type, m_team, 0xFFFF);
+                            unit = new (std::nothrow) UnitInfo(unit_type, m_team, UnitInfo::NO_ID);
 
                             remaining_hits -= GetProjectedDamage(&*unit, spotted_unit->GetUnit());
 

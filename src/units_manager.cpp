@@ -202,6 +202,9 @@ bool UnitsManager_DelayedReactionsPending;
 uint16_t UnitsManager_DelayedReactionsTeam;
 uint32_t UnitsManager_DelayedReactionsSyncCounter;
 
+// the last unit id handed out, ids are never reused within a game
+uint32_t UnitsManager_UnitIdCounter;
+
 bool UnitsManager_OrdersPending;
 bool UnitsManager_CombatEffectsActive;
 
@@ -2225,7 +2228,7 @@ void UnitsManager_DestroyUnit(UnitInfo* unit, bool count_casualty) {
           unit->grid_x + 1, unit->grid_y + 1);
 
     // Count casualties for this unit and any units it's holding
-    if (count_casualty && unit->GetId() != 0xFFFF && !(unit->flags & (EXPLODING | MISSILE_UNIT)) &&
+    if (count_casualty && unit->GetId() != UnitInfo::NO_ID && !(unit->flags & (EXPLODING | MISSILE_UNIT)) &&
         (unit->flags & SELECTABLE)) {
         const ResourceID unit_type = unit->GetUnitType();
 
@@ -2311,13 +2314,13 @@ void UnitsManager_DestroyUnit(UnitInfo* unit, bool count_casualty) {
 
     UnitsManager_RemoveUnitFromUnitLists(unit);
 
-    if (unit->GetId() != 0xFFFF || (unit->flags & (EXPLODING | MISSILE_UNIT))) {
+    if (unit->GetId() != UnitInfo::NO_ID || (unit->flags & (EXPLODING | MISSILE_UNIT))) {
         Access_UpdateMapStatus(unit, false);
     }
 
     Hash_UnitHash.Remove(unit);
 
-    if (unit->GetId() != 0xFFFF && !(unit->flags & (EXPLODING | MISSILE_UNIT))) {
+    if (unit->GetId() != UnitInfo::NO_ID && !(unit->flags & (EXPLODING | MISSILE_UNIT))) {
         Ai_RemoveUnit(unit);
     }
 
@@ -2349,19 +2352,15 @@ void UnitsManager_RemoveUnitFromUnitLists(UnitInfo* unit) {
 SmartPointer<UnitInfo> UnitsManager_DeployUnit(ResourceID unit_type, uint16_t team, Complex* complex, int32_t grid_x,
                                                int32_t grid_y, uint8_t unit_angle, bool is_existing_unit,
                                                bool skip_map_status_update) {
-    uint16_t id;
+    uint32_t id;
     UnitInfo* unit;
 
-    id = 0xFFFF;
+    id = UnitInfo::NO_ID;
 
     if (!is_existing_unit) {
-        ++UnitsManager_TeamInfo[team].number_of_objects_created;
+        SDL_assert(UnitsManager_UnitIdCounter < UnitInfo::NO_ID - 1);
 
-        if (UnitsManager_TeamInfo[team].number_of_objects_created >= 0x1FFF) {
-            UnitsManager_TeamInfo[team].number_of_objects_created = 1;
-        }
-
-        id = UnitsManager_TeamInfo[team].number_of_objects_created + (team << 13);
+        id = ++UnitsManager_UnitIdCounter;
     }
 
     unit = new (std::nothrow) UnitInfo(unit_type, team, id, unit_angle);
