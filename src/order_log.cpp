@@ -731,7 +731,14 @@ static void OrderLog_Scan(bool is_baseline) noexcept {
 
     OrderLog_CheckContainers(is_baseline);
 
-    std::erase_if(OrderLog_Shadows, [](const auto& item) { return item.second.seen_tick != OrderLog_Tick; });
+    for (auto it = OrderLog_Shadows.begin(); it != OrderLog_Shadows.end();) {
+        if (it->second.seen_tick != OrderLog_Tick) {
+            it = OrderLog_Shadows.erase(it);
+
+        } else {
+            ++it;
+        }
+    }
 
     if (UnitsManager_PendingAttacks.GetCount() > 0) {
         const UnitInfo* head = UnitsManager_PendingAttacks.Begin()->Get();
