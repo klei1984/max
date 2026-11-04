@@ -66,7 +66,6 @@ private:
     void AttachComplex(Complex* complex);
     void TestConnections();
     UnitInfo* GetFirstUntestedConnection();
-    void UpdatePinsFromLists(int32_t grid_x, int32_t grid_y, SmartList<UnitInfo>* units, int32_t pin_units);
     void AttackAreaTargets(int32_t grid_x, int32_t grid_y);
     void RadarPing();
     void UpgradeInt();
@@ -100,6 +99,12 @@ public:
 
     // id of units that are not in the unit hash
     static constexpr uint32_t NO_ID = UINT32_MAX;
+
+    // a unit that an area attack reaches, with the distance of its cell nearest to the impact
+    struct AreaTarget {
+        SmartPointer<UnitInfo> unit;
+        int32_t distance;
+    };
 
     /**
      * The default constructor is only usable in special use cases.
@@ -284,6 +289,7 @@ public:
     void DetachComplex();
     void UpdateTurretAngle(int32_t turret_angle, bool redraw = false);
     void UpdatePinCount(int32_t grid_x, int32_t grid_y, int32_t pin_units);
+    std::vector<AreaTarget> GetAreaAttackTargets(int32_t grid_x, int32_t grid_y);
     void Attack(int32_t grid_x, int32_t grid_y);
     SmartPointer<UnitInfo> MakeCopy();
     void MoveFinished(bool mode = true);

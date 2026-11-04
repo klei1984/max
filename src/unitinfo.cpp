@@ -1320,9 +1320,10 @@ void UnitInfo::SetPosition(int32_t grid_x, int32_t grid_y, bool skip_map_status_
 
 void UnitInfo::UpdatePinCount(int32_t grid_x, int32_t grid_y, int32_t pin_units) {
     if (base_values->GetAttribute(ATTRIB_ATTACK_RADIUS)) {
-        UpdatePinsFromLists(grid_x, grid_y, &UnitsManager_GroundCoverUnits, pin_units);
-        UpdatePinsFromLists(grid_x, grid_y, &UnitsManager_StationaryUnits, pin_units);
-        UpdatePinsFromLists(grid_x, grid_y, &UnitsManager_MobileLandSeaUnits, pin_units);
+        // the units that the blast reaches
+        for (const auto& target : GetAreaAttackTargets(grid_x, grid_y)) {
+            target.unit->pin_count += pin_units;
+        }
 
     } else {
         SmartPointer<UnitInfo> target(Access_GetAttackTarget(this, grid_x, grid_y));
@@ -3916,40 +3917,52 @@ int32_t UnitInfo::GetAttackRange() {
     return result;
 }
 
-void UnitInfo::UpdatePinsFromLists(int32_t grid_x, int32_t grid_y, SmartList<UnitInfo>* units, int32_t pin_units) {
-    int32_t attack_radius = base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
+std::vector<UnitInfo::AreaTarget> UnitInfo::GetAreaAttackTargets(int32_t grid_x, int32_t grid_y) {
+    std::vector<AreaTarget> targets;
+    ZoneWalker walker(Point(grid_x, grid_y), base_values->GetAttribute(ATTRIB_ATTACK_RADIUS));
 
-    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
-        if (((*it).flags & SELECTABLE) && Access_IsWithinAttackRange(it->Get(), grid_x, grid_y, attack_radius) &&
-            Access_IsValidAttackTarget(this, it->Get(), Point(grid_x, grid_y))) {
-            (*it).pin_count += pin_units;
-        }
-    }
-}
-
-void UnitInfo::AttackAreaTargets(int32_t grid_x, int32_t grid_y) {
-    int32_t attack_radius = base_values->GetAttribute(ATTRIB_ATTACK_RADIUS);
-    ZoneWalker walker(Point(grid_x, grid_y), attack_radius);
-
-    // Iterate through all grid positions within the attack radius
+    // the map hash lists a building on each of its cells, but it is one target
     do {
         Point* location = walker.GetCurrentLocation();
         SmartList<UnitInfo>* units_at_position = Hash_MapHash[*location];
 
         if (units_at_position) {
-            // Cache the end iterator in case Hash_MapHash.Remove() deletes the list during iteration
+            const int32_t distance = Access_GetApproximateDistance(location->x - grid_x, location->y - grid_y);
+
             for (auto it = units_at_position->Begin(), it_end = units_at_position->End(); it != it_end; ++it) {
                 if (((*it).flags & SELECTABLE) && Access_IsValidAttackTarget(this, it->Get(), Point(grid_x, grid_y))) {
-                    if (((*it).unit_type != BRIDGE && (*it).unit_type != WTRPLTFM) ||
-                        !Access_IsUnitBusyAtLocation(it->Get())) {
-                        (*it).AttackUnit(this,
-                                         Access_GetApproximateDistance((*it).grid_x - grid_x, (*it).grid_y - grid_y),
-                                         UnitsManager_GetTargetAngle((*it).grid_x - grid_x, (*it).grid_y - grid_y));
+                    AreaTarget* target = nullptr;
+
+                    for (auto& item : targets) {
+                        if (item.unit == it->Get()) {
+                            target = &item;
+                            break;
+                        }
+                    }
+
+                    if (!target) {
+                        targets.push_back({it->Get(), distance});
+
+                    } else if (distance < target->distance) {
+                        target->distance = distance;
                     }
                 }
             }
         }
     } while (walker.FindNext());
+
+    return targets;
+}
+
+void UnitInfo::AttackAreaTargets(int32_t grid_x, int32_t grid_y) {
+    for (const auto& target : GetAreaAttackTargets(grid_x, grid_y)) {
+        if ((target.unit->unit_type != BRIDGE && target.unit->unit_type != WTRPLTFM) ||
+            !Access_IsUnitBusyAtLocation(target.unit.Get())) {
+            target.unit->AttackUnit(
+                this, target.distance,
+                UnitsManager_GetTargetAngle(target.unit->grid_x - grid_x, target.unit->grid_y - grid_y));
+        }
+    }
 }
 
 void UnitInfo::UpgradeInt() {
