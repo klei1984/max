@@ -60,6 +60,8 @@ class TaskManager {
     SmartList<TaskObtainUnits> unit_requests;
     SmartList<Reminder> normal_reminders;
     SmartList<Reminder> priority_reminders;
+    // reminders that wait for the next ExecuteReminders() call
+    SmartList<Reminder> deferred_reminders;
     // units whose reaction check waits until they can act
     SmartList<UnitInfo> units_awaiting_reaction;
     uint32_t reminder_counter;
@@ -152,6 +154,10 @@ public:
      * \param priority If true, adds to priority queue for critical operations. Default is false.
      */
     void AppendReminder(Reminder* reminder, bool priority = false);
+
+    /* Schedules a reminder for the next ExecuteReminders() call, for a task that waits for units to move.
+     */
+    void AppendDeferredReminder(Reminder* reminder);
 
     /**
      * \brief Executes pending task callbacks (reminders) in priority order.

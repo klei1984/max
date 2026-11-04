@@ -1019,9 +1019,12 @@ void TaskMove::MoveAirUnit() {
                                     (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER) {
                                     AILOG_LOG(log, "Blocker is moving.");
 
-                                    class RemindTurnEnd* reminder = new (std::nothrow) class RemindTurnEnd(*this);
+                                    // the blocker moves only after the reminders, so check again in the next call
+                                    if (!IsScheduledForTurnEnd()) {
+                                        class RemindTurnEnd* reminder = new (std::nothrow) class RemindTurnEnd(*this);
 
-                                    TaskManager.AppendReminder(reminder);
+                                        TaskManager.AppendDeferredReminder(reminder);
+                                    }
 
                                     return;
 
