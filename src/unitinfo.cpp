@@ -4063,21 +4063,19 @@ void UnitInfo::StepMoveUnit(Point position) {
 }
 
 /* the hidden units that the start of a building moves off its site */
-template <typename Function>
-static void UnitInfo_ForEachUnitToDisplace(Point position, uint32_t unit_flags, Function&& function) {
+static void UnitInfo_GetUnitsToDisplace(Point position, uint32_t unit_flags, SmartList<UnitInfo>* units) {
     if (unit_flags & BUILDING) {
         Point site;
 
         for (site.x = position.x; site.x < position.x + 2; ++site.x) {
             for (site.y = position.y; site.y < position.y + 2; ++site.y) {
-                const auto units = Hash_MapHash[site];
+                const auto site_units = Hash_MapHash[site];
 
-                if (units) {
-                    // the end node must be cached in case Hash_MapHash.Remove() deletes the list
-                    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
+                if (site_units) {
+                    for (auto it = site_units->Begin(), it_end = site_units->End(); it != it_end; ++it) {
                         if ((*it).GetUnitType() == COMMANDO || (*it).GetUnitType() == SUBMARNE ||
                             (*it).GetUnitType() == CLNTRANS) {
-                            function(*it);
+                            units->PushBack(*it);
                         }
                     }
                 }
@@ -4088,21 +4086,31 @@ static void UnitInfo_ForEachUnitToDisplace(Point position, uint32_t unit_flags, 
 
 static bool UnitInfo_IsSiteEngaged(UnitInfo* builder, ResourceID unit_type) {
     SmartPointer<UnitInfo> utility_unit(Access_GetConstructionUtility(builder->team, builder->grid_x, builder->grid_y));
-    bool result{false};
+    SmartList<UnitInfo> units;
 
-    UnitInfo_ForEachUnitToDisplace(Point(utility_unit->grid_x, utility_unit->grid_y),
-                                   ResourceManager_GetUnit(unit_type).GetFlags(),
-                                   [&result](UnitInfo& unit) { result = result || UnitsManager_IsEngaged(&unit); });
+    UnitInfo_GetUnitsToDisplace(Point(utility_unit->grid_x, utility_unit->grid_y),
+                                ResourceManager_GetUnit(unit_type).GetFlags(), &units);
 
-    return result;
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+        if (UnitsManager_IsEngaged(it->Get())) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void UnitInfo::PrepareConstructionSite(ResourceID unit_type) {
     uint32_t unit_flags = ResourceManager_GetUnit(unit_type).GetFlags();
     SmartPointer<UnitInfo> utility_unit(Access_GetConstructionUtility(team, grid_x, grid_y));
     Point position(utility_unit->grid_x, utility_unit->grid_y);
+    SmartList<UnitInfo> units;
 
-    UnitInfo_ForEachUnitToDisplace(position, unit_flags, [&position](UnitInfo& unit) { unit.StepMoveUnit(position); });
+    UnitInfo_GetUnitsToDisplace(position, unit_flags, &units);
+
+    for (auto it = units.Begin(), it_end = units.End(); it != it_end; ++it) {
+        (*it).StepMoveUnit(position);
+    }
 
     if (unit_flags & REQUIRES_SLAB) {
         ResourceID slab_type = (unit_flags & BUILDING) ? LRGSLAB : SMLSLAB;
