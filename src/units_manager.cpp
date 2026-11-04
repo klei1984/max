@@ -22,6 +22,7 @@
 #include "units_manager.hpp"
 
 #include <cmath>
+#include <unordered_map>
 
 #include "access.hpp"
 #include "ai.hpp"
@@ -118,7 +119,7 @@ static void UnitsManager_Popup_InitInfiltrator(UnitInfo* unit, struct PopupButto
 static bool UnitsManager_Popup_IsNever(UnitInfo* unit);
 static bool UnitsManager_Popup_IsReady(UnitInfo* unit);
 
-static void UnitsManager_ClearPins(SmartList<UnitInfo>* units);
+static void UnitsManager_PinAttackTargets(UnitInfo* unit);
 static void UnitsManager_ProcessOrder(UnitInfo* unit);
 static void UnitsManager_ProcessUnitOrders(SmartList<UnitInfo>* units);
 static void UnitsManager_FinishUnitScaling(UnitInfo* unit);
@@ -191,6 +192,10 @@ SmartList<UnitInfo> UnitsManager_ParticleUnits;
 SmartList<UnitInfo> UnitsManager_StationaryUnits;
 SmartList<UnitInfo> UnitsManager_MobileAirUnits;
 SmartList<UnitInfo> UnitsManager_PendingAttacks;
+
+// the live attacks by number, each with the units it pinned; the attacker holds the number, a missile from its launch
+static std::unordered_map<uint32_t, SmartList<UnitInfo>> UnitsManager_LiveAttacks;
+static uint32_t UnitsManager_LiveAttackCounter;
 
 SmartPointer<UnitInfo> UnitsManager_PendingAirGroupLeader;
 
@@ -1261,6 +1266,9 @@ void UnitsManager_InitPopupMenus() {
 
     UnitsManager_PendingAttacks.Clear();
 
+    UnitsManager_LiveAttacks.clear();
+    UnitsManager_LiveAttackCounter = 0;
+
     UnitsManager_DelayedReactionsTeam = PLAYER_TEAM_RED;
 
     UnitsManager_DelayedReactionsSyncCounter = 0;
@@ -1878,13 +1886,13 @@ void UnitsManager_ProcessOrders() {
             auto unit_it = UnitsManager_PendingAttacks.Begin();
 
             if ((*unit_it).hits == 0 || (*unit_it).GetOrderState() == ORDER_STATE_DESTROY) {
-                // the attacker is dying, UnitsManager_DestroyUnit() releases its pin
+                // the attacker is dying, UnitsManager_DestroyUnit() ends its attack
                 UnitsManager_PendingAttacks.Remove(unit_it);
 
             } else if ((*unit_it).GetOrder() != ORDER_FIRE) {
                 // a hit animation only suspends the fire order, any other order abandons the attack
                 if ((*unit_it).GetOrder() != ORDER_EXPLODE || (*unit_it).GetPriorOrder() != ORDER_FIRE) {
-                    (*unit_it).UpdatePinCount((*unit_it).fire_on_grid_x, (*unit_it).fire_on_grid_y, -1);
+                    UnitsManager_EndAttack(unit_it->Get());
 
                     UnitsManager_PendingAttacks.Remove(unit_it);
                 }
@@ -1899,7 +1907,7 @@ void UnitsManager_ProcessOrders() {
                       ResourceManager_GetUnit((*unit_it).GetUnitType()).GetSingularName().data(), (*unit_it).grid_x + 1,
                       (*unit_it).grid_y + 1);
 
-                (*unit_it).UpdatePinCount((*unit_it).fire_on_grid_x, (*unit_it).fire_on_grid_y, -1);
+                UnitsManager_EndAttack(unit_it->Get());
                 (*unit_it).RestoreOrders();
 
                 if ((*unit_it).GetOrder() == ORDER_FIRE) {
@@ -1917,10 +1925,7 @@ void UnitsManager_ProcessOrders() {
             }
 
         } else {
-            if (!UnitsManager_AssessAttacks()) {
-                UnitsManager_ClearPins(&UnitsManager_MobileLandSeaUnits);
-                UnitsManager_ClearPins(&UnitsManager_MobileAirUnits);
-            }
+            UnitsManager_AssessAttacks();
         }
     }
 
@@ -2289,9 +2294,8 @@ void UnitsManager_DestroyUnit(UnitInfo* unit, bool count_casualty) {
         GameManager_TempTape = nullptr;
     }
 
-    if (unit->GetPriorOrder() == ORDER_FIRE && unit->GetPriorOrderState() != ORDER_STATE_INIT) {
-        unit->UpdatePinCount(unit->fire_on_grid_x, unit->fire_on_grid_y, -1);
-    }
+    // an attacker that has not fired yet, or a missile that has not landed
+    UnitsManager_EndAttack(unit);
 
     if (GameManager_LockedUnits.Remove(*unit)) {
         GameManager_UpdateDrawBounds();
@@ -2537,9 +2541,45 @@ void UnitsManager_NewOrderWhileScaling(UnitInfo* unit) {
     }
 }
 
-void UnitsManager_ClearPins(SmartList<UnitInfo>* units) {
-    for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
-        (*it).ClearPins();
+void UnitsManager_PinAttackTargets(UnitInfo* unit) {
+    // a unit holds one attack at a time
+    UnitsManager_EndAttack(unit);
+
+    unit->live_attack = ++UnitsManager_LiveAttackCounter;
+
+    SmartList<UnitInfo>& pinned_units = UnitsManager_LiveAttacks[unit->live_attack];
+
+    if (unit->GetBaseValues()->GetAttribute(ATTRIB_ATTACK_RADIUS)) {
+        for (const auto& target : unit->GetAreaAttackTargets(unit->fire_on_grid_x, unit->fire_on_grid_y)) {
+            pinned_units.PushBack(*target.unit);
+        }
+
+    } else {
+        UnitInfo* target = Access_GetAttackTarget(unit, unit->fire_on_grid_x, unit->fire_on_grid_y);
+
+        if (target) {
+            pinned_units.PushBack(*target);
+        }
+    }
+
+    for (auto it = pinned_units.Begin(), it_end = pinned_units.End(); it != it_end; ++it) {
+        ++(*it).pin_count;
+    }
+}
+
+void UnitsManager_EndAttack(UnitInfo* unit) {
+    if (unit->live_attack) {
+        auto attack = UnitsManager_LiveAttacks.find(unit->live_attack);
+
+        if (attack != UnitsManager_LiveAttacks.end()) {
+            for (auto it = attack->second.Begin(), it_end = attack->second.End(); it != it_end; ++it) {
+                --(*it).pin_count;
+            }
+
+            UnitsManager_LiveAttacks.erase(attack);
+        }
+
+        unit->live_attack = 0;
     }
 }
 
@@ -2749,7 +2789,7 @@ void UnitsManager_ProcessOrderFire(UnitInfo* unit) {
         case ORDER_STATE_INIT: {
             UnitsManager_PendingAttacks.PushBack(*unit);
 
-            unit->UpdatePinCount(unit->fire_on_grid_x, unit->fire_on_grid_y, 1);
+            UnitsManager_PinAttackTargets(unit);
 
             unit->SetOrderState(ORDER_STATE_ATTACK_PENDING);
         } break;

@@ -160,6 +160,7 @@ UnitInfo::UnitInfo()
       unit_list(nullptr),
       in_transit(false),
       pin_count(0),
+      live_attack(0),
       tasks_enabled(true),
       laying_state(0),
       visible_to_team(),
@@ -248,6 +249,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint32_t id, uint8_t ang
       unit_list(nullptr),
       in_transit(false),
       pin_count(0),
+      live_attack(0),
       tasks_enabled(true),
       laying_state(0),
       visible_to_team(),
@@ -401,6 +403,8 @@ UnitInfo::UnitInfo(const UnitInfo& other)
       in_transit(other.in_transit),
       last_target(other.last_target),
       pin_count(other.pin_count),
+      // a copy is a snapshot and holds no attack
+      live_attack(0),
       tasks_enabled(other.tasks_enabled),
       laying_state(other.laying_state),
       name(nullptr),
@@ -1318,22 +1322,6 @@ void UnitInfo::SetPosition(int32_t grid_x, int32_t grid_y, bool skip_map_status_
     AddToDrawList();
 }
 
-void UnitInfo::UpdatePinCount(int32_t grid_x, int32_t grid_y, int32_t pin_units) {
-    if (base_values->GetAttribute(ATTRIB_ATTACK_RADIUS)) {
-        // the units that the blast reaches
-        for (const auto& target : GetAreaAttackTargets(grid_x, grid_y)) {
-            target.unit->pin_count += pin_units;
-        }
-
-    } else {
-        SmartPointer<UnitInfo> target(Access_GetAttackTarget(this, grid_x, grid_y));
-
-        if (target) {
-            target->pin_count += pin_units;
-        }
-    }
-}
-
 void UnitInfo::RemoveTasks() {
     SmartList<Task> backup_tasks(tasks);
 
@@ -1575,12 +1563,6 @@ void UnitInfo::AttackUnit(UnitInfo* enemy, int32_t attack_potential, int32_t dir
             Ai_UnitSpotted(enemy, team);
         }
 
-        --pin_count;
-
-        if (pin_count < 0) {
-            pin_count = 0;
-        }
-
         if (attack_damage > hits) {
             attack_damage = hits;
         }
@@ -1676,6 +1658,8 @@ bool UnitInfo::ExecuteMove() {
                 SmartPointer<UnitInfo> parent;
 
                 parent = GetParent();
+
+                UnitsManager_EndAttack(this);
                 parent->Attack(grid_x, grid_y);
 
                 UnitsManager_DestroyUnit(this);
@@ -3247,8 +3231,6 @@ int32_t UnitInfo::GetLayingState() const { return laying_state; }
 
 void UnitInfo::SetLayingState(int32_t state) { laying_state = state; }
 
-void UnitInfo::ClearPins() { pin_count = 0; }
-
 bool UnitInfo::AttemptSideStep(int32_t grid_x, int32_t grid_y, int32_t angle) {
     bool result;
 
@@ -3930,7 +3912,10 @@ std::vector<UnitInfo::AreaTarget> UnitInfo::GetAreaAttackTargets(int32_t grid_x,
             const int32_t distance = Access_GetApproximateDistance(location->x - grid_x, location->y - grid_y);
 
             for (auto it = units_at_position->Begin(), it_end = units_at_position->End(); it != it_end; ++it) {
-                if (((*it).flags & SELECTABLE) && Access_IsValidAttackTarget(this, it->Get(), Point(grid_x, grid_y))) {
+                // the unit on a bridge or water platform takes the blast for it
+                if (((*it).flags & SELECTABLE) && Access_IsValidAttackTarget(this, it->Get(), Point(grid_x, grid_y)) &&
+                    (((*it).unit_type != BRIDGE && (*it).unit_type != WTRPLTFM) ||
+                     !Access_IsUnitBusyAtLocation(it->Get()))) {
                     AreaTarget* target = nullptr;
 
                     for (auto& item : targets) {
@@ -3956,12 +3941,9 @@ std::vector<UnitInfo::AreaTarget> UnitInfo::GetAreaAttackTargets(int32_t grid_x,
 
 void UnitInfo::AttackAreaTargets(int32_t grid_x, int32_t grid_y) {
     for (const auto& target : GetAreaAttackTargets(grid_x, grid_y)) {
-        if ((target.unit->unit_type != BRIDGE && target.unit->unit_type != WTRPLTFM) ||
-            !Access_IsUnitBusyAtLocation(target.unit.Get())) {
-            target.unit->AttackUnit(
-                this, target.distance,
-                UnitsManager_GetTargetAngle(target.unit->grid_x - grid_x, target.unit->grid_y - grid_y));
-        }
+        target.unit->AttackUnit(
+            this, target.distance,
+            UnitsManager_GetTargetAngle(target.unit->grid_x - grid_x, target.unit->grid_y - grid_y));
     }
 }
 
@@ -4783,6 +4765,10 @@ void UnitInfo::PrepareFire() {
 
         new_unit->SetParent(this);
 
+        // the missile carries the attack to the impact, as it carries the target cell
+        new_unit->live_attack = live_attack;
+        live_attack = 0;
+
         new_unit->SetOrder(ORDER_MOVE);
         new_unit->SetOrderState(ORDER_STATE_INIT);
 
@@ -4840,6 +4826,7 @@ void UnitInfo::ProgressFire() {
         }
 
         if (!(flags & FIRES_MISSILES)) {
+            UnitsManager_EndAttack(this);
             Attack(fire_on_grid_x, fire_on_grid_y);
 
             UnitsManager_AddToDelayedReactionList(this);

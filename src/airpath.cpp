@@ -414,6 +414,7 @@ void Paths_FinishMove(UnitInfo* unit) {
     if (unit->flags & MISSILE_UNIT) {
         SmartPointer<UnitInfo> parent = unit->GetParent();
 
+        UnitsManager_EndAttack(unit);
         parent->Attack(grid_x, grid_y);
 
         UnitsManager_DestroyUnit(unit);

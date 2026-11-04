@@ -262,7 +262,6 @@ public:
     Complex* GetComplex() const;
     int32_t GetLayingState() const;
     void SetLayingState(int32_t state);
-    void ClearPins();
     void SetBuildRate(int32_t value);
     int32_t GetBuildRate() const;
     void SetRepeatBuildState(bool value);
@@ -288,7 +287,6 @@ public:
     void AttachToPrimaryComplex();
     void DetachComplex();
     void UpdateTurretAngle(int32_t turret_angle, bool redraw = false);
-    void UpdatePinCount(int32_t grid_x, int32_t grid_y, int32_t pin_units);
     std::vector<AreaTarget> GetAreaAttackTargets(int32_t grid_x, int32_t grid_y);
     void Attack(int32_t grid_x, int32_t grid_y);
     SmartPointer<UnitInfo> MakeCopy();
@@ -470,6 +468,8 @@ public:
     bool in_transit;
     Point last_target;
     int16_t pin_count;
+    // the number of the live attack that this unit holds, 0 for none
+    uint32_t live_attack;
     bool tasks_enabled;
     uint8_t laying_state;
     uint8_t visible_to_team[PLAYER_TEAM_MAX];
