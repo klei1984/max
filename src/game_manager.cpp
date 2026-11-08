@@ -727,7 +727,7 @@ void GameManager_DeployUnit(uint16_t team, ResourceID unit_type, int32_t grid_x,
         UnitsManager_SetInitialMining(&*unit, grid_x, grid_y);
     }
 
-    if (flags & (CONNECTOR_UNIT | BUILDING | STANDALONE)) {
+    if (unit->IsComplexMember()) {
         UnitsManager_UpdateConnectors(&*unit);
     }
 

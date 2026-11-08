@@ -2167,9 +2167,7 @@ UnitInfo* Access_GetTeamBuilding(uint16_t team, int32_t grid_x, int32_t grid_y) 
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
             for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
-                if ((*it).team == team && (*it).GetOrder() != ORDER_IDLE && (*it).GetId() != UnitInfo::NO_ID &&
-                    (((*it).flags & (CONNECTOR_UNIT | STANDALONE)) ||
-                     (((*it).flags) & (GROUND_COVER | BUILDING)) == BUILDING)) {
+                if ((*it).team == team && (*it).GetOrder() != ORDER_IDLE && (*it).IsComplexMember()) {
                     unit = it->Get();
                     break;
                 }

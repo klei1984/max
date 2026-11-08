@@ -250,6 +250,12 @@ public:
     void SetEnemy(UnitInfo* enemy);
     UnitInfo* GetEnemy() const;
     uint32_t GetId() const;
+
+    // connectors, buildings and standalone units that are not ground cover belong to a complex
+    [[nodiscard]] bool IsComplexMember() const noexcept {
+        return (flags & (CONNECTOR_UNIT | BUILDING | STANDALONE)) && !(flags & GROUND_COVER) && id != NO_ID;
+    }
+
     UnitInfo* GetFirstFromUnitList() const;
     SmartList<UnitInfo>* GetUnitList() const;
     uint32_t GetAiStateBits() const;

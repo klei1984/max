@@ -1561,7 +1561,7 @@ void UnitsManager_RemoveConnections(UnitInfo* unit) {
 
     unit->RefreshScreen();
 
-    if ((unit->flags & (CONNECTOR_UNIT | BUILDING | STANDALONE)) && !(unit->flags & GROUND_COVER)) {
+    if (unit->IsComplexMember()) {
         int32_t unit_size;
         int32_t grid_x;
         int32_t grid_y;
@@ -2051,178 +2051,176 @@ void UnitsManager_RecountBuiltStatistics() {
 void UnitsManager_UpdateConnectors(UnitInfo* unit) {
     unit->RefreshScreen();
 
-    if (unit->flags & (CONNECTOR_UNIT | BUILDING | STANDALONE)) {
-        if (!(unit->flags & GROUND_COVER)) {
-            SmartPointer<UnitInfo> building;
-            int32_t unit_size = (unit->flags & BUILDING) ? 2 : 1;
-            int32_t grid_x = unit->grid_x;
-            int32_t grid_y = unit->grid_y;
-            CTInfo* team_info = &UnitsManager_TeamInfo[unit->team];
+    if (unit->IsComplexMember()) {
+        SmartPointer<UnitInfo> building;
+        int32_t unit_size = (unit->flags & BUILDING) ? 2 : 1;
+        int32_t grid_x = unit->grid_x;
+        int32_t grid_y = unit->grid_y;
+        CTInfo* team_info = &UnitsManager_TeamInfo[unit->team];
 
-            if (UnitsManager_IsFactory(unit->GetUnitType())) {
-                ++team_info->stats_factories_built;
-            }
-
-            if (unit->GetUnitType() == MININGST) {
-                ++team_info->stats_mines_built;
-            }
-
-            if (unit->flags & BUILDING) {
-                ++team_info->stats_buildings_built;
-            }
-
-            building = Access_GetTeamBuilding(unit->team, grid_x, grid_y - 1);
-
-            if (building) {
-                unit->connectors |= CONNECTOR_NORTH_LEFT;
-
-                if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                    building->connectors |= CONNECTOR_SOUTH_LEFT;
-
-                } else if (building == Access_GetTeamBuilding(unit->team, grid_x + 1, grid_y - 1)) {
-                    building->connectors |= CONNECTOR_SOUTH_LEFT;
-
-                } else {
-                    building->connectors |= CONNECTOR_SOUTH_RIGHT;
-                }
-
-                building->RefreshScreen();
-            }
-
-            building = Access_GetTeamBuilding(unit->team, grid_x, grid_y + unit_size);
-
-            if (building) {
-                unit->connectors |= CONNECTOR_SOUTH_LEFT;
-
-                if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                    building->connectors |= CONNECTOR_NORTH_LEFT;
-
-                } else if (building == Access_GetTeamBuilding(unit->team, grid_x + 1, grid_y + unit_size)) {
-                    building->connectors |= CONNECTOR_NORTH_LEFT;
-
-                } else {
-                    building->connectors |= CONNECTOR_NORTH_RIGHT;
-                }
-
-                building->RefreshScreen();
-            }
-
-            if (unit->flags & BUILDING) {
-                building = Access_GetTeamBuilding(unit->team, grid_x + 1, grid_y - 1);
-
-                if (building) {
-                    unit->connectors |= CONNECTOR_NORTH_RIGHT;
-
-                    if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                        building->connectors |= CONNECTOR_SOUTH_LEFT;
-
-                    } else if (building == Access_GetTeamBuilding(unit->team, grid_x, grid_y - 1)) {
-                        building->connectors |= CONNECTOR_SOUTH_RIGHT;
-
-                    } else {
-                        building->connectors |= CONNECTOR_SOUTH_LEFT;
-                    }
-
-                    building->RefreshScreen();
-                }
-
-                building = Access_GetTeamBuilding(unit->team, grid_x + 1, grid_y + unit_size);
-
-                if (building) {
-                    unit->connectors |= CONNECTOR_SOUTH_RIGHT;
-
-                    if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                        building->connectors |= CONNECTOR_NORTH_LEFT;
-
-                    } else if (building == Access_GetTeamBuilding(unit->team, grid_x, grid_y + unit_size)) {
-                        building->connectors |= CONNECTOR_NORTH_RIGHT;
-
-                    } else {
-                        building->connectors |= CONNECTOR_NORTH_LEFT;
-                    }
-
-                    building->RefreshScreen();
-                }
-            }
-
-            building = Access_GetTeamBuilding(unit->team, grid_x + unit_size, grid_y);
-
-            if (building) {
-                unit->connectors |= CONNECTOR_EAST_TOP;
-
-                if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                    building->connectors |= CONNECTOR_WEST_TOP;
-
-                } else if (building == Access_GetTeamBuilding(unit->team, grid_x + unit_size, grid_y + 1)) {
-                    building->connectors |= CONNECTOR_WEST_TOP;
-
-                } else {
-                    building->connectors |= CONNECTOR_WEST_BOTTOM;
-                }
-
-                building->RefreshScreen();
-            }
-
-            building = Access_GetTeamBuilding(unit->team, grid_x - 1, grid_y);
-
-            if (building) {
-                unit->connectors |= CONNECTOR_WEST_TOP;
-
-                if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                    building->connectors |= CONNECTOR_EAST_TOP;
-
-                } else if (building == Access_GetTeamBuilding(unit->team, grid_x - 1, grid_y + 1)) {
-                    building->connectors |= CONNECTOR_EAST_TOP;
-
-                } else {
-                    building->connectors |= CONNECTOR_EAST_BOTTOM;
-                }
-
-                building->RefreshScreen();
-            }
-
-            if (unit->flags & BUILDING) {
-                building = Access_GetTeamBuilding(unit->team, grid_x + unit_size, grid_y + 1);
-
-                if (building) {
-                    unit->connectors |= CONNECTOR_EAST_BOTTOM;
-
-                    if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                        building->connectors |= CONNECTOR_WEST_TOP;
-
-                    } else if (building == Access_GetTeamBuilding(unit->team, grid_x + unit_size, grid_y)) {
-                        building->connectors |= CONNECTOR_WEST_BOTTOM;
-
-                    } else {
-                        building->connectors |= CONNECTOR_WEST_TOP;
-                    }
-
-                    building->RefreshScreen();
-                }
-
-                building = Access_GetTeamBuilding(unit->team, grid_x - 1, grid_y + 1);
-
-                if (building) {
-                    unit->connectors |= CONNECTOR_WEST_BOTTOM;
-
-                    if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
-                        building->connectors |= CONNECTOR_EAST_TOP;
-
-                    } else if (building == Access_GetTeamBuilding(unit->team, grid_x - 1, grid_y)) {
-                        building->connectors |= CONNECTOR_EAST_BOTTOM;
-
-                    } else {
-                        building->connectors |= CONNECTOR_EAST_TOP;
-                    }
-
-                    building->RefreshScreen();
-                }
-            }
-
-            unit->AttachToPrimaryComplex();
-
-            Access_UpdateResourcesTotal(unit->GetComplex());
+        if (UnitsManager_IsFactory(unit->GetUnitType())) {
+            ++team_info->stats_factories_built;
         }
+
+        if (unit->GetUnitType() == MININGST) {
+            ++team_info->stats_mines_built;
+        }
+
+        if (unit->flags & BUILDING) {
+            ++team_info->stats_buildings_built;
+        }
+
+        building = Access_GetTeamBuilding(unit->team, grid_x, grid_y - 1);
+
+        if (building) {
+            unit->connectors |= CONNECTOR_NORTH_LEFT;
+
+            if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                building->connectors |= CONNECTOR_SOUTH_LEFT;
+
+            } else if (building == Access_GetTeamBuilding(unit->team, grid_x + 1, grid_y - 1)) {
+                building->connectors |= CONNECTOR_SOUTH_LEFT;
+
+            } else {
+                building->connectors |= CONNECTOR_SOUTH_RIGHT;
+            }
+
+            building->RefreshScreen();
+        }
+
+        building = Access_GetTeamBuilding(unit->team, grid_x, grid_y + unit_size);
+
+        if (building) {
+            unit->connectors |= CONNECTOR_SOUTH_LEFT;
+
+            if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                building->connectors |= CONNECTOR_NORTH_LEFT;
+
+            } else if (building == Access_GetTeamBuilding(unit->team, grid_x + 1, grid_y + unit_size)) {
+                building->connectors |= CONNECTOR_NORTH_LEFT;
+
+            } else {
+                building->connectors |= CONNECTOR_NORTH_RIGHT;
+            }
+
+            building->RefreshScreen();
+        }
+
+        if (unit->flags & BUILDING) {
+            building = Access_GetTeamBuilding(unit->team, grid_x + 1, grid_y - 1);
+
+            if (building) {
+                unit->connectors |= CONNECTOR_NORTH_RIGHT;
+
+                if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                    building->connectors |= CONNECTOR_SOUTH_LEFT;
+
+                } else if (building == Access_GetTeamBuilding(unit->team, grid_x, grid_y - 1)) {
+                    building->connectors |= CONNECTOR_SOUTH_RIGHT;
+
+                } else {
+                    building->connectors |= CONNECTOR_SOUTH_LEFT;
+                }
+
+                building->RefreshScreen();
+            }
+
+            building = Access_GetTeamBuilding(unit->team, grid_x + 1, grid_y + unit_size);
+
+            if (building) {
+                unit->connectors |= CONNECTOR_SOUTH_RIGHT;
+
+                if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                    building->connectors |= CONNECTOR_NORTH_LEFT;
+
+                } else if (building == Access_GetTeamBuilding(unit->team, grid_x, grid_y + unit_size)) {
+                    building->connectors |= CONNECTOR_NORTH_RIGHT;
+
+                } else {
+                    building->connectors |= CONNECTOR_NORTH_LEFT;
+                }
+
+                building->RefreshScreen();
+            }
+        }
+
+        building = Access_GetTeamBuilding(unit->team, grid_x + unit_size, grid_y);
+
+        if (building) {
+            unit->connectors |= CONNECTOR_EAST_TOP;
+
+            if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                building->connectors |= CONNECTOR_WEST_TOP;
+
+            } else if (building == Access_GetTeamBuilding(unit->team, grid_x + unit_size, grid_y + 1)) {
+                building->connectors |= CONNECTOR_WEST_TOP;
+
+            } else {
+                building->connectors |= CONNECTOR_WEST_BOTTOM;
+            }
+
+            building->RefreshScreen();
+        }
+
+        building = Access_GetTeamBuilding(unit->team, grid_x - 1, grid_y);
+
+        if (building) {
+            unit->connectors |= CONNECTOR_WEST_TOP;
+
+            if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                building->connectors |= CONNECTOR_EAST_TOP;
+
+            } else if (building == Access_GetTeamBuilding(unit->team, grid_x - 1, grid_y + 1)) {
+                building->connectors |= CONNECTOR_EAST_TOP;
+
+            } else {
+                building->connectors |= CONNECTOR_EAST_BOTTOM;
+            }
+
+            building->RefreshScreen();
+        }
+
+        if (unit->flags & BUILDING) {
+            building = Access_GetTeamBuilding(unit->team, grid_x + unit_size, grid_y + 1);
+
+            if (building) {
+                unit->connectors |= CONNECTOR_EAST_BOTTOM;
+
+                if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                    building->connectors |= CONNECTOR_WEST_TOP;
+
+                } else if (building == Access_GetTeamBuilding(unit->team, grid_x + unit_size, grid_y)) {
+                    building->connectors |= CONNECTOR_WEST_BOTTOM;
+
+                } else {
+                    building->connectors |= CONNECTOR_WEST_TOP;
+                }
+
+                building->RefreshScreen();
+            }
+
+            building = Access_GetTeamBuilding(unit->team, grid_x - 1, grid_y + 1);
+
+            if (building) {
+                unit->connectors |= CONNECTOR_WEST_BOTTOM;
+
+                if (building->flags & (CONNECTOR_UNIT | STANDALONE)) {
+                    building->connectors |= CONNECTOR_EAST_TOP;
+
+                } else if (building == Access_GetTeamBuilding(unit->team, grid_x - 1, grid_y)) {
+                    building->connectors |= CONNECTOR_EAST_BOTTOM;
+
+                } else {
+                    building->connectors |= CONNECTOR_EAST_TOP;
+                }
+
+                building->RefreshScreen();
+            }
+        }
+
+        unit->AttachToPrimaryComplex();
+
+        Access_UpdateResourcesTotal(unit->GetComplex());
     }
 }
 

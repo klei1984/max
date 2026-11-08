@@ -313,7 +313,7 @@ UnitInfo::UnitInfo(ResourceID unit_type, uint16_t team, uint32_t id, uint8_t ang
 
     InitStealthStatus();
 
-    if ((flags & (CONNECTOR_UNIT | BUILDING | STANDALONE)) && !(flags & GROUND_COVER) && id != NO_ID) {
+    if (IsComplexMember()) {
         AttachComplex(CreateComplex(team));
     }
 }
@@ -2883,7 +2883,7 @@ void UnitInfo::DrawStealth(uint16_t team) {
 }
 
 void UnitInfo::Resupply() {
-    if ((flags & STATIONARY) && base_values->GetAttribute(ATTRIB_ATTACK) > 0 &&
+    if (IsComplexMember() && base_values->GetAttribute(ATTRIB_ATTACK) > 0 &&
         base_values->GetAttribute(ATTRIB_ROUNDS) > ammo) {
         Cargo materials;
         Cargo capacity;
@@ -4002,7 +4002,7 @@ void UnitInfo::UpgradeInt() {
 }
 
 void UnitInfo::Regenerate() {
-    if (!damaged_this_turn && (flags & STATIONARY) && base_values->GetAttribute(ATTRIB_HITS) != hits) {
+    if (!damaged_this_turn && IsComplexMember() && base_values->GetAttribute(ATTRIB_HITS) != hits) {
         Cargo materials;
         Cargo capacity;
 
