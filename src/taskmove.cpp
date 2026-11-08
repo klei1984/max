@@ -434,6 +434,10 @@ void TaskMove::FindWaypointUsingTransport() {
         std::find(claimed_sites.begin(), claimed_sites.end(), site) == claimed_sites.end()) {
         destination_waypoint = passenger_destination;
 
+        AILOG(log, "Drop off site for {} id {} is the transporter's cell [{},{}].",
+              ResourceManager_GetUnit(passenger->GetUnitType()).GetSingularName().data(), passenger->GetId(),
+              site.x + 1, site.y + 1);
+
         return;
     }
 
@@ -455,6 +459,10 @@ void TaskMove::FindWaypointUsingTransport() {
                         std::find(claimed_sites.begin(), claimed_sites.end(), site) == claimed_sites.end()) {
                         passenger_destination = site;
                         destination_waypoint = site;
+
+                        AILOG(log, "Drop off site for {} id {} is [{},{}].",
+                              ResourceManager_GetUnit(passenger->GetUnitType()).GetSingularName().data(),
+                              passenger->GetId(), site.x + 1, site.y + 1);
 
                         return;
                     }
