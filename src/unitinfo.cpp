@@ -3931,7 +3931,8 @@ std::vector<UnitInfo::AreaTarget> UnitInfo::GetAreaAttackTargets(int32_t grid_x,
 
             for (auto it = units_at_position->Begin(), it_end = units_at_position->End(); it != it_end; ++it) {
                 // the unit on a bridge or water platform takes the blast for it
-                if (((*it).flags & SELECTABLE) && Access_IsValidAttackTarget(this, it->Get(), Point(grid_x, grid_y)) &&
+                if (((*it).flags & SELECTABLE) && (*it).GetOrder() != ORDER_IDLE &&
+                    Access_IsValidAttackTarget(this, it->Get(), Point(grid_x, grid_y)) &&
                     (((*it).unit_type != BRIDGE && (*it).unit_type != WTRPLTFM) ||
                      !Access_IsUnitBusyAtLocation(it->Get()))) {
                     AreaTarget* target = nullptr;

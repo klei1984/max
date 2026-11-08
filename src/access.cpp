@@ -2085,7 +2085,7 @@ UnitInfo* Access_GetAttackTarget2(UnitInfo* unit, int32_t grid_x, int32_t grid_y
         if (units) {
             // the end node must be cached in case Hash_MapHash.Remove() deletes the list
             for (auto it = units->Begin(), it_end = units->End(); it != it_end; ++it) {
-                if ((*it).team != unit->team && !(*it).IsVisibleToTeam(unit->team) &&
+                if ((*it).team != unit->team && !(*it).IsVisibleToTeam(unit->team) && (*it).GetOrder() != ORDER_IDLE &&
                     Access_IsValidAttackTarget(unit, it->Get())) {
                     result = it->Get();
                     break;
