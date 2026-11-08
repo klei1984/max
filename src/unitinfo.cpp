@@ -2965,7 +2965,10 @@ void UnitInfo::UpdateProduction() {
 
     if (orders == ORDER_DISABLE || (orders == ORDER_IDLE && prior_orders == ORDER_DISABLE)) {
         if (team != PLAYER_TEAM_ALIEN) {
-            --disabled_turns_remaining;
+            // a disable that has run out stays at zero instead of wrapping around
+            if (disabled_turns_remaining > 0) {
+                --disabled_turns_remaining;
+            }
 
             if (disabled_turns_remaining == 0) {
                 SmartPointer<UnitInfo> unit_copy = MakeCopy();
@@ -2976,6 +2979,16 @@ void UnitInfo::UpdateProduction() {
 
                 } else {
                     RestoreOrders();
+
+                    // a hit during the disable left DISABLE as the order to go back to, which RestoreOrders() keeps
+                    // for the power switched building types
+                    if (orders == ORDER_DISABLE) {
+                        prior_orders = ORDER_POWER_OFF;
+                        prior_state = ORDER_STATE_EXECUTING_ORDER;
+
+                        RestoreOrders();
+                    }
+
                     Access_UpdateMapStatus(this, true);
                     Access_UpdateMapStatus(&*unit_copy, false);
 
