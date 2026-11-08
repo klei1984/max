@@ -2459,20 +2459,16 @@ void UnitInfo::FileLoad(SmartFileReader& file) noexcept {
     file.Read(cursor);
 
     if (file.GetFormat() == SmartFileFormat::V70) {
-        int8_t recoil_delay;
+        uint8_t recoil_delay;
 
         file.Read(recoil_delay);
 
-        if (recoil_delay < 0) {
-            recoil_delay = 0;
-        }
-
-        if (orders == ORDER_DISABLE) {
-            disabled_turns_remaining = static_cast<uint8_t>(recoil_delay);
+        if (orders == ORDER_DISABLE || prior_orders == ORDER_DISABLE) {
+            disabled_turns_remaining = recoil_delay;
             firing_recoil_frames = 0;
 
         } else {
-            firing_recoil_frames = static_cast<uint8_t>(recoil_delay);
+            firing_recoil_frames = recoil_delay;
             disabled_turns_remaining = 0;
         }
 
