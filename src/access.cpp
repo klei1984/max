@@ -71,10 +71,8 @@ bool Access_SetUnitDestination(int32_t grid_x, int32_t grid_y, int32_t target_gr
                     continue;
                 }
 
-                if (((*it).GetOrder() == ORDER_MOVE || (*it).GetOrder() == ORDER_MOVE_TO_UNIT ||
-                     (*it).GetOrder() == ORDER_MOVE_TO_ATTACK) &&
-                    (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER && (*it).path != nullptr &&
-                    (*it).grid_x == target_grid_x && (*it).grid_y == target_grid_y &&
+                if ((*it).HasMoveOrder() && (*it).GetOrderState() != ORDER_STATE_EXECUTING_ORDER &&
+                    (*it).path != nullptr && (*it).grid_x == target_grid_x && (*it).grid_y == target_grid_y &&
                     !(*it).path->IsInPath(grid_x - target_grid_x, grid_y - target_grid_y)) {
                     return true;
 
@@ -1185,9 +1183,7 @@ void Access_RenewAttackOrders(SmartList<UnitInfo>& units, uint16_t team) {
             }
 
         } else {
-            if (((*it).GetOrder() == ORDER_MOVE || (*it).GetOrder() == ORDER_MOVE_TO_UNIT ||
-                 (*it).GetOrder() == ORDER_MOVE_TO_ATTACK) &&
-                (*it).GetOrderState() == ORDER_STATE_EXECUTING_ORDER) {
+            if ((*it).HasMoveOrder() && (*it).GetOrderState() == ORDER_STATE_EXECUTING_ORDER) {
                 if ((*it).team == team && (*it).speed > 0 && (*it).engine == 2) {
                     UnitsManager_SetNewOrder(it->Get(), (*it).GetOrder(), ORDER_STATE_INIT);
                 }

@@ -4175,8 +4175,7 @@ void GameManager_SetUnitOrder(const UnitOrderType order, const UnitOrderStateTyp
     unit->move_to_grid_x = grid_x;
     unit->move_to_grid_y = grid_y;
 
-    if (unit->GetOrder() == ORDER_MOVE || unit->GetOrder() == ORDER_MOVE_TO_UNIT ||
-        unit->GetOrder() == ORDER_MOVE_TO_ATTACK) {
+    if (unit->HasMoveOrder()) {
         unit->SetOrder(unit->GetPriorOrder());
         unit->SetOrderState(unit->GetPriorOrderState());
     }

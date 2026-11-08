@@ -4432,12 +4432,10 @@ void UnitsManager_DisableUnit(UnitInfo* unit) {
         ResourceManager_GetSoundManager().PlayVoice(V_M244, V_F244);
     }
 
-    switch (parent->GetOrder()) {
-        case ORDER_MOVE: {
-            parent->MoveFinished(false);
-            parent->SetOrderState(ORDER_STATE_EXECUTING_ORDER);
-        } break;
+    // the disable drops the path, so a move under way stops here
+    parent->StopMove();
 
+    switch (parent->GetOrder()) {
         case ORDER_BUILD:
         case ORDER_CLEAR: {
             if (parent->GetOrderState() == ORDER_STATE_SELECT_SITE) {
@@ -4633,9 +4631,7 @@ bool UnitsManager_ShouldAttack(UnitInfo* unit1, UnitInfo* unit2) {
         if (unit1->GetOrder() == ORDER_IDLE) {
             result = false;
 
-        } else if ((unit1->GetOrder() == ORDER_MOVE || unit1->GetOrder() == ORDER_MOVE_TO_UNIT ||
-                    unit1->GetOrder() == ORDER_MOVE_TO_ATTACK) &&
-                   unit1->GetOrderState() != ORDER_STATE_EXECUTING_ORDER) {
+        } else if (unit1->HasMoveOrder() && unit1->GetOrderState() != ORDER_STATE_EXECUTING_ORDER) {
             result = false;
 
         } else if (unit1->GetOrder() == ORDER_DISABLE) {

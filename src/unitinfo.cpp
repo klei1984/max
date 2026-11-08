@@ -1843,7 +1843,7 @@ void UnitInfo::Move() {
                 state = ORDER_STATE_IN_PROGRESS;
             }
 
-            if (orders == ORDER_MOVE || orders == ORDER_MOVE_TO_UNIT || orders == ORDER_MOVE_TO_ATTACK) {
+            if (HasMoveOrder()) {
                 FollowUnit();
             }
 
@@ -3699,6 +3699,15 @@ void UnitInfo::MoveFinished(bool mode) {
     }
 }
 
+// a move under way ends, the unit stands with a stopped move order
+void UnitInfo::StopMove() {
+    if (HasMoveOrder()) {
+        MoveFinished(false);
+        SetOrder(ORDER_MOVE);
+        SetOrderState(ORDER_STATE_EXECUTING_ORDER);
+    }
+}
+
 void UnitInfo::RadarPing() {
     if (orders != ORDER_BUILD && orders != ORDER_CLEAR &&
         (!(flags & STATIONARY) || unit_type == LANDMINE || unit_type == SEAMINE) && (flags & SELECTABLE)) {
@@ -4060,7 +4069,7 @@ void UnitInfo::StepMoveUnit(Point position) {
                     Access_UpdateMapStatus(this, true);
                     Access_UpdateMapStatus(&*unit_copy, false);
 
-                    if (orders == ORDER_MOVE || orders == ORDER_MOVE_TO_UNIT || orders == ORDER_MOVE_TO_ATTACK) {
+                    if (HasMoveOrder()) {
                         BlockedOnPathRequest();
                     }
 
@@ -4867,6 +4876,10 @@ void UnitInfo::ChangeTeam(uint16_t target_team) {
     ClearUnitList();
     SetParent(nullptr);
     SetEnemy(nullptr);
+
+    // the path goes with the old team, so a move under way stops here
+    StopMove();
+
     path = nullptr;
     RemoveTasks();
     Ai_RemoveUnit(this);

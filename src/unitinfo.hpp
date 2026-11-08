@@ -256,6 +256,11 @@ public:
         return (flags & (CONNECTOR_UNIT | BUILDING | STANDALONE)) && !(flags & GROUND_COVER) && id != NO_ID;
     }
 
+    // the orders that move a unit along its path
+    [[nodiscard]] bool HasMoveOrder() const noexcept {
+        return orders == ORDER_MOVE || orders == ORDER_MOVE_TO_UNIT || orders == ORDER_MOVE_TO_ATTACK;
+    }
+
     UnitInfo* GetFirstFromUnitList() const;
     SmartList<UnitInfo>* GetUnitList() const;
     uint32_t GetAiStateBits() const;
@@ -297,6 +302,7 @@ public:
     void Attack(int32_t grid_x, int32_t grid_y);
     SmartPointer<UnitInfo> MakeCopy();
     void MoveFinished(bool mode = true);
+    void StopMove();
     void BlockedOnPathRequest(bool mode = true, bool skip_notification = false);
     void RestoreOrders();
     void FollowUnit();

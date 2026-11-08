@@ -418,9 +418,7 @@ static bool OrderLog_IsBlockingEndTurn(const UnitInfo* unit) noexcept {
     return order == ORDER_FIRE || order == ORDER_EXPLODE || order == ORDER_ACTIVATE ||
            order == ORDER_AWAIT_TAPE_POSITIONING || order == ORDER_AWAIT_DISABLE_UNIT ||
            order == ORDER_AWAIT_STEAL_UNIT || order == ORDER_AWAIT_SCALING || state == ORDER_STATE_DESTROY ||
-           ((order == ORDER_MOVE || order == ORDER_MOVE_TO_UNIT || order == ORDER_MOVE_TO_ATTACK) &&
-            state != ORDER_STATE_EXECUTING_ORDER) ||
-           state == ORDER_STATE_INIT;
+           (unit->HasMoveOrder() && state != ORDER_STATE_EXECUTING_ORDER) || state == ORDER_STATE_INIT;
 }
 
 static int32_t OrderLog_GetDistance(const UnitInfo* unit, const UnitInfo* target) noexcept {
