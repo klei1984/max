@@ -21,6 +21,9 @@
 
 #include "aiattack.hpp"
 
+#include <algorithm>
+#include <vector>
+
 #include "access.hpp"
 #include "ai.hpp"
 #include "ailog.hpp"
@@ -1164,6 +1167,7 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_priority)
         auto info_map = AiPlayer_Teams[unit->team].GetInfoMap();
         Point unit_position(unit->grid_x, unit->grid_y);
         ResourceID transporter_type = INVALID_ID;
+        const std::vector<Point> claimed_sites = TaskMove::GetClaimedSites(unit);
 
         if (unit->flags & MOBILE_LAND_UNIT) {
             if (Task_GetReadyUnitsCount(unit->team, AIRTRANS) > 0) {
@@ -1201,7 +1205,9 @@ bool AiAttack_FollowAttacker(Task* task, UnitInfo* unit, uint16_t task_priority)
                                                                     INFO_MAP_CLEAR_OUT_ZONE))) {
                                 if (map.Search(unit_position) &&
                                     Access_IsAccessible(unit->GetUnitType(), unit->team, unit_position.x,
-                                                        unit_position.y, AccessModifier_SameClassBlocks)) {
+                                                        unit_position.y, AccessModifier_SameClassBlocks) &&
+                                    std::find(claimed_sites.begin(), claimed_sites.end(), unit_position) ==
+                                        claimed_sites.end()) {
                                     target_location = unit_position;
                                     range = distance;
                                 }
