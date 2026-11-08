@@ -21,6 +21,7 @@
 
 #include "taskmove.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <format>
 
@@ -424,11 +425,13 @@ void TaskMove::FindWaypointUsingTransport() {
     bool keep_searching = true;
     Point site = passenger_destination;
     Rect bounds;
+    const std::vector<Point> claimed_sites = GetClaimedSites(&*passenger);
 
     rect_init(&bounds, 0, 0, ResourceManager_MapSize.x, ResourceManager_MapSize.y);
 
     if (Access_IsAccessible(passenger->GetUnitType(), m_team, site.x, site.y, AccessModifier_SameClassBlocks) &&
-        !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
+        !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE) &&
+        std::find(claimed_sites.begin(), claimed_sites.end(), site) == claimed_sites.end()) {
         destination_waypoint = passenger_destination;
 
         return;
@@ -448,7 +451,8 @@ void TaskMove::FindWaypointUsingTransport() {
 
                     if (Access_IsAccessible(passenger->GetUnitType(), m_team, site.x, site.y,
                                             AccessModifier_EnemySameClassBlocks) &&
-                        !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE)) {
+                        !Ai_IsDangerousLocation(&*passenger, site, CAUTION_LEVEL_AVOID_NEXT_TURNS_FIRE) &&
+                        std::find(claimed_sites.begin(), claimed_sites.end(), site) == claimed_sites.end()) {
                         passenger_destination = site;
                         destination_waypoint = site;
 
@@ -1356,6 +1360,32 @@ UnitInfo* TaskMove::FindUnit(SmartList<UnitInfo>* units, uint16_t team, Resource
     }
 
     return nullptr;
+}
+
+std::vector<Point> TaskMove::GetClaimedSites(UnitInfo* unit) {
+    std::vector<Point> sites;
+
+    for (auto it = TaskManager.GetTaskList().Begin(), it_end = TaskManager.GetTaskList().End(); it != it_end; ++it) {
+        if ((*it).GetTeam() == unit->team && (*it).GetType() == TaskType_TaskMove) {
+            TaskMove* move = dynamic_cast<TaskMove*>(it->Get());
+
+            if (move->passenger && move->passenger != unit &&
+                (move->passenger->flags & MOBILE_AIR_UNIT) == (unit->flags & MOBILE_AIR_UNIT)) {
+                if (move->minimum_distance == 0 && move->destination_waypoint.x >= 0 &&
+                    move->destination_waypoint.y >= 0) {
+                    sites.push_back(move->destination_waypoint);
+                }
+
+                // a carried unit also stands where its transporter unloads it
+                if (move->passenger_destination != move->destination_waypoint && move->passenger_destination.x >= 0 &&
+                    move->passenger_destination.y >= 0) {
+                    sites.push_back(move->passenger_destination);
+                }
+            }
+        }
+    }
+
+    return sites;
 }
 
 void TaskMove::FindTransport(ResourceID unit_type) {

@@ -22,6 +22,8 @@
 #ifndef TASKMOVE_HPP
 #define TASKMOVE_HPP
 
+#include <vector>
+
 #include "pathrequest.hpp"
 #include "paths.hpp"
 #include "task.hpp"
@@ -107,6 +109,10 @@ public:
     bool IsReadyForTransport();
 
     static UnitInfo* FindUnit(SmartList<UnitInfo>* units, uint16_t team, ResourceID unit_type);
+
+    /* Cells that other units of the team, in the same layer as unit, are moving to.
+     */
+    static std::vector<Point> GetClaimedSites(UnitInfo* unit);
 };
 
 #endif /* TASKMOVE_HPP */

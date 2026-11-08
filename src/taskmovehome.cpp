@@ -169,6 +169,10 @@ bool TaskMoveHome::Execute(UnitInfo& unit_) {
 
             map2.GetMap().Init(&*unit, 2, CAUTION_LEVEL_AVOID_ALL_DAMAGE);
 
+            for (const Point& claimed_site : TaskMove::GetClaimedSites(&*unit)) {
+                map2(claimed_site.x, claimed_site.y) = 0;
+            }
+
             for (site.x = 0; site.x < ResourceManager_MapSize.x; ++site.x) {
                 for (site.y = 0; site.y < ResourceManager_MapSize.y; ++site.y) {
                     safety = map1(site.x, site.y);
